@@ -11,6 +11,8 @@
     "@redwoodjs/core": "2.0.0",
     "@types/config": "^0.0.41",
     "@types/md5": "^2.3.2",
+    "@types/react": "^17.0.45",
+    "@types/react-lazy-load-image-component": "^1.5.2",
     "@types/uuid": "^8.3.4"
   },
   "eslintConfig": {
@@ -26,9 +28,16 @@
   },
   "packageManager": "yarn@3.2.1",
   "dependencies": {
+    "@emotion/react": "^11.9.3",
+    "@emotion/styled": "^11.9.3",
+    "@mui/icons-material": "^5.8.4",
+    "@mui/material": "^5.8.6",
     "config": "^3.3.7",
     "graphql-scalars": "^1.17.0",
     "md5": "^2.3.0",
+    "react": "^17.0.2",
+    "react-lazy-load-image-component": "^1.5.4",
+    "react-typed": "^1.2.0",
     "stripe": "^9.11.0",
     "uuid": "^8.3.2"
   }
