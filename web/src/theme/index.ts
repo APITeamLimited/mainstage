@@ -1,63 +1,45 @@
-import { Theme, responsiveFontSizes } from '@mui/material'
+import type { Direction, Theme } from '@mui/material'
+import { responsiveFontSizes } from '@mui/material'
 import { createTheme, ComponentsOverrides } from '@mui/material/styles'
 
-import { light, dark } from './palette'
-import shadows from './shadows'
+import { baseThemeOptions } from './base-theme-options'
+import { darkThemeOptions } from './dark-theme-options'
+import { lightThemeOptions } from './light-theme-options'
 
-const getTheme = (mode: string, themeToggler: () => void): Theme =>
+interface Neutral {
+  100: string
+  200: string
+  300: string
+  400: string
+  500: string
+  600: string
+  700: string
+  800: string
+  900: string
+}
+
+declare module '@mui/material/styles' {
+  interface Palette {
+    neutral?: Neutral
+  }
+
+  interface PaletteOptions {
+    neutral?: Neutral
+  }
+}
+
+interface ThemeConfig {
+  direction?: Direction
+  responsiveFontSizes?: boolean
+  mode: 'light' | 'dark'
+}
+
+const getTheme = (config: ThemeConfig): Theme =>
   responsiveFontSizes(
     createTheme({
-      palette: mode === 'light' ? light : dark,
-      shadows: shadows(mode),
-      typography: {
-        //fontFamily: '"Inter", sans-serif',
-        button: {
-          textTransform: 'none',
-          fontWeight: 'medium' as React.CSSProperties['fontWeight'],
-        },
-      },
-      zIndex: {
-        appBar: 1200,
-        drawer: 1300,
-      },
-      components: {
-        MuiButton: {
-          styleOverrides: {
-            root: {
-              fontWeight: 400,
-              borderRadius: 5,
-              paddingTop: 10,
-              paddingBottom: 10,
-            },
-            containedSecondary: mode === 'light' ? { color: 'white' } : {},
-          } as ComponentsOverrides['MuiButton'],
-        },
-        MuiInputBase: {
-          styleOverrides: {
-            root: {
-              borderRadius: 5,
-            },
-          } as ComponentsOverrides['MuiInputBase'],
-        },
-        MuiOutlinedInput: {
-          styleOverrides: {
-            root: {
-              borderRadius: 5,
-            },
-            input: {
-              borderRadius: 5,
-            },
-          } as ComponentsOverrides['MuiOutlinedInput'],
-        },
-        MuiCard: {
-          styleOverrides: {
-            root: {
-              borderRadius: 8,
-            },
-          } as ComponentsOverrides['MuiCard'],
-        },
-      },
-      themeToggler,
+      ...baseThemeOptions,
+      ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
+      direction: config.direction,
     })
   )
 
