@@ -29,7 +29,7 @@ const LoginPage = () => {
   }, [])
 
   const onSubmit = async (data) => {
-    console.log('data', data)
+    console.log(data)
     const response = await logIn({ ...data })
 
     if (response.message) {

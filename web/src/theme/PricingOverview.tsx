@@ -134,7 +134,7 @@ const WithOptionTogglerButton = (): JSX.Element => {
     <Box
       sx={{
         backgroundColor: theme.palette.background.default,
-        backgroundImage: `linear-gradient(120deg, ${theme.palette.background.paper} 0%, ${theme.palette.alternate} 100%)`,
+        backgroundImage: `linear-gradient(120deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
         paddingBottom: 4,
       }}
     >

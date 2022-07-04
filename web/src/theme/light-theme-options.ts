@@ -179,7 +179,6 @@ export const lightThemeOptions: ThemeOptions = {
     success,
     text,
     warning,
-    alternate: {},
   },
   shadows: [
     'none',

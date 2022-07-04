@@ -1,11 +1,20 @@
+import { useEffect } from 'react'
+
 import { Alert, Box, Button, FormHelperText, TextField } from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 
 import { useAuth } from '@redwoodjs/auth'
+import { navigate, routes } from '@redwoodjs/router'
 
 const PasswordLoginForm = () => {
-  const { logIn } = useAuth()
+  const { isAuthenticated, logIn } = useAuth()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(routes.dashboard())
+    }
+  }, [isAuthenticated])
 
   const formik = useFormik({
     initialValues: {
@@ -21,27 +30,20 @@ const PasswordLoginForm = () => {
       password: Yup.string().required('Password is required'),
     }),
     onSubmit: async (values, helpers): Promise<void> => {
-      console.log('values', {
-        username: values.email,
-        password: values.password,
-      })
       const response = await logIn({
-        email: values.email,
+        username: values.email,
         password: values.password,
       }).catch((error) => {
         helpers.setFieldError('submit', error.message)
       })
-
-      console.log(response)
 
       if (response.message) {
         helpers.setStatus({ success: false })
         helpers.setErrors({ submit: response.message })
         helpers.setSubmitting(false)
       } else if (response.error) {
-        console.log('error', response.error)
         helpers.setStatus({ success: false })
-        helpers.setErrors({ submit: response.error.message })
+        helpers.setErrors({ submit: response.error })
         helpers.setSubmitting(false)
       }
     },

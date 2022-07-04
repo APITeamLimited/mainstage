@@ -21,7 +21,7 @@ const FooterSplash = () => {
       <Box
         sx={{
           width: '100%',
-          backgroundColor: theme.palette.alternate.main,
+          backgroundColor: theme.palette.background.default,
         }}
       >
         <Container
@@ -29,7 +29,7 @@ const FooterSplash = () => {
             display: 'flex',
             justifyContent: 'center',
             alignSelf: 'center',
-            backgroundColor: theme.palette.alternate.main,
+            backgroundColor: theme.palette.background.default,
             alignItems: 'center',
             paddingY: {
               xs: 2,
