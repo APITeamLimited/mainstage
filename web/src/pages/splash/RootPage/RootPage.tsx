@@ -1,7 +1,3 @@
-import { useEffect } from 'react'
-
-import { Box } from '@mui/material'
-
 import { useAuth } from '@redwoodjs/auth'
 import { navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -17,7 +13,6 @@ const RootPage = () => {
 
   if (isAuthenticated) {
     navigate(routes.dashboard())
-    return null
   }
 
   return (
@@ -26,14 +21,13 @@ const RootPage = () => {
         title="APITeam | Free Unlimited Team API Development"
         description="APITeam is an all in one platform for building, testing and scaling your APIs collaboratively."
       />
-
-      <Box>
+      <main>
         <TypedIntro />
         <EditorFeatures />
         <GlobeTestOverview />
         <PublishOverview />
         <PricingOverview />
-      </Box>
+      </main>
     </>
   )
 }

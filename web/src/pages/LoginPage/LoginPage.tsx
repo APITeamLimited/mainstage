@@ -1,129 +1,87 @@
-import { useRef } from 'react'
-import { useEffect } from 'react'
-
-import { useAuth } from '@redwoodjs/auth'
 import {
-  Form,
-  Label,
-  TextField,
-  PasswordField,
-  Submit,
-  FieldError,
-} from '@redwoodjs/forms'
-import { Link, navigate, routes } from '@redwoodjs/router'
-import { MetaTags } from '@redwoodjs/web'
-import { toast, Toaster } from '@redwoodjs/web/toast'
+  Box,
+  Card,
+  Container,
+  Divider,
+  Typography,
+  useTheme,
+} from '@mui/material'
+
+import { Link, routes } from '@redwoodjs/router'
+
+import PasswordLoginForm from './PasswordLoginForm'
 
 const LoginPage = () => {
-  const { isAuthenticated, logIn } = useAuth()
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(routes.dashboard())
-    }
-  }, [isAuthenticated])
-
-  const usernameRef = useRef<HTMLInputElement>()
-  useEffect(() => {
-    usernameRef.current.focus()
-  }, [])
-
-  const onSubmit = async (data) => {
-    const response = await logIn({ ...data })
-
-    if (response.message) {
-      toast(response.message)
-    } else if (response.error) {
-      toast.error(response.error)
-    } else {
-      toast.success('Welcome back!')
-    }
-  }
-
+  const theme = useTheme()
   return (
-    <>
-      <MetaTags title="Login" />
-
-      <main className="rw-main">
-        <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="rw-scaffold rw-login-container">
-          <div className="rw-segment">
-            <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">Login</h2>
-            </header>
-
-            <div className="rw-segment-main">
-              <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
-                  <Label
-                    name="username"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    Username
-                  </Label>
-                  <TextField
-                    name="username"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    ref={usernameRef}
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'Username is required',
-                      },
-                    }}
-                  />
-
-                  <FieldError name="username" className="rw-field-error" />
-
-                  <Label
-                    name="password"
-                    className="rw-label"
-                    errorClassName="rw-label rw-label-error"
-                  >
-                    Password
-                  </Label>
-                  <PasswordField
-                    name="password"
-                    className="rw-input"
-                    errorClassName="rw-input rw-input-error"
-                    autoComplete="current-password"
-                    validation={{
-                      required: {
-                        value: true,
-                        message: 'Password is required',
-                      },
-                    }}
-                  />
-
-                  <div className="rw-forgot-link">
-                    <Link
-                      to={routes.forgotPassword()}
-                      className="rw-forgot-link"
-                    >
-                      Forgot Password?
-                    </Link>
-                  </div>
-
-                  <FieldError name="password" className="rw-field-error" />
-
-                  <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">Login</Submit>
-                  </div>
-                </Form>
-              </div>
-            </div>
-          </div>
-          <div className="rw-login-link">
-            <span>Don&apos;t have an account?</span>{' '}
-            <Link to={routes.signup()} className="rw-link">
-              Sign up!
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.default,
+        height: '100vh',
+      }}
+    >
+      <Container
+        maxWidth="sm"
+        sx={{
+          py: {
+            xs: '60px',
+            md: '120px',
+          },
+        }}
+      >
+        <Card elevation={16} sx={{ p: 4 }}>
+          <Box
+            sx={{
+              alignItems: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}
+          >
+            <Link to={routes.root()}>
+              <img
+                src="img/api-team.png"
+                style={{
+                  width: 150,
+                }}
+                alt="APITeam Logo"
+              />
             </Link>
-          </div>
-        </div>
-      </main>
-    </>
+            <Box sx={{ mt: 4 }} />
+            <Typography variant="h5">Log In</Typography>
+          </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              mt: 3,
+            }}
+          >
+            <PasswordLoginForm />
+          </Box>
+          <Divider sx={{ my: 3 }} />
+          <Link
+            to={routes.signup()}
+            style={{
+              textDecoration: 'none',
+              color: theme.palette.text.secondary,
+            }}
+          >
+            Create an account
+          </Link>
+          <Box sx={{ mt: 1 }}>
+            <Link
+              to={routes.forgotPassword()}
+              style={{
+                textDecoration: 'none',
+                color: theme.palette.text.secondary,
+              }}
+            >
+              Forgot password?
+            </Link>
+          </Box>
+        </Card>
+      </Container>
+    </Box>
   )
 }
 

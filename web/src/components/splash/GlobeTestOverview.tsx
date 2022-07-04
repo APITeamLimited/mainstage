@@ -82,7 +82,7 @@ const GlobeTestOverview = (): JSX.Element => {
                 <Typography color="primary" variant="inherit" component="span">
                   Load test
                 </Typography>{' '}
-                your APIs globally with a single click.
+                your APIs globally with a single click
               </Typography>
               <Typography component={'p'} color={'text.secondary'}>
                 Test your API globally using distributed load testing with

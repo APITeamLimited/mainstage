@@ -33,12 +33,14 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.6",
     "config": "^3.3.7",
+    "formik": "^2.2.9",
     "graphql-scalars": "^1.17.0",
     "md5": "^2.3.0",
     "react": "^17.0.2",
     "react-lazy-load-image-component": "^1.5.4",
     "react-typed": "^1.2.0",
     "stripe": "^9.11.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "yup": "^0.32.11"
   }
 }

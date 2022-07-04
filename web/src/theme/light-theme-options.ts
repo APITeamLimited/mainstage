@@ -179,10 +179,7 @@ export const lightThemeOptions: ThemeOptions = {
     success,
     text,
     warning,
-    alternate: {
-      main: '#f7faff',
-      dark: '#edf1f7',
-    },
+    alternate: {},
   },
   shadows: [
     'none',
