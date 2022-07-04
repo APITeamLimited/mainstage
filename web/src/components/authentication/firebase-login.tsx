@@ -148,7 +148,7 @@ export const FirebaseLogin: FC = (props) => {
             type="submit"
             variant="contained"
           >
-            Log In
+            Login
           </Button>
         </Box>
         <Box sx={{ mt: 2 }}>

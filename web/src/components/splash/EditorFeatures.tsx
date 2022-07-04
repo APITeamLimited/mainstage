@@ -13,6 +13,7 @@ import Typography from '@mui/material/Typography'
 
 const EditorFeatures = (): JSX.Element => {
   const theme = useTheme()
+  console.log('tasdasdasdheme', theme)
 
   return (
     <Container
@@ -24,10 +25,20 @@ const EditorFeatures = (): JSX.Element => {
         <Grid item container alignItems={'center'} xs={12} md={6}>
           <Box>
             <Box marginBottom={2}>
-              <Typography variant={'h4'} sx={{ fontWeight: 700 }} gutterBottom>
+              <Typography
+                variant={'h4'}
+                sx={{ fontWeight: 700 }}
+                color={theme.palette.text.primary}
+                gutterBottom
+              >
                 Real-time collaborative API development platform
               </Typography>
-              <Typography color="text.secondary" variant={'h6'}>
+              <Typography
+                sx={{
+                  color: theme.palette.text.secondary,
+                }}
+                variant={'h6'}
+              >
                 Design, debug and test your APIs in real-time with your whole
                 team in our interractive editor.
               </Typography>
@@ -72,7 +83,12 @@ const EditorFeatures = (): JSX.Element => {
                         </svg>
                       </Box>
                     </Box>
-                    <ListItemText primary={item} />
+                    <ListItemText
+                      primary={item}
+                      sx={{
+                        color: theme.palette.text.primary,
+                      }}
+                    />
                   </Box>
                 </Grid>
               ))}

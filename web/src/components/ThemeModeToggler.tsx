@@ -1,16 +1,25 @@
-import React from 'react';
-import Button from '@mui/material/Button';
-import { alpha, useTheme } from '@mui/material/styles';
+import React from 'react'
+
+import Button from '@mui/material/Button'
+import { alpha, useTheme } from '@mui/material/styles'
+
+import { useSettings } from 'src/hooks/use-settings'
 
 const ThemeModeToggler = (): JSX.Element => {
-  const theme = useTheme();
-  const { themeToggler } = theme;
-  const { mode } = theme.palette;
+  const theme = useTheme()
+  const mode = theme.palette.mode
+  const { settings, saveSettings } = useSettings()
+
+  const flipTheme = () => {
+    const newMode = mode === 'light' ? 'dark' : 'light'
+    saveSettings({ theme: newMode })
+    console.log('flipTheme', newMode)
+  }
 
   return (
     <Button
       variant={'outlined'}
-      onClick={() => themeToggler()}
+      onClick={flipTheme}
       aria-label="Dark mode toggler"
       color={mode === 'light' ? 'primary' : 'secondary'}
       sx={{
@@ -54,7 +63,7 @@ const ThemeModeToggler = (): JSX.Element => {
         </svg>
       )}
     </Button>
-  );
-};
+  )
+}
 
-export default ThemeModeToggler;
+export default ThemeModeToggler

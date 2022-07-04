@@ -21,7 +21,7 @@ const FooterSplash = () => {
       <Box
         sx={{
           width: '100%',
-          backgroundColor: theme.palette.background.default,
+          backgroundColor: theme.palette.alternate.dark,
         }}
       >
         <Container
@@ -29,7 +29,7 @@ const FooterSplash = () => {
             display: 'flex',
             justifyContent: 'center',
             alignSelf: 'center',
-            backgroundColor: theme.palette.background.default,
+            backgroundColor: theme.palette.alternate.dark,
             alignItems: 'center',
             paddingY: {
               xs: 2,
@@ -69,7 +69,11 @@ const FooterSplash = () => {
                     <Grid item key={indexCategory}>
                       <Stack spacing={1}>
                         <Typography
-                          sx={{ paddingBottom: 1, fontWeight: 'bold' }}
+                          sx={{
+                            paddingBottom: 1,
+                            fontWeight: 'bold',
+                            color: theme.palette.text.primary,
+                          }}
                         >
                           {brandedRoutes[key].name}
                         </Typography>
@@ -84,7 +88,7 @@ const FooterSplash = () => {
                                   to={subLink.path}
                                   style={{
                                     textDecoration: 'none',
-                                    color: 'inherit',
+                                    color: theme.palette.text.primary,
                                   }}
                                 >
                                   {subLink.name}

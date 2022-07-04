@@ -78,13 +78,17 @@ const GlobeTestOverview = (): JSX.Element => {
         <Grid item container alignItems={'center'} xs={12} md={6}>
           <Box>
             <Box marginBottom={4}>
-              <Typography variant={'h4'} gutterBottom sx={{ fontWeight: 700 }}>
+              <Typography
+                variant={'h4'}
+                gutterBottom
+                sx={{ fontWeight: 700, color: theme.palette.text.primary }}
+              >
                 <Typography color="primary" variant="inherit" component="span">
                   Load test
                 </Typography>{' '}
                 your APIs globally with a single click
               </Typography>
-              <Typography component={'p'} color={'text.secondary'}>
+              <Typography variant="h6" color={theme.palette.text.secondary}>
                 Test your API globally using distributed load testing with
                 GlobeTest
               </Typography>
@@ -105,6 +109,12 @@ const GlobeTestOverview = (): JSX.Element => {
                   <ListItemText
                     primary={item.title}
                     secondary={item.subtitle}
+                    primaryTypographyProps={{
+                      color: theme.palette.text.primary,
+                    }}
+                    secondaryTypographyProps={{
+                      color: theme.palette.text.secondary,
+                    }}
                   />
                 </ListItem>
               ))}

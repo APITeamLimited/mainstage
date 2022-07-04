@@ -10,8 +10,8 @@ import {
   useScrollTrigger,
 } from '@mui/material'
 
-import FooterSplash from 'src/layouts/Splash/FooterSplash'
-import TopNav from 'src/layouts/Splash/TopNav'
+import FooterSplash from 'src/layouts/Splash/components/FooterSplash'
+import TopNav from 'src/layouts/Splash/components/TopNav'
 
 import { Topbar, Sidebar } from './components'
 
@@ -20,9 +20,6 @@ type SplashLayoutProps = {
 }
 
 const SplashLayout = ({ children }: SplashLayoutProps) => {
-  const colorInvert = false
-  const bgcolor = 'transparent'
-
   const theme = useTheme()
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
@@ -46,25 +43,25 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
   })
 
   return (
-    <Box>
+    <Box
+      sx={{
+        backgroundColor: theme.palette.background.paper,
+      }}
+    >
       <Box
-        bgcolor={bgcolor}
         position={'relative'}
         zIndex={theme.zIndex.appBar}
         sx={{
           padding: 2,
-          backgroundColor: theme.palette.background.paper,
         }}
       >
-        <TopNav colorInvert={colorInvert} />
+        <TopNav />
       </Box>
       <AppBar
         position={'sticky'}
         sx={{
           top: 0,
-          backgroundColor: trigger
-            ? theme.palette.background.paper
-            : theme.palette.background.paper,
+          backgroundColor: theme.palette.background.paper,
         }}
         elevation={trigger ? 1 : 0}
       >
@@ -73,10 +70,7 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
             padding: 2,
           }}
         >
-          <Topbar
-            onSidebarOpen={handleSidebarOpen}
-            colorInvert={trigger ? false : colorInvert}
-          />
+          <Topbar onSidebarOpen={handleSidebarOpen} colorInvert={false} />
         </Stack>
       </AppBar>
       <Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />

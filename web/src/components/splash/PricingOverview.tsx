@@ -133,7 +133,7 @@ const WithOptionTogglerButton = (): JSX.Element => {
   return (
     <Box
       sx={{
-        backgroundColor: theme.palette.background.default,
+        backgroundColor: theme.palette.alternate.dark,
         backgroundImage: `linear-gradient(120deg, ${theme.palette.background.paper} 0%, ${theme.palette.alternate} 100%)`,
         paddingBottom: 4,
       }}
@@ -173,6 +173,7 @@ const WithOptionTogglerButton = (): JSX.Element => {
                 variant="h3"
                 gutterBottom
                 align={'center'}
+                color={theme.palette.text.primary}
                 sx={{
                   fontWeight: 900,
                 }}
@@ -182,7 +183,7 @@ const WithOptionTogglerButton = (): JSX.Element => {
               <Typography
                 variant="h6"
                 component="p"
-                color="text.primary"
+                color={theme.palette.text.secondary}
                 align={'center'}
               >
                 Get great features for less with no pay per user pricing
@@ -320,12 +321,17 @@ const WithOptionTogglerButton = (): JSX.Element => {
               color="text.primary"
               sx={{
                 textDecoration: 'none',
-                color: 'inherit',
+                color: theme.palette.text.primary,
               }}
             >
               Full pricing and add-ons
             </Typography>
-            <SvgIcon component={ArrowForwardIosIcon} />
+            <SvgIcon
+              component={ArrowForwardIosIcon}
+              sx={{
+                color: theme.palette.text.primary,
+              }}
+            />
           </Stack>
         </Link>
       </Container>

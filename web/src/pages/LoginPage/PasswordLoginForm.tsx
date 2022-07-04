@@ -18,7 +18,7 @@ const PasswordLoginForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: 'demo@devias.io',
+      email: '',
       password: '',
       submit: null,
     },
@@ -52,7 +52,6 @@ const PasswordLoginForm = () => {
   return (
     <form noValidate onSubmit={formik.handleSubmit}>
       <TextField
-        autoFocus
         error={Boolean(formik.touched.email && formik.errors.email)}
         fullWidth
         helperText={formik.touched.email && formik.errors.email}
@@ -89,7 +88,7 @@ const PasswordLoginForm = () => {
           type="submit"
           variant="contained"
         >
-          Log In
+          Login
         </Button>
       </Box>
       <Box sx={{ mt: 3 }}>

@@ -15,7 +15,7 @@ interface Props {
   colorInvert?: boolean
 }
 
-const Topbar = ({ onSidebarOpen, colorInvert = false }: Props): JSX.Element => {
+const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
   const theme = useTheme()
   const { mode } = theme.palette
 
@@ -33,16 +33,7 @@ const Topbar = ({ onSidebarOpen, colorInvert = false }: Props): JSX.Element => {
         title="theFront"
         width={{ xs: 100, md: 120 }}
       >
-        <Box
-          component={'img'}
-          src={
-            mode === 'light' && !colorInvert
-              ? 'img/api-team.png'
-              : 'img/api-team.png'
-          }
-          height={1}
-          width={1}
-        />
+        <Box component="img" src="img/api-team.png" height={1} width={1} />
       </Box>
       <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
         {Object.keys(brandedRoutes).map((key, indexCategory) => {

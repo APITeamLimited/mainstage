@@ -90,7 +90,7 @@ const TypedIntro = (): JSX.Element => {
         backgroundImage: `linear-gradient(to bottom, ${alpha(
           theme.palette.background.paper,
           0
-        )}, ${alpha(theme.palette.background.default, 1)} 100%)`,
+        )}, ${alpha(theme.palette.alternate.dark, 1)} 100%)`,
         backgroundRepeat: 'repeat-x',
         position: 'relative',
         overflowX: 'hidden',
@@ -103,7 +103,7 @@ const TypedIntro = (): JSX.Element => {
           <Box maxWidth={{ xs: 1, sm: '50%' }}>
             <Typography
               variant="h2"
-              color="text.primary"
+              color={theme.palette.text.primary}
               gutterBottom
               sx={{
                 fontWeight: 700,

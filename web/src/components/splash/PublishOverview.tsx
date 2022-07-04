@@ -45,7 +45,7 @@ const PublishOverview = (): JSX.Element => {
           <Box marginBottom={2}>
             <Typography
               variant="h4"
-              color="text.primary"
+              color={theme.palette.text.primary}
               align={'center'}
               gutterBottom
               sx={{
@@ -57,7 +57,7 @@ const PublishOverview = (): JSX.Element => {
             <Typography
               variant="h6"
               component="p"
-              color="text.secondary"
+              color={theme.palette.text.secondary}
               sx={{ fontWeight: 400 }}
               align={'center'}
             >
@@ -90,10 +90,14 @@ const PublishOverview = (): JSX.Element => {
                     gutterBottom
                     sx={{ fontWeight: 500 }}
                     align={'center'}
+                    color={theme.palette.text.primary}
                   >
                     {item.title}
                   </Typography>
-                  <Typography align={'center'} color="text.secondary">
+                  <Typography
+                    align={'center'}
+                    color={theme.palette.text.secondary}
+                  >
                     {item.subtitle}
                   </Typography>
                 </Box>

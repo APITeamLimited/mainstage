@@ -48,7 +48,7 @@ const LoginPage = () => {
               />
             </Link>
             <Box sx={{ mt: 4 }} />
-            <Typography variant="h5">Log In</Typography>
+            <Typography variant="h5">Login</Typography>
           </Box>
           <Box
             sx={{

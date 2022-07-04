@@ -44,7 +44,7 @@ export const Auth0Login: FC = (props) => {
           onClick={handleLogin}
           variant="contained"
         >
-          Log In
+          Login
         </Button>
       </Box>
     </div>
