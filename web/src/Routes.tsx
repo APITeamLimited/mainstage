@@ -7,9 +7,11 @@
 // 'src/pages/HomePage/HomePage.js'         -> HomePage
 // 'src/pages/Admin/BooksPage/BooksPage.js' -> AdminBooksPage
 
-import { Router, Route, Set } from '@redwoodjs/router'
+import { useAuth } from '@redwoodjs/auth'
+import { Router, Route, Set, Private } from '@redwoodjs/router'
 
 import SplashLayout from './layouts/Splash'
+import DashboardPage from './pages/app/DashboardPage'
 import RootPage from './pages/splash/RootPage/RootPage'
 
 export const brandedRoutes = {
@@ -51,6 +53,8 @@ export const brandedRoutes = {
 }
 
 const Routes = () => {
+  const { isAuthenticated } = useAuth()
+
   return (
     <Router>
       <Route path="/login" page={LoginPage} name="login" />
@@ -65,6 +69,9 @@ const Routes = () => {
         <Route path="/legal/terms-of-service" page={NotFoundPage} name="termsOfService" />
         <Route path="/legal/privacy-policy" page={NotFoundPage} name="privacyPolicy" />
       </Set>
+      <Private unauthenticated="login">
+        <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
+      </Private>
       <Route notfound page={NotFoundPage} />
     </Router>
   )

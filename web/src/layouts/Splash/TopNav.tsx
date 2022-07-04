@@ -1,8 +1,9 @@
 import React from 'react'
 
 import Box from '@mui/material/Box'
-import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
+
+import { Link, routes } from '@redwoodjs/router'
 
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 
@@ -15,21 +16,22 @@ const TopNav = ({ colorInvert = false }: Props): JSX.Element => {
     <Box display={'flex'} justifyContent={'flex-end'} alignItems={'center'}>
       <Box marginRight={{ xs: 1, sm: 2 }}>
         <Link
-          underline="none"
-          component="a"
-          href="/blocks"
-          color={colorInvert ? 'common.white' : 'text.primary'}
-          sx={{ display: 'flex', alignItems: 'center' }}
+          to={routes.login()}
+          style={{
+            textDecoration: 'none',
+            color: 'inherit',
+          }}
         >
           Support
         </Link>
       </Box>
       <Box marginRight={{ xs: 1, sm: 2 }}>
         <Link
-          underline="none"
-          component="a"
-          href="/docs/introduction"
-          color={colorInvert ? 'common.white' : 'text.primary'}
+          to={routes.login()}
+          style={{
+            textDecoration: 'none',
+            color: 'inherit',
+          }}
         >
           Login
         </Link>
