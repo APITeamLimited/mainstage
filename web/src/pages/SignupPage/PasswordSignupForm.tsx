@@ -164,10 +164,12 @@ const PasswordLoginForm = () => {
               value={formik.values.password}
             />
             <Stack spacing={2}>
-              {formik.errors.submit && (
+              {formik.errors.submit ? (
                 <Box>
                   <FormHelperText error>{formik.errors.submit}</FormHelperText>
                 </Box>
+              ) : (
+                <Box sx={{ mb: -1 }} />
               )}
               <Box>
                 <Button onClick={handleBack}>Back</Button>

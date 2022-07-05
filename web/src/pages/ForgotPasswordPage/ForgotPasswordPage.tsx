@@ -1,87 +1,94 @@
-import { useEffect, useRef } from 'react'
+import {
+  Box,
+  Card,
+  Container,
+  Divider,
+  Typography,
+  useTheme,
+} from '@mui/material'
 
-import { useAuth } from '@redwoodjs/auth'
-import { Form, Label, TextField, Submit, FieldError } from '@redwoodjs/forms'
-import { navigate, routes } from '@redwoodjs/router'
+import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
-import { toast, Toaster } from '@redwoodjs/web/toast'
+
+import ForgotPasswordForm from './ForgotPasswordForm'
 
 const ForgotPasswordPage = () => {
-  const { isAuthenticated, forgotPassword } = useAuth()
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(routes.dashboard())
-    }
-  }, [isAuthenticated])
-
-  const usernameRef = useRef<HTMLInputElement>()
-  useEffect(() => {
-    usernameRef.current.focus()
-  }, [])
-
-  const onSubmit = async (data) => {
-    const response = await forgotPassword(data.username)
-
-    if (response.error) {
-      toast.error(response.error)
-    } else {
-      // The function `forgotPassword.handler` in api/src/functions/auth.js has
-      // been invoked, let the user know how to get the link to reset their
-      // password (sent in email, perhaps?)
-      toast.success(
-        'A link to reset your password was sent to ' + response.email
-      )
-      navigate(routes.login())
-    }
-  }
+  const theme = useTheme()
 
   return (
     <>
-      <MetaTags title="Forgot Password" />
-
-      <main className="rw-main">
-        <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="rw-scaffold rw-login-container">
-          <div className="rw-segment">
-            <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">
-                Forgot Password
-              </h2>
-            </header>
-
-            <div className="rw-segment-main">
-              <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
-                  <div className="text-left">
-                    <Label
-                      name="username"
-                      className="rw-label"
-                      errorClassName="rw-label rw-label-error"
-                    >
-                      Username
-                    </Label>
-                    <TextField
-                      name="username"
-                      className="rw-input"
-                      errorClassName="rw-input rw-input-error"
-                      ref={usernameRef}
-                      validation={{
-                        required: true,
-                      }}
-                    />
-
-                    <FieldError name="username" className="rw-field-error" />
-                  </div>
-
-                  <div className="rw-button-group">
-                    <Submit className="rw-button rw-button-blue">Submit</Submit>
-                  </div>
-                </Form>
-              </div>
-            </div>
-          </div>
-        </div>
+      <MetaTags title="Login" />
+      <main>
+        <Box
+          sx={{
+            backgroundColor: theme.palette.background.default,
+            height: '100vh',
+          }}
+        >
+          <Container
+            maxWidth="sm"
+            sx={{
+              py: {
+                xs: '60px',
+                md: '120px',
+              },
+            }}
+          >
+            <Card elevation={16} sx={{ p: 4 }}>
+              <Box
+                sx={{
+                  alignItems: 'center',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <Link to={routes.root()}>
+                  <img
+                    src="img/api-team.png"
+                    style={{
+                      width: 150,
+                    }}
+                    alt="APITeam Logo"
+                  />
+                </Link>
+                <Box sx={{ mt: 4 }} />
+                <Typography variant="h5">Reset Password</Typography>
+              </Box>
+              <Box
+                sx={{
+                  flexGrow: 1,
+                  mt: 3,
+                }}
+              >
+                <ForgotPasswordForm />
+              </Box>
+              <Divider sx={{ my: 3 }} />
+              <Link
+                to={routes.signup()}
+                style={{
+                  textDecoration: 'none',
+                  color: theme.palette.text.secondary,
+                }}
+              >
+                <Typography variant="body2">Create Account</Typography>
+              </Link>
+              <Box sx={{ mt: 1 }}>
+                <Link
+                  to={routes.login()}
+                  style={{
+                    textDecoration: 'none',
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  <Typography variant="body2">
+                    Remembered Your Password?
+                  </Typography>
+                </Link>
+              </Box>
+            </Card>
+          </Container>
+        </Box>
       </main>
     </>
   )

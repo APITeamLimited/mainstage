@@ -14,8 +14,8 @@ import * as Yup from 'yup'
 import { useAuth } from '@redwoodjs/auth'
 import { navigate, routes } from '@redwoodjs/router'
 
-const PasswordLoginForm = () => {
-  const { isAuthenticated, logIn } = useAuth()
+const ForgotPasswordForm = () => {
+  const { isAuthenticated, forgotPassword } = useAuth()
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -26,7 +26,6 @@ const PasswordLoginForm = () => {
   const formik = useFormik({
     initialValues: {
       email: '',
-      password: '',
       submit: null,
     },
     validationSchema: Yup.object({
@@ -34,25 +33,17 @@ const PasswordLoginForm = () => {
         .email('Must be a valid email')
         .max(255)
         .required('Email is required'),
-      password: Yup.string().required('Password is required'),
     }),
     onSubmit: async (values, helpers): Promise<void> => {
-      const response = await logIn({
-        username: values.email,
-        password: values.password,
-      }).catch((error) => {
-        helpers.setFieldError('submit', error.message)
-      })
+      const response = await forgotPassword(values.email)
 
-      if (response.message) {
-        helpers.setStatus({ success: false })
-        helpers.setErrors({ submit: response.message })
-        helpers.setSubmitting(false)
-      } else if (response.error) {
+      if (response.error) {
         helpers.setStatus({ success: false })
         helpers.setErrors({ submit: response.error })
         helpers.setSubmitting(false)
       }
+
+      navigate(routes.login())
     },
   })
 
@@ -70,18 +61,6 @@ const PasswordLoginForm = () => {
         type="email"
         value={formik.values.email}
       />
-      <TextField
-        error={Boolean(formik.touched.password && formik.errors.password)}
-        fullWidth
-        helperText={formik.touched.password && formik.errors.password}
-        label="Password"
-        margin="normal"
-        name="password"
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        type="password"
-        value={formik.values.password}
-      />
       <Stack spacing={2}>
         {formik.errors.submit ? (
           <Box>
@@ -98,12 +77,13 @@ const PasswordLoginForm = () => {
             type="submit"
             variant="contained"
           >
-            Login
+            Submit
           </Button>
         </Box>
         <Box>
-          <Alert severity="warning">
-            APITeam will never ask you for your password
+          <Alert severity="info">
+            If the email address you provided is associated with an account, you
+            shall receive an email with a link to reset your password
           </Alert>
         </Box>
       </Stack>
@@ -111,4 +91,4 @@ const PasswordLoginForm = () => {
   )
 }
 
-export default PasswordLoginForm
+export default ForgotPasswordForm
