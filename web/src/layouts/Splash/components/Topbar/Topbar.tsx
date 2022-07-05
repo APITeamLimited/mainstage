@@ -14,12 +14,10 @@ import { NavItem } from './components'
 interface Props {
   // eslint-disable-next-line @typescript-eslint/ban-types
   onSidebarOpen: () => void
-  colorInvert?: boolean
 }
 
 const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
   const theme = useTheme()
-  const { mode } = theme.palette
 
   return (
     <Box
@@ -29,13 +27,16 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
       width={1}
     >
       <Box
-        display={'flex'}
-        component="a"
-        href="/"
-        title="theFront"
-        width={{ xs: 100, md: 120 }}
+        sx={{
+          width: {
+            xs: 100,
+            sm: 120,
+          },
+        }}
       >
-        <Box component="img" src="img/api-team.png" height={1} width={1} />
+        <Link to={routes.root()}>
+          <img src="img/api-team.png" width={120} alt="APITeam" />
+        </Link>
       </Box>
       <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
         {Object.keys(brandedRoutes).map((key, indexCategory) => {

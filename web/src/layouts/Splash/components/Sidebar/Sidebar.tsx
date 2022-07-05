@@ -28,7 +28,6 @@ const Sidebar = ({ open, variant, onClose }: Props): JSX.Element => {
     >
       <Box
         sx={{
-          height: '100%',
           padding: 1,
         }}
       >

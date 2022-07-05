@@ -1,79 +1,107 @@
 import React from 'react'
 
+import { List, Stack, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
 import { useTheme } from '@mui/material/styles'
+
+import { Link, routes } from '@redwoodjs/router'
+
+import { brandedRoutes } from 'src/Routes'
 
 import NavItem from './components/NavItem'
 
 const SidebarNav = (): JSX.Element => {
   const theme = useTheme()
-  const { mode } = theme.palette
 
   return (
     <Box>
-      <Box width={1} paddingX={2} paddingY={1}>
+      <Box width={1} paddingY={1}>
         <Box
           display={'flex'}
           component="a"
           href="/"
-          title="theFront"
+          title="APITeam"
           width={{ xs: 100, md: 120 }}
         >
           <Box
             component={'img'}
-            src={
-              mode === 'light'
-                ? 'https://assets.maccarianagency.com/the-front/logos/logo.svg'
-                : 'https://assets.maccarianagency.com/the-front/logos/logo-negative.svg'
-            }
+            src={'img/api-team.png'}
             height={1}
             width={1}
+            sx={{
+              pt: 6,
+              paddingLeft: 2,
+            }}
           />
         </Box>
       </Box>
-      <Box paddingX={2} paddingY={2}>
-        {/*<Box>
-          <NavItem title={'Landings'} items={landingPages} />
-        </Box>
+      <Box
+        sx={{
+          paddingTop: 2,
+        }}
+      >
+        {Object.keys(brandedRoutes).map((key, indexCategory) => {
+          if (brandedRoutes[key].includeTopbar !== false) {
+            return (
+              <Stack
+                spacing={2}
+                key={indexCategory}
+                sx={{
+                  pt: 4,
+                  paddingLeft: 1,
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  color={theme.palette.text.secondary}
+                  sx={{ paddingLeft: 1 }}
+                >
+                  {brandedRoutes[key].name}
+                </Typography>
+                {brandedRoutes[key].subLinks.map(
+                  (
+                    subLink: {
+                      name: string
+                      path: string
+                    },
+                    indexSubLink
+                  ) => (
+                    <Box key={`${indexCategory}-${indexSubLink}`}>
+                      <Link
+                        to={subLink.path}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <Button
+                          variant="text"
+                          sx={{
+                            color: theme.palette.text.primary,
+                          }}
+                        >
+                          {subLink.name}
+                        </Button>
+                      </Link>
+                    </Box>
+                  )
+                )}
+              </Stack>
+            )
+          }
+        })}
+      </Box>
+      <Box paddingX={2} paddingY={3}>
         <Box>
-          <NavItem title={'Company'} items={companyPages} />
-        </Box>
-        <Box>
-          <NavItem title={'Pages'} items={secondaryPages} />
-        </Box>
-        <Box>
-          <NavItem title={'Account'} items={accountPages} />
-        </Box>
-        <Box>
-          <NavItem title={'Blog'} items={blogPages} />
-        </Box>
-        <Box>
-          <NavItem title={'Portfolio'} items={portfolioPages} />
-          </Box>*/}
-        <Box marginTop={2}>
-          <Button
-            size={'large'}
-            variant="outlined"
-            fullWidth
-            component="a"
-            href="/docs/introduction"
+          <Link
+            to={routes.signup()}
+            style={{
+              textDecoration: 'none',
+            }}
           >
-            Documentation
-          </Button>
-        </Box>
-        <Box marginTop={1}>
-          <Button
-            size={'large'}
-            variant="contained"
-            color="primary"
-            fullWidth
-            component="a"
-            target="blank"
-            href="https://mui.com/store/items/the-front-landing-page/"
-          >
-            Purchase now
-          </Button>
+            <Button variant="contained" color="primary" size="large">
+              Sign Up
+            </Button>
+          </Link>
         </Box>
       </Box>
     </Box>

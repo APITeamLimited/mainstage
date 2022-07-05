@@ -10,7 +10,7 @@ const eventsServerConfig = {
 }
 
 export const eventsRedisClient = createClient({
-  url: `redis://${eventsServerConfig.userName}:${eventsServerConfig.password}@${eventsServerConfig.host}:${eventsServerConfig.port}`,
+  url: `redis://${eventsServerConfig.password}@${eventsServerConfig.host}:${eventsServerConfig.port}`,
 })
 
 export type SyncEvent = {

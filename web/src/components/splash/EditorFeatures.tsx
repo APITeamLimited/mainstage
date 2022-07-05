@@ -13,7 +13,6 @@ import Typography from '@mui/material/Typography'
 
 const EditorFeatures = (): JSX.Element => {
   const theme = useTheme()
-  console.log('tasdasdasdheme', theme)
 
   return (
     <Container

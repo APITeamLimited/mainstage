@@ -319,6 +319,6 @@ export const baseThemeOptions: ThemeOptions = {
   },
   zIndex: {
     appBar: 1200,
-    drawer: 1100,
+    drawer: 1300,
   },
 }

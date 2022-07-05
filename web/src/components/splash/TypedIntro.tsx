@@ -157,13 +157,7 @@ const TypedIntro = (): JSX.Element => {
                   textDecoration: 'none',
                 }}
               >
-                <Button
-                  component={'a'}
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  fullWidth={isMd ? false : true}
-                >
+                <Button variant="contained" color="primary" size="large">
                   Sign Up
                 </Button>
               </Link>
@@ -178,7 +172,6 @@ const TypedIntro = (): JSX.Element => {
                   variant="outlined"
                   color="primary"
                   size="large"
-                  fullWidth={isMd ? false : true}
                 >
                   See Features
                 </Button>

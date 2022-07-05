@@ -8,6 +8,7 @@ import {
   Divider,
   useMediaQuery,
   useScrollTrigger,
+  Container,
 } from '@mui/material'
 
 import FooterSplash from 'src/layouts/Splash/components/FooterSplash'
@@ -50,7 +51,7 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
     >
       <Box
         position={'relative'}
-        zIndex={theme.zIndex.appBar}
+        zIndex={theme.zIndex.appBar - 1}
         sx={{
           padding: 2,
         }}
@@ -65,13 +66,13 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
         }}
         elevation={trigger ? 1 : 0}
       >
-        <Stack
+        <Container
           sx={{
-            padding: 2,
+            py: 2,
           }}
         >
-          <Topbar onSidebarOpen={handleSidebarOpen} colorInvert={false} />
-        </Stack>
+          <Topbar onSidebarOpen={handleSidebarOpen} />
+        </Container>
       </AppBar>
       <Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />
       <main>
