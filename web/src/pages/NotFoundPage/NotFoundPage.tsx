@@ -1,7 +1,6 @@
 import React from 'react'
 
-import Splash from 'src/layouts/Splash'
-import NotFoundCover from 'src/views/NotFoundCover'
+import NotFoundCover from 'src/components/NotFoundCover'
 
 const FourOFourPage = (): JSX.Element => {
   return <NotFoundCover />

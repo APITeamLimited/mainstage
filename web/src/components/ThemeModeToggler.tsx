@@ -8,7 +8,7 @@ import { useSettings } from 'src/hooks/use-settings'
 const ThemeModeToggler = (): JSX.Element => {
   const theme = useTheme()
   const mode = theme.palette.mode
-  const { settings, saveSettings } = useSettings()
+  const { saveSettings } = useSettings()
 
   const flipTheme = () => {
     const newMode = mode === 'light' ? 'dark' : 'light'

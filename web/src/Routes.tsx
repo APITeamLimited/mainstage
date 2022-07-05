@@ -11,7 +11,7 @@ import { Router, Route, Set, Private } from '@redwoodjs/router'
 
 import SplashLayout from './layouts/Splash'
 import DashboardPage from './pages/app/DashboardPage'
-import RootPage from './pages/splash/RootPage/RootPage'
+import RootPage from './pages/splash/RootPage'
 
 export const brandedRoutes = {
   platform: {

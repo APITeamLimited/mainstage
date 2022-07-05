@@ -2,13 +2,12 @@ import React from 'react'
 
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
 import Link from '@mui/material/Link'
 import { useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
-
-import Container from 'src/components/Container'
 
 const NotFoundCover = (): JSX.Element => {
   const theme = useTheme()
@@ -25,8 +24,6 @@ const NotFoundCover = (): JSX.Element => {
       }}
     >
       <Container
-        paddingX={0}
-        paddingY={0}
         sx={{
           paddingLeft: isMd ? 4 : 0,
         }}
