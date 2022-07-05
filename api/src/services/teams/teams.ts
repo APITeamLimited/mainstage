@@ -1,9 +1,11 @@
-import { validateWith } from '@redwoodjs/api'
-import { db } from 'src/lib/db'
 import type { Prisma } from '@prisma/client'
+
+import { validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
-import { checkValue } from 'src/settings'
+
+import { db } from 'src/lib/db'
 import { generateResetToken } from 'src/lib/token'
+import { checkValue } from 'src/settings'
 
 const markedForDeletionExpiryHours = <number>(
   checkValue('teams.markedForDeletionExpiryHours')
@@ -15,7 +17,6 @@ type Team = Prisma.PromiseReturnType<typeof db.team.create>
 type PrivateTeam = Omit<Team, 'markedForDeletionExpiresAt'>
 
 export const teams = async () => {
-  // Ensure user is member of the team
   if (!context.currentUser) {
     throw 'You must be logged in to access this resource.'
   }

@@ -1,5 +1,15 @@
 {
   "teams": {
     "markedForDeletionExpiryHours": 24
+  },
+  "events": {
+    "deleteKeysAfterMinutes": 3,
+    "redis": {
+      "userName": "user",
+      "password": "Wasd12345#",
+      "host": "localhost",
+      "port": 6379
+    }
   }
+
 }
