@@ -82,7 +82,7 @@ const ForgotPasswordPage = () => {
                   }}
                 >
                   <Typography variant="body2">
-                    Remembered Your Password?
+                    Remembered your password?
                   </Typography>
                 </Link>
               </Box>

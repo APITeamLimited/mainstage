@@ -71,7 +71,7 @@ const LoginPage = () => {
                   color: theme.palette.text.secondary,
                 }}
               >
-                <Typography variant="body2">Create Account</Typography>
+                <Typography variant="body2">Create account</Typography>
               </Link>
               <Box sx={{ mt: 1 }}>
                 <Link
@@ -81,7 +81,7 @@ const LoginPage = () => {
                     color: theme.palette.text.secondary,
                   }}
                 >
-                  <Typography variant="body2">Forgot Password?</Typography>
+                  <Typography variant="body2">Forgot password?</Typography>
                 </Link>
               </Box>
             </Card>
