@@ -1,6 +1,13 @@
 import { useEffect } from 'react'
 
-import { Alert, Box, Button, FormHelperText, TextField } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  FormHelperText,
+  Stack,
+  TextField,
+} from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 
@@ -75,27 +82,29 @@ const PasswordLoginForm = () => {
         type="password"
         value={formik.values.password}
       />
-      {formik.errors.submit && (
-        <Box sx={{ mt: 3 }}>
-          <FormHelperText error>{formik.errors.submit}</FormHelperText>
+      <Stack spacing={2}>
+        {formik.errors.submit && (
+          <Box>
+            <FormHelperText error>{formik.errors.submit}</FormHelperText>
+          </Box>
+        )}
+        <Box>
+          <Button
+            disabled={formik.isSubmitting}
+            fullWidth
+            size="large"
+            type="submit"
+            variant="contained"
+          >
+            Login
+          </Button>
         </Box>
-      )}
-      <Box sx={{ mt: 2 }}>
-        <Button
-          disabled={formik.isSubmitting}
-          fullWidth
-          size="large"
-          type="submit"
-          variant="contained"
-        >
-          Login
-        </Button>
-      </Box>
-      <Box sx={{ mt: 3 }}>
-        <Alert severity="warning">
-          APITeam will never ask you for your password
-        </Alert>
-      </Box>
+        <Box>
+          <Alert severity="warning">
+            APITeam will never ask you for your password
+          </Alert>
+        </Box>
+      </Stack>
     </form>
   )
 }
