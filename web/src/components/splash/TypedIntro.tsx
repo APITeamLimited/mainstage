@@ -9,6 +9,8 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
 import Typed from 'react-typed'
 
+import { Link, routes } from '@redwoodjs/router'
+
 const images = [
   {
     group: [
@@ -149,16 +151,22 @@ const TypedIntro = (): JSX.Element => {
               alignItems={{ xs: 'stretched', sm: 'flex-start' }}
               marginTop={4}
             >
-              <Button
-                component={'a'}
-                variant="contained"
-                color="primary"
-                size="large"
-                fullWidth={isMd ? false : true}
-                href={'/home'}
+              <Link
+                to={routes.signup()}
+                style={{
+                  textDecoration: 'none',
+                }}
               >
-                Sign Up
-              </Button>
+                <Button
+                  component={'a'}
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  fullWidth={isMd ? false : true}
+                >
+                  Sign Up
+                </Button>
+              </Link>
               <Box
                 marginTop={{ xs: 2, sm: 0 }}
                 marginLeft={{ sm: 2 }}

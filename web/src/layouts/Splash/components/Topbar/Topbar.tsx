@@ -5,6 +5,8 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 
+import { Link, routes } from '@redwoodjs/router'
+
 import { brandedRoutes } from 'src/Routes'
 
 import { NavItem } from './components'
@@ -53,15 +55,16 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
           }
         })}
         <Box marginLeft={4}>
-          <Button
-            variant="contained"
-            color="primary"
-            target="blank"
-            href="https://mui.com/store/items/the-front-landing-page/"
-            size="large"
+          <Link
+            to={routes.signup()}
+            style={{
+              textDecoration: 'none',
+            }}
           >
-            Sign Up
-          </Button>
+            <Button variant="contained" color="primary" size="large">
+              Sign Up
+            </Button>
+          </Link>
         </Box>
       </Box>
       <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems={'center'}>

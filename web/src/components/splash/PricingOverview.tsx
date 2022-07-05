@@ -83,6 +83,7 @@ const WithOptionTogglerButton = (): JSX.Element => {
     <Box display={'flex'} justifyContent={'center'} marginBottom={4}>
       <ToggleButtonGroup value={pricingOption} exclusive onChange={handleClick}>
         <ToggleButton
+          disabled={pricingOption === 'annual'}
           value="annual"
           size={isMd ? 'large' : 'small'}
           sx={{
@@ -107,6 +108,7 @@ const WithOptionTogglerButton = (): JSX.Element => {
         <ToggleButton
           value="monthly"
           size={isMd ? 'large' : 'small'}
+          disabled={pricingOption === 'monthly'}
           sx={{
             backgroundColor:
               pricingOption === 'monthly'
