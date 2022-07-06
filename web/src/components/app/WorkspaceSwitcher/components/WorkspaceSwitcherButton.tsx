@@ -122,22 +122,20 @@ export const WorkspaceSwitcherButton = ({ memberships }: SwitcherProps) => {
           <Stack alignItems="flex-start">
             <Typography
               variant="body2"
-              fontSize="small"
+              fontSize={10}
               color={theme.palette.text.secondary}
+              textTransform="none"
             >
               Workspace
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.primary}>
+            <Typography
+              variant="body1"
+              color={theme.palette.text.primary}
+              fontSize={12}
+            >
               {currentWorkspace.name}
             </Typography>
           </Stack>
-          <SvgIcon
-            component={HeightIcon}
-            sx={{
-              transform: 'rotate(180deg)',
-              color: theme.palette.text.secondary,
-            }}
-          />
         </Stack>
       </Button>
       <WorkspaceSwitcherPopover

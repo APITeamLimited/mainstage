@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { createContext, useRef, useState } from 'react'
 
 import {
   useTheme,
@@ -9,16 +9,21 @@ import {
   Stack,
 } from '@mui/material'
 
+import { CommandPalette } from 'src/components/app/CommandPalette'
 import { UserDropdown } from 'src/components/app/UserDropdown'
 import { WorkspaceSwitcher } from 'src/components/app/WorkspaceSwitcher/WorkspaceSwitcher'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { ActiveWorkspace } from 'src/contexts/reactives'
+
+export const AppBarHeightContext = createContext<number | undefined>(undefined)
+const AppBarHeightProvider = AppBarHeightContext.Provider
 
 export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   const theme = useTheme()
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
   })
+  const appBarRef = useRef(null)
 
   const [openSidebar, setOpenSidebar] = useState(false)
 
@@ -44,32 +49,51 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
       }}
     >
       <AppBar
-        position={'fixed'}
+        position="sticky"
         sx={{
           top: 0,
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: theme.palette.background.default,
           marginBottom: 0,
-          paddingY: 1,
           paddingX: 4,
+          paddingY: 1,
         }}
         elevation={1}
         component="nav"
+        ref={appBarRef}
       >
         <Stack
           direction="row"
-          justifyContent="space-between"
           alignItems="center"
+          justifyContent="space-between"
         >
           <Box>
             <WorkspaceSwitcher />
           </Box>
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <ThemeModeToggler />
-            <UserDropdown />
-          </Stack>
+          <Box>
+            <CommandPalette />
+          </Box>
+          <Box>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <ThemeModeToggler />
+              <UserDropdown />
+            </Stack>
+          </Box>
         </Stack>
       </AppBar>
-      <main>{children}</main>
+      <AppBarHeightProvider
+        value={appBarRef.current?.clientHeight || undefined}
+      >
+        <Box
+          position="fixed"
+          sx={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: theme.palette.background.paper,
+          }}
+        >
+          <main>{children}</main>
+        </Box>
+      </AppBarHeightProvider>
     </Box>
   )
 }

@@ -20,7 +20,7 @@ const RootPage = () => {
     <>
       <MetaTags
         title="APITeam | Free Unlimited Team API Development"
-        description="APITeam is an all in one platform for building, testing and scaling your APIs collaboratively."
+        description="APITeam is an all in one platform for designng, testing and scaling your APIs collaboratively"
       />
       <main>
         <TypedIntro />

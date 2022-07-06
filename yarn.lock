@@ -14305,9 +14305,9 @@ __metadata:
   linkType: hard
 
 "headers-polyfill@npm:^3.0.4":
-  version: 3.0.7
-  resolution: "headers-polyfill@npm:3.0.7"
-  checksum: 08359a8ed582bb551d76095918d297631beb3251fa125d20183ff64cbc23d633642633646131b55b8444daf39823578ae8f4e8f114743e1adb24465c938c9857
+  version: 3.0.8
+  resolution: "headers-polyfill@npm:3.0.8"
+  checksum: 760f5512a641daa58607bf358f7ece8c5f709e3964400b3e2212f454596ec7c88300c000b03e36cbc85b6e1c0d53917ad82578221d4f7714a9fe867b123c7b06
   languageName: node
   linkType: hard
 
@@ -14351,6 +14351,13 @@ __metadata:
   version: 2.8.9
   resolution: "hosted-git-info@npm:2.8.9"
   checksum: 317cbc6b1bbbe23c2a40ae23f3dafe9fa349ce42a89a36f930e3f9c0530c179a3882d2ef1e4141a4c3674d6faaea862138ec55b43ad6f75e387fda2483a13c70
+  languageName: node
+  linkType: hard
+
+"hotkeys-js@npm:3.9.3":
+  version: 3.9.3
+  resolution: "hotkeys-js@npm:3.9.3"
+  checksum: 2d4257ccb1f183724817d628bfbaf36792c83067e566c4b7fdc742dfe49075ae12662f7728906e232a6c7c0d20e56e3e088996037ec85189e7c96631b5e1a7ef
   languageName: node
   linkType: hard
 
@@ -16640,12 +16647,12 @@ __metadata:
   linkType: hard
 
 "jsx-ast-utils@npm:^2.4.1 || ^3.0.0, jsx-ast-utils@npm:^3.2.1":
-  version: 3.3.1
-  resolution: "jsx-ast-utils@npm:3.3.1"
+  version: 3.3.2
+  resolution: "jsx-ast-utils@npm:3.3.2"
   dependencies:
     array-includes: ^3.1.5
     object.assign: ^4.1.2
-  checksum: 13cf3a730b1a53fde9cfba3aa0c96d32b1a7f89a81568eedf3be11c306697421081f0692d23f27ee6079189aa34b1572eb2fcbce3cd565880241e125b2f19679
+  checksum: 97aa29b544aafbf46574b63a2e27f172f88d2b4f6180034a4908efddeffaa1ac3108063f59af39bfb549ed6f0aa84ddbb81d21ad3f487b273dc1d08dc55d4e69
   languageName: node
   linkType: hard
 
@@ -20625,6 +20632,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-hotkeys-hook@npm:^3.4.6":
+  version: 3.4.6
+  resolution: "react-hotkeys-hook@npm:3.4.6"
+  dependencies:
+    hotkeys-js: 3.9.3
+  peerDependencies:
+    react: ">=16.8.1"
+    react-dom: ">=16.8.1"
+  checksum: 7da71359504890cf67080b961b50b1d0684078cb3042413b6187b229bd650b1c7eadeda32a4397a954a4a3aff17a9355bdd5e4090eb8228da66c5725c5f281ea
+  languageName: node
+  linkType: hard
+
 "react-inspector@npm:^5.1.0":
   version: 5.1.1
   resolution: "react-inspector@npm:5.1.1"
@@ -21512,6 +21531,7 @@ __metadata:
     md5: ^2.3.0
     react: ^17.0.2
     react-content-loader: ^6.2.0
+    react-hotkeys-hook: ^3.4.6
     react-lazy-load-image-component: ^1.5.4
     react-typed: ^1.2.0
     redis: ^4.1.1
@@ -23618,9 +23638,9 @@ __metadata:
   linkType: hard
 
 "ts-pattern@npm:^4.0.1":
-  version: 4.0.3
-  resolution: "ts-pattern@npm:4.0.3"
-  checksum: f1dd431a7e0a0e7ec32e1042b8527295e1be11e79b14a24570d793bd46b6ee2fa469ad3cca7eb66f99832d0a786bac63c1aec158d42650526abf350e62015d94
+  version: 4.0.4
+  resolution: "ts-pattern@npm:4.0.4"
+  checksum: 9fb3390f236b23ce7502e70907ec94f546f27b3a7ab339b1243ce381408f7c7ce9e78988cd8e292875d0adf00d8ded26953f2fc1a79aac76d1c996d029778023
   languageName: node
   linkType: hard
 

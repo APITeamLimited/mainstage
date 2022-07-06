@@ -128,8 +128,8 @@ const TypedIntro = (): JSX.Element => {
                   strings={[
                     'as a team',
                     'quickly',
-                    'that work',
                     'with load testing',
+                    'that scale',
                   ]}
                   typeSpeed={100}
                   loop={true}
@@ -142,8 +142,8 @@ const TypedIntro = (): JSX.Element => {
               color="text.secondary"
               sx={{ fontWeight: 400 }}
             >
-              APITeam is an all in one platform for building, testing and
-              scaling your APIs collaboratively.
+              APITeam is an all in one platform for designng, testing and
+              scaling your APIs collaboratively
             </Typography>
             <Box
               display="flex"

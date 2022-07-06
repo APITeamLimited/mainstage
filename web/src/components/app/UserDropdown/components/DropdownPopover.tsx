@@ -12,6 +12,7 @@ import {
   useTheme,
   Stack,
 } from '@mui/material'
+import toast from 'react-hot-toast'
 
 import { useAuth } from '@redwoodjs/auth'
 import { Link, navigate, routes } from '@redwoodjs/router'
@@ -51,8 +52,6 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
       keepMounted
       onClose={onClose}
       open={!!open}
-      PaperProps={{ sx: { width: 300 } }}
-      transitionDuration={0}
       {...other}
       sx={{
         mt: 1,
@@ -83,7 +82,7 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
         </Avatar>
         <Box
           sx={{
-            ml: 2,
+            mx: 2,
           }}
         >
           <Typography variant="h6">{fullName}</Typography>

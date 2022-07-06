@@ -36,7 +36,6 @@ export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
       keepMounted
       onClose={onClose}
       open={!!open}
-      transitionDuration={0}
       sx={{
         mt: 1,
       }}

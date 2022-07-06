@@ -36,22 +36,22 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
           alignItems: 'center',
           display: 'flex',
           borderRadius: 4,
-          height: 40,
-          width: 40,
+          height: 30,
+          width: 30,
         }}
       >
         <Avatar
           sx={{
-            height: 40,
-            width: 40,
+            height: 30,
+            width: 30,
           }}
           src={currentUser?.profilePicture}
         >
           <SvgIcon
             component={AccountCircleIcon}
             sx={{
-              height: 40,
-              width: 40,
+              height: 30,
+              width: 30,
             }}
           />
         </Avatar>
