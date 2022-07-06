@@ -1,11 +1,10 @@
 export const schema = gql`
   type User {
-    id: String!
+    id: ID!
     firstName: String!
     lastName: String!
     email: String!
     createdAt: DateTime!
-    updatedAt: DateTime
     isSupport: Boolean!
     emailVerified: Boolean!
     shortBio: String
@@ -16,7 +15,7 @@ export const schema = gql`
   type Query {
     teamUsers(teamId: String!): [User!]! @requireAuth
     teamUser(id: String!, teamId: String!): User! @requireAuth
-    currentUser: User @requireAuth
+    currentUser: User! @requireAuth
   }
 
   input CreateUserInput {

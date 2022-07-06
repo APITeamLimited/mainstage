@@ -1,15 +1,16 @@
+import type { Prisma } from '@prisma/client'
 import type { QueryResolvers, MutationResolvers } from 'types/graphql'
+
+import { validate, validateWith } from '@redwoodjs/api'
+import { context } from '@redwoodjs/graphql-server'
+
 import { handler } from 'src/functions/auth'
 import { db } from 'src/lib/db'
-import type { Prisma } from '@prisma/client'
-import { context } from '@redwoodjs/graphql-server'
-import { validate, validateWith } from '@redwoodjs/api'
 
 type User = Prisma.PromiseReturnType<typeof db.user.create>
 
-type PrivateUser = Omit<
+export type PrivateUser = Omit<
   User,
-  | 'createdAt'
   | 'updatedAt'
   | 'emailVerified'
   | 'hashedPassword'

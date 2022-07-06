@@ -14,7 +14,7 @@ const markedForDeletionExpiryHours = <number>(
 //type PrivateTeam = Omit<Prisma.TeamUncheckedUpdateInput, 'markedForDeletionExpiresAt'>
 
 type Team = Prisma.PromiseReturnType<typeof db.team.create>
-type PrivateTeam = Omit<Team, 'markedForDeletionExpiresAt'>
+export type PrivateTeam = Omit<Team, 'markedForDeletionExpiresAt'>
 
 export const teams = async () => {
   if (!context.currentUser) {
@@ -98,7 +98,7 @@ export const createTeam = async (
   return { team, ownerMembership }
 }
 
-interface UpdateTeamInput extends Prisma.TeamWhereUniqueInput {
+export interface UpdateTeamInput extends Prisma.TeamWhereUniqueInput {
   input: Omit<
     Prisma.TeamUpdateInput,
     | 'id'

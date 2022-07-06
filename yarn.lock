@@ -3288,9 +3288,9 @@ __metadata:
   linkType: hard
 
 "@jridgewell/resolve-uri@npm:^3.0.3":
-  version: 3.0.8
-  resolution: "@jridgewell/resolve-uri@npm:3.0.8"
-  checksum: c2046e563c18cbd817ec8e2826484ea9e05d631e7b66e3c7d903c571cf9c52330501baf80879acac374502c2b5ef5e8cfbb8761232e6cac5f61a668f4e52cc41
+  version: 3.1.0
+  resolution: "@jridgewell/resolve-uri@npm:3.1.0"
+  checksum: 78055e2526108331126366572045355051a930f017d1904a4f753d3f4acee8d92a14854948095626f6163cffc24ea4e3efa30637417bb866b84743dec7ef6fd9
   languageName: node
   linkType: hard
 
@@ -3978,6 +3978,26 @@ __metadata:
   peerDependencies:
     "@redis/client": ^1.0.0
   checksum: ce79b8cb123e4b79ef73daaf44ec69ef85fbba5f8791c51db3952db19440699929d30b7ea4d7b9483f6afb9c1fc2a7d3b793d3c5a0c981443fc129a26f43168a
+  languageName: node
+  linkType: hard
+
+"@reduxjs/toolkit@npm:^1.8.3":
+  version: 1.8.3
+  resolution: "@reduxjs/toolkit@npm:1.8.3"
+  dependencies:
+    immer: ^9.0.7
+    redux: ^4.1.2
+    redux-thunk: ^2.4.1
+    reselect: ^4.1.5
+  peerDependencies:
+    react: ^16.9.0 || ^17.0.0 || ^18
+    react-redux: ^7.2.1 || ^8.0.2
+  peerDependenciesMeta:
+    react:
+      optional: true
+    react-redux:
+      optional: true
+  checksum: 38cd7fc2ca4d8909e2f330eb7d5ee0078c32e1ad76ebbf4d5d29c9853b944ab1ee32b2ca6aff8f7931f45343b419392992c8c5e5b4e1a12571bc90f5b47f8f3d
   languageName: node
   linkType: hard
 
@@ -6327,9 +6347,9 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:*, @types/node@npm:>=8.1.0":
-  version: 18.0.1
-  resolution: "@types/node@npm:18.0.1"
-  checksum: 07d797e3bb129c8ceb076159f33f834d8e981b3429e9c775fa58a23abca8de30adb04ef836eb557fb2bc9a578d1c1a7fed1aa0f6952c3c2c1a674ef75ee4fac4
+  version: 18.0.3
+  resolution: "@types/node@npm:18.0.3"
+  checksum: 03543d489b0747c1414aa5e3e8ca928d6ca3dfdb17d96811cc9f355da632805ca27520ed8ebfc14fb6a1b317490045fcd2d0dd3362f9b98b7f3d0ca7297ec086
   languageName: node
   linkType: hard
 
@@ -11361,9 +11381,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.4.172":
-  version: 1.4.179
-  resolution: "electron-to-chromium@npm:1.4.179"
-  checksum: c232f87ad1f871facb2a65f65d1852b0fcb725e616cc29f869afd34271efc794aab716b5a09554bb4927f9e99233aaae997fe172617945eedd1baa7d98127461
+  version: 1.4.180
+  resolution: "electron-to-chromium@npm:1.4.180"
+  checksum: d23348f7d028cf0306f77cc51f024c55af0f8772a338643adf28227610707d56b09872a890c7a79ee885db17cae7d7a90e29ca36ccd0e6f18b1ab3157911ddd2
   languageName: node
   linkType: hard
 
@@ -14695,6 +14715,13 @@ __metadata:
   version: 5.2.0
   resolution: "ignore@npm:5.2.0"
   checksum: 7fb7b4c4c52c2555113ff968f8a83b8ac21b076282bfcb3f468c3fb429be69bd56222306c31de95dd452c647fc6ae24339b8047ebe3ef34c02591abfec58da01
+  languageName: node
+  linkType: hard
+
+"immer@npm:^9.0.7":
+  version: 9.0.15
+  resolution: "immer@npm:9.0.15"
+  checksum: 3b54cc71e6153e75498fef496587b75f3fc601ad9868fa612df716112698bb752d1488af178790e019d8566e9347f976f65e79fd5014498b622ac9f1c6e04f8e
   languageName: node
   linkType: hard
 
@@ -20471,6 +20498,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-content-loader@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "react-content-loader@npm:6.2.0"
+  peerDependencies:
+    react: ">=16.0.0"
+  checksum: 9e443590614b0544e0717babda33aba71373d059af251f8e21845a2113d559d4cca435ebe87d622ea92470fb17563e20c44bb2b5a14ce2d72786b061ac86696e
+  languageName: node
+  linkType: hard
+
 "react-docgen-typescript@npm:^2.1.1":
   version: 2.2.2
   resolution: "react-docgen-typescript@npm:2.2.2"
@@ -20864,6 +20900,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"redux-thunk@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "redux-thunk@npm:2.4.1"
+  peerDependencies:
+    redux: ^4
+  checksum: 1127090b488c6b368397ed885415553735433b2971bd7d7aee77da398bddcac1c6dbddb0ebef1761d9c2bd59e610877824fad432ade5a4f75132e5bb37387ee7
+  languageName: node
+  linkType: hard
+
+"redux@npm:^4.1.2, redux@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "redux@npm:4.2.0"
+  dependencies:
+    "@babel/runtime": ^7.9.2
+  checksum: 6b8b543499c9b8aa6afa01ef68950f4b2ea68d803381ac65797b1a5a7e39ba88ee3650c2a5a1dd500c78ad022de45cd5ed4a5f41fe7d51db8b07d12fbe84d146
+  languageName: node
+  linkType: hard
+
 "refractor@npm:^3.6.0":
   version: 3.6.0
   resolution: "refractor@npm:3.6.0"
@@ -21202,7 +21256,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"reselect@npm:^4.0.0":
+"reselect@npm:^4.0.0, reselect@npm:^4.1.5":
   version: 4.1.6
   resolution: "reselect@npm:4.1.6"
   checksum: 2ae845ba4c423153822ad91f301ddb41494a86ad15dee4fb49fcf48aada0af9b06e59241159385dbce1bd56d1475c7a86b039f43281f7a992fd0a3137372d46b
@@ -21445,6 +21499,7 @@ __metadata:
     "@emotion/styled": ^11.9.3
     "@mui/icons-material": ^5.8.4
     "@mui/material": ^5.8.6
+    "@reduxjs/toolkit": ^1.8.3
     "@redwoodjs/core": 2.0.0
     "@types/config": ^0.0.41
     "@types/md5": ^2.3.2
@@ -21456,9 +21511,11 @@ __metadata:
     graphql-scalars: ^1.17.0
     md5: ^2.3.0
     react: ^17.0.2
+    react-content-loader: ^6.2.0
     react-lazy-load-image-component: ^1.5.4
     react-typed: ^1.2.0
     redis: ^4.1.1
+    redux: ^4.2.0
     stripe: ^9.11.0
     uuid: ^8.3.2
     yup: ^0.32.11

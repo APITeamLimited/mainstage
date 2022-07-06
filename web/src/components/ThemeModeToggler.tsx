@@ -13,7 +13,6 @@ const ThemeModeToggler = (): JSX.Element => {
   const flipTheme = () => {
     const newMode = mode === 'light' ? 'dark' : 'light'
     saveSettings({ theme: newMode })
-    console.log('flipTheme', newMode)
   }
 
   return (

@@ -48,15 +48,18 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
         backgroundColor: theme.palette.background.paper,
       }}
     >
-      <Box
-        position={'relative'}
-        zIndex={theme.zIndex.appBar - 1}
-        sx={{
-          padding: 2,
-        }}
-      >
-        <TopNav />
-      </Box>
+      <Container>
+        <Box
+          position={'relative'}
+          zIndex={theme.zIndex.appBar - 1}
+          sx={{
+            padding: 2,
+            paddingRight: 0,
+          }}
+        >
+          <TopNav />
+        </Box>
+      </Container>
       <AppBar
         position={'sticky'}
         sx={{

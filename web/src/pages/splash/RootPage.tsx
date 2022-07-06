@@ -9,11 +9,12 @@ import PublishOverview from 'src/components/splash/PublishOverview'
 import TypedIntro from 'src/components/splash/TypedIntro'
 
 const RootPage = () => {
-  const { isAuthenticated } = useAuth()
+  // TODO: this is temporary until production is ready
+  /*const { isAuthenticated } = useAuth()
 
   if (isAuthenticated) {
     navigate(routes.dashboard())
-  }
+  }*/
 
   return (
     <>

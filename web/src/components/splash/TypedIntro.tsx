@@ -158,7 +158,13 @@ const TypedIntro = (): JSX.Element => {
                 }}
               >
                 <Button variant="contained" color="primary" size="large">
-                  Sign Up
+                  <span
+                    style={{
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Sign Up
+                  </span>
                 </Button>
               </Link>
               <Box

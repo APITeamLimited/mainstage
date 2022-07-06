@@ -68,9 +68,7 @@ const Routes = () => {
         <Route path="/legal/privacy-policy" page={NotFoundPage} name="privacyPolicy" />
       </Set>
       <Set wrap={AppLayout}>
-        <Private unauthenticated="login">
-          <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
-        </Private>
+        <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />w
       </Set>
       <Route notfound page={NotFoundPage} />
     </Router>

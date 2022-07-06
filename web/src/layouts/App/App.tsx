@@ -8,9 +8,19 @@ import {
   useMediaQuery,
   useScrollTrigger,
   Container,
+  Stack,
 } from '@mui/material'
 
-const AppLayout = ({ children }: { children?: React.ReactNode }) => {
+import { UserDropdown } from 'src/components/app/UserDropdown'
+import { WorkspaceSwitcher } from 'src/components/app/WorkspaceSwitcher/WorkspaceSwitcher'
+import ThemeModeToggler from 'src/components/ThemeModeToggler'
+
+export interface WorkspaceContextValue {
+  workspace: ActiveWorkspace
+  setWorkspace: (newWorkspace: ActiveWorkspace) => void
+}
+
+export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   const theme = useTheme()
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
@@ -45,19 +55,27 @@ const AppLayout = ({ children }: { children?: React.ReactNode }) => {
           top: 0,
           backgroundColor: theme.palette.background.paper,
           marginBottom: 0,
+          paddingY: 1,
+          paddingX: 4,
         }}
         elevation={1}
         component="nav"
       >
-        <Container
-          sx={{
-            py: 2,
-          }}
-        ></Container>
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Box>
+            <WorkspaceSwitcher />
+          </Box>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <ThemeModeToggler />
+            <UserDropdown />
+          </Stack>
+        </Stack>
       </AppBar>
       <main>{children}</main>
     </Box>
   )
 }
-
-export default AppLayout

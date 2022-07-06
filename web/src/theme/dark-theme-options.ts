@@ -161,6 +161,11 @@ export const darkThemeOptions: ThemeOptions = {
       },
     },
   },
+  MuiDivider: {
+    styleOverrides: {
+      color: text.primary,
+    },
+  },
   palette: {
     action: {
       active: neutral[400],
