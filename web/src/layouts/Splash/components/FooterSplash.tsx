@@ -66,7 +66,7 @@ const FooterSplash = () => {
               {Object.keys(brandedRoutes).map((key, indexCategory) => {
                 if (brandedRoutes[key].includeFooter !== false) {
                   return (
-                    <Grid item key={indexCategory}>
+                    <Grid item key={indexCategory} sx={{}}>
                       <Stack spacing={1}>
                         <Typography
                           sx={{
@@ -106,7 +106,15 @@ const FooterSplash = () => {
             </Grid>
             <Typography
               variant="caption"
-              sx={{ textAlign: 'center', color: theme.palette.text.secondary }}
+              sx={{
+                textAlign: 'center',
+                color: theme.palette.text.secondary,
+                paddingTop: {
+                  xs: 8,
+                  sm: 8,
+                  md: 0,
+                },
+              }}
             >
               © {new Date().getFullYear()} APITeam. APITeam is a limited company
               registered in England and Wales company number 13429411

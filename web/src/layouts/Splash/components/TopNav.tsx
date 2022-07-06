@@ -13,7 +13,7 @@ const TopNav = () => {
 
   return (
     <Box display={'flex'} justifyContent={'flex-end'} alignItems={'center'}>
-      <Box marginRight={{ xs: 1, sm: 2 }}>
+      <Box marginRight={2}>
         <Link
           to={routes.login()}
           style={{
@@ -24,7 +24,7 @@ const TopNav = () => {
           <Typography variant={'body1'}>Support</Typography>
         </Link>
       </Box>
-      <Box marginRight={{ xs: 1, sm: 2 }}>
+      <Box marginRight={2}>
         <Link
           to={routes.login()}
           style={{

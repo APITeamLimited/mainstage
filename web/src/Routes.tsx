@@ -9,6 +9,7 @@
 
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
+import AppLayout from './layouts/App/App'
 import SplashLayout from './layouts/Splash'
 import DashboardPage from './pages/app/DashboardPage'
 import RootPage from './pages/splash/RootPage'
@@ -66,9 +67,11 @@ const Routes = () => {
         <Route path="/legal/terms-of-service" page={NotFoundPage} name="termsOfService" />
         <Route path="/legal/privacy-policy" page={NotFoundPage} name="privacyPolicy" />
       </Set>
-      <Private unauthenticated="login">
-        <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
-      </Private>
+      <Set wrap={AppLayout}>
+        <Private unauthenticated="login">
+          <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
+        </Private>
+      </Set>
       <Route notfound page={NotFoundPage} />
     </Router>
   )
