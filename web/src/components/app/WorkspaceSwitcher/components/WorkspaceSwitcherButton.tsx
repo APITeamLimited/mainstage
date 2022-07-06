@@ -1,15 +1,11 @@
 import { useState, useRef } from 'react'
 
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import CloudIcon from '@mui/icons-material/Cloud'
 import GroupsIcon from '@mui/icons-material/Groups'
 import HeightIcon from '@mui/icons-material/Height'
-import PersonIcon from '@mui/icons-material/Person'
 import {
-  Avatar,
   Box,
   SvgIcon,
-  ButtonBase,
   Typography,
   useTheme,
   Stack,
@@ -19,8 +15,7 @@ import type { WorkspaceSwitcherTeamMemberships } from 'types/graphql'
 
 import { useAuth } from '@redwoodjs/auth'
 
-import { anonymousWorkspace } from 'src/contexts/active-workspace-context'
-import { useActiveWorkspace } from 'src/hooks/use-active-workspace'
+import { activeWorkspaceVar, anonymousWorkspace } from 'src/contexts/reactives'
 
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
 
@@ -41,7 +36,7 @@ export type WorksaceMenuItem = {
 export const WorkspaceSwitcherButton = ({ memberships }: SwitcherProps) => {
   const anchorRef = useRef<HTMLButtonElement | null>(null)
   const [openPopover, setOpenPopover] = useState<boolean>(false)
-  const { workspace, setWorkspace } = useActiveWorkspace()
+  const workspace = activeWorkspaceVar()
   const { currentUser } = useAuth()
   const theme = useTheme()
 

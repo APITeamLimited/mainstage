@@ -12,7 +12,6 @@ import {
   useTheme,
   Stack,
 } from '@mui/material'
-import toast from 'react-hot-toast'
 
 import { useAuth } from '@redwoodjs/auth'
 import { Link, navigate, routes } from '@redwoodjs/router'

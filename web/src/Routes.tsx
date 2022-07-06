@@ -9,7 +9,7 @@
 
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
-import AppLayout from './layouts/App/App'
+import AppLayout from './layouts/App'
 import SplashLayout from './layouts/Splash'
 import DashboardPage from './pages/app/DashboardPage'
 import RootPage from './pages/splash/RootPage'

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 
+import { useReactiveVar } from '@apollo/client'
 import { WorkspaceSwitcherTeamMemberships } from 'types/graphql'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
 
-import { anonymousWorkspace } from 'src/contexts/active-workspace-context'
-import { useActiveWorkspace } from 'src/hooks/use-active-workspace'
+import { activeWorkspaceVar, anonymousWorkspace } from 'src/contexts/reactives'
 
 import { WorkspaceSwitcherButton } from './components/WorkspaceSwitcherButton'
 import { WorkspaceSwitcherLoading } from './components/WorkspaceSwitcherLoading'
@@ -25,14 +25,14 @@ export const MEMBERSHIPS_QUERY = gql`
 
 export const WorkspaceSwitcher = () => {
   const { currentUser } = useAuth()
-  const { workspace, setWorkspace } = useActiveWorkspace()
+  const workspace = useReactiveVar(activeWorkspaceVar)
 
   // Correct this error if it ever happens
   useEffect(() => {
     if (!currentUser && workspace.__typename !== 'Anonymous') {
-      setWorkspace(anonymousWorkspace)
+      activeWorkspaceVar(anonymousWorkspace)
     }
-  }, [currentUser, setWorkspace, workspace])
+  }, [currentUser, workspace])
 
   if (workspace.__typename === 'Anonymous') {
     return <WorkspaceSwitcherButton memberships={[]} />

@@ -5,10 +5,6 @@ import { FatalErrorBoundary, RedwoodProvider } from '@redwoodjs/web'
 import { RedwoodApolloProvider } from '@redwoodjs/web/apollo'
 
 import {
-  WorkspaceConsumer,
-  WorkspaceProvider,
-} from 'src/contexts/active-workspace-context'
-import {
   SettingsConsumer,
   SettingsProvider,
 } from 'src/contexts/settings-context'
@@ -24,25 +20,23 @@ const App = () => (
   <FatalErrorBoundary page={FatalErrorPage}>
     <RedwoodProvider titleTemplate="%PageTitle | %AppTitle">
       <AuthProvider type="dbAuth">
-        <WorkspaceProvider>
-          <SettingsProvider>
-            <SettingsConsumer>
-              {({ settings }) => (
-                <ThemeProvider
-                  theme={getTheme({
-                    direction: settings.direction,
-                    responsiveFontSizes: settings.responsiveFontSizes,
-                    mode: settings.theme,
-                  })}
-                >
-                  <CustomApolloProvider>
-                    <Routes />
-                  </CustomApolloProvider>
-                </ThemeProvider>
-              )}
-            </SettingsConsumer>
-          </SettingsProvider>
-        </WorkspaceProvider>
+        <SettingsProvider>
+          <SettingsConsumer>
+            {({ settings }) => (
+              <ThemeProvider
+                theme={getTheme({
+                  direction: settings.direction,
+                  responsiveFontSizes: settings.responsiveFontSizes,
+                  mode: settings.theme,
+                })}
+              >
+                <CustomApolloProvider>
+                  <Routes />
+                </CustomApolloProvider>
+              </ThemeProvider>
+            )}
+          </SettingsConsumer>
+        </SettingsProvider>
       </AuthProvider>
     </RedwoodProvider>
   </FatalErrorBoundary>

@@ -1,29 +1,18 @@
-import type { FC } from 'react'
-
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import CloudIcon from '@mui/icons-material/Cloud'
 import GroupsIcon from '@mui/icons-material/Groups'
 import {
-  Avatar,
   Box,
-  Divider,
   ListItemText,
   MenuItem,
   Popover,
   Typography,
   SvgIcon,
-  Button,
   useTheme,
   Stack,
 } from '@mui/material'
-import toast from 'react-hot-toast'
 
-import { Link } from '@redwoodjs/router'
+import { ActiveWorkspace, activeWorkspaceVar } from 'src/contexts/reactives'
 
-import { ActiveWorkspace } from 'src/contexts/active-workspace-context'
-import { useActiveWorkspace } from 'src/hooks/use-active-workspace'
-
-import { CurrentUser } from './DropdownButton'
 import { WorksaceMenuItem } from './WorkspaceSwitcherButton'
 
 interface WorkspacePopoverProps {
@@ -36,18 +25,6 @@ interface WorkspacePopoverProps {
 export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
   const { anchorEl, onClose, open, workspaces } = props
   const theme = useTheme()
-  const { setWorkspace } = useActiveWorkspace()
-
-  const handleLogout = async (): Promise<void> => {
-    try {
-      onClose?.()
-      //await logout()
-      //router.push('/').catch(console.error)
-    } catch (err) {
-      console.error(err)
-      toast.error('Unable to logout.')
-    }
-  }
 
   return (
     <Popover
@@ -68,7 +45,7 @@ export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
         {workspaces.map((workspace, index) => (
           <MenuItem
             key={index}
-            onClick={() => setWorkspace(workspace as ActiveWorkspace)}
+            onClick={() => activeWorkspaceVar(workspace as ActiveWorkspace)}
             sx={{
               padding: 2,
               alignItems: 'center',

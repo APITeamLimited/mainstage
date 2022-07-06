@@ -4,21 +4,15 @@ import {
   useTheme,
   AppBar,
   Box,
-  Divider,
   useMediaQuery,
   useScrollTrigger,
-  Container,
   Stack,
 } from '@mui/material'
 
 import { UserDropdown } from 'src/components/app/UserDropdown'
 import { WorkspaceSwitcher } from 'src/components/app/WorkspaceSwitcher/WorkspaceSwitcher'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
-
-export interface WorkspaceContextValue {
-  workspace: ActiveWorkspace
-  setWorkspace: (newWorkspace: ActiveWorkspace) => void
-}
+import { ActiveWorkspace } from 'src/contexts/reactives'
 
 export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   const theme = useTheme()
