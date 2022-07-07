@@ -7633,6 +7633,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"apollo3-cache-persist@npm:^0.14.1":
+  version: 0.14.1
+  resolution: "apollo3-cache-persist@npm:0.14.1"
+  peerDependencies:
+    "@apollo/client": ^3.2.5
+  checksum: 5437b4dec9e9f19c2e9e56af34916a14b304b82f465bcb68d8c3441d84000348ca0b140ca4a8a9b0133bb5407d227bfa5d077c44293763e0abd36ca91ea90a81
+  languageName: node
+  linkType: hard
+
 "app-root-dir@npm:^1.0.2":
   version: 1.0.2
   resolution: "app-root-dir@npm:1.0.2"
@@ -20928,7 +20937,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"redux@npm:^4.1.2, redux@npm:^4.2.0":
+"redux@npm:^4.1.2":
   version: 4.2.0
   resolution: "redux@npm:4.2.0"
   dependencies:
@@ -21525,6 +21534,7 @@ __metadata:
     "@types/react": ^17.0.45
     "@types/react-lazy-load-image-component": ^1.5.2
     "@types/uuid": ^8.3.4
+    apollo3-cache-persist: ^0.14.1
     config: ^3.3.7
     formik: ^2.2.9
     graphql-scalars: ^1.17.0
@@ -21535,7 +21545,6 @@ __metadata:
     react-lazy-load-image-component: ^1.5.4
     react-typed: ^1.2.0
     redis: ^4.1.1
-    redux: ^4.2.0
     stripe: ^9.11.0
     uuid: ^8.3.2
     yup: ^0.32.11

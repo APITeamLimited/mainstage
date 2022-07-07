@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client'
 
-type UserSettings = {
+export type UserSettings = {
   keyboardShortcuts: {
     commandPalette: string
   }

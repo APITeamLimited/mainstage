@@ -9,11 +9,14 @@ import {
   Stack,
 } from '@mui/material'
 
-import { CommandPalette } from 'src/components/app/CommandPalette'
-import { UserDropdown } from 'src/components/app/UserDropdown'
-import { WorkspaceSwitcher } from 'src/components/app/WorkspaceSwitcher/WorkspaceSwitcher'
+import { ModalsProvider } from 'src/components/app/dialogs'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { ActiveWorkspace } from 'src/contexts/reactives'
+import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
+
+import { CommandPalette } from './components/CommandPalette'
+import { UserDropdown } from './components/UserDropdown'
+import { WorkspaceSwitcher } from './components/WorkspaceSwitcher/WorkspaceSwitcher'
 
 export const AppBarHeightContext = createContext<number | undefined>(undefined)
 const AppBarHeightProvider = AppBarHeightContext.Provider
@@ -43,57 +46,56 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   })
 
   return (
-    <Box
-      sx={{
-        backgroundColor: theme.palette.background.default,
-      }}
-    >
-      <AppBar
-        position="sticky"
-        sx={{
-          top: 0,
-          backgroundColor: theme.palette.background.default,
-          marginBottom: 0,
-          paddingX: 4,
-          paddingY: 1,
-        }}
-        elevation={1}
-        component="nav"
-        ref={appBarRef}
-      >
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-        >
-          <Box>
-            <WorkspaceSwitcher />
-          </Box>
-          <Box>
-            <CommandPalette />
-          </Box>
-          <Box>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <ThemeModeToggler />
-              <UserDropdown />
-            </Stack>
-          </Box>
-        </Stack>
-      </AppBar>
-      <AppBarHeightProvider
-        value={appBarRef.current?.clientHeight || undefined}
-      >
-        <Box
-          position="fixed"
+    <>
+      <ReactiveVarPersistor />
+      <ModalsProvider>
+        <AppBar
+          position="sticky"
           sx={{
-            height: '100%',
-            width: '100%',
+            top: 0,
             backgroundColor: theme.palette.background.paper,
+            marginBottom: 0,
+            paddingX: 4,
+            paddingY: 1,
           }}
+          elevation={1}
+          component="nav"
+          ref={appBarRef}
         >
-          <main>{children}</main>
-        </Box>
-      </AppBarHeightProvider>
-    </Box>
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box>
+              <WorkspaceSwitcher />
+            </Box>
+            <Box>
+              <CommandPalette />
+            </Box>
+            <Box>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <ThemeModeToggler />
+                <UserDropdown />
+              </Stack>
+            </Box>
+          </Stack>
+        </AppBar>
+        <AppBarHeightProvider
+          value={appBarRef.current?.clientHeight || undefined}
+        >
+          <Box
+            position="fixed"
+            sx={{
+              height: '100%',
+              width: '100%',
+              backgroundColor: theme.palette.background.default,
+            }}
+          >
+            <main>{children}</main>
+          </Box>
+        </AppBarHeightProvider>
+      </ModalsProvider>
+    </>
   )
 }

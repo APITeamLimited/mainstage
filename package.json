@@ -33,6 +33,7 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.6",
     "@reduxjs/toolkit": "^1.8.3",
+    "apollo3-cache-persist": "^0.14.1",
     "config": "^3.3.7",
     "formik": "^2.2.9",
     "graphql-scalars": "^1.17.0",
@@ -43,7 +44,6 @@
     "react-lazy-load-image-component": "^1.5.4",
     "react-typed": "^1.2.0",
     "redis": "^4.1.1",
-    "redux": "^4.2.0",
     "stripe": "^9.11.0",
     "uuid": "^8.3.2",
     "yup": "^0.32.11"

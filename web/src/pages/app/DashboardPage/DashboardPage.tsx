@@ -5,7 +5,9 @@ import { Box, Tabs, Tab, Typography, Grid } from '@mui/material'
 import { useAuth } from '@redwoodjs/auth'
 import { MetaTags } from '@redwoodjs/web'
 
-import { QuickActions } from 'src/components/app/QuickActions'
+import { QuickActions } from 'src/components/app/dashboard/QuickActions'
+
+import { ProjectsSection } from './sections/ProjectsSection'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -69,7 +71,7 @@ const DashboardPage = () => {
           Item One
         </TabPanel>
         <TabPanel value={tabValue} index={1}>
-          Item Two
+          <ProjectsSection />
         </TabPanel>
         <TabPanel value={tabValue} index={2}>
           Item Three

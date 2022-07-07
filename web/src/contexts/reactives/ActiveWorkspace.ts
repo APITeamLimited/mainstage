@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client'
 
-export interface ActiveWorkspace {
+export type ActiveWorkspace = {
   __typename: 'Team' | 'User' | 'Anonymous'
   id: string | 'ANONYMOUS_ID'
   name: string
