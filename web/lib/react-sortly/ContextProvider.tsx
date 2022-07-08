@@ -10,7 +10,7 @@ type ContextProviderProps = {
   children: React.ReactElement | React.ReactElement[]
 }
 
-const ContextProvider = (props: ContextProviderProps) => {
+export const ContextProvider = (props: ContextProviderProps) => {
   const { children } = props
   const [dragMonitor, setDragMonitor] = React.useState<DragSourceMonitor>()
   const [connectedDragSource, setConnectedDragSource] =

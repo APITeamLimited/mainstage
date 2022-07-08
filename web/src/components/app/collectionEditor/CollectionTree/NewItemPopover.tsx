@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 
 import {
+  activeWorkspaceVar,
   generateLocalFolder,
   LocalCollection,
   localFoldersVar,
@@ -34,18 +35,25 @@ export const NewItemPopover = ({
 }: NewItemPopoverProps) => {
   const localFolders = useReactiveVar(localFoldersVar)
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
+  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const isLocalWorkspace = activeWorkspace.__typename === 'Anonymous'
 
   const handleCreateNewFolder = () => {
-    // Create new folder with parent of the collection
-    localFoldersVar(
-      localFolders.concat(
-        generateLocalFolder({
-          parentId: collection.id,
-          __parentTypename: 'LocalCollection',
-          name: 'New Folder',
-        })
+    if (isLocalWorkspace) {
+      // Create new folder with parent of the collection
+      localFoldersVar(
+        localFolders.concat(
+          generateLocalFolder({
+            parentId: collection.id,
+            __parentTypename: 'LocalCollection',
+            name: new Date().toISOString(),
+          })
+        )
       )
-    )
+    } else {
+      throw 'NewItemPopover non-local workspace not implemented'
+    }
+    onClose()
   }
 
   return (

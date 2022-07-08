@@ -2,7 +2,6 @@ import React from 'react'
 
 import {
   useDrop as dndUseDrop,
-  DragObjectWithType,
   DropTargetHookSpec,
   ConnectDropTarget,
 } from 'react-dnd'
@@ -10,7 +9,7 @@ import {
 import itemContext from './itemContext'
 import Connectable from './types/Connectable'
 
-export default function useDrop<
+export function useDrop<
   DragObject extends DragObjectWithType,
   DropResult,
   CollectedProps

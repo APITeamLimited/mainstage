@@ -17,14 +17,12 @@ type Fn<TArgs extends unknown[], TResult> = (...args: TArgs) => TResult
 function memoize<TArgs extends unknown[], TResult>(
   fn: Fn<TArgs, TResult>
 ): Fn<TArgs, TResult> {
-  // @ts-ignore
   return memoizeOne(fn)
 }
 
 /**
  * @hidden
  */
-// @ts-ignore
 const update = memoizeOne(u)
 
 const findDescendants = <T extends ItemData>(items: T[], index: number) => {

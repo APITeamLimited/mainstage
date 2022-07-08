@@ -5,7 +5,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import { SvgIcon, Box } from '@mui/material'
 import { Flipped } from 'react-flip-toolkit'
-import { ID, ItemRendererProps, useDrag, useDrop } from 'react-sortly'
+import { ID, ItemRendererProps, useDrag, useDrop } from 'web/lib/react-sortly'
 
 import { NodeItem } from './CollectionTree'
 
@@ -45,15 +45,9 @@ export const ItemRenderer = memo((props: ItemItemRendererProps) => {
     <Flipped flipId={id}>
       <div ref={(ref) => drag(drop(ref))}>
         <Box onClick={handleClick}>
-          {typeClassification === 'folder' && !collapsed && (
-            <FolderOpenIcon />
-          )}
-          {typeClassification === 'folder' && collapsed && (
-            <FolderIcon />
-          )}
-          {typeClassification === 'file' && (
-            <InsertDriveFileIcon />
-          )}
+          {typeClassification === 'folder' && !collapsed && <FolderOpenIcon />}
+          {typeClassification === 'folder' && collapsed && <FolderIcon />}
+          {typeClassification === 'file' && <InsertDriveFileIcon />}
         </Box>
         <Box display="flex" flex={1} px={1}>
           {item.name}

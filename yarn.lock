@@ -20885,19 +20885,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-sortly@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "react-sortly@npm:3.0.4"
-  peerDependencies:
-    immutability-helper: ^3.0.1
-    memoize-one: ^5.1.1
-    react: ^16.10.1
-    react-dnd: ^9.4.0
-    react-dom: ^16.10.1
-  checksum: 6590e3b5704567dc11ea4eafd77f17b682edd5e2be59f90e966e8506feba9acb9488f1928a20b713dbdee81b2ac2152d15890677766fddd646cd3ca6167d4075
-  languageName: node
-  linkType: hard
-
 "react-syntax-highlighter@npm:^15.4.5":
   version: 15.5.0
   resolution: "react-syntax-highlighter@npm:15.5.0"
@@ -21736,7 +21723,6 @@ __metadata:
     react-hotkeys-hook: ^3.4.6
     react-lazy-load-image-component: ^1.5.4
     react-reflex: ^4.0.9
-    react-sortly: ^3.0.4
     react-typed: ^1.2.0
     redis: ^4.1.1
     stripe: ^9.11.0

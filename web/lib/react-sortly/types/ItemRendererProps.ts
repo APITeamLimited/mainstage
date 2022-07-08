@@ -1,6 +1,6 @@
 import ID from './ID'
 
-type ItemRendererProps<D = { id: ID }> = {
+export type ItemRendererProps<D = { id: ID }> = {
   id: D extends { id: ID } ? D['id'] : ID
   index: number
   depth: number

@@ -1,7 +1,14 @@
 import { useReactiveVar } from '@apollo/client'
 import { Box, Divider } from '@mui/material'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Flipper } from 'react-flip-toolkit'
-import { Sortly, ID, ItemData, findDescendants } from 'web/lib/react-sortly'
+import {
+  Sortly,
+  ID,
+  ItemData,
+  ContextProvider as SortlyContextProvider,
+} from 'web/lib/react-sortly'
 
 import {
   activeWorkspaceVar,
@@ -76,7 +83,7 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
     sortedItems.forEach((item) => {
       items.push({
         item: item,
-        depth,
+        depth: depth,
       })
     })
 
@@ -94,6 +101,7 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
     return items.map((item, index) => ({
       ...item,
       id: index,
+      type: item.item.__typename,
     }))
   }
 
@@ -126,13 +134,20 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
     <Box>
       <CollectionTopMenu collection={collection} />
       <Divider />
-      <Flipper flipKey={items.map(({ id }) => id).join('.')}>
-        <Sortly<NodeItem> items={items} onChange={handleChange}>
-          {(props) => (
-            <ItemRenderer {...props} onToggleCollapse={handleToggleCollapse} />
-          )}
-        </Sortly>
-      </Flipper>
+      <DndProvider backend={HTML5Backend}>
+        <SortlyContextProvider>
+          <Flipper flipKey={items.map(({ id }) => id).join('.')}>
+            <Sortly<NodeItem> items={items} onChange={handleChange}>
+              {(props) => (
+                <ItemRenderer
+                  {...props}
+                  onToggleCollapse={handleToggleCollapse}
+                />
+              )}
+            </Sortly>
+          </Flipper>
+        </SortlyContextProvider>
+      </DndProvider>
     </Box>
   )
 }

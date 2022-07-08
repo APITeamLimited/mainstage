@@ -290,6 +290,8 @@ export function Sortly<D = { id: ID }>(props: SortlyProps<D>) {
             id: data.id,
             type,
             depth: data.depth,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             data,
             onHoverBegin: handleHoverBegin,
             onHoverEnd: handleHoverEnd,

@@ -11,7 +11,6 @@ import {
 
 import { ModalsProvider } from 'src/components/app/dialogs'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
-import { ActiveWorkspace } from 'src/contexts/reactives'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 
 import { APITeamLogo } from './components/APITeamLogo'

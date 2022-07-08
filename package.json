@@ -50,7 +50,6 @@
     "react-hotkeys-hook": "^3.4.6",
     "react-lazy-load-image-component": "^1.5.4",
     "react-reflex": "^4.0.9",
-    "react-sortly": "^3.0.4",
     "react-typed": "^1.2.0",
     "redis": "^4.1.1",
     "stripe": "^9.11.0",
