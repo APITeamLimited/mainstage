@@ -1,3 +1,4 @@
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   Button,
   Paper,
@@ -6,7 +7,12 @@ import {
   Stack,
   IconButton,
   useTheme,
+  SvgIcon,
 } from '@mui/material'
+
+import { routes, navigate } from '@redwoodjs/router'
+
+import { activeWorkspaceVar } from 'src/contexts/reactives'
 
 import { OverviewType } from './ProjectOverview'
 
@@ -16,6 +22,25 @@ type OverviewItemProps = {
 
 export function OverviewItem({ item }: OverviewItemProps) {
   const theme = useTheme()
+  const activeWorkspace = activeWorkspaceVar()
+
+  const getTypeName = () => {
+    if (item.__typename === 'LocalCollection') {
+      return 'Collection'
+    } else if (item.__typename === 'LocalProject') {
+      return 'Project'
+    } else {
+      throw `Unknown type: ${item.__typename}`
+    }
+  }
+
+  const displayType = getTypeName()
+
+  const handleCollectionNavigation = (collectionId: string) =>
+    // Navigate to the collection editor page
+    navigate(
+      routes.collectionEditor({ collectionId, workspaceId: activeWorkspace.id })
+    )
 
   return (
     <Paper
@@ -29,11 +54,11 @@ export function OverviewItem({ item }: OverviewItemProps) {
     >
       <Button
         sx={{
-          m: 0,
-          p: 2,
           width: '100%',
           height: '100%',
+          padding: 0,
         }}
+        onClick={() => handleCollectionNavigation(item.id)}
       >
         <Box
           sx={{
@@ -43,34 +68,56 @@ export function OverviewItem({ item }: OverviewItemProps) {
         >
           <Stack
             spacing={2}
-            justifyContent="flex-start"
+            justifyContent="space-between"
             alignItems="flex-start"
+            sx={{
+              height: '100%',
+            }}
           >
             <Stack
               direction="row"
               justifyContent="space-between"
-              alignItems="flex-start"
+              alignItems="center"
               spacing={2}
+              width="100%"
+            >
+              <Box
+                sx={{
+                  marginLeft: 2,
+                  marginTop: 2,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    textTransform: 'none',
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  {displayType}
+                </Typography>
+              </Box>
+              <IconButton>
+                <SvgIcon component={MoreVertIcon} />
+              </IconButton>
+            </Stack>
+            <Box
+              sx={{
+                paddingBottom: 2,
+                paddingLeft: 2,
+                paddingRight: 2,
+              }}
             >
               <Typography
-                variant="body2"
+                variant="body1"
                 sx={{
-                  fontWeight: 'bold',
                   textTransform: 'none',
+                  color: theme.palette.text.primary,
                 }}
               >
                 {item.name}
               </Typography>
-              <IconButton>b</IconButton>
-            </Stack>
-            <Typography
-              sx={{
-                textTransform: 'lowercase',
-                color: theme.palette.text.secondary,
-              }}
-            >
-              {item.__typename}
-            </Typography>
+            </Box>
           </Stack>
         </Box>
       </Button>

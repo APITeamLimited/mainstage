@@ -1,4 +1,4 @@
-import { Typography, Paper, Stack, Divider, Link } from '@mui/material'
+import { Typography, Paper, Stack, Divider, Link, Box } from '@mui/material'
 
 import { createProjectDialogStateVar } from '../dialogs'
 
@@ -10,16 +10,24 @@ const QuickActionItem = ({
   onClick: () => void
 }) => {
   return (
-    <Link
+    <Box
       sx={{
-        display: 'list-item',
-        cursor: 'pointer',
-        listStylePosition: 'inside',
+        paddingX: 2,
       }}
-      onClick={onClick}
     >
-      {children}
-    </Link>
+      <Link
+        sx={{
+          display: 'list-item',
+          cursor: 'pointer',
+          listStylePosition: 'inside',
+
+          textDecoration: 'none',
+        }}
+        onClick={onClick}
+      >
+        {children}
+      </Link>
+    </Box>
   )
 }
 
@@ -30,14 +38,23 @@ export const QuickActions = () => {
 
   return (
     <>
-      <Paper elevation={2}>
-        <Stack
-          spacing={2}
-          sx={{
-            m: 2,
-          }}
-        >
-          <Typography variant="h6">Quick Actions</Typography>
+      <Paper
+        elevation={2}
+        sx={{
+          paddingY: 2,
+          minWidth: 250,
+        }}
+      >
+        <Stack spacing={2}>
+          <Typography
+            variant="h6"
+            sx={{
+              marginLeft: 4,
+              marginRight: 2,
+            }}
+          >
+            Quick Actions
+          </Typography>
           <Divider />
           <QuickActionItem onClick={handleCreateProjectDialogOpen}>
             Create a new project

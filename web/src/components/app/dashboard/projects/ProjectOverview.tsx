@@ -76,7 +76,9 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
   return (
     <>
       <Stack spacing={2}>
-        <Typography variant="h5">{project.name}</Typography>
+        <Typography variant="h5" color={theme.palette.text.primary}>
+          {project.name}
+        </Typography>
         <Divider />
         <Paper
           sx={{
@@ -88,6 +90,7 @@ export function ProjectOverview({ project }: ProjectOverviewProps) {
                 ? theme.palette.grey[100]
                 : theme.palette.grey[800],
           }}
+          elevation={0}
         >
           {sortedOverviews.length === 0 ? (
             <Stack

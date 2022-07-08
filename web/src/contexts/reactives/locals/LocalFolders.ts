@@ -3,39 +3,46 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { BaseLocal } from '.'
 
-export interface LocalRESTRequest extends BaseLocal {
-  __typename: 'LocalRESTRequest'
+export interface LocalFolder extends BaseLocal {
+  __typename: 'LocalFolder'
   parentId: string
   __parentTypename: 'LocalCollection' | 'LocalFolder'
   name: string
+  folderIds: string[]
+  requestIds: string[]
   orderingIndex: number | undefined
 }
 
-type GenerateLocalRESTRequestProps = {
+type GenerateLocalFolderProps = {
   parentId: string
   __parentTypename: 'LocalCollection' | 'LocalFolder'
   name?: string
+  folderIds: string[]
+  requestIds: string[]
   createdAt?: Date | null
   orderingIndex: number | undefined
 }
 
-export const generateLocalRESTRequest = ({
+export const generateLocalFolder = ({
   parentId,
   __parentTypename,
   name,
   createdAt,
+  folderIds,
+  requestIds,
   orderingIndex,
-}: GenerateLocalRESTRequestProps): LocalRESTRequest => {
+}: GenerateLocalFolderProps): LocalFolder => {
   return {
     id: uuidv4(),
-    name: name || 'New REST Request',
-    createdAt: new Date(),
+    name: name || 'New Folder',
+    createdAt: createdAt || new Date(),
     updatedAt: createdAt ? new Date() : null,
-    __typename: 'LocalRESTRequest',
+    __typename: 'LocalFolder',
     parentId,
     __parentTypename,
+    folderIds,
+    requestIds,
     orderingIndex,
   }
 }
-
-export const localRESTRequestsVar = makeVar(<LocalRESTRequest[]>[])
+export const localFoldersVar = makeVar(<LocalFolder[]>[])

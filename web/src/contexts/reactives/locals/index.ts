@@ -1,6 +1,7 @@
 export * from './LocalProjects'
 export * from './LocalCollections'
 export * from './LocalRESTRequests'
+export * from './LocalFolders'
 
 export interface BaseLocal {
   id: string

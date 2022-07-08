@@ -26,7 +26,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
   })
-  const appBarRef = useRef(null)
+  const appBarRef = useRef<HTMLDivElement | null>(null)
 
   const [openSidebar, setOpenSidebar] = useState(false)
 
@@ -92,7 +92,14 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
               backgroundColor: theme.palette.background.default,
             }}
           >
-            <main>{children}</main>
+            <main
+              style={{
+                height: '100%',
+                width: '100%',
+              }}
+            >
+              {children}
+            </main>
           </Box>
         </AppBarHeightProvider>
       </ModalsProvider>

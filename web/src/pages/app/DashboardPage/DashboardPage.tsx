@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Box, Tabs, Tab, Typography, Grid } from '@mui/material'
 
 import { useAuth } from '@redwoodjs/auth'
+import { Redirect, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
 import { QuickActions } from 'src/components/app/dashboard/QuickActions'
@@ -27,7 +28,12 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box
+          sx={{
+            paddingLeft: 2,
+            paddingTop: 4,
+          }}
+        >
           <Typography>{children}</Typography>
         </Box>
       )}
@@ -42,8 +48,24 @@ const a11yProps = (index: number) => {
   }
 }
 
-const DashboardPage = () => {
-  const [tabValue, setTabValue] = useState(0)
+type DashboardPageProps = {
+  initialSection?: 'overview' | 'projects' | 'admin'
+}
+
+const DashboardPage = ({ initialSection }: DashboardPageProps) => {
+  const getInitalTabValue = () => {
+    if (initialSection === 'overview') {
+      return 0
+    } else if (initialSection === 'projects') {
+      return 1
+    } else if (initialSection === 'admin') {
+      return 2
+    } else {
+      return 0
+    }
+  }
+
+  const [tabValue, setTabValue] = useState(getInitalTabValue())
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
@@ -76,14 +98,6 @@ const DashboardPage = () => {
         <TabPanel value={tabValue} index={2}>
           Item Three
         </TabPanel>
-        <Box
-          sx={{
-            marginLeft: 4,
-            display: 'flex',
-          }}
-        >
-          <QuickActions />
-        </Box>
       </Box>
     </>
   )

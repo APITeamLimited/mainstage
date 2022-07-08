@@ -39,7 +39,7 @@ export const CreateProjectDialog = () => {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
+      name: 'New Project',
       submit: null,
     },
     validationSchema: Yup.object({

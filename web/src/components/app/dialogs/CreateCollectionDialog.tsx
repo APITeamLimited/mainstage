@@ -55,7 +55,7 @@ export function CreateCollectionDialog() {
 
   const formik = useFormik({
     initialValues: {
-      name: '',
+      name: 'New Collection',
       projectIndex: projectIndex,
       submit: null,
     },

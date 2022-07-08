@@ -7,10 +7,12 @@
 // 'src/pages/HomePage/HomePage.js'         -> HomePage
 // 'src/pages/Admin/BooksPage/BooksPage.js' -> AdminBooksPage
 
-import { Router, Route, Set, Private } from '@redwoodjs/router'
+import { Router, Route, Set, Private, Redirect } from '@redwoodjs/router'
 
 import AppLayout from './layouts/App'
 import SplashLayout from './layouts/Splash'
+import { AppBaseRedirect } from './pages/app/AppBaseRedirect'
+import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import DashboardPage from './pages/app/DashboardPage'
 import RootPage from './pages/splash/RootPage'
 
@@ -68,7 +70,9 @@ const Routes = () => {
         <Route path="/legal/privacy-policy" page={NotFoundPage} name="privacyPolicy" />
       </Set>
       <Set wrap={AppLayout}>
-        <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />w
+        <Route path="/app" redirect="/app/dashboard" />
+        <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
+        <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
       </Set>
       <Route notfound page={NotFoundPage} />
     </Router>

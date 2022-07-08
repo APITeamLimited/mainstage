@@ -9,26 +9,34 @@ export interface LocalCollection extends BaseLocal {
   __parentTypename: 'LocalProject'
   name: string
   lastViewedAt: Date | null
+  folderIds: string[]
+  requestIds: string[]
 }
 
 type GenerateLocalCollectionProps = {
   parentId: string
   name?: string
+  createdAt?: Date | null
+  lastViewedAt?: Date | undefined | null
 }
 
 export const generateLocalCollection = ({
   parentId,
   name,
+  createdAt,
+  lastViewedAt,
 }: GenerateLocalCollectionProps): LocalCollection => {
   return {
     id: uuidv4(),
     name: name || 'New Collection',
-    createdAt: new Date(),
-    updatedAt: null,
-    lastViewedAt: null,
+    createdAt: createdAt || new Date(),
+    updatedAt: createdAt ? new Date() : null,
     __typename: 'LocalCollection',
     parentId,
     __parentTypename: 'LocalProject',
+    folderIds: [],
+    requestIds: [],
+    lastViewedAt: lastViewedAt || null,
   }
 }
 
