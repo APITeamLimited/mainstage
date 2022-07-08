@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import {
@@ -9,14 +9,11 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { Allotment } from 'allotment'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 
 import 'react-reflex/styles.css'
-import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
 
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
-import { Splitter } from 'src/components/app/SplitPane'
 import {
   activeWorkspaceVar,
   anonymousWorkspace,
@@ -38,6 +35,7 @@ export const CollectionEditorPage = ({
   const appBarHeight = useAppBarHeight()
   const theme = useTheme()
   const [currentAppBarHeight, setCurrentAppBarHeight] = useState(0)
+  const collectionPaneWidthRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (workspaceId !== activeWorkspace.id) {
@@ -62,7 +60,7 @@ export const CollectionEditorPage = ({
     <div style={{ height: '100%' }}>
       <ReflexContainer orientation="vertical">
         <ReflexElement
-          minSize={200}
+          minSize={240}
           maxSize={400}
           style={{
             backgroundColor: theme.palette.background.paper,

@@ -7,21 +7,29 @@ import { SvgIcon, Box } from '@mui/material'
 import { Flipped } from 'react-flip-toolkit'
 import { ID, ItemRendererProps, useDrag, useDrop } from 'react-sortly'
 
-type ItemItemRendererProps = ItemRendererProps<{
-  name: string
-  type: 'folder' | 'file'
-  collapsed?: boolean
-}> & {
+import { NodeItem } from './CollectionTree'
+
+type ItemItemRendererProps = ItemRendererProps<NodeItem> & {
   onToggleCollapse: (id: ID) => void
 }
 
+const getTypeClassification = (__typename: string) => {
+  // Check if __typename is LocalFolder or Folder
+  if (__typename === 'LocalFolder') {
+    return 'folder'
+  } else if (__typename === 'LocalRESTRequest') {
+    return 'file'
+  } else {
+    throw `Unknown type ${__typename}`
+  }
+}
+
 export const ItemRenderer = memo((props: ItemItemRendererProps) => {
-  const {
-    id,
-    depth,
-    data: { type, collapsed, name },
-    onToggleCollapse,
-  } = props
+  const { id, data, onToggleCollapse } = props
+  const { item, collapsed } = data
+
+  const typeClassification = getTypeClassification(item.__typename)
+
   const [{ isDragging }, drag] = useDrag({
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -30,10 +38,6 @@ export const ItemRenderer = memo((props: ItemItemRendererProps) => {
   const [, drop] = useDrop()
 
   const handleClick = () => {
-    if (type === 'file') {
-      return
-    }
-
     onToggleCollapse(id)
   }
 
@@ -41,14 +45,18 @@ export const ItemRenderer = memo((props: ItemItemRendererProps) => {
     <Flipped flipId={id}>
       <div ref={(ref) => drag(drop(ref))}>
         <Box onClick={handleClick}>
-          {type === 'folder' && !collapsed && (
-            <SvgIcon component={FolderOpenIcon} />
+          {typeClassification === 'folder' && !collapsed && (
+            <FolderOpenIcon />
           )}
-          {type === 'folder' && collapsed && <SvgIcon component={FolderIcon} />}
-          {type === 'file' && <SvgIcon component={InsertDriveFileIcon} />}
+          {typeClassification === 'folder' && collapsed && (
+            <FolderIcon />
+          )}
+          {typeClassification === 'file' && (
+            <InsertDriveFileIcon />
+          )}
         </Box>
         <Box display="flex" flex={1} px={1}>
-          {name}
+          {item.name}
         </Box>
       </div>
     </Flipped>

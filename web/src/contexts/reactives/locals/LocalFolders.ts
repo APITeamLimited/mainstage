@@ -10,17 +10,17 @@ export interface LocalFolder extends BaseLocal {
   name: string
   folderIds: string[]
   requestIds: string[]
-  orderingIndex: number | undefined
+  orderingIndex: number
 }
 
 type GenerateLocalFolderProps = {
   parentId: string
   __parentTypename: 'LocalCollection' | 'LocalFolder'
   name?: string
-  folderIds: string[]
-  requestIds: string[]
+  folderIds?: string[]
+  requestIds?: string[]
   createdAt?: Date | null
-  orderingIndex: number | undefined
+  orderingIndex?: number
 }
 
 export const generateLocalFolder = ({
@@ -40,9 +40,9 @@ export const generateLocalFolder = ({
     __typename: 'LocalFolder',
     parentId,
     __parentTypename,
-    folderIds,
-    requestIds,
-    orderingIndex,
+    folderIds: folderIds || [],
+    requestIds: requestIds || [],
+    orderingIndex: orderingIndex || 0,
   }
 }
 export const localFoldersVar = makeVar(<LocalFolder[]>[])

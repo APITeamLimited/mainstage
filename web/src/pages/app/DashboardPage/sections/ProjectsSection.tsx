@@ -30,7 +30,13 @@ export const ProjectsSection = () => {
           <ProjectOverview key={index} project={project} />
         ))}
       </Stack>
-      <QuickActions />
+      <Box
+        sx={{
+          paddingRight: 4,
+        }}
+      >
+        <QuickActions />
+      </Box>
     </Stack>
   )
 }

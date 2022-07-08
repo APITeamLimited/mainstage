@@ -17,18 +17,6 @@ export const ReactiveVarPersistor = () => {
       const persistedLocalProjects = localStorage.getItem('localProjects')
       const persistedLocalCollections = localStorage.getItem('localCollections')
 
-      console.log(
-        JSON.parse(persistedLocalCollections || '[]').map((collection) => {
-          return {
-            ...collection,
-            updatedAt: isNaN(Date.parse(collection.updatedAt))
-              ? null
-              : Date.parse(collection.updatedAt),
-            createdAt: Date.parse(collection.createdAt),
-          }
-        })
-      )
-
       localProjectsVar(
         JSON.parse(persistedLocalProjects || '[]').map((project) => {
           return {

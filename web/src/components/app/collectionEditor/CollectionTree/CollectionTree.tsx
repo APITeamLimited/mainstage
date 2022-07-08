@@ -1,0 +1,138 @@
+import { useReactiveVar } from '@apollo/client'
+import { Box, Divider } from '@mui/material'
+import { Flipper } from 'react-flip-toolkit'
+import Sortly, { ID, ItemData, findDescendants } from 'web/lib/react-sortly'
+
+import {
+  activeWorkspaceVar,
+  LocalCollection,
+  LocalFolder,
+  localFoldersVar,
+  LocalRESTRequest,
+  localRESTRequestsVar,
+} from 'src/contexts/reactives'
+
+import { CollectionTopMenu } from './CollectionTopMenu'
+import { ItemRenderer } from './ItemRenderer'
+
+type CollectionTreeProps = {
+  collection: LocalCollection
+}
+
+type NodeChild = LocalFolder | LocalRESTRequest
+
+// NodeItem stores flattned list with collapsed state
+export type NodeItem = {
+  item: NodeChild
+  collapsed?: boolean
+}
+
+type GetNodeChilrenProps = {
+  node: LocalCollection | LocalFolder
+  depth?: number
+}
+
+export const CollectionTree = ({ collection }: CollectionTreeProps) => {
+  const localFolders = useReactiveVar(localFoldersVar)
+  const localRESTRequests = useReactiveVar(localRESTRequestsVar)
+  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const isLocalWorkspace = activeWorkspace.__typename === 'Anonymous'
+
+  const getNodeChildren = ({
+    node,
+    depth = 0,
+  }: GetNodeChilrenProps): ItemData<NodeItem>[] => {
+    const unsortedFolders = localFolders.filter(
+      (folder) => folder.parentId === node.id
+    )
+    const unsortedRESTRequests = localRESTRequests.filter(
+      (restRequest) => restRequest.parentId === node.id
+    )
+
+    // For each folder recursively add its children
+    const nestedItems = unsortedFolders.flatMap((folder) =>
+      getNodeChildren({ node: folder, depth: depth + 1 })
+    )
+
+    const mergedItems: NodeChild[] = [
+      ...unsortedFolders,
+      ...unsortedRESTRequests,
+    ]
+
+    // Sort mergedItems by orderingIndex
+    const sortedItems = mergedItems.sort((a, b) => {
+      if (a.orderingIndex < b.orderingIndex) {
+        return -1
+      }
+      if (a.orderingIndex > b.orderingIndex) {
+        return 1
+      }
+      return 0
+    })
+
+    const items: Omit<ItemData<NodeItem>, 'id'>[] = []
+
+    // Add sortedItems to items
+    sortedItems.forEach((item) => {
+      items.push({
+        item: item,
+        depth,
+      })
+    })
+
+    // Add each load of nested items directly after its parent (found by parentId)
+    nestedItems.forEach((item) => {
+      const parent = items.find((i) => i.item.id === item.item.parentId)
+      if (parent) {
+        items.splice(items.indexOf(parent) + 1, 0, item)
+      } else {
+        throw `Could not find parent of ${item.item.id} in ${items}`
+      }
+    })
+
+    // Give each item integer Id and return items
+    return items.map((item, index) => ({
+      ...item,
+      id: index,
+    }))
+  }
+
+  const handleToggleCollapse = () => {}
+
+  const handleChange = (newItems: ItemData<NodeItem>[]) => {
+    if (isLocalWorkspace) {
+      // Seperate LocalFolders and LocalRESTRequests
+      const localFolders = newItems
+        .map((item) => item.item)
+        .filter((item) => item.__typename === 'LocalFolder') as LocalFolder[]
+
+      localFoldersVar(localFolders)
+
+      const localRESTRequests = newItems
+        .map((item) => item.item)
+        .filter(
+          (item) => item.__typename === 'LocalRESTRequest'
+        ) as LocalRESTRequest[]
+
+      localRESTRequestsVar(localRESTRequests)
+    } else {
+      throw 'Non local workspaces have not been implemented yet for CollectionTree'
+    }
+  }
+
+  const items = getNodeChildren({ node: collection })
+
+  return (
+    <Box>
+      <CollectionTopMenu collection={collection} />
+      <Divider />
+      <Flipper flipKey={items.map(({ id }) => id).join('.')}>
+        <Sortly<NodeItem> items={items} onChange={handleChange}>
+          {(props) => (
+            <ItemRenderer {...props} onToggleCollapse={handleToggleCollapse} />
+          )}
+        </Sortly>
+      </Flipper>
+    </Box>
+  )
+}

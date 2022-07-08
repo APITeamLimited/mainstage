@@ -8,7 +8,7 @@ export interface LocalRESTRequest extends BaseLocal {
   parentId: string
   __parentTypename: 'LocalCollection' | 'LocalFolder'
   name: string
-  orderingIndex: number | undefined
+  orderingIndex: number
 }
 
 type GenerateLocalRESTRequestProps = {
@@ -34,7 +34,7 @@ export const generateLocalRESTRequest = ({
     __typename: 'LocalRESTRequest',
     parentId,
     __parentTypename,
-    orderingIndex,
+    orderingIndex: orderingIndex || 0,
   }
 }
 

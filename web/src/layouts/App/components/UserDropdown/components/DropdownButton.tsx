@@ -18,11 +18,11 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
   const anchorRef = useRef<HTMLButtonElement | null>(null)
   const [openPopover, setOpenPopover] = useState<boolean>(false)
 
-  const handleOpenPopover = (): void => {
+  const handleOpenPopover = () => {
     setOpenPopover(true)
   }
 
-  const handleClosePopover = (): void => {
+  const handleClosePopover = () => {
     setOpenPopover(false)
   }
 

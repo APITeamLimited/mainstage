@@ -1,3 +1,4 @@
+import { useReactiveVar } from '@apollo/client'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   Button,
@@ -22,7 +23,7 @@ type OverviewItemProps = {
 
 export function OverviewItem({ item }: OverviewItemProps) {
   const theme = useTheme()
-  const activeWorkspace = activeWorkspaceVar()
+  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
 
   const getTypeName = () => {
     if (item.__typename === 'LocalCollection') {
@@ -98,7 +99,7 @@ export function OverviewItem({ item }: OverviewItemProps) {
                 </Typography>
               </Box>
               <IconButton>
-                <SvgIcon component={MoreVertIcon} />
+                <MoreVertIcon />
               </IconButton>
             </Stack>
             <Box

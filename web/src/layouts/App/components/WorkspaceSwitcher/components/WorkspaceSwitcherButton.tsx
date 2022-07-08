@@ -14,7 +14,7 @@ import {
 import type { WorkspaceSwitcherTeamMemberships } from 'types/graphql'
 
 import { useAuth } from '@redwoodjs/auth'
-
+import { useReactiveVar } from '@apollo/client'
 import { activeWorkspaceVar, anonymousWorkspace } from 'src/contexts/reactives'
 
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
@@ -36,7 +36,7 @@ export type WorksaceMenuItem = {
 export const WorkspaceSwitcherButton = ({ memberships }: SwitcherProps) => {
   const anchorRef = useRef<HTMLButtonElement | null>(null)
   const [openPopover, setOpenPopover] = useState<boolean>(false)
-  const workspace = activeWorkspaceVar()
+  const workspace = useReactiveVar(activeWorkspaceVar)
   const { currentUser } = useAuth()
   const theme = useTheme()
 

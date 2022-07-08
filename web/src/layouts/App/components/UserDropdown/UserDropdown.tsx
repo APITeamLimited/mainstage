@@ -50,11 +50,13 @@ const QueriedUserDropdown = () => {
     return <DropdownButton currentUser={oldQuery.currentUser} />
   }
 
-  if (data.currentUser) {
+  if (data?.currentUser) {
     return <DropdownButton currentUser={data.currentUser} />
   }
 
   if (error) {
     throw error
   }
+
+  return null
 }

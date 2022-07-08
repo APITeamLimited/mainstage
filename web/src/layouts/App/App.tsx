@@ -14,6 +14,7 @@ import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { ActiveWorkspace } from 'src/contexts/reactives'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 
+import { APITeamLogo } from './components/APITeamLogo'
 import { CommandPalette } from './components/CommandPalette'
 import { UserDropdown } from './components/UserDropdown'
 import { WorkspaceSwitcher } from './components/WorkspaceSwitcher/WorkspaceSwitcher'
@@ -67,12 +68,11 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
             alignItems="center"
             justifyContent="space-between"
           >
-            <Box>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <APITeamLogo />
               <WorkspaceSwitcher />
-            </Box>
-            <Box>
               <CommandPalette />
-            </Box>
+            </Stack>
             <Box>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <ThemeModeToggler />
@@ -87,8 +87,9 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
           <Box
             position="fixed"
             sx={{
-              height: '100%',
+              height: `calc(100vh - ${appBarRef.current?.clientHeight}px)`,
               width: '100%',
+
               backgroundColor: theme.palette.background.default,
             }}
           >

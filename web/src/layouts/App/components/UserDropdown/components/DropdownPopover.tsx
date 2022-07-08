@@ -26,11 +26,9 @@ interface AccountPopoverProps {
 }
 
 export const DropdownPopover = (props: AccountPopoverProps) => {
-  const { anchorEl, onClose, open, ...other } = props
+  const { anchorEl, onClose, open, currentUser } = props
   const theme = useTheme()
   const { logOut } = useAuth()
-
-  const { currentUser } = props
 
   const fullName = currentUser
     ? `${props.currentUser?.firstName} ${props.currentUser?.lastName}`
@@ -51,7 +49,6 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
       keepMounted
       onClose={onClose}
       open={!!open}
-      {...other}
       sx={{
         mt: 1,
       }}
@@ -146,54 +143,56 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
       </Box>
       <Divider />
       <Box sx={{ my: 1 }}>
-        {currentUser ? (
-          <>
-            <MenuItem>
-              <Button>Invite</Button>
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>
-              <ListItemText
-                primary={
-                  <Typography variant="body1" marginLeft={1} paddingY={0.25}>
-                    Logout
-                  </Typography>
-                }
-              />
-            </MenuItem>
-          </>
-        ) : (
-          <Stack
-            spacing={2}
-            sx={{
-              mx: 3,
-              mb: 3,
-              mt: 2,
-            }}
-          >
-            <Typography
+        <>
+          {currentUser ? (
+            <>
+              <MenuItem>
+                <Button>Invite</Button>
+              </MenuItem>
+              <MenuItem onClick={handleLogout}>
+                <ListItemText
+                  primary={
+                    <Typography variant="body1" marginLeft={1} paddingY={0.25}>
+                      Logout
+                    </Typography>
+                  }
+                />
+              </MenuItem>
+            </>
+          ) : (
+            <Stack
+              spacing={2}
               sx={{
-                color: theme.palette.text.secondary,
-                fontSize: 'small',
+                mx: 3,
+                mb: 3,
+                mt: 2,
               }}
             >
-              Login to APITeam to access free cloud backup and team
-              collaboration
-            </Typography>
-            <Box>
-              <Link
-                to={routes.login()}
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
+              <Typography
+                sx={{
+                  color: theme.palette.text.secondary,
+                  fontSize: 'small',
                 }}
               >
-                <Button variant="contained" color="primary">
-                  Login
-                </Button>
-              </Link>
-            </Box>
-          </Stack>
-        )}
+                Login to APITeam to access free cloud backup and team
+                collaboration
+              </Typography>
+              <Box>
+                <Link
+                  to={routes.login()}
+                  style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                  }}
+                >
+                  <Button variant="contained" color="primary">
+                    Login
+                  </Button>
+                </Link>
+              </Box>
+            </Stack>
+          )}
+        </>
       </Box>
     </Popover>
   )

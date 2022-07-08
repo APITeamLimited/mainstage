@@ -11,6 +11,8 @@ import {
   Stack,
 } from '@mui/material'
 
+import { navigate, routes } from '@redwoodjs/router'
+
 import { ActiveWorkspace, activeWorkspaceVar } from 'src/contexts/reactives'
 
 import { WorksaceMenuItem } from './WorkspaceSwitcherButton'
@@ -25,6 +27,11 @@ interface WorkspacePopoverProps {
 export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
   const { anchorEl, onClose, open, workspaces } = props
   const theme = useTheme()
+
+  const switchWorkspace = (workspace: WorksaceMenuItem) => {
+    navigate(routes.dashboard())
+    activeWorkspaceVar(workspace as ActiveWorkspace)
+  }
 
   return (
     <Popover
@@ -44,7 +51,7 @@ export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
         {workspaces.map((workspace, index) => (
           <MenuItem
             key={index}
-            onClick={() => activeWorkspaceVar(workspace as ActiveWorkspace)}
+            onClick={() => switchWorkspace(workspace)}
             sx={{
               padding: 2,
               alignItems: 'center',
