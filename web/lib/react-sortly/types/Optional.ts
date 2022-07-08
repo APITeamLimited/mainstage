@@ -1,3 +1,3 @@
-type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
-export default Optional; // eslint-disable-line no-undef
+export default Optional // eslint-disable-line no-undef

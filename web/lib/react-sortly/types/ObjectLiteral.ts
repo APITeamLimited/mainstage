@@ -1,5 +1,5 @@
 type ObjectLiteral = {
-  [key in string | number]: any;
-};
+  [key in string | number]: any
+}
 
-export default ObjectLiteral; // eslint-disable-line no-undef
+export default ObjectLiteral // eslint-disable-line no-undef

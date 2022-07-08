@@ -1,8 +1,8 @@
-import ID from './ID';
+import ID from './ID'
 
 type ItemData<D = { id: ID }> = {
-  id: D extends { id: ID } ? D['id'] : ID;
-  depth: number;
-} & D;
+  id: D extends { id: ID } ? D['id'] : ID
+  depth: number
+} & D
 
-export default ItemData; // eslint-disable-line no-undef
+export default ItemData // eslint-disable-line no-undef

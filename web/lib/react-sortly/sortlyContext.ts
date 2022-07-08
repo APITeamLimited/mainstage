@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 
 type ItemContext<D> = {
-  items: D[];
-};
+  items: D[]
+}
 
 // @ts-ignore
-const context = React.createContext<ItemContext>({});
+const context = React.createContext<ItemContext>({})
 
-export default context;
+export default context

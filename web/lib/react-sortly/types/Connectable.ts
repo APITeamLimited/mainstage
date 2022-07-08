@@ -1,3 +1,3 @@
-type Connectable = React.RefObject<Element | undefined> | Element;
+type Connectable = React.RefObject<Element | undefined> | Element
 
-export default Connectable; // eslint-disable-line no-undef
+export default Connectable // eslint-disable-line no-undef

@@ -1,3 +1,3 @@
-type ID = number | string;
+type ID = number | string
 
-export default ID; // eslint-disable-line no-undef
+export default ID

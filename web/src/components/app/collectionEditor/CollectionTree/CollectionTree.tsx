@@ -1,7 +1,7 @@
 import { useReactiveVar } from '@apollo/client'
 import { Box, Divider } from '@mui/material'
 import { Flipper } from 'react-flip-toolkit'
-import Sortly, { ID, ItemData, findDescendants } from 'web/lib/react-sortly'
+import { Sortly, ID, ItemData, findDescendants } from 'web/lib/react-sortly'
 
 import {
   activeWorkspaceVar,

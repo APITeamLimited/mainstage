@@ -1,19 +1,21 @@
-import React from 'react';
-import { DragSourceMonitor } from 'react-dnd';
+import React from 'react'
 
-import context from './context';
-import Connectable from './types/Connectable';
-import Context from './types/Context';
+import { DragSourceMonitor } from 'react-dnd'
+
+import context from './context'
+import Connectable from './types/Connectable'
+import Context from './types/Context'
 
 type ContextProviderProps = {
-  children: React.ReactElement | React.ReactElement[];
-};
+  children: React.ReactElement | React.ReactElement[]
+}
 
 const ContextProvider = (props: ContextProviderProps) => {
-  const { children } = props;
-  const [dragMonitor, setDragMonitor] = React.useState<DragSourceMonitor>();
-  const [connectedDragSource, setConnectedDragSource] = React.useState<React.RefObject<Connectable | undefined>>();
-  const [initialDepth, setInitialDepth] = React.useState<number>();
+  const { children } = props
+  const [dragMonitor, setDragMonitor] = React.useState<DragSourceMonitor>()
+  const [connectedDragSource, setConnectedDragSource] =
+    React.useState<React.RefObject<Connectable | undefined>>()
+  const [initialDepth, setInitialDepth] = React.useState<number>()
 
   const value: Context = {
     dragMonitor,
@@ -22,13 +24,9 @@ const ContextProvider = (props: ContextProviderProps) => {
     setConnectedDragSource,
     initialDepth,
     setInitialDepth,
-  };
+  }
 
-  return (
-    <context.Provider value={value}>
-      {children}
-    </context.Provider>
-  );
-};
+  return <context.Provider value={value}>{children}</context.Provider>
+}
 
-export default ContextProvider;
+export default ContextProvider

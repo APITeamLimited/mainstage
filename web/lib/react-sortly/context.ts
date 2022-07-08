@@ -1,21 +1,21 @@
-import React from 'react';
+import React from 'react'
 
-import Context from './types/Context';
+import Context from './types/Context'
 
 const warn = () => {
-  throw new Error('Expected react-sortly context');
-};
+  throw new Error('Expected react-sortly context')
+}
 
 const context = React.createContext<Context>({
   setDragMonitor: () => {
-    warn();
+    warn()
   },
   setConnectedDragSource: () => {
-    warn();
+    warn()
   },
   setInitialDepth: () => {
-    warn();
+    warn()
   },
-});
+})
 
-export default context;
+export default context
