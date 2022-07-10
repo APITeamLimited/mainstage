@@ -7,6 +7,8 @@ type ItemContext = {
   id: ID
   type: string | symbol
   depth: number
+  onHoverBegin: (id: ID, ref: React.RefObject<Connectable>) => void
+  onHoverEnd: (id: ID) => void
 }
 
 // @ts-ignore

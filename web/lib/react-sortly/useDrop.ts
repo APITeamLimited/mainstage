@@ -33,10 +33,12 @@ export function useDrop<
   })
 
   React.useEffect(() => {
+    // This seems to be firing on the component underneath the drop target
     if (collectedProps.hovered) {
       onHoverBegin(id, connectedDropRef)
       wasHoveredRef.current = true
     } else if (wasHoveredRef.current === true) {
+      console.log('hover end', id)
       onHoverEnd(id)
     }
   }, [id, collectedProps.hovered, onHoverBegin, onHoverEnd])
@@ -45,11 +47,10 @@ export function useDrop<
     ...args: Parameters<typeof originalConnectDropTarget>
   ) => {
     const result = originalConnectDropTarget(...args)
-    // @ts-ignore
+
     connectedDropRef.current = result
     return result
   }
 
-  // @ts-ignore
   return [collectedProps, connectDropTarget]
 }

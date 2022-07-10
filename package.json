@@ -32,6 +32,7 @@
     "@emotion/styled": "^11.9.3",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.6",
+    "@mui/styles": "^5.8.7",
     "@reduxjs/toolkit": "^1.8.3",
     "apollo3-cache-persist": "^0.14.1",
     "config": "^3.3.7",

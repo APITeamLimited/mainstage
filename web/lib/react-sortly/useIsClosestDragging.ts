@@ -5,7 +5,7 @@ import useItem from './useItem'
 import useItems from './useItems'
 import { isClosestOf } from './utils'
 
-export default function useIsClosestDragging(index?: number) {
+export function useIsClosestDragging(index?: number) {
   const items = useItems()
   const draggingItem = useDraggingItem()
   const item = useItem()

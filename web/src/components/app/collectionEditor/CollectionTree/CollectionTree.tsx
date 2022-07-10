@@ -12,6 +12,7 @@ import {
 
 import {
   activeWorkspaceVar,
+  BaseLocal,
   LocalCollection,
   LocalFolder,
   localFoldersVar,
@@ -26,7 +27,35 @@ type CollectionTreeProps = {
   collection: LocalCollection
 }
 
-type NodeChild = LocalFolder | LocalRESTRequest
+interface BlankSpace extends BaseLocal {
+  __typename: 'BlankSpace'
+  id: string
+  parentId: string
+  __parentTypename: 'LocalFolder' | 'LocalCollection'
+  orderingIndex: number
+}
+
+type NewBlankSpaceProps = {
+  parentId: string
+  __parentTypename: 'LocalFolder' | 'LocalCollection'
+  orderingIndex: number
+}
+
+const newBlankSpace = ({
+  parentId,
+  __parentTypename,
+  orderingIndex,
+}: NewBlankSpaceProps): BlankSpace => ({
+  __typename: 'BlankSpace',
+  id: `${parentId}-child-blank-space`,
+  parentId,
+  __parentTypename,
+  createdAt: new Date(),
+  updatedAt: null,
+  orderingIndex,
+})
+
+type NodeChild = LocalFolder | LocalRESTRequest | BlankSpace
 
 // NodeItem stores flattned list with collapsed state
 export type NodeItem = {
@@ -77,6 +106,41 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
       return 0
     })
 
+    // Add blank space between each sorted item
+
+    const blankSpaces = [
+      newBlankSpace({
+        parentId: node.id,
+        __parentTypename: node.__typename,
+        orderingIndex: -0.5,
+      }),
+    ]
+
+    blankSpaces.push(
+      ...sortedItems.map((item, index) =>
+        newBlankSpace({
+          parentId: node.id,
+          __parentTypename: node.__typename,
+
+          orderingIndex: index + 0.5,
+        })
+      )
+    )
+
+    // Add blank spaces to sorted
+    sortedItems.push(...blankSpaces)
+
+    // Sort sorted items again by orderingIndex
+    sortedItems.sort((a, b) => {
+      if (a.orderingIndex < b.orderingIndex) {
+        return -1
+      }
+      if (a.orderingIndex > b.orderingIndex) {
+        return 1
+      }
+      return 0
+    })
+
     const items: Omit<ItemData<NodeItem>, 'id'>[] = []
 
     // Add sortedItems to items
@@ -97,17 +161,18 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
       }
     })
 
-    // Give each item integer Id and return items
-    return items.map((item, index) => ({
-      ...item,
-      id: index,
-      type: item.item.__typename,
-    }))
+    return items.map((item, index) => {
+      return {
+        ...item,
+        id: index,
+      }
+    })
   }
 
   const handleToggleCollapse = () => {}
 
   const handleChange = (newItems: ItemData<NodeItem>[]) => {
+    console.log('handleChange', newItems)
     if (isLocalWorkspace) {
       // Seperate LocalFolders and LocalRESTRequests
       const localFolders = newItems
@@ -129,6 +194,8 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
   }
 
   const items = getNodeChildren({ node: collection })
+
+  console.log('Items are', items)
 
   return (
     <Box>

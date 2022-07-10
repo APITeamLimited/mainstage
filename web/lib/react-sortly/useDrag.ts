@@ -55,13 +55,15 @@ export function useDrag<
         ...(spec && spec.item ? spec.item : {}),
         id,
       },
-      end(...args) {
+      end(daggedItem, monitor) {
         setInitialDepth(undefined)
         setDragMonitor(undefined)
 
         if (spec && spec.end) {
-          spec.end(...args)
+          spec.end(daggedItem, monitor)
         }
+
+        return daggedItem
       },
     })
 
