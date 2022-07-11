@@ -3977,6 +3977,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-hook/latest@npm:^1.0.2":
+  version: 1.0.3
+  resolution: "@react-hook/latest@npm:1.0.3"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: d6a166c21121da519a516e8089ba28a2779d37b6017732ab55476c0d354754ad215394135765254f8752a7c6661c3fb868d088769a644848602f00f8821248ed
+  languageName: node
+  linkType: hard
+
+"@react-hook/throttle@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@react-hook/throttle@npm:2.2.0"
+  dependencies:
+    "@react-hook/latest": ^1.0.2
+  peerDependencies:
+    react: ">=16.8"
+  checksum: a8c99314fcd4401cb482330c5d1e16fa871371d327a8529efdbcfc1c2b97cc11bf43b668dadaf4e993286fb6b8904275f8ee6f80721631ece4f2bdc7a9612e18
+  languageName: node
+  linkType: hard
+
 "@redis/bloom@npm:1.0.2":
   version: 1.0.2
   resolution: "@redis/bloom@npm:1.0.2"
@@ -21848,6 +21868,7 @@ __metadata:
     "@mui/icons-material": ^5.8.4
     "@mui/material": ^5.8.6
     "@mui/styles": ^5.8.7
+    "@react-hook/throttle": ^2.2.0
     "@reduxjs/toolkit": ^1.8.3
     "@redwoodjs/core": 2.0.0
     "@types/config": ^0.0.41

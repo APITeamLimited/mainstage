@@ -35,7 +35,6 @@ export const CollectionEditorPage = ({
   const appBarHeight = useAppBarHeight()
   const theme = useTheme()
   const [currentAppBarHeight, setCurrentAppBarHeight] = useState(0)
-  const collectionPaneWidthRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (workspaceId !== activeWorkspace.id) {
@@ -60,7 +59,7 @@ export const CollectionEditorPage = ({
     <div style={{ height: '100%' }}>
       <ReflexContainer orientation="vertical">
         <ReflexElement
-          minSize={240}
+          minSize={200}
           maxSize={400}
           style={{
             backgroundColor: theme.palette.background.paper,

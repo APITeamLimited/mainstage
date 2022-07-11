@@ -26,7 +26,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
   })
-  const appBarRef = useRef<HTMLDivElement | null>(null)
+  const appBarRef = useRef<HTMLDivElement>(null)
 
   const [openSidebar, setOpenSidebar] = useState(false)
 

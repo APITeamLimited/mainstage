@@ -33,6 +33,7 @@
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.6",
     "@mui/styles": "^5.8.7",
+    "@react-hook/throttle": "^2.2.0",
     "@reduxjs/toolkit": "^1.8.3",
     "apollo3-cache-persist": "^0.14.1",
     "config": "^3.3.7",
