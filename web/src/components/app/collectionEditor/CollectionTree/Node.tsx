@@ -12,7 +12,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Stack,
   Typography,
   useTheme,
 } from '@mui/material'
@@ -54,7 +53,9 @@ type NodeProps = {
 type DropSpace = 'Top' | 'Bottom' | 'Inner' | null
 
 export const Node = ({ item, parentIndex }: NodeProps) => {
-  const [collapsed, setCollapsed] = useState(false)
+  const isRoot = item.__typename === 'LocalCollection'
+
+  const [collapsed, setCollapsed] = useState(isRoot ? false : true)
   const [renaming, setRenaming] = useState(false)
   const localFolders = useReactiveVar(localFoldersVar)
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
@@ -79,12 +80,27 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
     [item]
   )
 
-  const [{ hovered, itemBeingDropped, itemBeingHovered }, drop] = useDrop(
+  const handleDrop = (dropResult: NodeProps) => {
+    console.log('handleDrop', dropResult)
+
+    // Ignore drops on the same node
+    if (
+      dropResult.item.id === item.id &&
+      dropResult.parentIndex === parentIndex &&
+      dropResult.item.__typename === item.__typename
+    ) {
+      return
+    }
+
+    // Update
+  }
+
+  const [{ hovered, itemBeingDropped, itemBeingHovered, a }, drop] = useDrop(
     () => ({
       accept: ['LocalFolder', 'LocalRESTRequest'],
-      drop: (item, monitor) => ({
-        itemBeingDropped: item,
-      }),
+      drop: (item, monitor) => {
+        handleDrop(monitor.getItem())
+      },
       collect: (monitor) => ({
         hovered:
           monitor.canDrop() &&
@@ -96,12 +112,6 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
   )
 
   const handleToggle = (event: MouseEvent) => {
-    // Don't run on actionButtonRef click
-    console.log(event.target, actionButtonRef.current)
-    if (event.target === actionButtonRef.current) {
-      return
-    }
-
     switch (event.detail) {
       case 1:
         setCollapsed(!collapsed)
@@ -111,8 +121,6 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
         break
     }
   }
-
-  console.log(itemBeingDropped)
 
   const getNodeItemChildren = ({ node }: { node: NodeItem }): NodeItem[] => {
     const unsortedFolders = localFolders.filter(
@@ -158,10 +166,10 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
               element.bottom - offset.y > 10
             ) {
               setDropSpace('Inner')
-            } else {
+            } else if (indexDifference < -1) {
               setDropSpace('Bottom')
             }
-          } else if (true) {
+          } else if (indexDifference > 1) {
             setDropSpace('Top')
           }
         } else {
@@ -188,8 +196,6 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       })
     : []
 
-  const isRoot = item.__typename === 'LocalCollection'
-
   const innerContent = (childNodes &&
     !collapsed &&
     childNodes.map((childNode, childIndex) => (
@@ -212,46 +218,31 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
               }}
             />
           )}
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            marginRight={2}
+          <ListItem
+            secondaryAction={<NodeActionButton item={item} />}
+            sx={{
+              paddingTop: dropSpace === 'Top' ? 0.5 : 1,
+              paddingBottom: 0.5,
+            }}
+            onClick={handleToggle}
           >
-            <ListItem
-              sx={{
-                paddingTop: dropSpace === 'Top' ? 0.5 : 1,
-              }}
-              onClick={handleToggle}
+            <ListItemIcon
+              color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
             >
-              <ListItemIcon
-                color={
-                  isBeingDragged ? theme.palette.text.secondary : 'inherit'
-                }
-              >
-                {getNodeIcon(item.__typename, collapsed)}
-              </ListItemIcon>
-              <ListItemText
-                primary={item.name}
-                sx={{
-                  whiteSpace: 'nowrap',
-                  marginLeft: -2,
-                  overflow: 'hidden',
-                  color: isBeingDragged
-                    ? theme.palette.text.secondary
-                    : 'inherit',
-                }}
-              />
-            </ListItem>
-            <Box
+              {getNodeIcon(item.__typename, collapsed)}
+            </ListItemIcon>
+            <ListItemText
+              primary={item.name}
               sx={{
-                overflow: 'show',
-                position: 'sticky',
+                whiteSpace: 'nowrap',
+                marginLeft: -2,
+                overflow: 'hidden',
+                color: isBeingDragged
+                  ? theme.palette.text.secondary
+                  : 'inherit',
               }}
-            >
-              <NodeActionButton item={item} />
-            </Box>
-          </Stack>
+            />
+          </ListItem>
           <Collapse in={!collapsed || hovered} timeout="auto">
             <List
               sx={{

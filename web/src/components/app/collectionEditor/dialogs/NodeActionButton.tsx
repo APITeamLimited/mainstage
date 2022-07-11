@@ -22,13 +22,18 @@ export const NodeActionButton = ({ item }: NodeActionButtonProps) => {
   const buttonRef = useRef<HTMLButtonElement | null>(null)
   const theme = useTheme()
 
+  const handleClick = (event: MouseEvent) => {
+    event.stopPropagation()
+    setMenuOpen(!menuOpen)
+  }
+
   return (
     <>
       <IconButton
         edge="end"
         aria-label={`${item.name} actions`}
         ref={buttonRef}
-        onClick={() => setMenuOpen(true)}
+        onClick={handleClick}
       >
         <MoreVertIcon />
       </IconButton>
