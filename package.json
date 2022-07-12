@@ -13,6 +13,7 @@
     "@types/md5": "^2.3.2",
     "@types/react": "^17.0.45",
     "@types/react-lazy-load-image-component": "^1.5.2",
+    "@types/use-double-click": "^1.0.1",
     "@types/uuid": "^8.3.4"
   },
   "eslintConfig": {
@@ -55,6 +56,7 @@
     "react-typed": "^1.2.0",
     "redis": "^4.1.1",
     "stripe": "^9.11.0",
+    "use-double-click": "^1.0.5",
     "uuid": "^8.3.2",
     "yup": "^0.32.11"
   }

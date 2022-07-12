@@ -15,6 +15,7 @@ import {
 import {
   activeWorkspaceVar,
   generateLocalFolder,
+  generateLocalRESTRequest,
   LocalCollection,
   localFoldersVar,
   localRESTRequestsVar,
@@ -46,14 +47,32 @@ export const NewItemPopover = ({
           generateLocalFolder({
             parentId: collection.id,
             __parentTypename: 'LocalCollection',
-            name: new Date().toISOString(),
+            name: 'New Folder',
           })
         )
       )
     } else {
       throw 'NewItemPopover non-local workspace not implemented'
     }
-    onClose()
+    if (onClose) onClose()
+  }
+
+  const handleCreateNewRESTRequest = () => {
+    if (isLocalWorkspace) {
+      // Create new REST request with parent of the collection
+      localRESTRequestsVar(
+        localRESTRequests.concat(
+          generateLocalRESTRequest({
+            parentId: collection.id,
+            __parentTypename: 'LocalCollection',
+            name: 'New Request',
+          })
+        )
+      )
+    } else {
+      throw 'NewItemPopover non-local workspace not implemented'
+    }
+    if (onClose) onClose()
   }
 
   return (
@@ -63,7 +82,6 @@ export const NewItemPopover = ({
         horizontal: 'center',
         vertical: 'bottom',
       }}
-      keepMounted
       onClose={onClose}
       open={!!open}
       sx={{
@@ -87,7 +105,7 @@ export const NewItemPopover = ({
           <ListItemText primary="New Folder" />
         </MenuItem>
         <MenuItem
-          onClick={() => undefined}
+          onClick={handleCreateNewRESTRequest}
           sx={{
             padding: 2,
           }}

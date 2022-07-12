@@ -6,6 +6,7 @@ import {
   localProjectsVar,
   localCollectionsVar,
   localFoldersVar,
+  localRESTRequestsVar,
 } from './locals'
 
 export const ReactiveVarPersistor = () => {
@@ -15,6 +16,7 @@ export const ReactiveVarPersistor = () => {
   const localProjects = useReactiveVar(localProjectsVar)
   const localCollections = useReactiveVar(localCollectionsVar)
   const localFolders = useReactiveVar(localFoldersVar)
+  const localRESTRequests = useReactiveVar(localRESTRequestsVar)
 
   // If we haven't performed the startup yet, get persisted variables from local storage
   useEffect(() => {
@@ -22,6 +24,8 @@ export const ReactiveVarPersistor = () => {
       const persistedLocalProjects = localStorage.getItem('localProjects')
       const persistedLocalCollections = localStorage.getItem('localCollections')
       const persistedLocalFolders = localStorage.getItem('localFolders')
+      const persistedLocalRESTRequests =
+        localStorage.getItem('localRESTRequests')
 
       localProjectsVar(
         JSON.parse(persistedLocalProjects || '[]').map((project) => {
@@ -55,6 +59,18 @@ export const ReactiveVarPersistor = () => {
               ? null
               : Date.parse(folder.updatedAt),
             createdAt: Date.parse(folder.createdAt),
+          }
+        })
+      )
+
+      localRESTRequestsVar(
+        JSON.parse(persistedLocalRESTRequests || '[]').map((request) => {
+          return {
+            ...request,
+            updatedAt: isNaN(Date.parse(request.updatedAt))
+              ? null
+              : Date.parse(request.updatedAt),
+            createdAt: Date.parse(request.createdAt),
           }
         })
       )
@@ -115,6 +131,23 @@ export const ReactiveVarPersistor = () => {
       )
     )
   }, [localFolders])
+
+  useEffect(() => {
+    localStorage.setItem(
+      'localRESTRequests',
+      JSON.stringify(
+        localRESTRequests.map((request) => {
+          return {
+            ...request,
+            updatedAt: request.updatedAt
+              ? new Date(request.updatedAt).toISOString()
+              : null,
+            createdAt: new Date(request.createdAt).toISOString(),
+          }
+        })
+      )
+    )
+  }, [localRESTRequests])
 
   return null
 }

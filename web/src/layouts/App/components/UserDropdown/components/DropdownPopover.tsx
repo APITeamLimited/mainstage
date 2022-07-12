@@ -46,7 +46,6 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
         horizontal: 'center',
         vertical: 'bottom',
       }}
-      keepMounted
       onClose={onClose}
       open={!!open}
       sx={{

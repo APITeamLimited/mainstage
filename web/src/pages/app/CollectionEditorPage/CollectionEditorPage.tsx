@@ -1,25 +1,19 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import {
-  Box,
-  Button,
-  Grid,
-  Container,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { Paper, useTheme } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 
 import 'react-reflex/styles.css'
 
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
+import { focusedElementVar } from 'src/components/app/collectionEditor/reactives'
+import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
 import {
   activeWorkspaceVar,
   anonymousWorkspace,
   localCollectionsVar,
 } from 'src/contexts/reactives'
-import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -32,9 +26,9 @@ export const CollectionEditorPage = ({
 }: CollectionEditorPageProps) => {
   const localCollections = useReactiveVar(localCollectionsVar)
   const activeWorkspace = useReactiveVar(activeWorkspaceVar)
-  const appBarHeight = useAppBarHeight()
   const theme = useTheme()
-  const [currentAppBarHeight, setCurrentAppBarHeight] = useState(0)
+  const focusedElement = useReactiveVar(focusedElementVar)
+  const inputPanelHeightRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (workspaceId !== activeWorkspace.id) {
@@ -56,68 +50,89 @@ export const CollectionEditorPage = ({
   }
 
   return (
-    <div style={{ height: '100%' }}>
+    <div
+      style={{ height: '100%', backgroundColor: theme.palette.alternate.dark }}
+    >
       <ReflexContainer orientation="vertical">
-        <ReflexElement
-          minSize={200}
-          maxSize={400}
-          style={{
-            backgroundColor: theme.palette.background.paper,
-          }}
-        >
-          <CollectionTree collection={collection} />
+        <ReflexElement minSize={200} maxSize={400} size={250}>
+          <Paper
+            sx={{
+              height: '100%',
+              borderRadius: 0,
+            }}
+            elevation={10}
+          >
+            <CollectionTree collection={collection} />
+          </Paper>
         </ReflexElement>
         <ReflexSplitter
           style={{
-            width: 4,
+            width: 8,
             border: 'none',
-            backgroundColor: theme.palette.alternate.dark,
+            backgroundColor: 'transparent',
           }}
         />
-        <ReflexElement
-          style={{
-            backgroundColor: theme.palette.background.paper,
-          }}
-        >
+        <ReflexElement style={{}} minSize={500}>
           <div style={{ height: '100%' }}>
             <ReflexContainer orientation="horizontal">
               <ReflexElement
-                minSize={30}
                 style={{
-                  backgroundColor: theme.palette.background.paper,
-                }}
-              ></ReflexElement>
-              <ReflexSplitter
-                style={{
-                  height: 4,
-                  border: 'none',
-                  backgroundColor: theme.palette.alternate.dark,
-                }}
-              />
-              <ReflexElement
-                style={{
-                  backgroundColor: theme.palette.background.paper,
+                  overflow: 'hidden',
                 }}
               >
-                <div style={{ height: '50px' }}> </div>
+                <div
+                  style={{
+                    height: '100%',
+                  }}
+                >
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      // Set height to inputPanelHeightRefs height
+                      height: '100%',
+                      borderRadius: 0,
+                    }}
+                  >
+                    {focusedElement?.__typename === 'LocalRESTRequest' && (
+                      <RESTInputPanel request={focusedElement} />
+                    )}
+                  </Paper>
+                </div>
+              </ReflexElement>
+              <ReflexSplitter
+                style={{
+                  height: 8,
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                }}
+              />
+              <ReflexElement>
+                <div style={{ height: '100%' }}>
+                  <Paper
+                    elevation={0}
+                    sx={{ borderRadius: 0, height: '100%' }}
+                  ></Paper>
+                </div>
               </ReflexElement>
             </ReflexContainer>
           </div>
         </ReflexElement>
         <ReflexSplitter
           style={{
-            width: 4,
+            width: 8,
             border: 'none',
-            backgroundColor: theme.palette.alternate.dark,
+            backgroundColor: 'transparent',
           }}
         />
-        <ReflexElement
-          minSize={50}
-          maxSize={800}
-          style={{
-            backgroundColor: theme.palette.background.paper,
-          }}
-        ></ReflexElement>
+        <ReflexElement minSize={50} maxSize={800}>
+          <Paper
+            sx={{
+              height: '100%',
+              borderRadius: 0,
+            }}
+            elevation={0}
+          ></Paper>
+        </ReflexElement>
       </ReflexContainer>
     </div>
   )
