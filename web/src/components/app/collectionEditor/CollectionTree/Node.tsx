@@ -54,6 +54,7 @@ type DropSpace = 'Top' | 'Bottom' | 'Inner' | null
 
 export const Node = ({ item, parentIndex }: NodeProps) => {
   const isRoot = item.__typename === 'LocalCollection'
+  const isSecondRoot = item.__parentTypename === 'LocalCollection'
 
   const [collapsed, setCollapsed] = useState(isRoot ? false : true)
   const [renaming, setRenaming] = useState(false)
@@ -64,6 +65,8 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
   const [dropSpace, setDropSpace] = useThrottle<DropSpace>(null)
   const itemRef = useRef<HTMLDivElement>(null)
   const theme = useTheme()
+  const [lastNoneNullDropSpace, setLastNoneNullDropSpace] =
+    useState<DropSpace>(null)
 
   const [{ isBeingDragged }, drag] = useDrag(
     () => ({
@@ -80,8 +83,23 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
     [item]
   )
 
-  const handleDrop = (dropResult: NodeProps) => {
-    console.log('handleDrop', dropResult)
+  const handleDrop = (dropResult: {
+    parentIndex: number
+    item: LocalFolder | LocalRESTRequest
+  }) => {
+    console.log(
+      'parent',
+      item.__typename,
+      'orderinIndex',
+      item.orderingIndex,
+      'handleDrop',
+      dropResult,
+      lastNoneNullDropSpace
+    )
+
+    if (lastNoneNullDropSpace === null) {
+      return
+    }
 
     // Ignore drops on the same node
     if (
@@ -92,7 +110,101 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       return
     }
 
-    // Update
+    let newItem: LocalFolder | LocalRESTRequest
+
+    switch (lastNoneNullDropSpace) {
+      case 'Top':
+        newItem = {
+          ...dropResult.item,
+          parentId: item.parentId,
+          __parentTypename: item.__parentTypename,
+          orderingIndex: item.orderingIndex - 0.5,
+        } as LocalFolder | LocalRESTRequest
+        break
+      case 'Bottom':
+        newItem = {
+          ...dropResult.item,
+          parentId: item.parentId,
+          __parentTypename: item.__parentTypename,
+          orderingIndex: item.orderingIndex + 0.5,
+        } as LocalFolder | LocalRESTRequest
+        break
+      case 'Inner':
+        newItem = {
+          ...dropResult.item,
+          parentId: item.id,
+          __parentTypename: item.__typename,
+          orderingIndex: 0,
+        } as LocalFolder | LocalRESTRequest
+        break
+    }
+
+    console.log('newItem', newItem)
+
+    const itemsThisLevel = getNodeItemChildren({ node: item }) as (
+      | LocalFolder
+      | LocalRESTRequest
+    )[]
+
+    // Insert the new item at the correct orderingIndex, the orderingIndex is a decimal
+    // number, so we need to find the correct index to insert the new item at
+    const index = itemsThisLevel.findIndex(
+      (item) => item.orderingIndex > newItem.orderingIndex
+    )
+
+    // Insert the new item at the correct index
+    itemsThisLevel.splice(index, 0, newItem)
+
+    // generate whole new orderingIndexes for items this level
+    itemsThisLevel.forEach((item, index) => {
+      item.orderingIndex = index
+    })
+
+    if (newItem.__typename === 'LocalFolder') {
+      // LocalFolders on this level
+      const localFoldersThisLevel = itemsThisLevel.filter(
+        (item) => item.__typename === 'LocalFolder'
+      ) as LocalFolder[]
+
+      const newLocalFolders = localFolders
+
+      // Merge with localFolders, updating any ids that match
+      localFoldersThisLevel.forEach((localFolder) => {
+        const index = newLocalFolders.findIndex(
+          (item) => item.id === localFolder.id
+        )
+        if (index !== -1) {
+          newLocalFolders[index] = localFolder
+        } else {
+          newLocalFolders.push(localFolder)
+        }
+      })
+
+      localFoldersVar(newLocalFolders)
+    } else if (newItem.__typename === 'LocalRESTRequest') {
+      // LocalRESTRequests on this level
+      const localRESTRequestsThisLevel = itemsThisLevel.filter(
+        (item) => item.__typename === 'LocalRESTRequest'
+      ) as LocalRESTRequest[]
+
+      const newLocalRESTRequests = localRESTRequests
+
+      // Merge with localRESTRequests, updating any ids that match
+      localRESTRequestsThisLevel.forEach((localRESTRequest) => {
+        const index = newLocalRESTRequests.findIndex(
+          (item) => item.id === localRESTRequest.id
+        )
+        if (index !== -1) {
+          newLocalRESTRequests[index] = localRESTRequest
+        } else {
+          newLocalRESTRequests.push(localRESTRequest)
+        }
+      })
+
+      localRESTRequestsVar(newLocalRESTRequests)
+      // Set setLastNoneNullDropSpace to null to show processed drop
+      //setLastNoneNullDropSpace(null)
+    }
   }
 
   const [{ hovered, itemBeingDropped, itemBeingHovered, a }, drop] = useDrop(
@@ -144,6 +256,16 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       return 0
     })
 
+    let hadToResort = false
+
+    // generate whole new orderingIndexes for items this level
+    sortedItems.forEach((item, index) => {
+      if (item.orderingIndex !== index) {
+        hadToResort = true
+        item.orderingIndex = index
+      }
+    })
+
     return sortedItems
   }
 
@@ -157,34 +279,46 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
         // Positive index differences occur when being dragged below the original position
         const indexDifference = parentIndex - itemBeingHovered?.parentIndex
 
-        if (element && offset && hovered && Math.abs(indexDifference) >= 1) {
+        if (
+          element &&
+          offset &&
+          hovered // &&
+          //Math.abs(indexDifference) >= (isRoot ? 0 : 1)
+        ) {
           if (offset.y - element.top > element.height / 2) {
             // If is folder and hovered, perform extra check
             // If more than 10 pixels from bottom set dropSpace to Inner
+
             if (
               item.__typename === 'LocalFolder' &&
-              element.bottom - offset.y > 10
+              element.bottom - offset.y > 20
             ) {
+              setLastNoneNullDropSpace('Inner')
               setDropSpace('Inner')
-            } else if (indexDifference < -1) {
+            } else if (indexDifference >= 1) {
+              setLastNoneNullDropSpace('Bottom')
               setDropSpace('Bottom')
             }
-          } else if (indexDifference > 1) {
+          } else if (indexDifference <= -1) {
+            setLastNoneNullDropSpace('Top')
             setDropSpace('Top')
           }
         } else {
+          if (dropSpace !== null) {
+            setLastNoneNullDropSpace(dropSpace)
+          }
           setDropSpace(null)
         }
       }),
     [
       monitor,
       itemRef,
-      dropSpace,
       hovered,
       itemBeingHovered,
       parentIndex,
       item.__typename,
       setDropSpace,
+      dropSpace,
     ]
   )
 
@@ -215,13 +349,14 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
                 height: '0.5rem',
                 backgroundColor: theme.palette.primary.light,
                 //marginTop: -0.5,
+                marginBottom: -1,
               }}
             />
           )}
           <ListItem
             secondaryAction={<NodeActionButton item={item} />}
             sx={{
-              paddingTop: dropSpace === 'Top' ? 0.5 : 1,
+              paddingTop: 1,
               paddingBottom: 0.5,
             }}
             onClick={handleToggle}
@@ -241,6 +376,7 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
                   ? theme.palette.text.secondary
                   : 'inherit',
               }}
+              secondary={`${parentIndex}, ${item.orderingIndex}`}
             />
           </ListItem>
           <Collapse in={!collapsed || hovered} timeout="auto">

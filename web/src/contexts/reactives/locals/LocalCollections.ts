@@ -11,6 +11,7 @@ export interface LocalCollection extends BaseLocal {
   lastViewedAt: Date | null
   folderIds: string[]
   requestIds: string[]
+  orderingIndex: number // Placeholder
 }
 
 type GenerateLocalCollectionProps = {
@@ -37,6 +38,7 @@ export const generateLocalCollection = ({
     folderIds: [],
     requestIds: [],
     lastViewedAt: lastViewedAt || null,
+    orderingIndex: 0,
   }
 }
 
