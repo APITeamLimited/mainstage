@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 
-import { localProjectsVar, localCollectionsVar } from './locals'
+import {
+  localProjectsVar,
+  localCollectionsVar,
+  localFoldersVar,
+} from './locals'
 
 export const ReactiveVarPersistor = () => {
   const [performedStartup, setPerformedStartup] = useState(false)
@@ -10,12 +14,14 @@ export const ReactiveVarPersistor = () => {
   // The reactive variables we want to persist
   const localProjects = useReactiveVar(localProjectsVar)
   const localCollections = useReactiveVar(localCollectionsVar)
+  const localFolders = useReactiveVar(localFoldersVar)
 
   // If we haven't performed the startup yet, get persisted variables from local storage
   useEffect(() => {
     if (!performedStartup) {
       const persistedLocalProjects = localStorage.getItem('localProjects')
       const persistedLocalCollections = localStorage.getItem('localCollections')
+      const persistedLocalFolders = localStorage.getItem('localFolders')
 
       localProjectsVar(
         JSON.parse(persistedLocalProjects || '[]').map((project) => {
@@ -41,11 +47,24 @@ export const ReactiveVarPersistor = () => {
         })
       )
 
+      localFoldersVar(
+        JSON.parse(persistedLocalFolders || '[]').map((folder) => {
+          return {
+            ...folder,
+            updatedAt: isNaN(Date.parse(folder.updatedAt))
+              ? null
+              : Date.parse(folder.updatedAt),
+            createdAt: Date.parse(folder.createdAt),
+          }
+        })
+      )
+
       setPerformedStartup(true)
     }
   }, [performedStartup])
 
   // If any of the reactive variables change, persist them to local storage
+
   useEffect(() => {
     localStorage.setItem(
       'localProjects',
@@ -61,7 +80,9 @@ export const ReactiveVarPersistor = () => {
         })
       )
     )
+  }, [localProjects])
 
+  useEffect(() => {
     localStorage.setItem(
       'localCollections',
       JSON.stringify(
@@ -76,7 +97,24 @@ export const ReactiveVarPersistor = () => {
         })
       )
     )
-  }, [localProjects, localCollections])
+  }, [localCollections])
+
+  useEffect(() => {
+    localStorage.setItem(
+      'localFolders',
+      JSON.stringify(
+        localFolders.map((folder) => {
+          return {
+            ...folder,
+            updatedAt: folder.updatedAt
+              ? new Date(folder.updatedAt).toISOString()
+              : null,
+            createdAt: new Date(folder.createdAt).toISOString(),
+          }
+        })
+      )
+    )
+  }, [localFolders])
 
   return null
 }

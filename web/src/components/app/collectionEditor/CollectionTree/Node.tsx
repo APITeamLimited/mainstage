@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -27,7 +27,7 @@ import {
   LocalCollection,
 } from 'src/contexts/reactives'
 
-import { NodeActionButton } from '../dialogs/NodeActionButton'
+import { NodeActionButton } from './NodeActionButton'
 
 const getNodeIcon = (__typename: string, collapsed: boolean) => {
   if (['LocalFolder', 'RemoteFolder'].includes(__typename) && collapsed) {
@@ -52,7 +52,7 @@ type NodeProps = {
 
 type DropSpace = 'Top' | 'Bottom' | 'Inner' | null
 
-export const Node = ({ item, parentIndex }: NodeProps) => {
+export const Node = memo(({ item, parentIndex }: NodeProps) => {
   const isRoot = item.__typename === 'LocalCollection'
   const isSecondRoot = item.__parentTypename === 'LocalCollection'
 
@@ -65,40 +65,64 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
   const [dropSpace, setDropSpace] = useThrottle<DropSpace>(null)
   const itemRef = useRef<HTMLDivElement>(null)
   const theme = useTheme()
-  const [lastNoneNullDropSpace, setLastNoneNullDropSpace] =
-    useState<DropSpace>(null)
 
-  const [{ isBeingDragged }, drag] = useDrag(
+  const [{ hovered, itemBeingDropped, itemBeingHovered, a }, drop] = useDrop(
     () => ({
-      type: item.__typename,
-      item: {
-        item,
-        parentIndex,
+      accept: ['LocalFolder', 'LocalRESTRequest'],
+      drop: (item, monitor) => {
+        handleDrop(monitor.getItem(), monitor.getClientOffset())
       },
-      collect: (monitor: DragSourceMonitor) => ({
-        isBeingDragged: monitor.isDragging(),
-        indexBeingDraged: parentIndex,
+      collect: (monitor) => ({
+        hovered:
+          monitor.canDrop() &&
+          monitor.isOver({ shallow: true }) &&
+          (monitor.getItem() as NodeProps).item.id !== item.id,
+        itemBeingHovered: monitor.getItem(),
       }),
-    }),
-    [item]
+    })
   )
 
-  const handleDrop = (dropResult: {
-    parentIndex: number
-    item: LocalFolder | LocalRESTRequest
-  }) => {
-    console.log(
-      'parent',
-      item.__typename,
-      'orderinIndex',
-      item.orderingIndex,
-      'handleDrop',
-      dropResult,
-      lastNoneNullDropSpace
-    )
+  const [{ isBeingDragged }, drag] = useDrag(() => ({
+    type: item.__typename,
+    item: {
+      item,
+      parentIndex,
+    },
+    collect: (monitor: DragSourceMonitor) => ({
+      isBeingDragged: monitor.isDragging(),
+      indexBeingDraged: parentIndex,
+    }),
+  }))
 
-    if (lastNoneNullDropSpace === null) {
+  const handleDrop = (
+    dropResult: {
+      parentIndex: number
+      item: LocalFolder | LocalRESTRequest
+    },
+    clientOffset: {
+      x: number
+      y: number
+    }
+  ) => {
+    const element = itemRef?.current?.getBoundingClientRect()
+
+    if (!element) {
       return
+    }
+
+    let calculatedDropSpace: DropSpace = null
+
+    if (clientOffset.y - element.top > element.height / 2) {
+      if (
+        item.__typename === 'LocalFolder' &&
+        element.bottom - clientOffset.y > 20
+      ) {
+        calculatedDropSpace = 'Inner'
+      } else {
+        calculatedDropSpace = 'Bottom'
+      }
+    } else {
+      calculatedDropSpace = 'Top'
     }
 
     // Ignore drops on the same node
@@ -112,7 +136,7 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
 
     let newItem: LocalFolder | LocalRESTRequest
 
-    switch (lastNoneNullDropSpace) {
+    switch (calculatedDropSpace) {
       case 'Top':
         newItem = {
           ...dropResult.item,
@@ -139,7 +163,7 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
         break
     }
 
-    console.log('newItem', newItem)
+    console.log('calculatedDropSpace', calculatedDropSpace, 'newItem', newItem)
 
     const itemsThisLevel = getNodeItemChildren({ node: item }) as (
       | LocalFolder
@@ -206,22 +230,6 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       //setLastNoneNullDropSpace(null)
     }
   }
-
-  const [{ hovered, itemBeingDropped, itemBeingHovered, a }, drop] = useDrop(
-    () => ({
-      accept: ['LocalFolder', 'LocalRESTRequest'],
-      drop: (item, monitor) => {
-        handleDrop(monitor.getItem())
-      },
-      collect: (monitor) => ({
-        hovered:
-          monitor.canDrop() &&
-          monitor.isOver({ shallow: true }) &&
-          (monitor.getItem() as NodeProps).item.id !== item.id,
-        itemBeingHovered: monitor.getItem(),
-      }),
-    })
-  )
 
   const handleToggle = (event: MouseEvent) => {
     switch (event.detail) {
@@ -293,20 +301,14 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
               item.__typename === 'LocalFolder' &&
               element.bottom - offset.y > 20
             ) {
-              setLastNoneNullDropSpace('Inner')
               setDropSpace('Inner')
             } else if (indexDifference >= 1) {
-              setLastNoneNullDropSpace('Bottom')
               setDropSpace('Bottom')
             }
           } else if (indexDifference <= -1) {
-            setLastNoneNullDropSpace('Top')
             setDropSpace('Top')
           }
         } else {
-          if (dropSpace !== null) {
-            setLastNoneNullDropSpace(dropSpace)
-          }
           setDropSpace(null)
         }
       }),
@@ -376,7 +378,7 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
                   ? theme.palette.text.secondary
                   : 'inherit',
               }}
-              secondary={`${parentIndex}, ${item.orderingIndex}`}
+              secondary={`parentIndex: ${parentIndex}, orderingIndex: ${item.orderingIndex} ${dropSpace}`}
             />
           </ListItem>
           <Collapse in={!collapsed || hovered} timeout="auto">
@@ -426,4 +428,4 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       </div>
     </div>
   )
-}
+})

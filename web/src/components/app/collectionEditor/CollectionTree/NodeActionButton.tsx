@@ -11,7 +11,7 @@ import {
   useTheme,
 } from '@mui/material'
 
-import { NodeItem } from '../CollectionTree/Node'
+import { NodeItem } from './Node'
 
 type NodeActionButtonProps = {
   item: NodeItem
