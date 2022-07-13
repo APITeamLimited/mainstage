@@ -3341,6 +3341,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@juggle/resize-observer@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@juggle/resize-observer@npm:3.3.1"
+  checksum: 28b9c0b84359651f5317f00a9affa3b8ce38ce81926f9cdba1ae478ae51c61e4777dee2b7a974952139ecc4e3be6b73fbb5ec9611e92c3e7aba8f3b08e3d3f5d
+  languageName: node
+  linkType: hard
+
 "@leichtgewicht/ip-codec@npm:^2.0.1":
   version: 2.0.4
   resolution: "@leichtgewicht/ip-codec@npm:2.0.4"
@@ -9223,6 +9230,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"can-use-dom@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "can-use-dom@npm:0.1.0"
+  checksum: baeb98ded2744418c12ec865736eb4c2ef4481e5300874b616ca4944f13457d32cb05f91713b4aa6cabd1d83742ea0fe8a9e4b8e6a667d0c7d25c895f36892e5
+  languageName: node
+  linkType: hard
+
 "caniuse-api@npm:^3.0.0":
   version: 3.0.0
   resolution: "caniuse-api@npm:3.0.0"
@@ -10192,7 +10206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.4, core-js@npm:^3.19.0, core-js@npm:^3.6.5, core-js@npm:^3.8.2":
+"core-js@npm:^3.0.1, core-js@npm:^3.0.4, core-js@npm:^3.19.0, core-js@npm:^3.6.5, core-js@npm:^3.8.2":
   version: 3.23.4
   resolution: "core-js@npm:3.23.4"
   checksum: 08e85e495f4d99df899978413dfd2e5e13233e64f9918cd8baa7fb30d82992ef9e0c6d47f7d5c25f581d9d6e7446dcb878d0c167e01344ffe6c20ab62d4bdd4c
@@ -20477,7 +20491,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.8.1, prop-types@npm:^15.0.0, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:15.8.1, prop-types@npm:^15.0.0, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -21911,6 +21925,7 @@ __metadata:
     react-reflex: ^4.0.9
     react-typed: ^1.2.0
     redis: ^4.1.1
+    simplebar-react: ^2.4.1
     stripe: ^9.11.0
     use-double-click: ^1.0.5
     uuid: ^8.3.2
@@ -22501,6 +22516,33 @@ __metadata:
   version: 1.0.0
   resolution: "signedsource@npm:1.0.0"
   checksum: dbb4ade9c94888e83c16d23ef1a43195799de091d366d130be286415e8aeb97b3f25b14fd26fc5888e1335d703ad561374fddee32e43b7cea04751b93d178a47
+  languageName: node
+  linkType: hard
+
+"simplebar-react@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "simplebar-react@npm:2.4.1"
+  dependencies:
+    prop-types: ^15.6.1
+    simplebar: ^5.3.8
+  peerDependencies:
+    react: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0 || ^17.0 || ^18.0.0
+    react-dom: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0 || ^17.0 || ^18.0.0
+  checksum: 0aa81697f4f97daa0dd30de8f772b2e11e23c7ac4ce2294299b7d803366660bab9798bff0edf78e1b4f1cd4f418617ce52fb2edc3bbafcc4d69e18fe4399e5d7
+  languageName: node
+  linkType: hard
+
+"simplebar@npm:^5.3.8":
+  version: 5.3.8
+  resolution: "simplebar@npm:5.3.8"
+  dependencies:
+    "@juggle/resize-observer": ^3.3.1
+    can-use-dom: ^0.1.0
+    core-js: ^3.0.1
+    lodash.debounce: ^4.0.8
+    lodash.memoize: ^4.1.2
+    lodash.throttle: ^4.1.1
+  checksum: ccd9deee995ae27ebcacf708d25fe7d3e4ea0cf0207f88507ad33f78b6d0e6d727e0699aae50de1179dbf08a0aa3e1a93b11bade8201d7b3c5e73e552d091de3
   languageName: node
   linkType: hard
 

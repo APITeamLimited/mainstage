@@ -21,14 +21,8 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
   }
 
   return (
-    <Stack>
-      <Stack
-        direction="row"
-        spacing={2}
-        sx={{
-          margin: 2,
-        }}
-      >
+    <Stack padding={2} spacing={2}>
+      <Stack direction="row" spacing={2}>
         <EndpointBox
           unsavedEndpoint={unsavedEndpoint}
           setUnsavedEndpoint={setUnsavedEndpoint}
