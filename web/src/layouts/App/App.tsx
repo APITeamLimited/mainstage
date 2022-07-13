@@ -70,7 +70,6 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
             <Stack direction="row" alignItems="center" spacing={2}>
               <APITeamLogo />
               <WorkspaceSwitcher />
-              <CommandPalette />
             </Stack>
             <Box>
               <Stack direction="row" alignItems="center" spacing={2}>

@@ -5,6 +5,7 @@ import { Stack, Tab, Tabs } from '@mui/material'
 import { LocalRESTRequest } from 'src/contexts/reactives'
 
 import { EndpointBox } from './EndpointBox'
+import { HeadersPanel } from './HeadersPanel'
 import { SendButton } from './SendButton'
 
 type RESTInputPanelProps = {
@@ -44,6 +45,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         <Tab label="Headers" />
         <Tab label="Authorisation" />
       </Tabs>
+      {activeTabIndex === 2 && <HeadersPanel />}
     </Stack>
   )
 }

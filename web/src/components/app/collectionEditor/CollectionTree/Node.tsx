@@ -394,7 +394,7 @@ export const Node = memo(({ item, parentIndex }: NodeProps) => {
               paddingTop: 1,
               paddingBottom: 0.5,
               backgroundColor: isInFocus
-                ? theme.palette.background.default
+                ? theme.palette.alternate.main
                 : 'inherit',
             }}
             onClick={
@@ -453,7 +453,7 @@ export const Node = memo(({ item, parentIndex }: NodeProps) => {
                       backgroundColor:
                         dropSpace === 'Inner' && hovered
                           ? theme.palette.primary.light
-                          : theme.palette.alternate.dark,
+                          : theme.palette.background.default,
                     }}
                   >
                     <Typography

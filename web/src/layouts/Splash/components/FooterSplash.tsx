@@ -53,11 +53,18 @@ const FooterSplash = () => {
                   }}
                   alignItems="center"
                 >
-                  <img src="img/api-team.png" alt="APITeam" width="150px" />
+                  <Typography
+                    fontSize={22}
+                    fontWeight={1000}
+                    color={theme.palette.text.primary}
+                    sx={{
+                      userSelect: 'none',
+                    }}
+                  >
+                    API Team
+                  </Typography>
                   <img
-                    src={
-                      'https://www.madeinbritain.co/images/Made-in-Britain-logo-Black-and-White.jpg'
-                    }
+                    src={require('web/public/img/made-in-britain-logo.png')}
                     width="100px"
                     alt="Made in Britain"
                   />

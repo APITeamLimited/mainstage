@@ -179,7 +179,6 @@ export const darkThemeOptions: ThemeOptions = {
     error,
     info,
     mode: 'dark',
-    neutral,
     alternate: {
       main: '#1a2138',
       dark: '#151a30',

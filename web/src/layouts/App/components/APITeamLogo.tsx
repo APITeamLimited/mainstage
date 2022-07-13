@@ -1,34 +1,36 @@
-import { Box } from '@mui/material'
+import { Box, Typography, useTheme } from '@mui/material'
 
 import { useLocation, routes, Link } from '@redwoodjs/router'
 
 export const APITeamLogo = () => {
   const { pathname } = useLocation()
-
+  const theme = useTheme()
   const isOnDashboard = pathname.includes('/app/dashboard')
 
   const handleClick = () => {}
 
-  if (!isOnDashboard) {
-    return (
-      <Link to={routes.dashboard()}>
-        <img
-          src={require('web/public/img/api-team.png')}
-          height={20}
-          alt="APITeam"
-          typeof="png"
-        />
-      </Link>
-    )
-  }
+  const inner = (
+    <Typography
+      fontSize={22}
+      fontWeight={1000}
+      color={theme.palette.text.primary}
+      sx={{
+        userSelect: 'none',
+      }}
+    >
+      API Team
+    </Typography>
+  )
 
   return (
-    <Box>
-      <img
-        src={require('web/public/img/api-team.png')}
-        height={20}
-        alt="APITeam"
-      />
-    </Box>
+    <Link
+      to={routes.dashboard()}
+      style={{
+        textDecoration: 'none',
+        color: theme.palette.text.primary,
+      }}
+    >
+      {inner}
+    </Link>
   )
 }

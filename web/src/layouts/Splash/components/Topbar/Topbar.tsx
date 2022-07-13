@@ -1,6 +1,7 @@
 import React from 'react'
 
 import MenuIcon from '@mui/icons-material/Menu'
+import { Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
@@ -34,8 +35,20 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
           },
         }}
       >
-        <Link to={routes.root()}>
-          <img src="img/api-team.png" width={120} alt="APITeam" />
+        <Link
+          to={routes.root()}
+          style={{
+            textDecoration: 'none',
+            color: theme.palette.text.primary,
+          }}
+        >
+          <Typography
+            fontSize={22}
+            fontWeight={1000}
+            color={theme.palette.text.primary}
+          >
+            API Team
+          </Typography>
         </Link>
       </Box>
       <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
