@@ -3398,6 +3398,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@monaco-editor/loader@npm:^1.3.2":
+  version: 1.3.2
+  resolution: "@monaco-editor/loader@npm:1.3.2"
+  dependencies:
+    state-local: ^1.0.6
+  peerDependencies:
+    monaco-editor: ">= 0.21.0 < 1"
+  checksum: 36aefe7eaff44c636e7078876bed572a693537d8315dd1659bf1fa207f151dbd2c16a2463f596df8e863cd61c99e6985412c94af0d5480801002d7217d973284
+  languageName: node
+  linkType: hard
+
+"@monaco-editor/react@npm:^4.4.5":
+  version: 4.4.5
+  resolution: "@monaco-editor/react@npm:4.4.5"
+  dependencies:
+    "@monaco-editor/loader": ^1.3.2
+    prop-types: ^15.7.2
+  peerDependencies:
+    monaco-editor: ">= 0.25.0 < 1"
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: cb0d220d3aa6dec486c31c610d5186a5026422f9cee6715e7a5114ac82ab5bcb4e90a359a140d1b8698a931b03728653e460366cd8857058f6df603305a944fe
+  languageName: node
+  linkType: hard
+
 "@mrmlnc/readdir-enhanced@npm:^2.2.1":
   version: 2.2.1
   resolution: "@mrmlnc/readdir-enhanced@npm:2.2.1"
@@ -17264,7 +17289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loader-utils@npm:^2.0.0":
+"loader-utils@npm:^2.0.0, loader-utils@npm:^2.0.2":
   version: 2.0.2
   resolution: "loader-utils@npm:2.0.2"
   dependencies:
@@ -18280,6 +18305,18 @@ __metadata:
   version: 1.0.1
   resolution: "module-not-found-error@npm:1.0.1"
   checksum: e57250016b320ef9d0e0037fdb63fb279ca93100a0cee3ef6e90139cbec734215be4a70857dfc0d62ee353d9f8126d2882aa0a80dba49b69292901263a21ea69
+  languageName: node
+  linkType: hard
+
+"monaco-editor-webpack-plugin@npm:^7.0.1":
+  version: 7.0.1
+  resolution: "monaco-editor-webpack-plugin@npm:7.0.1"
+  dependencies:
+    loader-utils: ^2.0.2
+  peerDependencies:
+    monaco-editor: ">= 0.31.0"
+    webpack: ^4.5.0 || 5.x
+  checksum: 192a26ad9fd9fc61dfb51bdbbac70ab8c13ce1c0b19413d11e2703d7b0dcb7e113732ae6384da18b9be76316f510e2d6874fdf746452bf0e37dfd4b665dae742
   languageName: node
   linkType: hard
 
@@ -21042,6 +21079,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-monaco-editor@npm:^0.49.0":
+  version: 0.49.0
+  resolution: "react-monaco-editor@npm:0.49.0"
+  dependencies:
+    prop-types: ^15.8.1
+  peerDependencies:
+    "@types/react": ">=17 <= 18"
+    monaco-editor: ^0.33.0
+    react: ">=17 <= 18"
+  checksum: 5184460e7b72539f7d98e8b37649e2982ab0bafac9d2824cca66d90c9732030de2edc173fa4d8f4e184e47b68eb1cb0361fc055a72255c2faee97660936e1179
+  languageName: node
+  linkType: hard
+
 "react-reflex@npm:^4.0.9":
   version: 4.0.9
   resolution: "react-reflex@npm:4.0.9"
@@ -21913,6 +21963,7 @@ __metadata:
     immutability-helper: ^3.1.1
     md5: ^2.3.0
     memoize-one: ^6.0.0
+    monaco-editor-webpack-plugin: ^7.0.1
     react: ^18.2.0
     react-content-loader: ^6.2.0
     react-dnd: ^16.0.1
@@ -21922,6 +21973,7 @@ __metadata:
     react-hook-form: ^7.33.1
     react-hotkeys-hook: ^3.4.6
     react-lazy-load-image-component: ^1.5.4
+    react-monaco-editor: ^0.49.0
     react-reflex: ^4.0.9
     react-typed: ^1.2.0
     redis: ^4.1.1
@@ -22946,6 +22998,13 @@ __metadata:
     as-table: ^1.0.36
     get-source: ^2.0.12
   checksum: e17357d0a532d303138899b910ab660572009a1f4cde1cbf73b99416957a2378e6e1c791b3c31b043cf7c5f37647da1dd114e66c9203f23c65b34f783665405b
+  languageName: node
+  linkType: hard
+
+"state-local@npm:^1.0.6":
+  version: 1.0.7
+  resolution: "state-local@npm:1.0.7"
+  checksum: 8dc7daeac71844452fafb514a6d6b6f40d7e2b33df398309ea1c7b3948d6110c57f112b7196500a10c54fdde40291488c52c875575670fb5c819602deca48bd9
   languageName: node
   linkType: hard
 
@@ -25021,6 +25080,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "web@workspace:web"
   dependencies:
+    "@monaco-editor/react": ^4.4.5
     "@redwoodjs/auth": 2.0.0
     "@redwoodjs/forms": 2.0.0
     "@redwoodjs/router": 2.0.0

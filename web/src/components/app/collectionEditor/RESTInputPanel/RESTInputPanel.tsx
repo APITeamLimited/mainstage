@@ -4,8 +4,10 @@ import { Stack, Tab, Tabs } from '@mui/material'
 
 import { LocalRESTRequest } from 'src/contexts/reactives'
 
+import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
 import { HeadersPanel } from './HeadersPanel'
+import { ParametersPanel } from './ParametersPanel'
 import { SendButton } from './SendButton'
 
 type RESTInputPanelProps = {
@@ -21,7 +23,13 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
   }
 
   return (
-    <Stack padding={2} spacing={2}>
+    <Stack
+      padding={2}
+      spacing={2}
+      sx={{
+        height: 'calc(100% - 2em)',
+      }}
+    >
       <Stack direction="row" spacing={2}>
         <EndpointBox
           unsavedEndpoint={unsavedEndpoint}
@@ -34,11 +42,13 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         onChange={handleTabChange}
         variant="scrollable"
       >
-        <Tab label="Query" />
+        <Tab label="Parameters" />
         <Tab label="Body" />
         <Tab label="Headers" />
         <Tab label="Authorisation" />
       </Tabs>
+      {activeTabIndex === 0 && <ParametersPanel />}
+      {activeTabIndex === 1 && <BodyPanel />}
       {activeTabIndex === 2 && <HeadersPanel />}
     </Stack>
   )

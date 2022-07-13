@@ -1,8 +1,8 @@
 /* eslint-disable jsx-a11y/no-autofocus */
 import { useRef } from 'react'
 
+import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   Checkbox,
   IconButton,
@@ -137,7 +137,7 @@ export const DraggableTableRow = ({
         >
           <div ref={ref} data-handler-id={handlerId}>
             <IconButton>
-              <MoreVertIcon />
+              <DragHandleIcon />
             </IconButton>
           </div>
         </TableCell>

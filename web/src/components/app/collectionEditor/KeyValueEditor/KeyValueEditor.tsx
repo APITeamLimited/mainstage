@@ -22,17 +22,25 @@ export const KeyValueEditor = ({
   isBulkEditing = false,
 }: KeyValueEditorProps) => {
   const [bulkContents, setBulkContents] = useState('')
+  const [doneFirstNonBulkRender, setDoneFirstNonBulkRender] = useState(false)
 
-  const generateBulkContents = (keyValueItems: KeyValueItem[]) =>
-    keyValueItems
-      .map((item) => {
-        if (item.enabled) {
-          return `${item.keyString}: ${item.value}`
-        } else {
-          return `#${item.keyString}: ${item.value}`
-        }
-      })
-      .join('\n')
+  const generateBulkContents = (keyValueItems: KeyValueItem[]) => {
+    const generatedLines: string[] = []
+
+    keyValueItems.forEach((item) => {
+      if (item.keyString === '' || item.value === '') {
+        return
+      }
+
+      if (item.enabled) {
+        generatedLines.push(`${item.keyString}: ${item.value}`)
+      } else {
+        generatedLines.push(`#${item.keyString}: ${item.value}`)
+      }
+    })
+
+    return generatedLines.join('\n')
+  }
 
   const generateKeyValueItems = (bulkContent: string) => {
     const foundItems: KeyValueItem[] = []
@@ -66,13 +74,16 @@ export const KeyValueEditor = ({
   useEffect(() => {
     if (isBulkEditing) {
       setBulkContents(generateBulkContents(items))
-    } else {
+      setDoneFirstNonBulkRender(false)
+    } else if (!doneFirstNonBulkRender) {
       setItems(generateKeyValueItems(bulkContents))
       setBulkContents('')
+      setDoneFirstNonBulkRender(true)
     }
-    // Only want to setBulkContents if isBulkEditing changes
+    // Don't add bulkContents, don't want state to update when editing and not
+    // TextField is potentially not formatted correctly
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBulkEditing])
+  }, [isBulkEditing, items, setItems])
 
   return isBulkEditing ? (
     <BulkEditor contents={bulkContents} setContents={setBulkContents} />
