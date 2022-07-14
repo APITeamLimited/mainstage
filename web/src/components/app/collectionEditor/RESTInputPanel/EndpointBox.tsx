@@ -9,14 +9,20 @@ import {
   Typography,
 } from '@mui/material'
 
+import { RequestMethodButton } from './RequestMethodButton'
+
 type EndpointBoxProps = {
   unsavedEndpoint: string
   setUnsavedEndpoint: (endpoint: string) => void
+  requestMethod: string
+  setRequestMethod: (requestMethod: string) => void
 }
 
 export const EndpointBox = ({
   unsavedEndpoint,
   setUnsavedEndpoint,
+  requestMethod,
+  setRequestMethod,
 }: EndpointBoxProps) => {
   const theme = useTheme()
 
@@ -27,16 +33,10 @@ export const EndpointBox = ({
         width: '100%',
       }}
     >
-      <Button
-        variant="contained"
-        color="secondary"
-        sx={{
-          borderTopRightRadius: 0,
-          borderBottomRightRadius: 0,
-        }}
-      >
-        s
-      </Button>
+      <RequestMethodButton
+        requestMethod={requestMethod}
+        setRequestMethod={setRequestMethod}
+      />
       <TextField
         fullWidth
         placeholder="Endpoint"

@@ -7,6 +7,7 @@ import {
   FormControlLabel,
   Typography,
   IconButton,
+  Tooltip,
 } from '@mui/material'
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
@@ -16,33 +17,25 @@ export const HeadersPanel = () => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
-    <Stack alignItems="flex-end" spacing={1}>
+    <Stack spacing={2}>
       <Stack
-        justifyContent="space-between"
+        justifyContent="flex-end"
         alignItems="center"
         width="100%"
         direction="row"
       >
-        <Typography variant="h6">Headers</Typography>
         <Stack alignItems="center" direction="row">
-          <IconButton
-            aria-label="Delete all headers"
-            onClick={() => setHeaders([])}
-          >
-            <DeleteSweepIcon />
-          </IconButton>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isBulkEditing}
-                onChange={(event, value) => setIsBulkEditing(value)}
-              />
-            }
-            label="Bulk Edit"
-            sx={{
-              margin: 0,
-            }}
-          />
+        <Tooltip title="Delete All">
+            <IconButton onClick={() => setHeaders([])}>
+              <DeleteSweepIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Bulk Edit">
+            <Switch
+              checked={isBulkEditing}
+              onChange={(event, value) => setIsBulkEditing(value)}
+            />
+            </Tooltip>
         </Stack>
       </Stack>
       <KeyValueEditor

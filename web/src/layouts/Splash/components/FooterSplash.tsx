@@ -7,8 +7,8 @@ import {
   ThemeProvider,
   useTheme,
   useMediaQuery,
+  SvgIcon,
 } from '@mui/material'
-
 import { Link } from '@redwoodjs/router'
 
 import { brandedRoutes } from 'src/Routes'
@@ -63,11 +63,8 @@ const FooterSplash = () => {
                   >
                     API Team
                   </Typography>
-                  <img
-                    src={require('web/public/img/made-in-britain-logo.png')}
-                    width="100px"
-                    alt="Made in Britain"
-                  />
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_the_United_Kingdom_%28black_and_white%3B_variant_2%29.svg" alt="icon" width='80px' />
+
                 </Stack>
               </Grid>
               {Object.keys(brandedRoutes).map((key, indexCategory) => {

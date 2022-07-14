@@ -1,24 +1,26 @@
 import { useEffect } from 'react'
 
-import Editor, { DiffEditor, useMonaco } from '@monaco-editor/react'
+import Editor, { useMonaco } from '@monaco-editor/react'
 import { useTheme, Box } from '@mui/material'
 
-type JSONEditorProps = {
+type MonacoEditorProps = {
   value: string
   onChange: (value?: string) => void
+  language: 'json' | 'xml'
 }
 
-export const JSONEditor = ({ value, onChange }: JSONEditorProps) => {
+export const MonacoEditor = ({
+  value,
+  onChange,
+  language,
+}: MonacoEditorProps) => {
   const theme = useTheme()
 
   const isDark = theme.palette.mode === 'dark'
 
-  console.log('isDark', isDark)
-
   const monaco = useMonaco()
 
   useEffect(() => {
-    console.log('monaco', monaco)
     monaco?.editor.defineTheme('custom-theme', {
       base: isDark ? 'vs-dark' : 'vs',
       inherit: true,
@@ -70,13 +72,13 @@ export const JSONEditor = ({ value, onChange }: JSONEditorProps) => {
       {monaco ? (
         <Editor
           height={'calc(100% )'}
-          defaultLanguage="json"
+          defaultLanguage={language}
           theme={'custom-theme'}
           loading={<></>}
           options={{
             //minimap: { enabled: false },
-            // Match the theme
-            //fontFamily: theme.typography.fontFamily,
+
+            fontFamily: theme.typography.fontFamily,
             fontSize: 16,
             fontWeight: theme.typography.fontWeightRegular,
             scrollBeyondLastLine: true,
@@ -86,6 +88,7 @@ export const JSONEditor = ({ value, onChange }: JSONEditorProps) => {
             //'dropdown.foreground': theme.palette.text.primary,
             //'dropdown.border': theme.palette.divider,
           }}
+          value={value}
           onChange={onChange}
         />
       ) : (

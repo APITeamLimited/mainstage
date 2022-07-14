@@ -8,6 +8,7 @@ import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
 import { HeadersPanel } from './HeadersPanel'
 import { ParametersPanel } from './ParametersPanel'
+import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
 
 type RESTInputPanelProps = {
@@ -15,8 +16,14 @@ type RESTInputPanelProps = {
 }
 
 export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
-  const [unsavedEndpoint, setUnsavedEndpoint] = useState(request.endpoint)
   const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [unsavedEndpoint, setUnsavedEndpoint] = useState(request.endpoint)
+  const [unsavedHeaders, setUnsavedHeaders] = useState(request.headers)
+  const [unsavedParameters, setUnsavedParameters] = useState(request.parameters)
+  const [unsavedBody, setUnsavedBody] = useState(request.body)
+  const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
+    request.method
+  )
 
   const handleTabChange = (event, newValue) => {
     setActiveTabIndex(newValue)
@@ -30,12 +37,15 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         height: 'calc(100% - 2em)',
       }}
     >
-      <Stack direction="row" spacing={2}>
+      <Stack direction="row" spacing={1}>
         <EndpointBox
           unsavedEndpoint={unsavedEndpoint}
           setUnsavedEndpoint={setUnsavedEndpoint}
+          requestMethod={unsavedRequestMethod}
+          setRequestMethod={setUnsavedRequestMethod}
         />
         <SendButton />
+        <SaveButton />
       </Stack>
       <Tabs
         value={activeTabIndex}
@@ -48,7 +58,9 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         <Tab label="Authorisation" />
       </Tabs>
       {activeTabIndex === 0 && <ParametersPanel />}
-      {activeTabIndex === 1 && <BodyPanel />}
+      {activeTabIndex === 1 && (
+        <BodyPanel body={unsavedBody} onBodyChange={setUnsavedBody} />
+      )}
       {activeTabIndex === 2 && <HeadersPanel />}
     </Stack>
   )

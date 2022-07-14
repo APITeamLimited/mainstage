@@ -126,7 +126,18 @@ export const DraggableTableRow = ({
   return (
     <TableRow>
       {isLast ? (
-        <TableCell />
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: '1px',
+            visibility: 'hidden',
+          }}
+        >
+          <IconButton sx={{}}>
+            <DragHandleIcon />
+          </IconButton>
+        </TableCell>
       ) : (
         <TableCell
           sx={{
@@ -143,7 +154,16 @@ export const DraggableTableRow = ({
         </TableCell>
       )}
       {isLast ? (
-        <TableCell />
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: '1px',
+            visibility: 'hidden',
+          }}
+        >
+          <Checkbox />
+        </TableCell>
       ) : (
         <TableCell
           sx={{
@@ -263,7 +283,19 @@ export const DraggableTableRow = ({
         </TableCell>
       )}
       {isLast ? (
-        <TableCell />
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: '1px',
+            visibility: 'hidden',
+          }}
+          align="right"
+        >
+          <IconButton color="error" onClick={() => onDelete && onDelete(id)}>
+            <HighlightOffIcon />
+          </IconButton>
+        </TableCell>
       ) : (
         <TableCell
           sx={{

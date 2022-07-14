@@ -3,11 +3,11 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { BaseLocal } from '.'
 
-const knownContentTypes = {
+export const knownContentTypes = {
   'application/json': 'json',
-  'application/ld+json': 'json',
-  'application/hal+json': 'json',
-  'application/vnd.api+json': 'json',
+  //'application/ld+json': 'json',
+  //'application/hal+json': 'json',
+  //'application/vnd.api+json': 'json',
   'application/xml': 'xml',
   'application/x-www-form-urlencoded': 'multipart',
   'multipart/form-data': 'multipart',
@@ -15,7 +15,7 @@ const knownContentTypes = {
   'text/plain': 'plain',
 }
 
-type ValidContentTypes = keyof typeof knownContentTypes
+export type ValidContentTypes = keyof typeof knownContentTypes | null
 
 type AuthBase = {
   authType: string
@@ -87,7 +87,7 @@ type RESTReqBodyFormData = {
   body: FormDataKeyValue[]
 }
 
-type RESTReqBody =
+export type RESTReqBody =
   | {
       contentType: Exclude<ValidContentTypes, 'multipart/form-data'>
       body: string

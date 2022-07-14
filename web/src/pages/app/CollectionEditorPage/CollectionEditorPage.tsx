@@ -72,13 +72,10 @@ export const CollectionEditorPage = ({
             backgroundColor: 'transparent',
           }}
         />
-        <ReflexElement style={{}} minSize={500}>
+        <ReflexElement minSize={500} flex={1}>
           <div style={{ height: '100%' }}>
             <ReflexContainer orientation="horizontal">
               <ReflexElement
-                style={{
-                  overflow: 'hidden',
-                }}
               >
                 <div
                   style={{

@@ -17,32 +17,25 @@ export const ParametersPanel = () => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
-    <Stack alignItems="flex-end" spacing={1}>
+    <Stack spacing={2}>
       <Stack
-        justifyContent="space-between"
+        justifyContent="flex-end"
         alignItems="center"
         width="100%"
         direction="row"
       >
-        <Typography variant="h6">Query Parameters</Typography>
         <Stack alignItems="center" direction="row">
           <Tooltip title="Delete All">
             <IconButton onClick={() => setParameters([])}>
               <DeleteSweepIcon />
             </IconButton>
           </Tooltip>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isBulkEditing}
-                onChange={(event, value) => setIsBulkEditing(value)}
-              />
-            }
-            label="Bulk Edit"
-            sx={{
-              margin: 0,
-            }}
-          />
+          <Tooltip title="Bulk Edit">
+            <Switch
+              checked={isBulkEditing}
+              onChange={(event, value) => setIsBulkEditing(value)}
+            />
+            </Tooltip>
         </Stack>
       </Stack>
       <KeyValueEditor

@@ -1,0 +1,52 @@
+import { BaseLocal, LocalRESTRequest } from 'web/src/contexts/reactives/locals'
+import { makeVar } from '@apollo/client'
+import { v4 as uuidv4 } from 'uuid'
+
+type DiscreteResults = { type: "Loading"; request: LocalRESTRequest }
+| {
+    type: "Fail"
+    headers: { key: string; value: string }[]
+    body: ArrayBuffer
+    statusCode: number
+
+    meta: {
+      responseSize: number // in bytes
+      responseDuration: number // in millis
+    }
+
+    request: LocalRESTRequest
+  }
+| {
+    type: "NetworkFail"
+    error: Error
+
+    request: LocalRESTRequest
+  }
+| {
+    type: "ScriptFail"
+    error: Error
+  }
+| {
+    type: "Success"
+    headers: { key: string; value: string }[]
+    body: ArrayBuffer
+    statusCode: number
+    meta: {
+      responseSize: number // in bytes
+      responseDuration: number // in millis
+    }
+
+    request: LocalRESTRequest
+  }
+
+interface LocalRESTResponseBase extends BaseLocal {
+  __typename: 'LocalRESTResponse'
+  parentId: string
+  __parentTypename: 'LocalRESTRequest'
+  name: string
+  createdAt: Date
+}
+
+export type LocalRESTResponse = LocalRESTResponseBase & DiscreteResults
+
+export const localRESTResponsesVar = makeVar(<LocalRESTResponse[]>[])
