@@ -46,7 +46,6 @@ export const RequestMethodButton = ({
   const formik = useFormik({
     initialValues: {
       name: '',
-      submit: null,
     },
     validationSchema: Yup.object({
       name: Yup.string().required('Name is required').max(255),

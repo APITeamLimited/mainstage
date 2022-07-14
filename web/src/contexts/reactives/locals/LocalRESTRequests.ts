@@ -27,20 +27,20 @@ interface RESTAuthNone extends AuthBase {
   authType: 'none'
 }
 
-interface RESTAuthBasic extends AuthBase {
+export interface RESTAuthBasic extends AuthBase {
   authType: 'basic'
 
   username: string
   password: string
 }
 
-interface RESTAuthBearer extends AuthBase {
+export interface RESTAuthBearer extends AuthBase {
   authType: 'bearer'
 
   token: string
 }
 
-interface RESTAuthOAuth2 extends AuthBase {
+export interface RESTAuthOAuth2 extends AuthBase {
   authType: 'oauth-2'
 
   token: string
@@ -51,20 +51,25 @@ interface RESTAuthOAuth2 extends AuthBase {
   scope: string
 }
 
-interface RESTAuthAPIKey extends AuthBase {
+export interface RESTAuthAPIKey extends AuthBase {
   authType: 'api-key'
 
   key: string
   value: string
-  addTo: string
+  addTo: 'header' | 'query'
 }
 
-type RESTAuth = { authActive: boolean } & (
+export interface RESTInheritAuth extends AuthBase {
+  authType: 'inherit'
+}
+
+export type RESTAuth = { authActive: boolean } & (
   | RESTAuthNone
   | RESTAuthBasic
   | RESTAuthBearer
   | RESTAuthOAuth2
   | RESTAuthAPIKey
+  | RESTInheritAuth
 )
 
 type RESTParam = {

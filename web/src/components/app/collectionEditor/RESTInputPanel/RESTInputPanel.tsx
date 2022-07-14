@@ -10,6 +10,7 @@ import { HeadersPanel } from './HeadersPanel'
 import { ParametersPanel } from './ParametersPanel'
 import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
+import { AuthorisationPanel } from '../AuthorisationPanel'
 
 type RESTInputPanelProps = {
   request: LocalRESTRequest
@@ -24,8 +25,9 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
     request.method
   )
+  const [unsavedAuthorisation, setUnsavedAuthorisation] = useState(request.auth)
 
-  const handleTabChange = (event, newValue) => {
+  const handleTabChange = (event: React.SyntheticEvent<Element, Event>, newValue: number) => {
     setActiveTabIndex(newValue)
   }
 
@@ -64,6 +66,11 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
       {activeTabIndex === 2 && (
         <HeadersPanel headers={unsavedHeaders} setHeaders={setUnsavedHeaders} />
       )}
+      {
+        activeTabIndex === 3 && (
+          <AuthorisationPanel auth={unsavedAuthorisation} setAuth={setUnsavedAuthorisation} />
+        )
+      }
     </Stack>
   )
 }
