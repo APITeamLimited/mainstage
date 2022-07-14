@@ -18,7 +18,9 @@
     "@redwoodjs/forms": "2.0.0",
     "@redwoodjs/router": "2.0.0",
     "@redwoodjs/web": "2.0.0",
+    "@xml-tools/parser": "^1.0.11",
     "axios": "^0.27.2",
+    "prettier": "^2.7.1",
     "prop-types": "15.8.1",
     "react": "17.0.2",
     "react-dom": "17.0.2"

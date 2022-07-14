@@ -1,42 +1,37 @@
 import { useState } from 'react'
 
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
-import {
-  Stack,
-  Switch,
-  FormControlLabel,
-  Typography,
-  IconButton,
-  Tooltip,
-} from '@mui/material'
+import { Stack, Switch, IconButton, Tooltip } from '@mui/material'
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 
-export const HeadersPanel = () => {
-  const [headers, setHeaders] = useState<KeyValueItem[]>([])
+type HeadersPanelProps = {
+  headers: KeyValueItem[]
+  setHeaders: (newHeaders: KeyValueItem[]) => void
+}
+
+export const HeadersPanel = ({ headers, setHeaders }: HeadersPanelProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
     <Stack spacing={2}>
       <Stack
-        justifyContent="flex-end"
         alignItems="center"
-        width="100%"
         direction="row"
+        spacing={1}
+        justifyContent="flex-end"
       >
-        <Stack alignItems="center" direction="row">
         <Tooltip title="Delete All">
-            <IconButton onClick={() => setHeaders([])}>
-              <DeleteSweepIcon />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Bulk Edit">
-            <Switch
-              checked={isBulkEditing}
-              onChange={(event, value) => setIsBulkEditing(value)}
-            />
-            </Tooltip>
-        </Stack>
+          <IconButton onClick={() => setHeaders([])}>
+            <DeleteSweepIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Bulk Edit">
+          <Switch
+            checked={isBulkEditing}
+            onChange={(event, value) => setIsBulkEditing(value)}
+          />
+        </Tooltip>
       </Stack>
       <KeyValueEditor
         items={headers}

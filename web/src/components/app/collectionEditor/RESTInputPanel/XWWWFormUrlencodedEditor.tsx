@@ -1,19 +1,19 @@
 import { useState } from 'react'
 
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
-import {
-  Stack,
-  Switch,
-  FormControlLabel,
-  Typography,
-  IconButton,
-  Tooltip,
-} from '@mui/material'
+import { Stack, Switch, IconButton, Tooltip } from '@mui/material'
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 
-export const ParametersPanel = () => {
-  const [parameters, setParameters] = useState<KeyValueItem[]>([])
+type XWWWFormUrlencodedEditorProps = {
+  bodyValues: KeyValueItem[]
+  setBodyValues: (newBodyValues: KeyValueItem[]) => void
+}
+
+export const XWWWFormUrlencodedEditor = ({
+  bodyValues,
+  setBodyValues,
+}: XWWWFormUrlencodedEditorProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
@@ -25,7 +25,7 @@ export const ParametersPanel = () => {
         justifyContent="flex-end"
       >
         <Tooltip title="Delete All">
-          <IconButton onClick={() => setParameters([])}>
+          <IconButton onClick={() => setBodyValues([])}>
             <DeleteSweepIcon />
           </IconButton>
         </Tooltip>
@@ -37,8 +37,8 @@ export const ParametersPanel = () => {
         </Tooltip>
       </Stack>
       <KeyValueEditor
-        items={parameters}
-        setItems={setParameters}
+        items={bodyValues}
+        setItems={setBodyValues}
         isBulkEditing={isBulkEditing}
       />
     </Stack>

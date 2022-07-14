@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-autofocus */
-import { useRef } from 'react'
+import { useRef, memo } from 'react'
 
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
@@ -34,282 +34,293 @@ interface DragRow {
   type: 'DraggableType'
 }
 
-export const DraggableTableRow = ({
-  id,
-  index,
-  keyString,
-  value,
-  enabled,
-  onKeyStringChange,
-  onValueChange,
-  onEnabledChange,
-  onMove,
-  onDelete,
-  isLast,
-  onAddNewPair,
-}: DraggableTableRowProps) => {
-  const ref = useRef<HTMLDivElement>(null)
+export const DraggableTableRow = memo(
+  ({
+    id,
+    index,
+    keyString,
+    value,
+    enabled,
+    onKeyStringChange,
+    onValueChange,
+    onEnabledChange,
+    onMove,
+    onDelete,
+    isLast,
+    onAddNewPair,
+  }: DraggableTableRowProps) => {
+    const ref = useRef<HTMLDivElement>(null)
 
-  const [{ handlerId }, drop] = useDrop<
-    DragRow,
-    void,
-    { handlerId: Identifier | null }
-  >({
-    accept: 'DraggableType',
-    collect(monitor) {
-      return {
-        handlerId: monitor.getHandlerId(),
-      }
-    },
-    hover(item: DragRow, monitor) {
-      if (!ref.current) {
-        return
-      }
-      const dragIndex = item.index
-      const hoverIndex = index
+    const [{ handlerId }, drop] = useDrop<
+      DragRow,
+      void,
+      { handlerId: Identifier | null }
+    >({
+      accept: 'DraggableType',
+      collect(monitor) {
+        return {
+          handlerId: monitor.getHandlerId(),
+        }
+      },
+      hover(item: DragRow, monitor) {
+        if (!ref.current) {
+          return
+        }
+        const dragIndex = item.index
+        const hoverIndex = index
 
-      // Don't replace items with themselves
-      if (dragIndex === hoverIndex) {
-        return
-      }
+        // Don't replace items with themselves
+        if (dragIndex === hoverIndex) {
+          return
+        }
 
-      // Determine rectangle on screen
-      const hoverBoundingRect = ref.current?.getBoundingClientRect()
+        // Determine rectangle on screen
+        const hoverBoundingRect = ref.current?.getBoundingClientRect()
 
-      // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+        // Get vertical middle
+        const hoverMiddleY =
+          (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
 
-      // Determine mouse position
-      const clientOffset = monitor.getClientOffset()
+        // Determine mouse position
+        const clientOffset = monitor.getClientOffset()
 
-      // Get pixels to the top
-      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
+        // Get pixels to the top
+        const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
 
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move wheborder the cursor is above 50%
+        // Only perform the move when the mouse has crossed half of the items height
+        // When dragging downwards, only move when the cursor is below 50%
+        // When dragging upwards, only move wheborder the cursor is above 50%
 
-      // Dragging downwards
-      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-        return
-      }
+        // Dragging downwards
+        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+          return
+        }
 
-      // Dragging upwards
-      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-        return
-      }
+        // Dragging upwards
+        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+          return
+        }
 
-      // Time to actually perform the action
-      onMove(dragIndex, hoverIndex)
+        // Time to actually perform the action
+        onMove(dragIndex, hoverIndex)
 
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
-      item.index = hoverIndex
-    },
-  })
+        // Note: we're mutating the monitor item here!
+        // Generally it's better to avoid mutations,
+        // but it's good here for the sake of performance
+        // to avoid expensive index searches.
+        item.index = hoverIndex
+      },
+    })
 
-  const [{ isDragging }, drag] = useDrag({
-    type: 'DraggableType',
-    item: () => {
-      return { id, index }
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  })
+    const [{ isDragging }, drag] = useDrag({
+      type: 'DraggableType',
+      item: () => {
+        return { id, index }
+      },
+      collect: (monitor) => ({
+        isDragging: monitor.isDragging(),
+      }),
+    })
 
-  drag(drop(ref))
+    drag(drop(ref))
 
-  return (
-    <TableRow>
-      {isLast ? (
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: '1px',
-            visibility: 'hidden',
-          }}
-        >
-          <IconButton sx={{}}>
-            <DragHandleIcon />
-          </IconButton>
-        </TableCell>
-      ) : (
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: '1px',
-          }}
-        >
-          <div ref={ref} data-handler-id={handlerId}>
-            <IconButton>
+    return (
+      <TableRow>
+        {isLast ? (
+          <TableCell
+            sx={{
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: '1px',
+              visibility: 'hidden',
+            }}
+          >
+            <IconButton sx={{}}>
               <DragHandleIcon />
             </IconButton>
-          </div>
-        </TableCell>
-      )}
-      {isLast ? (
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: '1px',
-            visibility: 'hidden',
-          }}
-        >
-          <Checkbox />
-        </TableCell>
-      ) : (
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: '1px',
-          }}
-        >
-          <Checkbox
-            checked={enabled}
-            onChange={(event, value) =>
-              onEnabledChange && onEnabledChange(value, index)
-            }
-          />
-        </TableCell>
-      )}
-      {isLast ? (
-        <TableCell
-          sx={{
-            paddingLeft: 0,
-          }}
-        >
-          <TextField
-            size="small"
+          </TableCell>
+        ) : (
+          <TableCell
             sx={{
-              input: {
-                paddingY: 0.75,
-              },
-              fieldSet: {
-                // Disable focus if not active
-                borderWidth: 0,
-              },
-              padding: 0.25,
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: '1px',
             }}
-            value=""
-            placeholder="Add Key"
-            onClick={onAddNewPair}
-            fullWidth
-          />
-        </TableCell>
-      ) : (
-        <TableCell
-          sx={{
-            paddingLeft: 0,
-          }}
-        >
-          <TextField
-            size="small"
+          >
+            <div ref={ref} data-handler-id={handlerId}>
+              <IconButton>
+                <DragHandleIcon />
+              </IconButton>
+            </div>
+          </TableCell>
+        )}
+        {isLast ? (
+          <TableCell
             sx={{
-              input: {
-                paddingY: 0.75,
-              },
-              fieldSet: {
-                // Disable focus if not active
-                borderWidth: 0,
-              },
-              padding: 0.25,
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: '1px',
+              visibility: 'hidden',
             }}
-            placeholder="Add Key"
-            value={keyString}
-            onChange={(event) =>
-              onKeyStringChange && onKeyStringChange(event.target.value, index)
-            }
-            fullWidth
-          />
-        </TableCell>
-      )}
-      {isLast ? (
-        <TableCell
-          sx={{
-            paddingLeft: 0,
-          }}
-        >
-          <TextField
-            size="small"
+          >
+            <Checkbox checked={true} />
+          </TableCell>
+        ) : (
+          <TableCell
             sx={{
-              input: {
-                paddingY: 0.75,
-              },
-              fieldSet: {
-                // Disable focus if not active
-                borderWidth: 0,
-              },
-              padding: 0.25,
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: '1px',
             }}
-            value=""
-            placeholder="Add Value"
-            onClick={onAddNewPair}
-            fullWidth
-          />
-        </TableCell>
-      ) : (
-        <TableCell
-          sx={{
-            paddingLeft: 0,
-          }}
-        >
-          <TextField
-            size="small"
+          >
+            <Checkbox
+              // defaultChecked needed for some reason to make the checkbox work
+              defaultChecked={enabled}
+              checked={enabled}
+              onChange={(event, value) =>
+                onEnabledChange && onEnabledChange(value, index)
+              }
+            />
+          </TableCell>
+        )}
+        {isLast ? (
+          <TableCell
             sx={{
-              input: {
-                paddingY: 0.75,
-              },
-              fieldSet: {
-                // Disable focus if not active
-                borderWidth: 0,
-              },
-              padding: 0.25,
+              paddingLeft: 0,
             }}
-            placeholder="Add Value"
-            value={value}
-            onChange={(event) =>
-              onValueChange && onValueChange(event.target.value, index)
-            }
-            fullWidth
-          />
-        </TableCell>
-      )}
-      {isLast ? (
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: '1px',
-            visibility: 'hidden',
-          }}
-          align="right"
-        >
-          <IconButton color="error" onClick={() => onDelete && onDelete(id)}>
-            <HighlightOffIcon />
-          </IconButton>
-        </TableCell>
-      ) : (
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: '1px',
-          }}
-          align="right"
-        >
-          <IconButton color="error" onClick={() => onDelete && onDelete(id)}>
-            <HighlightOffIcon />
-          </IconButton>
-        </TableCell>
-      )}
-    </TableRow>
-  )
-}
+          >
+            <TextField
+              size="small"
+              sx={{
+                input: {
+                  paddingY: 0.75,
+                },
+                fieldSet: {
+                  // Disable focus if not active
+                  borderWidth: 0,
+                },
+                padding: 0.25,
+              }}
+              value=""
+              placeholder="Add Key"
+              onClick={onAddNewPair}
+              fullWidth
+            />
+          </TableCell>
+        ) : (
+          <TableCell
+            sx={{
+              paddingLeft: 0,
+            }}
+          >
+            <TextField
+              size="small"
+              sx={{
+                input: {
+                  paddingY: 0.75,
+                },
+                fieldSet: {
+                  // Disable focus if not active
+                  borderWidth: 0,
+                },
+                padding: 0.25,
+              }}
+              placeholder="Add Key"
+              value={keyString}
+              onChange={(event) =>
+                onKeyStringChange &&
+                onKeyStringChange(event.target.value, index)
+              }
+              fullWidth
+            />
+          </TableCell>
+        )}
+        {isLast ? (
+          <TableCell
+            sx={{
+              paddingLeft: 0,
+            }}
+          >
+            <TextField
+              size="small"
+              sx={{
+                input: {
+                  paddingY: 0.75,
+                },
+                fieldSet: {
+                  // Disable focus if not active
+                  borderWidth: 0,
+                },
+                padding: 0.25,
+              }}
+              value=""
+              placeholder="Add Value"
+              onClick={onAddNewPair}
+              fullWidth
+            />
+          </TableCell>
+        ) : (
+          <TableCell
+            sx={{
+              paddingLeft: 0,
+            }}
+          >
+            <TextField
+              size="small"
+              sx={{
+                input: {
+                  paddingY: 0.75,
+                },
+                fieldSet: {
+                  // Disable focus if not active
+                  borderWidth: 0,
+                },
+                padding: 0.25,
+              }}
+              placeholder="Add Value"
+              value={value}
+              onChange={(event) =>
+                onValueChange && onValueChange(event.target.value, index)
+              }
+              fullWidth
+            />
+          </TableCell>
+        )}
+        {isLast ? (
+          <TableCell
+            sx={{
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: '1px',
+              visibility: 'hidden',
+            }}
+            align="right"
+          >
+            <IconButton
+              color="error"
+              onClick={() => onDelete && onDelete(index)}
+            >
+              <HighlightOffIcon />
+            </IconButton>
+          </TableCell>
+        ) : (
+          <TableCell
+            sx={{
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: '1px',
+            }}
+            align="right"
+          >
+            <IconButton
+              color="error"
+              onClick={() => onDelete && onDelete(index)}
+            >
+              <HighlightOffIcon />
+            </IconButton>
+          </TableCell>
+        )}
+      </TableRow>
+    )
+  }
+)

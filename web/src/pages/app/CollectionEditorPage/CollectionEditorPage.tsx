@@ -75,8 +75,7 @@ export const CollectionEditorPage = ({
         <ReflexElement minSize={500} flex={1}>
           <div style={{ height: '100%' }}>
             <ReflexContainer orientation="horizontal">
-              <ReflexElement
-              >
+              <ReflexElement>
                 <div
                   style={{
                     height: '100%',
@@ -88,6 +87,7 @@ export const CollectionEditorPage = ({
                       // Set height to inputPanelHeightRefs height
                       height: '100%',
                       borderRadius: 0,
+                      overflow: 'hidden',
                     }}
                   >
                     {focusedElement?.__typename === 'LocalRESTRequest' && (

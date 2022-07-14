@@ -3,10 +3,12 @@ import { useEffect } from 'react'
 import Editor, { useMonaco } from '@monaco-editor/react'
 import { useTheme, Box } from '@mui/material'
 
+export type MonacoSupportedLanguage = 'json' | 'xml' | 'html' | 'plain'
+
 type MonacoEditorProps = {
   value: string
-  onChange: (value?: string) => void
-  language: 'json' | 'xml'
+  onChange: (value: string) => void
+  language: MonacoSupportedLanguage
 }
 
 export const MonacoEditor = ({
@@ -72,7 +74,7 @@ export const MonacoEditor = ({
       {monaco ? (
         <Editor
           height={'calc(100% )'}
-          defaultLanguage={language}
+          language={language}
           theme={'custom-theme'}
           loading={<></>}
           options={{
@@ -83,13 +85,10 @@ export const MonacoEditor = ({
             fontWeight: theme.typography.fontWeightRegular,
             scrollBeyondLastLine: true,
             'bracketPairColorization.enabled': true,
-
-            //'dropdown.background': theme.palette.background.paper,
-            //'dropdown.foreground': theme.palette.text.primary,
-            //'dropdown.border': theme.palette.divider,
+            contextmenu: false,
           }}
           value={value}
-          onChange={onChange}
+          onChange={(value) => onChange(value || '')}
         />
       ) : (
         <></>

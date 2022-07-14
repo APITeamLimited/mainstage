@@ -12,7 +12,7 @@ export type KeyValueItem = {
 
 type KeyValueEditorProps = {
   items: KeyValueItem[]
-  setItems: Dispatch<SetStateAction<KeyValueItem[]>>
+  setItems: (newItems: KeyValueItem[]) => void
   isBulkEditing?: boolean
 }
 

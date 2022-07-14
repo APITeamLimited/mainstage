@@ -1,6 +1,8 @@
 import { makeVar } from '@apollo/client'
 import { v4 as uuidv4 } from 'uuid'
 
+import { KeyValueItem } from 'src/components/app/collectionEditor/KeyValueEditor'
+
 import { BaseLocal } from '.'
 
 export const knownContentTypes = {
@@ -71,12 +73,6 @@ type RESTParam = {
   active: boolean
 }
 
-type RESTHeader = {
-  key: string
-  value: string
-  active: boolean
-}
-
 type FormDataKeyValue = {
   key: string
   active: boolean
@@ -89,13 +85,20 @@ type RESTReqBodyFormData = {
 
 export type RESTReqBody =
   | {
-      contentType: Exclude<ValidContentTypes, 'multipart/form-data'>
+      contentType: Exclude<
+        ValidContentTypes,
+        'multipart/form-data' | 'application/x-www-form-urlencoded' | null
+      >
       body: string
     }
   | RESTReqBodyFormData
   | {
       contentType: null
       body: null
+    }
+  | {
+      contentType: 'application/x-www-form-urlencoded'
+      body: KeyValueItem[]
     }
 
 export interface LocalRESTRequest extends BaseLocal {
@@ -107,7 +110,7 @@ export interface LocalRESTRequest extends BaseLocal {
   method: string
   endpoint: string
   params: RESTParam[]
-  headers: RESTHeader[]
+  headers: KeyValueItem[]
   auth: RESTAuth
   body: RESTReqBody
 }

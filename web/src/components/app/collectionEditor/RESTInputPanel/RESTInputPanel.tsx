@@ -59,9 +59,11 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
       </Tabs>
       {activeTabIndex === 0 && <ParametersPanel />}
       {activeTabIndex === 1 && (
-        <BodyPanel body={unsavedBody} onBodyChange={setUnsavedBody} />
+        <BodyPanel body={unsavedBody} setBody={setUnsavedBody} />
       )}
-      {activeTabIndex === 2 && <HeadersPanel />}
+      {activeTabIndex === 2 && (
+        <HeadersPanel headers={unsavedHeaders} setHeaders={setUnsavedHeaders} />
+      )}
     </Stack>
   )
 }
