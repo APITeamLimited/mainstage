@@ -4,14 +4,14 @@ export * from './LocalRESTRequests'
 export * from './LocalFolders'
 export * from './LocalRESTResponses'
 
-export interface BaseLocal {
+export interface BaseEntity {
   id: string
   __typename: string
   createdAt: Date
   updatedAt: Date | null
 }
 
-export const getUpdatedLocal = <T extends BaseLocal>(local: T) => {
+export const getUpdatedLocal = <T extends BaseEntity>(local: T) => {
   return {
     ...local,
     updatedAt: new Date(),

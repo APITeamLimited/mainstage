@@ -1,9 +1,9 @@
 import { makeVar } from '@apollo/client'
 import { v4 as uuidv4 } from 'uuid'
 
-import { BaseLocal } from '.'
+import { BaseEntity } from '.'
 
-export interface LocalProject extends BaseLocal {
+export interface LocalProject extends BaseEntity {
   __typename: 'LocalProject'
   name: string
 }

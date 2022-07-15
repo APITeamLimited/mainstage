@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
+import axios from 'axios'
 import { v4 as uuid } from 'uuid'
 
 import { LocalRESTRequest } from '../locals'
@@ -103,6 +104,7 @@ const createAxiosRequest = (request: LocalRESTRequest) => {
     url: request.endpoint,
     headers: request.headers,
     timeout: 99999,
+    responseType: 'stream',
   })
 
   return axiosInstance

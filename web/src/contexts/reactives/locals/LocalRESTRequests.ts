@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { KeyValueItem } from 'src/components/app/collectionEditor/KeyValueEditor'
 
-import { BaseLocal } from '.'
+import { BaseEntity } from '.'
 
 export const knownContentTypes = {
   'application/json': 'json',
@@ -100,7 +100,7 @@ export type RESTReqBody =
       body: KeyValueItem[]
     }
 
-export interface LocalRESTRequest extends BaseLocal {
+export interface LocalRESTRequest extends BaseEntity {
   __typename: 'LocalRESTRequest'
   parentId: string
   __parentTypename: 'LocalCollection' | 'LocalFolder'
