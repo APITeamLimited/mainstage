@@ -75,7 +75,7 @@ const DashboardPage = ({ initialSection }: DashboardPageProps) => {
     <>
       <MetaTags
         title="APITeam | Free Unlimited Team API Development"
-        description="APITeam is an all in one platform for designng, testing and scaling your APIs collaboratively"
+        description="APITeam is an all in one platform for designing, testing and scaling your APIs collaboratively"
       />
       <Box sx={{ m: 4 }}>
         <Box>

@@ -1,26 +1,33 @@
 import { useEffect } from 'react'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
+import { v4 as uuid } from 'uuid'
 
 import { LocalRESTRequest } from '../locals'
 
+type PendingRequest = {
+  jobStatus: 'pending'
+}
+
+type ExecutingRequest = {
+  jobStatus: 'executing'
+  executionStartedAt: Date
+  abortController: AbortController
+}
+
 type RequestManagerQueuedJob = {
+  id: string
   messenger: 'Browser'
   request: LocalRESTRequest
-  createdAt: number
-}
+  createdAt: Date
+} & (PendingRequest | ExecutingRequest)
 
 type RequestManagerStatus = {
   queue: RequestManagerQueuedJob[]
-  abortControllers: {
-    requestId: string
-    abortController: AbortController
-  }[]
 }
 
 const requestManagerInitialStatus: RequestManagerStatus = {
   queue: [],
-  abortControllers: [],
 }
 
 export const requestManagerStatusVar = makeVar(requestManagerInitialStatus)
@@ -34,58 +41,69 @@ export const addToQueue = ({
   request: LocalRESTRequest
   messenger?: 'Browser'
 }) => {
+  const newJob: RequestManagerQueuedJob = {
+    id: uuid(),
+    messenger,
+    request,
+    createdAt: new Date(),
+    jobStatus: 'pending',
+  }
+
   return {
-    queue: [...queue, { messenger: 'Browser', request, createdAt: Date.now() }],
+    queue: [...queue, newJob],
   }
 }
 
 export const RequestManager = () => {
   const requestManagerStatus = useReactiveVar(requestManagerStatusVar)
+  const { queue } = requestManagerStatus
 
-  const addAbortController = (
-    requestId: string,
-    abortController: AbortController
+  // Utility function to update job by id
+  const updateFilterQueue = (
+    requestManagerStatus: RequestManagerStatus,
+    updatedJobs: RequestManagerQueuedJob[]
   ) => {
-    requestManagerStatusVar({
-      ...requestManagerStatus,
-      abortControllers: [
-        ...requestManagerStatus.abortControllers,
-        {
-          requestId,
-          abortController,
-        },
-      ],
-    })
+    const idArray = updatedJobs.map((job) => job.id)
+    // Filter queues to see if job id in updatedJobs
+    const newQueue = queue.filter((job) => !idArray.includes(job.id))
+    return {
+      queue: [...newQueue, ...updatedJobs],
+    }
   }
 
-  const removeAbortController = (requestId: string) => {
-    requestManagerStatusVar({
-      ...requestManagerStatus,
-      abortControllers: requestManagerStatus.abortControllers.filter(
-        (abortController) => abortController.requestId !== requestId
-      ),
-    })
-  }
-
-  const emptyQueue = () => {
-    requestManagerStatusVar({
-      ...requestManagerStatus,
-      queue: [],
-    })
-  }
-
+  // Scan for pending requests and start executing them
   useEffect(() => {
-    requestManagerStatus.queue.forEach((item) => {
-      if (item.request.__typename === 'LocalRESTRequest') {
-        const controller = new AbortController()
-        addAbortController(item.request.id, controller)
-      } else {
-        throw `RequestManager: Unsupported request type ${item.request.__typename}`
+    const updatedJobs: RequestManagerQueuedJob[] = []
+    queue.forEach((job) => {
+      if (job.jobStatus === 'pending') {
+        const updatedJob: RequestManagerQueuedJob = {
+          ...job,
+          jobStatus: 'executing',
+          executionStartedAt: new Date(),
+          abortController: new AbortController(),
+        }
+
+        updatedJobs.push(updatedJob)
       }
     })
 
-    emptyQueue()
-  }, [requestManagerStatus.queue])
+    // Update filter queue with new jobs
+    requestManagerStatusVar(
+      updateFilterQueue(requestManagerStatus, updatedJobs)
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue])
 
   return <></>
+}
+
+const createAxiosRequest = (request: LocalRESTRequest) => {
+  const axiosInstance = axios.create({
+    method: request.method,
+    url: request.endpoint,
+    headers: request.headers,
+    timeout: 99999,
+  })
+
+  return axiosInstance
 }

@@ -72,12 +72,6 @@ export type RESTAuth = { authActive: boolean } & (
   | RESTInheritAuth
 )
 
-type RESTParam = {
-  key: string
-  value: string
-  active: boolean
-}
-
 type FormDataKeyValue = {
   key: string
   active: boolean
@@ -114,7 +108,7 @@ export interface LocalRESTRequest extends BaseLocal {
   orderingIndex: number
   method: string
   endpoint: string
-  params: RESTParam[]
+  params: KeyValueItem[]
   headers: KeyValueItem[]
   auth: RESTAuth
   body: RESTReqBody
@@ -158,5 +152,15 @@ export const generateLocalRESTRequest = ({
     },
   }
 }
+
+export const updateFilterLocalRESTRequestArray = (
+  currentVar: LocalRESTRequest[],
+  newLocalRESTRequest: LocalRESTRequest
+) => [
+  ...currentVar.filter(
+    (localRESTRequest) => localRESTRequest.id !== newLocalRESTRequest.id
+  ),
+  newLocalRESTRequest,
+]
 
 export const localRESTRequestsVar = makeVar(<LocalRESTRequest[]>[])

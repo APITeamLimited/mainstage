@@ -12,8 +12,12 @@ import {
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 
-export const ParametersPanel = () => {
-  const [parameters, setParameters] = useState<KeyValueItem[]>([])
+type ParametersPanelProps = {
+  parameters: KeyValueItem[]
+  setParameters: (newParameters: KeyValueItem[]) => void
+}
+
+export const ParametersPanel = ({ parameters, setParameters }: ParametersPanelProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (

@@ -1,40 +1,29 @@
 import { useState, useRef } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import SaveIcon from '@mui/icons-material/Save'
 import { Button, ButtonGroup, MenuItem, Popover, Stack } from '@mui/material'
 
-import {
-  activeWorkspaceVar,
-  requestManagerStatusVar,
-} from 'src/contexts/reactives'
 
 type SaveButtonProps = {
-  needSave?: boolean
+  needSave: boolean
+  onSave: () => void
+  onSaveAs: () => void
 }
 
-export const SaveButton = ({ needSave }: SaveButtonProps) => {
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
   const [showSaveOptionsPopover, setShowSaveOptionsPopover] = useState(false)
   const buttonGroupRef = useRef<HTMLDivElement>(null)
-
-  const isLocalWorkspace = activeWorkspace.id === 'ANONYMOUS_ID'
-  const requestManagerStatus = useReactiveVar(requestManagerStatusVar)
-
-  // TODO: implement this
-  const isDisabled = false
 
   return (
     <>
       <ButtonGroup
         ref={buttonGroupRef}
-        disabled={isDisabled}
         variant="contained"
         color="success"
         size="small"
       >
-        <Button disabled={needSave === false} startIcon={<SaveIcon />}>
+        <Button disabled={needSave === false} startIcon={<SaveIcon />} onClick={onSave}>
           Save
         </Button>
         <Button onClick={() => setShowSaveOptionsPopover(true)}>
@@ -54,7 +43,7 @@ export const SaveButton = ({ needSave }: SaveButtonProps) => {
         }}
       >
         <Stack>
-          <MenuItem>Save As</MenuItem>
+          <MenuItem onClick={onSaveAs}>Save As</MenuItem>
         </Stack>
       </Popover>
     </>
