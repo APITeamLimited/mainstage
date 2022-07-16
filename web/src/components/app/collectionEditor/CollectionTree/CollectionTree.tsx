@@ -1,4 +1,4 @@
-import { Box, Divider, useTheme } from '@mui/material'
+import { Box, Divider } from '@mui/material'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
@@ -27,6 +27,7 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
       <Box
         sx={{
           overflowY: 'auto',
+          height: '100%',
         }}
       >
         <DndProvider backend={HTML5Backend}>

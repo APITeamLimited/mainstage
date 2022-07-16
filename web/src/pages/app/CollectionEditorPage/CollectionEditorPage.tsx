@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme } from '@mui/material'
@@ -28,7 +28,6 @@ export const CollectionEditorPage = ({
   const activeWorkspace = useReactiveVar(activeWorkspaceVar)
   const theme = useTheme()
   const focusedElement = useReactiveVar(focusedElementVar)
-  const inputPanelHeightRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     if (workspaceId !== activeWorkspace.id) {
@@ -53,8 +52,8 @@ export const CollectionEditorPage = ({
     <div
       style={{ height: '100%', backgroundColor: theme.palette.alternate.dark }}
     >
-      <ReflexContainer orientation="vertical">
-        <ReflexElement minSize={200} maxSize={400} size={250}>
+      <ReflexContainer orientation="vertical" windowResizeAware>
+        <ReflexElement minSize={200} maxSize={4000} size={200}>
           <Paper
             sx={{
               height: '100%',

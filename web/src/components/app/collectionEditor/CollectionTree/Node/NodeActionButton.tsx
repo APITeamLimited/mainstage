@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 
+import DeleteIcon from '@mui/icons-material/Delete'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   IconButton,
@@ -8,19 +9,18 @@ import {
   ListItemText,
   MenuItem,
   ListItemIcon,
-  useTheme,
 } from '@mui/material'
 
-import { NodeItem } from './Node'
+import { NodeItem } from '.'
 
 type NodeActionButtonProps = {
   item: NodeItem
+  onDelete: () => void
 }
 
-export const NodeActionButton = ({ item }: NodeActionButtonProps) => {
+export const NodeActionButton = ({ item, onDelete }: NodeActionButtonProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
-  const theme = useTheme()
 
   const handleClick = (event: MouseEvent) => {
     event.stopPropagation()
@@ -33,6 +33,8 @@ export const NodeActionButton = ({ item }: NodeActionButtonProps) => {
         edge="end"
         aria-label={`${item.name} actions`}
         ref={buttonRef}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         onClick={handleClick}
       >
         <MoreVertIcon />
@@ -50,9 +52,11 @@ export const NodeActionButton = ({ item }: NodeActionButtonProps) => {
         }}
       >
         <Stack>
-          <MenuItem>
-            <ListItemIcon>s</ListItemIcon>
-            <ListItemText primary="TODO" />
+          <MenuItem onClick={onDelete}>
+            <ListItemIcon>
+              <DeleteIcon />
+            </ListItemIcon>
+            <ListItemText primary="Delete" />
           </MenuItem>
         </Stack>
       </Popover>
