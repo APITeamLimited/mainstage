@@ -4,10 +4,12 @@ import { useReactiveVar } from '@apollo/client'
 import DeselectIcon from '@mui/icons-material/Deselect'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
 import {
+  Box,
   Button,
   Dialog,
   DialogContent,
   DialogTitle,
+  Divider,
   Stack,
   Typography,
   useTheme,
@@ -99,11 +101,29 @@ export const EnvironmentManager = ({
       __parentTypename: project.__typename,
     })
 
+    const isFirstEnvironment = localEnvironments.length === 0
+
     localEnvironmentsVar(
       [...localEnvironments, newEnvironment].sort(
         (a, b) => a?.createdAt.getTime() - b?.createdAt.getTime()
       )
     )
+
+    if (isFirstEnvironment) {
+      activeEnvironmentVar(newEnvironment.id)
+    }
+  }
+
+  const handleEnvironmentDelete = () => {
+    const newEnvironments = localEnvironments
+      .filter((env) => env.id !== activeEnvironmentId)
+      .sort((a, b) => a?.createdAt.getTime() - b?.createdAt.getTime())
+
+    if (currentEnvironment?.id === activeEnvironmentId) {
+      activeEnvironmentVar(null)
+    }
+
+    localEnvironmentsVar(newEnvironments)
   }
 
   const needSave =
@@ -124,11 +144,13 @@ export const EnvironmentManager = ({
         maxWidth="lg"
       >
         <DialogTitle>Environments</DialogTitle>
-        <DialogContent style={{ minHeight: '450px' }}>
+        <Divider color={theme.palette.divider} />
+        <DialogContent
+          style={{ height: '500px', paddingTop: 0, paddingBottom: 3 }}
+        >
           {localEnvironments.length === 0 ? (
             <Stack
               sx={{
-                display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 height: '100%',
@@ -154,18 +176,29 @@ export const EnvironmentManager = ({
               <Button
                 variant="outlined"
                 onClick={() => setShowCreateEnvironmentDialog(true)}
+                sx={{
+                  marginTop: 2,
+                }}
               >
                 Create Environment
               </Button>
             </Stack>
           ) : (
-            <Stack direction="row">
+            <Stack
+              direction="row"
+              sx={{
+                height: '100%',
+              }}
+              spacing={3}
+            >
               <Stack
                 sx={{
                   minWidth: '200px',
                   maxWidth: '400px',
                   overflow: 'auto',
+                  paddingY: 3,
                 }}
+                spacing={2}
               >
                 {localEnvironments.map((environment, index) => (
                   <Button
@@ -180,30 +213,75 @@ export const EnvironmentManager = ({
                     {environment.name}
                   </Button>
                 ))}
+                <Divider color={theme.palette.divider} />
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => setShowCreateEnvironmentDialog(true)}
+                >
+                  Create Environment
+                </Button>
               </Stack>
-              <Stack>
+              <Divider
+                orientation="vertical"
+                flexItem
+                color={theme.palette.divider}
+              />
+              <Stack
+                sx={{
+                  paddingY: 3,
+                  width: '100%',
+                }}
+                justifyContent="space-between"
+                alignItems="flex-end"
+              >
                 {activeEnvironmentId ? (
                   <>
                     <KeyValueEditor items={keyValues} setItems={setKeyValues} />
-                    <Button
-                      variant="contained"
-                      color="success"
-                      disabled={!needSave}
-                      onClick={() => handleEnvironmentSave(keyValues)}
-                    >
-                      Save
-                    </Button>
-                    <Button>Delete Environment</Button>
+                    <Stack spacing={2} direction="row">
+                      <Button
+                        variant="contained"
+                        color="success"
+                        disabled={!needSave}
+                        onClick={() => handleEnvironmentSave(keyValues)}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={handleEnvironmentDelete}
+                      >
+                        Delete Environment
+                      </Button>
+                    </Stack>
                   </>
                 ) : (
                   <Stack
                     sx={{
-                      display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       height: '100%',
                     }}
-                  ></Stack>
+                  >
+                    <DeselectIcon
+                      sx={{
+                        marginBottom: 2,
+                        width: 80,
+                        height: 80,
+                        color: theme.palette.action.disabled,
+                      }}
+                    />
+                    <Typography variant="h6">
+                      No environment selected
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color={theme.palette.text.secondary}
+                    >
+                      Select an environment to use variables in requests
+                    </Typography>
+                  </Stack>
                 )}
               </Stack>
             </Stack>
