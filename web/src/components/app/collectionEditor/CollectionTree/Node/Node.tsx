@@ -1,9 +1,9 @@
-import { memo, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
-import { DragSourceMonitor, useDrag, useDragDropManager } from 'react-dnd'
+import { useDragDropManager } from 'react-dnd'
 
 import {
   LocalFolder,
@@ -16,8 +16,10 @@ import {
 import { focusedElementVar } from '../../reactives'
 import { EditNameInput } from '../EditNameInput'
 
+import { calculateDrop } from './calculateDrop'
 import { ListCollapsible } from './ListCollapsible'
 import { NodeActionButton } from './NodeActionButton'
+import { useNodeDrag } from './useDrag'
 import { useNodeDrop } from './useDrop'
 import { deleteRecursive, getNodeIcon } from './utils'
 import { DropSpaceBottom, DropSpaceTop } from './utils'
@@ -54,191 +56,53 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
     y: number
   } | null>(null)
 
-  // If local rest requests change, disable renaming
+  const [{ isBeingDragged }, drag] = useNodeDrag({ item, parentIndex })
+
+  // If local rest requests change or being dragged, disable renaming
   useEffect(() => {
     if (item.__typename === 'LocalRESTRequest') {
       setRenaming(false)
+    } else if (isBeingDragged) {
+      setRenaming(false)
     }
-  }, [item.__typename, localRESTRequests])
-
-  const [{ isBeingDragged }, drag] = useDrag(() => ({
-    type: item.__typename,
-    item: {
-      dropItem: item,
-      parentIndex,
-    },
-    collect: (monitor: DragSourceMonitor) => ({
-      isBeingDragged: monitor.isDragging(),
-      indexBeingDraged: parentIndex,
-    }),
-  }))
+  }, [isBeingDragged, item.__typename, localRESTRequests])
 
   const handleDrop = (
-    dropResult: {
+    theDropResult: {
       parentIndex: number
       dropItem: LocalFolder | LocalRESTRequest
     },
-    clientOffset: {
+    theClientOffset: {
       x: number
       y: number
     } | null
   ) => {
-    const element = itemRef?.current?.getBoundingClientRect()
-
-    if (!element) {
-      return
-    }
-
-    let calculatedDropSpace: DropSpace = null
-
-    if (!clientOffset) {
-      console.log("No clientOffset, can't calculate drop space")
-      return
-    }
-
-    if (clientOffset.y - element.top > element.height / 2) {
-      if (
-        item.__typename === 'LocalFolder' &&
-        element.bottom - clientOffset.y > 20
-      ) {
-        calculatedDropSpace = 'Inner'
-      } else {
-        calculatedDropSpace = 'Bottom'
-      }
-    } else {
-      calculatedDropSpace = 'Top'
-    }
-
-    // Ignore drops on the same node
-    if (
-      dropResult.dropItem.id === item.id &&
-      dropResult.parentIndex === parentIndex &&
-      dropResult.dropItem.__typename === item.__typename
-    ) {
-      return
-    }
-
-    const getNewItem = (
-      calculatedDropSpace: DropSpace
-    ): LocalFolder | LocalRESTRequest => {
-      if (item.__parentTypename === 'LocalProject') {
-        throw `Can't drop a project on a project`
-      }
-
-      if (calculatedDropSpace === 'Top') {
-        const newItem = {
-          ...dropResult.dropItem,
-          parentId: item.parentId,
-          __parentTypename: item.__parentTypename,
-          orderingIndex: parseFloat(item.orderingIndex.toFixed(2)) - 0.5,
-        }
-        return newItem
-      } else if (calculatedDropSpace === 'Bottom') {
-        return {
-          ...dropResult.dropItem,
-          parentId: item.parentId,
-          __parentTypename: item.__parentTypename,
-          orderingIndex: parseFloat(item.orderingIndex.toFixed(2)) + 0.5,
-        }
-      } else if (calculatedDropSpace === 'Inner') {
-        if (item.__typename === 'LocalRESTRequest') {
-          throw `Can't drop onto a REST request`
-        }
-
-        return {
-          ...dropResult.dropItem,
-          parentId: item.id,
-          __parentTypename: item.__typename,
-          orderingIndex: 0,
-        }
-      }
-
-      throw `Unknown drop space ${calculatedDropSpace}`
-    }
-
-    // DO NOT REMOVE THE SPREAD OPERATOR!!!
-    const newItem = { ...getNewItem(calculatedDropSpace) }
-
-    const newOrderingIndex = newItem.orderingIndex
-
-    console.log(newOrderingIndex)
-    console.log(
-      calculatedDropSpace,
-      'Dropping ont',
-      item.__typename,
-      item.orderingIndex,
-      dropResult.dropItem.orderingIndex,
-      newItem.orderingIndex,
-      newItem
-    )
-
-    //console.log([...localFolders, ...localRESTRequests])
-
-    const itemsThisLevel = [
-      ...localFolders.filter(
-        (i) => i.parentId === item.parentId && i.id !== newItem.id
-      ),
-      ...localRESTRequests.filter(
-        (i) => i.parentId === item.parentId && i.id !== newItem.id
-      ),
-      {
-        ...newItem,
-        orderingIndex: newOrderingIndex,
-      },
-    ].sort((a, b) => a.orderingIndex - b.orderingIndex)
-
-    // generate whole new orderingIndexes for items this level
-    itemsThisLevel.forEach((item, index) => {
-      item.orderingIndex = index
-    })
-
-    //console.log('itemsThisLevel3', itemsThisLevel, itemsThisLevel.length)
-
-    // LocalFolders on this level
-    const localFoldersThisLevel = itemsThisLevel.filter(
-      (item) => item.__typename === 'LocalFolder'
-    ) as LocalFolder[]
-
-    const localFoldersThisLevelIds = localFoldersThisLevel.map(
-      (item) => item.id
-    )
-
-    console.log('newfolders', [
-      ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
-      ...localFoldersThisLevel,
-    ])
-
-    localFoldersVar([
-      ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
-      ...localFoldersThisLevel,
-    ])
-    // LocalRESTRequests on this level
-    const localRESTRequestsThisLevel = itemsThisLevel.filter(
-      (item) => item.__typename === 'LocalRESTRequest'
-    ) as LocalRESTRequest[]
-
-    const localRESTRequestsThisLevelIds = localRESTRequestsThisLevel.map(
-      (item) => item.id
-    )
-
-    console.log(
-      'newrestrequests',
-      ...localRESTRequests.filter(
-        (i) => !localRESTRequestsThisLevelIds.includes(i.id)
-      ),
-      ...localRESTRequestsThisLevel
-    )
-
-    localRESTRequestsVar([
-      ...localRESTRequests.filter(
-        (i) => !localRESTRequestsThisLevelIds.includes(i.id)
-      ),
-      ...localRESTRequestsThisLevel,
-    ])
-
-    // Set setLastNoneNullDropSpace to null to show processed drop
-    //setLastNoneNullDropSpace(null)
+    setDropResult(theDropResult)
+    setClientOffset(theClientOffset)
   }
+
+  useEffect(() => {
+    calculateDrop({
+      dropResult,
+      clientOffset,
+      item,
+      itemRef,
+      parentIndex,
+      localFolders,
+      localRESTRequests,
+      setDropResult,
+      setClientOffset,
+      setDropSpace,
+    })
+  }, [
+    dropResult,
+    clientOffset,
+    item,
+    localFolders,
+    localRESTRequests,
+    parentIndex,
+    setDropSpace,
+  ])
 
   // Handle the cascading delete of this node
   const handleDelete = () => {
@@ -279,7 +143,7 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
     const mergedItems = [...unsortedFolders, ...unsortedRESTRequests]
 
     // Sort mergedItems by orderingIndex
-    const sortedItems = mergedItems.sort((a, b) => {
+    return mergedItems.sort((a, b) => {
       if (a.orderingIndex < b.orderingIndex) {
         return -1
       }
@@ -288,31 +152,6 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       }
       return 0
     })
-
-    let hadToResort = false
-
-    // generate whole new orderingIndexes for items this level
-    sortedItems.forEach((item, index) => {
-      if (item.orderingIndex !== index) {
-        hadToResort = true
-        item.orderingIndex = index
-      }
-    })
-
-    if (hadToResort) {
-      const sortedLocalFolders = sortedItems.filter(
-        (item) => item.__typename === 'LocalFolder'
-      ) as LocalFolder[]
-
-      const sortedLocalRESTRequests = sortedItems.filter(
-        (item) => item.__typename === 'LocalRESTRequest'
-      ) as LocalRESTRequest[]
-
-      localFoldersVar(sortedLocalFolders)
-      localRESTRequestsVar(sortedLocalRESTRequests)
-    }
-
-    return sortedItems
   }
 
   const isInFocus =
@@ -327,7 +166,9 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
         const element = itemRef?.current?.getBoundingClientRect()
 
         // Positive index differences occur when being dragged below the original position
-        const indexDifference = parentIndex - itemBeingHovered?.parentIndex
+        const indexDifference =
+          parentIndex -
+          (itemBeingHovered as { parentIndex: number })?.parentIndex
 
         if (
           element &&
@@ -344,10 +185,10 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
               element.bottom - offset.y > 20
             ) {
               setDropSpace('Inner')
-            } else if (indexDifference >= 1) {
+            } else if (indexDifference > 0) {
               setDropSpace('Bottom')
             }
-          } else if (indexDifference <= -1) {
+          } else if (indexDifference < 0) {
             setDropSpace('Top')
           }
         } else {
@@ -455,8 +296,13 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
                 color: isBeingDragged
                   ? theme.palette.text.secondary
                   : theme.palette.text.primary,
+                backgroundColor: isBeingDragged ? 'red' : 'inherit',
               }}
-              secondary={`id: ${item.id} parentIndex: ${parentIndex}, orderingIndex: ${item.orderingIndex} dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
+              secondary={`dropSpace ${
+                dropSpace || 'null'
+              } parentIndex: ${parentIndex}, orderingIndex: ${
+                item.orderingIndex
+              } dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
             />
           </ListItem>
           {item.__typename === 'LocalFolder' && (

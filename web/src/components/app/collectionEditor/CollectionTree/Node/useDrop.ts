@@ -19,16 +19,19 @@ type UseNodeDropArgs = {
 }
 
 export const useNodeDrop = ({ item, handleDrop }: UseNodeDropArgs) =>
-  useDrop(() => ({
-    accept: ['LocalFolder', 'LocalRESTRequest'],
-    drop: (item, monitor) => {
-      handleDrop(monitor.getItem(), monitor.getClientOffset())
-    },
-    collect: (monitor) => ({
-      hovered:
-        monitor.canDrop() &&
-        monitor.isOver({ shallow: true }) &&
-        monitor.getItem().dropItem.id !== item.id,
-      itemBeingHovered: monitor.getItem(),
+  useDrop(
+    () => ({
+      accept: ['LocalFolder', 'LocalRESTRequest'],
+      drop: (item, monitor) => {
+        handleDrop(monitor.getItem(), monitor.getClientOffset())
+      },
+      collect: (monitor) => ({
+        hovered:
+          monitor.canDrop() &&
+          monitor.isOver({ shallow: true }) &&
+          monitor.getItem().dropItem.id !== item.id,
+        itemBeingHovered: monitor.getItem(),
+      }),
     }),
-  }))
+    [item, handleDrop]
+  )

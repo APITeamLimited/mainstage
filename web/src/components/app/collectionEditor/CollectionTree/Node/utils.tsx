@@ -73,6 +73,7 @@ export const deleteRecursive = ({
 }: DeleteRecursiveArgs): DeleteRecursiveResult => {
   if (item.__typename === 'LocalFolder') {
     const index = localFolders.findIndex((folder) => folder.id === item.id)
+
     if (index === -1) {
       throw `deleteRecursive: LocalFolder not found: ${item.id}`
     }
