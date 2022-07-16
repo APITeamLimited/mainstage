@@ -42,7 +42,13 @@ export const RESTRequestNode = ({
 
   return (
     <ListItem
-      secondaryAction={<NodeActionButton item={item} onDelete={handleDelete} />}
+      secondaryAction={
+        <NodeActionButton
+          item={item}
+          onDelete={handleDelete}
+          onRename={() => setRenaming(true)}
+        />
+      }
       sx={{
         paddingTop: 1,
         paddingBottom: 0.5,
@@ -78,13 +84,12 @@ export const RESTRequestNode = ({
           color: isBeingDragged
             ? theme.palette.text.secondary
             : theme.palette.text.primary,
-          backgroundColor: isBeingDragged ? 'red' : 'inherit',
         }}
-        secondary={`dropSpace ${
-          dropSpace || 'null'
-        } parentIndex: ${parentIndex}, orderingIndex: ${
-          item.orderingIndex
-        } dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
+        //secondary={`dropSpace ${
+        //  dropSpace || 'null'
+        //} parentIndex: ${parentIndex}, orderingIndex: ${
+        //  item.orderingIndex
+        //} dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
       />
     </ListItem>
   )

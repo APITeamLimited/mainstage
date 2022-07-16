@@ -69,8 +69,8 @@ export type RESTAuth = { authActive: boolean } & (
   | RESTAuthBearer
   | RESTAuthOAuth2
   | RESTAuthAPIKey
-  | RESTInheritAuth
 )
+//| RESTInheritAuth
 
 type FormDataKeyValue = {
   key: string

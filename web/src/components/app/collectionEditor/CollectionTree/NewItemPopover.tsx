@@ -42,12 +42,26 @@ export const NewItemPopover = ({
   const handleCreateNewFolder = () => {
     if (isLocalWorkspace) {
       // Create new folder with parent of the collection
+      const foldersOrderingIndex = localFolders.filter(
+        (folder) => folder.parentId === collection.id
+      ).length
+
+      const restRequestsOrderingIndex = localRESTRequests.filter(
+        (request) => request.parentId === collection.id
+      ).length
+
+      const orderingIndex = Math.max(
+        foldersOrderingIndex,
+        restRequestsOrderingIndex
+      )
+
       localFoldersVar(
         localFolders.concat(
           generateLocalFolder({
             parentId: collection.id,
             __parentTypename: 'LocalCollection',
             name: 'New Folder',
+            orderingIndex,
           })
         )
       )
@@ -60,12 +74,26 @@ export const NewItemPopover = ({
   const handleCreateNewRESTRequest = () => {
     if (isLocalWorkspace) {
       // Create new REST request with parent of the collection
+      const foldersOrderingIndex = localFolders.filter(
+        (folder) => folder.parentId === collection.id
+      ).length
+
+      const restRequestsOrderingIndex = localRESTRequests.filter(
+        (request) => request.parentId === collection.id
+      ).length
+
+      const orderingIndex = Math.max(
+        foldersOrderingIndex,
+        restRequestsOrderingIndex
+      )
+
       localRESTRequestsVar(
         localRESTRequests.concat(
           generateLocalRESTRequest({
             parentId: collection.id,
             __parentTypename: 'LocalCollection',
             name: 'New Request',
+            orderingIndex,
           })
         )
       )

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { Dialog, Stack, Tab, Tabs } from '@mui/material'
+import { useReactiveVar } from '@apollo/client'
+import { Stack, Tab, Tabs } from '@mui/material'
 
 import {
   generateLocalRESTRequest,
@@ -8,15 +9,15 @@ import {
   localRESTRequestsVar,
   updateFilterLocalRESTRequestArray,
 } from 'src/contexts/reactives'
+
+import { AuthorisationPanel } from './AuthorisationPanel'
 import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
 import { HeadersPanel } from './HeadersPanel'
 import { ParametersPanel } from './ParametersPanel'
+import { SaveAsDialog } from './SaveAsDialog'
 import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
-import { AuthorisationPanel } from '../AuthorisationPanel'
-import { useReactiveVar } from '@apollo/client'
-import { SaveAsDialog } from './SaveAsDialog'
 
 type RESTInputPanelProps = {
   request: LocalRESTRequest
@@ -35,8 +36,6 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
-
-
 
   // If request changes, update unsaved request
   useEffect(() => {
@@ -65,6 +64,12 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
     unsavedBody,
     unsavedRequestMethod,
     unsavedAuthorisation,
+    request.endpoint,
+    request.headers,
+    request.params,
+    request.body,
+    request.method,
+    request.auth,
   ])
 
   const handleTabChange = (

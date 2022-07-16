@@ -1,3 +1,6 @@
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import InputIcon from '@mui/icons-material/Input'
+import LockOpenIcon from '@mui/icons-material/LockOpen'
 import {
   Grid,
   Stack,
@@ -8,20 +11,15 @@ import {
   Button,
   Chip,
 } from '@mui/material'
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+
 import { RESTAuth } from 'src/contexts/reactives'
-import LockOpenIcon from '@mui/icons-material/LockOpen'
-import InputIcon from '@mui/icons-material/Input'
+
+import { APIKeyAuthForm } from './APIKeyAuthForm'
 import { BasicAuthForm } from './BasicAuthForm'
 import { BearerAuthForm } from './BearerAuthForm'
 import { OAuth2AuthForm } from './OAuth2AuthForm'
-import { APIKeyAuthForm } from './APIKeyAuthForm'
 
 const authMethodLabels = [
-  {
-    authType: 'inherit',
-    label: 'Inherit',
-  },
   {
     authType: 'none',
     label: 'None',
@@ -56,12 +54,7 @@ export const AuthorisationPanel = ({
   const theme = useTheme()
 
   const handleChangeAuthType = (newAuthType: string) => {
-    if (newAuthType === 'inherit') {
-      setAuth({
-        authType: 'inherit',
-        authActive: true,
-      })
-    } else if (newAuthType === 'none') {
+    if (newAuthType === 'none') {
       setAuth({
         authType: 'none',
         authActive: true,
@@ -219,10 +212,10 @@ export const AuthorisationPanel = ({
           }}
         >
           <OAuth2AuthForm auth={auth} setAuth={setAuth} />
-          </Stack>)}
+        </Stack>
+      )}
       {auth.authType === 'api-key' && (
         <Stack
-
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -230,7 +223,8 @@ export const AuthorisationPanel = ({
           }}
         >
           <APIKeyAuthForm auth={auth} setAuth={setAuth} />
-          </Stack>)}
+        </Stack>
+      )}
     </Stack>
   )
 }

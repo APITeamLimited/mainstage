@@ -22,10 +22,11 @@ type FolderNodeProps = {
   dropSpace: DropSpace
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
-  parentIndex: number
   hovered: boolean
   innerContent: JSX.Element[]
   handleToggle: () => void
+  handleNewFolder: () => void
+  handleNewRESTRequest: () => void
 }
 
 export const FolderNode = ({
@@ -40,28 +41,44 @@ export const FolderNode = ({
   dropSpace,
   collapsed,
   setCollapsed,
-  parentIndex,
   hovered,
   innerContent,
   handleToggle,
+  handleNewFolder,
+  handleNewRESTRequest,
 }: FolderNodeProps) => {
   const theme = useTheme()
+
+  const handleClick = () => {
+    if (!isInFocus) {
+      focusedElementVar(item)
+      setCollapsed(false)
+    } else {
+      handleToggle()
+    }
+  }
 
   return (
     <>
       <ListItem
         secondaryAction={
-          <NodeActionButton item={item} onDelete={handleDelete} />
+          <NodeActionButton
+            item={item}
+            onDelete={handleDelete}
+            onRename={() => setRenaming(true)}
+            onNewFolder={handleNewFolder}
+            onNewRESTRequest={handleNewRESTRequest}
+          />
         }
         sx={{
           paddingTop: 1,
           paddingBottom: 0.5,
           backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
         }}
-        onClick={() => focusedElementVar(item)}
+        onClick={handleClick}
       >
         <ListItemIcon
-          onClick={item.__typename === 'LocalFolder' ? handleToggle : undefined}
+          onClick={handleClick}
           color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
         >
           {getNodeIcon(item, collapsed)}
@@ -84,13 +101,12 @@ export const FolderNode = ({
             color: isBeingDragged
               ? theme.palette.text.secondary
               : theme.palette.text.primary,
-            backgroundColor: isBeingDragged ? 'red' : 'inherit',
           }}
-          secondary={`dropSpace ${
-            dropSpace || 'null'
-          } parentIndex: ${parentIndex}, orderingIndex: ${
-            item.orderingIndex
-          } dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
+          //secondary={`dropSpace ${
+          //  dropSpace || 'null'
+          //} parentIndex: ${parentIndex}, orderingIndex: ${
+          //  item.orderingIndex
+          //} dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
         />
       </ListItem>
       {item.__typename === 'LocalFolder' && (

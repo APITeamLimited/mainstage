@@ -10,6 +10,8 @@ import {
   localFoldersVar,
   localRESTRequestsVar,
   LocalCollection,
+  generateLocalFolder,
+  generateLocalRESTRequest,
 } from 'src/contexts/reactives'
 
 import { focusedElementVar } from '../../reactives'
@@ -111,6 +113,64 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
 
     localFoldersVar(deleteRecursiveResult.localFolders)
     localRESTRequestsVar(deleteRecursiveResult.localRESTRequests)
+  }
+
+  const handleNewFolder = () => {
+    if (item.__typename === 'LocalRESTRequest') {
+      throw 'Cannot create a new folder inside a REST request'
+    }
+
+    const foldersOrderingIndex = localFolders.filter(
+      (folder) => folder.parentId === item.id
+    ).length
+
+    const restRequestsOrderingIndex = localRESTRequests.filter(
+      (restRequest) => restRequest.parentId === item.id
+    ).length
+
+    const orderingIndex = Math.max(
+      foldersOrderingIndex,
+      restRequestsOrderingIndex
+    )
+
+    localFoldersVar([
+      ...localFolders,
+      generateLocalFolder({
+        name: 'New Folder',
+        parentId: item.id,
+        __parentTypename: item.__typename,
+        orderingIndex,
+      }),
+    ])
+  }
+
+  const handleNewRESTRequest = () => {
+    if (item.__typename === 'LocalRESTRequest') {
+      throw 'Cannot create a new REST request inside a REST request'
+    }
+
+    const foldersOrderingIndex = localFolders.filter(
+      (folder) => folder.parentId === item.id
+    ).length
+
+    const restRequestsOrderingIndex = localRESTRequests.filter(
+      (restRequest) => restRequest.parentId === item.id
+    ).length
+
+    const orderingIndex = Math.max(
+      foldersOrderingIndex,
+      restRequestsOrderingIndex
+    )
+
+    localRESTRequestsVar([
+      ...localRESTRequests,
+      generateLocalRESTRequest({
+        name: 'New REST Request',
+        parentId: item.id,
+        __parentTypename: item.__typename,
+        orderingIndex,
+      }),
+    ])
   }
 
   const [{ hovered, itemBeingHovered }, drop] = useNodeDrop({
@@ -269,10 +329,11 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
               dropSpace={dropSpace}
               collapsed={collapsed}
               setCollapsed={setCollapsed}
-              parentIndex={parentIndex}
               hovered={hovered}
               innerContent={innerContent}
               handleToggle={handleToggle}
+              handleNewFolder={handleNewFolder}
+              handleNewRESTRequest={handleNewRESTRequest}
             />
           )}
           {dropSpace === 'Bottom' && hovered && <DropSpaceBottom />}

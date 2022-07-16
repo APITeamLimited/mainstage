@@ -60,7 +60,7 @@ export const EditNameInput = memo(
               }
             },
             ref: renamingRef,
-            latency: 180,
+            latency: 200,
           }
         : {
             onSingleClick: (event) => {
@@ -96,6 +96,9 @@ export const EditNameInput = memo(
               value={formik.values.name}
               name="name"
               error={Boolean(formik.touched.name && formik.errors.name)}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+              focused
             />
           </form>
         ) : (
