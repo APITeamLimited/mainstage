@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
+import CloseIcon from '@mui/icons-material/Close'
 import DeselectIcon from '@mui/icons-material/Deselect'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
 import {
-  Box,
   Button,
   Dialog,
   DialogContent,
   DialogTitle,
   Divider,
+  IconButton,
   Stack,
   Typography,
   useTheme,
@@ -46,6 +47,7 @@ export const EnvironmentManager = ({
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
     useState(false)
   const [keyValues, setKeyValues] = useState([] as KeyValueItem[])
+  const [needSave, setNeedSave] = useState(false)
 
   useEffect(() => {
     if (!activeEnvironmentId) {
@@ -92,7 +94,16 @@ export const EnvironmentManager = ({
         environment,
       ].sort((a, b) => a?.createdAt.getTime() - b?.createdAt.getTime())
     )
+
+    setNeedSave(false)
   }
+
+  useEffect(() => {
+    setNeedSave(
+      JSON.stringify(keyValues) !==
+        JSON.stringify(currentEnvironment?.variables)
+    )
+  }, [currentEnvironment?.variables, keyValues])
 
   const handleEnvironmentCreate = (name: string) => {
     const newEnvironment = generateLocalEnvironment({
@@ -126,10 +137,6 @@ export const EnvironmentManager = ({
     localEnvironmentsVar(newEnvironments)
   }
 
-  const needSave =
-    JSON.stringify(keyValues) !== JSON.stringify(currentEnvironment) &&
-    currentEnvironment
-
   return (
     <>
       <CreateEnvironmentDialog
@@ -143,7 +150,20 @@ export const EnvironmentManager = ({
         fullWidth
         maxWidth="lg"
       >
-        <DialogTitle>Environments</DialogTitle>
+        <DialogTitle>
+          Environments
+          <IconButton
+            onClick={() => setShowCallback(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <Divider color={theme.palette.divider} />
         <DialogContent
           style={{ height: '500px', paddingTop: 0, paddingBottom: 3 }}
@@ -262,6 +282,7 @@ export const EnvironmentManager = ({
                       alignItems: 'center',
                       justifyContent: 'center',
                       height: '100%',
+                      width: '100%',
                     }}
                   >
                     <DeselectIcon
