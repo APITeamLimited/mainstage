@@ -3,6 +3,7 @@ export * from './LocalCollections'
 export * from './LocalRESTRequests'
 export * from './LocalFolders'
 export * from './LocalRESTResponses'
+export * from './LocalEnvironments'
 
 export interface BaseEntity {
   id: string

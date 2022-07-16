@@ -293,13 +293,12 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
     ))) as JSX.Element[]
 
   // Id the root element, just return innerContent
-  return isRoot ? (
-    <>{innerContent}</>
-  ) : (
+  return (
     <div ref={itemRef}>
       <div ref={drag}>
         <div ref={drop}>
           {dropSpace === 'Top' && hovered && <DropSpaceTop />}
+          {item.__typename === 'LocalCollection' && <>{innerContent}</>}
           {item.__typename === 'LocalRESTRequest' && (
             <RESTRequestNode
               isBeingDragged={isBeingDragged}

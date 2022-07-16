@@ -7,7 +7,6 @@ import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import 'react-reflex/styles.css'
 
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
-import { FolderInputPanel } from 'src/components/app/collectionEditor/FolderInputPanel'
 import { focusedElementVar } from 'src/components/app/collectionEditor/reactives'
 import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
 import {

@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
-import AddIcon from '@mui/icons-material/Add'
+import { useReactiveVar } from '@apollo/client'
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   Box,
@@ -11,9 +12,14 @@ import {
   Stack,
 } from '@mui/material'
 
-import { LocalCollection } from 'src/contexts/reactives'
+import {
+  activeEnvironmentVar,
+  LocalCollection,
+  localEnvironmentsVar,
+  localProjectsVar,
+} from 'src/contexts/reactives'
 
-import { NewItemPopover } from './NewItemPopover'
+import { EnvironmentManager } from './Node/EnvironmentManager'
 
 type CollectionTopMenuProps = {
   collection: LocalCollection
@@ -21,17 +27,38 @@ type CollectionTopMenuProps = {
 
 export const CollectionTopMenu = ({ collection }: CollectionTopMenuProps) => {
   const theme = useTheme()
-  const newItemButtonRef = useRef<HTMLButtonElement | null>(null)
-  const [newItemPopoverOpen, setNewItemPopoverOpen] = useState(false)
+  const [showEnvironmentManager, setShowEnvironmentManager] = useState(false)
+  const localProjects = useReactiveVar(localProjectsVar)
+  const localEnvironments = useReactiveVar(localEnvironmentsVar)
+  const activeEnvironmentId = useReactiveVar(activeEnvironmentVar)
 
-  const handleNewItemButtonOpen = () => setNewItemPopoverOpen(true)
-  const handleNewItemButtonClose = () => setNewItemPopoverOpen(false)
+  const activeEnvironment =
+    localEnvironments.find((env) => env.id === activeEnvironmentId) || null
+
+  if (activeEnvironmentId && !activeEnvironment) {
+    throw `Could not find active environment with id ${activeEnvironmentId}`
+  }
+
+  const project = localProjects.find(
+    (project) => project.id === collection.parentId
+  )
+
+  if (!project) {
+    throw `Could not find project with id ${collection.parentId} for collection ${collection.id}`
+  }
 
   return (
     <>
+      <EnvironmentManager
+        project={project}
+        show={showEnvironmentManager}
+        setShowCallback={setShowEnvironmentManager}
+      />
       <Box
         sx={{
           margin: 1,
+          paddingLeft: 1,
+          marginBottom: 2,
         }}
       >
         <Stack
@@ -39,7 +66,7 @@ export const CollectionTopMenu = ({ collection }: CollectionTopMenuProps) => {
           direction="row"
           alignItems="center"
           sx={{
-            paddingLeft: 1,
+            marginBottom: 1,
           }}
         >
           <Typography
@@ -55,44 +82,22 @@ export const CollectionTopMenu = ({ collection }: CollectionTopMenuProps) => {
             <MoreVertIcon />
           </IconButton>
         </Stack>
-        <Typography
-          variant="body2"
-          color={theme.palette.text.secondary}
-          sx={{
-            paddingLeft: 1,
-          }}
-        >
-          Environment
+        <Typography variant="body2" color={theme.palette.text.secondary}>
+          Environment:
         </Typography>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+        <Button
+          size="small"
+          variant="outlined"
+          color="secondary"
+          onClick={() => setShowEnvironmentManager(true)}
+          endIcon={<ArrowDropDownIcon />}
           sx={{
-            padding: 1,
+            marginTop: 1,
           }}
-          spacing={1}
         >
-          <Button size="small" variant="outlined" color="secondary">
-            Dev
-          </Button>
-          <Button
-            variant="outlined"
-            size="small"
-            color="secondary"
-            ref={newItemButtonRef}
-            onClick={handleNewItemButtonOpen}
-          >
-            <AddIcon />
-          </Button>
-        </Stack>
+          {activeEnvironment ? activeEnvironment.name : 'None'}
+        </Button>
       </Box>
-      <NewItemPopover
-        anchorEl={newItemButtonRef.current}
-        collection={collection}
-        open={newItemPopoverOpen}
-        onClose={handleNewItemButtonClose}
-      />
     </>
   )
 }

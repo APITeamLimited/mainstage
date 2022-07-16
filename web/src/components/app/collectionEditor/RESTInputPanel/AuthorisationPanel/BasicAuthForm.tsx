@@ -1,7 +1,8 @@
-import { RESTAuth, RESTAuthBasic } from 'src/contexts/reactives'
+import { Stack, TextField, useTheme } from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { Stack, TextField, Typography, useTheme } from '@mui/material'
+
+import { RESTAuth, RESTAuthBasic } from 'src/contexts/reactives'
 
 type BasicAuthFormProps = {
   auth: RESTAuthBasic & { authActive: boolean }
@@ -30,16 +31,24 @@ export const BasicAuthForm = ({ auth, setAuth }: BasicAuthFormProps) => {
   })
 
   return (
-    <form noValidate onSubmit={formik.handleSubmit} style={{
-      width: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    }}>
-      <Stack alignItems='flex-start' spacing={2} sx={{
-        display: 'flex',
+    <form
+      noValidate
+      onSubmit={formik.handleSubmit}
+      style={{
         width: '100%',
-      }}>
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <Stack
+        alignItems="flex-start"
+        spacing={2}
+        sx={{
+          display: 'flex',
+          width: '100%',
+        }}
+      >
         <TextField
           label="Username"
           name="username"
