@@ -159,10 +159,10 @@ export const calculateDrop = ({
 
   const localFoldersThisLevelIds = localFoldersThisLevel.map((item) => item.id)
 
-  console.log('newfolders', [
-    ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
-    ...localFoldersThisLevel,
-  ])
+  //console.log('newfolders', [
+  //  ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
+  //  ...localFoldersThisLevel,
+  //])
 
   localFoldersVar([
     ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
@@ -177,13 +177,13 @@ export const calculateDrop = ({
     (item) => item.id
   )
 
-  console.log(
-    'newrestrequests',
-    ...localRESTRequests.filter(
-      (i) => !localRESTRequestsThisLevelIds.includes(i.id)
-    ),
-    ...localRESTRequestsThisLevel
-  )
+  //console.log(
+  //  'newrestrequests',
+  //  ...localRESTRequests.filter(
+  //    (i) => !localRESTRequestsThisLevelIds.includes(i.id)
+  //  ),
+  //  ...localRESTRequestsThisLevel
+  //)
 
   localRESTRequestsVar([
     ...localRESTRequests.filter(

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
 import { useDragDropManager } from 'react-dnd'
 
@@ -14,14 +13,13 @@ import {
 } from 'src/contexts/reactives'
 
 import { focusedElementVar } from '../../reactives'
-import { EditNameInput } from '../EditNameInput'
 
 import { calculateDrop } from './calculateDrop'
-import { ListCollapsible } from './ListCollapsible'
-import { NodeActionButton } from './NodeActionButton'
+import { FolderNode } from './FolderNode'
+import { RESTRequestNode } from './RESTRequestNode'
 import { useNodeDrag } from './useDrag'
 import { useNodeDrop } from './useDrop'
-import { deleteRecursive, getNodeIcon } from './utils'
+import { deleteRecursive } from './utils'
 import { DropSpaceBottom, DropSpaceTop } from './utils'
 
 export type NodeItem = LocalFolder | LocalRESTRequest | LocalCollection
@@ -45,7 +43,6 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
   const monitor = dragDropManager.getMonitor()
   const [dropSpace, setDropSpace] = useThrottle<DropSpace>(null)
   const itemRef = useRef<HTMLDivElement>(null)
-  const theme = useTheme()
   const renamingRef = useRef<HTMLDivElement>(null)
   const [dropResult, setDropResult] = useState<{
     parentIndex: number
@@ -121,15 +118,7 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
     handleDrop,
   })
 
-  const handleToggle = (event: MouseEvent) => {
-    switch (event.detail) {
-      case 2:
-        setRenaming(true)
-        break
-      default:
-        setCollapsed(!collapsed)
-    }
-  }
+  const handleToggle = () => setCollapsed(!collapsed)
 
   const getNodeItemChildren = ({ node }: { node: NodeItem }): NodeItem[] => {
     const unsortedFolders = localFolders.filter(
@@ -251,66 +240,39 @@ export const Node = ({ item, parentIndex }: NodeProps) => {
       <div ref={drag}>
         <div ref={drop}>
           {dropSpace === 'Top' && hovered && <DropSpaceTop />}
-          <ListItem
-            secondaryAction={
-              <NodeActionButton item={item} onDelete={handleDelete} />
-            }
-            sx={{
-              paddingTop: 1,
-              paddingBottom: 0.5,
-              backgroundColor: isInFocus
-                ? theme.palette.alternate.main
-                : 'inherit',
-            }}
-            onClick={
-              item.__typename === 'LocalRESTRequest'
-                ? () => focusedElementVar(item)
-                : undefined
-            }
-          >
-            <ListItemIcon
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-              // @ts-ignore
-              onClick={
-                item.__typename === 'LocalFolder' ? handleToggle : undefined
-              }
-              color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
-            >
-              {getNodeIcon(item, collapsed)}
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <EditNameInput
-                  name={item.name}
-                  setNameCallback={handleRename}
-                  isRenaming={renaming}
-                  setIsRenamingCallback={setRenaming}
-                  renamingRef={renamingRef}
-                  singleClickCallback={() => setCollapsed(!collapsed)}
-                />
-              }
-              sx={{
-                whiteSpace: 'nowrap',
-                marginLeft: -2,
-                overflow: 'hidden',
-                color: isBeingDragged
-                  ? theme.palette.text.secondary
-                  : theme.palette.text.primary,
-                backgroundColor: isBeingDragged ? 'red' : 'inherit',
-              }}
-              secondary={`dropSpace ${
-                dropSpace || 'null'
-              } parentIndex: ${parentIndex}, orderingIndex: ${
-                item.orderingIndex
-              } dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
-            />
-          </ListItem>
-          {item.__typename === 'LocalFolder' && (
-            <ListCollapsible
-              collapsed={collapsed}
-              hovered={hovered}
+          {item.__typename === 'LocalRESTRequest' && (
+            <RESTRequestNode
+              isBeingDragged={isBeingDragged}
+              item={item}
+              isInFocus={isInFocus}
+              renaming={renaming}
+              renamingRef={renamingRef}
+              setRenaming={setRenaming}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
               dropSpace={dropSpace}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              parentIndex={parentIndex}
+            />
+          )}
+          {item.__typename === 'LocalFolder' && (
+            <FolderNode
+              isBeingDragged={isBeingDragged}
+              item={item}
+              isInFocus={isInFocus}
+              renaming={renaming}
+              renamingRef={renamingRef}
+              setRenaming={setRenaming}
+              handleRename={handleRename}
+              handleDelete={handleDelete}
+              dropSpace={dropSpace}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              parentIndex={parentIndex}
+              hovered={hovered}
               innerContent={innerContent}
+              handleToggle={handleToggle}
             />
           )}
           {dropSpace === 'Bottom' && hovered && <DropSpaceBottom />}

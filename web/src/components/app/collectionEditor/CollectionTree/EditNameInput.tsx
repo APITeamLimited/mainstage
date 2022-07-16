@@ -5,6 +5,7 @@ import { useFormik } from 'formik'
 import { useHotkeys } from 'react-hotkeys-hook'
 import useDoubleClick from 'use-double-click'
 import * as Yup from 'yup'
+
 type EditNameInputProps = {
   name: string
   setNameCallback: (newName: string) => void
@@ -12,6 +13,7 @@ type EditNameInputProps = {
   setIsRenamingCallback: (isRenaming: boolean) => void
   renamingRef: React.RefObject<HTMLDivElement | null>
   singleClickCallback: () => void
+  permitDoubleClickRename?: boolean
 }
 
 export const EditNameInput = memo(
@@ -22,6 +24,7 @@ export const EditNameInput = memo(
     setIsRenamingCallback,
     renamingRef,
     singleClickCallback,
+    permitDoubleClickRename = false,
   }: EditNameInputProps) => {
     const formik = useFormik({
       initialValues: {
@@ -39,27 +42,40 @@ export const EditNameInput = memo(
     useHotkeys('enter', () => formik.handleSubmit())
     useHotkeys('return', () => formik.handleSubmit())
 
-    useDoubleClick({
-      onSingleClick: (event) => {
-        event.stopPropagation()
-        if (!isRenaming) {
-          singleClickCallback()
-        }
-      },
-      onDoubleClick: (event) => {
-        event.stopPropagation()
-        if (isRenaming) {
-          formik.handleSubmit()
-        } else {
-          setIsRenamingCallback(true)
-        }
-      },
-      ref: renamingRef,
-      latency: 180,
-    })
+    useDoubleClick(
+      permitDoubleClickRename
+        ? {
+            onSingleClick: (event) => {
+              event.stopPropagation()
+              if (!isRenaming) {
+                singleClickCallback()
+              }
+            },
+            onDoubleClick: (event) => {
+              event.stopPropagation()
+              if (isRenaming) {
+                formik.handleSubmit()
+              } else {
+                setIsRenamingCallback(true)
+              }
+            },
+            ref: renamingRef,
+            latency: 180,
+          }
+        : {
+            onSingleClick: (event) => {
+              event.stopPropagation()
+              singleClickCallback()
+            },
+            ref: renamingRef,
+            latency: 10,
+          }
+    )
 
     return (
       <div
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         ref={renamingRef}
         style={{
           zIndex: 2000,
