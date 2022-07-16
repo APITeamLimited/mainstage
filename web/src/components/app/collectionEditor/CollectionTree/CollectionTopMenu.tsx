@@ -19,7 +19,7 @@ import {
   localProjectsVar,
 } from 'src/contexts/reactives'
 
-import { EnvironmentManager } from './Node/EnvironmentManager'
+import { EnvironmentManager } from '../../EnvironmentManager'
 
 type CollectionTopMenuProps = {
   collection: LocalCollection
