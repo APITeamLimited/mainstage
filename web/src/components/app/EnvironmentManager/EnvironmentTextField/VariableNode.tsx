@@ -6,7 +6,8 @@
  *
  */
 
-import type { Spread } from 'lexical'
+import { Chip } from '@mui/material'
+import { DecoratorNode, Spread } from 'lexical'
 import {
   DOMConversionMap,
   DOMConversionOutput,
@@ -17,6 +18,9 @@ import {
   SerializedTextNode,
   TextNode,
 } from 'lexical'
+import { createPortal } from 'react-dom'
+
+import { VariableChip } from './VariableChip'
 
 export type SerializedVariableNode = Spread<
   {
@@ -43,7 +47,7 @@ function convertVariableElement(
 }
 
 const variableStyle = 'background-color: rgba(24, 119, 232, 0.2)'
-export class VariableNode extends TextNode {
+export class VariableNode extends DecoratorNode<JSX.Element> {
   __variable: string
 
   static getType(): string {
@@ -51,44 +55,44 @@ export class VariableNode extends TextNode {
   }
 
   static clone(node: VariableNode): VariableNode {
-    return new VariableNode(node.__variable, node.__text, node.__key)
+    return new VariableNode(node.__variable, node.__key)
   }
   static importJSON(serializedNode: SerializedVariableNode): VariableNode {
     const node = $createVariableNode(serializedNode.variableName)
-    node.setTextContent(serializedNode.text)
-    node.setFormat(serializedNode.format)
-    node.setDetail(serializedNode.detail)
-    node.setMode(serializedNode.mode)
-    node.setStyle(serializedNode.style)
     return node
   }
 
   constructor(variableName: string, text?: string, key?: NodeKey) {
-    super(text ?? variableName, key)
+    super(key)
     this.__variable = variableName
   }
 
-  exportJSON(): SerializedVariableNode {
+  exportJSON() {
     return {
-      ...super.exportJSON(),
       variableName: this.__variable,
       type: 'variable',
       version: 1,
     }
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
-    const dom = super.createDOM(config)
-    dom.style.cssText = variableStyle
-    dom.className = 'variable'
-    return dom
-  }
-
   exportDOM(): DOMExportOutput {
     const element = document.createElement('span')
-    element.setAttribute('data-lexical-variable', 'true')
-    element.textContent = this.__text
+    element.setAttribute('data-lexical-variable', this.__variable)
     return { element }
+  }
+
+  createDOM(): HTMLElement {
+    const elem = document.createElement('span')
+    elem.style.display = 'inline-block'
+    return elem
+  }
+
+  updateDOM(): false {
+    return false
+  }
+
+  decorate(): JSX.Element {
+    return <VariableChip variableName={this.__variable} />
   }
 
   static importDOM(): DOMConversionMap | null {
@@ -99,20 +103,16 @@ export class VariableNode extends TextNode {
         }
         return {
           conversion: convertVariableElement,
-          priority: 1,
+          priority: 2,
         }
       },
     }
-  }
-
-  isTextEntity(): true {
-    return true
   }
 }
 
 export function $createVariableNode(variableName: string): VariableNode {
   const variableNode = new VariableNode(variableName)
-  variableNode.setMode('segmented').toggleDirectionless()
+  //variableNode.setMode('segmented').toggleDirectionless()
   return variableNode
 }
 

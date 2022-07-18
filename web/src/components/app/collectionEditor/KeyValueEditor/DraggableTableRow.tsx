@@ -13,6 +13,8 @@ import {
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useDrag, useDrop } from 'react-dnd'
 
+import { EnvironmentTextField } from '../../EnvironmentManager'
+
 type DraggableTableRowProps = {
   id: number
   index: number
@@ -204,7 +206,9 @@ export const DraggableTableRow = memo(
               value=""
               placeholder="Add Key"
               onClick={onAddNewPair}
-              fullWidth
+              contentEditableStyles={{
+                maxWidth: '300px',
+              }}
             />
           </TableCell>
         ) : (
@@ -232,6 +236,9 @@ export const DraggableTableRow = memo(
                 onKeyStringChange(event.target.value, index)
               }
               fullWidth
+              contentEditableStyles={{
+                maxWidth: '300px',
+              }}
             />
           </TableCell>
         )}
@@ -256,7 +263,9 @@ export const DraggableTableRow = memo(
               value=""
               placeholder="Add Value"
               onClick={onAddNewPair}
-              fullWidth
+              contentEditableStyles={{
+                maxWidth: '300px',
+              }}
             />
           </TableCell>
         ) : (
@@ -282,7 +291,9 @@ export const DraggableTableRow = memo(
               onChange={(event) =>
                 onValueChange && onValueChange(event.target.value, index)
               }
-              fullWidth
+              contentEditableStyles={{
+                maxWidth: '300px',
+              }}
             />
           </TableCell>
         )}

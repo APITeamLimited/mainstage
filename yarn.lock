@@ -6398,6 +6398,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/draft-js@npm:^0.11.9":
+  version: 0.11.9
+  resolution: "@types/draft-js@npm:0.11.9"
+  dependencies:
+    "@types/react": "*"
+    immutable: ~3.7.4
+  checksum: 9bc05927acb19346aa4c471ddec0411c3c8f32b5894f06d7647e52451b2c504a4c6e5869b4d10530fcc8e4455869013187afbc955b651060d36a69f500f1f550
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.3":
   version: 3.7.4
   resolution: "@types/eslint-scope@npm:3.7.4"
@@ -10490,7 +10500,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.0.1, core-js@npm:^3.0.4, core-js@npm:^3.19.0, core-js@npm:^3.6.5, core-js@npm:^3.8.2":
+"core-js@npm:^3.0.1, core-js@npm:^3.0.4, core-js@npm:^3.19.0, core-js@npm:^3.6.4, core-js@npm:^3.6.5, core-js@npm:^3.8.2":
   version: 3.23.5
   resolution: "core-js@npm:3.23.5"
   checksum: ab9b483ede285b3949e2411f9190d147ac589d111b0aa3a4b2999a1bf2755b3e930529c2a22ff550efd4fc154c7cfae700bee858dedff905a09f35ddbcc6425f
@@ -10643,7 +10653,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-fetch@npm:^3.1.5":
+"cross-fetch@npm:^3.0.4, cross-fetch@npm:^3.1.5":
   version: 3.1.5
   resolution: "cross-fetch@npm:3.1.5"
   dependencies:
@@ -11756,6 +11766,47 @@ __metadata:
   version: 8.6.0
   resolution: "dotenv@npm:8.6.0"
   checksum: 6750431dea8efbd54b9f2d9681b04e1ccc7989486461dcf058bb708d9e3d63b04115fcdf8840e38ad1e24a4a2e1e7c1560626c5e3ac7bc09371b127c49e2d45f
+  languageName: node
+  linkType: hard
+
+"draft-js-plugins-editor@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "draft-js-plugins-editor@npm:3.0.0"
+  dependencies:
+    immutable: ~3.7.4
+    prop-types: ^15.5.8
+  peerDependencies:
+    draft-js: ^0.11.0
+    react: ^15.5.0 || ^16.0.0-rc
+    react-dom: ^15.5.0 || ^16.0.0-rc
+  checksum: 7e3f7af276d191f5304c00c608eb4b57d04829d3fc017b67b8f0fbb00ca116be743a4b2fec5567f2413c65a0ae378026e8fc649450df3a1ddd2ba0aa78e65397
+  languageName: node
+  linkType: hard
+
+"draft-js-single-line-plugin@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "draft-js-single-line-plugin@npm:2.0.5"
+  dependencies:
+    immutable: ^3.7.4
+  peerDependencies:
+    draft-js: ">=0.7.0"
+    react: ">=15.0.0"
+    react-dom: ">=15.0.0"
+  checksum: 67bca1c9944a8aeddb89d4eb1943b759984cae3d83fb0749b37e89949b97bf48adda892e33bb3335f32e04432a4f6ac31a40a7ab5cec38ab0fe38d394f662d80
+  languageName: node
+  linkType: hard
+
+"draft-js@npm:^0.11.7":
+  version: 0.11.7
+  resolution: "draft-js@npm:0.11.7"
+  dependencies:
+    fbjs: ^2.0.0
+    immutable: ~3.7.4
+    object-assign: ^4.1.1
+  peerDependencies:
+    react: ">=0.14.0"
+    react-dom: ">=0.14.0"
+  checksum: 25943c73cbacf7e00e3ee6bef3496feffe14f09c436cec9233a4fc1bb2b4302f2bcf5fc66f4a5f8e3a9135808d20783aff75e42659da3b21d50f63185bedf557
   languageName: node
   linkType: hard
 
@@ -13398,6 +13449,22 @@ __metadata:
   version: 1.0.2
   resolution: "fbjs-css-vars@npm:1.0.2"
   checksum: dfb64116b125a64abecca9e31477b5edb9a2332c5ffe74326fe36e0a72eef7fc8a49b86adf36c2c293078d79f4524f35e80f5e62546395f53fb7c9e69821f54f
+  languageName: node
+  linkType: hard
+
+"fbjs@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "fbjs@npm:2.0.0"
+  dependencies:
+    core-js: ^3.6.4
+    cross-fetch: ^3.0.4
+    fbjs-css-vars: ^1.0.0
+    loose-envify: ^1.0.0
+    object-assign: ^4.1.0
+    promise: ^7.1.1
+    setimmediate: ^1.0.5
+    ua-parser-js: ^0.7.18
+  checksum: 543544198ec6db0be64d0be80cc6386cdc015cf9b9fe3af54f2a861026fe75db1fae38fb6a7b2f1047d733f47ee68d11ecad6d0fbb67b200e56d265d967c4467
   languageName: node
   linkType: hard
 
@@ -15200,7 +15267,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immutable@npm:~3.7.6":
+"immutable@npm:^3.7.4":
+  version: 3.8.2
+  resolution: "immutable@npm:3.8.2"
+  checksum: fb6a2999ad3bda9e51741721e42547076dd492635ee4df9241224055fe953ec843583a700088cc4915f23dc326e5084f4e17f1bbd7388c3e872ef5a242e0ac5e
+  languageName: node
+  linkType: hard
+
+"immutable@npm:~3.7.4, immutable@npm:~3.7.6":
   version: 3.7.6
   resolution: "immutable@npm:3.7.6"
   checksum: efe2bbb2620aa897afbb79545b9eda4dd3dc072e05ae7004895a7efb43187e4265612a88f8723f391eb1c87c46c52fd11e2d1968e42404450c63e49558d7ca4e
@@ -20817,7 +20891,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.8.1, prop-types@npm:^15.0.0, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:15.8.1, prop-types@npm:^15.0.0, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.1, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -21117,6 +21191,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-contenteditable@npm:^3.3.6":
+  version: 3.3.6
+  resolution: "react-contenteditable@npm:3.3.6"
+  dependencies:
+    fast-deep-equal: ^3.1.3
+    prop-types: ^15.7.1
+  peerDependencies:
+    react: ">=16.3"
+  checksum: 504f777fac7d5a5a28be0aa9a94d26e4ad52f6b0237f33594d8b08fd811a6e70568d7f1f70a4095df7e9c79f694900565bdb8a77a058c889baf4bbc00ca56989
+  languageName: node
+  linkType: hard
+
 "react-dnd-html5-backend@npm:^16.0.1":
   version: 16.0.1
   resolution: "react-dnd-html5-backend@npm:16.0.1"
@@ -21180,7 +21266,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:17.0.2, react-dom@npm:^18.2.0":
+"react-dom@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
   dependencies:
@@ -21473,7 +21559,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:17.0.2, react@npm:^18.2.0":
+"react@npm:^18.2.0":
   version: 18.2.0
   resolution: "react@npm:18.2.0"
   dependencies:
@@ -23329,9 +23415,9 @@ __metadata:
   linkType: hard
 
 "store2@npm:^2.12.0":
-  version: 2.14.1
-  resolution: "store2@npm:2.14.1"
-  checksum: d3043159494fb9cdb70611c381277ded873bff2b7840aab72a1f2f04a45442c09856563546250a64b0b036a5389268259eb4ce048ec52aff1c314d04651274e7
+  version: 2.14.2
+  resolution: "store2@npm:2.14.2"
+  checksum: 2f27c3eaa7207b81410e170e7c41379816d22c1566308a9d97fbf853c4facff531fcb2a85f085c7503c578736570972f747c26018ebeaba7d1341fb82a7b6d52
   languageName: node
   linkType: hard
 
@@ -24629,7 +24715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:^0.7.30":
+"ua-parser-js@npm:^0.7.18, ua-parser-js@npm:^0.7.30":
   version: 0.7.31
   resolution: "ua-parser-js@npm:0.7.31"
   checksum: 22ea7a73db4528f4b8c5e9ed3d711dfc005f9efa5e6f803e5b78bf358c1d81baaed2699fc1f35252a316f64f3fdf730919fa97e7cc1ae66d3011bd515a4a0f30
@@ -24942,8 +25028,8 @@ __metadata:
   linkType: hard
 
 "update-browserslist-db@npm:^1.0.4":
-  version: 1.0.4
-  resolution: "update-browserslist-db@npm:1.0.4"
+  version: 1.0.5
+  resolution: "update-browserslist-db@npm:1.0.5"
   dependencies:
     escalade: ^3.1.1
     picocolors: ^1.0.0
@@ -24951,7 +25037,7 @@ __metadata:
     browserslist: ">= 4.21.0"
   bin:
     browserslist-lint: cli.js
-  checksum: ba329079c88f2a6afbe1223dc22cabe44614035b83141774252ade40dc0718b9bbdafc02387066d0222018ca19f5a13a235cc498716b6d91d41f0821864d1ba7
+  checksum: c587343bffa5895335778129cebb0b4d1ec219f5f7441d06919ce182c225a0f22d3000e037a3ace857167d6ae9a9d86eb37fc9ca125e180a3c8ccd4b35cd5194
   languageName: node
   linkType: hard
 
@@ -25404,12 +25490,17 @@ __metadata:
     "@redwoodjs/forms": 2.0.0
     "@redwoodjs/router": 2.0.0
     "@redwoodjs/web": 2.0.0
+    "@types/draft-js": ^0.11.9
     "@xml-tools/parser": ^1.0.11
     axios: ^0.27.2
+    draft-js: ^0.11.7
+    draft-js-plugins-editor: ^3.0.0
+    draft-js-single-line-plugin: ^2.0.5
     prettier: ^2.7.1
     prop-types: 15.8.1
-    react: 17.0.2
-    react-dom: 17.0.2
+    react: ^18.2.0
+    react-contenteditable: ^3.3.6
+    react-dom: ^18.2.0
     react-drag-drop-files: ^2.3.7
   languageName: unknown
   linkType: soft

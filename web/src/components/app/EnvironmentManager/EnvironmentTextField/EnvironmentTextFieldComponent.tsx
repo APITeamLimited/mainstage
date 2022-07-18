@@ -12,6 +12,7 @@ export type EnvironmentTextFieldProps = {
   onChange?: (value: string, namespace: string) => void
   multiline?: boolean
   contentEditableStyles?: React.CSSProperties
+  wrapperAStyles?: React.CSSProperties
 }
 
 const onError = (error: Error) => {
@@ -25,6 +26,7 @@ export const EnvironmentTextField = ({
   onChange,
   multiline = false,
   contentEditableStyles = {},
+  wrapperAStyles = {},
 }: EnvironmentTextFieldProps) => {
   const initialConfig = {
     namespace,
@@ -40,6 +42,7 @@ export const EnvironmentTextField = ({
         width: '100%',
         marginRight: '28px',
         height: '100%',
+        ...wrapperAStyles,
       }}
     >
       <LexicalComposer initialConfig={initialConfig}>

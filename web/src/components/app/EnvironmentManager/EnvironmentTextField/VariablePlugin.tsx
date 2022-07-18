@@ -15,6 +15,10 @@ import {
   $getSelection,
   LexicalEditor,
   RangeSelection,
+  LexicalCommand,
+  createCommand,
+  $isRootNode,
+  COMMAND_PRIORITY_EDITOR,
 } from 'lexical'
 
 import { VariableNode } from './VariableNode'
@@ -300,11 +304,17 @@ function createVariableNode(
       ;[, nodeToReplace] = anchorNode.splitText(startOffset, selectionOffset)
     }
 
-    const mentionNode = $createVariableNode(entryText)
-    nodeToReplace.replace(mentionNode)
-    mentionNode.select()
+    if ($isRangeSelection(selection)) {
+      const variableNode = $createVariableNode(entryText)
+      console.log('newnam', variableNode)
+
+      nodeToReplace.replace(variableNode)
+      return true
+    }
   })
 }
+
+export const INSERT_VARIABLE_COMMAND: LexicalCommand<string> = createCommand()
 
 function useVariables(editor: LexicalEditor): ReactPortal | null {
   const [resolution, setResolution] = useState<Resolution | null>(null)
@@ -313,6 +323,27 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
     if (!editor.hasNodes([VariableNode])) {
       throw new Error('VariablesPlugin: VariableNode not registered on editor')
     }
+
+    return editor.registerCommand<string>(
+      INSERT_VARIABLE_COMMAND,
+      (payload) => {
+        const selection = $getSelection()
+
+        if ($isRangeSelection(selection)) {
+          const name = payload
+          const variableNode = $createVariableNode(name)
+
+          if ($isRootNode(selection.anchor.getNode())) {
+            selection.insertParagraph()
+          }
+
+          selection.insertNodes([variableNode])
+        }
+
+        return true
+      },
+      COMMAND_PRIORITY_EDITOR
+    )
   }, [editor])
 
   useEffect(() => {
