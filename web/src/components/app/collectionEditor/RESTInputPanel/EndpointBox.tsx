@@ -1,13 +1,6 @@
-import {
-  Button,
-  ButtonGroup,
-  InputAdornment,
-  Stack,
-  OutlinedInput,
-  TextField,
-  useTheme,
-  Typography,
-} from '@mui/material'
+import { Box, Stack } from '@mui/material'
+
+import { EnvironmentTextField } from '../../EnvironmentManager/EnvironmentTextField'
 
 import { RequestMethodButton } from './RequestMethodButton'
 
@@ -16,6 +9,7 @@ type EndpointBoxProps = {
   setUnsavedEndpoint: (endpoint: string) => void
   requestMethod: string
   setRequestMethod: (requestMethod: string) => void
+  requestId: string
 }
 
 export const EndpointBox = ({
@@ -23,35 +17,45 @@ export const EndpointBox = ({
   setUnsavedEndpoint,
   requestMethod,
   setRequestMethod,
+  requestId,
 }: EndpointBoxProps) => {
-  const theme = useTheme()
+  const handleEndpointChange = (
+    newValue: string,
+    returnedNamespace: string
+  ) => {
+    if (namespace === returnedNamespace) {
+      setUnsavedEndpoint(newValue)
+    } else {
+      console.log('skipping endpoint change', namespace, returnedNamespace)
+    }
+  }
 
+  const namespace = `${requestId}_endpoint`
   return (
-    <Stack
-      direction="row"
-      sx={{
-        width: '100%',
-      }}
-    >
-      <RequestMethodButton
-        requestMethod={requestMethod}
-        setRequestMethod={setRequestMethod}
-      />
-      <TextField
-        fullWidth
-        placeholder="Endpoint"
-        value={unsavedEndpoint}
-        onChange={(event) => setUnsavedEndpoint(event.target.value)}
-        size="small"
-        color="secondary"
+    <>
+      <Box
         sx={{
-          fieldset: {
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-          },
-          paddingLeft: 0,
+          width: '100%',
         }}
-      />
-    </Stack>
+      >
+        <EnvironmentTextField
+          placeholder="Endpoint"
+          namespace={namespace}
+          value={unsavedEndpoint}
+          onChange={handleEndpointChange}
+        />
+      </Box>
+      <Stack
+        direction="row"
+        sx={{
+          width: '100%',
+        }}
+      >
+        <RequestMethodButton
+          requestMethod={requestMethod}
+          setRequestMethod={setRequestMethod}
+        />
+      </Stack>
+    </>
   )
 }

@@ -130,6 +130,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
             setUnsavedEndpoint={setUnsavedEndpoint}
             requestMethod={unsavedRequestMethod}
             setRequestMethod={setUnsavedRequestMethod}
+            requestId={request.id}
           />
           <SendButton />
           <SaveButton

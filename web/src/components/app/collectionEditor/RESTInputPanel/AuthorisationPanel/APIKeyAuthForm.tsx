@@ -1,6 +1,3 @@
-import { RESTAuth, RESTAuthAPIKey } from 'src/contexts/reactives'
-import { useFormik } from 'formik'
-import * as Yup from 'yup'
 import {
   FormControlLabel,
   FormLabel,
@@ -11,6 +8,10 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
+
+import { RESTAuth, RESTAuthAPIKey } from 'src/contexts/reactives'
 
 type APIKeyAuthFormProps = {
   auth: RESTAuthAPIKey & { authActive: boolean }
@@ -23,7 +24,7 @@ export const APIKeyAuthForm = ({ auth, setAuth }: APIKeyAuthFormProps) => {
     initialValues: {
       key: auth.key,
       value: auth.value,
-      addTo: auth.addTo,
+      addTo: 'header',
     },
     validationSchema: Yup.object({
       key: Yup.string().required('Key is required'),
