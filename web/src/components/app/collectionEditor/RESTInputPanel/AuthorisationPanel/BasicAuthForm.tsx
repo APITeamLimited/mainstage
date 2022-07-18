@@ -2,6 +2,7 @@ import { Stack, TextField, useTheme } from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 
+import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 import { RESTAuth, RESTAuthBasic } from 'src/contexts/reactives'
 
 type BasicAuthFormProps = {
@@ -69,6 +70,7 @@ export const BasicAuthForm = ({ auth, setAuth }: BasicAuthFormProps) => {
           error={Boolean(formik.touched.password && formik.errors.password)}
           fullWidth
         />
+        <EnvironmentTextField namespace={'test'} />
       </Stack>
     </form>
   )

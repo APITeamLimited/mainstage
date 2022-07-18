@@ -120,40 +120,16 @@ const EditorFeatures = (): JSX.Element => {
                   sx={{
                     verticalAlign: 'middle',
                     display: { xs: 'none', sm: 'block' },
+                    overflow: 'show',
                   }}
                 >
                   <img
                     src={
-                      'https://cdn.dribbble.com/users/6344016/screenshots/14816169/media/34bbf471d859ddef58f87c0f0f49f40e.png?compress=1&resize=400x300&vertical=top'
+                      theme.palette.mode === 'light'
+                        ? require('web/public/img/app-demo-light.png')
+                        : require('web/public/img/app-demo-dark.png')
                     }
                     alt=""
-                  />
-                </Box>
-                <Box
-                  position={'absolute'}
-                  top={'2.4%'}
-                  left={'4%'}
-                  width={'92.4%'}
-                  height={'96%'}
-                >
-                  <Box
-                    component={'img'}
-                    src={
-                      theme.palette.mode === 'light'
-                        ? 'https://assets.maccarianagency.com/screenshots/crypto-mobile.png'
-                        : 'https://assets.maccarianagency.com/screenshots/crypto-mobile--dark.png'
-                    }
-                    alt="Image Description"
-                    width={1}
-                    height={1}
-                    sx={{
-                      objectFit: 'cover',
-                      borderRadius: '2.5rem',
-                      filter:
-                        theme.palette.mode === 'dark'
-                          ? 'brightness(0.7)'
-                          : 'none',
-                    }}
                   />
                 </Box>
               </Box>

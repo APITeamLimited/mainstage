@@ -20,7 +20,7 @@ const onError = (error: Error) => {
 }
 
 export const EnvironmentTextField = ({
-  placeholder,
+  placeholder = '',
   namespace,
   value,
   onChange,
@@ -39,8 +39,10 @@ export const EnvironmentTextField = ({
   return (
     <div
       style={{
+        display: 'flex',
         width: '100%',
-        marginRight: '28px',
+        //width: 'calc(100% - 28px)',
+        //marginRight: '28px',
         height: '100%',
         ...wrapperAStyles,
       }}

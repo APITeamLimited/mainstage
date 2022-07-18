@@ -92,6 +92,7 @@ export const InnerValues = ({
               outlineOffset: '-2px',
               overflowWrap: 'normal',
               width: '100%',
+              height: '40px',
               /*
 'border-right-width 0px,
 'border-top-color rgb(18, 24, 40),

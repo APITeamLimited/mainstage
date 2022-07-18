@@ -51,7 +51,6 @@ export const EndpointBox = ({
           contentEditableStyles={{
             borderTopLeftRadius: 0,
             borderBottomLeftRadius: 0,
-            height: '40px',
           }}
         />
       </Stack>
