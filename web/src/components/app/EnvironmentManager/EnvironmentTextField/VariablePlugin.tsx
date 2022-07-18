@@ -51,7 +51,8 @@ const PUNC = DocumentVariablesRegex.PUNCTUATION
 const TRIGGERS = ['@', '\\uff20'].join('')
 
 // Chars we expect to see in a mention (non-space, non-punctuation).
-const VALID_CHARS = '[^' + TRIGGERS + PUNC + '\\s]'
+//const VALID_CHARS = '[^' + TRIGGERS + PUNC + '\\s]'
+const VALID_CHARS = '[^' + TRIGGERS + '\\s]'
 
 // Non-standard series of chars. Each series must be preceded and followed by
 // a valid char.
@@ -80,11 +81,13 @@ const AtSignVariablesRegex = new RegExp(
     ')$'
 )
 
+const BracedRegex = new RegExp(/{(.*?)}/)
+
 // 50 is the longest alias length limit.
-const ALIAS_LENGTH_LIMIT = 50
+//const ALIAS_LENGTH_LIMIT = 50
 
 // Regex used to match alias.
-const AtSignVariablesRegexAliasRegex = new RegExp(
+/*const AtSignVariablesRegexAliasRegex = new RegExp(
   '(^|\\s|\\()(' +
     '[' +
     TRIGGERS +
@@ -95,7 +98,7 @@ const AtSignVariablesRegexAliasRegex = new RegExp(
     ALIAS_LENGTH_LIMIT +
     '})' +
     ')$'
-)
+)*/
 
 // At most, 5 suggestions are shown in the popup.
 const SUGGESTION_LIST_LENGTH_LIMIT = 5
@@ -136,42 +139,56 @@ function checkForCapitalizedNameVariables(
   const match = CapitalizedNameVariablesRegex.exec(text)
 
   if (match !== null) {
-    // The strategy ignores leading whitespace but we need to know it's
-    // length to add it to the leadOffset
-    const maybeLeadingWhitespace = match[1]
+    if (braced) {
+      const maybeLeadingWhitespace = ''
+      const matchingString = match[1]
+      const actualStringLength = matchingString.length + 1
 
-    const matchingString = match[2]
-    if (matchingString != null && matchingString.length >= minMatchLength) {
-      return {
-        leadOffset: match.index + maybeLeadingWhitespace.length,
-        matchingString,
-        replaceableString: matchingString,
+      if (matchingString != null && actualStringLength >= minMatchLength) {
+        return {
+          leadOffset: match.index + maybeLeadingWhitespace.length,
+          matchingString,
+          replaceableString: matchingString,
+        }
+      }
+    } else {
+      // The strategy ignores leading whitespace but we need to know it's
+      // length to add it to the leadOffset
+      const maybeLeadingWhitespace = match[1]
+
+      const matchingString = match[2]
+
+      if (matchingString != null && matchingString.length >= minMatchLength) {
+        return {
+          leadOffset: match.index + maybeLeadingWhitespace.length,
+          matchingString,
+          replaceableString: matchingString,
+        }
       }
     }
   }
   return null
 }
 
+const braced = true
+
 function checkForAtSignVariables(
   text: string,
   minMatchLength: number
 ): VariableMatch | null {
-  let match = AtSignVariablesRegex.exec(text)
+  const match = braced
+    ? BracedRegex.exec(text)
+    : AtSignVariablesRegex.exec(text)
 
-  if (match === null) {
-    match = AtSignVariablesRegexAliasRegex.exec(text)
-  }
   if (match !== null) {
-    // The strategy ignores leading whitespace but we need to know it's
-    // length to add it to the leadOffset
-    const maybeLeadingWhitespace = match[1]
+    const maybeLeadingWhitespace = ''
+    const matchingString = match[0]
 
-    const matchingString = match[3]
     if (matchingString.length >= minMatchLength) {
       return {
         leadOffset: match.index + maybeLeadingWhitespace.length,
         matchingString,
-        replaceableString: match[2],
+        replaceableString: match[0],
       }
     }
   }
@@ -181,7 +198,7 @@ function checkForAtSignVariables(
 // Checks input text for @value matches
 function getPossibleVariableMatch(text: string): VariableMatch | null {
   // Will need to change this bit to match custom regex
-  const match = checkForAtSignVariables(text, 1)
+  const match = checkForAtSignVariables(text, 2)
   return match === null ? checkForCapitalizedNameVariables(text, 3) : match
 }
 
@@ -353,7 +370,7 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
   //console.log('useVariables', resolution)
 
   if (resolution?.match.matchingString) {
-    console.log('ting tong')
+    console.log('ting tong', resolution.match)
     createVariableNode(
       editor,
       resolution?.match.matchingString,

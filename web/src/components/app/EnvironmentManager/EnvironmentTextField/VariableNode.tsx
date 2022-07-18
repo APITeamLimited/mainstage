@@ -20,8 +20,8 @@ import {
 
 export type SerializedVariableNode = Spread<
   {
-    mentionName: string
-    type: 'mention'
+    variableName: string
+    type: 'variable'
     version: 1
   },
   SerializedTextNode
@@ -42,19 +42,19 @@ function convertVariableElement(
   return null
 }
 
-const mentionStyle = 'background-color: rgba(24, 119, 232, 0.2)'
+const variableStyle = 'background-color: rgba(24, 119, 232, 0.2)'
 export class VariableNode extends TextNode {
-  __mention: string
+  __variable: string
 
   static getType(): string {
-    return 'mention'
+    return 'variable'
   }
 
   static clone(node: VariableNode): VariableNode {
-    return new VariableNode(node.__mention, node.__text, node.__key)
+    return new VariableNode(node.__variable, node.__text, node.__key)
   }
   static importJSON(serializedNode: SerializedVariableNode): VariableNode {
-    const node = $createVariableNode(serializedNode.mentionName)
+    const node = $createVariableNode(serializedNode.variableName)
     node.setTextContent(serializedNode.text)
     node.setFormat(serializedNode.format)
     node.setDetail(serializedNode.detail)
@@ -63,30 +63,30 @@ export class VariableNode extends TextNode {
     return node
   }
 
-  constructor(mentionName: string, text?: string, key?: NodeKey) {
-    super(text ?? mentionName, key)
-    this.__mention = mentionName
+  constructor(variableName: string, text?: string, key?: NodeKey) {
+    super(text ?? variableName, key)
+    this.__variable = variableName
   }
 
   exportJSON(): SerializedVariableNode {
     return {
       ...super.exportJSON(),
-      mentionName: this.__mention,
-      type: 'mention',
+      variableName: this.__variable,
+      type: 'variable',
       version: 1,
     }
   }
 
   createDOM(config: EditorConfig): HTMLElement {
     const dom = super.createDOM(config)
-    dom.style.cssText = mentionStyle
-    dom.className = 'mention'
+    dom.style.cssText = variableStyle
+    dom.className = 'variable'
     return dom
   }
 
   exportDOM(): DOMExportOutput {
     const element = document.createElement('span')
-    element.setAttribute('data-lexical-mention', 'true')
+    element.setAttribute('data-lexical-variable', 'true')
     element.textContent = this.__text
     return { element }
   }
@@ -94,7 +94,7 @@ export class VariableNode extends TextNode {
   static importDOM(): DOMConversionMap | null {
     return {
       span: (domNode: HTMLElement) => {
-        if (!domNode.hasAttribute('data-lexical-mention')) {
+        if (!domNode.hasAttribute('data-lexical-variable')) {
           return null
         }
         return {
@@ -110,10 +110,10 @@ export class VariableNode extends TextNode {
   }
 }
 
-export function $createVariableNode(mentionName: string): VariableNode {
-  const mentionNode = new VariableNode(mentionName)
-  mentionNode.setMode('segmented').toggleDirectionless()
-  return mentionNode
+export function $createVariableNode(variableName: string): VariableNode {
+  const variableNode = new VariableNode(variableName)
+  variableNode.setMode('segmented').toggleDirectionless()
+  return variableNode
 }
 
 export function $isVariableNode(

@@ -1,11 +1,6 @@
-import { useEffect } from 'react'
-
-import { HashtagNode } from '@lexical/hashtag'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
-import { $getRoot, $createTextNode } from 'lexical'
 
 import { InnerValues } from './InnerValues'
-import { KeywordNode } from './KeywordNode'
 import PlaygroundEditorTheme from './Theme'
 import { VariableNode } from './VariableNode'
 
@@ -14,16 +9,11 @@ export type EnvironmentTextFieldProps = {
   namespace: string
   value?: string
   onChange?: (value: string, namespace: string) => void
+  multiline?: boolean
 }
 
 const onError = (error: Error) => {
   throw error
-}
-
-const getInitialState = (value: string) => {
-  const root = $getRoot()
-  const paragraph = $createTextNode(value)
-  root.appendChild(paragraph)
 }
 
 export const EnvironmentTextField = ({
@@ -31,6 +21,7 @@ export const EnvironmentTextField = ({
   namespace,
   value,
   onChange,
+  multiline = false,
 }: EnvironmentTextFieldProps) => {
   const initialConfig = {
     namespace,
@@ -41,11 +32,7 @@ export const EnvironmentTextField = ({
   }
 
   return (
-    <div
-      style={{
-        height: '400px',
-      }}
-    >
+    <span>
       <LexicalComposer initialConfig={initialConfig}>
         <InnerValues
           placeholder={placeholder}
@@ -54,7 +41,6 @@ export const EnvironmentTextField = ({
           namespace={namespace}
         />
       </LexicalComposer>
-      {namespace}
-    </div>
+    </span>
   )
 }
