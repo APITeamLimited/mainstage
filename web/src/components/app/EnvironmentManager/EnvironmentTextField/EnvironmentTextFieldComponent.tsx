@@ -1,4 +1,5 @@
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
+import { useTheme } from '@mui/material'
 
 import { InnerValues } from './InnerValues'
 import PlaygroundEditorTheme from './Theme'
@@ -23,6 +24,7 @@ export const EnvironmentTextField = ({
   value,
   onChange,
   multiline = false,
+  contentEditableStyles = {},
 }: EnvironmentTextFieldProps) => {
   const initialConfig = {
     namespace,
@@ -33,15 +35,22 @@ export const EnvironmentTextField = ({
   }
 
   return (
-    <span>
+    <div
+      style={{
+        width: '100%',
+        marginRight: '28px',
+        height: '100%',
+      }}
+    >
       <LexicalComposer initialConfig={initialConfig}>
         <InnerValues
           placeholder={placeholder}
           value={value}
           onChange={onChange}
           namespace={namespace}
+          contentEditableStyles={contentEditableStyles}
         />
       </LexicalComposer>
-    </span>
+    </div>
   )
 }

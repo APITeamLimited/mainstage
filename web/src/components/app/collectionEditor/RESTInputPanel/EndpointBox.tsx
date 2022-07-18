@@ -49,7 +49,9 @@ export const EndpointBox = ({
           value={unsavedEndpoint}
           onChange={handleEndpointChange}
           contentEditableStyles={{
-            width: '100%',
+            borderTopLeftRadius: 0,
+            borderBottomLeftRadius: 0,
+            height: '40px',
           }}
         />
       </Stack>
