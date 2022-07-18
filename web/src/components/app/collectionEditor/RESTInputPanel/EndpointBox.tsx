@@ -33,18 +33,6 @@ export const EndpointBox = ({
   const namespace = `${requestId}_endpoint`
   return (
     <>
-      <Box
-        sx={{
-          width: '100%',
-        }}
-      >
-        <EnvironmentTextField
-          placeholder="Endpoint"
-          namespace={namespace}
-          value={unsavedEndpoint}
-          onChange={handleEndpointChange}
-        />
-      </Box>
       <Stack
         direction="row"
         sx={{
@@ -54,6 +42,15 @@ export const EndpointBox = ({
         <RequestMethodButton
           requestMethod={requestMethod}
           setRequestMethod={setRequestMethod}
+        />
+        <EnvironmentTextField
+          placeholder="Endpoint"
+          namespace={namespace}
+          value={unsavedEndpoint}
+          onChange={handleEndpointChange}
+          contentEditableStyles={{
+            width: '100%',
+          }}
         />
       </Stack>
     </>

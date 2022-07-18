@@ -21,6 +21,7 @@ export const InnerValues = ({
   value = '',
   onChange = () => {},
   namespace,
+  contentEditableStyles = {},
 }: EnvironmentTextFieldProps) => {
   const [editor] = useLexicalComposerContext()
   const theme = useTheme()
@@ -50,6 +51,8 @@ export const InnerValues = ({
     // TODO: implement
     //console.log('editorState', editorState)
 
+    console.log(editorState._nodeMap)
+
     onChange(JSON.stringify(editorState), namespace)
   }
 
@@ -64,23 +67,6 @@ export const InnerValues = ({
               animationName: 'mui-auto-fill-cancel',
               appearance: 'auto',
               backgroundAttachment: 'scroll',
-              backgroundClip: 'border-box',
-              backgroundOrigin: 'padding-box',
-              backgroundSize: 'auto',
-              borderBottomColor: 'rgb(18, 24, 40)',
-              borderBottomStyle: 'none',
-              borderBottomWidth: '0px',
-              borderCollapse: 'collapse',
-              borderImageOutset: 0,
-              borderImageRepeat: 'stretch',
-              borderImageSlice: '100%',
-              borderImageSource: 'none',
-              borderImageWidth: '1',
-              borderLeftColor: 'rgb(18, 24, 40)',
-              borderLeftStyle: 'none',
-              borderLeftWidth: '0px',
-              borderRightColor: 'rgb(18, 24, 40)',
-              borderRightStyle: 'none',
               fontFamily:
                 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"',
               paddingBottom: '6px',
@@ -100,7 +86,10 @@ export const InnerValues = ({
               letterSpacing: 'normal',
               backgroundColor: theme.palette.alternate.dark,
               borderRadius: theme.shape.borderRadius,
+              borderColor: 'transparent',
               outlineColor: theme.palette.primary.main,
+              outlineOffset: '-1px',
+              overflowWrap: 'normal',
               /*
 'border-right-width 0px,
 'border-top-color rgb(18, 24, 40),
@@ -129,9 +118,11 @@ export const InnerValues = ({
 '-webkit-rtl-ordering logical,
 '-webkit-tap-highlight-color rgba(0, 0, 0, 0),
 '-webkit-border-image none,*/
+              ...contentEditableStyles,
             }}
           />
         }
+        placeholder={''}
       />
 
       {/*

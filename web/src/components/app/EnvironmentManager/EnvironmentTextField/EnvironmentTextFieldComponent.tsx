@@ -10,6 +10,7 @@ export type EnvironmentTextFieldProps = {
   value?: string
   onChange?: (value: string, namespace: string) => void
   multiline?: boolean
+  contentEditableStyles?: React.CSSProperties
 }
 
 const onError = (error: Error) => {
