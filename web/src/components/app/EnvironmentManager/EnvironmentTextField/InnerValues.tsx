@@ -3,13 +3,20 @@ import { useEffect } from 'react'
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
+import { HashtagPlugin } from '@lexical/react/LexicalHashtagPlugin'
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
-import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin'
-import { $createParagraphNode, $getRoot, $createTextNode } from 'lexical'
+import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
+import {
+  $createParagraphNode,
+  $getRoot,
+  $createTextNode,
+  EditorState,
+} from 'lexical'
 
 import { EnvironmentTextFieldProps } from './EnvironmentTextFieldComponent'
 import KeywordsPlugin from './KeywordsPlugin'
+import VariablesPlugin from './VariablePlugin'
 
 export const InnerValues = ({
   placeholder,
@@ -20,7 +27,6 @@ export const InnerValues = ({
   const [editor] = useLexicalComposerContext()
 
   useEffect(() => {
-    console.log(value)
     if (value === '') {
       editor.update(() => {
         const root = $getRoot()
@@ -40,13 +46,19 @@ export const InnerValues = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, namespace, value])
 
-  const handeChange = () => {
-    onChange(JSON.stringify(editor.getEditorState()), namespace)
+  const handeChange = (editorState: EditorState) => {
+    // Prevent multiple lines in the editor, removing linebreak nodes from the editor state
+
+    // TODO: implement
+
+    console.log('editorState', editorState)
+
+    // TODO: pass back up the tree
   }
 
   return (
     <>
-      <PlainTextPlugin
+      <RichTextPlugin
         contentEditable={<ContentEditable />}
         placeholder={placeholder || ''}
       />
@@ -54,9 +66,9 @@ export const InnerValues = ({
       {/*
       To enable history, need to stop being mixed up between components
       <HistoryPlugin />*/}
+      <VariablesPlugin />
       <ClearEditorPlugin />
       <OnChangePlugin onChange={handeChange} />
-      <KeywordsPlugin />
     </>
   )
 }

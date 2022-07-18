@@ -13,6 +13,7 @@
     ]
   },
   "dependencies": {
+    "@lexical/react": "^0.3.7",
     "@monaco-editor/react": "^4.4.5",
     "@redwoodjs/auth": "2.0.0",
     "@redwoodjs/forms": "2.0.0",

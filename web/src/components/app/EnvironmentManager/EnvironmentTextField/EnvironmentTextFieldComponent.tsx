@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
 
+import { HashtagNode } from '@lexical/hashtag'
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { $getRoot, $createTextNode } from 'lexical'
 
 import { InnerValues } from './InnerValues'
 import { KeywordNode } from './KeywordNode'
+import PlaygroundEditorTheme from './Theme'
+import { VariableNode } from './VariableNode'
 
 export type EnvironmentTextFieldProps = {
   placeholder?: string
@@ -33,12 +36,16 @@ export const EnvironmentTextField = ({
     namespace,
     onError,
     editorState: null,
-    nodes: [KeywordNode],
+    theme: PlaygroundEditorTheme,
+    nodes: [VariableNode],
   }
-  console.log(namespace)
 
   return (
-    <>
+    <div
+      style={{
+        height: '400px',
+      }}
+    >
       <LexicalComposer initialConfig={initialConfig}>
         <InnerValues
           placeholder={placeholder}
@@ -48,6 +55,6 @@ export const EnvironmentTextField = ({
         />
       </LexicalComposer>
       {namespace}
-    </>
+    </div>
   )
 }
