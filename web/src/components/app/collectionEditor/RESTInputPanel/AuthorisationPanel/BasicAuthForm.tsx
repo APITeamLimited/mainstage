@@ -8,9 +8,14 @@ import { RESTAuth, RESTAuthBasic } from 'src/contexts/reactives'
 type BasicAuthFormProps = {
   auth: RESTAuthBasic & { authActive: boolean }
   setAuth: (auth: RESTAuth) => void
+  requestId: string
 }
 
-export const BasicAuthForm = ({ auth, setAuth }: BasicAuthFormProps) => {
+export const BasicAuthForm = ({
+  auth,
+  setAuth,
+  requestId,
+}: BasicAuthFormProps) => {
   const theme = useTheme()
   const formik = useFormik({
     initialValues: {
@@ -29,6 +34,7 @@ export const BasicAuthForm = ({ auth, setAuth }: BasicAuthFormProps) => {
         password: values.password,
       })
     },
+    handleChange: (values) => {},
   })
 
   return (
@@ -70,7 +76,28 @@ export const BasicAuthForm = ({ auth, setAuth }: BasicAuthFormProps) => {
           error={Boolean(formik.touched.password && formik.errors.password)}
           fullWidth
         />
-        <EnvironmentTextField namespace={'test'} />
+        <EnvironmentTextField
+          label="Username"
+          namespace={`${requestId}.username`}
+          onChange={(value) => {
+            formik.setFieldValue('username', value)
+            //formik.setFieldTouched('username', true)
+          }}
+          value={formik.values.username}
+          helperText={formik.touched.username && formik.errors.username}
+          error={Boolean(formik.touched.username && formik.errors.username)}
+        />
+        <EnvironmentTextField
+          label="Password"
+          namespace={`${requestId}.password`}
+          onChange={(value) => {
+            formik.setFieldValue('password', value)
+            //formik.setFieldTouched('password', true)
+          }}
+          value={formik.values.password}
+          helperText={formik.touched.password && formik.errors.password}
+          error={Boolean(formik.touched.password && formik.errors.password)}
+        />
       </Stack>
     </form>
   )

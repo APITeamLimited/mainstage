@@ -168,6 +168,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           <AuthorisationPanel
             auth={unsavedAuthorisation}
             setAuth={setUnsavedAuthorisation}
+            requestId={request.id}
           />
         )}
       </Stack>

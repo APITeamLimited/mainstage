@@ -45,11 +45,13 @@ const authMethodLabels = [
 type AuthorisationPanelProps = {
   auth: RESTAuth
   setAuth: (auth: RESTAuth) => void
+  requestId: string
 }
 
 export const AuthorisationPanel = ({
   auth,
   setAuth,
+  requestId,
 }: AuthorisationPanelProps) => {
   const theme = useTheme()
 
@@ -189,7 +191,7 @@ export const AuthorisationPanel = ({
             height: '100%',
           }}
         >
-          <BasicAuthForm auth={auth} setAuth={setAuth} />
+          <BasicAuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
         </Stack>
       )}
       {auth.authType === 'bearer' && (

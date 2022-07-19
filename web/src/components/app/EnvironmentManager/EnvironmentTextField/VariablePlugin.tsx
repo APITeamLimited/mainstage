@@ -306,7 +306,6 @@ function createVariableNode(
 
     if ($isRangeSelection(selection)) {
       const variableNode = $createVariableNode(entryText)
-      console.log('newnam', variableNode)
 
       nodeToReplace.replace(variableNode)
       return true

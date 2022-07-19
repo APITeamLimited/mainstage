@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
@@ -19,7 +19,33 @@ import {
 } from 'lexical'
 
 import { EnvironmentTextFieldProps } from './EnvironmentTextFieldComponent'
+import { $createVariableNode } from './VariableNode'
 import VariablesPlugin from './VariablePlugin'
+
+const convertToText = (editorState: EditorState): string => {
+  return editorState.read(() => {
+    const root = $getRoot()
+    if (root.getChildrenSize() > 0) {
+      const firstRootChildren = root.getChildren()
+
+      // Get children of first child
+      const grandChildren = firstRootChildren[0].getChildren()
+
+      return grandChildren
+        .map((grandChild: LexicalNode) => {
+          if (grandChild.__type === 'text') {
+            return grandChild.__text as string
+          } else if (grandChild.__type === 'variable') {
+            return grandChild.__variable as string
+          } else {
+            throw `Unsupported node type: ${grandChild.__type}`
+          }
+        })
+        .join('')
+    }
+    return ''
+  })
+}
 
 export const InnerValues = ({
   placeholder,
@@ -30,6 +56,7 @@ export const InnerValues = ({
 }: EnvironmentTextFieldProps) => {
   const [editor] = useLexicalComposerContext()
   const theme = useTheme()
+  const [oldValue, setOldValue] = useState('')
 
   useEffect(() => {
     // Delete any line break ndoes
@@ -43,27 +70,65 @@ export const InnerValues = ({
   }, [editor])
 
   useEffect(() => {
-    if (value === '') {
-      editor.update(() => {
+    editor.update(() => {
+      console.log('Updating editor', value)
+
+      if (value === '') {
         const root = $getRoot()
         root.clear()
         const paragraph = $createParagraphNode()
         paragraph.append($createTextNode(value))
         root.append(paragraph)
-      })
-    } else {
-      const existingState = JSON.stringify(editor.getEditorState())
-      if (existingState !== value) {
-        editor.setEditorState(editor.parseEditorState(value))
-        // Must focus
-        editor.focus()
+      } else {
+        const existingState = convertToText(editor.getEditorState())
+
+        if (existingState !== oldValue) {
+          return
+        }
+
+        //if (value === oldValue) {
+        //  console.log('old', oldValue, existingState)
+        //  return
+        //}
+
+        if (existingState !== value) {
+          const root = $getRoot()
+          root.clear()
+          const paragraph = $createParagraphNode()
+
+          // Find substrings that start and end with curly braces
+          const regex = /{(.*?)}/
+          const matches = value.match(regex) || []
+
+          // Split value into an array of strings, divided by matches
+          const values = value.split(regex)?.filter((match) => match !== '')
+
+          let matchesIndex = 0
+
+          values.forEach((subValue) => {
+            // Check if value is the value at matchIndex
+            if (matchesIndex >= matches.length) {
+              paragraph.append($createTextNode(subValue))
+            } else if (`{${subValue}}` === matches[matchesIndex]) {
+              paragraph.append($createVariableNode(`{${subValue}}`))
+              matchesIndex++
+            } else {
+              paragraph.append($createTextNode(subValue))
+            }
+          })
+
+          root.append(paragraph)
+          setOldValue(value)
+        }
       }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+      // Must focus
+      editor.focus()
+    })
   }, [editor, namespace, value])
 
   const handeChange = (editorState: EditorState) => {
-    onChange(JSON.stringify(editorState), namespace)
+    onChange(convertToText(editorState), namespace)
   }
 
   return (
@@ -103,40 +168,12 @@ export const InnerValues = ({
               overflowWrap: 'normal',
               width: '100%',
               height: '40px',
-              //
               overflowX: 'hidden',
               whiteSpace: 'nowrap',
               overflowY: 'hidden',
-              /*
-'border-right-width 0px,
-'border-top-color rgb(18, 24, 40),
-'border-top-style none,
-'border-top-width 0px,
-'box-sizing content-box,
-'color rgb(18, 24, 40),
-'cursor text,
-
-'font-variant-caps normal,
-'font-variant-east-asian normal,
-'font-variant-ligatures normal,
-'font-variant-numeric normal,
-'font-weight 400,
-'height 22.9861px,
-,
-
-'min-width 0px,
-
-
-'width 411.076px,
-'word-spacing 0px,
-'writing-mode horizontal-tb,
-'-webkit-border-horizontal-spacing 0px,
-'-webkit-border-vertical-spacing 0px,
-'-webkit-rtl-ordering logical,
-'-webkit-tap-highlight-color rgba(0, 0, 0, 0),
-'-webkit-border-image none,*/
               ...contentEditableStyles,
             }}
+            key={namespace}
           />
         }
         placeholder={''}
