@@ -1,20 +1,17 @@
 import { useState, useRef } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { Button, ButtonGroup, Popover, Stack } from '@mui/material'
 
-import { activeWorkspaceVar, restRequestQueueVar } from 'src/contexts/reactives'
+type SendButtonProps = {
+  onNormalSend?: () => void
+}
 
-type SendButtonProps = {}
-
-export const SendButton = () => {
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+export const SendButton = ({
+  onNormalSend = () => undefined,
+}: SendButtonProps) => {
   const [showSendOptionsPopover, setShowSendOptionsPopover] = useState(false)
   const buttonGroupRef = useRef<HTMLDivElement>(null)
-
-  const isLocalWorkspace = activeWorkspace.id === 'ANONYMOUS_ID'
-  const requestManagerStatus = useReactiveVar(restRequestQueueVar)
 
   // TODO: implement this
   const isDisabled = false
@@ -32,6 +29,7 @@ export const SendButton = () => {
           style={{
             borderRight: 'none',
           }}
+          onClick={onNormalSend}
         >
           Send
         </Button>

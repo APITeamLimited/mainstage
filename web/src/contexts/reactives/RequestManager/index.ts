@@ -1,1 +1,1 @@
-export * from './RequestManager'
+export * from './RESTRequestManager'

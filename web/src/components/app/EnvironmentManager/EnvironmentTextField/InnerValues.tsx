@@ -165,7 +165,6 @@ export const InnerValues = ({
               overflowX: 'hidden',
               whiteSpace: 'nowrap',
               overflowY: 'hidden',
-
               ...contentEditableStyles,
             }}
             key={namespace}
@@ -173,7 +172,6 @@ export const InnerValues = ({
         }
         placeholder={''}
       />
-
       {/*
       To enable history, need to stop being mixed up between components
       <HistoryPlugin />*/}

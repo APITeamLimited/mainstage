@@ -4,10 +4,9 @@ import { makeVar, useReactiveVar } from '@apollo/client'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { v4 as uuid } from 'uuid'
 
-import { KeyValueItem } from 'src/components/app/collectionEditor/KeyValueEditor'
 import {
   findEnvironmentVariables,
-  findVariablesInString,
+  findEnvironmentVariablesKeyValueItem,
 } from 'src/utils/findVariables'
 
 import { activeEnvironmentVar } from '../ActiveEnvironment'
@@ -51,9 +50,7 @@ export const addToQueue = ({
     jobStatus: 'pending',
   }
 
-  return {
-    queue: [...queue, newJob],
-  }
+  return [...queue, newJob]
 }
 
 export const RESTRequestManager = () => {
@@ -84,15 +81,49 @@ export const RESTRequestManager = () => {
   )
 
   const handleRequestResponse = useCallback(
-    (response: AxiosResponse<any, any>) => {},
+    (response: AxiosResponse<any, any>) => {
+      console.log('handleRequestResponse', response)
+    },
     []
+  )
+
+  const getFinalRequest = useCallback(
+    (request: LocalRESTRequest): AxiosRequestConfig => {
+      const finalHeaders = request.headers
+        .map((header) =>
+          findEnvironmentVariablesKeyValueItem(activeEnvironment, header)
+        )
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+
+      const finalParameters = request.params
+        .map((param) =>
+          findEnvironmentVariablesKeyValueItem(activeEnvironment, param)
+        )
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+
+      const finalEndpoint = findEnvironmentVariables(
+        activeEnvironment,
+        request.endpoint
+      )
+
+      return {
+        method: request.method,
+        url: finalEndpoint,
+        headers: finalHeaders,
+        params: finalParameters,
+        signal: new AbortController().signal,
+      }
+    },
+    [activeEnvironment]
   )
 
   // Scan for pending requests and start executing them
   useEffect(() => {
     const updatedJobs: RESTQueuedJob[] = []
+
     queue.forEach((job) => {
       if (job.jobStatus === 'pending') {
+        console.log('executing job', job)
         const finalRESTRequest = getFinalRequest(job.request)
 
         const updatedJob: RESTQueuedJob = {
@@ -108,36 +139,10 @@ export const RESTRequestManager = () => {
       }
     })
 
-    // Update filter queue with new jobs
-    restRequestQueueVar(updateFilterQueue(queue, updatedJobs))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queue])
-
-  const getFinalRequest = useCallback(
-    (request: LocalRESTRequest): AxiosRequestConfig => {
-      const finalHeaders = request.headers
-        .map((header) => findEnvironmentVariables(activeEnvironment, header))
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
-
-      const finalParameters = request.params
-        .map((param) => findEnvironmentVariables(activeEnvironment, param))
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
-
-      const finalEndpoint = findVariablesInString(
-        activeEnvironment,
-        request.endpoint
-      )
-
-      return {
-        method: request.method,
-        url: finalEndpoint,
-        headers: finalHeaders,
-        params: finalParameters,
-        signal: new AbortController().signal,
-      }
-    },
-    [activeEnvironment]
-  )
+    if (updatedJobs.length > 0) {
+      restRequestQueueVar(updateFilterQueue(queue, updatedJobs))
+    }
+  }, [getFinalRequest, handleRequestResponse, queue, updateFilterQueue])
 
   return <></>
 }

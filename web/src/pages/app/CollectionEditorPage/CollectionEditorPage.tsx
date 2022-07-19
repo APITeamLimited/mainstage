@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Paper, useTheme } from '@mui/material'
+import { Paper, Stack, useTheme, IconButton, Tooltip, Box } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
-
 import 'react-reflex/styles.css'
 
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
 import { focusedElementVar } from 'src/components/app/collectionEditor/reactives'
 import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
+import { RightAside } from 'src/components/app/collectionEditor/RightAside'
 import {
   activeWorkspaceVar,
   anonymousWorkspace,
   localCollectionsVar,
+  RESTRequestManager,
 } from 'src/contexts/reactives'
 
 type CollectionEditorPageProps = {
@@ -28,6 +29,8 @@ export const CollectionEditorPage = ({
   const activeWorkspace = useReactiveVar(activeWorkspaceVar)
   const theme = useTheme()
   const focusedElement = useReactiveVar(focusedElementVar)
+  const [showRightAside, setShowRightAside] = useState(false)
+  const [editorKey, setEditorKey] = useState(0)
 
   useEffect(() => {
     if (workspaceId !== activeWorkspace.id) {
@@ -50,13 +53,27 @@ export const CollectionEditorPage = ({
 
   return (
     <div
-      style={{ height: '100%', backgroundColor: theme.palette.alternate.dark }}
+      style={{
+        height: '100%',
+        backgroundColor: theme.palette.alternate.dark,
+        width: '100%',
+      }}
     >
-      <ReflexContainer orientation="vertical" windowResizeAware>
-        <ReflexElement minSize={200} maxSize={4000} size={200}>
+      <RESTRequestManager />
+      <ReflexContainer orientation="vertical" windowResizeAware key={editorKey}>
+        <ReflexElement
+          minSize={200}
+          maxSize={4000}
+          size={200}
+          flex={2}
+          style={{
+            minWidth: '200px',
+          }}
+        >
           <Paper
             sx={{
               height: '100%',
+              width: '100%',
               borderRadius: 0,
             }}
             elevation={10}
@@ -72,12 +89,13 @@ export const CollectionEditorPage = ({
           }}
         />
         <ReflexElement minSize={500} flex={1}>
-          <div style={{ height: '100%' }}>
-            <ReflexContainer orientation="horizontal">
+          <div style={{ height: '100%', width: '100%' }}>
+            <ReflexContainer orientation="horizontal" windowResizeAware>
               <ReflexElement>
                 <div
                   style={{
                     height: '100%',
+                    width: '100%',
                   }}
                 >
                   <Paper
@@ -102,7 +120,11 @@ export const CollectionEditorPage = ({
                   backgroundColor: 'transparent',
                 }}
               />
-              <ReflexElement>
+              <ReflexElement
+                style={{
+                  minWidth: '200px',
+                }}
+              >
                 <div style={{ height: '100%' }}>
                   <Paper
                     elevation={0}
@@ -113,21 +135,49 @@ export const CollectionEditorPage = ({
             </ReflexContainer>
           </div>
         </ReflexElement>
-        <ReflexSplitter
+        {showRightAside ? (
+          <ReflexSplitter
+            style={{
+              width: 8,
+              border: 'none',
+              backgroundColor: 'transparent',
+            }}
+          />
+        ) : (
+          <Box
+            sx={{
+              backgroundColor: theme.palette.background.default,
+            }}
+          >
+            <ReflexSplitter
+              style={{
+                width: 8,
+                border: 'none',
+                backgroundColor: 'transparent',
+              }}
+            />
+          </Box>
+        )}
+        <ReflexElement
+          flex={2}
           style={{
-            width: 8,
-            border: 'none',
-            backgroundColor: 'transparent',
+            minWidth: showRightAside ? '300px' : '50px',
+            maxWidth: showRightAside ? '800px' : '50px',
           }}
-        />
-        <ReflexElement minSize={50} maxSize={800}>
+          onResize={(dom) => console.log(dom)}
+        >
           <Paper
             sx={{
               height: '100%',
               borderRadius: 0,
             }}
             elevation={0}
-          ></Paper>
+          >
+            <RightAside
+              setShowRightAside={setShowRightAside}
+              showRightAside={showRightAside}
+            />
+          </Paper>
         </ReflexElement>
       </ReflexContainer>
     </div>

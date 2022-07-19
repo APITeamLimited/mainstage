@@ -4,9 +4,11 @@ import { useReactiveVar } from '@apollo/client'
 import { Stack, Tab, Tabs } from '@mui/material'
 
 import {
+  addToQueue,
   generateLocalRESTRequest,
   LocalRESTRequest,
   localRESTRequestsVar,
+  restRequestQueueVar,
   updateFilterLocalRESTRequestArray,
 } from 'src/contexts/reactives'
 
@@ -24,6 +26,7 @@ type RESTInputPanelProps = {
 }
 
 export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
+  const queue = useReactiveVar(restRequestQueueVar)
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [unsavedEndpoint, setUnsavedEndpoint] = useState(request.endpoint)
   const [unsavedHeaders, setUnsavedHeaders] = useState(request.headers)
@@ -115,6 +118,20 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
     )
   }
 
+  const handleNormalSend = () => {
+    const newRequest: LocalRESTRequest = {
+      ...request,
+      endpoint: unsavedEndpoint,
+      headers: unsavedHeaders,
+      params: unsavedParameters,
+      body: unsavedBody,
+      method: unsavedRequestMethod,
+      auth: unsavedAuthorisation,
+    }
+
+    restRequestQueueVar(addToQueue({ queue, request: newRequest }))
+  }
+
   return (
     <>
       <Stack
@@ -132,7 +149,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
             setRequestMethod={setUnsavedRequestMethod}
             requestId={request.id}
           />
-          <SendButton />
+          <SendButton onNormalSend={handleNormalSend} />
           <SaveButton
             needSave={needSave}
             onSave={handleSave}

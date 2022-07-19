@@ -1,5 +1,4 @@
 import { makeVar } from '@apollo/client'
-import { v4 as uuidv4 } from 'uuid'
 import { BaseEntity, LocalRESTRequest } from 'web/src/contexts/reactives/locals'
 
 type DiscreteResults =
