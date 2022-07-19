@@ -202,7 +202,7 @@ export const AuthorisationPanel = ({
             height: '100%',
           }}
         >
-          <BearerAuthForm auth={auth} setAuth={setAuth} />
+          <BearerAuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
         </Stack>
       )}
       {auth.authType === 'oauth-2' && (
@@ -213,7 +213,7 @@ export const AuthorisationPanel = ({
             height: '100%',
           }}
         >
-          <OAuth2AuthForm auth={auth} setAuth={setAuth} />
+          <OAuth2AuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
         </Stack>
       )}
       {auth.authType === 'api-key' && (

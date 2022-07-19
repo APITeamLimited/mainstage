@@ -71,8 +71,6 @@ export const InnerValues = ({
 
   useEffect(() => {
     editor.update(() => {
-      console.log('Updating editor', value)
-
       if (value === '') {
         const root = $getRoot()
         root.clear()
@@ -83,13 +81,9 @@ export const InnerValues = ({
         const existingState = convertToText(editor.getEditorState())
 
         if (existingState !== oldValue) {
+          // Required to prevent incorrect buffer being rendered
           return
         }
-
-        //if (value === oldValue) {
-        //  console.log('old', oldValue, existingState)
-        //  return
-        //}
 
         if (existingState !== value) {
           const root = $getRoot()

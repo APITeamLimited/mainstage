@@ -212,7 +212,7 @@ export const EnvironmentManager = ({
                 variant="caption"
                 color={theme.palette.text.secondary}
               >
-                Add an environment to use variables in requests
+                Add an environment to use its variables in requests
               </Typography>
               <Button
                 variant="outlined"
@@ -321,7 +321,7 @@ export const EnvironmentManager = ({
                       variant="caption"
                       color={theme.palette.text.secondary}
                     >
-                      Select an environment to use variables in requests
+                      Select an environment to use its variables in requests
                     </Typography>
                   </Stack>
                 )}
