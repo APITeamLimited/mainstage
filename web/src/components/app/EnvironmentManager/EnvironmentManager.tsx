@@ -12,6 +12,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
   useTheme,
 } from '@mui/material'
@@ -152,17 +153,37 @@ export const EnvironmentManager = ({
       >
         <DialogTitle>
           Environments
-          <IconButton
-            onClick={() => setShowCallback(false)}
+          <Stack
+            direction="row"
             sx={{
               position: 'absolute',
               right: 8,
               top: 8,
-              color: (theme) => theme.palette.grey[500],
             }}
           >
-            <CloseIcon />
-          </IconButton>
+            {activeEnvironmentId && (
+              <Tooltip title="Deselect Environment">
+                <IconButton
+                  onClick={() => activeEnvironmentVar(null)}
+                  sx={{
+                    color: (theme) => theme.palette.grey[500],
+                  }}
+                >
+                  <DeselectIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            <Tooltip title="Close">
+              <IconButton
+                onClick={() => setShowCallback(false)}
+                sx={{
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
         </DialogTitle>
         <Divider color={theme.palette.divider} />
         <DialogContent

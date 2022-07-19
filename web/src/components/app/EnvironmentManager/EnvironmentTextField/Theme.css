@@ -6,7 +6,12 @@
 }
 .PlaygroundEditorTheme__paragraph {
   margin: 0;
-  position: relative;
+    white-space: nowrap;
+}
+.PlaygroundEditorTheme__paragraph span {
+  display: inline-block;
+  white-space: normal;
+  width: '2000px';
 }
 .PlaygroundEditorTheme__paragraph:last-child {
   margin-bottom: 0;

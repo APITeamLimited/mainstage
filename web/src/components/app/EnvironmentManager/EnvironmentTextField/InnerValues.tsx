@@ -4,6 +4,7 @@ import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
+import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin'
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
 import { createTheme, useTheme } from '@mui/material'
 import {
@@ -11,6 +12,10 @@ import {
   $getRoot,
   $createTextNode,
   EditorState,
+  NodeMap,
+  LexicalNode,
+  LineBreakNode,
+  ParagraphNode,
 } from 'lexical'
 
 import { EnvironmentTextFieldProps } from './EnvironmentTextFieldComponent'
@@ -25,6 +30,17 @@ export const InnerValues = ({
 }: EnvironmentTextFieldProps) => {
   const [editor] = useLexicalComposerContext()
   const theme = useTheme()
+
+  useEffect(() => {
+    // Delete any line break ndoes
+    editor.registerNodeTransform(ParagraphNode, (paragraphNode) => {
+      paragraphNode.getChildren().forEach((childNode) => {
+        if (childNode.getType() === 'linebreak') {
+          childNode.remove()
+        }
+      })
+    })
+  }, [editor])
 
   useEffect(() => {
     if (value === '') {
@@ -47,18 +63,12 @@ export const InnerValues = ({
   }, [editor, namespace, value])
 
   const handeChange = (editorState: EditorState) => {
-    // Prevent multiple lines in the editor, removing linebreak nodes from the editor state
-    // TODO: implement
-    //console.log('editorState', editorState)
-
-    console.log(editorState._nodeMap)
-
     onChange(JSON.stringify(editorState), namespace)
   }
 
   return (
     <>
-      <RichTextPlugin
+      <PlainTextPlugin
         contentEditable={
           <ContentEditable
             spellCheck={false}
@@ -93,6 +103,10 @@ export const InnerValues = ({
               overflowWrap: 'normal',
               width: '100%',
               height: '40px',
+              //
+              overflowX: 'hidden',
+              whiteSpace: 'nowrap',
+              overflowY: 'hidden',
               /*
 'border-right-width 0px,
 'border-top-color rgb(18, 24, 40),

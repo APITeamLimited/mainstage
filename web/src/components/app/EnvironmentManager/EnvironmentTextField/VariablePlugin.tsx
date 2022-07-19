@@ -401,12 +401,13 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
   //console.log('useVariables', resolution)
 
   if (resolution?.match.matchingString) {
-    console.log('ting tong', resolution.match)
-    createVariableNode(
-      editor,
-      resolution?.match.matchingString,
-      resolution?.match
-    )
+    if (resolution.match.matchingString.length > 2) {
+      createVariableNode(
+        editor,
+        resolution?.match.matchingString,
+        resolution?.match
+      )
+    }
   }
 
   return null /*resolution === null || editor === null
