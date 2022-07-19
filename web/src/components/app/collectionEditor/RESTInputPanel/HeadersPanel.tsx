@@ -8,9 +8,14 @@ import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 type HeadersPanelProps = {
   headers: KeyValueItem[]
   setHeaders: (newHeaders: KeyValueItem[]) => void
+  requestId: string
 }
 
-export const HeadersPanel = ({ headers, setHeaders }: HeadersPanelProps) => {
+export const HeadersPanel = ({
+  headers,
+  setHeaders,
+  requestId,
+}: HeadersPanelProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
@@ -37,6 +42,7 @@ export const HeadersPanel = ({ headers, setHeaders }: HeadersPanelProps) => {
         items={headers}
         setItems={setHeaders}
         isBulkEditing={isBulkEditing}
+        requestId={requestId}
       />
     </Stack>
   )

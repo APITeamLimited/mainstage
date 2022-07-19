@@ -4,10 +4,7 @@ import { useReactiveVar } from '@apollo/client'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { Button, ButtonGroup, Popover, Stack } from '@mui/material'
 
-import {
-  activeWorkspaceVar,
-  requestManagerStatusVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceVar, restRequestQueueVar } from 'src/contexts/reactives'
 
 type SendButtonProps = {}
 
@@ -17,7 +14,7 @@ export const SendButton = () => {
   const buttonGroupRef = useRef<HTMLDivElement>(null)
 
   const isLocalWorkspace = activeWorkspace.id === 'ANONYMOUS_ID'
-  const requestManagerStatus = useReactiveVar(requestManagerStatusVar)
+  const requestManagerStatus = useReactiveVar(restRequestQueueVar)
 
   // TODO: implement this
   const isDisabled = false
@@ -31,8 +28,19 @@ export const SendButton = () => {
         color="primary"
         size="small"
       >
-        <Button>Send</Button>
-        <Button onClick={() => setShowSendOptionsPopover(true)}>
+        <Button
+          style={{
+            borderRight: 'none',
+          }}
+        >
+          Send
+        </Button>
+        <Button
+          onClick={() => setShowSendOptionsPopover(true)}
+          sx={{
+            paddingX: '0px',
+          }}
+        >
           <KeyboardArrowDownIcon />
         </Button>
       </ButtonGroup>

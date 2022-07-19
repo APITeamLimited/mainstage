@@ -4,7 +4,6 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import SaveIcon from '@mui/icons-material/Save'
 import { Button, ButtonGroup, MenuItem, Popover, Stack } from '@mui/material'
 
-
 type SaveButtonProps = {
   needSave: boolean
   onSave: () => void
@@ -20,13 +19,22 @@ export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
       <ButtonGroup
         ref={buttonGroupRef}
         variant="contained"
-        color="success"
+        color="secondary"
         size="small"
       >
-        <Button disabled={needSave === false} startIcon={<SaveIcon />} onClick={onSave}>
+        <Button
+          disabled={needSave === false}
+          onClick={onSave}
+          style={{ borderRight: 'none' }}
+        >
           Save
         </Button>
-        <Button onClick={() => setShowSaveOptionsPopover(true)}>
+        <Button
+          onClick={() => setShowSaveOptionsPopover(true)}
+          sx={{
+            paddingX: '0px',
+          }}
+        >
           <KeyboardArrowDownIcon />
         </Button>
       </ButtonGroup>

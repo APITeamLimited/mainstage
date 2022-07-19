@@ -13,6 +13,7 @@ import {
   TextField,
   DialogTitle,
   DialogActions,
+  Box,
 } from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
@@ -76,7 +77,11 @@ export const RequestMethodButton = ({
   }
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+      }}
+    >
       <Button
         variant="contained"
         color="secondary"
@@ -149,6 +154,6 @@ export const RequestMethodButton = ({
           </DialogActions>
         </form>
       </Dialog>
-    </>
+    </Box>
   )
 }

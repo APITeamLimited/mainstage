@@ -14,12 +14,14 @@ type KeyValueEditorProps = {
   items: KeyValueItem[]
   setItems: (newItems: KeyValueItem[]) => void
   isBulkEditing?: boolean
+  requestId: string
 }
 
 export const KeyValueEditor = ({
   items,
   setItems,
   isBulkEditing = false,
+  requestId,
 }: KeyValueEditorProps) => {
   const [bulkContents, setBulkContents] = useState('')
   const [doneFirstNonBulkRender, setDoneFirstNonBulkRender] = useState(false)
@@ -88,6 +90,6 @@ export const KeyValueEditor = ({
   return isBulkEditing ? (
     <BulkEditor contents={bulkContents} setContents={setBulkContents} />
   ) : (
-    <SortableEditor items={items} setItems={setItems} />
+    <SortableEditor items={items} setItems={setItems} requestId={requestId} />
   )
 }

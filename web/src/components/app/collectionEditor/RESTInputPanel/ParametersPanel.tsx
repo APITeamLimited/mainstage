@@ -1,23 +1,21 @@
 import { useState } from 'react'
 
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
-import {
-  Stack,
-  Switch,
-  FormControlLabel,
-  Typography,
-  IconButton,
-  Tooltip,
-} from '@mui/material'
+import { Stack, Switch, IconButton, Tooltip } from '@mui/material'
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 
 type ParametersPanelProps = {
   parameters: KeyValueItem[]
   setParameters: (newParameters: KeyValueItem[]) => void
+  requestId: string
 }
 
-export const ParametersPanel = ({ parameters, setParameters }: ParametersPanelProps) => {
+export const ParametersPanel = ({
+  parameters,
+  setParameters,
+  requestId,
+}: ParametersPanelProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
@@ -44,6 +42,7 @@ export const ParametersPanel = ({ parameters, setParameters }: ParametersPanelPr
         items={parameters}
         setItems={setParameters}
         isBulkEditing={isBulkEditing}
+        requestId={requestId}
       />
     </Stack>
   )

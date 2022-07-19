@@ -224,7 +224,7 @@ export const AuthorisationPanel = ({
             height: '100%',
           }}
         >
-          <APIKeyAuthForm auth={auth} setAuth={setAuth} />
+          <APIKeyAuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
         </Stack>
       )}
     </Stack>

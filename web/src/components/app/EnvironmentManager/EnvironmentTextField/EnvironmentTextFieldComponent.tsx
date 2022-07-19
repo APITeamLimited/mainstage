@@ -16,6 +16,7 @@ export type EnvironmentTextFieldProps = {
   label?: string
   error?: boolean
   helperText?: string | false
+  onClick?: () => void
 }
 
 const onError = (error: Error) => {
@@ -33,6 +34,7 @@ export const EnvironmentTextField = ({
   label = '',
   error = false,
   helperText = '',
+  onClick = () => undefined,
 }: EnvironmentTextFieldProps) => {
   const theme = useTheme()
 
@@ -56,6 +58,7 @@ export const EnvironmentTextField = ({
     <Stack
       sx={{
         width: '100%',
+        display: 'flex',
       }}
     >
       {label !== '' && (
@@ -76,6 +79,7 @@ export const EnvironmentTextField = ({
           height: '100%',
           ...wrapperAStyles,
         }}
+        onClick={(e) => onClick()}
       >
         <LexicalComposer initialConfig={initialConfig} key={namespace}>
           <InnerValues

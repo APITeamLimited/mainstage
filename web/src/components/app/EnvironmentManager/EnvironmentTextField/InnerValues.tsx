@@ -117,9 +117,9 @@ export const InnerValues = ({
       }
 
       // Must focus
-      editor.focus()
+      //editor.focus()
     })
-  }, [editor, namespace, value])
+  }, [editor, namespace, oldValue, value])
 
   const handeChange = (editorState: EditorState) => {
     onChange(convertToText(editorState), namespace)
@@ -158,13 +158,14 @@ export const InnerValues = ({
               borderRadius: theme.shape.borderRadius,
               borderColor: 'transparent',
               outlineColor: theme.palette.primary.main,
-              outlineOffset: '-2px',
+              outlineOffset: '-1px',
               overflowWrap: 'normal',
               width: '100%',
               height: '40px',
               overflowX: 'hidden',
               whiteSpace: 'nowrap',
               overflowY: 'hidden',
+
               ...contentEditableStyles,
             }}
             key={namespace}

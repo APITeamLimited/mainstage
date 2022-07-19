@@ -153,6 +153,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           <ParametersPanel
             parameters={unsavedParameters}
             setParameters={setUnsavedParameters}
+            requestId={request.id}
           />
         )}
         {activeTabIndex === 1 && (
@@ -162,6 +163,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           <HeadersPanel
             headers={unsavedHeaders}
             setHeaders={setUnsavedHeaders}
+            requestId={request.id}
           />
         )}
         {activeTabIndex === 3 && (

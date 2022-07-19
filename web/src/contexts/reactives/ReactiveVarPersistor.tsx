@@ -7,6 +7,7 @@ import {
   localCollectionsVar,
   localFoldersVar,
   localRESTRequestsVar,
+  localEnvironmentsVar,
 } from './locals'
 
 export const ReactiveVarPersistor = () => {
@@ -17,6 +18,7 @@ export const ReactiveVarPersistor = () => {
   const localCollections = useReactiveVar(localCollectionsVar)
   const localFolders = useReactiveVar(localFoldersVar)
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
+  const localEnvironments = useReactiveVar(localEnvironmentsVar)
 
   // If we haven't performed the startup yet, get persisted variables from local storage
   useEffect(() => {
@@ -26,6 +28,8 @@ export const ReactiveVarPersistor = () => {
       const persistedLocalFolders = localStorage.getItem('localFolders')
       const persistedLocalRESTRequests =
         localStorage.getItem('localRESTRequests')
+      const persistedLocalEnvironments =
+        localStorage.getItem('localEnvironments')
 
       localProjectsVar(
         JSON.parse(persistedLocalProjects || '[]').map((project) => {
@@ -71,6 +75,18 @@ export const ReactiveVarPersistor = () => {
               ? null
               : Date.parse(request.updatedAt),
             createdAt: Date.parse(request.createdAt),
+          }
+        })
+      )
+
+      localEnvironmentsVar(
+        JSON.parse(persistedLocalEnvironments || '[]').map((environment) => {
+          return {
+            ...environment,
+            updatedAt: isNaN(Date.parse(environment.updatedAt))
+              ? null
+              : Date.parse(environment.updatedAt),
+            createdAt: Date.parse(environment.createdAt),
           }
         })
       )
@@ -148,6 +164,23 @@ export const ReactiveVarPersistor = () => {
       )
     )
   }, [localRESTRequests])
+
+  useEffect(() => {
+    localStorage.setItem(
+      'localEnvironments',
+      JSON.stringify(
+        localEnvironments.map((environment) => {
+          return {
+            ...environment,
+            updatedAt: environment.updatedAt
+              ? new Date(environment.updatedAt).toISOString()
+              : null,
+            createdAt: new Date(environment.createdAt).toISOString(),
+          }
+        })
+      )
+    )
+  }, [localEnvironments])
 
   return null
 }

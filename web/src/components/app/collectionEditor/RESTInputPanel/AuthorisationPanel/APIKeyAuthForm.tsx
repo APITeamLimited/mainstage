@@ -51,6 +51,7 @@ export const APIKeyAuthForm = ({
               addTo: event.target.value as 'header' | 'query',
             })
           }
+          value={auth.addTo}
         >
           <FormControlLabel
             value="header"

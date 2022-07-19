@@ -3,17 +3,11 @@ import { useRef, memo } from 'react'
 
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import {
-  Checkbox,
-  IconButton,
-  TableCell,
-  TableRow,
-  TextField,
-} from '@mui/material'
+import { Checkbox, IconButton, TableCell, TableRow } from '@mui/material'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useDrag, useDrop } from 'react-dnd'
 
-import { EnvironmentTextField } from '../../EnvironmentManager'
+import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 
 type DraggableTableRowProps = {
   id: number
@@ -28,6 +22,7 @@ type DraggableTableRowProps = {
   onDelete?: (id: number) => void
   isLast: boolean
   onAddNewPair: () => void
+  requestId: string
 }
 
 interface DragRow {
@@ -50,6 +45,7 @@ export const DraggableTableRow = memo(
     onDelete,
     isLast,
     onAddNewPair,
+    requestId,
   }: DraggableTableRowProps) => {
     const ref = useRef<HTMLDivElement>(null)
 
@@ -179,9 +175,7 @@ export const DraggableTableRow = memo(
               // defaultChecked needed for some reason to make the checkbox work
               defaultChecked={enabled}
               checked={enabled}
-              onChange={(event, value) =>
-                onEnabledChange && onEnabledChange(value, index)
-              }
+              onChange={(event, value) => onEnabledChange?.(value, index)}
             />
           </TableCell>
         )}
@@ -189,56 +183,30 @@ export const DraggableTableRow = memo(
           <TableCell
             sx={{
               paddingLeft: 0,
+              width: '40%',
             }}
           >
-            <TextField
-              size="small"
-              sx={{
-                input: {
-                  paddingY: 0.75,
-                },
-                fieldSet: {
-                  // Disable focus if not active
-                  borderWidth: 0,
-                },
-                padding: 0.25,
-              }}
-              value=""
+            <EnvironmentTextField
+              value={keyString}
               placeholder="Add Key"
               onClick={onAddNewPair}
-              contentEditableStyles={{
-                maxWidth: '300px',
-              }}
+              contentEditableStyles={{}}
+              namespace={`${requestId}_${id}_key`}
             />
           </TableCell>
         ) : (
           <TableCell
             sx={{
               paddingLeft: 0,
+              width: '40%',
             }}
           >
-            <TextField
-              size="small"
-              sx={{
-                input: {
-                  paddingY: 0.75,
-                },
-                fieldSet: {
-                  // Disable focus if not active
-                  borderWidth: 0,
-                },
-                padding: 0.25,
-              }}
+            <EnvironmentTextField
               placeholder="Add Key"
               value={keyString}
-              onChange={(event) =>
-                onKeyStringChange &&
-                onKeyStringChange(event.target.value, index)
-              }
-              fullWidth
-              contentEditableStyles={{
-                maxWidth: '300px',
-              }}
+              onChange={(value) => onKeyStringChange?.(value, index)}
+              contentEditableStyles={{}}
+              namespace={`${requestId}_${id}_key`}
             />
           </TableCell>
         )}
@@ -246,54 +214,30 @@ export const DraggableTableRow = memo(
           <TableCell
             sx={{
               paddingLeft: 0,
+              width: '40%',
             }}
           >
-            <TextField
-              size="small"
-              sx={{
-                input: {
-                  paddingY: 0.75,
-                },
-                fieldSet: {
-                  // Disable focus if not active
-                  borderWidth: 0,
-                },
-                padding: 0.25,
-              }}
-              value=""
+            <EnvironmentTextField
+              value={value}
               placeholder="Add Value"
               onClick={onAddNewPair}
-              contentEditableStyles={{
-                maxWidth: '300px',
-              }}
+              contentEditableStyles={{}}
+              namespace={`${requestId}_${id}_value`}
             />
           </TableCell>
         ) : (
           <TableCell
             sx={{
               paddingLeft: 0,
+              width: '40%',
             }}
           >
-            <TextField
-              size="small"
-              sx={{
-                input: {
-                  paddingY: 0.75,
-                },
-                fieldSet: {
-                  // Disable focus if not active
-                  borderWidth: 0,
-                },
-                padding: 0.25,
-              }}
+            <EnvironmentTextField
               placeholder="Add Value"
               value={value}
-              onChange={(event) =>
-                onValueChange && onValueChange(event.target.value, index)
-              }
-              contentEditableStyles={{
-                maxWidth: '300px',
-              }}
+              onChange={(value) => onValueChange?.(value, index)}
+              contentEditableStyles={{}}
+              namespace={`${requestId}_${id}_value`}
             />
           </TableCell>
         )}
@@ -307,10 +251,7 @@ export const DraggableTableRow = memo(
             }}
             align="right"
           >
-            <IconButton
-              color="error"
-              onClick={() => onDelete && onDelete(index)}
-            >
+            <IconButton color="error" onClick={() => onDelete?.(index)}>
               <HighlightOffIcon />
             </IconButton>
           </TableCell>
@@ -323,10 +264,7 @@ export const DraggableTableRow = memo(
             }}
             align="right"
           >
-            <IconButton
-              color="error"
-              onClick={() => onDelete && onDelete(index)}
-            >
+            <IconButton color="error" onClick={() => onDelete?.(index)}>
               <HighlightOffIcon />
             </IconButton>
           </TableCell>
