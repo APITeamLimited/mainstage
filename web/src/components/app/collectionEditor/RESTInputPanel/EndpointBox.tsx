@@ -47,7 +47,7 @@ export const EndpointBox = ({
           placeholder="Endpoint"
           namespace={namespace}
           value={unsavedEndpoint}
-          onChange={handleEndpointChange}
+          onChange={(v, m) => handleEndpointChange(v, m)}
           contentEditableStyles={{
             borderTopLeftRadius: 0,
             borderBottomLeftRadius: 0,

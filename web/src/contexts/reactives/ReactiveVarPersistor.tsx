@@ -10,6 +10,8 @@ import {
   localEnvironmentsVar,
 } from './locals'
 
+import { activeEnvironmentVar } from '.'
+
 export const ReactiveVarPersistor = () => {
   const [performedStartup, setPerformedStartup] = useState(false)
 
@@ -19,6 +21,7 @@ export const ReactiveVarPersistor = () => {
   const localFolders = useReactiveVar(localFoldersVar)
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
   const localEnvironments = useReactiveVar(localEnvironmentsVar)
+  const activeEnvironmentId = useReactiveVar(activeEnvironmentVar)
 
   // If we haven't performed the startup yet, get persisted variables from local storage
   useEffect(() => {
@@ -30,6 +33,9 @@ export const ReactiveVarPersistor = () => {
         localStorage.getItem('localRESTRequests')
       const persistedLocalEnvironments =
         localStorage.getItem('localEnvironments')
+      const persistedActiveEnvironmentId = localStorage.getItem(
+        'activeEnvironmentId'
+      )
 
       localProjectsVar(
         JSON.parse(persistedLocalProjects || '[]').map((project) => {
@@ -89,6 +95,12 @@ export const ReactiveVarPersistor = () => {
             createdAt: Date.parse(environment.createdAt),
           }
         })
+      )
+
+      activeEnvironmentVar(
+        persistedActiveEnvironmentId !== 'null'
+          ? persistedActiveEnvironmentId
+          : null
       )
 
       setPerformedStartup(true)
@@ -181,6 +193,10 @@ export const ReactiveVarPersistor = () => {
       )
     )
   }, [localEnvironments])
+
+  useEffect(() => {
+    localStorage.setItem('activeEnvironmentId', activeEnvironmentId || 'null')
+  }, [activeEnvironmentId])
 
   return null
 }

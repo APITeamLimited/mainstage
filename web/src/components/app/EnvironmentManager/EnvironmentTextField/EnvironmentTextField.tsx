@@ -1,8 +1,20 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+import { useEffect, useState } from 'react'
+
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { Stack, Typography, useTheme } from '@mui/material'
+import {
+  $createParagraphNode,
+  $getRoot,
+  $createTextNode,
+  createEditor,
+  EditorState,
+} from 'lexical'
 
-import { InnerValues } from './InnerValues'
+import { convertToText, InnerValues } from './InnerValues'
 import PlaygroundEditorTheme from './Theme'
+import { $createVariableNode } from './VariableNode'
 import { VariableNode } from './VariableNode'
 
 export type EnvironmentTextFieldProps = {
@@ -23,10 +35,47 @@ const onError = (error: Error) => {
   throw error
 }
 
+const getEditorState = (value: string) => {
+  const root = $getRoot()
+
+  if (value === '') {
+    root.clear()
+    const paragraph = $createParagraphNode()
+    paragraph.append($createTextNode(value))
+    root.append(paragraph)
+  } else {
+    root.clear()
+    const paragraph = $createParagraphNode()
+
+    // Find substrings that start and end with curly braces
+    const regex = /{(.*?)}/
+    const matches = value.match(regex) || []
+
+    // Split value into an array of strings, divided by matches
+    const values = value.split(regex)?.filter((match) => match !== '')
+
+    let matchesIndex = 0
+
+    values.forEach((subValue) => {
+      // Check if value is the value at matchIndex
+      if (matchesIndex >= matches.length) {
+        paragraph.append($createTextNode(subValue))
+      } else if (`{${subValue}}` === matches[matchesIndex]) {
+        paragraph.append($createVariableNode(`{${subValue}}`))
+        matchesIndex++
+      } else {
+        paragraph.append($createTextNode(subValue))
+      }
+    })
+
+    root.append(paragraph)
+  }
+}
+
 export const EnvironmentTextField = ({
   placeholder = '',
   namespace,
-  value,
+  value = '',
   onChange,
   multiline = false,
   contentEditableStyles = {},
@@ -41,7 +90,7 @@ export const EnvironmentTextField = ({
   const initialConfig = {
     namespace,
     onError,
-    editorState: null,
+    editorState: () => getEditorState(value),
     theme: PlaygroundEditorTheme,
     nodes: [VariableNode],
   }
@@ -74,12 +123,10 @@ export const EnvironmentTextField = ({
         style={{
           display: 'flex',
           width: '100%',
-          //width: 'calc(100% - 28px)',
-          //marginRight: '28px',
           height: '100%',
           ...wrapperAStyles,
         }}
-        onClick={(e) => onClick()}
+        onClick={() => onClick()}
       >
         <LexicalComposer initialConfig={initialConfig} key={namespace}>
           <InnerValues
@@ -88,6 +135,7 @@ export const EnvironmentTextField = ({
             onChange={onChange}
             namespace={namespace}
             contentEditableStyles={newContentEdibleStyles}
+            key={namespace}
           />
         </LexicalComposer>
       </div>

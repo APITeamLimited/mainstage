@@ -49,10 +49,16 @@ export const RequestMethodButton = ({
       name: '',
     },
     validationSchema: Yup.object({
-      name: Yup.string().required('Name is required').max(255),
+      // Ensure name contains no spaces
+      name: Yup.string()
+        .required('Method name is required')
+        .max(255)
+        .test('no-spaces', 'Method name cannot contain spaces', (value) => {
+          return !value?.includes(' ')
+        }),
     }),
     onSubmit: async (values) => {
-      setRequestMethod(values.name)
+      setRequestMethod(values.name.toUpperCase())
       handleCloseCustomRequestMethodDialog()
     },
   })

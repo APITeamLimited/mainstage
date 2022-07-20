@@ -5,16 +5,13 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin'
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin'
-import { createTheme, useTheme } from '@mui/material'
+import { useTheme } from '@mui/material'
 import {
   $createParagraphNode,
   $getRoot,
   $createTextNode,
   EditorState,
-  NodeMap,
   LexicalNode,
-  LineBreakNode,
   ParagraphNode,
 } from 'lexical'
 
@@ -22,7 +19,7 @@ import { EnvironmentTextFieldProps } from './EnvironmentTextFieldComponent'
 import { $createVariableNode } from './VariableNode'
 import VariablesPlugin from './VariablePlugin'
 
-const convertToText = (editorState: EditorState): string => {
+export const convertToText = (editorState: EditorState): string => {
   return editorState.read(() => {
     const root = $getRoot()
     if (root.getChildrenSize() > 0) {
@@ -71,49 +68,51 @@ export const InnerValues = ({
 
   useEffect(() => {
     editor.update(() => {
+      const existingState = convertToText(editor.getEditorState())
+
+      if (existingState === value) {
+        return
+      }
+
       if (value === '') {
         const root = $getRoot()
         root.clear()
         const paragraph = $createParagraphNode()
         paragraph.append($createTextNode(value))
         root.append(paragraph)
-      } else {
-        const existingState = convertToText(editor.getEditorState())
+      }
 
-        if (existingState !== oldValue) {
-          // Required to prevent incorrect buffer being rendered
-          return
-        }
+      if (existingState !== oldValue) {
+        // Required to prevent incorrect buffer being rendered
+        return
+      } else if (existingState !== value) {
+        const root = $getRoot()
+        root.clear()
+        const paragraph = $createParagraphNode()
 
-        if (existingState !== value) {
-          const root = $getRoot()
-          root.clear()
-          const paragraph = $createParagraphNode()
+        // Find substrings that start and end with curly braces
+        const regex = /{(.*?)}/
+        const matches = value.match(regex) || []
 
-          // Find substrings that start and end with curly braces
-          const regex = /{(.*?)}/
-          const matches = value.match(regex) || []
+        // Split value into an array of strings, divided by matches
+        const values = value.split(regex)?.filter((match) => match !== '')
 
-          // Split value into an array of strings, divided by matches
-          const values = value.split(regex)?.filter((match) => match !== '')
+        let matchesIndex = 0
 
-          let matchesIndex = 0
+        values.forEach((subValue) => {
+          // Check if value is the value at matchIndex
+          if (matchesIndex >= matches.length) {
+            paragraph.append($createTextNode(subValue))
+          } else if (`{${subValue}}` === matches[matchesIndex]) {
+            paragraph.append($createVariableNode(`{${subValue}}`))
+            matchesIndex++
+          } else {
+            paragraph.append($createTextNode(subValue))
+          }
+        })
 
-          values.forEach((subValue) => {
-            // Check if value is the value at matchIndex
-            if (matchesIndex >= matches.length) {
-              paragraph.append($createTextNode(subValue))
-            } else if (`{${subValue}}` === matches[matchesIndex]) {
-              paragraph.append($createVariableNode(`{${subValue}}`))
-              matchesIndex++
-            } else {
-              paragraph.append($createTextNode(subValue))
-            }
-          })
-
-          root.append(paragraph)
-          setOldValue(value)
-        }
+        root.append(paragraph)
+        setOldValue(value)
       }
 
       // Must focus

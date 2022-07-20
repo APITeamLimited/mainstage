@@ -12,7 +12,7 @@ import {
   updateFilterLocalRESTRequestArray,
 } from 'src/contexts/reactives'
 
-import { AuthorisationPanel } from './AuthorisationPanel'
+import { AuthPanel } from './AuthPanel'
 import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
 import { HeadersPanel } from './HeadersPanel'
@@ -35,7 +35,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
     request.method
   )
-  const [unsavedAuthorisation, setUnsavedAuthorisation] = useState(request.auth)
+  const [unsavedAuth, setUnsavedAuth] = useState(request.auth)
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
@@ -47,7 +47,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
     setUnsavedParameters(request.params)
     setUnsavedBody(request.body)
     setUnsavedRequestMethod(request.method)
-    setUnsavedAuthorisation(request.auth)
+    setUnsavedAuth(request.auth)
   }, [request])
 
   // Update needSave when any of the unsaved fields change
@@ -58,7 +58,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         unsavedParameters !== request.params ||
         unsavedBody !== request.body ||
         unsavedRequestMethod !== request.method ||
-        unsavedAuthorisation !== request.auth
+        unsavedAuth !== request.auth
     )
   }, [
     unsavedEndpoint,
@@ -66,13 +66,8 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
     unsavedParameters,
     unsavedBody,
     unsavedRequestMethod,
-    unsavedAuthorisation,
-    request.endpoint,
-    request.headers,
-    request.params,
-    request.body,
-    request.method,
-    request.auth,
+    unsavedAuth,
+    request,
   ])
 
   const handleTabChange = (
@@ -90,7 +85,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
       params: unsavedParameters,
       body: unsavedBody,
       method: unsavedRequestMethod,
-      auth: unsavedAuthorisation,
+      auth: unsavedAuth,
     }
     localRESTRequestsVar(
       updateFilterLocalRESTRequestArray(localRESTRequests, newRequest)
@@ -111,7 +106,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
       params: unsavedParameters,
       body: unsavedBody,
       method: unsavedRequestMethod,
-      auth: unsavedAuthorisation,
+      auth: unsavedAuth,
     }
     localRESTRequestsVar(
       updateFilterLocalRESTRequestArray(localRESTRequests, newRequest)
@@ -126,7 +121,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
       params: unsavedParameters,
       body: unsavedBody,
       method: unsavedRequestMethod,
-      auth: unsavedAuthorisation,
+      auth: unsavedAuth,
     }
 
     restRequestQueueVar(addToQueue({ queue, request: newRequest }))
@@ -144,7 +139,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         <Stack direction="row" spacing={1}>
           <EndpointBox
             unsavedEndpoint={unsavedEndpoint}
-            setUnsavedEndpoint={setUnsavedEndpoint}
+            setUnsavedEndpoint={(e) => setUnsavedEndpoint(e)}
             requestMethod={unsavedRequestMethod}
             setRequestMethod={setUnsavedRequestMethod}
             requestId={request.id}
@@ -164,7 +159,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           <Tab label="Parameters" />
           <Tab label="Body" />
           <Tab label="Headers" />
-          <Tab label="Authorisation" />
+          <Tab label="Auth" />
         </Tabs>
         {activeTabIndex === 0 && (
           <ParametersPanel
@@ -184,9 +179,9 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           />
         )}
         {activeTabIndex === 3 && (
-          <AuthorisationPanel
-            auth={unsavedAuthorisation}
-            setAuth={setUnsavedAuthorisation}
+          <AuthPanel
+            auth={unsavedAuth}
+            setAuth={setUnsavedAuth}
             requestId={request.id}
           />
         )}

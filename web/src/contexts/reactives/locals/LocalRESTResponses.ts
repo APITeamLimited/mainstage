@@ -28,7 +28,7 @@ type DiscreteResults =
     }
   | {
       type: 'Success'
-      headers: { key: string; value: string }[]
+      headers: { key: string; value: string | string[] }[]
       body: ArrayBuffer
       statusCode: number
       meta: {
@@ -44,7 +44,6 @@ interface LocalRESTResponseBase extends BaseEntity {
   parentId: string
   __parentTypename: 'LocalRESTRequest'
   name: string
-  createdAt: Date
 }
 
 export type LocalRESTResponse = LocalRESTResponseBase & DiscreteResults

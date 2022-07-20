@@ -1,1 +1,1 @@
-export * from './EnvironmentTextFieldComponent'
+export * from './EnvironmentTextField'

@@ -1,4 +1,4 @@
-import { useCallback, Dispatch, SetStateAction, memo } from 'react'
+import { useCallback, Dispatch, SetStateAction, memo, useState } from 'react'
 
 import {
   Box,
@@ -19,11 +19,17 @@ import { KeyValueItem } from './KeyValueEditor'
 type SortableEditorProps = {
   items: KeyValueItem[]
   setItems: (newItems: KeyValueItem[]) => void
-  requestId: string
+  namespace: string
+  enableEnvironmentVariables?: boolean
 }
 
 export const SortableEditor = memo(
-  ({ items, setItems, requestId }: SortableEditorProps) => {
+  ({
+    items,
+    setItems,
+    namespace,
+    enableEnvironmentVariables,
+  }: SortableEditorProps) => {
     const moveCard = (dragIndex: number, hoverIndex: number) => {
       const dragItem = items[dragIndex]
       const newItems = update(items, {
@@ -74,7 +80,6 @@ export const SortableEditor = memo(
     }
 
     const handleCreateNewRow = () => {
-      console.log('handleCreateNewRow')
       const largestOldId = items.reduce(
         (largestId, item) => Math.max(largestId, item.id),
         0
@@ -119,10 +124,10 @@ export const SortableEditor = memo(
                 <TableCell />
                 <TableCell />
                 <TableCell>
-                  <Box>Key</Box>
+                  <Box paddingLeft={2}>Key</Box>
                 </TableCell>
                 <TableCell>
-                  <Box>Value</Box>
+                  <Box paddingLeft={2}>Value</Box>
                 </TableCell>
                 <TableCell />
               </TableRow>
@@ -143,7 +148,8 @@ export const SortableEditor = memo(
                   onDelete={handleDelete}
                   isLast={index === withEmptyRowItems.length - 1}
                   onAddNewPair={handleCreateNewRow}
-                  requestId={requestId}
+                  namespace={namespace}
+                  enableEnvironmentVariables={enableEnvironmentVariables}
                 />
               ))}
             </TableBody>

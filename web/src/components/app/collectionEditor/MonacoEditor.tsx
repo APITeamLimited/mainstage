@@ -7,14 +7,21 @@ export type MonacoSupportedLanguage = 'json' | 'xml' | 'html' | 'plain'
 
 type MonacoEditorProps = {
   value: string
-  onChange: (value: string) => void
+  onChange?: (value: string) => void
   language: MonacoSupportedLanguage
+  readOnly?: boolean
+  enableMinimap?: boolean
+  height?: string
+  scrollBeyondLastLine?: boolean
 }
 
 export const MonacoEditor = ({
   value,
-  onChange,
+  onChange = () => undefined,
   language,
+  readOnly = false,
+  enableMinimap = true,
+  scrollBeyondLastLine = true,
 }: MonacoEditorProps) => {
   const theme = useTheme()
 
@@ -64,35 +71,27 @@ export const MonacoEditor = ({
     theme.palette.text.secondary,
   ])
 
-  return (
-    <Box
-      sx={{
-        height: '100%',
-        overflow: 'hidden',
-      }}
-    >
-      {monaco ? (
-        <Editor
-          height={'calc(100% )'}
-          language={language}
-          theme={'custom-theme'}
-          loading={<></>}
-          options={{
-            //minimap: { enabled: false },
+  return monaco ? (
+    <Editor
+      height={'100%'}
+      language={language}
+      theme={'custom-theme'}
+      loading={<></>}
+      options={{
+        minimap: { enabled: enableMinimap },
+        readOnly,
 
-            fontFamily: theme.typography.fontFamily,
-            fontSize: 16,
-            fontWeight: theme.typography.fontWeightRegular,
-            scrollBeyondLastLine: true,
-            'bracketPairColorization.enabled': true,
-            contextmenu: false,
-          }}
-          value={value}
-          onChange={(value) => onChange(value || '')}
-        />
-      ) : (
-        <></>
-      )}
-    </Box>
+        fontFamily: theme.typography.fontFamily,
+        fontSize: 16,
+        fontWeight: theme.typography.fontWeightRegular,
+        scrollBeyondLastLine,
+        'bracketPairColorization.enabled': true,
+        contextmenu: false,
+      }}
+      value={value}
+      onChange={(value) => onChange(value || '')}
+    />
+  ) : (
+    <></>
   )
 }

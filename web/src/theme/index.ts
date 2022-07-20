@@ -5,6 +5,7 @@ import { createTheme, ComponentsOverrides } from '@mui/material/styles'
 import { baseThemeOptions } from './base-theme-options'
 import { darkThemeOptions } from './dark-theme-options'
 import { lightThemeOptions } from './light-theme-options'
+import getThemeMinimals from './minimals'
 
 interface Neutral {
   100: string
@@ -28,19 +29,36 @@ declare module '@mui/material/styles' {
   }
 }
 
-interface ThemeConfig {
+export interface ThemeConfig {
   direction?: Direction
   responsiveFontSizes?: boolean
   mode: 'light' | 'dark'
 }
 
-const getTheme = (config: ThemeConfig): Theme =>
-  responsiveFontSizes(
-    createTheme({
-      ...baseThemeOptions,
-      ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
-      direction: config.direction,
-    })
-  )
+type ThemeChoices = 'Default' | 'Devias' | 'Minimals'
+
+const theme: ThemeChoices = 'Default'
+
+const getTheme = (config: ThemeConfig): Theme => {
+  if (theme === 'Minimals') {
+    return responsiveFontSizes(getThemeMinimals(config))
+  } else if (theme === 'Default') {
+    return responsiveFontSizes(
+      createTheme({
+        //...baseThemeOptions,
+        ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
+        direction: config.direction,
+      })
+    )
+  } else {
+    return responsiveFontSizes(
+      createTheme({
+        ...baseThemeOptions,
+        ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
+        direction: config.direction,
+      })
+    )
+  }
+}
 
 export default getTheme

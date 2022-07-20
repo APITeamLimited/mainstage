@@ -43,14 +43,19 @@ const ForgotPasswordPage = () => {
                   justifyContent: 'center',
                 }}
               >
-                <Link to={routes.root()}>
-                  <img
-                    src="img/api-team.png"
-                    style={{
-                      width: 150,
-                    }}
-                    alt="APITeam Logo"
-                  />
+                <Link
+                  to={routes.root()}
+                  style={{
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Typography
+                    fontSize={22}
+                    fontWeight={1000}
+                    color={theme.palette.text.primary}
+                  >
+                    API Team
+                  </Typography>
                 </Link>
                 <Box sx={{ mt: 4 }} />
                 <Typography variant="h5">Reset Password</Typography>

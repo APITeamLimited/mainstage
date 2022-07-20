@@ -10,15 +10,13 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import parserBabel from 'prettier/parser-babel'
-import prettier from 'prettier/standalone'
-import parserXML from 'web/lib/plugin-xml/src/parser'
 
 import {
   ValidContentTypes,
   knownContentTypes,
   RESTReqBody,
 } from 'src/contexts/reactives'
+import { codeFormatter } from 'src/utils/codeFormatter'
 
 import { MonacoEditor } from '../MonacoEditor'
 
@@ -27,19 +25,6 @@ import { XWWWFormUrlencodedEditor } from './XWWWFormUrlencodedEditor'
 type BodyPanelProps = {
   body: RESTReqBody
   setBody: (newBody: RESTReqBody) => void
-}
-
-const formatMonacoEditor = (rawBody: string, language: string) => {
-  switch (language) {
-    case 'json':
-      return prettier?.format(rawBody, {
-        parser: 'json',
-        plugins: [parserBabel],
-        tabWidth: 4,
-      })
-    default:
-      throw `formatMonacoEditor unsupported language: ${language}`
-  }
 }
 
 export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
@@ -126,7 +111,7 @@ export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
                 onClick={() =>
                   setBody({
                     ...body,
-                    body: formatMonacoEditor(body.body, 'json'),
+                    body: codeFormatter(body.body, 'json'),
                   })
                 }
               >
@@ -160,7 +145,7 @@ export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
                 onClick={() =>
                   setBody({
                     ...body,
-                    body: formatMonacoEditor(body.body, 'xml'),
+                    body: codeFormatter(body.body, 'xml'),
                   })
                 }
               >
@@ -194,7 +179,7 @@ export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
                 onClick={() =>
                   setBody({
                     ...body,
-                    body: formatMonacoEditor(body.body, 'html'),
+                    body: codeFormatter(body.body, 'html'),
                   })
                 }
               >

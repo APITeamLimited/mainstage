@@ -87,7 +87,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
             sx={{
               height: `calc(100vh - ${appBarRef.current?.clientHeight}px)`,
               width: '100%',
-
+              //height: '100%',
               backgroundColor: theme.palette.background.default,
             }}
           >

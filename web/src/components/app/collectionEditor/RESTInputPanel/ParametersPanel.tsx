@@ -42,7 +42,7 @@ export const ParametersPanel = ({
         items={parameters}
         setItems={setParameters}
         isBulkEditing={isBulkEditing}
-        requestId={requestId}
+        namespace={requestId}
       />
     </Stack>
   )

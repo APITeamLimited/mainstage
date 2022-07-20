@@ -14,14 +14,16 @@ type KeyValueEditorProps = {
   items: KeyValueItem[]
   setItems: (newItems: KeyValueItem[]) => void
   isBulkEditing?: boolean
-  requestId: string
+  namespace: string
+  enableEnvironmentVariables?: boolean
 }
 
 export const KeyValueEditor = ({
   items,
   setItems,
   isBulkEditing = false,
-  requestId,
+  namespace,
+  enableEnvironmentVariables,
 }: KeyValueEditorProps) => {
   const [bulkContents, setBulkContents] = useState('')
   const [doneFirstNonBulkRender, setDoneFirstNonBulkRender] = useState(false)
@@ -77,7 +79,7 @@ export const KeyValueEditor = ({
     if (isBulkEditing) {
       setBulkContents(generateBulkContents(items))
       setDoneFirstNonBulkRender(false)
-    } else if (!doneFirstNonBulkRender) {
+    } else if (!doneFirstNonBulkRender && bulkContents !== '') {
       setItems(generateKeyValueItems(bulkContents))
       setBulkContents('')
       setDoneFirstNonBulkRender(true)
@@ -90,6 +92,11 @@ export const KeyValueEditor = ({
   return isBulkEditing ? (
     <BulkEditor contents={bulkContents} setContents={setBulkContents} />
   ) : (
-    <SortableEditor items={items} setItems={setItems} requestId={requestId} />
+    <SortableEditor
+      items={items}
+      setItems={setItems}
+      namespace={namespace}
+      enableEnvironmentVariables={enableEnvironmentVariables}
+    />
   )
 }

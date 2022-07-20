@@ -35,6 +35,14 @@ const secondary = {
   contrastText: '#FFFFFF',
 }
 
+// An idea
+const secondaryGrey = {
+  main: 'rgb(224, 226, 238)',
+  light: 'rgb(244, 246, 250)',
+  dark: 'rgb(184, 186, 200)',
+  contrastText: '#121828',
+}
+
 const success = {
   main: '#14B8A6',
   light: '#43C6B7',
@@ -70,6 +78,7 @@ const text = {
 }
 
 export const lightThemeOptions: ThemeOptions = {
+  /*
   components: {
     MuiAvatar: {
       styleOverrides: {
@@ -159,7 +168,7 @@ export const lightThemeOptions: ThemeOptions = {
         },
       },
     },
-  },
+  },*/
   palette: {
     action: {
       active: neutral[500],
@@ -176,6 +185,7 @@ export const lightThemeOptions: ThemeOptions = {
     mode: 'light',
     primary,
     secondary,
+    //secondary: secondaryGrey,
     success,
     text,
     warning,

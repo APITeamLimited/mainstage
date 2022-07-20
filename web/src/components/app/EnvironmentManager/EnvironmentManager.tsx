@@ -53,6 +53,7 @@ export const EnvironmentManager = ({
   useEffect(() => {
     if (!activeEnvironmentId) {
       setKeyValues([])
+      return
     }
 
     const localEnvironments = allEnvironments.filter(
@@ -62,6 +63,7 @@ export const EnvironmentManager = ({
     const variables =
       localEnvironments.find((env) => env.id === activeEnvironmentId)
         ?.variables || []
+
     setKeyValues(
       variables.map((variable, index) => ({ id: index, ...variable }))
     )
@@ -91,7 +93,7 @@ export const EnvironmentManager = ({
 
     localEnvironmentsVar(
       [
-        ...localEnvironments.filter((env) => env.id !== activeEnvironmentId),
+        ...localEnvironments.filter((env) => env.id !== environment.id),
         environment,
       ].sort((a, b) => a?.createdAt.getTime() - b?.createdAt.getTime())
     )
@@ -117,7 +119,7 @@ export const EnvironmentManager = ({
 
     localEnvironmentsVar(
       [...localEnvironments, newEnvironment].sort(
-        (a, b) => a?.createdAt.getTime() - b?.createdAt.getTime()
+        (a, b) => a?.createdAt.getTime() - new Date(b?.createdAt).getTime()
       )
     )
 
@@ -278,7 +280,11 @@ export const EnvironmentManager = ({
               >
                 {activeEnvironmentId ? (
                   <>
-                    <KeyValueEditor items={keyValues} setItems={setKeyValues} />
+                    <KeyValueEditor
+                      items={keyValues}
+                      setItems={setKeyValues}
+                      namespace={`env${activeEnvironmentId}`}
+                    />
                     <Stack spacing={2} direction="row">
                       <Button
                         variant="contained"

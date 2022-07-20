@@ -42,7 +42,7 @@ export const HeadersPanel = ({
         items={headers}
         setItems={setHeaders}
         isBulkEditing={isBulkEditing}
-        requestId={requestId}
+        namespace={requestId}
       />
     </Stack>
   )

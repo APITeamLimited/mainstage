@@ -3,11 +3,21 @@ import { useRef, memo } from 'react'
 
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import { Checkbox, IconButton, TableCell, TableRow } from '@mui/material'
+import {
+  Button,
+  Checkbox,
+  IconButton,
+  TableCell,
+  TableRow,
+  Typography,
+  useTheme,
+} from '@mui/material'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useDrag, useDrop } from 'react-dnd'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
+
+import { StyledInput } from '../../StyledInput'
 
 type DraggableTableRowProps = {
   id: number
@@ -22,13 +32,47 @@ type DraggableTableRowProps = {
   onDelete?: (id: number) => void
   isLast: boolean
   onAddNewPair: () => void
-  requestId: string
+  namespace: string
+  enableEnvironmentVariables?: boolean
 }
 
 interface DragRow {
   index: number
   id: string
   type: 'DraggableType'
+}
+
+const AddNewButton = ({
+  label,
+  onAddNewPair,
+}: {
+  label: string
+  onAddNewPair: () => void
+}) => {
+  const theme = useTheme()
+  return (
+    <Button
+      onClick={onAddNewPair}
+      sx={{
+        width: '100%',
+        height: '40px',
+        backgroundColor: theme.palette.alternate.dark,
+        justifyContent: 'left',
+        paddingLeft: 2,
+        transition: 'none',
+      }}
+    >
+      <Typography
+        variant="body1"
+        color={theme.palette.text.secondary}
+        sx={{
+          textTransform: 'none',
+        }}
+      >
+        {label}
+      </Typography>
+    </Button>
+  )
 }
 
 export const DraggableTableRow = memo(
@@ -45,10 +89,10 @@ export const DraggableTableRow = memo(
     onDelete,
     isLast,
     onAddNewPair,
-    requestId,
+    namespace,
+    enableEnvironmentVariables = true,
   }: DraggableTableRowProps) => {
     const ref = useRef<HTMLDivElement>(null)
-
     const [{ handlerId }, drop] = useDrop<
       DragRow,
       void,
@@ -123,7 +167,12 @@ export const DraggableTableRow = memo(
     drag(drop(ref))
 
     return (
-      <TableRow>
+      <TableRow
+        style={{
+          zIndex: isDragging ? 1 : 0,
+          opacity: isDragging ? 0.5 : 1,
+        }}
+      >
         {isLast ? (
           <TableCell
             sx={{
@@ -173,7 +222,6 @@ export const DraggableTableRow = memo(
           >
             <Checkbox
               // defaultChecked needed for some reason to make the checkbox work
-              defaultChecked={enabled}
               checked={enabled}
               onChange={(event, value) => onEnabledChange?.(value, index)}
             />
@@ -182,63 +230,61 @@ export const DraggableTableRow = memo(
         {isLast ? (
           <TableCell
             sx={{
-              paddingLeft: 0,
-              width: '40%',
+              width: '50%',
             }}
           >
-            <EnvironmentTextField
-              value={keyString}
-              placeholder="Add Key"
-              onClick={onAddNewPair}
-              contentEditableStyles={{}}
-              namespace={`${requestId}_${id}_key`}
-            />
+            <AddNewButton label="New Key" onAddNewPair={onAddNewPair} />
           </TableCell>
         ) : (
           <TableCell
             sx={{
-              paddingLeft: 0,
-              width: '40%',
+              width: '50%',
             }}
           >
-            <EnvironmentTextField
-              placeholder="Add Key"
-              value={keyString}
-              onChange={(value) => onKeyStringChange?.(value, index)}
-              contentEditableStyles={{}}
-              namespace={`${requestId}_${id}_key`}
-            />
+            {enableEnvironmentVariables ? (
+              <EnvironmentTextField
+                placeholder="Add Key"
+                value={keyString}
+                onChange={(value) => onKeyStringChange?.(value, index)}
+                contentEditableStyles={{}}
+                namespace={`${namespace}_${id}_key`}
+              />
+            ) : (
+              <StyledInput
+                value={keyString}
+                onChangeValue={(value) => onKeyStringChange?.(value, index)}
+              />
+            )}
           </TableCell>
         )}
         {isLast ? (
           <TableCell
             sx={{
-              paddingLeft: 0,
-              width: '40%',
+              width: '50%',
             }}
           >
-            <EnvironmentTextField
-              value={value}
-              placeholder="Add Value"
-              onClick={onAddNewPair}
-              contentEditableStyles={{}}
-              namespace={`${requestId}_${id}_value`}
-            />
+            <AddNewButton label="New Value" onAddNewPair={onAddNewPair} />
           </TableCell>
         ) : (
           <TableCell
             sx={{
-              paddingLeft: 0,
-              width: '40%',
+              width: '50%',
             }}
           >
-            <EnvironmentTextField
-              placeholder="Add Value"
-              value={value}
-              onChange={(value) => onValueChange?.(value, index)}
-              contentEditableStyles={{}}
-              namespace={`${requestId}_${id}_value`}
-            />
+            {enableEnvironmentVariables ? (
+              <EnvironmentTextField
+                placeholder="Add Value"
+                value={value}
+                onChange={(value) => onValueChange?.(value, index)}
+                contentEditableStyles={{}}
+                namespace={`${namespace}_${id}_value`}
+              />
+            ) : (
+              <StyledInput
+                value={value}
+                onChangeValue={(value) => onValueChange?.(value, index)}
+              />
+            )}
           </TableCell>
         )}
         {isLast ? (
@@ -249,7 +295,6 @@ export const DraggableTableRow = memo(
               width: '1px',
               visibility: 'hidden',
             }}
-            align="right"
           >
             <IconButton color="error" onClick={() => onDelete?.(index)}>
               <HighlightOffIcon />
@@ -262,7 +307,6 @@ export const DraggableTableRow = memo(
               whiteSpace: 'nowrap',
               width: '1px',
             }}
-            align="right"
           >
             <IconButton color="error" onClick={() => onDelete?.(index)}>
               <HighlightOffIcon />

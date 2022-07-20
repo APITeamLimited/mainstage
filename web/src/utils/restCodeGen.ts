@@ -1,8 +1,8 @@
-import HTTPSnippet from 'httpsnippet'
+// /import HTTPSnippet from 'httpsnippet'
 
 import { LocalRESTRequest } from 'src/contexts/reactives'
 
-export const CodegenDefinitions = [
+export const RESTCodegenDefinitions = [
   {
     name: 'c-curl',
     lang: 'c',
@@ -171,15 +171,15 @@ export const CodegenDefinitions = [
     mode: 'nsurlsession',
     caption: 'Swift - NSURLSession',
   },
-] as const
+]
 
-export type CodegenName = typeof CodegenDefinitions[number]['name']
+export type CodegenName = typeof RESTCodegenDefinitions[number]['name']
 
-export const generateCode = (
+/*export const generateCode = (
   codegen: CodegenName,
   request: LocalRESTRequest
 ) => {
-  const codegenInfo = CodegenDefinitions.find((v) => v.name === codegen)
+  const codegenInfo = RESTCodegenDefinitions.find((v) => v.name === codegen)
   if (!codegenInfo) {
     throw `Codegen ${codegen} not found`
   }
@@ -188,3 +188,4 @@ export const generateCode = (
     indent: '  ',
   })
 }
+*/

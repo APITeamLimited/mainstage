@@ -1,16 +1,6 @@
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
-import {
-  Grid,
-  Stack,
-  useTheme,
-  Divider,
-  Box,
-  Typography,
-  Button,
-  Chip,
-} from '@mui/material'
+import { Grid, Stack, useTheme, Typography, Chip } from '@mui/material'
 
 import { RESTAuth } from 'src/contexts/reactives'
 
@@ -42,17 +32,13 @@ const authMethodLabels = [
   },
 ]
 
-type AuthorisationPanelProps = {
+type AuthPanelProps = {
   auth: RESTAuth
   setAuth: (auth: RESTAuth) => void
   requestId: string
 }
 
-export const AuthorisationPanel = ({
-  auth,
-  setAuth,
-  requestId,
-}: AuthorisationPanelProps) => {
+export const AuthPanel = ({ auth, setAuth, requestId }: AuthPanelProps) => {
   const theme = useTheme()
 
   const handleChangeAuthType = (newAuthType: string) => {
@@ -91,7 +77,7 @@ export const AuthorisationPanel = ({
         authActive: true,
         key: '',
         value: '',
-        addTo: '',
+        addTo: 'header',
       })
     } else {
       throw `handleChangeAuthType unsupported authType: ${newAuthType}`
@@ -137,7 +123,7 @@ export const AuthorisationPanel = ({
           />
         ))}
       </Grid>
-      {auth.authType === 'inherit' && (
+      {/*auth.authType === 'inherit' && (
         <Stack
           sx={{
             display: 'flex',
@@ -159,7 +145,7 @@ export const AuthorisationPanel = ({
             Auth type is inherited from parent folder or collection
           </Typography>
         </Stack>
-      )}
+          )*/}
       {auth.authType === 'none' && (
         <Stack
           sx={{
@@ -179,7 +165,7 @@ export const AuthorisationPanel = ({
           />
           <Typography variant="h6">None</Typography>
           <Typography variant="caption" color={theme.palette.text.secondary}>
-            No authentication will be used
+            No auth will be used
           </Typography>
         </Stack>
       )}

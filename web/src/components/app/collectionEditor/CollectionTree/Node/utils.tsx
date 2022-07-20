@@ -18,7 +18,7 @@ export const getNodeIcon = (item: NodeItem, collapsed: boolean) => {
     return (
       <Icon>
         <Stack>
-          <Typography fontSize={8}>{item.method}</Typography>
+          <Typography fontSize={8}>{item.method.toUpperCase()}</Typography>
           <Typography fontSize={8}>REST</Typography>
         </Stack>
       </Icon>
@@ -66,12 +66,15 @@ type DeleteRecursiveResult = {
   localRESTRequests: LocalRESTRequest[]
 }
 
+// TODO - fix folder delte everythig glitch
 export const deleteRecursive = ({
   item,
   localFolders,
   localRESTRequests,
 }: DeleteRecursiveArgs): DeleteRecursiveResult => {
   if (item.__typename === 'LocalFolder') {
+    throw 'deleteRecursive: LocalFolder disabled due to bug'
+
     const index = localFolders.findIndex((folder) => folder.id === item.id)
 
     if (index === -1) {

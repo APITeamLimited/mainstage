@@ -5,9 +5,11 @@ import { Paper, Stack, useTheme, IconButton, Tooltip, Box } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import 'react-reflex/styles.css'
 
+import { RESTCodeGenerator } from 'src/components/app/CodeGenerator/RESTCodeGenerator'
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
 import { focusedElementVar } from 'src/components/app/collectionEditor/reactives'
 import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
+import { RESTResponsePanel } from 'src/components/app/collectionEditor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collectionEditor/RightAside'
 import {
   activeWorkspaceVar,
@@ -15,6 +17,7 @@ import {
   localCollectionsVar,
   RESTRequestManager,
 } from 'src/contexts/reactives'
+import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -30,7 +33,7 @@ export const CollectionEditorPage = ({
   const theme = useTheme()
   const focusedElement = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
-  const [editorKey, setEditorKey] = useState(0)
+  const appBarHeight = useAppBarHeight()
 
   useEffect(() => {
     if (workspaceId !== activeWorkspace.id) {
@@ -60,7 +63,7 @@ export const CollectionEditorPage = ({
       }}
     >
       <RESTRequestManager />
-      <ReflexContainer orientation="vertical" windowResizeAware key={editorKey}>
+      <ReflexContainer orientation="vertical" windowResizeAware>
         <ReflexElement
           minSize={200}
           maxSize={4000}
@@ -108,7 +111,11 @@ export const CollectionEditorPage = ({
                     }}
                   >
                     {focusedElement?.__typename === 'LocalRESTRequest' && (
-                      <RESTInputPanel request={focusedElement} />
+                      <RESTInputPanel
+                        request={focusedElement}
+                        // Key is required to force a re-render when the request changes
+                        key={focusedElement.id}
+                      />
                     )}
                   </Paper>
                 </div>
@@ -128,8 +135,12 @@ export const CollectionEditorPage = ({
                 <div style={{ height: '100%' }}>
                   <Paper
                     elevation={0}
-                    sx={{ borderRadius: 0, height: '100%' }}
-                  ></Paper>
+                    sx={{ borderRadius: 0, height: '100%', overflow: 'hidden' }}
+                  >
+                    {focusedElement?.__typename === 'LocalRESTRequest' && (
+                      <RESTResponsePanel />
+                    )}
+                  </Paper>
                 </div>
               </ReflexElement>
             </ReflexContainer>
@@ -146,12 +157,12 @@ export const CollectionEditorPage = ({
         ) : (
           <Box
             sx={{
-              backgroundColor: theme.palette.background.default,
+              backgroundColor: theme.palette.divider,
             }}
           >
             <ReflexSplitter
               style={{
-                width: 8,
+                width: 1,
                 border: 'none',
                 backgroundColor: 'transparent',
               }}
@@ -162,14 +173,18 @@ export const CollectionEditorPage = ({
           flex={2}
           style={{
             minWidth: showRightAside ? '300px' : '50px',
-            maxWidth: showRightAside ? '800px' : '50px',
+            maxWidth: showRightAside ? '700px' : '50px',
+            height: `calc(100vh - ${appBarHeight}px)`,
           }}
-          onResize={(dom) => console.log(dom)}
+          size={showRightAside ? 300 : 50}
         >
           <Paper
             sx={{
               height: '100%',
+              margin: 0,
+              padding: 0,
               borderRadius: 0,
+              overflowY: 'hidden',
             }}
             elevation={0}
           >
