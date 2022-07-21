@@ -71,9 +71,11 @@ export const FolderNode = ({
           />
         }
         sx={{
-          paddingTop: 1,
-          paddingBottom: 0.5,
+          //paddingTop: 1,
+          //paddingBottom: 0.5,
+          paddingY: 0.75,
           backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
+          cursor: 'pointer',
         }}
         onClick={handleClick}
       >

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Stack, Tab, Tabs } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import {
   addToQueue,
@@ -11,6 +11,8 @@ import {
   restRequestQueueVar,
   updateFilterLocalRESTRequestArray,
 } from 'src/contexts/reactives'
+
+import { CustomTabs } from '../../CustomTabs'
 
 import { AuthPanel } from './AuthPanel'
 import { BodyPanel } from './BodyPanel'
@@ -69,13 +71,6 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
     unsavedAuth,
     request,
   ])
-
-  const handleTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    newValue: number
-  ) => {
-    setActiveTabIndex(newValue)
-  }
 
   const handleSave = () => {
     const newRequest: LocalRESTRequest = {
@@ -151,16 +146,11 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
             onSaveAs={() => setShowSaveAsDialog(true)}
           />
         </Stack>
-        <Tabs
+        <CustomTabs
           value={activeTabIndex}
-          onChange={handleTabChange}
-          variant="scrollable"
-        >
-          <Tab label="Parameters" />
-          <Tab label="Body" />
-          <Tab label="Headers" />
-          <Tab label="Auth" />
-        </Tabs>
+          onChange={setActiveTabIndex}
+          names={['Parameters', 'Body', 'Headers', 'Auth']}
+        />
         {activeTabIndex === 0 && (
           <ParametersPanel
             parameters={unsavedParameters}

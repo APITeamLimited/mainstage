@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
+import { makeVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
-import { Button, Stack, Tab, Tabs, Typography, useTheme } from '@mui/material'
+import { Stack, Typography, useTheme } from '@mui/material'
 
 import {
   LocalRESTResponse,
   localRESTResponsesVar,
 } from 'src/contexts/reactives'
 
+import { CustomTabs } from '../../CustomTabs'
 import { focusedElementVar } from '../reactives'
 
 import { BodyPanel } from './BodyPanel'
@@ -17,22 +19,15 @@ import { QuickStats } from './QuickStats'
 
 type RESTResponsePanelProps = {}
 
+export const focusedResponseVar = makeVar<LocalRESTResponse | null>(null)
+
 export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
   const theme = useTheme()
-  const [shownResponse, setShownResponse] = useState<LocalRESTResponse | null>(
-    null
-  )
+  const focusedResponse = useReactiveVar(focusedResponseVar)
   const localRESTResponses = useReactiveVar(localRESTResponsesVar)
   const focusedElement = useReactiveVar(focusedElementVar)
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
-
-  const handleTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    newValue: number
-  ) => {
-    setActiveTabIndex(newValue)
-  }
 
   useEffect(() => {
     // Make sure response only filtered to current request
@@ -45,7 +40,7 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
 
     if (successfulResponses.length > 0) {
       // Get latest createdAt successful response
-      setShownResponse(
+      focusedResponseVar(
         successfulResponses.reduce((latest, current) => {
           if (
             new Date(latest.createdAt).getTime() <
@@ -57,13 +52,13 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
         })
       )
     } else {
-      setShownResponse(null)
+      focusedResponseVar(null)
     }
   }, [focusedElement, localRESTResponses])
 
-  if (shownResponse) {
-    if (shownResponse.type !== 'Success') {
-      throw `Rsponse type: ${shownResponse.type} invalid for RESTResponsePanel`
+  if (focusedResponse) {
+    if (focusedResponse.type !== 'Success') {
+      throw `Rsponse type: ${focusedResponse.type} invalid for RESTResponsePanel`
     }
   }
 
@@ -75,26 +70,21 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
         height: 'calc(100% - 2em)',
       }}
     >
-      {shownResponse ? (
+      {focusedResponse ? (
         <>
           <QuickStats
-            statusCode={shownResponse.statusCode}
-            responseTimeMilliseconds={shownResponse.meta.responseDuration}
-            responseSizeBytes={shownResponse.meta.responseSize}
+            statusCode={focusedResponse.statusCode}
+            responseTimeMilliseconds={focusedResponse.meta.responseDuration}
+            responseSizeBytes={focusedResponse.meta.responseSize}
           />
-          <Tabs
+          <CustomTabs
             value={activeTabIndex}
-            onChange={handleTabChange}
-            variant="scrollable"
-          >
-            <Tab label="Body" />
-            <Tab label="Headers" />
-            <Tab label="Cookies" />
-            <Tab label="Request" />
-          </Tabs>
-          {activeTabIndex === 0 && <BodyPanel response={shownResponse} />}
+            onChange={setActiveTabIndex}
+            names={['Body', 'Headers', 'Cookies', 'Request']}
+          />
+          {activeTabIndex === 0 && <BodyPanel response={focusedResponse} />}
           {activeTabIndex === 1 && (
-            <HeadersPanel headers={shownResponse.headers} />
+            <HeadersPanel headers={focusedResponse.headers} />
           )}
         </>
       ) : (

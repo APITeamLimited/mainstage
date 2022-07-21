@@ -33,6 +33,7 @@ export const QuickStats = ({
       : statusCode < 300
       ? theme.palette.warning.main
       : theme.palette.error.main
+
   // Format response size in either bytes , kilobytes, megabytes
   const responseSize =
     responseSizeBytes < 1024
