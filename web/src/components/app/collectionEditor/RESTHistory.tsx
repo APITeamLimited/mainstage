@@ -1,5 +1,6 @@
 import { useReactiveVar } from '@apollo/client'
 import ClearIcon from '@mui/icons-material/Clear'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   Stack,
   Typography,
@@ -26,7 +27,11 @@ type GroupedResponses = {
   [key: string]: LocalRESTResponse[]
 }
 
-export const RESTHistory = () => {
+type RESTHistoryProps = {
+  onCloseAside: () => void
+}
+
+export const RESTHistory = ({ onCloseAside }: RESTHistoryProps) => {
   const focusedElement = useReactiveVar(focusedElementVar)
   const focusedResponse = useReactiveVar(focusedResponseVar)
   const localRESTResponses = useReactiveVar(localRESTResponsesVar)
@@ -135,8 +140,8 @@ export const RESTHistory = () => {
         width: '100%',
         maxWidth: '100%',
         maxHeight: '100%',
-        overflow: 'hidden',
         paddingY: 2,
+        overflow: 'hidden',
       }}
     >
       <Stack
@@ -144,16 +149,30 @@ export const RESTHistory = () => {
         sx={{
           height: '100%',
           width: '100%',
+          maxWidth: '100%',
+          maxHeight: '100%',
         }}
       >
-        <Typography
-          variant="h6"
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
           sx={{
             marginX: 2,
           }}
         >
-          Response History
-        </Typography>
+          <Typography variant="h6">Response History</Typography>
+          <Tooltip title="Close">
+            <IconButton
+              onClick={onCloseAside}
+              sx={{
+                color: (theme) => theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Tooltip>
+        </Stack>
         {responses.length === 0 ? (
           <Typography
             sx={{
@@ -167,7 +186,12 @@ export const RESTHistory = () => {
             be shown here
           </Typography>
         ) : (
-          <>
+          <div
+            style={{
+              width: '100%',
+              minHeight: '100%',
+            }}
+          >
             {Object.keys(grouptedResonses).map((timeLabel, index) => (
               <Box
                 key={index}
@@ -207,6 +231,8 @@ export const RESTHistory = () => {
                           focusedResponse?.id === response.id
                             ? theme.palette.alternate.main
                             : 'inherit',
+                        width: '100%',
+                        maxWidth: '100%',
                       }}
                       onClick={() => focusedResponseVar(response)}
                       secondaryAction={
@@ -228,12 +254,14 @@ export const RESTHistory = () => {
                         {getNodeIcon(response.request, true)}
                       </ListItemIcon>
                       <ListItemText
-                        primary={response.request.endpoint}
+                        primary={
+                          <span style={{}}>{response.request.endpoint}</span>
+                        }
                         sx={{
                           whiteSpace: 'nowrap',
                           marginLeft: -2,
-                          overflow: 'hidden',
                           color: statusCodeColor,
+                          overflow: 'hidden',
                         }}
                       />
                     </ListItem>
@@ -252,7 +280,7 @@ export const RESTHistory = () => {
               Responses older than 30 days, or more than 30 deep are deleted
               automatically
             </Typography>
-          </>
+          </div>
         )}
       </Stack>
     </Box>

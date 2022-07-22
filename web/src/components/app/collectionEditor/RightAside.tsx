@@ -47,12 +47,18 @@ export const RightAside = ({
     }
   }, [activeRightAside, focusedElement, setActiveRightAside, setShowRightAside])
 
+  const handleCloseAside = () => {
+    setActiveRightAside(null)
+    setShowRightAside(false)
+  }
+
   return (
     <Stack
       direction="row"
       sx={{
         height: '100%',
         width: '100%',
+        maxWidth: '100%',
       }}
     >
       <Stack
@@ -62,6 +68,7 @@ export const RightAside = ({
           height: '100%',
           borderRight: activeRightAside ? '1px solid' : 'none',
           borderColor: theme.palette.divider,
+          paddingY: 1,
         }}
       >
         {focusedElement?.__typename === 'LocalRESTRequest' && (
@@ -91,10 +98,14 @@ export const RightAside = ({
       </Stack>
       {showRightAside &&
         focusedElement?.__typename === 'LocalRESTRequest' &&
-        activeRightAside === 'code' && <RESTCodeGenerator />}
+        activeRightAside === 'code' && (
+          <RESTCodeGenerator onCloseAside={handleCloseAside} />
+        )}
       {showRightAside &&
         focusedElement?.__typename === 'LocalRESTRequest' &&
-        activeRightAside === 'restHistory' && <RESTHistory />}
+        activeRightAside === 'restHistory' && (
+          <RESTHistory onCloseAside={handleCloseAside} />
+        )}
     </Stack>
   )
 }

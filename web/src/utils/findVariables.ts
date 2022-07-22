@@ -20,7 +20,8 @@ const findVariablesInString = (
   return value
 }
 
-const bracesRegex = /{(.*?)}/
+// Find multiple substrings with curly braces
+const bracesRegex = /{(.*?)}/g
 
 export const findEnvironmentVariablesKeyValueItem = (
   environment: LocalEnvironment | null,
@@ -37,7 +38,12 @@ export const findEnvironmentVariables = (
   environment: LocalEnvironment | null,
   target: string
 ) => {
-  // Find substrings that start and end with curly braces
+  if (environment === null) {
+    // No environment, no variables
+    return target
+  }
+
+  // Find substrings that start and end with curly braces and get their index
   const matches = target.match(bracesRegex) || []
 
   // Split value into an array of strings, divided by matches
@@ -45,13 +51,14 @@ export const findEnvironmentVariables = (
     .split(bracesRegex)
     ?.filter((match) => match !== '')
 
-  const matchesIndex = 0
+  let matchesIndex = 0
 
   return targetSubstrings
     .map((substring) => {
       if (matchesIndex >= matches.length) {
         return substring
       } else if (`{${substring}}` === matches[matchesIndex]) {
+        matchesIndex++
         return findVariablesInString(environment, substring)
       } else {
         return substring

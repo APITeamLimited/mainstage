@@ -5,7 +5,7 @@ type DiscreteResults =
   | { type: 'Loading'; request: LocalRESTRequest }
   | {
       type: 'Fail'
-      headers: { key: string; value: string }[]
+      headers: { key: string; value: string | string[] }[]
       body: ArrayBuffer
       statusCode: number
 

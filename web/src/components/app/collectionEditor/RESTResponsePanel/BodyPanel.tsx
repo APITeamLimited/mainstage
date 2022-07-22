@@ -10,6 +10,9 @@ import { parseRESTResponseBody } from 'src/utils/parseRESTResponseBody'
 
 import { MonacoEditor } from '../MonacoEditor'
 
+import { HTMLViewer } from './HTMLViewer'
+import { RawViewer } from './RawViewer'
+
 type BodyPanelProps = {
   response: LocalRESTResponse
 }
@@ -82,16 +85,11 @@ export const BodyPanel = ({ response }: BodyPanelProps) => {
           value={rawBody}
           readOnly
           scrollBeyondLastLine={false}
+          wordWrap="on"
         />
       )}
-      {activeTabIndex === 1 && (
-        <MonacoEditor
-          value={rawBody}
-          language="plain"
-          readOnly
-          scrollBeyondLastLine={false}
-        />
-      )}
+      {activeTabIndex === 1 && <RawViewer rawBody={rawBody} />}
+      {activeTabIndex === 2 && <HTMLViewer html={rawBody} />}
     </Stack>
   )
 }

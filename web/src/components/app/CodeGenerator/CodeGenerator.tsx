@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
+import CloseIcon from '@mui/icons-material/Close'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import {
   Stack,
@@ -21,6 +22,7 @@ import {
 
 type CodeGeneratorProps = {
   availableCodeGens?: CodeGenDefinition[]
+  onCloseAside: () => void
 }
 
 type CodeGenDefinition = {
@@ -37,6 +39,7 @@ type CodeGenerated = {
 
 export const CodeGenerator = ({
   availableCodeGens = [],
+  onCloseAside,
 }: CodeGeneratorProps) => {
   const theme = useTheme()
   const [activeCodeGen, setActiveCodeGen] = useState<CodeGenDefinition | null>(
@@ -101,7 +104,23 @@ export const CodeGenerator = ({
             width: '100%',
           }}
         >
-          <Typography variant="h6">Code Generator</Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="h6">Code Generator</Typography>
+            <Tooltip title="Close">
+              <IconButton
+                onClick={onCloseAside}
+                sx={{
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
           {availableCodeGens.length === 0 || activeCodeGen === null ? (
             <Typography variant="body2">
               No code generators available

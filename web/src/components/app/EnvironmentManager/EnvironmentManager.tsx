@@ -95,7 +95,10 @@ export const EnvironmentManager = ({
       [
         ...localEnvironments.filter((env) => env.id !== environment.id),
         environment,
-      ].sort((a, b) => a?.createdAt.getTime() - b?.createdAt.getTime())
+      ].sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
     )
 
     setNeedSave(false)
@@ -119,7 +122,8 @@ export const EnvironmentManager = ({
 
     localEnvironmentsVar(
       [...localEnvironments, newEnvironment].sort(
-        (a, b) => a?.createdAt.getTime() - new Date(b?.createdAt).getTime()
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       )
     )
 
@@ -131,11 +135,16 @@ export const EnvironmentManager = ({
   const handleEnvironmentDelete = () => {
     const newEnvironments = localEnvironments
       .filter((env) => env.id !== activeEnvironmentId)
-      .sort((a, b) => a?.createdAt.getTime() - b?.createdAt.getTime())
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      )
 
     if (currentEnvironment?.id === activeEnvironmentId) {
       activeEnvironmentVar(null)
     }
+
+    console.log('newEnvironments', newEnvironments)
 
     localEnvironmentsVar(newEnvironments)
   }

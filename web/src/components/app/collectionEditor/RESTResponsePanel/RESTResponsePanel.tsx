@@ -33,7 +33,7 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
     // Make sure response only filtered to current request
     const successfulResponses = localRESTResponses.filter(
       (response) =>
-        response.type === 'Success' &&
+        (response.type === 'Success' || response.type === 'Fail') &&
         response.request?.id === focusedElement?.id &&
         focusedElement.__typename === 'LocalRESTRequest'
     )
@@ -57,8 +57,11 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
   }, [focusedElement, localRESTResponses])
 
   if (focusedResponse) {
-    if (focusedResponse.type !== 'Success') {
-      throw `Rsponse type: ${focusedResponse.type} invalid for RESTResponsePanel`
+    if (
+      focusedResponse?.type !== 'Success' &&
+      focusedResponse?.type !== 'Fail'
+    ) {
+      throw `Response type: ${focusedResponse?.type} invalid for RESTResponsePanel`
     }
   }
 

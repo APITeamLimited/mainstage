@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import Editor, { useMonaco } from '@monaco-editor/react'
+import Editor, { useMonaco, Monaco } from '@monaco-editor/react'
 import { useTheme, Box } from '@mui/material'
 
 export type MonacoSupportedLanguage = 'json' | 'xml' | 'html' | 'plain'
@@ -13,6 +13,7 @@ type MonacoEditorProps = {
   enableMinimap?: boolean
   height?: string
   scrollBeyondLastLine?: boolean
+  wordWrap?: 'on' | 'off' | 'wordWrapColumn' | 'bounded' | undefined
 }
 
 export const MonacoEditor = ({
@@ -22,6 +23,7 @@ export const MonacoEditor = ({
   readOnly = false,
   enableMinimap = true,
   scrollBeyondLastLine = true,
+  wordWrap = 'off',
 }: MonacoEditorProps) => {
   const theme = useTheme()
 
@@ -87,6 +89,9 @@ export const MonacoEditor = ({
         scrollBeyondLastLine,
         'bracketPairColorization.enabled': true,
         contextmenu: false,
+        wordWrap,
+
+        // Disable new line sequences
       }}
       value={value}
       onChange={(value) => onChange(value || '')}

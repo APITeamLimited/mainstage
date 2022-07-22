@@ -130,6 +130,7 @@ export const CollectionEditorPage = ({
               <ReflexElement
                 style={{
                   minWidth: '200px',
+                  overflow: 'hidden',
                 }}
               >
                 <div style={{ height: '100%' }}>
@@ -173,7 +174,7 @@ export const CollectionEditorPage = ({
           flex={2}
           style={{
             minWidth: showRightAside ? '300px' : '50px',
-            maxWidth: showRightAside ? '700px' : '50px',
+            maxWidth: showRightAside ? '1000px' : '50px',
             height: `calc(100vh - ${appBarHeight}px)`,
           }}
           size={showRightAside ? 300 : 50}
@@ -181,6 +182,8 @@ export const CollectionEditorPage = ({
           <Paper
             sx={{
               height: '100%',
+              width: '100%',
+              maxWidth: '100%',
               margin: 0,
               padding: 0,
               borderRadius: 0,

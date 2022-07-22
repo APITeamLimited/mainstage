@@ -86,6 +86,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
       updateFilterLocalRESTRequestArray(localRESTRequests, newRequest)
     )
     setNeedSave(false)
+    console.log('Saved request', newRequest)
   }
 
   const handleSaveAs = (newName: string) => {
@@ -125,10 +126,12 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
   return (
     <>
       <Stack
-        padding={2}
+        margin={2}
         spacing={2}
         sx={{
           height: 'calc(100% - 2em)',
+          maxHeight: 'calc(100% - 2em)',
+          overflow: 'hidden',
         }}
       >
         <Stack direction="row" spacing={1}>
