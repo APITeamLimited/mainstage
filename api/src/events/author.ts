@@ -1,4 +1,4 @@
-import { checkValue } from 'src/settings'
+import { checkValue } from 'src/config'
 
 import { SyncEvent, eventsRedisClient as redis } from '.'
 

@@ -1,10 +1,8 @@
 import type { Prisma } from '@prisma/client'
-import type { QueryResolvers, MutationResolvers } from 'types/graphql'
 
 import { validate, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
-import { handler } from 'src/functions/auth'
 import { db } from 'src/lib/db'
 
 type User = Prisma.PromiseReturnType<typeof db.user.create>

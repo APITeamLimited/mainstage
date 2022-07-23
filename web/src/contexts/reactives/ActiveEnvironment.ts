@@ -4,4 +4,5 @@ import { LocalEnvironment } from './locals'
 
 export const defaultEnvironment: LocalEnvironment | null = null
 
-export const activeEnvironmentVar = makeVar<string | null>(defaultEnvironment)
+export const activeEnvironmentVar =
+  makeVar<LocalEnvironment>(defaultEnvironment)

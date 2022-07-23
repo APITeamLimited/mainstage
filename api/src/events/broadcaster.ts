@@ -2,7 +2,7 @@ import { validate, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
-import { checkValue } from 'src/settings'
+import { checkValue } from 'src/config'
 
 import { SyncEvent, eventsRedisClient as redis } from '.'
 

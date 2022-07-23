@@ -39,6 +39,7 @@
     "https-proxy-agent": "^5.0.1",
     "httpsnippet": "^2.0.0",
     "immutability-helper": "^3.1.1",
+    "jsonwebtoken": "^8.5.1",
     "lexical": "^0.3.7",
     "md5": "^2.3.0",
     "memoize-one": "^6.0.0",

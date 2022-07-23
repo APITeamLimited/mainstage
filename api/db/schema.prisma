@@ -66,3 +66,11 @@ model TeamInvitation {
   teamId    String
   role      String
 }
+
+model EntityAuthKeyPair {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime?
+  publicKey  String
+  privateKey String
+}

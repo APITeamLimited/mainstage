@@ -1,22 +1,28 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "noEmit": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "target": "esnext",
+    "strict": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "declaration": true,
-    "pretty": true,
-    "noEmitOnError": true,
-    "strict": true,
-    "resolveJsonModule": true,
-    "removeComments": true,
-    "newLine": "lf",
-    "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true,
-    "useDefineForClassFields": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-    "lib": [
-      "esnext"
-    ]
-  }
+    "rootDirs": [
+      "./src",
+      "../api/src",
+      "../.redwood/types/mirror/api/src"
+    ],
+    "paths": {
+      "src/*": [
+        "./src/*",
+        "../api/src/*",
+        "../.redwood/types/mirror/api/src/*"
+      ],
+      "types/*": ["./types/*", "../types/*", "../api/types"],
+      "@redwoodjs/testing": ["../node_modules/@redwoodjs/testing/web"]
+    },
+    "typeRoots": ["../node_modules/@types", "./node_modules/@types"],
+    "types": ["jest", "@testing-library/jest-dom"],
+    "jsx": "preserve",
+  },
 }

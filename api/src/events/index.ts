@@ -1,6 +1,6 @@
 import { createClient } from 'redis'
 
-import { checkValue } from 'src/settings'
+import { checkValue } from 'src/config'
 
 const eventsServerConfig = {
   userName: <string>checkValue('events.redis.userName'),

@@ -5,7 +5,7 @@ import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
 import { generateResetToken } from 'src/lib/token'
-import { checkValue } from 'src/settings'
+import { checkValue } from 'src/config'
 
 const markedForDeletionExpiryHours = <number>(
   checkValue('teams.markedForDeletionExpiryHours')
