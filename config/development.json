@@ -17,7 +17,8 @@
     "gqlEndpoint": "/graphql",
     "jwt": {
       "issuer": "apiteam.cloud",
-      "audience": "apiteam.cloud"
+      "audience": "apiteam.cloud",
+      "privateKeyPassphrase": "Wasd12345#"
     }
   }
 }

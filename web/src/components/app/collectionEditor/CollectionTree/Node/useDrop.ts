@@ -2,7 +2,7 @@ import { useDrop } from 'react-dnd'
 
 import { LocalFolder, LocalRESTRequest } from 'src/contexts/reactives'
 
-import { NodeItem, NodeProps } from './Node'
+import { NodeItem } from './Node'
 
 type UseNodeDropArgs = {
   item: NodeItem

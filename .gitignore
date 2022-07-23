@@ -4,6 +4,7 @@
 .netlify
 .redwood
 dev.db*
+*.sqbpro
 dist
 dist-babel
 node_modules

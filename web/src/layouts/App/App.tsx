@@ -12,6 +12,7 @@ import {
 import { ModalsProvider } from 'src/components/app/dialogs'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
+import { EntityEngine } from 'src/entity-engine'
 
 import { APITeamLogo } from './components/APITeamLogo'
 import { CommandPalette } from './components/CommandPalette'
@@ -46,7 +47,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   })
 
   return (
-    <>
+    <EntityEngine>
       <ReactiveVarPersistor />
       <ModalsProvider>
         <AppBar
@@ -102,6 +103,6 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
           </Box>
         </AppBarHeightProvider>
       </ModalsProvider>
-    </>
+    </EntityEngine>
   )
 }

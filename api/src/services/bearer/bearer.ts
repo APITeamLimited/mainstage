@@ -1,6 +1,7 @@
-import { generateKeyPair } from 'crypto'
+import { generateKeyPair, privateDecrypt } from 'crypto'
 
 import JWT from 'jsonwebtoken'
+import keypair from 'keypair'
 
 import { validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
@@ -12,24 +13,21 @@ import { checkValue } from '../../config'
 const issuer = checkValue<string>('entityAuth.jwt.issuer')
 const audience = checkValue<string>('entityAuth.jwt.audience')
 const expriesInMinutes = checkValue<number>('entityAuth.jwt.expriesInMinutes')
+const privateKeyPassphrase = checkValue<string>(
+  'entityAuth.jwt.privateKeyPassphrase'
+)
 
 let keyPair: {
   publicKey: string
   privateKey: string
 } | null = null
 
-const getKeyPair = async (
-  timeTried = 0
-): Promise<{
+export const getKeyPair = async (): Promise<{
   publicKey: string
   privateKey: string
 }> => {
   if (keyPair) {
     return keyPair
-  }
-
-  if (timeTried > 3) {
-    throw 'Could not generate key pair, tried 3 times'
   }
 
   // Filter by created in case second pair accidentally gets created
@@ -41,47 +39,21 @@ const getKeyPair = async (
 
   if (!existingKeyPair) {
     // Create a new pem key pair
-    generateKeyPair(
-      'rsa',
-      {
-        modulusLength: 2048,
-        publicKeyEncoding: {
-          type: 'spki',
-          format: 'pem',
-        },
-        privateKeyEncoding: {
-          type: 'pkcs8',
-          format: 'pem',
-          cipher: 'aes-256-cbc',
-          passphrase: '',
-        },
-      },
-      async (err, publicKey, privateKey) => {
-        if (err) {
-          throw err
-        }
-
-        // Save the key pair to the database
-        await db.entityAuthKeyPair.create({
-          data: {
-            publicKey: publicKey,
-            privateKey: privateKey,
-          },
-        })
-      }
-    )
+    const pair = keypair()
+    keyPair = {
+      publicKey: pair.public,
+      privateKey: pair.private,
+    }
   } else {
     keyPair = {
       publicKey: existingKeyPair.publicKey,
       privateKey: existingKeyPair.privateKey,
     }
-    return keyPair
   }
-
-  return getKeyPair(timeTried + 1)
+  return keyPair
 }
 
-export const generateBearer = async () => {
+export const bearer = async () => {
   validateWith(() => {
     if (!context.currentUser) {
       throw 'You must be logged in to access this resource.'
@@ -94,7 +66,7 @@ export const generateBearer = async () => {
 
   const { privateKey } = await getKeyPair()
 
-  return JWT.sign(
+  const signed = JWT.sign(
     {
       userId,
     },
@@ -106,4 +78,6 @@ export const generateBearer = async () => {
       expiresIn: expriesInMinutes * 60,
     }
   )
+
+  return signed
 }

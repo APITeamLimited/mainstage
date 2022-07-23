@@ -28,6 +28,9 @@
   "prisma": {
     "seed": "yarn rw exec seed"
   },
+  "scripts": {
+    "dev": "OPENSSL_CONF=/dev/null && yarn rw dev"
+  },
   "packageManager": "yarn@3.2.1",
   "dependencies": {
     "config": "^3.3.7",

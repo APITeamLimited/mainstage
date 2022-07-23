@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
@@ -18,9 +18,11 @@ import * as Yup from 'yup'
 import {
   LocalProject,
   localProjectsVar,
-  activeWorkspaceVar,
+  activeWorkspaceIdVar,
   generateLocalCollection,
   localCollectionsVar,
+  Workspace,
+  workspacesVar,
 } from 'src/contexts/reactives'
 
 type CreateCollectionDialogState = {
@@ -41,7 +43,15 @@ export function CreateCollectionDialog() {
   const { isOpen, project } = useReactiveVar(createCollectionDialogStateVar)
   const localProjects = useReactiveVar(localProjectsVar)
   const localCollections = useReactiveVar(localCollectionsVar)
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+
+  useEffect(() => {
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspaceId, workspaces])
 
   const getProjectIndex = () => {
     if (!project) {
@@ -68,7 +78,7 @@ export function CreateCollectionDialog() {
       ),
     }),
     onSubmit: async (values, helpers): Promise<void> => {
-      if (activeWorkspace.__typename === 'Anonymous') {
+      if (activeWorkspace.__typename === 'Local') {
         const newCollection = generateLocalCollection({
           parentId: localProjects.find(
             (project, index) => index === values.projectIndex

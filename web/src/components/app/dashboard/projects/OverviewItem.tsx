@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+
 import { useReactiveVar } from '@apollo/client'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
@@ -8,12 +10,15 @@ import {
   Stack,
   IconButton,
   useTheme,
-  SvgIcon,
 } from '@mui/material'
 
 import { routes, navigate } from '@redwoodjs/router'
 
-import { activeWorkspaceVar } from 'src/contexts/reactives'
+import {
+  activeWorkspaceIdVar,
+  Workspace,
+  workspacesVar,
+} from 'src/contexts/reactives'
 
 import { OverviewType } from './ProjectOverview'
 
@@ -23,7 +28,15 @@ type OverviewItemProps = {
 
 export function OverviewItem({ item }: OverviewItemProps) {
   const theme = useTheme()
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+
+  useEffect(() => {
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspaceId, workspaces])
 
   const getTypeName = () => {
     if (item.__typename === 'LocalCollection') {
@@ -40,7 +53,7 @@ export function OverviewItem({ item }: OverviewItemProps) {
   const handleCollectionNavigation = (collectionId: string) =>
     // Navigate to the collection editor page
     navigate(
-      routes.collectionEditor({ collectionId, workspaceId: activeWorkspace.id })
+      routes.collectionEditor({ collectionId, workspaceId: activeWorkspaceId })
     )
 
   return (

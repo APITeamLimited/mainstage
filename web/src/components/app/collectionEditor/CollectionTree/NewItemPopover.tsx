@@ -1,24 +1,21 @@
 import { useReactiveVar } from '@apollo/client'
 import FolderIcon from '@mui/icons-material/Folder'
 import {
-  useTheme,
   Popover,
   Stack,
   MenuItem,
   ListItemText,
-  Typography,
-  ListItemAvatar,
   ListItemIcon,
-  ListItem,
 } from '@mui/material'
 
 import {
-  activeWorkspaceVar,
+  activeWorkspaceIdVar,
   generateLocalFolder,
   generateLocalRESTRequest,
   LocalCollection,
   localFoldersVar,
   localRESTRequestsVar,
+  workspacesVar,
 } from 'src/contexts/reactives'
 
 type NewItemPopoverProps = {
@@ -36,8 +33,11 @@ export const NewItemPopover = ({
 }: NewItemPopoverProps) => {
   const localFolders = useReactiveVar(localFoldersVar)
   const localRESTRequests = useReactiveVar(localRESTRequestsVar)
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
-  const isLocalWorkspace = activeWorkspace.__typename === 'Anonymous'
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const isLocalWorkspace =
+    workspaces.find((workspace) => workspace.id === activeWorkspaceId)
+      ?.__typename === 'Local'
 
   const handleCreateNewFolder = () => {
     if (isLocalWorkspace) {

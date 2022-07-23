@@ -1,15 +1,34 @@
+import { useEffect, useState } from 'react'
+
 import { useReactiveVar } from '@apollo/client'
-import { Box, Grid, Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 
 import { ProjectOverview } from 'src/components/app/dashboard/projects'
 import { QuickActions } from 'src/components/app/dashboard/QuickActions'
-import { activeWorkspaceVar, localProjectsVar } from 'src/contexts/reactives'
+import {
+  activeWorkspaceIdVar,
+  localProjectsVar,
+  Workspace,
+  workspacesVar,
+} from 'src/contexts/reactives'
 
 export const ProjectsSection = () => {
   const localProjects = useReactiveVar(localProjectsVar)
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
 
-  const isLocalWorkspace = activeWorkspace.__typename === 'Anonymous'
+  useEffect(() => {
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspaceId, workspaces])
+
+  if (!activeWorkspace) {
+    return <></>
+  }
+
+  const isLocalWorkspace = activeWorkspace.__typename === 'Local'
 
   const projects = isLocalWorkspace ? localProjects : []
 

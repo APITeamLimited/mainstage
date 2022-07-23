@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 
-import * as JWT from 'jsonwebtoken'
+import { useReactiveVar } from '@apollo/client'
+import jwt_decode, { JwtPayload } from 'jwt-decode'
+import { GetBearerPubkey } from 'types/graphql'
 
 import { CurrentUser } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
 
-const issuer = 'apiteam.cloud'
-const audience = 'apiteam.cloud'
+import { workspacesVar } from 'src/contexts/reactives'
 
 const GET_BEARER_PUBKEY_QUERY = gql`
   query GetBearerPubkey {
@@ -15,12 +16,7 @@ const GET_BEARER_PUBKEY_QUERY = gql`
   }
 `
 
-type GetBearerPubkeyType = {
-  bearer: string
-  publicKey: string
-}
-
-type Bearer = JWT.JwtPayload & { userId: string }
+type Bearer = JwtPayload & { userId: string }
 
 type AuthenticatedEntityEngineProps = {
   currentUser: CurrentUser
@@ -34,34 +30,39 @@ export const AuthenticatedEntityEngine = ({
   const [publicKey, setPublicKey] = useState<string | null>(null)
   const [bearer, setBearer] = useState<Bearer | null>(null)
   const [bearerExpiry, setBearerExpiry] = useState<number>(0)
+  const workspaces = useReactiveVar(workspacesVar)
 
   // Get bearer token from gql query
-  const { loading, error, data } = useQuery<GetBearerPubkeyType>(
+  const { loading, error, data } = useQuery<GetBearerPubkey>(
     GET_BEARER_PUBKEY_QUERY,
     {
       skip: bearerExpiry > Date.now(),
     }
   )
 
-  // Handle JWT updates
+  // Handle jwt_decode updates
   useEffect(() => {
-    if (!data && !loading) throw 'No bearer token was received from gql query'
     if (!data) return
 
     setPublicKey(data.publicKey)
 
-    const decodedToken: Bearer = JWT.verify(data.bearer, data.publicKey, {
-      issuer,
-      audience,
-      complete: true,
-    }) as unknown as Bearer
+    const decodedToken: Bearer = jwt_decode(data.bearer) as unknown as Bearer
 
     if (!decodedToken.exp) throw 'No expiry in bearer token'
     if (!decodedToken.userId) throw 'No userId in bearer token'
 
     setBearer(decodedToken)
     setBearerExpiry(decodedToken.exp * 1000)
-  }, [data, error, loading])
+
+    workspacesVar([
+      ...workspaces.filter((workspace) => workspace.__typename !== 'User'),
+      {
+        __typename: 'User',
+        id: currentUser.id,
+        name: 'Personal Cloud',
+      },
+    ])
+  }, [currentUser, data, error, loading, workspaces])
 
   // First run jobs
   useEffect(() => {

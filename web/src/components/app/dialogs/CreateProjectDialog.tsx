@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   Button,
@@ -15,9 +17,11 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 
 import {
-  activeWorkspaceVar,
+  activeWorkspaceIdVar,
   generateLocalProject,
   localProjectsVar,
+  Workspace,
+  workspacesVar,
 } from 'src/contexts/reactives'
 
 type CreateProjectDialogState = {
@@ -33,9 +37,17 @@ export const createProjectDialogStateVar = makeVar(
 )
 
 export const CreateProjectDialog = () => {
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const localProjects = useReactiveVar(localProjectsVar)
   const { isOpen } = useReactiveVar(createProjectDialogStateVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+
+  useEffect(() => {
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspaceId, workspaces])
 
   const formik = useFormik({
     initialValues: {
@@ -46,7 +58,7 @@ export const CreateProjectDialog = () => {
       name: Yup.string().max(25).required('Projects must have a name'),
     }),
     onSubmit: async (values, helpers): Promise<void> => {
-      if (activeWorkspace.__typename === 'Anonymous') {
+      if (activeWorkspace?.__typename === 'Local') {
         const newProject = generateLocalProject({ name: values.name })
         localProjectsVar(localProjects.concat(newProject))
       } else {
@@ -55,6 +67,10 @@ export const CreateProjectDialog = () => {
       handleClose()
     },
   })
+
+  if (!activeWorkspace) {
+    return <></>
+  }
 
   const handleClose = () => {
     formik.resetForm()

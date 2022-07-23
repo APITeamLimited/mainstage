@@ -1,15 +1,25 @@
-import { useEffect, useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { WorkspaceSwitcherTeamMemberships } from 'types/graphql'
+import CloudIcon from '@mui/icons-material/Cloud'
+import GroupsIcon from '@mui/icons-material/Groups'
+import HeightIcon from '@mui/icons-material/Height'
+import {
+  Box,
+  SvgIcon,
+  Typography,
+  useTheme,
+  Stack,
+  Button,
+} from '@mui/material'
 
-import { useAuth } from '@redwoodjs/auth'
-import { useQuery } from '@redwoodjs/web'
+import {
+  activeWorkspaceIdVar,
+  Workspace,
+  workspacesVar,
+} from 'src/contexts/reactives'
 
-import { activeWorkspaceVar, anonymousWorkspace } from 'src/contexts/reactives'
-
-import { WorkspaceSwitcherButton } from './components/WorkspaceSwitcherButton'
-import { WorkspaceSwitcherLoading } from './components/WorkspaceSwitcherLoading'
+import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
 
 export const MEMBERSHIPS_QUERY = gql`
   query WorkspaceSwitcherTeamMemberships {
@@ -24,48 +34,90 @@ export const MEMBERSHIPS_QUERY = gql`
 `
 
 export const WorkspaceSwitcher = () => {
-  const { currentUser } = useAuth()
-  const workspace = useReactiveVar(activeWorkspaceVar)
-
-  // Correct this error if it ever happens
-  useEffect(() => {
-    if (!currentUser && workspace.__typename !== 'Anonymous') {
-      activeWorkspaceVar(anonymousWorkspace)
-    }
-  }, [currentUser, workspace])
-
-  if (workspace.__typename === 'Anonymous') {
-    return <WorkspaceSwitcherButton memberships={[]} />
-  }
-
-  return <QueriedWorkspaceSwitcher />
-}
-
-const QueriedWorkspaceSwitcher = () => {
-  const { loading, error, data } =
-    useQuery<WorkspaceSwitcherTeamMemberships>(MEMBERSHIPS_QUERY)
-  const [oldQuery, setOldQuery] =
-    useState<WorkspaceSwitcherTeamMemberships | null>(null)
+  const anchorRef = useRef<HTMLButtonElement | null>(null)
+  const [openPopover, setOpenPopover] = useState<boolean>(false)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const theme = useTheme()
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
 
   useEffect(() => {
-    if (data) {
-      setOldQuery(data)
-    }
-  }, [data])
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspace, activeWorkspaceId, workspaces])
 
-  if (loading && !oldQuery) {
-    return <WorkspaceSwitcherLoading />
+  const handleOpenPopover = (): void => {
+    setOpenPopover(true)
   }
 
-  if (loading && oldQuery) {
-    return <WorkspaceSwitcherButton memberships={[]} />
+  const handleClosePopover = (): void => {
+    setOpenPopover(false)
   }
 
-  if (data.teamMemberships) {
-    return <WorkspaceSwitcherButton memberships={data.teamMemberships} />
+  if (!activeWorkspace) {
+    return <></>
   }
 
-  if (error) {
-    throw error
-  }
+  return (
+    <>
+      <Button
+        onClick={handleOpenPopover}
+        color="secondary"
+        variant="outlined"
+        ref={anchorRef}
+        sx={{
+          alignItems: 'center',
+          display: 'flex',
+        }}
+      >
+        <Stack spacing={1} direction="row" alignItems="center">
+          {activeWorkspace.__typename === 'User' && (
+            <SvgIcon
+              component={CloudIcon}
+              sx={{
+                paddingRight: 0.5,
+                color: theme.palette.text.secondary,
+              }}
+            />
+          )}
+          {activeWorkspace.__typename === 'Team' && (
+            <SvgIcon
+              component={GroupsIcon}
+              sx={{
+                paddingRight: 0.5,
+                color: theme.palette.text.secondary,
+              }}
+            />
+          )}
+          {
+            // Needed to keep the space
+            activeWorkspace.__typename === 'Local' && <Box />
+          }
+          <Stack alignItems="flex-start">
+            <Typography
+              variant="body2"
+              fontSize={10}
+              color={theme.palette.text.secondary}
+              textTransform="none"
+            >
+              Workspace
+            </Typography>
+            <Typography
+              variant="body1"
+              color={theme.palette.text.primary}
+              fontSize={12}
+            >
+              {activeWorkspace.name}
+            </Typography>
+          </Stack>
+        </Stack>
+      </Button>
+      <WorkspaceSwitcherPopover
+        anchorEl={anchorRef.current}
+        onClose={handleClosePopover}
+        open={openPopover}
+      />
+    </>
+  )
 }

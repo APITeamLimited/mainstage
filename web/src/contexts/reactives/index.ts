@@ -1,4 +1,4 @@
-export * from './ActiveWorkspace'
+export * from './Workspaces'
 export * from './UserSettings'
 export * from './locals'
 export * from './RequestManager'

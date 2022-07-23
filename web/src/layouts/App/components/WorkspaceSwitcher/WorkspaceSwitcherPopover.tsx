@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+
+import { useReactiveVar } from '@apollo/client'
 import CloudIcon from '@mui/icons-material/Cloud'
 import GroupsIcon from '@mui/icons-material/Groups'
 import {
@@ -13,24 +16,38 @@ import {
 
 import { navigate, routes } from '@redwoodjs/router'
 
-import { ActiveWorkspace, activeWorkspaceVar } from 'src/contexts/reactives'
-
-import { WorksaceMenuItem } from './WorkspaceSwitcherButton'
+import {
+  Workspace,
+  activeWorkspaceIdVar,
+  workspacesVar,
+} from 'src/contexts/reactives'
 
 interface WorkspacePopoverProps {
   anchorEl: null | Element
-  onClose?: () => void
-  open?: boolean
-  workspaces: WorksaceMenuItem[]
+  onClose: () => void
+  open: boolean
 }
 
-export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
-  const { anchorEl, onClose, open, workspaces } = props
+export const WorkspaceSwitcherPopover = ({
+  anchorEl,
+  onClose,
+  open,
+}: WorkspacePopoverProps) => {
   const theme = useTheme()
+  const workspaces = useReactiveVar(workspacesVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
 
-  const switchWorkspace = (workspace: WorksaceMenuItem) => {
+  useEffect(() => {
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspace, activeWorkspaceId, workspaces])
+
+  const switchWorkspace = (workspaceId: string) => {
+    activeWorkspaceIdVar(workspaceId)
     navigate(routes.dashboard())
-    activeWorkspaceVar(workspace as ActiveWorkspace)
+    onClose()
   }
 
   return (
@@ -50,11 +67,15 @@ export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
         {workspaces.map((workspace, index) => (
           <MenuItem
             key={index}
-            onClick={() => switchWorkspace(workspace)}
+            onClick={() => switchWorkspace(workspace.id)}
             sx={{
               padding: 2,
               alignItems: 'center',
               display: 'flex',
+              backgroundColor:
+                activeWorkspace && activeWorkspace.id === workspace.id
+                  ? theme.palette.background.default
+                  : theme.palette.background.paper,
             }}
           >
             {workspace.__typename === 'User' && (
@@ -107,7 +128,7 @@ export const WorkspaceSwitcherPopover = (props: WorkspacePopoverProps) => {
                 />
               </>
             )}
-            {workspace.__typename === 'Anonymous' && (
+            {workspace.__typename === 'Local' && (
               <>
                 <Box
                   sx={{

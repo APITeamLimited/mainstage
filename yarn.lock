@@ -17645,6 +17645,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jwt-decode@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jwt-decode@npm:3.1.2"
+  checksum: a951547946b5e8b1d9df818152d6b1dbaf13eebb3a6e6daceedf888968f5d255959852c8188aae2c825dc9104a99d25cb6c23f25d76545d1aa0315b968b6912e
+  languageName: node
+  linkType: hard
+
+"keypair@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "keypair@npm:1.0.4"
+  checksum: 9f565fb08ec147b700600dce8437a3a5bd189ce051d4f460db5080ca9e014bb8963b8d760525baa3cc1ea90e0512b5342184dd5198a76314ed389b2b2b314cdc
+  languageName: node
+  linkType: hard
+
 "keyv@npm:^3.0.0":
   version: 3.1.0
   resolution: "keyv@npm:3.1.0"
@@ -26027,7 +26041,8 @@ __metadata:
     https-proxy-agent: ^5.0.1
     httpsnippet: ^2.0.0
     immutability-helper: ^3.1.1
-    jsonwebtoken: ^8.5.1
+    jwt-decode: ^3.1.2
+    keypair: ^1.0.4
     lexical: ^0.3.7
     md5: ^2.3.0
     memoize-one: ^6.0.0

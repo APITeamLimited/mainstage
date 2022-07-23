@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 import { RedwoodApolloProvider } from '@redwoodjs/web/apollo'
 
-import { activeWorkspaceVar } from './reactives'
+import { activeWorkspaceIdVar } from './reactives'
 
 export const CustomApolloProvider = ({
   children,
@@ -18,7 +18,7 @@ export const CustomApolloProvider = ({
               fields: {
                 activeWorkspace: {
                   read() {
-                    return activeWorkspaceVar
+                    return activeWorkspaceIdVar
                   },
                 },
               },

@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Paper, Stack, useTheme, IconButton, Tooltip, Box } from '@mui/material'
+import {
+  Paper,
+  Stack,
+  useTheme,
+  IconButton,
+  Tooltip,
+  Box,
+  Container,
+} from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import 'react-reflex/styles.css'
 
@@ -12,10 +20,12 @@ import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPan
 import { RESTResponsePanel } from 'src/components/app/collectionEditor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collectionEditor/RightAside'
 import {
-  activeWorkspaceVar,
-  anonymousWorkspace,
+  activeWorkspaceIdVar,
+  LocalCollection,
   localCollectionsVar,
   RESTRequestManager,
+  Workspace,
+  workspacesVar,
 } from 'src/contexts/reactives'
 import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
@@ -29,29 +39,46 @@ export const CollectionEditorPage = ({
   workspaceId,
 }: CollectionEditorPageProps) => {
   const localCollections = useReactiveVar(localCollectionsVar)
-  const activeWorkspace = useReactiveVar(activeWorkspaceVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const theme = useTheme()
   const focusedElement = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
   const appBarHeight = useAppBarHeight()
+  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const [collection, setCollection] = useState<LocalCollection | null>(null)
 
   useEffect(() => {
-    if (workspaceId !== activeWorkspace.id) {
-      if (workspaceId === 'ANONYMOUS_ID') {
-        activeWorkspaceVar(anonymousWorkspace)
-      } else {
-        throw `Unknown workspace id: ${workspaceId}, remote workspaces not supported yet`
-      }
+    // Set activeWorkspaceId to the workspaceId if different from the current workspaceId
+    if (workspaceId !== activeWorkspaceId) {
+      activeWorkspaceIdVar(workspaceId)
     }
-  }, [workspaceId, activeWorkspace])
+  }, [activeWorkspaceId, workspaceId])
 
-  // Check if the collection exists in the local collectioQWns
-  const collection = localCollections.find(
-    (collection) => collection.id === collectionId
-  )
+  useEffect(() => {
+    setActiveWorkspace(
+      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
+    )
+  }, [activeWorkspaceId, workspaces])
+
+  useEffect(() => {
+    setCollection(
+      localCollections.find((collection) => collection.id === collectionId) ||
+        null
+    )
+  }, [collectionId, localCollections])
+
+  if (!activeWorkspace) {
+    return <Container>Workspace with id {workspaceId} not found</Container>
+  }
+
+  if (activeWorkspace?.__typename !== 'Local') {
+    console.log(activeWorkspaceId)
+    throw `Non local workspace is not supported yet, workspace id: ${activeWorkspaceId} __typename: ${activeWorkspace?.__typename}`
+  }
 
   if (!collection) {
-    return <div>Collection not found</div>
+    return <Container>Collection with id {collectionId} not found</Container>
   }
 
   return (
