@@ -1,5 +1,3 @@
-import { generateKeyPair, privateDecrypt } from 'crypto'
-
 import JWT from 'jsonwebtoken'
 import keypair from 'keypair'
 
@@ -40,6 +38,15 @@ export const getKeyPair = async (): Promise<{
   if (!existingKeyPair) {
     // Create a new pem key pair
     const pair = keypair()
+
+    // Save the key pair to the database
+    await db.entityAuthKeyPair.create({
+      data: {
+        publicKey: pair.public,
+        privateKey: pair.private,
+      },
+    })
+
     keyPair = {
       publicKey: pair.public,
       privateKey: pair.private,

@@ -12201,6 +12201,7 @@ __metadata:
     ts-node: ^10.9.1
     typescript: ^4.7.4
     y-protocols: ^1.0.5
+    yjs: ^13.5.40
   languageName: unknown
   linkType: soft
 
@@ -26044,6 +26045,7 @@ __metadata:
     jwt-decode: ^3.1.2
     keypair: ^1.0.4
     lexical: ^0.3.7
+    lib0: ^0.2.51
     md5: ^2.3.0
     memoize-one: ^6.0.0
     monaco-editor-webpack-plugin: ^7.0.1
@@ -26920,6 +26922,15 @@ __metadata:
   dependencies:
     lib0: ^0.2.49
   checksum: e11d8b243117bcf7c172cd6a55f29eb1f9e817997261b3b77d15dd92d3b3b066a05d14f8cf1a392148533334e8674d55fd0994ccf87578a86aa1d611778f3c57
+  languageName: node
+  linkType: hard
+
+"yjs@npm:^13.5.40":
+  version: 13.5.40
+  resolution: "yjs@npm:13.5.40"
+  dependencies:
+    lib0: ^0.2.49
+  checksum: 8f7035be8fbe4a3adff6e72821cf4959d54b2f6fee17159bcb436782964026ada70b70baa104a3b0e030049692d392042aa35042b16b6ed0ba404ca49cfb834c
   languageName: node
   linkType: hard
 

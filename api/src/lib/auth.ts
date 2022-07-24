@@ -22,6 +22,7 @@ import { db } from './db'
 export const getCurrentUser = async (session) => {
   return await db.user.findUnique({
     where: { id: session.id },
+    // Only select the id field
     select: { id: true },
   })
 }

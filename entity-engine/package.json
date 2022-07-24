@@ -11,7 +11,8 @@
     "lodash": "^4.17.21",
     "query-string": "^7.1.1",
     "redis": "^4.2.0",
-    "y-protocols": "^1.0.5"
+    "y-protocols": "^1.0.5",
+    "yjs": "^13.5.40"
   },
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.8",

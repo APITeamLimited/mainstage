@@ -33,9 +33,7 @@ export const schema = gql`
     variantTargetId: String
   }
 
-  type Mutation {
-    createScope(input: CreateScopeInput!): Scope! @requireAuth
-    updateScope(id: String!, input: UpdateScopeInput!): Scope! @requireAuth
-    deleteScope(id: String!): Scope! @requireAuth
+  type Query {
+    scopes: [Scope!]! @requireAuth
   }
 `

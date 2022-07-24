@@ -8,7 +8,7 @@ import { Observable } from 'lib0/observable'
 import * as time from 'lib0/time'
 import * as url from 'lib0/url'
 import * as authProtocol from 'y-protocols/auth'
-import awarenessProtocol from 'y-protocols/awareness.js'
+import * as awarenessProtocol from 'y-protocols/awareness.js'
 import * as syncProtocol from 'y-protocols/sync'
 import * as Y from 'yjs'
 
@@ -120,6 +120,7 @@ const readMessage = (
 
 const setupWS = (provider: WebsocketProvider) => {
   if (provider.shouldConnect && provider.ws === null) {
+    console.log(`Connecting to ${provider.url}`)
     const websocket = new WebSocket(provider.url)
     websocket.binaryType = 'arraybuffer'
 
@@ -137,10 +138,12 @@ const setupWS = (provider: WebsocketProvider) => {
     }
 
     websocket.onerror = (event) => {
+      console.error('setupWS: websocket error', event)
       provider.emit('connection-error', [event, provider])
     }
 
     websocket.onclose = (event) => {
+      console.log('setupWS: websocket closed', event)
       provider.emit('connection-close', [event, provider])
       provider.ws = null
       provider.wsconnecting = false
@@ -182,6 +185,8 @@ const setupWS = (provider: WebsocketProvider) => {
       provider.wsconnecting = false
       provider.wsconnected = true
       provider.wsUnsuccessfulReconnects = 0
+
+      console.log('setupWS: websocket opened')
 
       provider.emit('status', [
         {
@@ -234,7 +239,7 @@ export class WebsocketProvider extends Observable<string> {
   maxBackoffTime: number
   bcChannel: string
   url: string
-  roomname: string
+  scopeId: string
   doc: Y.Doc
   awareness: awarenessProtocol.Awareness
   wsconnecting: boolean
@@ -257,19 +262,28 @@ export class WebsocketProvider extends Observable<string> {
   _beforeUnloadHandler: () => void
   _checkInterval: any
 
-  constructor(
-    serverUrl: string,
-    roomname: string,
-    doc: Y.Doc,
+  constructor({
+    serverUrl,
+    scopeId,
+    doc,
+    options,
+  }: {
+    serverUrl: string
+    scopeId: string
+    doc: Y.Doc
     options: {
-      connect: boolean
-      awareness: awarenessProtocol.Awareness
+      connect?: boolean
+      // Specify an existing Awareness instance - see https://github.com/yjs/y-protocols
+      awareness?: awarenessProtocol.Awareness
+      // Specify a query-string that will be url-encoded and attached to the `serverUrl`
+      // I.e. params = { auth: "bearer" } will be transformed to "?auth=bearer"
       params?: { [key: string]: string }
       resyncInterval?: number
+      // Specify the maximum amount to wait between reconnects (we use exponential backoff).
       maxBackoffTime?: number
       disableBc?: boolean
     }
-  ) {
+  }) {
     const {
       connect = true,
       awareness = new awarenessProtocol.Awareness(doc),
@@ -286,13 +300,13 @@ export class WebsocketProvider extends Observable<string> {
     }
     const encodedParams = url.encodeQueryParams(params)
     this.maxBackoffTime = maxBackoffTime
-    this.bcChannel = serverUrl + '/' + roomname
+    this.bcChannel = serverUrl + '/' + scopeId
     this.url =
       serverUrl +
       '/' +
-      roomname +
+      scopeId +
       (encodedParams.length === 0 ? '' : '?' + encodedParams)
-    this.roomname = roomname
+    this.scopeId = scopeId
     this.doc = doc
     this.awareness = awareness
     this.wsconnected = false

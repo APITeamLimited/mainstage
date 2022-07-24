@@ -1,14 +1,14 @@
 import http from 'http'
 
-import decoding from 'lib0/decoding.js'
-import encoding from 'lib0/encoding.js'
-import map from 'lib0/map.js'
-import mutex from 'lib0/mutex.js'
+import * as decoding from 'lib0/decoding'
+import * as encoding from 'lib0/encoding'
+import * as map from 'lib0/map'
+import * as mutex from 'lib0/mutex'
 import queryString from 'query-string'
 import WebSocket from 'ws'
-import awarenessProtocol from 'y-protocols/awareness.js'
-import syncProtocol from 'y-protocols/sync.js'
-import Y from 'yjs'
+import * as awarenessProtocol from 'y-protocols/awareness'
+import syncProtocol from 'y-protocols/sync'
+import * as Y from 'yjs'
 
 import { findScope } from '../services'
 import { verifyJWT } from '../services'
@@ -30,7 +30,9 @@ let persistence: {
   provider: RedisPersistence
 } | null = null
 
-const redisPersistence = new RedisPersistence({})
+const redisPersistence = new RedisPersistence({
+  redisOpts: {},
+})
 
 persistence = {
   provider: redisPersistence,
@@ -90,6 +92,8 @@ class WSSharedDoc extends Y.Doc {
     this.awareness = new awarenessProtocol.Awareness(this)
     this.awareness.setLocalState(null)
 
+    console.log('new shared doc', name)
+
     /**
      * @param {{ added: Array<number>, updated: Array<number>, removed: Array<number> }} changes
      * @param {Object | null} conn Origin is the connection that made the change
@@ -140,6 +144,7 @@ class WSSharedDoc extends Y.Doc {
  */
 export const getYDoc = (docname: string, gc = true): WSSharedDoc =>
   map.setIfUndefined(docs, docname, () => {
+    console.log('Creating new doc', docname)
     const doc = new WSSharedDoc(docname)
     doc.gc = gc
     if (persistence !== null) {
@@ -222,13 +227,14 @@ const send = (doc: WSSharedDoc, conn: WebSocket, m: Uint8Array) => {
 
 const pingTimeout = 30000
 
+/**
+ * Handles a new connection and adds it to the doc
+ */
 export const setupWSConnection = async (
   conn: WebSocket.WebSocket,
   request: http.IncomingMessage
 ) => {
-  const params = queryString.parse(request.url || '')
-
-  const scopeId = params.scopeId?.toString() || undefined
+  const scopeId = request.url?.split('?')[0].split('/')[1] || undefined
 
   if (!scopeId) {
     conn.close()

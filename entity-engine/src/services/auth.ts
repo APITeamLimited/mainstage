@@ -1,56 +1,72 @@
 import { IncomingMessage } from 'http'
 
+import { gql } from '@apollo/client'
 import JWT from 'jsonwebtoken'
 import queryString from 'query-string'
 import WebSocket from 'ws'
 
-import { Scope } from '../../../api/types/graphql'
-import { checkValue } from '../config'
+import { apolloClient } from '../apollo'
 
 import { findScope } from './scope'
 
-const audience = checkValue<string>('entityAuth.jwt.audience')
-const issuer = checkValue<string>('entityAuth.jwt.issuer')
+const audience = 'apiteam.cloud' //checkValue<string>('entityAuth.jwt.audience')
+const issuer = 'apiteam.cloud' //checkValue<string>('entityAuth.jwt.issuer')
 
 let lastCheckedPublicKey = 0
-let publicKey = ''
+let publicKey: undefined | string = undefined
+
+const PublicKeyQuery = gql`
+  query PublicKeyQuery {
+    publicKey
+  }
+`
 
 export const getAndSetAPIPublicKey = async (): Promise<string> => {
-  publicKey = ''
-  throw 'Not implemented'
+  const query = await apolloClient.query({
+    query: PublicKeyQuery,
+  })
+
+  if (query.data?.publicKey) {
+    publicKey = query.data.publicKey as string
+    return publicKey
+  }
+
+  console.log('No public key found')
+  throw 'No public key found'
 }
 
 export const verifyJWT = async (
   request: IncomingMessage
 ): Promise<JWT.Jwt | false> => {
-  const authHeader = request.headers.authorization
-  if (!authHeader) {
-    return false
-  }
-
-  const [, token] = authHeader.split(' ')
+  const token =
+    queryString.parse(request.url?.split('?')[1] || '').bearer?.toString() ||
+    undefined
 
   if (!token) {
     return false
   }
 
+  if (publicKey === undefined) {
+    await getAndSetAPIPublicKey()
+  }
+
   try {
-    return JWT.verify(token, publicKey, {
+    return JWT.verify(token, publicKey as string, {
       audience,
       issuer,
       complete: true,
     })
   } catch (error) {
+    console.log('publicKey', publicKey)
+    console.log('error', error)
+
     // If invalid check if the public key has changed if been more than a minute
-    // since the last check
-    if (
-      lastCheckedPublicKey &&
-      new Date().getTime() - lastCheckedPublicKey > 60000
-    ) {
+    // since the last check, needed to prevent infinite loop
+    if (new Date().getTime() - lastCheckedPublicKey > 60000) {
       await getAndSetAPIPublicKey()
       lastCheckedPublicKey = new Date().getTime()
 
-      return JWT.verify(token, publicKey, {
+      return JWT.verify(token, publicKey as string, {
         audience,
         issuer,
         complete: true,
@@ -65,9 +81,7 @@ const verifyScope = async (
   request: IncomingMessage,
   jwt: JWT.Jwt
 ): Promise<boolean> => {
-  const params = queryString.parse(request.url || '')
-
-  const scopeId = params.scopeId?.toString() || undefined
+  const scopeId = request.url?.split('?')[0].split('/')[1] || undefined
 
   if (!scopeId) {
     return false

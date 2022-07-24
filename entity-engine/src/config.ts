@@ -1,7 +1,7 @@
 import c from 'config'
 
 export const checkValue = <T>(configKey: string): T => {
-  const value = c.get(configKey)
+  const value = c.get<T>(configKey)
 
   // Check same type as T
   if (typeof value !== typeof (<T>value)) {

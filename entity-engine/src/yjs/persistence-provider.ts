@@ -148,13 +148,22 @@ export class RedisPersistence extends Observable<string> {
   sub: Redis | Cluster | null
   redis: Redis | Cluster | null
 
-  constructor({ redisOpts = null, redisClusterOpts = null }) {
+  constructor({
+    redisOpts = null,
+    redisClusterOpts = null,
+  }: {
+    redisOpts?: object | null
+    redisClusterOpts?: Array<object> | null
+  }) {
     super()
 
+    console.log('creating redis instance')
     this.redis = createRedisInstance(redisOpts, redisClusterOpts)
 
     this.sub = createRedisInstance(redisOpts, redisClusterOpts)
     this.docs = new Map()
+
+    console.log('New docs ', this.docs)
 
     this.sub.on('message', (channel, sclock) => {
       // console.log('message', channel, sclock)
@@ -178,6 +187,8 @@ export class RedisPersistence extends Observable<string> {
   }
 
   bindState(name: string, ydoc: Y.Doc): PersistenceDoc {
+    console.log('bind state docs ', this.docs)
+
     if (this.docs.has(name)) {
       throw error.create(
         `"${name}" is already bound to this RedisPersistence instance`

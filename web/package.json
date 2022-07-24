@@ -42,6 +42,7 @@
     "jwt-decode": "^3.1.2",
     "keypair": "^1.0.4",
     "lexical": "^0.3.7",
+    "lib0": "^0.2.51",
     "md5": "^2.3.0",
     "memoize-one": "^6.0.0",
     "monaco-editor-webpack-plugin": "^7.0.1",

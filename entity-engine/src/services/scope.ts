@@ -1,4 +1,4 @@
-import { ApolloQueryResult } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { createClient } from 'redis'
 
 import { Scope } from '../../../api/types/graphql'
@@ -6,38 +6,45 @@ import { apolloClient } from '../apollo'
 
 const host = 'localhost'
 const port = 8912
-const username = 'admin'
-const password = 'admin'
+const username = 'user'
+const password = 'Wasd12345'
 
-const readRedis = createClient({
-  url: `redis://${username}:${password}@${host}:${port}`,
-})
+const readRedis = createClient({})
+
+readRedis.connect()
 
 readRedis.on('error', (err) => {
   console.log(err)
 })
 
-const subscribeRedis = readRedis.duplicate()
+/*const subscribeRedis = readRedis.duplicate()
 
 subscribeRedis.on('error', (err) => {
   console.log(err)
 })
+*/
 
 export const findScope = async (id: string): Promise<Scope | null> => {
   return (await _findScopeRedis(id)) || (await _findScopeBackend(id))
 }
 
 const _findScopeRedis = async (id: string): Promise<Scope | null> => {
-  const scopeRaw = JSON.parse((await readRedis.get(id)) || '').catch(() => null)
-  if (isScope(scopeRaw)) {
-    return scopeRaw
+  try {
+    const scopeRaw = JSON.parse((await readRedis.get(id)) || 'null')
+
+    if (isScope(scopeRaw)) {
+      return scopeRaw
+    }
+    return null
+  } catch (error) {
+    console.log('Failed to get scope from redis', error)
+    return null
   }
-  return null
 }
 
 const scopeQuery = gql`
-  query Scope($id: ID!) {
-    scope(id: $id) {
+  query InternalScope($id: String!) {
+    internalScope(id: $id) {
       id
       variant
       variantTargetId
@@ -54,9 +61,12 @@ const _findScopeBackend = async (id: string): Promise<Scope | null> => {
     variables: { id },
   })
 
-  // Check if the result is a scope
-  if (!result.error && !result.errors && isScope(result.data)) {
-    return result.data
+  if (result.data) {
+    if (isScope(result.data?.internalScope)) {
+      const scope = result.data.internalScope as Scope
+      readRedis.set(scope.id, JSON.stringify(scope))
+      return scope
+    }
   }
   return null
 }
@@ -64,10 +74,11 @@ const _findScopeBackend = async (id: string): Promise<Scope | null> => {
 /***
  * Provides updated scope data via a callback
  */
-export const subscribeToScope = async (
+/*export const subscribeToScope = async (
   scopeId: string,
   onChange: (newScope: Scope | null) => void
 ) => {
+  await subscribeRedis.connect()
   await subscribeRedis.subscribe(scopeId, (message) => {
     try {
       const parsedMessage = JSON.parse(message)
@@ -93,7 +104,7 @@ export const subscribeToScope = async (
       console.log(err)
     }
   })
-}
+}*/
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isScope = (scope: any): scope is Scope => {

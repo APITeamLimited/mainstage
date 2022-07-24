@@ -3,9 +3,9 @@ import fetch from 'cross-fetch'
 
 import { checkValue } from './config'
 
-const host = checkValue<string>('api.host')
-const port = checkValue<number>('api.port')
-const gqlEndpoint = checkValue<string>('api.gqlEndpoint')
+const host = 'localhost' //checkValue<string>('api.host')
+const port = '8911' //checkValue<number>('api.port')
+const gqlEndpoint = '/graphql' //checkValue<string>('api.gqlEndpoint')
 
 const API_GRAPHQL_ENDPOINT = `http://${host}:${port}${gqlEndpoint}`
 
