@@ -74,7 +74,9 @@ const verifyScope = async (
   request: IncomingMessage,
   jwt: JWT.Jwt
 ): Promise<boolean> => {
-  const scopeId = request.url?.split('?')[0].split('/')[1] || undefined
+  const scopeId =
+    queryString.parse(request.url?.split('?')[1] || '').scopeId?.toString() ||
+    undefined
 
   if (!scopeId) {
     return false
@@ -95,19 +97,14 @@ const verifyScope = async (
   return scope.userId === (jwt.payload.userId?.toString() || 'No Id')
 }
 
-export const handleAuth = async (
-  client: WebSocket.WebSocket,
-  request: IncomingMessage
-) => {
+export const handleAuth = async (request: IncomingMessage) => {
   const jwt = await verifyJWT(request)
 
   if (!jwt) {
-    client.close()
     return false
   }
 
   if (!(await verifyScope(request, jwt))) {
-    client.close()
     return false
   }
 

@@ -1,50 +1,91 @@
-import http from 'http'
-
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
 import * as map from 'lib0/map'
 import * as mutex from 'lib0/mutex'
-import WebSocket from 'ws'
+import { Socket } from 'socket.io'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as syncProtocol from 'y-protocols/sync'
 import * as Y from 'yjs'
 
-import { findScope } from '../services'
-import { verifyJWT } from '../services'
+import { Scope } from '../../../api/types/graphql'
 
-import { RedisPersistence } from './persistence-provider'
+import { handlePostAuth } from './utils'
 
-const wsReadyStateConnecting = 0
-const wsReadyStateOpen = 1
-const wsReadyStateClosing = 2 // eslint-disable-line
-const wsReadyStateClosed = 3 // eslint-disable-line
+export const handleNewConnection = async (socket: Socket) => {
+  const postAuth = await handlePostAuth(socket)
 
-const pingTimeout = 100 //30000
-//
-//export const persistence = new RedisPersistence({
-//  redisOpts: {},
-//})
-//
-const persistence = null
+  if (postAuth === null) return
 
-// Docs currently stored in memory
-export const docs: Map<string, WSSharedDoc> = new Map()
+  const { scope /*, jwt*/ } = postAuth
 
-const messageSync = 0
-const messageAwareness = 1
-// const messageAuth = 2
+  // Change binaryType to arraybuffer to get binary data HOW?
+  //socket.binaryType = 'arraybuffer'
 
-class WSSharedDoc extends Y.Doc {
-  name: string
+  const doc = getOpenDoc(scope)
+  doc.sockets.set(socket, new Set())
+
+  socket.on('message', (message) =>
+    doc.messageListener(socket, new Uint8Array(message))
+  )
+
+  // On disconnect remove the connection from the doc
+  socket.on('disconnect', () => {
+    console.log('disconnect')
+    doc.closeConn(socket)
+  })
+
+  {
+    // send sync step 1
+    const encoder = encoding.createEncoder()
+    encoding.writeVarUint(encoder, messageSyncType)
+
+    syncProtocol.writeSyncStep1(encoder, doc)
+    doc.send(socket, encoding.toUint8Array(encoder))
+
+    const awarenessStates = doc.awareness.getStates()
+
+    if (awarenessStates.size > 0) {
+      const encoder = encoding.createEncoder()
+
+      encoding.writeVarUint(encoder, messageAwarenessType)
+      encoding.writeVarUint8Array(
+        encoder,
+        awarenessProtocol.encodeAwarenessUpdate(
+          doc.awareness,
+          Array.from(awarenessStates.keys())
+        )
+      )
+
+      doc.send(socket, encoding.toUint8Array(encoder))
+    }
+  }
+}
+
+export const getOpenDoc = (scope: Scope): OpenDoc => {
+  return map.setIfUndefined(openDocs, scope.id, () => {
+    console.log('Creating new doc', scope.id)
+    const doc = new OpenDoc(scope)
+    openDocs.set(scope.id, doc)
+    return doc
+  })
+}
+
+const openDocs = new Map<string, OpenDoc>()
+
+const messageSyncType = 0
+const messageAwarenessType = 1
+
+class OpenDoc extends Y.Doc {
+  scope: Scope
   mux: mutex.mutex
-  conns: Map<WebSocket.WebSocket, Set<number>>
+  sockets: Map<Socket, Set<number>>
   awareness: awarenessProtocol.Awareness
 
-  constructor(name: string) {
+  constructor(scope: Scope) {
     super({ gc: true })
-    this.name = name
+    this.scope = scope
     this.mux = mutex.createMutex()
-    this.conns = new Map()
+    this.sockets = new Map()
     this.awareness = new awarenessProtocol.Awareness(this)
     this.awareness.setLocalState(null)
 
@@ -60,13 +101,13 @@ class WSSharedDoc extends Y.Doc {
           updated: Array<number>
           removed: Array<number>
         },
-        connectionWithChange: WebSocket.WebSocket | null
+        connectionWithChange: Socket | null
       ) => {
         console.log('awareness update', added, updated, removed)
         const changedClients = added.concat(updated, removed)
 
         if (connectionWithChange !== null) {
-          const connControlledIDs = this.conns.get(connectionWithChange)
+          const connControlledIDs = this.sockets.get(connectionWithChange)
           if (connControlledIDs !== undefined) {
             added.forEach((clientID) => {
               connControlledIDs.add(clientID)
@@ -80,7 +121,7 @@ class WSSharedDoc extends Y.Doc {
         // broadcast awareness update
         const encoder = encoding.createEncoder()
 
-        encoding.writeVarUint(encoder, messageAwareness)
+        encoding.writeVarUint(encoder, messageAwarenessType)
         encoding.writeVarUint8Array(
           encoder,
           awarenessProtocol.encodeAwarenessUpdate(
@@ -91,98 +132,85 @@ class WSSharedDoc extends Y.Doc {
 
         const buff = encoding.toUint8Array(encoder)
 
-        this.conns.forEach((_, c) => {
+        this.sockets.forEach((_, c) => {
           this.send(c, buff)
         })
       }
     )
 
-    this.on('update', async (update: Uint8Array, doc: WSSharedDoc) => {
+    this.on('update', async (update: Uint8Array, doc: OpenDoc) => {
       console.log('wsshareddoc update', update)
 
       const encoder = encoding.createEncoder()
-      encoding.writeVarUint(encoder, messageSync)
+      encoding.writeVarUint(encoder, messageSyncType)
 
       syncProtocol.writeUpdate(encoder, update)
       const message = encoding.toUint8Array(encoder)
 
       //await persistence.writeState(doc.name, doc)
-      doc.conns.forEach((_, conn) => this.send(conn, message))
+      doc.sockets.forEach((_, socket) => this.send(socket, message))
     })
   }
 
-  send(conn: WebSocket, m: Uint8Array) {
-    console.log(
-      'sending message',
-      m,
-      // @ts-ignore
-      Object.keys(conn.server)
-    )
-    if (
-      conn.readyState !== wsReadyStateConnecting &&
-      conn.readyState !== wsReadyStateOpen
-    ) {
-      this.closeConn(conn)
+  send(socket: Socket, m: Uint8Array) {
+    console.log('sending message')
+    if (!socket.connected) {
+      this.closeConn(socket)
     }
     try {
-      conn.send(m, (err) => {
-        err != null && this.closeConn(conn)
+      socket.send(m, (err: null) => {
+        err != null && this.closeConn(socket)
       })
     } catch (e) {
       console.log('failed to send message from wssahreddoc', e)
-      this.closeConn(conn)
+      this.closeConn(socket)
     }
   }
 
   // Removes a connection from a doc
-  closeConn(conn: WebSocket.WebSocket) {
-    console.log('wsshareddoc closing connection')
+  closeConn(socket: Socket) {
+    console.log('opendoc closing connection', socket.id)
 
-    if (this.conns.has(conn)) {
-      const controlledIds: Set<number> = this.conns.get(conn) || new Set()
-      this.conns.delete(conn)
+    if (this.sockets.has(socket)) {
+      const controlledIds: Set<number> = this.sockets.get(socket) || new Set()
+      this.sockets.delete(socket)
 
       awarenessProtocol.removeAwarenessStates(
         this.awareness,
         Array.from(controlledIds),
         null
       )
-      if (this.conns.size === 0 && persistence !== null) {
+      if (this.sockets.size === 0 /*&& persistence !== null*/) {
         // if persisted, we store state and destroy ydocument
         //persistence.writeState(this.name, this).then(() => {
         //  this.destroy()
         //})
-        docs.delete(this.name)
+        openDocs.delete(this.scope.id)
       }
     }
 
-    // Check if already closed
-    if (conn.readyState.toString() === 'closed') {
-      console.log('already closed')
-      return
-    }
-    conn.close?.()
+    socket.disconnect()
   }
 
-  messageListener(conn: WebSocket.WebSocket, message: Uint8Array) {
+  messageListener(socket: Socket, message: Uint8Array) {
     try {
       const encoder = encoding.createEncoder()
       const decoder = decoding.createDecoder(message)
       const messageType = decoding.readVarUint(decoder)
 
       switch (messageType) {
-        case messageSync:
-          encoding.writeVarUint(encoder, messageSync)
+        case messageSyncType:
+          encoding.writeVarUint(encoder, messageSyncType)
           syncProtocol.readSyncMessage(decoder, encoder, this, null)
           if (encoding.length(encoder) > 1) {
-            this.send(conn, encoding.toUint8Array(encoder))
+            this.send(socket, encoding.toUint8Array(encoder))
           }
           break
-        case messageAwareness: {
+        case messageAwarenessType: {
           awarenessProtocol.applyAwarenessUpdate(
             this.awareness,
             decoding.readVarUint8Array(decoder),
-            conn
+            socket
           )
           break
         }
@@ -190,117 +218,6 @@ class WSSharedDoc extends Y.Doc {
     } catch (err) {
       console.error(err)
       this.emit('error', [err])
-    }
-  }
-}
-
-/**
- * Gets a Y.Doc and stores it in memory if not already stored
- */
-export const getYDoc = (scopeId: string): WSSharedDoc => {
-  return map.setIfUndefined(docs, scopeId, () => {
-    console.log('Creating new doc', scopeId)
-    const doc = new WSSharedDoc(scopeId)
-    docs.set(scopeId, doc)
-    return doc
-  })
-}
-
-/**
- * Handles a new connection and adds it to the doc
- */
-export const setupWSConnection = async (
-  conn: WebSocket,
-  request: http.IncomingMessage
-) => {
-  const scopeId = request.url?.split('?')[0].split('/')[1] || undefined
-
-  if (!scopeId) {
-    conn.close()
-    return
-  }
-
-  // Already handled auth but get jwt again for user info
-  const jwt = await verifyJWT(request)
-
-  if (jwt == null) {
-    conn.close()
-    return
-  }
-
-  const scope = await findScope(scopeId)
-
-  if (scope == null) {
-    conn.close()
-    return
-  }
-
-  conn.binaryType = 'arraybuffer'
-
-  const doc = getYDoc(scope.id)
-  doc.conns.set(conn, new Set())
-
-  // listen and reply to events
-  conn.on('message', (message) =>
-    // Not sure if this should be casted as ArrayBuffer
-    doc.messageListener(conn, new Uint8Array(message as ArrayBuffer))
-  )
-
-  // Check if connection is still alive
-  let pongReceived = true
-
-  const pingInterval = setInterval(() => {
-    if (!pongReceived) {
-      if (doc.conns.has(conn)) {
-        doc.closeConn(conn)
-      }
-      clearInterval(pingInterval)
-    } else if (doc.conns.has(conn)) {
-      pongReceived = false
-      try {
-        conn.ping()
-      } catch (e) {
-        doc.closeConn(conn)
-        clearInterval(pingInterval)
-      }
-    }
-  }, pingTimeout)
-
-  conn.on('close', () => {
-    doc.closeConn(conn)
-    clearInterval(pingInterval)
-  })
-
-  console.log(
-    'keys', // @ts-ignore
-    Object.keys(conn)
-  )
-
-  //conn.send('Welcome to Y.Doc')
-
-  conn.on('pong', () => {
-    pongReceived = true
-  })
-
-  {
-    // send sync step 1
-    const encoder = encoding.createEncoder()
-    encoding.writeVarUint(encoder, messageSync)
-    syncProtocol.writeSyncStep1(encoder, doc)
-    doc.send(conn, encoding.toUint8Array(encoder))
-    const awarenessStates = doc.awareness.getStates()
-
-    if (awarenessStates.size > 0) {
-      const encoder = encoding.createEncoder()
-      encoding.writeVarUint(encoder, messageAwareness)
-      encoding.writeVarUint8Array(
-        encoder,
-        awarenessProtocol.encodeAwarenessUpdate(
-          doc.awareness,
-          Array.from(awarenessStates.keys())
-        )
-      )
-      doc.send(conn, encoding.toUint8Array(encoder))
     }
   }
 }

@@ -1,49 +1,40 @@
-import http from 'http'
+import { createServer } from 'http'
 
-import WebSocket from 'ws'
-import { WebSocketServer } from 'ws'
+import { Server } from 'socket.io'
 
-import { handleAuth } from './services/auth'
-import { setupWSConnection } from './yjs'
+import { handleAuth } from './services'
+import { handleNewConnection } from './yjs/connection-provider'
 
 const host = 'localhost' //checkValue<string>('entity-engine.host')
 const port = 8912 //checkValue<number>('entity-engine.port')
 
-const wss = new WebSocketServer({ noServer: true })
+const httpServer = createServer()
 
-wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
-  console.log(
-    'keys', // @ts-ignore
-    Object.keys(ws)
-  )
-  ws.send('Hello World')
-  setupWSConnection(ws, request)
+const io = new Server(httpServer, {
+  cors: {
+    origin: 'http://localhost:8910',
+    methods: ['GET', 'POST'],
+  },
 })
 
-const server = http.createServer((request, response) => {
-  console.log(new Date() + ' Received request for ' + request.url)
-  response.writeHead(200, { 'Content-Type': 'text/plain' })
-  response.end('APITeam Entity Engine here, hello!')
+io.use(async (socket, next) => {
+  console.log('auth')
+  const didAuthenticate = await handleAuth(socket.request)
+  if (didAuthenticate) {
+    console.log(new Date(), 'Client authenticated')
+    next()
+  } else {
+    console.log(new Date(), 'Client failed to authenticate')
+    next(new Error('Authentication error'))
+  }
 })
 
-server.on('upgrade', (request, socket, head) => {
-  wss.handleUpgrade(
-    request,
-    socket,
-    head,
-    async (client: WebSocket.WebSocket, request: http.IncomingMessage) => {
-      const didAuthenticate = await handleAuth(client, request)
-      if (didAuthenticate) {
-        console.log(new Date(), 'Client authenticated')
-        wss.emit('connection', socket, request, client)
-      } else {
-        console.log(new Date(), 'Client failed to authenticate')
-      }
-    }
-  )
+io.on('connection', async (socket) => {
+  console.log(new Date(), 'Socket.io Client connected', socket.id)
+  await handleNewConnection(socket)
 })
 
-server.listen(port, host, () => {
+httpServer.listen(port, host, () => {
   console.log(
     `\x1b[34m\n\nAPITeam Entity Engine Listening at ${host}:${port}\n\n\x1b[0m`
   )

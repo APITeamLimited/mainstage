@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 import { createClient } from 'redis'
 
-import { Scope } from '../../../api/types/graphql'
+import { Scope, ScopeVariant } from '../../../api/types/graphql'
 import { apolloClient } from '../apollo'
 
 const host = 'localhost'

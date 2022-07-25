@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import { useReactiveVar } from '@apollo/client'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import * as Y from 'yjs'
+
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { CurrentUser } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
@@ -14,9 +15,7 @@ import {
   workspacesVar,
 } from 'src/contexts/reactives'
 
-import { WebsocketProvider } from '../websocket-provider'
-
-const entityEngineUrl = 'ws://0.0.0.0:8912'
+import { SocketIOProvider } from '../socketio-provider'
 
 const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
   query GetBearerPubkeyScopes {
@@ -49,8 +48,9 @@ export const AuthenticatedEntityEngine = ({
   const workspaces = useReactiveVar(workspacesVar)
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
-  const [websocketProvider, setWebsocketProvider] =
-    useState<WebsocketProvider | null>(null)
+  const [scopeProvider, setScopeProvider] = useState<SocketIOProvider | null>(
+    null
+  )
   const [ready, setReady] = useState<boolean>(false)
   const [scopes, setScopes] = useState<GetBearerPubkeyScopes['scopes']>([])
 
@@ -114,11 +114,12 @@ export const AuthenticatedEntityEngine = ({
 
   // Create and destroy the websocket provider based on readiness
   useEffect(() => {
-    if (!ready && websocketProvider) {
-      websocketProvider.disconnect()
-      setWebsocketProvider(null)
+    if (!ready && scopeProvider) {
+      scopeProvider.destroy()
+      console.log('cleaning up', ready, scopeProvider)
+      setScopeProvider(null)
     }
-    if (ready && !websocketProvider) {
+    if (ready && !scopeProvider) {
       const activeScope = scopes.find(
         (scope) => scope.variantTargetId === activeWorkspaceId
       )
@@ -130,22 +131,13 @@ export const AuthenticatedEntityEngine = ({
 
       const doc = new Y.Doc()
 
-      const websocketProvider = new WebsocketProvider({
-        serverUrl: entityEngineUrl,
+      const scopeProvider = new SocketIOProvider({
         scopeId: activeScope.id,
+        rawBearer: rawBearer || '',
         doc,
-        options: {
-          params: {
-            bearer: rawBearer || '',
-          },
-        },
       })
 
-      setWebsocketProvider(websocketProvider)
-
-      return function cleanup() {
-        websocketProvider.disconnect()
-      }
+      setScopeProvider(scopeProvider)
     }
   }, [
     activeWorkspace,
@@ -153,7 +145,7 @@ export const AuthenticatedEntityEngine = ({
     rawBearer,
     ready,
     scopes,
-    websocketProvider,
+    scopeProvider,
   ])
 
   if (error) {
