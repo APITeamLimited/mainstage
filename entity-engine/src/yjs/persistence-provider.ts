@@ -18,15 +18,16 @@ export class PersistenceDoc {
   mux: mutex.mutex
   _clock: number
   _fetchingClock: number
-  synced: PersistenceDoc | undefined
+  //synced: PersistenceDoc | undefined
 
-  updateHandler: (update: Uint8Array) => Promise<void>
+  updateHandler: (update: Uint8Array) => void
 
   constructor(rp: RedisPersistence, name: string, doc: Y.Doc) {
     this.rp = rp
     this.name = name
     this.doc = doc
     this.mux = mutex.createMutex()
+    console.log('creating persistence doc', name)
 
     // Next expected index / len of the list of update
     this._clock = 0
@@ -35,44 +36,34 @@ export class PersistenceDoc {
     // Update a doc in redis
     this.updateHandler = async (update: Uint8Array) => {
       // mux: only store update in redis if this document update does not originate from redis
-      await this.mux(async () => {
+      this.mux(() => {
         // Changed from rpushBuffer to rpush
-        await rp.redis
-          ?.rpush(name + ':updates', Buffer.from(update))
-          .then(async (len) => {
-            if (len === this._clock + 1) {
-              this._clock++
-              if (this._fetchingClock < this._clock) {
-                this._fetchingClock = this._clock
-              }
+        rp.redis?.rpush(name + ':updates', Buffer.from(update)).then((len) => {
+          if (len === this._clock + 1) {
+            this._clock++
+            if (this._fetchingClock < this._clock) {
+              this._fetchingClock = this._clock
             }
-            if (!rp.redis) {
-              throw 'Redis not available'
-            }
-            await rp.redis.publish(this.name, len.toString())
-          })
+          }
+          if (!rp.redis) {
+            throw 'Redis not available'
+          }
+          rp.redis.publish(this.name, len.toString())
+        })
       })
     }
 
     if (doc.store.clients.size > 0) {
       this.updateHandler(Y.encodeStateAsUpdate(doc))
     }
-
     doc.on('update', this.updateHandler)
-    this.getCheckedPersistence(name)
-  }
 
-  async getCheckedPersistence(name: string) {
-    const result = this.rp.sub?.subscribe(name).then(() => this.getUpdates())
-
-    if (!result) {
-      throw new Error(`No persistence for ${name}`)
-    }
-
-    this.synced = await result
+    // @ts-ignore
+    this.synced = rp.sub?.subscribe(name).then(() => this.getUpdates())
   }
 
   destroy(): Promise<unknown> {
+    console.log('destroy persistence doc', this.name)
     this.doc.off('update', this.updateHandler)
     this.rp.docs.delete(this.name)
     return this.rp.sub?.unsubscribe(this.name) || Promise.resolve(0)
@@ -82,6 +73,7 @@ export class PersistenceDoc {
    * Get all new updates from redis and increase clock if necessary.
    */
   async getUpdates(): Promise<PersistenceDoc> {
+    console.log('getUpdates', this.name)
     const startClock = this._clock
 
     if (!this.rp.redis) {
@@ -157,15 +149,15 @@ export class RedisPersistence extends Observable<string> {
   }) {
     super()
 
-    console.log('creating redis instance')
     this.redis = createRedisInstance(redisOpts, redisClusterOpts)
 
     this.sub = createRedisInstance(redisOpts, redisClusterOpts)
     this.docs = new Map()
 
-    console.log('New docs ', this.docs)
+    console.log('creating redis instance', this.docs)
 
     this.sub.on('message', (channel, sclock) => {
+      console.log('subscriber got message', channel, sclock)
       // console.log('message', channel, sclock)
       const pdoc = this.docs.get(channel)
       if (pdoc) {
@@ -200,6 +192,8 @@ export class RedisPersistence extends Observable<string> {
   }
 
   async writeState(name: string, state: Y.Doc) {
+    console.log('write state', name)
+
     const pdoc = this.docs.get(name)
     if (!pdoc) {
       throw error.create(
@@ -208,10 +202,11 @@ export class RedisPersistence extends Observable<string> {
     }
 
     // Call the pdoc update handler to store the state in redis
-    await pdoc.updateHandler(Y.encodeStateAsUpdate(state))
+    pdoc.updateHandler(Y.encodeStateAsUpdate(state))
   }
 
   async destroy() {
+    console.log('destroy()')
     const docs = this.docs
     this.docs = new Map()
     await promise.all(Array.from(docs.values()).map((doc) => doc.destroy()))
@@ -222,6 +217,7 @@ export class RedisPersistence extends Observable<string> {
   }
 
   closeDoc(name: string) {
+    console.log('close doc', name)
     const doc = this.docs.get(name)
     if (doc) {
       return doc.destroy()
@@ -229,6 +225,7 @@ export class RedisPersistence extends Observable<string> {
   }
 
   clearDocument(name: string): Promise<number> {
+    console.log('clear document', name)
     const doc = this.docs.get(name)
     if (doc) {
       doc.destroy()
@@ -246,6 +243,7 @@ export class RedisPersistence extends Observable<string> {
    * After that this Persistence instance is destroyed.
    */
   async clearAllDocuments(): Promise<void> {
+    console.log('clear all documents')
     await promise.all(
       Array.from(this.docs.keys()).map(
         (name) => this.redis?.del(name + ':updates') || Promise.resolve(0)

@@ -1,6 +1,7 @@
 import http from 'http'
 
 import WebSocket from 'ws'
+import { WebSocketServer } from 'ws'
 
 import { handleAuth } from './services/auth'
 import { setupWSConnection } from './yjs'
@@ -8,9 +9,16 @@ import { setupWSConnection } from './yjs'
 const host = 'localhost' //checkValue<string>('entity-engine.host')
 const port = 8912 //checkValue<number>('entity-engine.port')
 
-const wss = new WebSocket.Server({ noServer: true })
+const wss = new WebSocketServer({ noServer: true })
 
-wss.on('connection', setupWSConnection)
+wss.on('connection', (ws: WebSocket, request: http.IncomingMessage) => {
+  console.log(
+    'keys', // @ts-ignore
+    Object.keys(ws)
+  )
+  ws.send('Hello World')
+  setupWSConnection(ws, request)
+})
 
 const server = http.createServer((request, response) => {
   console.log(new Date() + ' Received request for ' + request.url)

@@ -50,31 +50,24 @@ export const verifyJWT = async (
     await getAndSetAPIPublicKey()
   }
 
+  let decodedToken: JWT.Jwt | false = false
+
   try {
-    return JWT.verify(token, publicKey as string, {
+    decodedToken = JWT.verify(token, publicKey as string, {
       audience,
       issuer,
       complete: true,
     })
   } catch (error) {
-    console.log('publicKey', publicKey)
-    console.log('error', error)
-
     // If invalid check if the public key has changed if been more than a minute
     // since the last check, needed to prevent infinite loop
     if (new Date().getTime() - lastCheckedPublicKey > 60000) {
       await getAndSetAPIPublicKey()
       lastCheckedPublicKey = new Date().getTime()
-
-      return JWT.verify(token, publicKey as string, {
-        audience,
-        issuer,
-        complete: true,
-      })
+      decodedToken = await verifyJWT(request)
     }
-
-    return false
   }
+  return decodedToken
 }
 
 const verifyScope = async (
