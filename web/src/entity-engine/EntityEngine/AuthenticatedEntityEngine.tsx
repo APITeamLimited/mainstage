@@ -135,6 +135,18 @@ export const AuthenticatedEntityEngine = ({
         scopeId: activeScope.id,
         rawBearer: rawBearer || '',
         doc,
+        options: {
+          onAwarenessUpdate: (awareness) => {
+            console.log('awareness bing bing', awareness)
+          },
+          onSocketConnectedChanged: (connected) => {
+            console.log('connected bing bing', connected)
+          },
+        },
+      })
+
+      scopeProvider.on('message', (message) => {
+        console.log('message', message)
       })
 
       setScopeProvider(scopeProvider)

@@ -18,7 +18,6 @@ const io = new Server(httpServer, {
 })
 
 io.use(async (socket, next) => {
-  console.log('auth')
   const didAuthenticate = await handleAuth(socket.request)
   if (didAuthenticate) {
     console.log(new Date(), 'Client authenticated')

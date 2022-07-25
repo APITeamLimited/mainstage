@@ -9,7 +9,7 @@ import * as url from 'lib0/url'
 import * as syncProtocol from 'y-protocols/sync'
 import * as authProtocol from 'y-protocols/auth'
 import * as awarenessProtocol from 'y-protocols/awareness.js'
-import { io, Socket } from 'socket.io-client'
+import { io, protocol, Socket } from 'socket.io-client'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
@@ -21,8 +21,8 @@ const secure = false
 const messageReconnectTimeout = 30000
 
 const messageSync = 0
-const messageQueryAwareness = 3
 const messageAwareness = 1
+const messageQueryAwareness = 3
 const messageAuth = 2
 
 const messageHandlers: Array<
@@ -45,6 +45,7 @@ messageHandlers[messageSync] = (
   messageType
 ) => {
   encoding.writeVarUint(encoder, messageSync)
+  //console.log('encoder', encoder)
   const syncMessageType = syncProtocol.readSyncMessage(
     decoder,
     encoder,
@@ -89,6 +90,8 @@ messageHandlers[messageAwareness] = (
     decoding.readVarUint8Array(decoder),
     provider
   )
+  //console.log('awareness', provider.awareness)
+  provider.onAwarenessUpdate?.(provider.awareness)
 }
 
 messageHandlers[messageAuth] = (
@@ -117,6 +120,8 @@ type ScopeProviderConstructorArgs = {
     // Specify the maximum amount to wait between reconnects (we use exponential backoff).
     maxBackoffTime?: number
     disableBc?: boolean
+    onAwarenessUpdate?: (awareness: awarenessProtocol.Awareness) => void
+    onSocketConnectedChanged?: ((connected: boolean) => void) | undefined
   }
 }
 
@@ -147,6 +152,9 @@ export class SocketIOProvider extends Observable<string> {
   ) => void
   _beforeUnloadHandler: () => void
   _checkInterval
+  onAwarenessUpdate:
+    | ((awareness: awarenessProtocol.Awareness) => void)
+    | undefined
 
   constructor({
     scopeId,
@@ -160,6 +168,7 @@ export class SocketIOProvider extends Observable<string> {
       resyncInterval = -1,
       maxBackoffTime = 2500,
       disableBc = false,
+      onAwarenessUpdate = undefined,
     } = options || {}
 
     super()
@@ -181,6 +190,7 @@ export class SocketIOProvider extends Observable<string> {
     this._synced = false
     this.socket = null
     this.socketLastMessageReceived = 0
+    this.onAwarenessUpdate = onAwarenessUpdate
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
@@ -224,8 +234,6 @@ export class SocketIOProvider extends Observable<string> {
     this._awarenessUpdateHandler = ({ added, updated, removed }) =>
       //origin: any old param that was not used, rember it for future reference
       {
-        console.log('_awarenessUpdateHandler')
-
         const changedClients = added.concat(updated).concat(removed)
         const encoder = encoding.createEncoder()
 
@@ -262,11 +270,11 @@ export class SocketIOProvider extends Observable<string> {
           time.getUnixTime() - this.socketLastMessageReceived
       ) {
         console.log(
-          'no message received in a long time - not even your own awareness, disabled closing for now'
+          'no message received in a long time - not even your own awareness'
         )
         // no message received in a long time - not even your own awareness
         // updates (which are updated every 15 seconds)
-        //this.socket?.close()
+        this.socket?.disconnect()
       }
     }, messageReconnectTimeout / 10)
 
@@ -429,8 +437,6 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   connectBc() {
-    console.log('connectBc')
-
     if (this.disableBc) {
       return
     }
@@ -481,8 +487,6 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   disconnectBc() {
-    console.log('disconnectBc')
-
     // broadcast message with local awareness state set to null (indicating disconnect)
     const encoder = encoding.createEncoder()
     encoding.writeVarUint(encoder, messageAwareness)
@@ -505,7 +509,7 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   disconnect() {
-    console.log('disconnect socket exists', this.socket)
+    console.log('disconnect socket', this.socket)
     this.shouldConnect = false
     this.disconnectBc()
     if (this.socket !== null) {
@@ -523,11 +527,13 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   readMessage(buf: Uint8Array, emitSynced: boolean): encoding.Encoder {
-    console.log('readMessage')
+    //console.log('readMessage')
 
     const decoder = decoding.createDecoder(buf)
+
     const encoder = encoding.createEncoder()
     const messageType = decoding.readVarUint(decoder)
+    //console.log('message type', messageType)
     const messageHandler = this.messageHandlers[messageType]
 
     if (messageHandler) {

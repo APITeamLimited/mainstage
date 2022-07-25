@@ -30,7 +30,6 @@ export const handleNewConnection = async (socket: Socket) => {
 
   // On disconnect remove the connection from the doc
   socket.on('disconnect', () => {
-    console.log('disconnect')
     doc.closeConn(socket)
   })
 
@@ -103,7 +102,7 @@ class OpenDoc extends Y.Doc {
         },
         connectionWithChange: Socket | null
       ) => {
-        console.log('awareness update', added, updated, removed)
+        //console.log('awareness update', added, updated, removed)
         const changedClients = added.concat(updated, removed)
 
         if (connectionWithChange !== null) {
@@ -153,7 +152,6 @@ class OpenDoc extends Y.Doc {
   }
 
   send(socket: Socket, m: Uint8Array) {
-    console.log('sending message')
     if (!socket.connected) {
       this.closeConn(socket)
     }
@@ -169,7 +167,7 @@ class OpenDoc extends Y.Doc {
 
   // Removes a connection from a doc
   closeConn(socket: Socket) {
-    console.log('opendoc closing connection', socket.id)
+    console.log('Removing', socket.id, 'from synced doc', this.scope.id)
 
     if (this.sockets.has(socket)) {
       const controlledIds: Set<number> = this.sockets.get(socket) || new Set()
