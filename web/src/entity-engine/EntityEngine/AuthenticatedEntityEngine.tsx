@@ -139,14 +139,15 @@ export const AuthenticatedEntityEngine = ({
           onAwarenessUpdate: (awareness) => {
             console.log('awareness bing bing', awareness)
           },
-          onSocketConnectedChanged: (connected) => {
-            console.log('connected bing bing', connected)
+          onStatusChange(status) {
+            console.log('status', status)
           },
         },
       })
 
-      scopeProvider.on('message', (message) => {
+      scopeProvider.on('status', (message) => {
         console.log('message', message)
+        console.log(doc)
       })
 
       setScopeProvider(scopeProvider)

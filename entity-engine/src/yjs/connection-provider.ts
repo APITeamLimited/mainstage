@@ -8,8 +8,12 @@ import * as syncProtocol from 'y-protocols/sync'
 import * as Y from 'yjs'
 
 import { Scope } from '../../../api/types/graphql'
+import { populateOpenDoc } from '../entities'
 
+import { RedisPersistence } from './persistence-provider'
 import { handlePostAuth } from './utils'
+
+const persistenceProvider: RedisPersistence | null = null //new RedisPersistence()
 
 export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
@@ -30,7 +34,7 @@ export const handleNewConnection = async (socket: Socket) => {
 
   // On disconnect remove the connection from the doc
   socket.on('disconnect', () => {
-    doc.closeConn(socket)
+    doc.closeSocket(socket)
   })
 
   {
@@ -39,6 +43,7 @@ export const handleNewConnection = async (socket: Socket) => {
     encoding.writeVarUint(encoder, messageSyncType)
 
     syncProtocol.writeSyncStep1(encoder, doc)
+    console.log(encoder, doc.getMap('projects').size)
     doc.send(socket, encoding.toUint8Array(encoder))
 
     const awarenessStates = doc.awareness.getStates()
@@ -64,6 +69,13 @@ export const getOpenDoc = (scope: Scope): OpenDoc => {
   return map.setIfUndefined(openDocs, scope.id, () => {
     console.log('Creating new doc', scope.id)
     const doc = new OpenDoc(scope)
+
+    // Connect with persistence provider
+    if (persistenceProvider) {
+      // @ts-ignore
+      persistenceProvider.bindState(scope.id, doc)
+    }
+
     openDocs.set(scope.id, doc)
     return doc
   })
@@ -81,7 +93,8 @@ class OpenDoc extends Y.Doc {
   awareness: awarenessProtocol.Awareness
 
   constructor(scope: Scope) {
-    super({ gc: true })
+    super()
+    populateOpenDoc(scope, this)
     this.scope = scope
     this.mux = mutex.createMutex()
     this.sockets = new Map()
@@ -137,8 +150,8 @@ class OpenDoc extends Y.Doc {
       }
     )
 
-    this.on('update', async (update: Uint8Array, doc: OpenDoc) => {
-      console.log('wsshareddoc update', update)
+    this.on('update', async (update: Uint8Array) => {
+      console.log('handling update', update.toString())
 
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, messageSyncType)
@@ -146,27 +159,30 @@ class OpenDoc extends Y.Doc {
       syncProtocol.writeUpdate(encoder, update)
       const message = encoding.toUint8Array(encoder)
 
-      //await persistence.writeState(doc.name, doc)
-      doc.sockets.forEach((_, socket) => this.send(socket, message))
+      console.log('sockets, ', this.sockets)
+
+      this.sockets.forEach((_, socket) => this.send(socket, message))
     })
   }
 
   send(socket: Socket, m: Uint8Array) {
+    console.log('Sending socket', socket.id, m)
+
     if (!socket.connected) {
-      this.closeConn(socket)
+      this.closeSocket(socket)
     }
     try {
       socket.send(m, (err: null) => {
-        err != null && this.closeConn(socket)
+        err != null && this.closeSocket(socket)
       })
     } catch (e) {
-      console.log('failed to send message from wssahreddoc', e)
-      this.closeConn(socket)
+      console.log('failed to send message from OpenDoc', e)
+      this.closeSocket(socket)
     }
   }
 
   // Removes a connection from a doc
-  closeConn(socket: Socket) {
+  closeSocket(socket: Socket) {
     console.log('Removing', socket.id, 'from synced doc', this.scope.id)
 
     if (this.sockets.has(socket)) {
@@ -178,11 +194,11 @@ class OpenDoc extends Y.Doc {
         Array.from(controlledIds),
         null
       )
-      if (this.sockets.size === 0 /*&& persistence !== null*/) {
-        // if persisted, we store state and destroy ydocument
-        //persistence.writeState(this.name, this).then(() => {
-        //  this.destroy()
-        //})
+      if (this.sockets.size === 0 && persistenceProvider) {
+        // If persisted, we store state and destroy ydocument
+        persistenceProvider.writeState(this.scope.id, this).then(() => {
+          this.destroy()
+        })
         openDocs.delete(this.scope.id)
       }
     }
@@ -200,7 +216,9 @@ class OpenDoc extends Y.Doc {
         case messageSyncType:
           encoding.writeVarUint(encoder, messageSyncType)
           syncProtocol.readSyncMessage(decoder, encoder, this, null)
+
           if (encoding.length(encoder) > 1) {
+            //this.send(socket, encoding.toUint8Array(encoder))
             this.send(socket, encoding.toUint8Array(encoder))
           }
           break

@@ -23,7 +23,6 @@ const messageReconnectTimeout = 30000
 const messageSync = 0
 const messageAwareness = 1
 const messageQueryAwareness = 3
-const messageAuth = 2
 
 const messageHandlers: Array<
   (
@@ -45,13 +44,20 @@ messageHandlers[messageSync] = (
   messageType
 ) => {
   encoding.writeVarUint(encoder, messageSync)
-  //console.log('encoder', encoder)
+
   const syncMessageType = syncProtocol.readSyncMessage(
     decoder,
     encoder,
     provider.doc,
     provider
   )
+  provider.doc.load()
+
+  console.log(
+    'messageSync handlerprojects',
+    provider.doc.getMap('projects').size
+  )
+
   if (
     emitSynced &&
     syncMessageType === syncProtocol.messageYjsSyncStep2 &&
@@ -68,6 +74,7 @@ messageHandlers[messageQueryAwareness] = (
   emitSynced,
   messageType
 ) => {
+  console.log('messageQueryAwareness handler')
   encoding.writeVarUint(encoder, messageAwareness)
   encoding.writeVarUint8Array(
     encoder,
@@ -90,22 +97,8 @@ messageHandlers[messageAwareness] = (
     decoding.readVarUint8Array(decoder),
     provider
   )
-  //console.log('awareness', provider.awareness)
+  console.log('messageAwareness handler')
   provider.onAwarenessUpdate?.(provider.awareness)
-}
-
-messageHandlers[messageAuth] = (
-  encoder,
-  decoder,
-  provider,
-  emitSynced,
-  messageType
-) => {
-  authProtocol.readAuthMessage(
-    decoder,
-    provider.doc,
-    provider.permissionDeniedHandler
-  )
 }
 
 type ScopeProviderConstructorArgs = {
@@ -121,7 +114,7 @@ type ScopeProviderConstructorArgs = {
     maxBackoffTime?: number
     disableBc?: boolean
     onAwarenessUpdate?: (awareness: awarenessProtocol.Awareness) => void
-    onSocketConnectedChanged?: ((connected: boolean) => void) | undefined
+    onStatusChange: ((connected: string) => void) | undefined
   }
 }
 
@@ -155,6 +148,7 @@ export class SocketIOProvider extends Observable<string> {
   onAwarenessUpdate:
     | ((awareness: awarenessProtocol.Awareness) => void)
     | undefined
+  onStatusChange: ((status: string) => void) | undefined
 
   constructor({
     scopeId,
@@ -169,6 +163,7 @@ export class SocketIOProvider extends Observable<string> {
       maxBackoffTime = 2500,
       disableBc = false,
       onAwarenessUpdate = undefined,
+      onStatusChange = undefined,
     } = options || {}
 
     super()
@@ -191,14 +186,17 @@ export class SocketIOProvider extends Observable<string> {
     this.socket = null
     this.socketLastMessageReceived = 0
     this.onAwarenessUpdate = onAwarenessUpdate
+    this.onStatusChange = onStatusChange
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
 
-    this._resyncInterval = 0
+    this._resyncInterval = resyncInterval
 
     if (resyncInterval > 0) {
       this._resyncInterval = setInterval(() => {
+        console.log('resync')
+
         if (this.socket && this.socket.connected) {
           // resend sync step 1
           const encoder = encoding.createEncoder()
@@ -304,11 +302,11 @@ export class SocketIOProvider extends Observable<string> {
         this.socketConnected = true
       })
 
-      this.socket.on('message', (data: ArrayBuffer) => {
-        console.log(`Received message from ${this.url}`, event)
-
+      this.socket.on('message', (data) => {
         this.socketLastMessageReceived = time.getUnixTime()
         const encoder = this.readMessage(new Uint8Array(data), true)
+        console.log('raw message: ', data, 'decoded message: ', encoder)
+
         if (encoding.length(encoder) > 1) {
           this.socket?.send(encoding.toUint8Array(encoder))
         }
@@ -320,7 +318,6 @@ export class SocketIOProvider extends Observable<string> {
       })
 
       this.socket.on('disconnect', () => {
-        console.log('setupSocket: websocket closed', event)
         this.emit('connection-close', [event, this])
         this.socket = null
         this.socketConnecting = false
@@ -336,11 +333,7 @@ export class SocketIOProvider extends Observable<string> {
             ),
             this
           )
-          this.emit('status', [
-            {
-              status: 'disconnected',
-            },
-          ])
+          this.onStatusChange?.('disconnected')
         } else {
           this.socketUnsuccessfulReconnects++
         }
@@ -370,11 +363,7 @@ export class SocketIOProvider extends Observable<string> {
         this.socketConnected = true
         this.socketUnsuccessfulReconnects = 0
 
-        this.emit('status', [
-          {
-            status: 'connected',
-          },
-        ])
+        this.onStatusChange?.('connected')
 
         // always send sync step 1 when connected
         const encoder = encoding.createEncoder()
@@ -395,12 +384,7 @@ export class SocketIOProvider extends Observable<string> {
           this.socket?.send(encoding.toUint8Array(encoderAwarenessState))
         }
       })
-
-      this.emit('status', [
-        {
-          status: 'connecting',
-        },
-      ])
+      this.onStatusChange?.('connecting')
     }
   }
 
@@ -546,8 +530,6 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   broadcastMessage(buf: ArrayBuffer) {
-    console.log('broadcastMessage')
-
     if (this.socketConnected && this.socket !== null) {
       this.socket.send(buf)
     }
