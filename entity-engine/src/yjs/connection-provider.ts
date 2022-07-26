@@ -4,13 +4,13 @@ import * as map from 'lib0/map'
 import * as mutex from 'lib0/mutex'
 import { Socket } from 'socket.io'
 import * as awarenessProtocol from 'y-protocols/awareness'
-import * as syncProtocol from 'y-protocols/sync'
 import * as Y from 'yjs'
 
 import { Scope } from '../../../api/types/graphql'
 import { populateOpenDoc } from '../entities'
 
 import { RedisPersistence } from './persistence-provider'
+import * as syncProtocol from './sync'
 import { handlePostAuth } from './utils'
 
 const persistenceProvider: RedisPersistence | null = null //new RedisPersistence()
@@ -28,7 +28,7 @@ export const handleNewConnection = async (socket: Socket) => {
   const doc = getOpenDoc(scope)
   doc.sockets.set(socket, new Set())
 
-  socket.on('message', (message) =>
+  socket.on('message', (message: ArrayBuffer) =>
     doc.messageListener(socket, new Uint8Array(message))
   )
 
@@ -43,7 +43,7 @@ export const handleNewConnection = async (socket: Socket) => {
     encoding.writeVarUint(encoder, messageSyncType)
 
     syncProtocol.writeSyncStep1(encoder, doc)
-    console.log(encoder, doc.getMap('projects').size)
+    //console.log(encoder, doc.getMap('projects').size)
     doc.send(socket, encoding.toUint8Array(encoder))
 
     const awarenessStates = doc.awareness.getStates()
@@ -100,6 +100,7 @@ class OpenDoc extends Y.Doc {
     this.sockets = new Map()
     this.awareness = new awarenessProtocol.Awareness(this)
     this.awareness.setLocalState(null)
+    this.guid = scope.id
 
     this.awareness.on(
       'update',
@@ -212,6 +213,8 @@ class OpenDoc extends Y.Doc {
       const decoder = decoding.createDecoder(message)
       const messageType = decoding.readVarUint(decoder)
 
+      console.log('message type', messageType)
+
       switch (messageType) {
         case messageSyncType:
           encoding.writeVarUint(encoder, messageSyncType)
@@ -219,6 +222,7 @@ class OpenDoc extends Y.Doc {
 
           if (encoding.length(encoder) > 1) {
             //this.send(socket, encoding.toUint8Array(encoder))
+
             this.send(socket, encoding.toUint8Array(encoder))
           }
           break

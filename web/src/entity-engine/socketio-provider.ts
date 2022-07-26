@@ -6,8 +6,9 @@ import * as encoding from 'lib0/encoding'
 import * as math from 'lib0/math'
 import * as time from 'lib0/time'
 import * as url from 'lib0/url'
-import * as syncProtocol from 'y-protocols/sync'
-import * as authProtocol from 'y-protocols/auth'
+
+import * as syncProtocol from './sync'
+
 import * as awarenessProtocol from 'y-protocols/awareness.js'
 import { io, protocol, Socket } from 'socket.io-client'
 
@@ -51,20 +52,23 @@ messageHandlers[messageSync] = (
     provider.doc,
     provider
   )
-  provider.doc.load()
 
-  console.log(
-    'messageSync handlerprojects',
-    provider.doc.getMap('projects').size
-  )
+  //console.log('syncMessageType:', syncMessageType)
 
   if (
     emitSynced &&
     syncMessageType === syncProtocol.messageYjsSyncStep2 &&
     !provider.synced
   ) {
+    console.log('Setting as synced')
     provider.synced = true
   }
+
+  // If was sync step 1 send reply to server
+  //if (syncMessageType === syncProtocol.messageYjsSyncStep1) {
+  //  console.log('returning sync step 1')
+  //  provider.socket?.send(encoding.toUint8Array(encoder))
+  //}
 }
 
 messageHandlers[messageQueryAwareness] = (
@@ -74,7 +78,7 @@ messageHandlers[messageQueryAwareness] = (
   emitSynced,
   messageType
 ) => {
-  console.log('messageQueryAwareness handler')
+  //console.log('messageQueryAwareness handler')
   encoding.writeVarUint(encoder, messageAwareness)
   encoding.writeVarUint8Array(
     encoder,
@@ -201,7 +205,7 @@ export class SocketIOProvider extends Observable<string> {
           // resend sync step 1
           const encoder = encoding.createEncoder()
           encoding.writeVarUint(encoder, messageSync)
-          syncProtocol.writeSyncStep1(encoder, doc)
+          syncProtocol.writeSyncStep1(encoder, this.doc)
           this.socket.send(encoding.toUint8Array(encoder))
         }
       }, resyncInterval)
@@ -209,7 +213,7 @@ export class SocketIOProvider extends Observable<string> {
 
     this._bcSubscriber = (data: ArrayBuffer, origin) => {
       if (origin !== this) {
-        const encoder = this.readMessage(new Uint8Array(data), false)
+        const encoder = this.readMessage(new Uint8Array(data), true)
         if (encoding.length(encoder) > 1) {
           bc.publish(this.bcChannel, encoding.toUint8Array(encoder), this)
         }
@@ -229,7 +233,7 @@ export class SocketIOProvider extends Observable<string> {
 
     this.doc.on('update', this._updateHandler)
 
-    this._awarenessUpdateHandler = ({ added, updated, removed }) =>
+    this._awarenessUpdateHandler = ({ added, updated, removed }, origin) =>
       //origin: any old param that was not used, rember it for future reference
       {
         const changedClients = added.concat(updated).concat(removed)
@@ -305,9 +309,11 @@ export class SocketIOProvider extends Observable<string> {
       this.socket.on('message', (data) => {
         this.socketLastMessageReceived = time.getUnixTime()
         const encoder = this.readMessage(new Uint8Array(data), true)
-        console.log('raw message: ', data, 'decoded message: ', encoder)
+
+        console.log('we got message')
 
         if (encoding.length(encoder) > 1) {
+          console.log('greater 1', encoding.length(encoder))
           this.socket?.send(encoding.toUint8Array(encoder))
         }
       })
@@ -317,8 +323,8 @@ export class SocketIOProvider extends Observable<string> {
         this.emit('connection-error', [error, this])
       })
 
-      this.socket.on('disconnect', () => {
-        this.emit('connection-close', [event, this])
+      this.socket.on('disconnect', (error) => {
+        this.emit('connection-close', [error, this])
         this.socket = null
         this.socketConnecting = false
 
@@ -368,6 +374,7 @@ export class SocketIOProvider extends Observable<string> {
         // always send sync step 1 when connected
         const encoder = encoding.createEncoder()
         encoding.writeVarUint(encoder, messageSync)
+
         syncProtocol.writeSyncStep1(encoder, this.doc)
         this.socket?.send(encoding.toUint8Array(encoder))
 
@@ -393,6 +400,7 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   set synced(state) {
+    console.log('Setting synced to ' + state)
     if (this._synced !== state) {
       this._synced = state
       this.emit('synced', [state])
@@ -511,13 +519,13 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   readMessage(buf: Uint8Array, emitSynced: boolean): encoding.Encoder {
-    //console.log('readMessage')
-
     const decoder = decoding.createDecoder(buf)
 
     const encoder = encoding.createEncoder()
     const messageType = decoding.readVarUint(decoder)
     //console.log('message type', messageType)
+
+    //console.log('readMessage', buf, 'message type', messageType)
     const messageHandler = this.messageHandlers[messageType]
 
     if (messageHandler) {

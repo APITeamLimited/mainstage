@@ -129,7 +129,7 @@ export const AuthenticatedEntityEngine = ({
         throw `No active scope for workspace ${activeWorkspaceId}`
       }
 
-      const doc = new Y.Doc()
+      const doc = new Y.Doc({ guid: activeScope.id })
 
       const scopeProvider = new SocketIOProvider({
         scopeId: activeScope.id,
