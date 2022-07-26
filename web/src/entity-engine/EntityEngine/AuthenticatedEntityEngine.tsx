@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useReactiveVar } from '@apollo/client'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
+//import { WebsocketProvider } from 'y-websocket'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
@@ -145,10 +146,23 @@ export const AuthenticatedEntityEngine = ({
         },
       })
 
+      //const scopeProvider = new WebsocketProvider(
+      //  'ws://localhost:8912',
+      //  activeScope.id,
+      //  doc
+      //)
+
       scopeProvider.on('status', (message) => {
         console.log('message', message)
         console.log(doc)
       })
+
+      doc.load()
+
+      const rootMap = doc.getMap()
+      console.log(rootMap.get('name'))
+      console.log(doc.getText('name'))
+      console.log(doc.get('projects'))
 
       setScopeProvider(scopeProvider)
     }

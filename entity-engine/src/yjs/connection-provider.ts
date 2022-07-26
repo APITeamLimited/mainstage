@@ -94,6 +94,7 @@ class OpenDoc extends Y.Doc {
 
   constructor(scope: Scope) {
     super()
+
     populateOpenDoc(scope, this)
     this.scope = scope
     this.mux = mutex.createMutex()
