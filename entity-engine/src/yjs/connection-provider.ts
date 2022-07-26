@@ -22,9 +22,6 @@ export const handleNewConnection = async (socket: Socket) => {
 
   const { scope /*, jwt*/ } = postAuth
 
-  // Change binaryType to arraybuffer to get binary data HOW?
-  //socket.binaryType = 'arraybuffer'
-
   const doc = getOpenDoc(scope)
   doc.sockets.set(socket, new Set())
 
@@ -161,15 +158,11 @@ class OpenDoc extends Y.Doc {
       syncProtocol.writeUpdate(encoder, update)
       const message = encoding.toUint8Array(encoder)
 
-      console.log('sockets, ', this.sockets)
-
       this.sockets.forEach((_, socket) => this.send(socket, message))
     })
   }
 
   send(socket: Socket, m: Uint8Array) {
-    console.log('Sending socket', socket.id, m)
-
     if (!socket.connected) {
       this.closeSocket(socket)
     }
@@ -184,8 +177,14 @@ class OpenDoc extends Y.Doc {
   }
 
   // Removes a connection from a doc
-  closeSocket(socket: Socket) {
-    console.log('Removing', socket.id, 'from synced doc', this.scope.id)
+  async closeSocket(socket: Socket) {
+    console.log(
+      'Removing',
+      socket.id,
+      'from synced doc',
+      this.scope.id,
+      this.sockets.size
+    )
 
     if (this.sockets.has(socket)) {
       const controlledIds: Set<number> = this.sockets.get(socket) || new Set()
@@ -196,12 +195,13 @@ class OpenDoc extends Y.Doc {
         Array.from(controlledIds),
         null
       )
-      if (this.sockets.size === 0 && persistenceProvider) {
-        // If persisted, we store state and destroy ydocument
-        persistenceProvider.writeState(this.scope.id, this).then(() => {
-          this.destroy()
-        })
+      if (this.sockets.size === 0) {
+        if (persistenceProvider) {
+          // If persisted, we store state and destroy ydocument
+          await persistenceProvider.writeState(this.scope.id, this)
+        }
         openDocs.delete(this.scope.id)
+        console.log('Closed doc', this.scope.id)
       }
     }
 
@@ -214,7 +214,7 @@ class OpenDoc extends Y.Doc {
       const decoder = decoding.createDecoder(message)
       const messageType = decoding.readVarUint(decoder)
 
-      console.log('message type', messageType)
+      //console.log('message type', messageType)
 
       switch (messageType) {
         case messageSyncType:

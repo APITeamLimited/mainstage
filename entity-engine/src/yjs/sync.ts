@@ -49,10 +49,10 @@ export const writeSyncStep1 = (
   encoder: encoding.Encoder,
   doc: Y.Doc | Map<number, number>
 ) => {
-  console.log('writeSyncStep1')
+  //console.log('writeSyncStep1')
   encoding.writeVarUint(encoder, messageYjsSyncStep1)
   const sv = Y.encodeStateVector(doc)
-  console.log('State vector: ', sv)
+  //console.log('State vector: ', sv)
   encoding.writeVarUint8Array(encoder, sv)
 }
 
@@ -66,7 +66,7 @@ export const writeSyncStep2 = (
   doc: Y.Doc,
   encodedStateVector: Uint8Array | undefined
 ) => {
-  console.log('writeSyncStep2')
+  //console.log('writeSyncStep2')
   encoding.writeVarUint(encoder, messageYjsSyncStep2)
   encoding.writeVarUint8Array(
     encoder,

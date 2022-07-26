@@ -35,6 +35,7 @@
   "dependencies": {
     "config": "^3.3.7",
     "create-fastify-ts": "^0.2.2",
-    "graphql-scalars": "^1.17.0"
+    "graphql-scalars": "^1.17.0",
+    "y-indexeddb": "^9.0.9"
   }
 }

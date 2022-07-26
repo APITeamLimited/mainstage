@@ -17900,7 +17900,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lib0@npm:^0.2.42, lib0@npm:^0.2.49, lib0@npm:^0.2.51":
+"lib0@npm:^0.2.35, lib0@npm:^0.2.42, lib0@npm:^0.2.49, lib0@npm:^0.2.51":
   version: 0.2.51
   resolution: "lib0@npm:0.2.51"
   dependencies:
@@ -22868,6 +22868,7 @@ __metadata:
     config: ^3.3.7
     create-fastify-ts: ^0.2.2
     graphql-scalars: ^1.17.0
+    y-indexeddb: ^9.0.9
   languageName: unknown
   linkType: soft
 
@@ -26944,6 +26945,17 @@ __metadata:
   version: 4.0.2
   resolution: "xtend@npm:4.0.2"
   checksum: 366ae4783eec6100f8a02dff02ac907bf29f9a00b82ac0264b4d8b832ead18306797e283cf19de776538babfdcb2101375ec5646b59f08c52128ac4ab812ed0e
+  languageName: node
+  linkType: hard
+
+"y-indexeddb@npm:^9.0.9":
+  version: 9.0.9
+  resolution: "y-indexeddb@npm:9.0.9"
+  dependencies:
+    lib0: ^0.2.35
+  peerDependencies:
+    yjs: ^13.0.0
+  checksum: b46d358c0ceee97ae5e202af0f7aaf7e2cd3cef6131566bdf8b43c37b368693dbbb00743ed95e817705b92194c0fda8f89ac3f0a24fcb329fac2f625140d95d4
   languageName: node
   linkType: hard
 
