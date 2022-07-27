@@ -84,25 +84,23 @@ export const NodeActionButton = ({
           mt: 1,
         }}
       >
-        <Stack>
-          {onNewRESTRequest !== undefined && (
-            <MenuItem onClick={handleNewRESTRequestClick}>
-              <ListItemText primary="Add REST Request" />
-            </MenuItem>
-          )}
-          {onNewFolder && (
-            <MenuItem onClick={handleNewFolderClick}>
-              <ListItemText primary="Add Folder" />
-            </MenuItem>
-          )}
-          {onNewRESTRequest && onNewFolder && <Divider />}
-          <MenuItem onClick={handleRenameClick}>
-            <ListItemText primary="Rename" />
+        {onNewRESTRequest !== undefined && (
+          <MenuItem onClick={handleNewRESTRequestClick}>
+            <ListItemText primary="Add REST Request" />
           </MenuItem>
-          <MenuItem onClick={onDelete}>
-            <ListItemText primary="Delete" />
+        )}
+        {onNewFolder && (
+          <MenuItem onClick={handleNewFolderClick}>
+            <ListItemText primary="Add Folder" />
           </MenuItem>
-        </Stack>
+        )}
+        {onNewRESTRequest && onNewFolder && <Divider />}
+        <MenuItem onClick={handleRenameClick}>
+          <ListItemText primary="Rename" />
+        </MenuItem>
+        <MenuItem onClick={onDelete}>
+          <ListItemText primary="Delete" />
+        </MenuItem>
       </Popover>
     </>
   )

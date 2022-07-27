@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 
-import { ProjectOverview } from 'src/components/app/dashboard/projects'
+import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview'
 import { QuickActions } from 'src/components/app/dashboard/QuickActions'
 import {
   activeWorkspaceIdVar,

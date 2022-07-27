@@ -22,7 +22,7 @@ export const processProjects = (newProjectsMap: Y.Map<any>) => {
         : null,
     })
 
-    processBranches(project.get('branches'))
+    processBranches(project.get('branches'), id)
   })
 
   projectsMap = newProjectsMap

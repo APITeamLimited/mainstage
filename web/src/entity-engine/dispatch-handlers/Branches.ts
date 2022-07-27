@@ -11,6 +11,8 @@ import { createIntialResources } from '../../../../entity-engine/src/entities'
 export interface Branch extends BaseEntity {
   id: string
   __typename: 'Branch'
+  parentId: string
+  __parentTypename: 'LocalProject'
   name: string
   createdAt: Date
   updatedAt: Date | null
@@ -18,13 +20,18 @@ export interface Branch extends BaseEntity {
 
 export const branchesVar = makeVar<Branch[]>([])
 
-export const processBranches = (newBranchesMap: Y.Map<any>) => {
+export const processBranches = (
+  newBranchesMap: Y.Map<any>,
+  projectId: string
+) => {
   const generatedBranches: Branch[] = []
 
   newBranchesMap.forEach((branch: Y.Map<any>, branchId: string) => {
     generatedBranches.push({
       id: branchId,
       __typename: 'Branch',
+      parentId: projectId,
+      __parentTypename: 'LocalProject',
       name: branch.get('name'),
       createdAt: new Date(branch.get('createdAt')),
       updatedAt: branch.get('updatedAt')

@@ -1,4 +1,4 @@
-import { makeVar } from '@apollo/client'
+import { makeVar, useReactiveVar } from '@apollo/client'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
@@ -19,4 +19,10 @@ export const processWorkspace = (doc: Y.Doc) => {
   planInfoVar(planInfo)
 }
 
+export type Workspace = {
+  planInfo: PlanInfo
+}
+
 export const planInfoVar = makeVar<PlanInfo | null>(null)
+
+export const workspaceVar = makeVar<Y.Doc | null>(null)
