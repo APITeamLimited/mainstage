@@ -69,8 +69,10 @@
     "stripe": "^9.11.0",
     "use-double-click": "^1.0.5",
     "uuid": "^8.3.2",
-    "yjs": "^13.5.39",
-    "yup": "^0.32.11"
+    "yjs": "^13.5.40",
+    "yup": "^0.32.11",
+    "zustand": "^4.0.0",
+    "zustand-yjs": "^0.0.14"
   },
   "devDependencies": {
     "@types/draft-js": "^0.11.9"

@@ -48,7 +48,6 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
 
   return (
     <EntityEngine>
-      <ReactiveVarPersistor />
       <ModalsProvider>
         <AppBar
           position="sticky"

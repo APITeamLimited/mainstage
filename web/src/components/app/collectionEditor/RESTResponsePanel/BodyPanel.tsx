@@ -43,7 +43,6 @@ export const BodyPanel = ({ response }: BodyPanelProps) => {
       spacing={2}
       sx={{
         height: '100%',
-        margin: 0,
       }}
     >
       <Grid container spacing={2} margin={0}>
@@ -81,14 +80,24 @@ export const BodyPanel = ({ response }: BodyPanelProps) => {
       ></Stack>
       {activeTabIndex === 0 && (
         <MonacoEditor
-          language="json"
+          language="plain"
           value={rawBody}
           readOnly
           scrollBeyondLastLine={false}
           wordWrap="on"
         />
       )}
-      {activeTabIndex === 1 && <RawViewer rawBody={rawBody} />}
+      {activeTabIndex === 1 && (
+        <RawViewer rawBody={rawBody} />
+        // removed this as competitors are using monaco editor
+        //<MonacoEditor
+        //  language="plain"
+        //  value={rawBody}
+        //  readOnly
+        //  scrollBeyondLastLine={false}
+        //  wordWrap="on"
+        ///>
+      )}
       {activeTabIndex === 2 && <HTMLViewer html={rawBody} />}
     </Stack>
   )

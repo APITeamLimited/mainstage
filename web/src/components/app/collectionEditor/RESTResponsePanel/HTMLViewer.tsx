@@ -1,6 +1,6 @@
 export const HTMLViewer = ({ html }: { html: string }) => {
   // Filter newline characters from html
-  const filteredHTML = html.replace(/\n/g, '')
+  const filteredHTML = html.replaceAll(/\n/g, '')
 
   return (
     <iframe

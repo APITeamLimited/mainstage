@@ -86,7 +86,7 @@ export type ReadyStatus = {
   indexeddbProviderReady: boolean
 }
 
-export const intialReadyStatus: ReadyStatus = {
+export const initialReadyStatus: ReadyStatus = {
   socketioProviderReady: false,
   indexeddbProviderReady: false,
 }
@@ -148,3 +148,9 @@ export const determineIfReady = ({
   })
   return
 }
+
+export type PossibleSyncStatus =
+  | 'disabled'
+  | 'connecting'
+  | 'connected'
+  | 'disconnected'

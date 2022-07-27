@@ -92,7 +92,9 @@ class OpenDoc extends Y.Doc {
   constructor(scope: Scope) {
     super()
 
-    populateOpenDoc(scope, this)
+    // TODO: add logic with persistence provider to load state and
+    // populate the doc with the state only when not already populated
+    populateOpenDoc(this)
     this.scope = scope
     this.mux = mutex.createMutex()
     this.sockets = new Map()

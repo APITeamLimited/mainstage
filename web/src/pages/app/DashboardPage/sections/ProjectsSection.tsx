@@ -30,7 +30,7 @@ export const ProjectsSection = () => {
 
   const isLocalWorkspace = activeWorkspace.__typename === 'Local'
 
-  const projects = isLocalWorkspace ? localProjects : []
+  const projects = localProjects
 
   return (
     <Stack

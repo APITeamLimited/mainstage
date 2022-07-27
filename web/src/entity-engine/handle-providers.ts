@@ -6,7 +6,8 @@ import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 import { Workspace } from 'src/contexts/reactives'
 
 import { SocketIOProvider } from './socket-io-provider'
-import { ReadyStatus } from './utils'
+import { UpdateDispatcherArgs } from './update-dispatcher'
+import { PossibleSyncStatus, ReadyStatus } from './utils'
 
 type HandleProvidersArgs = {
   ready: ReadyStatus
@@ -19,6 +20,9 @@ type HandleProvidersArgs = {
   setSocketioProvider: (socketioProvider: SocketIOProvider | null) => void
   indexeddbProvider: IndexeddbPersistence | null
   setIndexeddbProvider: (indexeddbProvider: IndexeddbPersistence | null) => void
+  setSocketioSyncStatus: (syncStatus: PossibleSyncStatus) => void
+  setIndexeddbSyncStatus: (syncStatus: PossibleSyncStatus) => void
+  handleUpdateDispatch: (args: HandleUpdateDispatchArgs) => void
 }
 
 export const handleProviders = ({
@@ -32,6 +36,9 @@ export const handleProviders = ({
   setSocketioProvider,
   indexeddbProvider,
   setIndexeddbProvider,
+  setSocketioSyncStatus,
+  setIndexeddbSyncStatus,
+  handleUpdateDispatch,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady, indexeddbProviderReady } = ready
 
@@ -40,11 +47,14 @@ export const handleProviders = ({
   if (!socketioProviderReady && socketioProvider) {
     socketioProvider.destroy()
     setSocketioProvider(null)
+    console.log('closed socketio provider')
+    setSocketioSyncStatus('disabled')
   }
 
   if (!indexeddbProviderReady && indexeddbProvider) {
     indexeddbProvider.destroy()
     setIndexeddbProvider(null)
+    setIndexeddbSyncStatus('disabled')
   }
 
   if (!socketioProviderReady && !indexeddbProviderReady) return
@@ -75,20 +85,37 @@ export const handleProviders = ({
           //onAwarenessUpdate: (awareness) => {
           //  //console.log('awareness bing bing', awareness)
           //},
-          onSyncMessage: () => {
-            console.log('sync message', newDoc)
-            const rootmap = newDoc.getMap()
-            console.log(rootmap.get('count'))
+          onSyncMessage: (newDoc) =>
+            handleUpdateDispatch({
+              doc: newDoc,
+              activeWorkspace,
+            }),
+          onStatusChange: (status) => {
+            setSocketioSyncStatus(status)
           },
-          resyncInterval: 1000,
+          resyncInterval: -1,
         },
       })
     )
+    setSocketioSyncStatus('connecting')
   }
 
   if (indexeddbProviderReady && (!indexeddbProvider || guidChanged)) {
-    setIndexeddbProvider(new IndexeddbPersistence(activeGUID, newDoc))
+    const newIndexeddbProvider = new IndexeddbPersistence(activeGUID, newDoc)
+
+    newIndexeddbProvider.on('synced', () => {
+      setIndexeddbSyncStatus('connected')
+    })
+
+    setIndexeddbProvider(newIndexeddbProvider)
+    setIndexeddbSyncStatus('connecting')
   }
+
+  handleUpdateDispatch({
+    doc: newDoc,
+    activeWorkspace,
+    initial: guidChanged,
+  })
 }
 
 const getNewDoc = (
@@ -104,3 +131,8 @@ const getNewDoc = (
 
   return oldDoc
 }
+
+export type HandleUpdateDispatchArgs = Omit<
+  UpdateDispatcherArgs,
+  'socketioSyncStatus' | 'indexeddbSyncStatus'
+>

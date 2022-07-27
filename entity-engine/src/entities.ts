@@ -1,90 +1,111 @@
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 
-import { Scope } from '../../api/types/graphql'
+export type PlanInfo =
+  | {
+      type: 'LOCAL'
+    }
+  | {
+      type: 'FREE'
+      isTeam: boolean
+    }
+  | {
+      type: 'PRO'
+      isTeam: boolean
+    }
+  | {
+      type: 'ENTERPRISE'
+      isTeam: true
+    }
 
 /**
  * populates an open doc with the necessary projects folder
  */
-export const populateOpenDoc = (scope: Scope, doc: Y.Doc) => {
+export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
   // See if the scope has a projects folder
 
-  const projectsFolder = doc.getMap<Y.Doc>('projects')
+  const projectsFolder = doc.getMap('projects')
   console.log('projectsFolder', projectsFolder.size)
 
   if (projectsFolder.size === 0) {
-    console.log('Creating new projects folder')
-    const firstProject = createProject('My First Project')
-    projectsFolder.set(firstProject.guid, firstProject)
-    console.log('Created new project', firstProject.guid)
+    const { project, id } = createProject('My First Project')
+    projectsFolder.set(id, project)
   }
 
-  console.log('populateOpenDoc complete', scope.id)
+  const rootMap = doc.getMap()
+  rootMap.set('performedFirstRun', true)
+  rootMap.set('planInfo', planInfo)
+
+  // Will be used in future to handle upgrades in YJS
+  rootMap.set('schemaVersion', 0)
+
+  console.log('populateOpenDoc complete')
 }
 
 const createProject = (name: string) => {
   // Make the project a y doc to enable historical project data
-  const project = new Y.Doc()
-  const rootMap = project.getMap()
+  const project = new Y.Map()
+  const id = uuid()
 
-  const existingName = rootMap.get('name')
-  if (!existingName) {
-    rootMap.set('name', name)
-  }
+  project.set('id', id)
+  project.set('name', name)
+  project.set('createdAt', new Date().toISOString())
+  project.set('updatedAt', null)
 
-  const branchesFolder = rootMap.get('branches')
-  if (!branchesFolder) {
-    const branchesFolder = createBranchesFolder()
-    rootMap.set('branches', branchesFolder)
-  }
+  const branches = new Y.Map()
+  const { branch, branchId } = createBranch('main')
+  branches.set(branchId, branch)
+  project.set('branches', branches)
 
-  return project
-}
-
-const createBranchesFolder = () => {
-  // Branches folder is a seperate Y.Doc so rest of oriject isnt affected by goings
-  // back in time
-  const branchesFolder = new Y.Doc()
-  const rootMap = branchesFolder.getMap<Y.Doc>()
-  const mainBranch = createBranch('main')
-  rootMap.set(mainBranch.guid, mainBranch)
-
-  return branchesFolder
+  return { project, id }
 }
 
 const createBranch = (name: string) => {
-  // Branch is the final level of the Y.Doc tree, afte this, sub types that are
-  // not Y.Docs are used to store data
-  const branch = new Y.Doc()
-  const rootMap = branch.getMap()
-  rootMap.set('name', name)
-  rootMap.set('resources', createIntialResources({ makeStarter: true }))
+  const branch = new Y.Map()
 
-  return branch
+  const id = uuid()
+
+  branch.set('id', id)
+  branch.set('name', name)
+  branch.set('createdAt', new Date().toISOString())
+  branch.set('updatedAt', null)
+  branch.set('resources', createIntialResources())
+
+  return { branch, branchId: id }
 }
 
-const createIntialResources = ({
-  makeStarter = false,
-}: {
-  makeStarter?: boolean
-}) => {
+export const createIntialResources = (blank = false) => {
   const resources = new Y.Map()
 
-  if (makeStarter) {
-    const starterCollection = createCollection('My First Collection')
-    resources.set('id', starterCollection)
+  const id = uuid()
+  resources.set('id', id)
+
+  const collections = new Y.Map()
+
+  if (!blank) {
+    const { collection, collectionId } = createCollection('My First Collection')
+    collections.set(collectionId, collection)
   }
+
+  resources.set('collections', collections)
+
+  const environments = new Y.Map()
+  resources.set('environments', environments)
 
   return resources
 }
 
 const createCollection = (name: string) => {
   const collection = new Y.Map()
-  collection.set('id', uuid())
+
+  const id = uuid()
   collection.set('name', name)
+  collection.set('id', id)
+  collection.set('createdAt', new Date().toISOString())
+  collection.set('updatedAt', null)
   collection.set('folders', new Y.Array())
   collection.set('restRequests', new Y.Array())
   collection.set('restResponses', new Y.Array())
 
-  return collection
+  return { collection, collectionId: id }
 }

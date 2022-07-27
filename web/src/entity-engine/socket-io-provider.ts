@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Observable } from 'lib0/observable'
 import * as bc from 'lib0/broadcastchannel'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
 import * as math from 'lib0/math'
+import { Observable } from 'lib0/observable'
 import * as time from 'lib0/time'
+import { io, protocol, Socket } from 'socket.io-client'
+import * as awarenessProtocol from 'y-protocols/awareness.js'
 
 import * as syncProtocol from './sync'
 
-import * as awarenessProtocol from 'y-protocols/awareness.js'
-import { io, protocol, Socket } from 'socket.io-client'
-
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
+import { PossibleSyncStatus } from './utils'
 
 const host = 'localhost'
 const port = 8912
@@ -52,7 +53,7 @@ messageHandlers[messageSync] = (
     provider
   )
 
-  provider.onSyncMessage?.()
+  provider.onSyncMessage?.(provider.doc)
 
   //console.log('syncMessageType:', syncMessageType)
 
@@ -113,8 +114,8 @@ type ScopeProviderConstructorArgs = {
     maxBackoffTime?: number
     disableBc?: boolean
     onAwarenessUpdate?: (awareness: awarenessProtocol.Awareness) => void
-    onStatusChange?: ((connected: string) => void) | undefined
-    onSyncMessage?: (() => void) | undefined
+    onStatusChange?: ((status: PossibleSyncStatus) => void) | undefined
+    onSyncMessage?: ((newDoc: Y.Doc) => void) | undefined
   }
 }
 
@@ -148,8 +149,8 @@ export class SocketIOProvider extends Observable<string> {
   onAwarenessUpdate:
     | ((awareness: awarenessProtocol.Awareness) => void)
     | undefined
-  onStatusChange: ((status: string) => void) | undefined
-  onSyncMessage: (() => void) | undefined
+  onStatusChange: ((status: PossibleSyncStatus) => void) | undefined
+  onSyncMessage: ((newDoc: Y.Doc) => void) | undefined
 
   constructor({
     scopeId,
@@ -281,6 +282,18 @@ export class SocketIOProvider extends Observable<string> {
 
     if (connect) {
       this.connect()
+    }
+  }
+
+  syncAgain() {
+    if (this.socket && this.socket.connected) {
+      // resend sync step 1
+      const encoder = encoding.createEncoder()
+      encoding.writeVarUint(encoder, messageSync)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      syncProtocol.writeSyncStep1(encoder, this.doc)
+      this.socket.send(encoding.toUint8Array(encoder))
     }
   }
 

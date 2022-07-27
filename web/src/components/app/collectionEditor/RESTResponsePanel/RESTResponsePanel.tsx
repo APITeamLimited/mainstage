@@ -67,10 +67,12 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
 
   return (
     <Stack
-      padding={2}
+      margin={2}
       spacing={2}
       sx={{
         height: 'calc(100% - 2em)',
+        maxHeight: 'calc(100% - 2em)',
+        overflow: 'hidden',
       }}
     >
       {focusedResponse ? (
