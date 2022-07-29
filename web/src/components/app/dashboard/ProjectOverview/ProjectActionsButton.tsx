@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   IconButton,
@@ -8,24 +10,77 @@ import {
   MenuItem,
   ListItemText,
 } from '@mui/material'
+import { v4 as uuid } from 'uuid'
 
-type ProjectActionsButtonProps = {}
+import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
+import { RenameDialog } from '../../dialogs/RenameDialog'
 
-export const ProjectActionsButton = ({}: ProjectActionsButtonProps) => {
-  const [showPopover, setShowPopover] = useState(false)
+type ProjectActionsButtonProps = {
+  projectYMap: Y.Map<any>
+  refreshProjects: () => void
+}
+
+export const ProjectActionsButton = ({
+  projectYMap,
+  refreshProjects,
+}: ProjectActionsButtonProps) => {
+  const [showActionsPopover, setShowActionsPopover] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+
+  const projectName = projectYMap.get('name')
+  const projectId = projectYMap.get('id')
+
+  const handleDuplicate = () => {
+    const newItem = projectYMap.clone()
+    const newId = uuid()
+    newItem.set('id', newId)
+    newItem.set('name', `${projectName} (copy)`)
+    newItem.set('createdAt', new Date().toISOString())
+    newItem.set('updatedAt', null)
+
+    // Todo this isnt showing update straight
+    projectYMap.parent?.set(newId, newItem)
+  }
+
+  const handleRename = (newName: string) => {
+    projectYMap.set('name', newName)
+    projectYMap.set('updatedAt', new Date().toISOString())
+    const clone = projectYMap.clone()
+    const parent = projectYMap.parent
+    // Don't deete, holds placeholder
+    parent?.set(projectId, clone)
+    refreshProjects()
+  }
+
+  const handleDelete = () => {
+    projectYMap.parent?.delete(projectId)
+  }
+
+  if (!projectName) throw new Error('Project name is required')
+  if (!projectId) throw new Error('Project id is required')
 
   return (
     <>
-      <Tooltip title="Project Actions">
-        <IconButton ref={buttonRef} onClick={() => setShowPopover(true)}>
-          <MoreVertIcon />
-        </IconButton>
-      </Tooltip>
+      <RenameDialog
+        show={showRenameDialog}
+        onClose={() => setShowRenameDialog(false)}
+        onRename={handleRename}
+        original={projectName}
+        title="Rename Project"
+      />
+      <QueryDeleteDialog
+        show={showQueryDeleteDialog}
+        onDelete={handleDelete}
+        onClose={() => setShowQueryDeleteDialog(false)}
+        title="Delete Project"
+        description={`Are you sure you want to delete Project ${projectName}?`}
+      />
       <Popover
         anchorEl={buttonRef.current}
-        open={showPopover}
-        onClose={() => setShowPopover(false)}
+        open={showActionsPopover}
+        onClose={() => setShowActionsPopover(false)}
         anchorOrigin={{
           horizontal: 'center',
           vertical: 'bottom',
@@ -34,16 +89,36 @@ export const ProjectActionsButton = ({}: ProjectActionsButtonProps) => {
           mt: 1,
         }}
       >
-        <MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowActionsPopover(false)
+            setShowRenameDialog(true)
+          }}
+        >
           <ListItemText primary="Rename" />
         </MenuItem>
-        <MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowActionsPopover(false)
+            setShowQueryDeleteDialog(true)
+          }}
+        >
           <ListItemText primary="Delete" />
         </MenuItem>
-        <MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowActionsPopover(false)
+            handleDuplicate()
+          }}
+        >
           <ListItemText primary="Duplicate" />
         </MenuItem>
       </Popover>
+      <Tooltip title="Project Actions">
+        <IconButton ref={buttonRef} onClick={() => setShowActionsPopover(true)}>
+          <MoreVertIcon />
+        </IconButton>
+      </Tooltip>
     </>
   )
 }

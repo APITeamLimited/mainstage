@@ -1,16 +1,18 @@
-import { LocalCollection, LocalProject } from 'src/contexts/reactives'
+import { Branch, Collection, Project } from 'types/src'
+
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { UserProjectBranch } from 'src/contexts/reactives/UserBranches'
-import { Branch } from 'src/entity-engine/dispatch-handlers/Branches'
 
 export const findActiveBranch = ({
   branches,
   userProjectBranches,
   project,
 }: {
-  branches: Branch[]
+  branches: Record<string, Branch>
   userProjectBranches: UserProjectBranch[]
-  project: LocalProject
-}) => {
+  project: Project
+}): Branch | null => {
   // See if projectId is in userProjectBranches
   const userProjectBranch = userProjectBranches.find(
     (userProjectBranch) => userProjectBranch.projectId === project.id
@@ -18,28 +20,31 @@ export const findActiveBranch = ({
 
   if (userProjectBranch) {
     // See if branchId is in branches
-    const branch = branches.find(
-      (branch) => branch.id === userProjectBranch.branchId
-    )
+    const branch = branches[userProjectBranch.branchId]
 
     // If branch is found, return it
     if (branch) return branch
   }
 
   // Try and find main branch, the branches parent is the project
-  const mainBranch = branches.find(
-    (branch) => branch.parentId === project.id && branch.name === 'main'
-  )
+  const mainBranch = Object.entries(branches).find(([, branch]) => {
+    return branch.name === 'main'
+  })
 
-  if (!mainBranch)
-    throw `Could not find a valid branch for project ${project.id}`
+  if (!mainBranch) {
+    //throw `Could not find a valid branch for project ${project.id}`
+    return null
+  }
 
-  return mainBranch
+  return mainBranch[1] as Branch
 }
 
 export type SortOption = 'Most Recent' | 'Alphabetical' | 'Creation Date'
 
-export type OverviewType = LocalCollection
+export type OverviewType = {
+  overviewItem: Collection
+  yMap: Y.Map<any>
+}
 
 export const sortOverviewItems = (
   sortOption: SortOption,

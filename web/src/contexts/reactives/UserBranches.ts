@@ -1,6 +1,6 @@
 import { makeVar } from '@apollo/client'
 
-type UserProjectBranch = {
+export type UserProjectBranch = {
   projectId: string
   branchId: string
 }

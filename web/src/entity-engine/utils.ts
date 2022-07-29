@@ -1,7 +1,11 @@
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 
-import { Workspace, workspacesVar } from 'src/contexts/reactives'
+import {
+  activeWorkspaceIdVar,
+  Workspace,
+  workspacesVar,
+} from 'src/contexts/reactives'
 
 export type Bearer = JwtPayload & { userId: string }
 
@@ -42,18 +46,27 @@ export const processAuthData = ({
   setScopes(data.scopes)
 
   const newWorkspaces: Workspace[] = workspaces.filter(
-    (workspace) => workspace.__typename === 'Local'
+    (workspace) => workspace.planInfo.type === 'LOCAL'
   )
 
   data.scopes.forEach((scope) => {
     if (scope.variant === 'USER') {
       newWorkspaces.push({
-        __typename: scope.variant === 'USER' ? 'User' : 'Team',
+        __typename: 'Workspace',
         id: scope.variantTargetId,
         name: 'Personal Cloud',
+
+        // TODO: actually imlement this
+        planInfo: {
+          type: 'FREE',
+          remote: true,
+          isTeam: false,
+        },
       })
     }
   })
+
+  activeWorkspaceIdVar(newWorkspaces[0].id)
 
   workspacesVar(newWorkspaces)
 }

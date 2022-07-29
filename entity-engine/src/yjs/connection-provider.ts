@@ -94,7 +94,11 @@ class OpenDoc extends Y.Doc {
 
     // TODO: add logic with persistence provider to load state and
     // populate the doc with the state only when not already populated
-    populateOpenDoc(this)
+    populateOpenDoc(this, {
+      type: 'PRO',
+      remote: true,
+      isTeam: false,
+    })
     this.scope = scope
     this.mux = mutex.createMutex()
     this.sockets = new Map()

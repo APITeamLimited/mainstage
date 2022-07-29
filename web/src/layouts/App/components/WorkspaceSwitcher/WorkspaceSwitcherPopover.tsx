@@ -13,14 +13,11 @@ import {
   useTheme,
   Stack,
 } from '@mui/material'
+import { Workspace } from 'types/src'
 
 import { navigate, routes } from '@redwoodjs/router'
 
-import {
-  Workspace,
-  activeWorkspaceIdVar,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 interface WorkspacePopoverProps {
   anchorEl: null | Element
@@ -78,7 +75,7 @@ export const WorkspaceSwitcherPopover = ({
                   : theme.palette.background.paper,
             }}
           >
-            {workspace.__typename === 'User' && (
+            {workspace.planInfo.type === 'FREE' && !workspace.planInfo.isTeam && (
               <>
                 <SvgIcon
                   component={CloudIcon}
@@ -103,7 +100,7 @@ export const WorkspaceSwitcherPopover = ({
                 />
               </>
             )}
-            {workspace.__typename === 'Team' && (
+            {workspace.planInfo.isTeam && (
               <>
                 <SvgIcon
                   component={GroupsIcon}
@@ -128,7 +125,7 @@ export const WorkspaceSwitcherPopover = ({
                 />
               </>
             )}
-            {workspace.__typename === 'Local' && (
+            {workspace.planInfo.type === 'LOCAL' && (
               <>
                 <Box
                   sx={{

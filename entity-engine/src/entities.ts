@@ -1,22 +1,6 @@
+import { PlanInfo } from 'types/src'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
-
-export type PlanInfo =
-  | {
-      type: 'LOCAL'
-    }
-  | {
-      type: 'FREE'
-      isTeam: boolean
-    }
-  | {
-      type: 'PRO'
-      isTeam: boolean
-    }
-  | {
-      type: 'ENTERPRISE'
-      isTeam: true
-    }
 
 /**
  * populates an open doc with the necessary projects folder
@@ -34,6 +18,9 @@ export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
 
   const rootMap = doc.getMap()
   rootMap.set('performedFirstRun', true)
+
+  // TODO: this top level info cannot be accessed from the client, maybe
+  // remove as not needed?
   rootMap.set('planInfo', planInfo)
 
   // Will be used in future to handle upgrades in YJS
@@ -42,7 +29,7 @@ export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
   console.log('populateOpenDoc complete')
 }
 
-const createProject = (name: string) => {
+export const createProject = (name: string) => {
   // Make the project a y doc to enable historical project data
   const project = new Y.Map()
   const id = uuid()
@@ -56,6 +43,7 @@ const createProject = (name: string) => {
   const { branch, branchId } = createBranch('main')
   branches.set(branchId, branch)
   project.set('branches', branches)
+  project.set('__typename', 'Project')
 
   return { project, id }
 }
@@ -69,33 +57,19 @@ const createBranch = (name: string) => {
   branch.set('name', name)
   branch.set('createdAt', new Date().toISOString())
   branch.set('updatedAt', null)
-  branch.set('resources', createIntialResources())
+
+  const collections = new Y.Map()
+  const { collection, collectionId } = createCollection('New Collection')
+  collections.set(collectionId, collection)
+  branch.set('collections', collections)
+
+  branch.set('environments', new Y.Map())
+  branch.set('__typename', 'Branch')
 
   return { branch, branchId: id }
 }
 
-export const createIntialResources = (blank = false) => {
-  const resources = new Y.Map()
-
-  const id = uuid()
-  resources.set('id', id)
-
-  const collections = new Y.Map()
-
-  if (!blank) {
-    const { collection, collectionId } = createCollection('My First Collection')
-    collections.set(collectionId, collection)
-  }
-
-  resources.set('collections', collections)
-
-  const environments = new Y.Map()
-  resources.set('environments', environments)
-
-  return resources
-}
-
-const createCollection = (name: string) => {
+export const createCollection = (name: string) => {
   const collection = new Y.Map()
 
   const id = uuid()
@@ -106,6 +80,7 @@ const createCollection = (name: string) => {
   collection.set('folders', new Y.Array())
   collection.set('restRequests', new Y.Array())
   collection.set('restResponses', new Y.Array())
+  collection.set('__typename', 'Collection')
 
   return { collection, collectionId: id }
 }

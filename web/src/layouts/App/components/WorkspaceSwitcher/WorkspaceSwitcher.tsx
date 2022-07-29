@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from 'react'
 import { useReactiveVar } from '@apollo/client'
 import CloudIcon from '@mui/icons-material/Cloud'
 import GroupsIcon from '@mui/icons-material/Groups'
-import HeightIcon from '@mui/icons-material/Height'
 import {
   Box,
   SvgIcon,
@@ -12,12 +11,9 @@ import {
   Stack,
   Button,
 } from '@mui/material'
+import { Workspace } from 'types/src'
 
-import {
-  activeWorkspaceIdVar,
-  Workspace,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
 
@@ -59,6 +55,8 @@ export const WorkspaceSwitcher = () => {
     return <></>
   }
 
+  console.log('workspaces', workspaces)
+
   return (
     <>
       <Button
@@ -72,16 +70,17 @@ export const WorkspaceSwitcher = () => {
         }}
       >
         <Stack spacing={1} direction="row" alignItems="center">
-          {activeWorkspace.__typename === 'User' && (
-            <SvgIcon
-              component={CloudIcon}
-              sx={{
-                paddingRight: 0.5,
-                color: theme.palette.text.secondary,
-              }}
-            />
-          )}
-          {activeWorkspace.__typename === 'Team' && (
+          {activeWorkspace.planInfo.type === 'FREE' &&
+            !activeWorkspace.planInfo.isTeam && (
+              <SvgIcon
+                component={CloudIcon}
+                sx={{
+                  paddingRight: 0.5,
+                  color: theme.palette.text.secondary,
+                }}
+              />
+            )}
+          {activeWorkspace.planInfo.isTeam && (
             <SvgIcon
               component={GroupsIcon}
               sx={{
@@ -92,7 +91,7 @@ export const WorkspaceSwitcher = () => {
           )}
           {
             // Needed to keep the space
-            activeWorkspace.__typename === 'Local' && <Box />
+            activeWorkspace.planInfo.type === 'LOCAL' && <Box />
           }
           <Stack alignItems="flex-start">
             <Typography

@@ -1,7 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
+import { Workspace } from 'types/src'
 import { IndexeddbPersistence } from 'y-indexeddb'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
@@ -9,11 +17,7 @@ import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
 
-import {
-  activeWorkspaceIdVar,
-  Workspace,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { handleProviders, HandleUpdateDispatchArgs } from './handle-providers'
 import { SocketIOProvider } from './socket-io-provider'
@@ -54,6 +58,9 @@ function useStateCallback<T>(
 
   return [state, setStateCallback]
 }
+
+const DocContext = createContext<Y.Doc | null>(null)
+export const useWorkspace = () => useContext(DocContext)
 
 export const EntityEngine = ({ children }: EntityEngineProps) => {
   const { isAuthenticated } = useAuth()
@@ -194,5 +201,5 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     throw error
   }
 
-  return <>{children}</>
+  return <DocContext.Provider value={doc}>{children}</DocContext.Provider>
 }

@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react'
 import { Box, Tabs, Tab, Typography, Grid } from '@mui/material'
 
 import { useAuth } from '@redwoodjs/auth'
-import { Redirect, routes } from '@redwoodjs/router'
+import { Redirect, routes, useParams } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
+import { CustomTabs } from 'src/components/app/CustomTabs'
 import { QuickActions } from 'src/components/app/dashboard/QuickActions'
 
 import { ProjectsSection } from './sections/ProjectsSection'
@@ -41,22 +42,12 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
-const a11yProps = (index: number) => {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  }
-}
+const DashboardPage = () => {
+  const params = useParams()
+  const initialSection = params.initialSection || 'overview'
 
-type DashboardPageProps = {
-  initialSection?: 'overview' | 'projects' | 'admin'
-}
-
-const DashboardPage = ({ initialSection }: DashboardPageProps) => {
   const getInitalTabValue = () => {
-    if (initialSection === 'overview') {
-      return 0
-    } else if (initialSection === 'projects') {
+    if (initialSection === 'projects') {
       return 1
     } else if (initialSection === 'admin') {
       return 2
@@ -67,10 +58,6 @@ const DashboardPage = ({ initialSection }: DashboardPageProps) => {
 
   const [tabValue, setTabValue] = useState(getInitalTabValue())
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue)
-  }
-
   return (
     <>
       <MetaTags
@@ -79,15 +66,11 @@ const DashboardPage = ({ initialSection }: DashboardPageProps) => {
       />
       <Box sx={{ m: 4 }}>
         <Box>
-          <Tabs
+          <CustomTabs
             value={tabValue}
-            onChange={handleTabChange}
-            aria-label="Dashboard Tabs"
-          >
-            <Tab label="Overview" {...a11yProps(0)} />
-            <Tab label="Projects" {...a11yProps(1)} />
-            <Tab label="Admin" {...a11yProps(2)} />
-          </Tabs>
+            onChange={setTabValue}
+            names={['Overview', 'Projects', 'Admin']}
+          />
         </Box>
         <TabPanel value={tabValue} index={0}>
           Item One

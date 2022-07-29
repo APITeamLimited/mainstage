@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
+
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import AltRouteIcon from '@mui/icons-material/AltRoute'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
-import { Button, Tooltip, useTheme } from '@mui/material'
+import { Button, Skeleton, Tooltip } from '@mui/material'
+import { Branch, PlanInfo, Workspace } from 'types/src'
 
-import { Branch } from 'src/entity-engine/dispatch-handlers/Branches'
-import { planInfoVar } from 'src/entity-engine/dispatch-handlers/Workspace'
-
-import { PlanInfo } from '../../../../../../../entity-engine/src/entities'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 type BranchSwitcherbuttonProps = {
   activeBranch: Branch
@@ -17,15 +18,29 @@ type BranchSwitcherbuttonProps = {
 export const BranchSwitcherButton = ({
   activeBranch,
 }: BranchSwitcherbuttonProps) => {
-  const theme = useTheme()
-  const planInfo = useReactiveVar(planInfoVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
+  const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
+
   const [branchPlanAccess, setBranchPlanAccess] = useState<BranchPlanAccess>(
     checkIfCanUseBranches(planInfo)
   )
 
   useEffect(() => {
+    const activeWorkspace = workspaces.find(
+      (workspace) => workspace.id === activeWorkspaceId
+    )
+    if (activeWorkspace) {
+      setPlanInfo(activeWorkspace.planInfo)
+    }
+  }, [activeWorkspaceId, workspaces])
+
+  useEffect(() => {
     setBranchPlanAccess(checkIfCanUseBranches(planInfo))
   }, [planInfo, setBranchPlanAccess])
+
+  if (!planInfo)
+    return <Skeleton variant="rectangular" width={82.5} height={22.75} />
 
   return (
     <Tooltip title={branchPlanAccess.denniedReason || 'Switch Branches'}>

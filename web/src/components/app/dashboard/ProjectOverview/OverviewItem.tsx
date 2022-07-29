@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
@@ -10,41 +10,68 @@ import {
   Stack,
   IconButton,
   useTheme,
+  Tooltip,
+  Popover,
+  MenuItem,
+  ListItemText,
 } from '@mui/material'
+import { v4 as uuid } from 'uuid'
 
 import { routes, navigate } from '@redwoodjs/router'
 
-import {
-  activeWorkspaceIdVar,
-  Workspace,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 
-import { OverviewType } from './ProjectOverview'
+import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
+import { RenameDialog } from '../../dialogs/RenameDialog'
+
+import { OverviewType } from './utils'
 
 type OverviewItemProps = {
-  item: OverviewType
+  overviewItem: OverviewType['overviewItem']
+  yMap: OverviewType['yMap']
 }
 
-export function OverviewItem({ item }: OverviewItemProps) {
+export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
   const theme = useTheme()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
-  const workspaces = useReactiveVar(workspacesVar)
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const [showActionsPopover, setShowActionsPopover] = useState(false)
+  const actionsButtonRef = useRef<HTMLButtonElement>(null)
 
-  useEffect(() => {
-    setActiveWorkspace(
-      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
-    )
-  }, [activeWorkspaceId, workspaces])
+  const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+
+  const handleDuplicate = () => {
+    const newItem = yMap.clone()
+    const newId = uuid()
+    newItem.set('id', newId)
+    newItem.set('name', `${overviewItem.name} (copy)`)
+    newItem.set('createdAt', new Date().toISOString())
+    newItem.set('updatedAt', null)
+    yMap.parent?.set(newId, newItem)
+  }
+
+  const handleRename = (newName: string) => {
+    yMap.set('name', newName)
+    yMap.set('updatedAt', new Date().toISOString())
+    const clone = yMap.clone()
+    const parent = yMap.parent
+    parent?.delete(overviewItem.id)
+    parent?.set(overviewItem.id, clone)
+  }
+
+  const handleDelete = () => {
+    yMap.parent?.delete(overviewItem.id)
+  }
 
   const getTypeName = () => {
-    if (item.__typename === 'LocalCollection') {
+    const typename = overviewItem.__typename
+    if (typename === 'Collection') {
       return 'Collection'
-    } else if (item.__typename === 'LocalProject') {
+    } else if (typename === 'Project') {
       return 'Project'
     } else {
-      throw `Unknown type: ${item.__typename}`
+      console.log(overviewItem)
+      throw `Unknown type: ${typename}`
     }
   }
 
@@ -57,84 +84,150 @@ export function OverviewItem({ item }: OverviewItemProps) {
     )
 
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        marginRight: 2,
-        marginBottom: 2,
-        minWidth: 130,
-        minHeight: 150,
-      }}
-    >
-      <Button
-        sx={{
-          width: '100%',
-          height: '100%',
-          padding: 0,
+    <>
+      <RenameDialog
+        show={showRenameDialog}
+        onClose={() => setShowRenameDialog(false)}
+        onRename={handleRename}
+        original={overviewItem.name}
+        title={`Rename ${displayType}`}
+      />
+      <QueryDeleteDialog
+        show={showQueryDeleteDialog}
+        onDelete={handleDelete}
+        onClose={() => setShowQueryDeleteDialog(false)}
+        title={`Delete ${displayType}`}
+        description={`Are you sure you want to delete ${displayType} ${overviewItem.name}?`}
+      />
+      <Popover
+        open={showActionsPopover}
+        anchorEl={actionsButtonRef.current}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
-        onClick={() => handleCollectionNavigation(item.id)}
+        onClose={() => setShowActionsPopover(false)}
+        sx={{
+          mt: 1,
+        }}
       >
-        <Box
+        <MenuItem
+          onClick={() => {
+            setShowActionsPopover(false)
+            setShowRenameDialog(true)
+          }}
+        >
+          <ListItemText primary="Rename" />
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowActionsPopover(false)
+            setShowQueryDeleteDialog(true)
+          }}
+        >
+          <ListItemText primary="Delete" />
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            setShowActionsPopover(false)
+            handleDuplicate()
+          }}
+        >
+          <ListItemText primary="Duplicate" />
+        </MenuItem>
+      </Popover>
+      <Paper
+        elevation={2}
+        sx={{
+          marginRight: 2,
+          marginBottom: 2,
+          minWidth: 130,
+          height: 150,
+          maxWidth: 180,
+          overflow: 'hidden',
+        }}
+      >
+        <Button
           sx={{
             width: '100%',
             height: '100%',
+            maxWidth: '100%',
+            padding: 0,
           }}
+          onClick={() => handleCollectionNavigation(overviewItem.id)}
         >
-          <Stack
-            spacing={2}
-            justifyContent="space-between"
-            alignItems="flex-start"
+          <Box
             sx={{
+              width: '100%',
               height: '100%',
+              maxWidth: '100%',
             }}
           >
             <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
               spacing={2}
-              width="100%"
+              justifyContent="space-between"
+              alignItems="flex-start"
+              sx={{
+                height: '100%',
+                maxWidth: '100%',
+              }}
             >
-              <Box
-                sx={{
-                  marginLeft: 2,
-                  marginTop: 2,
-                }}
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="top"
+                spacing={2}
+                width="100%"
               >
                 <Typography
                   variant="body2"
                   sx={{
                     textTransform: 'none',
                     color: theme.palette.text.secondary,
+                    marginX: 2,
+                    marginTop: 2,
                   }}
                 >
                   {displayType}
                 </Typography>
-              </Box>
-              <IconButton>
-                <MoreVertIcon />
-              </IconButton>
-            </Stack>
-            <Box
-              sx={{
-                paddingBottom: 2,
-                paddingLeft: 2,
-                paddingRight: 2,
-              }}
-            >
-              <Typography
-                variant="body1"
+                <Tooltip title="Actions">
+                  <IconButton
+                    ref={actionsButtonRef}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setShowActionsPopover(true)
+                    }}
+                  >
+                    <MoreVertIcon />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+              <Stack
+                direction="row"
                 sx={{
-                  textTransform: 'none',
-                  color: theme.palette.text.primary,
+                  overflow: 'hidden',
+                  width: '100%',
+                  alignItems: 'left',
                 }}
               >
-                {item.name}
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-      </Button>
-    </Paper>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    textTransform: 'none',
+                    color: theme.palette.text.primary,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    maxWidth: '100%',
+                    margin: 2,
+                  }}
+                >
+                  {overviewItem.name}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Box>
+        </Button>
+      </Paper>
+    </>
   )
 }

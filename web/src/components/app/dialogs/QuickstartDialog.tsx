@@ -9,14 +9,13 @@ import {
   ListItemAvatar,
   ListItemText,
 } from '@mui/material'
-
-import { LocalProject } from 'src/contexts/reactives'
+import { Branch, Project } from 'types/src'
 
 import { createCollectionDialogStateVar } from './CreateCollectionDialog'
 
 type QuickstartDialogState = {
   isOpen: boolean
-  project: LocalProject | null
+  project: Project | null
 }
 
 const initialQuickstartDialogState: QuickstartDialogState = {
@@ -35,7 +34,7 @@ export function QuickstartDialog() {
 
   const callNewCollectionDialog = () => {
     handleClose()
-    createCollectionDialogStateVar({ isOpen: true, project: project })
+    createCollectionDialogStateVar({ isOpen: true, project })
   }
 
   return (

@@ -1,1 +1,1 @@
-export { EntityEngine } from './EntityEngine'
+export { EntityEngine, useWorkspace } from './EntityEngine'

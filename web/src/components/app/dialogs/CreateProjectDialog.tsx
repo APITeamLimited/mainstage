@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
@@ -15,14 +15,13 @@ import {
 } from '@mui/material'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { useYMap } from 'zustand-yjs'
 
-import {
-  activeWorkspaceIdVar,
-  generateLocalProject,
-  localProjectsVar,
-  Workspace,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { useWorkspace } from 'src/entity-engine'
+
+import { createProject } from '../../../../../entity-engine/src/entities'
+
+import { Project } from 'types/src'
 
 type CreateProjectDialogState = {
   isOpen: boolean
@@ -37,17 +36,11 @@ export const createProjectDialogStateVar = makeVar(
 )
 
 export const CreateProjectDialog = () => {
-  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
-  const localProjects = useReactiveVar(localProjectsVar)
+  const workspace = useWorkspace()
+  const projects = useYMap<Project, Record<string, Project>>(
+    workspace?.getMap('projects') || new Y.Map()
+  )
   const { isOpen } = useReactiveVar(createProjectDialogStateVar)
-  const workspaces = useReactiveVar(workspacesVar)
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
-
-  useEffect(() => {
-    setActiveWorkspace(
-      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
-    )
-  }, [activeWorkspaceId, workspaces])
 
   const formik = useFormik({
     initialValues: {
@@ -57,18 +50,14 @@ export const CreateProjectDialog = () => {
     validationSchema: Yup.object({
       name: Yup.string().max(25).required('Projects must have a name'),
     }),
-    onSubmit: async (values, helpers): Promise<void> => {
-      if (activeWorkspace?.__typename === 'Local') {
-        const newProject = generateLocalProject({ name: values.name })
-        localProjectsVar(localProjects.concat(newProject))
-      } else {
-        throw 'CreateProjectDialog is not supported for remote workspaces yet'
-      }
+    onSubmit: async (values): Promise<void> => {
+      const newProject = createProject(values.name)
+      projects.set(newProject.id, newProject.project)
       handleClose()
     },
   })
 
-  if (!activeWorkspace) {
+  if (!workspace) {
     return <></>
   }
 
@@ -78,7 +67,7 @@ export const CreateProjectDialog = () => {
   }
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={isOpen} onClose={handleClose} maxWidth="xs" fullWidth>
       <form noValidate onSubmit={formik.handleSubmit}>
         <DialogTitle>New Project</DialogTitle>
         <DialogContent>
@@ -87,7 +76,6 @@ export const CreateProjectDialog = () => {
               Create a new project for your workspace
             </Typography>
             <TextField
-              margin="dense"
               id="name"
               label="Project Name"
               name="name"

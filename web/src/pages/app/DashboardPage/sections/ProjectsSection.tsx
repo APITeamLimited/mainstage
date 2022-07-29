@@ -1,36 +1,20 @@
-import { useEffect, useState } from 'react'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
-import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
+import { useYMap } from 'zustand-yjs'
 
-import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview'
 import { QuickActions } from 'src/components/app/dashboard/QuickActions'
-import {
-  activeWorkspaceIdVar,
-  localProjectsVar,
-  Workspace,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { useWorkspace } from 'src/entity-engine'
+
+import { Project } from 'types/src'
+
+import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
 
 export const ProjectsSection = () => {
-  const localProjects = useReactiveVar(localProjectsVar)
-  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
-  const workspaces = useReactiveVar(workspacesVar)
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const workspaceDoc = useWorkspace()
 
-  useEffect(() => {
-    setActiveWorkspace(
-      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
-    )
-  }, [activeWorkspaceId, workspaces])
-
-  if (!activeWorkspace) {
-    return <></>
-  }
-
-  const isLocalWorkspace = activeWorkspace.__typename === 'Local'
-
-  const projects = localProjects
+  const projectsMap = workspaceDoc?.getMap<Project>('projects') || new Y.Map()
+  const projects = useYMap<Project, Record<string, Project>>(projectsMap)
 
   return (
     <Stack
@@ -45,9 +29,27 @@ export const ProjectsSection = () => {
           width: '100%',
         }}
       >
-        {projects.map((project, index) => (
-          <ProjectOverview key={index} project={project} />
-        ))}
+        {workspaceDoc
+          ? Object.entries(projects.data).map(([projectId, project], index) => {
+              return (
+                <ProjectOverview
+                  key={index}
+                  projectYMap={projectsMap?.get(projectId)}
+                  project={{
+                    id: projectId,
+                    __typename: 'Project',
+                    __parentTypename: 'Workspace',
+                    createdAt: new Date(project.createdAt),
+                    updatedAt: project.updatedAt
+                      ? new Date(project.updatedAt)
+                      : null,
+                    name: project.name,
+                    parentId: workspaceDoc.guid,
+                  }}
+                />
+              )
+            })
+          : null}
       </Stack>
       <Box
         sx={{

@@ -10,11 +10,12 @@ import {
   localProjectsVar,
   localRESTRequestsVar,
   localRESTResponsesVar,
-  Workspace,
 } from 'src/contexts/reactives'
 
 import { PossibleSyncStatus } from './utils'
 import { processWorkspace } from './dispatch-handlers/Workspace'
+
+import { Workspace } from 'types/src'
 
 export type UpdateDispatcherArgs = {
   doc: Y.Doc
@@ -44,7 +45,7 @@ export const updateDispatcher = ({
 
   const rootMap = doc.getMap()
 
-  const isLocal = activeWorkspace.__typename === 'Local'
+  const isLocal = !activeWorkspace.planInfo.remote
 
   console.log('statuses', socketioSyncStatus, indexeddbSyncStatus)
 
@@ -55,17 +56,18 @@ export const updateDispatcher = ({
     console.log('performedFirstRun', performedFirstRun)
 
     if (!performedFirstRun) {
-      populateOpenDoc(doc, { type: 'LOCAL' })
+      populateOpenDoc(doc, {
+        type: 'LOCAL',
+        remote: false,
+        isTeam: false,
+      })
       console.log(rootMap.size)
     }
-
-    processWorkspace(doc)
   } else if (
     socketioSyncStatus === 'connected' &&
     indexeddbSyncStatus === 'connected' &&
     !isLocal
   ) {
     console.log('boi', doc.getMap('projects'))
-    processWorkspace(doc)
   }
 }
