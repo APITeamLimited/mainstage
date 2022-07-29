@@ -77,11 +77,28 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
 
   const displayType = getTypeName()
 
-  const handleCollectionNavigation = (collectionId: string) =>
+  const handleCollectionNavigation = () => {
     // Navigate to the collection editor page
-    navigate(
-      routes.collectionEditor({ collectionId, workspaceId: activeWorkspaceId })
-    )
+    const branch = yMap.parent?.parent
+    if (!branch) throw 'No branch found'
+    const project = branch.parent?.parent
+    if (!project) throw 'No project found'
+
+    let params = {
+      workspaceId: activeWorkspaceId,
+      projectId: project.get('id'),
+      branchId: branch.get('id'),
+    }
+
+    if (displayType === 'Collection') {
+      params = {
+        ...params,
+        collectionId: yMap.get('id'),
+      }
+    }
+
+    return navigate(routes.collectionEditor(params))
+  }
 
   return (
     <>
@@ -154,7 +171,7 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
             maxWidth: '100%',
             padding: 0,
           }}
-          onClick={() => handleCollectionNavigation(overviewItem.id)}
+          onClick={handleCollectionNavigation}
         >
           <Box
             sx={{
@@ -184,7 +201,7 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
                   sx={{
                     textTransform: 'none',
                     color: theme.palette.text.secondary,
-                    marginX: 2,
+                    marginLeft: 2,
                     marginTop: 2,
                   }}
                 >

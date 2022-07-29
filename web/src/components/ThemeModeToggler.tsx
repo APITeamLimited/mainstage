@@ -4,8 +4,7 @@ import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 
 import { useSettings } from 'src/hooks/use-settings'
-
-const ThemeModeToggler = (): JSX.Element => {
+export const ThemeModeToggler = (): JSX.Element => {
   const theme = useTheme()
   const mode = theme.palette.mode
   const { saveSettings } = useSettings()

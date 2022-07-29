@@ -17,12 +17,10 @@ import { RenameDialog } from '../../dialogs/RenameDialog'
 
 type ProjectActionsButtonProps = {
   projectYMap: Y.Map<any>
-  refreshProjects: () => void
 }
 
 export const ProjectActionsButton = ({
   projectYMap,
-  refreshProjects,
 }: ProjectActionsButtonProps) => {
   const [showActionsPopover, setShowActionsPopover] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -51,7 +49,6 @@ export const ProjectActionsButton = ({
     const parent = projectYMap.parent
     // Don't deete, holds placeholder
     parent?.set(projectId, clone)
-    refreshProjects()
   }
 
   const handleDelete = () => {

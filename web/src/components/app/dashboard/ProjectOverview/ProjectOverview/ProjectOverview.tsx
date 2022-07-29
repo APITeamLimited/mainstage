@@ -58,12 +58,12 @@ const ProjectOverviewInner = ({
     branches.get(activeBranch?.id || '')
   )
 
-  console.log(
+  /*console.log(
     'braches',
     activeBranch,
     branches.data,
     projectYMap.get('branches')
-  )
+  )*/
 
   useEffect(() => {
     setActiveYBranch(branches.get(activeBranch?.id || ''))
@@ -83,6 +83,7 @@ const ProjectOverviewInner = ({
     )
   }, [branches, userProjectBranches, project, setActiveBranch])
 
+  if (!activeBranch) refreshProjects()
   if (!activeBranch) return <></>
 
   //const sortedOverviews = sortOverviewItems(
@@ -104,10 +105,7 @@ const ProjectOverviewInner = ({
             <Typography variant="h5" color={theme.palette.text.primary}>
               {project.name}
             </Typography>
-            <ProjectActionsButton
-              projectYMap={projectYMap}
-              refreshProjects={refreshProjects}
-            />
+            <ProjectActionsButton projectYMap={projectYMap} />
           </Stack>
           <Stack direction="row" alignItems="right" spacing={1}>
             <BranchSwitcherButton activeBranch={activeBranch} />

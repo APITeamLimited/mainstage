@@ -47,61 +47,64 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   })
 
   return (
-    <EntityEngine>
-      <ModalsProvider>
-        <AppBar
-          position="sticky"
-          sx={{
-            top: 0,
-            backgroundColor: theme.palette.background.paper,
-            marginBottom: 0,
-            paddingX: 4,
-            paddingY: 1,
-          }}
-          elevation={1}
-          component="nav"
-          ref={appBarRef}
-        >
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <APITeamLogo />
-              <WorkspaceSwitcher />
-            </Stack>
-            <Box>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <ThemeModeToggler />
-                <UserDropdown />
-              </Stack>
-            </Box>
-          </Stack>
-        </AppBar>
-        <AppBarHeightProvider
-          value={appBarRef.current?.clientHeight || undefined}
-        >
-          <Box
-            position="fixed"
+    <>
+      <ReactiveVarPersistor />
+      <EntityEngine>
+        <ModalsProvider>
+          <AppBar
+            position="sticky"
             sx={{
-              height: `calc(100vh - ${appBarRef.current?.clientHeight}px)`,
-              width: '100%',
-              //height: '100%',
-              backgroundColor: theme.palette.background.default,
+              top: 0,
+              backgroundColor: theme.palette.background.paper,
+              marginBottom: 0,
+              paddingX: 4,
+              paddingY: 1,
             }}
+            elevation={1}
+            component="nav"
+            ref={appBarRef}
           >
-            <main
-              style={{
-                height: '100%',
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <APITeamLogo />
+                <WorkspaceSwitcher />
+              </Stack>
+              <Box>
+                <Stack direction="row" alignItems="center" spacing={2}>
+                  <ThemeModeToggler />
+                  <UserDropdown />
+                </Stack>
+              </Box>
+            </Stack>
+          </AppBar>
+          <AppBarHeightProvider
+            value={appBarRef.current?.clientHeight || undefined}
+          >
+            <Box
+              position="fixed"
+              sx={{
+                height: `calc(100vh - ${appBarRef.current?.clientHeight}px)`,
                 width: '100%',
+                //height: '100%',
+                backgroundColor: theme.palette.background.default,
               }}
             >
-              {children}
-            </main>
-          </Box>
-        </AppBarHeightProvider>
-      </ModalsProvider>
-    </EntityEngine>
+              <main
+                style={{
+                  height: '100%',
+                  width: '100%',
+                }}
+              >
+                {children}
+              </main>
+            </Box>
+          </AppBarHeightProvider>
+        </ModalsProvider>
+      </EntityEngine>
+    </>
   )
 }

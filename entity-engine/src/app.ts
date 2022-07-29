@@ -12,7 +12,7 @@ const httpServer = createServer()
 
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:8910',
+    origin: ['http://localhost:8910', 'http://localhost:8912'],
     methods: ['GET', 'POST'],
   },
 })

@@ -1,20 +1,19 @@
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
+import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
+import { Project } from 'types/src'
 import { useYMap } from 'zustand-yjs'
 
-import { QuickActions } from 'src/components/app/dashboard/QuickActions'
-import { useWorkspace } from 'src/entity-engine'
-
-import { Project } from 'types/src'
-
 import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
+import { QuickActions } from 'src/components/app/dashboard/QuickActions'
+import { activeWorkspaceIdVar } from 'src/contexts/reactives'
+import { useWorkspace } from 'src/entity-engine'
 
 export const ProjectsSection = () => {
   const workspaceDoc = useWorkspace()
-
-  const projectsMap = workspaceDoc?.getMap<Project>('projects') || new Y.Map()
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const projectsMap = workspaceDoc?.getMap<Project>('projects')
   const projects = useYMap<Project, Record<string, Project>>(projectsMap)
+  //console.log('projects', projects.data)
 
   return (
     <Stack
@@ -22,6 +21,7 @@ export const ProjectsSection = () => {
       justifyContent={'space-between'}
       direction="row"
       spacing={6}
+      key={activeWorkspaceId}
     >
       <Stack
         spacing={4}

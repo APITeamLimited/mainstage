@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import DeselectIcon from '@mui/icons-material/Deselect'
@@ -16,13 +18,18 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
+import { Environment } from 'types/src'
+import { v4 as uuid } from 'uuid'
+import { useYMap } from 'zustand-yjs'
 
 import {
-  activeEnvironmentVar,
-  generateLocalEnvironment,
-  localEnvironmentsVar,
-  LocalProject,
-} from 'src/contexts/reactives'
+  useActiveEnvironment,
+  useActiveEnvironmentYMap,
+  useBranchYMap,
+  useEnvironments,
+  useEnvironmentsYMap,
+} from 'src/contexts/EnvironmentProvider'
+import { activeEnvironmentVar } from 'src/contexts/reactives'
 
 import {
   KeyValueEditor,
@@ -32,121 +39,103 @@ import {
 import { CreateEnvironmentDialog } from './CreateEnvironmentDialog'
 
 type EnvironmentManagerProps = {
-  project: LocalProject
   show: boolean
   setShowCallback: (show: boolean) => void
 }
 
 export const EnvironmentManager = ({
-  project,
   show,
   setShowCallback,
 }: EnvironmentManagerProps) => {
   const theme = useTheme()
-  const allEnvironments = useReactiveVar(localEnvironmentsVar)
-  const activeEnvironmentId = useReactiveVar(activeEnvironmentVar)
+  const environmentsHook = useEnvironments()
+  const environments = Object.values(environmentsHook.data) as Environment[]
+  const activeEnvironmentYMap = useActiveEnvironmentYMap()
+  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
+  const environmentsYMap = useEnvironmentsYMap()
+  const branchYMap = useBranchYMap()
+  const activeEnvironmentVarData = useReactiveVar(activeEnvironmentVar)
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
     useState(false)
   const [keyValues, setKeyValues] = useState([] as KeyValueItem[])
   const [needSave, setNeedSave] = useState(false)
 
   useEffect(() => {
-    if (!activeEnvironmentId) {
-      setKeyValues([])
-      return
-    }
+    setKeyValues(activeEnvironmentYMap?.get('variables') || [])
+  }, [activeEnvironmentYMap])
 
-    const localEnvironments = allEnvironments.filter(
-      (env) => env.parentId === project.id
-    )
+  const activeEnvironmentId =
+    activeEnvironmentVarData[branchYMap?.get('id')] || null
 
-    const variables =
-      localEnvironments.find((env) => env.id === activeEnvironmentId)
-        ?.variables || []
-
-    setKeyValues(
-      variables.map((variable, index) => ({ id: index, ...variable }))
-    )
-  }, [allEnvironments, activeEnvironmentId, project.id])
-
-  const localEnvironments = allEnvironments.filter(
-    (env) => env.parentId === project.id
-  )
-
-  const currentEnvironment = localEnvironments.find(
-    (env) => env.id === activeEnvironmentId
-  )
+  //console.log(
+  //  'activeEnvironment',
+  //  branchYMap?.get('id'),
+  //  activeEnvironmentId,
+  //  activeEnvironmentVarData,
+  //  activeEnvironment.data
+  //)
 
   const handleEnvironmentSave = (newKeyValues: KeyValueItem[]) => {
-    const environment =
-      localEnvironments.find((env) => env.id === activeEnvironmentId) || null
+    console.log('saving', keyValues)
 
-    if (environment) {
-      environment.variables = newKeyValues
-    } else if (activeEnvironmentId && !environment) {
-      throw `Environment with id ${activeEnvironmentId} not found`
-    }
+    if (!activeEnvironmentYMap) throw 'No active environment'
+    activeEnvironmentYMap.set('variables', newKeyValues)
+    activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
 
-    if (!environment) {
-      throw `Could not find environment with id ${activeEnvironmentId}`
-    }
-
-    localEnvironmentsVar(
-      [
-        ...localEnvironments.filter((env) => env.id !== environment.id),
-        environment,
-      ].sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
-    )
-
+    const clone = activeEnvironmentYMap.clone()
+    const parent = environmentsYMap?.parent
+    if (!parent) throw 'No parent'
+    const id = activeEnvironmentYMap.get('id')
+    parent.delete(id)
+    parent.set(id, clone)
+    console.log('saved', clone)
     setNeedSave(false)
+
+    console.log(parent.get(id))
   }
 
   useEffect(() => {
     setNeedSave(
       JSON.stringify(keyValues) !==
-        JSON.stringify(currentEnvironment?.variables)
+        JSON.stringify(activeEnvironmentYMap?.get('variables') || [])
     )
-  }, [currentEnvironment?.variables, keyValues])
+  }, [activeEnvironmentYMap, keyValues])
 
   const handleEnvironmentCreate = (name: string) => {
-    const newEnvironment = generateLocalEnvironment({
-      name,
-      parentId: project.id,
-      __parentTypename: project.__typename,
-    })
+    if (!environmentsYMap) throw 'No environmentsYMap'
 
-    const isFirstEnvironment = localEnvironments.length === 0
+    const newId = uuid()
 
-    localEnvironmentsVar(
-      [...localEnvironments, newEnvironment].sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
-    )
+    const newEnvironmentYMap = new Y.Map()
+
+    newEnvironmentYMap.set('id', newId)
+    newEnvironmentYMap.set('name', name)
+    newEnvironmentYMap.set('variables', [])
+    newEnvironmentYMap.set('createdAt', new Date().toISOString())
+    newEnvironmentYMap.set('updatedAt', null)
+
+    environmentsYMap.set(newId, newEnvironmentYMap)
+
+    const isFirstEnvironment = environments.length === 0
 
     if (isFirstEnvironment) {
-      activeEnvironmentVar(newEnvironment.id)
+      activeEnvironmentVar({
+        ...activeEnvironmentVarData,
+        [branchYMap?.get('id')]: newId,
+      })
     }
   }
 
   const handleEnvironmentDelete = () => {
-    const newEnvironments = localEnvironments
-      .filter((env) => env.id !== activeEnvironmentId)
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      )
+    if (!activeEnvironmentYMap) throw 'No active environment'
+    if (!environmentsYMap) throw 'No environmentsYMap'
 
-    if (currentEnvironment?.id === activeEnvironmentId) {
-      activeEnvironmentVar(null)
-    }
+    environmentsYMap?.delete(activeEnvironmentYMap.get('id'))
 
-    console.log('newEnvironments', newEnvironments)
-
-    localEnvironmentsVar(newEnvironments)
+    activeEnvironmentVar({
+      ...activeEnvironmentVarData,
+      [branchYMap?.get('id')]: null,
+    })
   }
 
   return (
@@ -162,20 +151,32 @@ export const EnvironmentManager = ({
         fullWidth
         maxWidth="lg"
       >
-        <DialogTitle>
-          Environments
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{
+            width: '100%',
+          }}
+        >
+          <DialogTitle>Environments</DialogTitle>
           <Stack
             direction="row"
+            alignItems="center"
+            spacing={1}
             sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
+              marginRight: 2,
             }}
           >
             {activeEnvironmentId && (
               <Tooltip title="Deselect Environment">
                 <IconButton
-                  onClick={() => activeEnvironmentVar(null)}
+                  onClick={() => {
+                    activeEnvironmentVar({
+                      ...activeEnvironmentVarData,
+                      [branchYMap.get('id')]: null,
+                    })
+                  }}
                   sx={{
                     color: (theme) => theme.palette.grey[500],
                   }}
@@ -195,12 +196,12 @@ export const EnvironmentManager = ({
               </IconButton>
             </Tooltip>
           </Stack>
-        </DialogTitle>
+        </Stack>
         <Divider color={theme.palette.divider} />
         <DialogContent
           style={{ height: '500px', paddingTop: 0, paddingBottom: 3 }}
         >
-          {localEnvironments.length === 0 ? (
+          {environments.length === 0 ? (
             <Stack
               sx={{
                 alignItems: 'center',
@@ -252,7 +253,7 @@ export const EnvironmentManager = ({
                 }}
                 spacing={2}
               >
-                {localEnvironments.map((environment, index) => (
+                {environments.map((environment, index) => (
                   <Button
                     key={index}
                     variant={
@@ -260,7 +261,12 @@ export const EnvironmentManager = ({
                         ? 'contained'
                         : 'text'
                     }
-                    onClick={() => activeEnvironmentVar(environment.id)}
+                    onClick={() => {
+                      activeEnvironmentVar({
+                        ...activeEnvironmentVarData,
+                        [branchYMap.get('id')]: environment.id,
+                      })
+                    }}
                   >
                     {environment.name}
                   </Button>

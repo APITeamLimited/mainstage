@@ -40,7 +40,7 @@ export const CreateEnvironmentDialog = ({
   }
 
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={show} onClose={handleClose} fullWidth maxWidth="xs">
       <DialogTitle>Create Environment</DialogTitle>
       <form noValidate onSubmit={formik.handleSubmit}>
         <DialogContent>

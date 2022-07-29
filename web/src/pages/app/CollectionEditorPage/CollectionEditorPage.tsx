@@ -1,52 +1,59 @@
 import React, { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import {
-  Paper,
-  Stack,
-  useTheme,
-  IconButton,
-  Tooltip,
-  Box,
-  Container,
-} from '@mui/material'
+import { Paper, useTheme, Box, Container } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
+
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import 'react-reflex/styles.css'
 
-import { RESTCodeGenerator } from 'src/components/app/CodeGenerator/RESTCodeGenerator'
+import { Workspace } from 'types/src'
+import { useYMap } from 'zustand-yjs'
+
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
 import { focusedElementVar } from 'src/components/app/collectionEditor/reactives'
 import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
 import { RESTResponsePanel } from 'src/components/app/collectionEditor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collectionEditor/RightAside'
+import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import {
   activeWorkspaceIdVar,
-  LocalCollection,
-  localCollectionsVar,
   RESTRequestManager,
-  Workspace,
   workspacesVar,
 } from 'src/contexts/reactives'
+import { useWorkspace } from 'src/entity-engine'
 import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
 type CollectionEditorPageProps = {
   workspaceId: string
+  projectId: string
+  branchId: string
   collectionId: string
 }
 
 export const CollectionEditorPage = ({
-  collectionId,
   workspaceId,
+  projectId,
+  branchId,
+  collectionId,
 }: CollectionEditorPageProps) => {
-  const localCollections = useReactiveVar(localCollectionsVar)
   const workspaces = useReactiveVar(workspacesVar)
+  const workspace = useWorkspace()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const theme = useTheme()
   const focusedElement = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
   const appBarHeight = useAppBarHeight()
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
-  const [collection, setCollection] = useState<LocalCollection | null>(null)
+  const collectionYMap = workspace
+    ?.get('projects')
+    ?.get(projectId)
+    ?.get('branches')
+    ?.get(branchId)
+    ?.get('collections')
+    ?.get(collectionId)
+  const collection = useYMap(collectionYMap || new Y.Map())
 
   useEffect(() => {
     // Set activeWorkspaceId to the workspaceId if different from the current workspaceId
@@ -61,23 +68,11 @@ export const CollectionEditorPage = ({
     )
   }, [activeWorkspaceId, workspaces])
 
-  useEffect(() => {
-    setCollection(
-      localCollections.find((collection) => collection.id === collectionId) ||
-        null
-    )
-  }, [collectionId, localCollections])
-
   if (!activeWorkspace) {
     return <Container>Workspace with id {workspaceId} not found</Container>
   }
 
-  if (activeWorkspace?.__typename !== 'Local') {
-    console.log(activeWorkspaceId)
-    throw `Non local workspace is not supported yet, workspace id: ${activeWorkspaceId} __typename: ${activeWorkspace?.__typename}`
-  }
-
-  if (!collection) {
+  if (!collectionYMap) {
     return <Container>Collection with id {collectionId} not found</Container>
   }
 
@@ -89,92 +84,97 @@ export const CollectionEditorPage = ({
         width: '100%',
       }}
     >
-      <RESTRequestManager />
-      <ReflexContainer orientation="vertical" windowResizeAware>
-        <ReflexElement
-          minSize={200}
-          maxSize={4000}
-          size={200}
-          flex={2}
-          style={{
-            minWidth: '200px',
-          }}
-        >
-          <Paper
-            sx={{
-              height: '100%',
-              width: '100%',
-              borderRadius: 0,
+      <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
+        <RESTRequestManager />
+        <ReflexContainer orientation="vertical" windowResizeAware>
+          <ReflexElement
+            minSize={200}
+            maxSize={4000}
+            size={200}
+            flex={2}
+            style={{
+              minWidth: '200px',
             }}
-            elevation={10}
           >
-            <CollectionTree collection={collection} />
-          </Paper>
-        </ReflexElement>
-        <ReflexSplitter
-          style={{
-            width: 8,
-            border: 'none',
-            backgroundColor: 'transparent',
-          }}
-        />
-        <ReflexElement minSize={500} flex={1}>
-          <div style={{ height: '100%', width: '100%' }}>
-            <ReflexContainer orientation="horizontal" windowResizeAware>
-              <ReflexElement>
-                <div
-                  style={{
-                    height: '100%',
-                    width: '100%',
-                  }}
-                >
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      // Set height to inputPanelHeightRefs height
+            <Paper
+              sx={{
+                height: '100%',
+                width: '100%',
+                borderRadius: 0,
+              }}
+              elevation={10}
+            >
+              <CollectionTree collectionYMap={collectionYMap} />
+            </Paper>
+          </ReflexElement>
+          <ReflexSplitter
+            style={{
+              width: 8,
+              border: 'none',
+              backgroundColor: 'transparent',
+            }}
+          />
+          <ReflexElement minSize={500} flex={1}>
+            <div style={{ height: '100%', width: '100%' }}>
+              <ReflexContainer orientation="horizontal" windowResizeAware>
+                <ReflexElement>
+                  <div
+                    style={{
                       height: '100%',
-                      borderRadius: 0,
-                      overflow: 'hidden',
+                      width: '100%',
                     }}
                   >
-                    {focusedElement?.__typename === 'LocalRESTRequest' && (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        // Set height to inputPanelHeightRefs height
+                        height: '100%',
+                        borderRadius: 0,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {/*focusedElement?.__typename === 'LocalRESTRequest' && (
                       <RESTInputPanel
                         request={focusedElement}
                         // Key is required to force a re-render when the request changes
                         key={focusedElement.id}
                       />
-                    )}
-                  </Paper>
-                </div>
-              </ReflexElement>
-              <ReflexSplitter
-                style={{
-                  height: 8,
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                }}
-              />
-              <ReflexElement
-                style={{
-                  minWidth: '200px',
-                  overflow: 'hidden',
-                }}
-              >
-                <div style={{ height: '100%' }}>
-                  <Paper
-                    elevation={0}
-                    sx={{ borderRadius: 0, height: '100%', overflow: 'hidden' }}
-                  >
-                    {focusedElement?.__typename === 'LocalRESTRequest' && (
+                    )*/}
+                    </Paper>
+                  </div>
+                </ReflexElement>
+                <ReflexSplitter
+                  style={{
+                    height: 8,
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+                <ReflexElement
+                  style={{
+                    minWidth: '200px',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div style={{ height: '100%' }}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        borderRadius: 0,
+                        height: '100%',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {/*focusedElement?.__typename === 'LocalRESTRequest' && (
                       <RESTResponsePanel />
-                    )}
-                  </Paper>
-                </div>
-              </ReflexElement>
-            </ReflexContainer>
-          </div>
-        </ReflexElement>
-        {showRightAside ? (
+                    )*/}
+                    </Paper>
+                  </div>
+                </ReflexElement>
+              </ReflexContainer>
+            </div>
+          </ReflexElement>
+          {/*showRightAside ? (
           <ReflexSplitter
             style={{
               width: 8,
@@ -196,35 +196,36 @@ export const CollectionEditorPage = ({
               }}
             />
           </Box>
-        )}
-        <ReflexElement
-          flex={2}
-          style={{
-            minWidth: showRightAside ? '300px' : '50px',
-            maxWidth: showRightAside ? '1000px' : '50px',
-            height: `calc(100vh - ${appBarHeight}px)`,
-          }}
-          size={showRightAside ? 300 : 50}
-        >
-          <Paper
-            sx={{
-              height: '100%',
-              width: '100%',
-              maxWidth: '100%',
-              margin: 0,
-              padding: 0,
-              borderRadius: 0,
-              overflowY: 'hidden',
+            )*/}
+          <ReflexElement
+            flex={2}
+            style={{
+              minWidth: showRightAside ? '300px' : '50px',
+              maxWidth: showRightAside ? '1000px' : '50px',
+              height: `calc(100vh - ${appBarHeight}px)`,
             }}
-            elevation={0}
+            size={showRightAside ? 300 : 50}
           >
-            <RightAside
+            <Paper
+              sx={{
+                height: '100%',
+                width: '100%',
+                maxWidth: '100%',
+                margin: 0,
+                padding: 0,
+                borderRadius: 0,
+                overflowY: 'hidden',
+              }}
+              elevation={0}
+            >
+              {/*<RightAside
               setShowRightAside={setShowRightAside}
               showRightAside={showRightAside}
-            />
-          </Paper>
-        </ReflexElement>
-      </ReflexContainer>
+          />*/}
+            </Paper>
+          </ReflexElement>
+        </ReflexContainer>
+      </EnvironmentProvider>
     </div>
   )
 }

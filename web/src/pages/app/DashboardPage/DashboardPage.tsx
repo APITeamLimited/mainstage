@@ -52,7 +52,8 @@ const DashboardPage = () => {
     } else if (initialSection === 'admin') {
       return 2
     } else {
-      return 0
+      // Todo: Temporary, should be 0, just for dev convenience
+      return 1
     }
   }
 

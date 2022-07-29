@@ -1,21 +1,21 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
-import { LocalCollection } from 'src/contexts/reactives'
-
 import { CollectionTopMenu } from './CollectionTopMenu'
 import { NewItemPopover } from './NewItemPopover'
 import { Node } from './Node'
 
 type CollectionTreeProps = {
-  collection: LocalCollection
+  collectionYMap: Y.Map<any>
 }
 
-export const CollectionTree = ({ collection }: CollectionTreeProps) => {
+export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
   const newItemButtonRef = useRef<HTMLButtonElement | null>(null)
   const [newItemPopoverOpen, setNewItemPopoverOpen] = useState(false)
 
@@ -24,12 +24,12 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
 
   return (
     <>
-      <NewItemPopover
+      {/*<NewItemPopover
         anchorEl={newItemButtonRef.current}
-        collection={collection}
+        collectionYMap={collectionYMap}
         open={newItemPopoverOpen}
         onClose={handleNewItemButtonClose}
-      />
+  />*/}
       <Box
         sx={{
           display: 'flex',
@@ -39,9 +39,9 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
           backgroundColor: 'inherit',
         }}
       >
-        <CollectionTopMenu collection={collection} />
+        <CollectionTopMenu collectionYMap={collectionYMap} />
         <Divider />
-
+        {/*}
         <Button
           variant="contained"
           size="small"
@@ -62,9 +62,9 @@ export const CollectionTree = ({ collection }: CollectionTreeProps) => {
           }}
         >
           <DndProvider backend={HTML5Backend}>
-            <Node item={collection} parentIndex={0} />
+            <Node itemYMap={collectionYMap} parentIndex={0} />
           </DndProvider>
-        </Box>
+        </Box>*/}
       </Box>
     </>
   )

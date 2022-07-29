@@ -15,6 +15,7 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { useAuth } from '@redwoodjs/auth'
+import { useParams } from '@redwoodjs/router'
 import { useQuery } from '@redwoodjs/web'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
@@ -167,6 +168,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   // Create and destroy the providers based on readiness
   useEffect(() => {
+    if (!activeWorkspace) return
     handleProviders({
       ready,
       activeWorkspace,

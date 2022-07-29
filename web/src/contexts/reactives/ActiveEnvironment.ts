@@ -1,9 +1,5 @@
 import { makeVar } from '@apollo/client'
 
-import { LocalEnvironment } from './locals'
+export const defaultEnvironmentsMap = {}
 
-export const defaultEnvironment: LocalEnvironment | null = null
-
-export const activeEnvironmentVar = makeVar<LocalEnvironment | null>(
-  defaultEnvironment
-)
+export const activeEnvironmentVar = makeVar(defaultEnvironmentsMap)

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
@@ -11,46 +12,42 @@ import {
   useTheme,
   Stack,
 } from '@mui/material'
+import { useYMap } from 'zustand-yjs'
 
 import {
-  activeEnvironmentVar,
-  LocalCollection,
-  localEnvironmentsVar,
-  localProjectsVar,
-} from 'src/contexts/reactives'
+  useActiveEnvironment,
+  useActiveEnvironmentYMap,
+} from 'src/contexts/EnvironmentProvider'
 
 import { EnvironmentManager } from '../../EnvironmentManager'
-
 type CollectionTopMenuProps = {
-  collection: LocalCollection
+  collectionYMap: Y.Map<any>
 }
 
-export const CollectionTopMenu = ({ collection }: CollectionTopMenuProps) => {
+export const CollectionTopMenu = ({
+  collectionYMap,
+}: CollectionTopMenuProps) => {
   const theme = useTheme()
+  const branchYMap = collectionYMap?.parent?.parent
+  //const branch = useYMap(branchYMap)
+  const projectYMap = branchYMap?.parent?.parent
+  const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const [showEnvironmentManager, setShowEnvironmentManager] = useState(false)
-  const localProjects = useReactiveVar(localProjectsVar)
-  const localEnvironments = useReactiveVar(localEnvironmentsVar)
-  const activeEnvironmentId = useReactiveVar(activeEnvironmentVar)
 
-  const activeEnvironment =
-    localEnvironments.find((env) => env.id === activeEnvironmentId) || null
+  const collection = useYMap(collectionYMap)
 
-  if (activeEnvironmentId && !activeEnvironment) {
-    throw `Could not find active environment with id ${activeEnvironmentId}`
-  }
+  const isActiveEnvironment = activeEnvironmentYMap?.get('id')
 
-  const project = localProjects.find(
-    (project) => project.id === collection.parentId
-  )
-
-  if (!project) {
-    throw `Could not find project with id ${collection.parentId} for collection ${collection.id}`
+  if (!projectYMap) {
+    throw `Could not find project with id ${projectYMap?.get(
+      'id'
+    )} for collectionYMap ${collectionYMap?.get('id')}`
   }
 
   return (
     <>
       <EnvironmentManager
-        project={project}
+        projectYMap={projectYMap}
         show={showEnvironmentManager}
         setShowCallback={setShowEnvironmentManager}
       />
@@ -76,7 +73,7 @@ export const CollectionTopMenu = ({ collection }: CollectionTopMenuProps) => {
             }}
             color={theme.palette.text.primary}
           >
-            {collection.name}
+            {collection.data.name}
           </Typography>
           <IconButton aria-label="Collection Settings">
             <MoreVertIcon />
@@ -95,7 +92,7 @@ export const CollectionTopMenu = ({ collection }: CollectionTopMenuProps) => {
             marginTop: 1,
           }}
         >
-          {activeEnvironment ? activeEnvironment.name : 'None'}
+          {isActiveEnvironment ? activeEnvironmentYMap.get('name') : 'None'}
         </Button>
       </Box>
     </>

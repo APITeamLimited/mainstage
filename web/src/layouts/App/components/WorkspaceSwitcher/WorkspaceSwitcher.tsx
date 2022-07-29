@@ -10,6 +10,8 @@ import {
   useTheme,
   Stack,
   Button,
+  Skeleton,
+  Tooltip,
 } from '@mui/material'
 import { Workspace } from 'types/src'
 
@@ -52,66 +54,78 @@ export const WorkspaceSwitcher = () => {
   }
 
   if (!activeWorkspace) {
-    return <></>
+    return (
+      <Skeleton
+        variant="rectangular"
+        width={172.58}
+        height={44.3}
+        sx={{
+          marginLeft: 8,
+          borderRadius: 1,
+        }}
+      />
+    )
   }
 
-  console.log('workspaces', workspaces)
+  //console.log('workspaces', workspaces)
 
   return (
     <>
-      <Button
-        onClick={handleOpenPopover}
-        color="secondary"
-        variant="outlined"
-        ref={anchorRef}
-        sx={{
-          alignItems: 'center',
-          display: 'flex',
-        }}
-      >
-        <Stack spacing={1} direction="row" alignItems="center">
-          {activeWorkspace.planInfo.type === 'FREE' &&
-            !activeWorkspace.planInfo.isTeam && (
+      <Tooltip title="Switch Workspace">
+        <Button
+          onClick={handleOpenPopover}
+          color="secondary"
+          variant="outlined"
+          ref={anchorRef}
+          sx={{
+            alignItems: 'center',
+            display: 'flex',
+          }}
+        >
+          <Stack spacing={1} direction="row" alignItems="center">
+            {activeWorkspace.planInfo.type === 'FREE' &&
+              !activeWorkspace.planInfo.isTeam && (
+                <SvgIcon
+                  component={CloudIcon}
+                  sx={{
+                    paddingRight: 0.5,
+                    color: theme.palette.text.secondary,
+                  }}
+                />
+              )}
+            {activeWorkspace.planInfo.isTeam && (
               <SvgIcon
-                component={CloudIcon}
+                component={GroupsIcon}
                 sx={{
                   paddingRight: 0.5,
                   color: theme.palette.text.secondary,
                 }}
               />
             )}
-          {activeWorkspace.planInfo.isTeam && (
-            <SvgIcon
-              component={GroupsIcon}
-              sx={{
-                paddingRight: 0.5,
-                color: theme.palette.text.secondary,
-              }}
-            />
-          )}
-          {
-            // Needed to keep the space
-            activeWorkspace.planInfo.type === 'LOCAL' && <Box />
-          }
-          <Stack alignItems="flex-start">
-            <Typography
-              variant="body2"
-              fontSize={10}
-              color={theme.palette.text.secondary}
-              textTransform="none"
-            >
-              Workspace
-            </Typography>
-            <Typography
-              variant="body1"
-              color={theme.palette.text.primary}
-              fontSize={12}
-            >
-              {activeWorkspace.name}
-            </Typography>
+            {
+              // Needed to keep the space
+              activeWorkspace.planInfo.type === 'LOCAL' && <Box />
+            }
+            <Stack alignItems="flex-start">
+              <Typography
+                variant="body2"
+                fontSize={10}
+                color={theme.palette.text.secondary}
+                textTransform="none"
+              >
+                Workspace
+              </Typography>
+              <Typography
+                variant="body1"
+                color={theme.palette.text.primary}
+                fontSize={12}
+              >
+                {activeWorkspace.name}
+              </Typography>
+            </Stack>
           </Stack>
-        </Stack>
-      </Button>
+        </Button>
+      </Tooltip>
       <WorkspaceSwitcherPopover
         anchorEl={anchorRef.current}
         onClose={handleClosePopover}
