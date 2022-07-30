@@ -39,10 +39,16 @@ export const EditNameInput = memo(
       },
     })
 
+    /* don't seem to be working
     useHotkeys('enter', () => formik.handleSubmit())
     useHotkeys('return', () => formik.handleSubmit())
+    useHotkeys('q', () => {
+      console.log('esc')
+      setIsRenamingCallback(false)
+      formik.resetForm()
+    })*/
 
-    useDoubleClick(
+    /*useDoubleClick(
       permitDoubleClickRename
         ? {
             onSingleClick: (event) => {
@@ -70,7 +76,7 @@ export const EditNameInput = memo(
             ref: renamingRef,
             latency: 10,
           }
-    )
+    )*/
 
     return (
       <div

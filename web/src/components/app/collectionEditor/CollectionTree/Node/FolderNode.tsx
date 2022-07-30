@@ -2,7 +2,8 @@ import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
-import { focusedElementVar } from '../../reactives'
+import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+
 import { EditNameInput } from '../EditNameInput'
 
 import { ListCollapsible } from './ListCollapsible'
@@ -13,7 +14,6 @@ import { getNodeIcon } from './utils'
 type FolderNodeProps = {
   isBeingDragged: boolean
   nodeYMap: Y.Map<any>
-  isInFocus: boolean
   renaming: boolean
   renamingRef: React.RefObject<HTMLDivElement>
   setRenaming: (renaming: boolean) => void
@@ -28,12 +28,12 @@ type FolderNodeProps = {
   handleToggle: () => void
   handleNewFolder: () => void
   handleNewRESTRequest: () => void
+  parentIndex: number
 }
 
 export const FolderNode = ({
   isBeingDragged,
   nodeYMap,
-  isInFocus,
   renaming,
   renamingRef,
   setRenaming,
@@ -48,46 +48,50 @@ export const FolderNode = ({
   handleToggle,
   handleNewFolder,
   handleNewRESTRequest,
+  parentIndex,
 }: FolderNodeProps) => {
   const theme = useTheme()
 
   const handleClick = () => {
-    if (!isInFocus) {
+    /*if (!isInFocus) {
       focusedElementVar(nodeYMap)
       setCollapsed(false)
     } else {
       handleToggle()
-    }
+    }*/
+    handleToggle()
   }
 
   return (
     <>
       <ListItem
         secondaryAction={
-          <NodeActionButton
-            nodeYMap={nodeYMap}
-            onDelete={handleDelete}
-            onRename={() => setRenaming(true)}
-            onDuplicate={handleDuplicate}
-            onNewFolder={handleNewFolder}
-            onNewRESTRequest={handleNewRESTRequest}
-          />
+          !renaming && (
+            <NodeActionButton
+              nodeYMap={nodeYMap}
+              onDelete={handleDelete}
+              onRename={() => setRenaming(true)}
+              onDuplicate={handleDuplicate}
+              onNewFolder={handleNewFolder}
+              onNewRESTRequest={handleNewRESTRequest}
+            />
+          )
         }
         sx={{
-          //paddingTop: 1,
-          //paddingBottom: 0.5,
-          paddingY: 0.75,
-          backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
+          minHeight: '48px',
           cursor: 'pointer',
+          paddingY: 0,
         }}
         onClick={handleClick}
       >
-        <ListItemIcon
-          onClick={handleClick}
-          color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
-        >
-          {getNodeIcon(nodeYMap, !(!collapsed || hovered))}
-        </ListItemIcon>
+        {!renaming && (
+          <ListItemIcon
+            onClick={handleClick}
+            color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
+          >
+            {getNodeIcon(nodeYMap, !(!collapsed || hovered))}
+          </ListItemIcon>
+        )}
         <ListItemText
           primary={
             <EditNameInput
@@ -101,18 +105,14 @@ export const FolderNode = ({
           }
           sx={{
             whiteSpace: 'nowrap',
-            marginLeft: -2,
+            marginLeft: renaming ? -1 : -2,
+            marginRight: renaming ? -1 : 'auto',
             overflow: 'hidden',
             color: isBeingDragged
               ? theme.palette.text.secondary
               : theme.palette.text.primary,
           }}
-          //secondary={`dropSpace ${
-          //  dropSpace || 'null'
-          //} parentIndex: ${parentIndex}, orderingIndex: ${
-          //  nodeYMap.orderingIndex
-          //} dropSpace ${dropSpace} parentType ${nodeYMap.__parentTypename}`}
-          secondary={`${nodeYMap.get('orderingIndex')}`}
+          secondary={parentIndex}
         />
       </ListItem>
       {nodeYMap.get('__typename') === 'Folder' && (

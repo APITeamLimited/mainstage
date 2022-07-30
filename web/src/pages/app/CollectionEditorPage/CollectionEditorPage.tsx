@@ -12,7 +12,6 @@ import { Workspace } from 'types/src'
 import { useYMap } from 'zustand-yjs'
 
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
-import { focusedElementVar } from 'src/components/app/collectionEditor/reactives'
 import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
 import { RESTResponsePanel } from 'src/components/app/collectionEditor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collectionEditor/RightAside'
@@ -22,6 +21,7 @@ import {
   RESTRequestManager,
   workspacesVar,
 } from 'src/contexts/reactives'
+import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
 import { useWorkspace } from 'src/entity-engine'
 import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
@@ -42,7 +42,7 @@ export const CollectionEditorPage = ({
   const workspace = useWorkspace()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const theme = useTheme()
-  const focusedElement = useReactiveVar(focusedElementVar)
+  const focusedElementDict = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
   const appBarHeight = useAppBarHeight()
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
@@ -133,11 +133,11 @@ export const CollectionEditorPage = ({
                         overflow: 'hidden',
                       }}
                     >
-                      {/*focusedElement?.__typename === 'LocalRESTRequest' && (
+                      {/*focusedElementDict?.__typename === 'LocalRESTRequest' && (
                       <RESTInputPanel
-                        request={focusedElement}
+                        request={focusedElementDict}
                         // Key is required to force a re-render when the request changes
-                        key={focusedElement.id}
+                        key={focusedElementDict.id}
                       />
                     )*/}
                     </Paper>
@@ -165,7 +165,7 @@ export const CollectionEditorPage = ({
                         overflow: 'hidden',
                       }}
                     >
-                      {/*focusedElement?.__typename === 'LocalRESTRequest' && (
+                      {/*focusedElementDict?.__typename === 'LocalRESTRequest' && (
                       <RESTResponsePanel />
                     )*/}
                     </Paper>

@@ -1,4 +1,4 @@
-import { Box, Collapse, List, Typography, useTheme } from '@mui/material'
+import { Box, Collapse, Stack, List, Typography, useTheme } from '@mui/material'
 
 import { DropSpace } from './Node'
 
@@ -21,9 +21,9 @@ export const ListCollapsible = ({
     <Collapse in={!collapsed || hovered} timeout="auto">
       <List
         sx={{
-          marginLeft: 1,
+          marginLeft: 2,
           paddingTop: 0,
-          paddingBottom: dropSpace === 'Bottom' ? 0.5 : 1,
+          paddingBottom: 0, //dropSpace === 'Bottom' ? 0 : 1,
         }}
       >
         {innerContent.length > 0 ? (
@@ -31,23 +31,29 @@ export const ListCollapsible = ({
         ) : (
           <Box
             sx={{
-              paddingY: 1,
-              paddingLeft: 1,
               backgroundColor:
                 dropSpace === 'Inner' && hovered
                   ? theme.palette.primary.light
                   : theme.palette.background.default,
             }}
           >
-            <Typography
-              color={theme.palette.text.secondary}
-              fontSize="small"
+            <Stack
               sx={{
-                opacity: dropSpace === 'Inner' && hovered ? 0 : 1,
+                height: '48px',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
-              This folder is empty
-            </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize="small"
+                sx={{
+                  opacity: dropSpace === 'Inner' && hovered ? 0 : 1,
+                }}
+              >
+                This folder is empty
+              </Typography>
+            </Stack>
           </Box>
         )}
       </List>

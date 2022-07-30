@@ -3,17 +3,17 @@ import { useEffect, useRef, useState } from 'react'
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { useReactiveVar } from '@apollo/client'
-import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
 import { useDragDropManager } from 'react-dnd'
 import { Folder, RESTRequest } from 'types/src'
 import { useYMap } from 'zustand-yjs'
 
+import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+
 import {
   createFolder,
   createRestRequest,
 } from '../../../../../../../entity-engine/src/entities'
-import { focusedElementVar } from '../../reactives'
 
 import { calculateDrop } from './calculateDrop'
 import { FolderNode } from './FolderNode'
@@ -38,15 +38,18 @@ export type DropSpace = 'Top' | 'Bottom' | 'Inner' | null
 export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
   const isRoot = nodeYMap?.get('__typename') === 'Collection'
 
-  const focusedElement = useReactiveVar(focusedElementVar)
   const [collapsed, setCollapsed] = useState(isRoot ? false : true)
   const [renaming, setRenaming] = useState(false)
 
   const foldersYMap = collectionYMap.get('folders')
-  const folders = useYMap(foldersYMap)
 
   const restRequestsYMap = collectionYMap.get('restRequests')
+
+  // Although we are not using these, they ensure ui updates when the ymaps change
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const restRequests = useYMap(restRequestsYMap)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const folders = useYMap(foldersYMap)
 
   const dragDropManager = useDragDropManager()
   const monitor = dragDropManager.getMonitor()
@@ -122,30 +125,17 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
         const offset = monitor.getClientOffset()
         const element = nodeYMapRef?.current?.getBoundingClientRect()
 
-        // Positive index differences occur when being dragged below the original position
-        const indexDifference =
-          parentIndex -
-          (nodeYMapBeingHovered as { parentIndex: number })?.parentIndex
-
-        if (
-          element &&
-          offset &&
-          hovered // &&
-          //Math.abs(indexDifference) >= (isRoot ? 0 : 1)
-        ) {
+        if (element && offset && hovered) {
           if (offset.y - element.top > element.height / 2) {
-            // If is folder and hovered, perform extra check
-            // If more than 10 pixels from bottom set dropSpace to Inner
-
             if (
               nodeYMap.get('__typename') === 'Folder' &&
               element.bottom - offset.y > 20
             ) {
               setDropSpace('Inner')
-            } else if (indexDifference > 0) {
+            } else {
               setDropSpace('Bottom')
             }
-          } else if (indexDifference < 0) {
+          } else {
             setDropSpace('Top')
           }
         } else {
@@ -268,10 +258,6 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
     })
   }
 
-  const isInFocus =
-    focusedElement?.id === nodeYMap.get('id') &&
-    focusedElement?.__typename === nodeYMap.get('__typename')
-
   const handleRename = (newName: string) => {
     const id = nodeYMap.get('id')
     nodeYMap.set('name', newName)
@@ -308,30 +294,37 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
     <div
       ref={nodeYMapRef}
       style={{
-        height: isRoot ? '100%' : 'auto',
+        //height: isRoot ? '100%' : 'auto',
+        overflowX: 'hidden',
       }}
     >
       <div
         ref={drag}
-        style={{
-          height: isRoot ? '100%' : 'auto',
-        }}
+        style={
+          {
+            //height: isRoot ? '100%' : 'auto',
+          }
+        }
       >
         <div
           ref={drop}
-          style={{
-            height: isRoot ? '100%' : 'auto',
-          }}
+          style={
+            {
+              //height: isRoot ? '100%' : 'auto',
+            }
+          }
         >
           {dropSpace === 'Top' && hovered && <DropSpace />}
           {isRoot && (
             <div
-              style={{
-                minHeight: 'calc(100% - 4rem)',
-                paddingBottom: '4rem',
-                display: 'flex',
-                flexDirection: 'column',
-              }}
+              style={
+                {
+                  //minHeight: 'calc(100% - 4rem)',
+                  //paddingBottom: '4rem',
+                  //display: 'flex',
+                  //flexDirection: 'column',
+                }
+              }
             >
               {innerContent}
             </div>
@@ -340,7 +333,7 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
             <RESTRequestNode
               isBeingDragged={isBeingDragged}
               nodeYMap={nodeYMap}
-              isInFocus={isInFocus}
+              collectionYMap={collectionYMap}
               renaming={renaming}
               renamingRef={renamingRef}
               setRenaming={setRenaming}
@@ -357,7 +350,6 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
             <FolderNode
               isBeingDragged={isBeingDragged}
               nodeYMap={nodeYMap}
-              isInFocus={isInFocus}
               renaming={renaming}
               renamingRef={renamingRef}
               setRenaming={setRenaming}
@@ -372,6 +364,7 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
               handleToggle={handleToggle}
               handleNewFolder={handleNewFolder}
               handleNewRESTRequest={handleNewRESTRequest}
+              parentIndex={parentIndex}
             />
           )}
           {dropSpace === 'Bottom' && hovered && <DropSpace />}
