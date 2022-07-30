@@ -3,10 +3,10 @@ import { Breadcrumbs, useTheme, Typography } from '@mui/material'
 
 import { localFoldersVar, localCollectionsVar } from 'src/contexts/reactives'
 
-import { NodeItem } from './CollectionTree/Node'
+import { Y.Map<any> } from './CollectionTree/Node'
 
 type PanelBreadcrumbsProps = {
-  item: NodeItem
+  item: Y.Map<any>
 }
 
 export const PanelBreadcrumbs = ({ item }: PanelBreadcrumbsProps) => {
@@ -15,7 +15,7 @@ export const PanelBreadcrumbs = ({ item }: PanelBreadcrumbsProps) => {
   const theme = useTheme()
 
   // Function to recursively search parents
-  const getItemChain = (item: NodeItem): JSX.Element[] => {
+  const getItemChain = (item: Y.Map<any>): JSX.Element[] => {
     if (item.__typename === 'LocalCollection') {
       return [
         <Typography

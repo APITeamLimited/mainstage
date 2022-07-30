@@ -1,33 +1,44 @@
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import { Box, Icon, Stack, Typography, useTheme } from '@mui/material'
+import { v4 as uuid } from 'uuid'
 
-import { LocalFolder, LocalRESTRequest } from 'src/contexts/reactives'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
-import { NodeItem } from '.'
+export const getNewOrderingIndex = ({
+  folderYMaps,
+  restRequestYMaps,
+}: {
+  folderYMaps: Y.Map<any>[]
+  restRequestYMaps: Y.Map<any>[]
+}) =>
+  Math.max(
+    -1, // We want the first element to be at index 0
+    ...folderYMaps.map((folder) => folder.get('orderingIndex')),
+    ...restRequestYMaps.map((request) => request.get('orderingIndex'))
+  ) + 1
 
-export const getNodeIcon = (item: NodeItem, collapsed: boolean) => {
-  if (['LocalFolder', 'RemoteFolder'].includes(item.__typename) && collapsed) {
+export const getNodeIcon = (nodeYMap: Y.Map<any>, collapsed: boolean) => {
+  if (nodeYMap.get('__typename') === 'Folder' && collapsed) {
     return <FolderIcon />
-  } else if (
-    ['LocalFolder', 'RemoteFolder'].includes(item.__typename) &&
-    !collapsed
-  ) {
+  } else if (nodeYMap.get('__typename') === 'Folder' && !collapsed) {
     return <FolderOpenIcon />
-  } else if (item.__typename === 'LocalRESTRequest') {
+  } else if (nodeYMap.get('__typename') === 'RESTRequest') {
     return (
       <Icon>
         <Stack>
-          <Typography fontSize={8}>{item.method.toUpperCase()}</Typography>
+          <Typography fontSize={8}>
+            {nodeYMap.get('method')?.toUpperCase()}
+          </Typography>
           <Typography fontSize={8}>REST</Typography>
         </Stack>
       </Icon>
     )
   }
-  throw `getNodeIcon: Unknown item type: ${item.__typename}`
+  throw `getNodeIcon: Unknown item type: ${nodeYMap.get('__typename')}`
 }
 
-export const DropSpaceTop = () => {
+export const DropSpace = () => {
   const theme = useTheme()
 
   return (
@@ -41,79 +52,137 @@ export const DropSpaceTop = () => {
   )
 }
 
-export const DropSpaceBottom = () => {
-  const theme = useTheme()
-
-  return (
-    <Box
-      sx={{
-        height: '0.5rem',
-        marginBottom: -0.5,
-        backgroundColor: theme.palette.primary.light,
-      }}
-    />
-  )
-}
-
 type DeleteRecursiveArgs = {
-  item: NodeItem
-  localFolders: LocalFolder[]
-  localRESTRequests: LocalRESTRequest[]
+  nodeYMap: Y.Map<any>
+  foldersYMap: Y.Map<any>
+  restRequestsYMap: Y.Map<any>
 }
 
-type DeleteRecursiveResult = {
-  localFolders: LocalFolder[]
-  localRESTRequests: LocalRESTRequest[]
-}
-
-// TODO - fix folder delte everythig glitch
 export const deleteRecursive = ({
-  item,
-  localFolders,
-  localRESTRequests,
-}: DeleteRecursiveArgs): DeleteRecursiveResult => {
-  if (item.__typename === 'LocalFolder') {
-    throw 'deleteRecursive: LocalFolder disabled due to bug'
+  nodeYMap,
+  foldersYMap,
+  restRequestsYMap,
+}: DeleteRecursiveArgs) => {
+  if (nodeYMap.get('__typename') === 'Folder') {
+    foldersYMap.delete(nodeYMap.get('id'))
 
-    const index = localFolders.findIndex((folder) => folder.id === item.id)
+    // Loop through restRequests and delete any that are in this folder
 
-    if (index === -1) {
-      throw `deleteRecursive: LocalFolder not found: ${item.id}`
-    }
-    // Set newLocalFolders, removing the folder at index
-    localFolders.splice(index, 1)
-
-    const filteredLocalRESTRequests = localRESTRequests.filter(
-      (request) => request.parentId === item.id
-    )
+    Array.from(foldersYMap.values())?.filter((restRequest) => {
+      if (restRequest.get('parentId') === nodeYMap.get('id')) {
+        restRequestsYMap.delete(restRequest.get('id'))
+      }
+    })
 
     // Recurse on children
-    const nestedLocalFolders = localFolders.filter(
-      (folder) => folder.parentId === item.id
+    const nestedFolders = Array.from(foldersYMap.values())?.filter(
+      (folder) => folder.get('parentId') === nodeYMap.get('id')
     )
 
-    return nestedLocalFolders.reduce(
+    nestedFolders.reduce(
       (acc, folder) =>
         deleteRecursive({
-          item: folder,
-          localFolders: acc.localFolders,
-          localRESTRequests: acc.localRESTRequests,
+          nodeYMap: folder,
+          foldersYMap,
+          restRequestsYMap,
         }),
       {
-        localFolders: nestedLocalFolders,
-        localRESTRequests: filteredLocalRESTRequests,
+        foldersYMap,
+        restRequestsYMap,
       }
     )
-  } else if (item.__typename === 'LocalRESTRequest') {
-    const index = localRESTRequests.findIndex(
-      (request) => request.id === item.id
-    )
-    if (index === -1) {
-      throw `deleteRecursive: LocalRESTRequest not found: ${item.id}`
-    }
-    localRESTRequests.splice(index, 1)
-    return { localFolders, localRESTRequests }
+  } else if (nodeYMap.get('__typename') === 'RESTRequest') {
+    restRequestsYMap.delete(nodeYMap.get('id'))
   } else {
-    throw `deleteRecursive: Unknown item type: ${item.__typename}`
+    throw `deleteRecursive: Unknown item type: ${nodeYMap.get('__typename')}`
+  }
+}
+
+type DuplicateRecursiveArgs = {
+  nodeYMap: Y.Map<any>
+  newParentId?: string | null
+  foldersYMap: Y.Map<any>
+  restRequestsYMap: Y.Map<any>
+}
+
+export const duplicateRecursive = ({
+  nodeYMap,
+  foldersYMap,
+  restRequestsYMap,
+  newParentId = null,
+}: DuplicateRecursiveArgs) => {
+  // Works in the opposite way of deleteRecursive i.e. duplicateRecursive starts
+  // at the top and works down, passing the new parent as nodeYMap
+
+  if (nodeYMap.get('__typename') === 'Folder') {
+    // Create duplicate folder
+    const newFolder = nodeYMap.clone()
+    const newId = uuid()
+    newFolder.set('id', newId)
+    newFolder.set('createdAt', new Date().toISOString())
+    newFolder.set('updatedAt', null)
+
+    if (newParentId === null) {
+      newFolder.set('parentId', nodeYMap.get('parentId'))
+
+      // Add new folder just below the original folder
+      const oldOrderingIndex = nodeYMap.get('orderingIndex')
+      newFolder.set('orderingIndex', oldOrderingIndex + 0.5)
+    } else {
+      newFolder.set('parentId', newParentId)
+    }
+
+    // Collect folders and restRequests in this folder
+    const nestedFolders = Array.from(foldersYMap.values())?.filter(
+      (folder) => folder.get('parentId') === nodeYMap.get('id')
+    )
+
+    const nestedRestRequests = Array.from(restRequestsYMap.values())?.filter(
+      (request) => request.get('parentId') === nodeYMap.get('id')
+    )
+
+    foldersYMap.set(newId, newFolder)
+
+    // Recurse on children
+    nestedFolders.forEach((folder) =>
+      duplicateRecursive({
+        nodeYMap: folder,
+        foldersYMap,
+        restRequestsYMap,
+        newParentId: newId,
+      })
+    )
+
+    nestedRestRequests.forEach((request) =>
+      duplicateRecursive({
+        nodeYMap: request,
+        foldersYMap,
+        restRequestsYMap,
+        newParentId: newId,
+      })
+    )
+  } else if (nodeYMap.get('__typename') === 'RESTRequest') {
+    // Duplicate request
+    const newRequest = nodeYMap.clone()
+    const newId = uuid()
+    newRequest.set('id', newId)
+
+    if (newParentId === null) {
+      newRequest.set('name', `${nodeYMap.get('name')} (copy)`)
+      newRequest.set('parentId', nodeYMap.get('parentId'))
+
+      // Add new request just below the original
+      const oldOrderingIndex = nodeYMap.get('orderingIndex')
+      newRequest.set('orderingIndex', oldOrderingIndex + 0.5)
+    } else {
+      newRequest.set('parentId', newParentId)
+    }
+
+    newRequest.set('createdAt', new Date().toISOString())
+    newRequest.set('updatedAt', null)
+
+    restRequestsYMap.set(newId, newRequest)
+  } else {
+    throw `duplicateRecursive: Unknown item type: ${nodeYMap.get('__typename')}`
   }
 }

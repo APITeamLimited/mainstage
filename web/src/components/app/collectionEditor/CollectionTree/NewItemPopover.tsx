@@ -1,4 +1,3 @@
-import { useReactiveVar } from '@apollo/client'
 import FolderIcon from '@mui/icons-material/Folder'
 import {
   Popover,
@@ -8,99 +7,79 @@ import {
   ListItemIcon,
 } from '@mui/material'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import {
-  activeWorkspaceIdVar,
-  generateLocalFolder,
-  generateLocalRESTRequest,
-  LocalCollection,
-  localFoldersVar,
-  localRESTRequestsVar,
-  workspacesVar,
-} from 'src/contexts/reactives'
+  createFolder,
+  createRestRequest,
+} from '../../../../../../entity-engine/src/entities'
+
+import { getNewOrderingIndex } from './Node/utils'
 
 type NewItemPopoverProps = {
   open?: boolean
-  collection: LocalCollection
+  collectionYMap: Y.Map<any>
   anchorEl: null | Element
   onClose?: () => void
 }
 
 export const NewItemPopover = ({
   open,
-  collection,
+  collectionYMap,
   anchorEl,
   onClose,
 }: NewItemPopoverProps) => {
-  const localFolders = useReactiveVar(localFoldersVar)
-  const localRESTRequests = useReactiveVar(localRESTRequestsVar)
-  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
-  const workspaces = useReactiveVar(workspacesVar)
-  const isLocalWorkspace =
-    workspaces.find((workspace) => workspace.id === activeWorkspaceId)
-      ?.__typename === 'Local'
+  const foldersYMap = collectionYMap.get('folders')
+  const restRequestsYMap = collectionYMap.get('restRequests')
 
   const handleCreateNewFolder = () => {
-    if (isLocalWorkspace) {
-      // Create new folder with parent of the collection
-      const foldersOrderingIndex = localFolders.filter(
-        (folder) => folder.parentId === collection.id
-      ).length
+    const folderYMapsThisLevel = Array.from(foldersYMap.values()).filter(
+      (folderYMap) => folderYMap.get('parentId') === collectionYMap.get('id')
+    ) as Y.Map<any>[]
 
-      const restRequestsOrderingIndex = localRESTRequests.filter(
-        (request) => request.parentId === collection.id
-      ).length
+    const restRequestYMapsThisLevel = Array.from(
+      restRequestsYMap.values()
+    ).filter(
+      (restRequestYMap) =>
+        restRequestYMap.get('parentId') === collectionYMap.get('id')
+    ) as Y.Map<any>[]
 
-      const orderingIndex = Math.max(
-        foldersOrderingIndex,
-        restRequestsOrderingIndex
-      )
+    const { folder, id } = createFolder({
+      parentId: collectionYMap.get('id'),
+      __parentTypename: 'Collection',
+      orderingIndex: getNewOrderingIndex({
+        folderYMaps: folderYMapsThisLevel,
+        restRequestYMaps: restRequestYMapsThisLevel,
+      }),
+    })
 
-      localFoldersVar(
-        localFolders.concat(
-          generateLocalFolder({
-            parentId: collection.id,
-            __parentTypename: 'LocalCollection',
-            name: 'New Folder',
-            orderingIndex,
-          })
-        )
-      )
-    } else {
-      throw 'NewItemPopover non-local workspace not implemented'
-    }
-    if (onClose) onClose()
+    foldersYMap.set(id, folder)
+    onClose?.()
   }
 
   const handleCreateNewRESTRequest = () => {
-    if (isLocalWorkspace) {
-      // Create new REST request with parent of the collection
-      const foldersOrderingIndex = localFolders.filter(
-        (folder) => folder.parentId === collection.id
-      ).length
+    const folderYMapsThisLevel = Array.from(foldersYMap.values()).filter(
+      (folderYMap) => folderYMap.get('parentId') === collectionYMap.get('id')
+    ) as Y.Map<any>[]
 
-      const restRequestsOrderingIndex = localRESTRequests.filter(
-        (request) => request.parentId === collection.id
-      ).length
+    const restRequestYMapsThisLevel = Array.from(
+      restRequestsYMap.values()
+    ).filter(
+      (restRequestYMap) =>
+        restRequestYMap.get('parentId') === collectionYMap.get('id')
+    ) as Y.Map<any>[]
 
-      const orderingIndex = Math.max(
-        foldersOrderingIndex,
-        restRequestsOrderingIndex
-      )
+    const { request, id } = createRestRequest({
+      parentId: collectionYMap.get('id'),
+      __parentTypename: 'Collection',
+      orderingIndex: getNewOrderingIndex({
+        folderYMaps: folderYMapsThisLevel,
+        restRequestYMaps: restRequestYMapsThisLevel,
+      }),
+    })
 
-      localRESTRequestsVar(
-        localRESTRequests.concat(
-          generateLocalRESTRequest({
-            parentId: collection.id,
-            __parentTypename: 'LocalCollection',
-            name: 'New Request',
-            orderingIndex,
-          })
-        )
-      )
-    } else {
-      throw 'NewItemPopover non-local workspace not implemented'
-    }
-    if (onClose) onClose()
+    restRequestsYMap.set(id, request)
+    onClose?.()
   }
 
   return (

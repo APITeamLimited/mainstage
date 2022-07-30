@@ -1,47 +1,69 @@
 import { useState, useRef } from 'react'
 
-import DeleteIcon from '@mui/icons-material/Delete'
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   IconButton,
   Popover,
-  Stack,
   ListItemText,
   MenuItem,
   Divider,
 } from '@mui/material'
 
-import { NodeItem } from '.'
-
 type NodeActionButtonProps = {
-  item: NodeItem
+  nodeYMap: Y.Map<any>
   onDelete: () => void
   onRename: () => void
+  onDuplicate: () => void
   onNewFolder?: () => void
   onNewRESTRequest?: () => void
 }
 
 export const NodeActionButton = ({
-  item,
+  nodeYMap,
   onDelete,
   onRename,
+  onDuplicate,
   onNewFolder,
   onNewRESTRequest,
 }: NodeActionButtonProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement | null>(null)
 
+  const hasOptionals =
+    onNewFolder !== undefined || onNewRESTRequest !== undefined
+
   const handleIconClick = (
-    event: React.MouseEvent<HTMLLIElement, MouseEvent>
+    event: React.MouseEvent<
+      HTMLLIElement,
+      React.MouseEvent<HTMLLIElement, MouseEvent>
+    >
   ) => {
     event.stopPropagation()
     setMenuOpen(!menuOpen)
   }
 
-  const handleRenameClick = () => {
+  const handleRenameClick = (
+    event: React.MouseEvent<HTMLLIElement, MouseEvent>
+  ) => {
+    event.stopPropagation()
     setMenuOpen(false)
     onRename()
+  }
+
+  const handleDeleteClick = (
+    event: React.MouseEvent<HTMLLIElement, MouseEvent>
+  ) => {
+    event.stopPropagation()
+    setMenuOpen(false)
+    onDelete()
+  }
+
+  const handleDuplicateClick = (
+    event: React.MouseEvent<HTMLLIElement, MouseEvent>
+  ) => {
+    event.stopPropagation()
+    setMenuOpen(false)
+    onDuplicate()
   }
 
   const handleNewRESTRequestClick = (
@@ -64,7 +86,7 @@ export const NodeActionButton = ({
     <>
       <IconButton
         edge="end"
-        aria-label={`${item.name} actions`}
+        aria-label={`${nodeYMap.get('name')} actions`}
         ref={buttonRef}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -94,11 +116,14 @@ export const NodeActionButton = ({
             <ListItemText primary="Add Folder" />
           </MenuItem>
         )}
-        {onNewRESTRequest && onNewFolder && <Divider />}
+        {hasOptionals && <Divider />}
         <MenuItem onClick={handleRenameClick}>
           <ListItemText primary="Rename" />
         </MenuItem>
-        <MenuItem onClick={onDelete}>
+        <MenuItem onClick={handleDuplicateClick}>
+          <ListItemText primary="Duplicate" />
+        </MenuItem>
+        <MenuItem onClick={handleDeleteClick}>
           <ListItemText primary="Delete" />
         </MenuItem>
       </Popover>

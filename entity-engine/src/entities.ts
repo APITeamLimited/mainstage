@@ -77,10 +77,72 @@ export const createCollection = (name: string) => {
   collection.set('id', id)
   collection.set('createdAt', new Date().toISOString())
   collection.set('updatedAt', null)
-  collection.set('folders', new Y.Array())
-  collection.set('restRequests', new Y.Array())
-  collection.set('restResponses', new Y.Array())
+  collection.set('folders', new Y.Map())
+  collection.set('restRequests', new Y.Map())
+  collection.set('restResponses', new Y.Map())
   collection.set('__typename', 'Collection')
 
   return { collection, collectionId: id }
+}
+
+export const createFolder = ({
+  name = 'New Folder',
+  parentId,
+  __parentTypename,
+  orderingIndex,
+}: {
+  name?: string
+  parentId: string
+  __parentTypename: string
+  orderingIndex: number
+}) => {
+  const id = uuid()
+  const folder = new Y.Map()
+  folder.set('id', id)
+  folder.set('name', name)
+  folder.set('orderingIndex', orderingIndex)
+  folder.set('createdAt', new Date().toISOString())
+  folder.set('updatedAt', null)
+  folder.set('__typename', 'Folder')
+  folder.set('parentId', parentId)
+  folder.set('__parentTypename', __parentTypename)
+
+  return { folder, id }
+}
+
+export const createRestRequest = ({
+  name = 'New Request',
+  parentId,
+  __parentTypename,
+  orderingIndex,
+}: {
+  name?: string
+  parentId: string
+  __parentTypename: string
+  orderingIndex: number
+}) => {
+  const id = uuid()
+  const request = new Y.Map()
+  request.set('id', id)
+  request.set('name', name)
+  request.set('orderingIndex', orderingIndex)
+  request.set('createdAt', new Date().toISOString())
+  request.set('updatedAt', null)
+  request.set('__typename', 'RESTRequest')
+  request.set('parentId', parentId)
+  request.set('__parentTypename', 'Collection')
+  request.set('method', 'GET')
+  request.set('endpoint', '')
+  request.set('headers', [])
+  request.set('params', [])
+  request.set('body', {
+    contentType: null,
+    body: null,
+  })
+  request.set('auth', {
+    authType: 'none',
+    authActive: true,
+  })
+
+  return { request, id }
 }

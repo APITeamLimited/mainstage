@@ -5,6 +5,8 @@ import { Server } from 'socket.io'
 import { handleAuth } from './services'
 import { handleNewConnection } from './yjs/connection-provider'
 
+process.title = 'entity-engine'
+
 const host = 'localhost' //checkValue<string>('entity-engine.host')
 const port = 8912 //checkValue<number>('entity-engine.port')
 
@@ -32,6 +34,17 @@ io.on('connection', async (socket) => {
   console.log(new Date(), 'Socket.io Client connected', socket.id)
   await handleNewConnection(socket)
 })
+
+// Every minute print memory usage and number of connections
+setInterval(() => {
+  console.log(
+    `\x1b[33m${new Date().toISOString()} Connections: ${
+      io.engine.clientsCount
+    } Memory: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
+      2
+    )}MB\x1b[0m`
+  )
+}, 60000)
 
 httpServer.listen(port, host, () => {
   console.log(

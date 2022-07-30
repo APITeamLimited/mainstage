@@ -1,8 +1,7 @@
 import { makeVar } from '@apollo/client'
+import { Folder, RESTRequest } from 'types/src'
 
-import { LocalFolder, LocalRESTRequest } from 'src/contexts/reactives'
-
-type FocusedElement = LocalRESTRequest | LocalFolder | null
+type FocusedElement = RESTRequest | Folder | null
 
 const blankFocusedElement: FocusedElement = null
 

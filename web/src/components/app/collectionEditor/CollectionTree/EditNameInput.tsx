@@ -99,6 +99,7 @@ export const EditNameInput = memo(
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               focused
+              fullWidth
             />
           </form>
         ) : (

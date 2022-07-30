@@ -1,6 +1,6 @@
 import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 
-import { LocalFolder } from 'src/contexts/reactives'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { focusedElementVar } from '../../reactives'
 import { EditNameInput } from '../EditNameInput'
@@ -12,13 +12,14 @@ import { getNodeIcon } from './utils'
 
 type FolderNodeProps = {
   isBeingDragged: boolean
-  item: LocalFolder
+  nodeYMap: Y.Map<any>
   isInFocus: boolean
   renaming: boolean
   renamingRef: React.RefObject<HTMLDivElement>
   setRenaming: (renaming: boolean) => void
   handleRename: (name: string) => void
   handleDelete: () => void
+  handleDuplicate: () => void
   dropSpace: DropSpace
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
@@ -31,13 +32,14 @@ type FolderNodeProps = {
 
 export const FolderNode = ({
   isBeingDragged,
-  item,
+  nodeYMap,
   isInFocus,
   renaming,
   renamingRef,
   setRenaming,
   handleRename,
   handleDelete,
+  handleDuplicate,
   dropSpace,
   collapsed,
   setCollapsed,
@@ -51,7 +53,7 @@ export const FolderNode = ({
 
   const handleClick = () => {
     if (!isInFocus) {
-      focusedElementVar(item)
+      focusedElementVar(nodeYMap)
       setCollapsed(false)
     } else {
       handleToggle()
@@ -63,9 +65,10 @@ export const FolderNode = ({
       <ListItem
         secondaryAction={
           <NodeActionButton
-            item={item}
+            nodeYMap={nodeYMap}
             onDelete={handleDelete}
             onRename={() => setRenaming(true)}
+            onDuplicate={handleDuplicate}
             onNewFolder={handleNewFolder}
             onNewRESTRequest={handleNewRESTRequest}
           />
@@ -83,12 +86,12 @@ export const FolderNode = ({
           onClick={handleClick}
           color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
         >
-          {getNodeIcon(item, collapsed)}
+          {getNodeIcon(nodeYMap, !(!collapsed || hovered))}
         </ListItemIcon>
         <ListItemText
           primary={
             <EditNameInput
-              name={item.name}
+              name={nodeYMap.get('name')}
               setNameCallback={handleRename}
               isRenaming={renaming}
               setIsRenamingCallback={setRenaming}
@@ -107,11 +110,12 @@ export const FolderNode = ({
           //secondary={`dropSpace ${
           //  dropSpace || 'null'
           //} parentIndex: ${parentIndex}, orderingIndex: ${
-          //  item.orderingIndex
-          //} dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
+          //  nodeYMap.orderingIndex
+          //} dropSpace ${dropSpace} parentType ${nodeYMap.__parentTypename}`}
+          secondary={`${nodeYMap.get('orderingIndex')}`}
         />
       </ListItem>
-      {item.__typename === 'LocalFolder' && (
+      {nodeYMap.get('__typename') === 'Folder' && (
         <ListCollapsible
           collapsed={collapsed}
           hovered={hovered}

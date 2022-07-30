@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
@@ -6,6 +6,8 @@ import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+
+import { useBranchYMap } from 'src/contexts/EnvironmentProvider'
 
 import { CollectionTopMenu } from './CollectionTopMenu'
 import { NewItemPopover } from './NewItemPopover'
@@ -24,12 +26,12 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
 
   return (
     <>
-      {/*<NewItemPopover
+      <NewItemPopover
         anchorEl={newItemButtonRef.current}
         collectionYMap={collectionYMap}
         open={newItemPopoverOpen}
         onClose={handleNewItemButtonClose}
-  />*/}
+      />
       <Box
         sx={{
           display: 'flex',
@@ -41,7 +43,6 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
       >
         <CollectionTopMenu collectionYMap={collectionYMap} />
         <Divider />
-        {/*}
         <Button
           variant="contained"
           size="small"
@@ -62,9 +63,13 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
           }}
         >
           <DndProvider backend={HTML5Backend}>
-            <Node itemYMap={collectionYMap} parentIndex={0} />
+            <Node
+              collectionYMap={collectionYMap}
+              nodeYMap={collectionYMap}
+              parentIndex={0}
+            />
           </DndProvider>
-        </Box>*/}
+        </Box>
       </Box>
     </>
   )

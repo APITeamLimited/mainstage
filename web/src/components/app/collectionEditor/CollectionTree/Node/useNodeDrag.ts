@@ -1,18 +1,17 @@
 import { DragSourceMonitor, useDrag } from 'react-dnd'
 
-import { NodeItem } from './Node'
-
 type UseNodeDragArgs = {
-  item: NodeItem
+  nodeYMap: Y.Map<any>
   parentIndex: number
 }
 
-export const useNodeDrag = ({ item, parentIndex }: UseNodeDragArgs) =>
-  useDrag(
+export const useNodeDrag = ({ nodeYMap, parentIndex }: UseNodeDragArgs) => {
+  //console.log('dragging node', nodeYMap)
+  return useDrag(
     () => ({
-      type: item.__typename,
+      type: nodeYMap.get('__typename'),
       item: {
-        dropItem: item,
+        dropItem: nodeYMap,
         parentIndex,
       },
       collect: (monitor: DragSourceMonitor) => ({
@@ -20,5 +19,6 @@ export const useNodeDrag = ({ item, parentIndex }: UseNodeDragArgs) =>
         indexBeingDraged: parentIndex,
       }),
     }),
-    [item, parentIndex]
+    [nodeYMap, parentIndex]
   )
+}

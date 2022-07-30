@@ -1,26 +1,21 @@
-import {
-  LocalFolder,
-  localFoldersVar,
-  LocalRESTRequest,
-  localRESTRequestsVar,
-} from 'src/contexts/reactives'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
-import { DropSpace, NodeItem } from './Node'
+import { DropSpace } from './Node'
 
 type CalculateDropArgs = {
   dropResult: {
     parentIndex: number
-    dropItem: LocalFolder | LocalRESTRequest
+    dropItem: Y.Map<any>
   } | null
   clientOffset: {
     x: number
     y: number
   } | null
-  item: NodeItem
-  itemRef: React.RefObject<HTMLDivElement>
+  nodeYMap: Y.Map<any>
+  nodeYMapRef: React.RefObject<HTMLDivElement>
   parentIndex: number
-  localFolders: LocalFolder[]
-  localRESTRequests: LocalRESTRequest[]
+  foldersYMap: Y.Map<any>
+  restRequestsYMap: Y.Map<any>
   // These will only ever be set null
   setDropResult: (result: null) => void
   setClientOffset: (offset: null) => void
@@ -30,11 +25,11 @@ type CalculateDropArgs = {
 export const calculateDrop = ({
   dropResult,
   clientOffset,
-  item,
-  itemRef,
+  nodeYMap,
+  nodeYMapRef,
   parentIndex,
-  localFolders,
-  localRESTRequests,
+  foldersYMap,
+  restRequestsYMap,
   setDropResult,
   setClientOffset,
   setDropSpace,
@@ -43,7 +38,7 @@ export const calculateDrop = ({
     return
   }
 
-  const element = itemRef?.current?.getBoundingClientRect()
+  const element = nodeYMapRef?.current?.getBoundingClientRect()
 
   if (!element) {
     return
@@ -53,7 +48,7 @@ export const calculateDrop = ({
 
   if (clientOffset.y - element.top > element.height / 2) {
     if (
-      item.__typename === 'LocalFolder' &&
+      nodeYMap.get('__typename') === 'Folder' &&
       element.bottom - clientOffset.y > 20
     ) {
       calculatedDropSpace = 'Inner'
@@ -66,131 +61,70 @@ export const calculateDrop = ({
 
   // Ignore drops on the same node
   if (
-    dropResult.dropItem.id === item.id &&
+    dropResult.dropItem.get('id') === nodeYMap.get('id') &&
     dropResult.parentIndex === parentIndex &&
-    dropResult.dropItem.__typename === item.__typename
+    dropResult.dropItem.get('__typename') === nodeYMap.get('__typename')
   ) {
     return
   }
 
-  const getNewItem = (
-    calculatedDropSpace: DropSpace
-  ): LocalFolder | LocalRESTRequest => {
-    if (item.__parentTypename === 'LocalProject') {
+  const getNewItem = (calculatedDropSpace: DropSpace): Y.Map<any> => {
+    if (nodeYMap.get('__parentTypename') === 'Project') {
       throw `Can't drop a project on a project`
     }
 
+    const droppedYMap = dropResult.dropItem
+
     if (calculatedDropSpace === 'Top') {
-      const newItem = {
-        ...dropResult.dropItem,
-        parentId: item.parentId,
-        __parentTypename: item.__parentTypename,
-        orderingIndex: parseFloat(item.orderingIndex.toFixed(2)) - 0.5,
-      }
-      return newItem
+      droppedYMap.set('parentId', nodeYMap.get('parentId'))
+      droppedYMap.set('__parentTypename', nodeYMap.get('__parentTypename'))
+      droppedYMap.set('orderingIndex', nodeYMap.get('orderingIndex') - 0.5)
     } else if (calculatedDropSpace === 'Bottom') {
-      return {
-        ...dropResult.dropItem,
-        parentId: item.parentId,
-        __parentTypename: item.__parentTypename,
-        orderingIndex: parseFloat(item.orderingIndex.toFixed(2)) + 0.5,
-      }
+      droppedYMap.set('parentId', nodeYMap.get('parentId'))
+      droppedYMap.set('__parentTypename', nodeYMap.get('__parentTypename'))
+      droppedYMap.set('orderingIndex', nodeYMap.get('orderingIndex') + 0.5)
     } else if (calculatedDropSpace === 'Inner') {
-      if (item.__typename === 'LocalRESTRequest') {
+      if (nodeYMap.get('__typename') === 'RESTRequest') {
         throw `Can't drop onto a REST request`
       }
 
-      return {
-        ...dropResult.dropItem,
-        parentId: item.id,
-        __parentTypename: item.__typename,
-        orderingIndex: 0,
-      }
+      droppedYMap.set('parentId', nodeYMap.get('id'))
+      droppedYMap.set('__parentTypename', nodeYMap.get('__typename'))
+      droppedYMap.set('orderingIndex', 0)
+    } else {
+      throw `Unknown drop space ${calculatedDropSpace}`
     }
 
-    throw `Unknown drop space ${calculatedDropSpace}`
+    return droppedYMap
   }
 
-  // DO NOT REMOVE THE SPREAD OPERATOR!!!
-  const newItem = { ...getNewItem(calculatedDropSpace) }
-
-  const newOrderingIndex = newItem.orderingIndex
-
-  //console.log(newOrderingIndex)
-  //console.log(
-  //  'the type',
-  //  dropResult.dropItem.__typename,
-  //
-  //  calculatedDropSpace,
-  //  'Dropping onto',
-  //  item.__typename,
-  //  item.orderingIndex,
-  //  dropResult.dropItem.orderingIndex,
-  //  newItem.orderingIndex,
-  //  newItem
-  //)
-
-  //console.log([...localFolders, ...localRESTRequests])
+  const newItem = getNewItem(calculatedDropSpace)
 
   const itemsThisLevel = [
-    ...localFolders.filter(
-      (i) => i.parentId === item.parentId && i.id !== newItem.id
+    ...Array.from(foldersYMap.values()).filter(
+      (folder) =>
+        folder.get('parentId') === nodeYMap.get('parentId') &&
+        folder.get('id') !== newItem.get('id')
     ),
-    ...localRESTRequests.filter(
-      (i) => i.parentId === item.parentId && i.id !== newItem.id
+    ...Array.from(restRequestsYMap.values()).filter(
+      (request) =>
+        request.get('parentId') === nodeYMap.get('parentId') &&
+        request.get('id') !== newItem.get('id')
     ),
-    {
-      ...newItem,
-      orderingIndex: newOrderingIndex,
-    },
-  ].sort((a, b) => a.orderingIndex - b.orderingIndex)
+    newItem,
+  ].sort((a, b) => a.get('orderingIndex') - b.get('orderingIndex'))
 
   // generate whole new orderingIndexes for items this level
-  itemsThisLevel.forEach((item, index) => {
-    item.orderingIndex = index
-  })
+  itemsThisLevel.forEach((item, index) => item.set('orderingIndex', index))
 
-  //console.log('itemsThisLevel3', itemsThisLevel, itemsThisLevel.length)
+  console.log('newItem', newItem)
 
-  // LocalFolders on this level
-  const localFoldersThisLevel = itemsThisLevel.filter(
-    (item) => item.__typename === 'LocalFolder'
-  ) as LocalFolder[]
-
-  const localFoldersThisLevelIds = localFoldersThisLevel.map((item) => item.id)
-
-  //console.log('newfolders', [
-  //  ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
-  //  ...localFoldersThisLevel,
-  //])
-
-  localFoldersVar([
-    ...localFolders.filter((i) => !localFoldersThisLevelIds.includes(i.id)),
-    ...localFoldersThisLevel,
-  ])
-  // LocalRESTRequests on this level
-  const localRESTRequestsThisLevel = itemsThisLevel.filter(
-    (item) => item.__typename === 'LocalRESTRequest'
-  ) as LocalRESTRequest[]
-
-  const localRESTRequestsThisLevelIds = localRESTRequestsThisLevel.map(
-    (item) => item.id
-  )
-
-  //console.log(
-  //  'newrestrequests',
-  //  ...localRESTRequests.filter(
-  //    (i) => !localRESTRequestsThisLevelIds.includes(i.id)
-  //  ),
-  //  ...localRESTRequestsThisLevel
-  //)
-
-  localRESTRequestsVar([
-    ...localRESTRequests.filter(
-      (i) => !localRESTRequestsThisLevelIds.includes(i.id)
-    ),
-    ...localRESTRequestsThisLevel,
-  ])
+  // Trigger re-render on other clients hack
+  //const parent = newItem.parent
+  //if (!parent) throw 'No parent'
+  //const clone = newItem.clone()
+  //parent.delete(clone.get('id'))
+  //parent.set(clone.get('id'), clone)
 
   // Cleanup
   setDropResult(null)

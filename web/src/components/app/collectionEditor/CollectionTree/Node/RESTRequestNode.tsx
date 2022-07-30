@@ -1,6 +1,8 @@
 import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 
-import { LocalRESTRequest } from 'src/contexts/reactives'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
+import { RESTRequest } from 'types/src'
 
 import { focusedElementVar } from '../../reactives'
 import { EditNameInput } from '../EditNameInput'
@@ -11,13 +13,14 @@ import { getNodeIcon } from './utils'
 
 type RESTRequestNodeProps = {
   isBeingDragged: boolean
-  item: LocalRESTRequest
+  nodeYMap: Y.Map<any>
   isInFocus: boolean
   renaming: boolean
   renamingRef: React.RefObject<HTMLDivElement>
   setRenaming: (renaming: boolean) => void
   handleRename: (name: string) => void
   handleDelete: () => void
+  handleDuplicate: () => void
   dropSpace: DropSpace
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
@@ -26,13 +29,14 @@ type RESTRequestNodeProps = {
 
 export const RESTRequestNode = ({
   isBeingDragged,
-  item,
+  nodeYMap,
   isInFocus,
   renaming,
   renamingRef,
   setRenaming,
   handleRename,
   handleDelete,
+  handleDuplicate,
   dropSpace,
   collapsed,
   setCollapsed,
@@ -44,9 +48,10 @@ export const RESTRequestNode = ({
     <ListItem
       secondaryAction={
         <NodeActionButton
-          item={item}
+          nodeYMap={nodeYMap}
           onDelete={handleDelete}
           onRename={() => setRenaming(true)}
+          onDuplicate={handleDuplicate}
         />
       }
       sx={{
@@ -57,20 +62,34 @@ export const RESTRequestNode = ({
         cursor: 'pointer',
       }}
       onClick={
-        item.__typename === 'LocalRESTRequest'
-          ? () => focusedElementVar(item)
+        nodeYMap.get('__typename') === 'RESTRequest'
+          ? () =>
+              focusedElementVar({
+                id: nodeYMap.get('id'),
+                parentId: nodeYMap.get('parentId'),
+                __parentTypename: nodeYMap.get('__parentTypename'),
+                __typename: nodeYMap.get('__typename'),
+                orderingIndex: nodeYMap.get('orderingIndex'),
+                method: nodeYMap.get('method'),
+                name: nodeYMap.get('name'),
+                endpoint: nodeYMap.get('endpoint'),
+                params: nodeYMap.get('params'),
+                headers: nodeYMap.get('headers'),
+                auth: nodeYMap.get('auth'),
+                body: nodeYMap.get('body'),
+              } as RESTRequest)
           : undefined
       }
     >
       <ListItemIcon
         color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
       >
-        {getNodeIcon(item, collapsed)}
+        {getNodeIcon(nodeYMap, collapsed)}
       </ListItemIcon>
       <ListItemText
         primary={
           <EditNameInput
-            name={item.name}
+            name={nodeYMap.get('name')}
             setNameCallback={handleRename}
             isRenaming={renaming}
             setIsRenamingCallback={setRenaming}
@@ -90,8 +109,9 @@ export const RESTRequestNode = ({
         //secondary={`dropSpace ${
         //  dropSpace || 'null'
         //} parentIndex: ${parentIndex}, orderingIndex: ${
-        //  item.orderingIndex
-        //} dropSpace ${dropSpace} parentType ${item.__parentTypename}`}
+        //  nodeYMap.orderingIndex
+        //} dropSpace ${dropSpace} parentType ${nodeYMap.__parentTypename}`}
+        secondary={`${nodeYMap.get('orderingIndex')}`}
       />
     </ListItem>
   )
