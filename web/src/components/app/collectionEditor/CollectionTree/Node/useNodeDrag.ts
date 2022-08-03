@@ -11,7 +11,7 @@ export const useNodeDrag = ({ nodeYMap, parentIndex }: UseNodeDragArgs) => {
     () => ({
       type: nodeYMap.get('__typename'),
       item: {
-        dropItem: nodeYMap,
+        dropItem: nodeYMap.get('__typename') !== 'Collection' ? nodeYMap : null,
         parentIndex,
       },
       collect: (monitor: DragSourceMonitor) => ({

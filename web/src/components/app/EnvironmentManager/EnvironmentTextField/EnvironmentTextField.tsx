@@ -22,9 +22,8 @@ export type EnvironmentTextFieldProps = {
   namespace: string
   value?: string
   onChange?: (value: string, namespace: string) => void
-  multiline?: boolean
   contentEditableStyles?: React.CSSProperties
-  wrapperAStyles?: React.CSSProperties
+  wrapperStyles?: React.CSSProperties
   label?: string
   error?: boolean
   helperText?: string | false
@@ -77,9 +76,8 @@ export const EnvironmentTextField = ({
   namespace,
   value = '',
   onChange,
-  multiline = false,
   contentEditableStyles = {},
-  wrapperAStyles = {},
+  wrapperStyles = {},
   label = '',
   error = false,
   helperText = '',
@@ -106,8 +104,9 @@ export const EnvironmentTextField = ({
   return (
     <Stack
       sx={{
-        width: '100%',
-        display: 'flex',
+        overflow: 'hidden',
+        flex: 1,
+        maxWidth: '100%',
       }}
     >
       {label !== '' && (
@@ -121,10 +120,15 @@ export const EnvironmentTextField = ({
       )}
       <div
         style={{
-          display: 'flex',
-          width: '100%',
+          overflow: 'hidden',
+          maxWidth: '100%',
           height: '100%',
-          ...wrapperAStyles,
+          borderRadius: theme.shape.borderRadius,
+          paddingLeft: '14px',
+          paddingRight: '14px',
+          backgroundColor: theme.palette.alternate.dark,
+          borderColor: 'transparent',
+          ...wrapperStyles,
         }}
         onClick={() => onClick()}
       >

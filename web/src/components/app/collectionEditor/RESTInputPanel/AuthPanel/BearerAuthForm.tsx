@@ -23,15 +23,18 @@ export const BearerAuthForm = ({
         width: '100%',
       }}
     >
-      <Typography variant="body2" color={theme.palette.text.primary}>
-        Bearer tokens are sometimes called Access Tokens
-      </Typography>
-      <EnvironmentTextField
-        label="Bearer"
-        namespace={`${requestId}.bearer`}
-        onChange={(value) => setAuth({ ...auth, token: value })}
-        value={auth.token}
-      />
+      <div
+        style={{
+          width: '100%',
+        }}
+      >
+        <EnvironmentTextField
+          label="Bearer"
+          namespace={`${requestId}.bearer`}
+          onChange={(value) => setAuth({ ...auth, token: value })}
+          value={auth.token}
+        />
+      </div>
     </Stack>
   )
 }

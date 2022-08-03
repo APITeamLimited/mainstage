@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { useReactiveVar } from '@apollo/client'
-import { Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
+import { useYMap } from 'zustand-yjs'
 
 import {
   addToQueue,
-  generateLocalRESTRequest,
-  LocalRESTRequest,
-  localRESTRequestsVar,
   restRequestQueueVar,
   updateFilterLocalRESTRequestArray,
 } from 'src/contexts/reactives'
@@ -24,52 +24,78 @@ import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
 
 type RESTInputPanelProps = {
-  request: LocalRESTRequest
+  requestId: string
+  collectionYMap: Y.Map<any>
 }
 
-export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
-  const queue = useReactiveVar(restRequestQueueVar)
-  const [activeTabIndex, setActiveTabIndex] = useState(0)
-  const [unsavedEndpoint, setUnsavedEndpoint] = useState(request.endpoint)
-  const [unsavedHeaders, setUnsavedHeaders] = useState(request.headers)
-  const [unsavedParameters, setUnsavedParameters] = useState(request.params)
-  const [unsavedBody, setUnsavedBody] = useState(request.body)
-  const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
-    request.method
+export const RESTInputPanel = ({
+  requestId,
+  collectionYMap,
+}: RESTInputPanelProps) => {
+  const restRequestsYMap = collectionYMap.get('restRequests')
+
+  // Although we are not using these, they ensure ui updates when the ymaps change
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const restRequests = useYMap(restRequestsYMap)
+
+  const [requestYMap, setRequestYMap] = useState<Y.Map<any> | null>(
+    restRequests.get(requestId)
   )
-  const [unsavedAuth, setUnsavedAuth] = useState(request.auth)
-  const localRESTRequests = useReactiveVar(localRESTRequestsVar)
+
+  useEffect(() => {
+    setRequestYMap(restRequests.get(requestId))
+  }, [requestId, restRequests])
+
+  const [unsavedEndpoint, setUnsavedEndpoint] = useState(
+    requestYMap.get('endpoint')
+  )
+  const [unsavedHeaders, setUnsavedHeaders] = useState(
+    requestYMap.get('headers')
+  )
+  const [unsavedParameters, setUnsavedParameters] = useState(
+    requestYMap.get('params')
+  )
+  const [unsavedBody, setUnsavedBody] = useState(requestYMap.get('body'))
+  const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
+    requestYMap.get('method')
+  )
+  const [unsavedAuth, setUnsavedAuth] = useState(requestYMap.get('auth'))
+
+  const queue = useReactiveVar(restRequestQueueVar)
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
+
+  console.log('rest input panel', requestYMap)
 
   // If request changes, update unsaved request
   useEffect(() => {
-    setUnsavedEndpoint(request.endpoint)
-    setUnsavedHeaders(request.headers)
-    setUnsavedParameters(request.params)
-    setUnsavedBody(request.body)
-    setUnsavedRequestMethod(request.method)
-    setUnsavedAuth(request.auth)
-  }, [request])
+    setUnsavedEndpoint(requestYMap.get('endpoint'))
+    setUnsavedHeaders(requestYMap.get('headers'))
+    setUnsavedParameters(requestYMap.get('params'))
+    setUnsavedBody(requestYMap.get('body'))
+    setUnsavedRequestMethod(requestYMap.get('method'))
+    setUnsavedAuth(requestYMap.get('auth'))
+  }, [requestYMap])
 
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     setNeedSave(
-      unsavedEndpoint !== request.endpoint ||
-        unsavedHeaders !== request.headers ||
-        unsavedParameters !== request.params ||
-        unsavedBody !== request.body ||
-        unsavedRequestMethod !== request.method ||
-        unsavedAuth !== request.auth
+      unsavedEndpoint !== requestYMap.get('endpoint') ||
+        unsavedHeaders !== requestYMap.get('headers') ||
+        unsavedParameters !== requestYMap.get('params') ||
+        unsavedBody !== requestYMap.get('body') ||
+        unsavedRequestMethod !== requestYMap.get('method') ||
+        unsavedAuth !== requestYMap.get('auth')
     )
   }, [
+    requestYMap,
+    unsavedAuth,
+    unsavedBody,
     unsavedEndpoint,
     unsavedHeaders,
     unsavedParameters,
-    unsavedBody,
     unsavedRequestMethod,
-    unsavedAuth,
-    request,
   ])
 
   const handleSave = () => {
@@ -131,18 +157,27 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
         sx={{
           height: 'calc(100% - 2em)',
           maxHeight: 'calc(100% - 2em)',
+          maxWidth: '100%',
           overflow: 'hidden',
         }}
       >
-        <Stack direction="row" spacing={1}>
+        <Stack
+          direction="row"
+          sx={{
+            width: '100%',
+            maxWidth: '100%',
+          }}
+        >
           <EndpointBox
             unsavedEndpoint={unsavedEndpoint}
             setUnsavedEndpoint={(e) => setUnsavedEndpoint(e)}
             requestMethod={unsavedRequestMethod}
             setRequestMethod={setUnsavedRequestMethod}
-            requestId={request.id}
+            requestId={requestId}
           />
+          <Box marginLeft={1} />
           <SendButton onNormalSend={handleNormalSend} />
+          <Box marginLeft={1} />
           <SaveButton
             needSave={needSave}
             onSave={handleSave}
@@ -158,7 +193,7 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           <ParametersPanel
             parameters={unsavedParameters}
             setParameters={setUnsavedParameters}
-            requestId={request.id}
+            requestId={requestId}
           />
         )}
         {activeTabIndex === 1 && (
@@ -168,14 +203,14 @@ export const RESTInputPanel = ({ request }: RESTInputPanelProps) => {
           <HeadersPanel
             headers={unsavedHeaders}
             setHeaders={setUnsavedHeaders}
-            requestId={request.id}
+            requestId={requestId}
           />
         )}
         {activeTabIndex === 3 && (
           <AuthPanel
             auth={unsavedAuth}
             setAuth={setUnsavedAuth}
-            requestId={request.id}
+            requestId={requestId}
           />
         )}
       </Stack>

@@ -52,16 +52,6 @@ export const FolderNode = ({
 }: FolderNodeProps) => {
   const theme = useTheme()
 
-  const handleClick = () => {
-    /*if (!isInFocus) {
-      focusedElementVar(nodeYMap)
-      setCollapsed(false)
-    } else {
-      handleToggle()
-    }*/
-    handleToggle()
-  }
-
   return (
     <>
       <ListItem
@@ -82,11 +72,11 @@ export const FolderNode = ({
           cursor: 'pointer',
           paddingY: 0,
         }}
-        onClick={handleClick}
+        onClick={handleToggle}
       >
         {!renaming && (
           <ListItemIcon
-            onClick={handleClick}
+            onClick={handleToggle}
             color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
           >
             {getNodeIcon(nodeYMap, !(!collapsed || hovered))}
@@ -112,7 +102,6 @@ export const FolderNode = ({
               ? theme.palette.text.secondary
               : theme.palette.text.primary,
           }}
-          secondary={parentIndex}
         />
       </ListItem>
       {nodeYMap.get('__typename') === 'Folder' && (

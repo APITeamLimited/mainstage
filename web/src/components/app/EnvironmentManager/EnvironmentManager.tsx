@@ -23,7 +23,6 @@ import { v4 as uuid } from 'uuid'
 import { useYMap } from 'zustand-yjs'
 
 import {
-  useActiveEnvironment,
   useActiveEnvironmentYMap,
   useBranchYMap,
   useEnvironments,
@@ -299,6 +298,7 @@ export const EnvironmentManager = ({
                       items={keyValues}
                       setItems={setKeyValues}
                       namespace={`env${activeEnvironmentId}`}
+                      enableEnvironmentVariables={false}
                     />
                     <Stack spacing={2} direction="row">
                       <Button

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
@@ -11,6 +11,10 @@ import {
   Typography,
   useTheme,
   Stack,
+  Tooltip,
+  Popover,
+  MenuItem,
+  ListItemText,
 } from '@mui/material'
 import { useYMap } from 'zustand-yjs'
 
@@ -19,6 +23,7 @@ import {
   useActiveEnvironmentYMap,
 } from 'src/contexts/EnvironmentProvider'
 
+import { RenameDialog } from '../../dialogs/RenameDialog'
 import { EnvironmentManager } from '../../EnvironmentManager'
 type CollectionTopMenuProps = {
   collectionYMap: Y.Map<any>
@@ -33,6 +38,9 @@ export const CollectionTopMenu = ({
   const projectYMap = branchYMap?.parent?.parent
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const [showEnvironmentManager, setShowEnvironmentManager] = useState(false)
+  const [showSettingsPopover, setShowSettingsPopover] = useState(false)
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+  const settingsButtonRef = useRef<HTMLButtonElement>(null)
 
   const collection = useYMap(collectionYMap)
 
@@ -44,8 +52,47 @@ export const CollectionTopMenu = ({
     )} for collectionYMap ${collectionYMap?.get('id')}`
   }
 
+  const handleRename = (newName: string) => {
+    collectionYMap.set('name', newName)
+    collectionYMap.set('updatedAt', new Date().toISOString())
+    const id = collectionYMap.get('id')
+    const clone = collectionYMap.clone()
+    const parent = collectionYMap.parent
+    if (!parent) throw 'Could not find parent of collectionYMap'
+    parent.delete(id)
+    parent.set(id, clone)
+  }
+
   return (
     <>
+      <RenameDialog
+        show={showRenameDialog}
+        onClose={() => setShowRenameDialog(false)}
+        onRename={handleRename}
+        original={collection.get('name')}
+        title="Rename Collection"
+      />
+      <Popover
+        open={showSettingsPopover}
+        onClose={() => setShowSettingsPopover(false)}
+        sx={{
+          mt: 1,
+        }}
+        anchorEl={settingsButtonRef.current}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+      >
+        <MenuItem
+          onClick={() => {
+            setShowSettingsPopover(false)
+            setShowRenameDialog(true)
+          }}
+        >
+          <ListItemText primary="Rename" />
+        </MenuItem>
+      </Popover>
       <EnvironmentManager
         projectYMap={projectYMap}
         show={showEnvironmentManager}
@@ -75,25 +122,33 @@ export const CollectionTopMenu = ({
           >
             {collection.data.name}
           </Typography>
-          <IconButton aria-label="Collection Settings">
-            <MoreVertIcon />
-          </IconButton>
+          <Tooltip title="Collection Settings">
+            <IconButton
+              ref={settingsButtonRef}
+              aria-label="Collection Settings"
+              onClick={() => setShowSettingsPopover(true)}
+            >
+              <MoreVertIcon />
+            </IconButton>
+          </Tooltip>
         </Stack>
         <Typography variant="body2" color={theme.palette.text.secondary}>
           Environment:
         </Typography>
-        <Button
-          size="small"
-          variant="outlined"
-          color="secondary"
-          onClick={() => setShowEnvironmentManager(true)}
-          endIcon={<ArrowDropDownIcon />}
-          sx={{
-            marginTop: 1,
-          }}
-        >
-          {isActiveEnvironment ? activeEnvironmentYMap.get('name') : 'None'}
-        </Button>
+        <Tooltip title="Switch Environment">
+          <Button
+            size="small"
+            variant="outlined"
+            color="secondary"
+            onClick={() => setShowEnvironmentManager(true)}
+            endIcon={<ArrowDropDownIcon />}
+            sx={{
+              marginTop: 1,
+            }}
+          >
+            {isActiveEnvironment ? activeEnvironmentYMap.get('name') : 'None'}
+          </Button>
+        </Tooltip>
       </Box>
     </>
   )

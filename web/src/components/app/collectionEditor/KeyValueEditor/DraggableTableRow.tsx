@@ -1,17 +1,8 @@
-/* eslint-disable jsx-a11y/no-autofocus */
 import { useRef, memo } from 'react'
 
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import {
-  Button,
-  Checkbox,
-  IconButton,
-  TableCell,
-  TableRow,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { Checkbox, IconButton, TableCell, TableRow } from '@mui/material'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useDrag, useDrop } from 'react-dnd'
 
@@ -30,8 +21,6 @@ type DraggableTableRowProps = {
   onEnabledChange?: (enabled: boolean, id: number) => void
   onMove: (dragIndex: number, hoverIndex: number) => void
   onDelete?: (id: number) => void
-  isLast: boolean
-  onAddNewPair: () => void
   namespace: string
   enableEnvironmentVariables?: boolean
 }
@@ -40,39 +29,6 @@ interface DragRow {
   index: number
   id: string
   type: 'DraggableType'
-}
-
-const AddNewButton = ({
-  label,
-  onAddNewPair,
-}: {
-  label: string
-  onAddNewPair: () => void
-}) => {
-  const theme = useTheme()
-  return (
-    <Button
-      onClick={onAddNewPair}
-      sx={{
-        width: '100%',
-        height: '40px',
-        backgroundColor: theme.palette.alternate.dark,
-        justifyContent: 'left',
-        paddingLeft: 2,
-        transition: 'none',
-      }}
-    >
-      <Typography
-        variant="body1"
-        color={theme.palette.text.secondary}
-        sx={{
-          textTransform: 'none',
-        }}
-      >
-        {label}
-      </Typography>
-    </Button>
-  )
 }
 
 export const DraggableTableRow = memo(
@@ -87,8 +43,6 @@ export const DraggableTableRow = memo(
     onEnabledChange,
     onMove,
     onDelete,
-    isLast,
-    onAddNewPair,
     namespace,
     enableEnvironmentVariables = true,
   }: DraggableTableRowProps) => {
@@ -173,146 +127,85 @@ export const DraggableTableRow = memo(
           opacity: isDragging ? 0.5 : 1,
         }}
       >
-        {isLast ? (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: '1px',
-              visibility: 'hidden',
-            }}
-          >
-            <IconButton sx={{}}>
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: '1px',
+          }}
+        >
+          <div ref={ref} data-handler-id={handlerId}>
+            <IconButton>
               <DragHandleIcon />
             </IconButton>
-          </TableCell>
-        ) : (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: '1px',
-            }}
-          >
-            <div ref={ref} data-handler-id={handlerId}>
-              <IconButton>
-                <DragHandleIcon />
-              </IconButton>
-            </div>
-          </TableCell>
-        )}
-        {isLast ? (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: '1px',
-              visibility: 'hidden',
-            }}
-          >
-            <Checkbox checked={true} />
-          </TableCell>
-        ) : (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: '1px',
-            }}
-          >
-            <Checkbox
-              // defaultChecked needed for some reason to make the checkbox work
-              checked={enabled}
-              onChange={(event, value) => onEnabledChange?.(value, index)}
+          </div>
+        </TableCell>
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: '1px',
+          }}
+        >
+          <Checkbox
+            // defaultChecked needed for some reason to make the checkbox work
+            checked={enabled}
+            onChange={(event, value) => onEnabledChange?.(value, index)}
+          />
+        </TableCell>
+
+        <TableCell
+          sx={{
+            maxWidth: '200px',
+            width: '200px',
+          }}
+        >
+          {enableEnvironmentVariables ? (
+            <EnvironmentTextField
+              placeholder="Advasd Key"
+              value={keyString}
+              onChange={(value) => onKeyStringChange?.(value, index)}
+              namespace={`${namespace}_${id}_key`}
             />
-          </TableCell>
-        )}
-        {isLast ? (
-          <TableCell
-            sx={{
-              width: '50%',
-            }}
-          >
-            <AddNewButton label="New Key" onAddNewPair={onAddNewPair} />
-          </TableCell>
-        ) : (
-          <TableCell
-            sx={{
-              width: '50%',
-            }}
-          >
-            {enableEnvironmentVariables ? (
-              <EnvironmentTextField
-                placeholder="Add Key"
-                value={keyString}
-                onChange={(value) => onKeyStringChange?.(value, index)}
-                contentEditableStyles={{}}
-                namespace={`${namespace}_${id}_key`}
-              />
-            ) : (
-              <StyledInput
-                value={keyString}
-                onChangeValue={(value) => onKeyStringChange?.(value, index)}
-              />
-            )}
-          </TableCell>
-        )}
-        {isLast ? (
-          <TableCell
-            sx={{
-              width: '50%',
-            }}
-          >
-            <AddNewButton label="New Value" onAddNewPair={onAddNewPair} />
-          </TableCell>
-        ) : (
-          <TableCell
-            sx={{
-              width: '50%',
-            }}
-          >
-            {enableEnvironmentVariables ? (
-              <EnvironmentTextField
-                placeholder="Add Value"
-                value={value}
-                onChange={(value) => onValueChange?.(value, index)}
-                contentEditableStyles={{}}
-                namespace={`${namespace}_${id}_value`}
-              />
-            ) : (
-              <StyledInput
-                value={value}
-                onChangeValue={(value) => onValueChange?.(value, index)}
-              />
-            )}
-          </TableCell>
-        )}
-        {isLast ? (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: '1px',
-              visibility: 'hidden',
-            }}
-          >
-            <IconButton color="error" onClick={() => onDelete?.(index)}>
-              <HighlightOffIcon />
-            </IconButton>
-          </TableCell>
-        ) : (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: '1px',
-            }}
-          >
-            <IconButton color="error" onClick={() => onDelete?.(index)}>
-              <HighlightOffIcon />
-            </IconButton>
-          </TableCell>
-        )}
+          ) : (
+            <StyledInput
+              value={keyString}
+              onChangeValue={(value) => onKeyStringChange?.(value, index)}
+            />
+          )}
+        </TableCell>
+
+        <TableCell
+          sx={{
+            maxWidth: '200px',
+            width: '200px',
+          }}
+        >
+          {enableEnvironmentVariables ? (
+            <EnvironmentTextField
+              placeholder="Add Value"
+              value={value}
+              onChange={(value) => onValueChange?.(value, index)}
+              namespace={`${namespace}_${id}_value`}
+            />
+          ) : (
+            <StyledInput
+              value={value}
+              onChangeValue={(value) => onValueChange?.(value, index)}
+            />
+          )}
+        </TableCell>
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: '1px',
+          }}
+        >
+          <IconButton color="error" onClick={() => onDelete?.(index)}>
+            <HighlightOffIcon />
+          </IconButton>
+        </TableCell>
       </TableRow>
     )
   }

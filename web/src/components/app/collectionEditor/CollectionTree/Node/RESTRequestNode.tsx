@@ -46,7 +46,8 @@ export const RESTRequestNode = ({
   const focusedElementDict = useReactiveVar(focusedElementVar)
 
   const isInFocus =
-    focusedElementDict[collectionYMap.get('id')] === nodeYMap.get('id')
+    focusedElementDict[collectionYMap.get('id')]?.get('id') ===
+    nodeYMap.get('id')
 
   return (
     <ListItem
@@ -71,7 +72,7 @@ export const RESTRequestNode = ({
           ? () =>
               focusedElementVar({
                 ...focusedElementDict,
-                [collectionYMap.get('id')]: nodeYMap.get('id'),
+                [collectionYMap.get('id')]: nodeYMap,
               })
           : undefined
       }
@@ -104,7 +105,6 @@ export const RESTRequestNode = ({
             ? theme.palette.text.secondary
             : theme.palette.text.primary,
         }}
-        secondary={parentIndex}
       />
     </ListItem>
   )

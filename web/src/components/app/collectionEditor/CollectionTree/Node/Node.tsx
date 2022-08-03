@@ -293,10 +293,11 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
   return (
     <div
       ref={nodeYMapRef}
-      style={{
-        //height: isRoot ? '100%' : 'auto',
-        overflowX: 'hidden',
-      }}
+      style={
+        {
+          //height: isRoot ? '100%' : 'auto',
+        }
+      }
     >
       <div
         ref={drag}
@@ -308,11 +309,10 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
       >
         <div
           ref={drop}
-          style={
-            {
-              //height: isRoot ? '100%' : 'auto',
-            }
-          }
+          style={{
+            //height: isRoot ? '100%' : 'auto',
+            overflow: 'visible',
+          }}
         >
           {dropSpace === 'Top' && hovered && <DropSpace />}
           {isRoot && (

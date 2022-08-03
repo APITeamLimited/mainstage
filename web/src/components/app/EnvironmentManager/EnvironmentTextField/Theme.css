@@ -7,11 +7,11 @@
 .PlaygroundEditorTheme__paragraph {
   margin: 0;
     white-space: nowrap;
+    padding: 1px;
 }
 .PlaygroundEditorTheme__paragraph span {
   display: inline-block;
-  white-space: normal;
-  width: '2000px';
+  overflow-x: visible;
 }
 .PlaygroundEditorTheme__paragraph:last-child {
   margin-bottom: 0;

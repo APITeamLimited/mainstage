@@ -1,5 +1,3 @@
-import { Box, Stack } from '@mui/material'
-
 import { EnvironmentTextField } from '../../EnvironmentManager/EnvironmentTextField'
 
 import { RequestMethodButton } from './RequestMethodButton'
@@ -33,27 +31,20 @@ export const EndpointBox = ({
   const namespace = `${requestId}_endpoint`
   return (
     <>
-      <Stack
-        direction="row"
-        sx={{
-          width: '100%',
+      <RequestMethodButton
+        requestMethod={requestMethod}
+        setRequestMethod={setRequestMethod}
+      />
+      <EnvironmentTextField
+        placeholder="Endpoint"
+        namespace={namespace}
+        value={unsavedEndpoint}
+        onChange={(v, m) => handleEndpointChange(v, m)}
+        wrapperStyles={{
+          borderTopLeftRadius: 0,
+          borderBottomLeftRadius: 0,
         }}
-      >
-        <RequestMethodButton
-          requestMethod={requestMethod}
-          setRequestMethod={setRequestMethod}
-        />
-        <EnvironmentTextField
-          placeholder="Endpoint"
-          namespace={namespace}
-          value={unsavedEndpoint}
-          onChange={(v, m) => handleEndpointChange(v, m)}
-          contentEditableStyles={{
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-          }}
-        />
-      </Stack>
+      />
     </>
   )
 }

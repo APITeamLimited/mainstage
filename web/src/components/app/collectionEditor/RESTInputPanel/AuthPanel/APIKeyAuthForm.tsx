@@ -28,18 +28,30 @@ export const APIKeyAuthForm = ({
         width: '100%',
       }}
     >
-      <EnvironmentTextField
-        label="Key"
-        namespace={`${requestId}.apiKey`}
-        onChange={(value) => setAuth({ ...auth, key: value })}
-        value={auth.key}
-      />
-      <EnvironmentTextField
-        label="Value"
-        namespace={`${requestId}.apiKeyValue`}
-        onChange={(value) => setAuth({ ...auth, value })}
-        value={auth.value}
-      />
+      <div
+        style={{
+          width: '100%',
+        }}
+      >
+        <EnvironmentTextField
+          label="Key"
+          namespace={`${requestId}.apiKey`}
+          onChange={(value) => setAuth({ ...auth, key: value })}
+          value={auth.key}
+        />
+      </div>
+      <div
+        style={{
+          width: '100%',
+        }}
+      >
+        <EnvironmentTextField
+          label="Value"
+          namespace={`${requestId}.apiKeyValue`}
+          onChange={(value) => setAuth({ ...auth, value })}
+          value={auth.value}
+        />
+      </div>
       <div>
         <FormLabel>Add To</FormLabel>
         <RadioGroup

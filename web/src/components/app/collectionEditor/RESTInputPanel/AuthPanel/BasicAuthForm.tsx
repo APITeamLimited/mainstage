@@ -22,18 +22,30 @@ export const BasicAuthForm = ({
         width: '100%',
       }}
     >
-      <EnvironmentTextField
-        label="Username"
-        namespace={`${requestId}.username`}
-        onChange={(value) => setAuth({ ...auth, username: value })}
-        value={auth.username}
-      />
-      <EnvironmentTextField
-        label="Password"
-        namespace={`${requestId}.password`}
-        onChange={(value) => setAuth({ ...auth, password: value })}
-        value={auth.password}
-      />
+      <div
+        style={{
+          width: '100%',
+        }}
+      >
+        <EnvironmentTextField
+          label="Username"
+          namespace={`${requestId}.username`}
+          onChange={(value) => setAuth({ ...auth, username: value })}
+          value={auth.username}
+        />
+      </div>
+      <div
+        style={{
+          width: '100%',
+        }}
+      >
+        <EnvironmentTextField
+          label="Password"
+          namespace={`${requestId}.password`}
+          onChange={(value) => setAuth({ ...auth, password: value })}
+          value={auth.password}
+        />
+      </div>
     </Stack>
   )
 }

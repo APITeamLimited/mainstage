@@ -13,8 +13,11 @@ import update from 'immutability-helper'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
+import { isReactElement } from '@redwoodjs/router/dist/util'
+
 import { DraggableTableRow } from './DraggableTableRow'
 import { KeyValueItem } from './KeyValueEditor'
+import { SortableNewItemButton } from './SortableNewItemButton'
 
 type SortableEditorProps = {
   items: KeyValueItem[]
@@ -28,7 +31,7 @@ export const SortableEditor = memo(
     items,
     setItems,
     namespace,
-    enableEnvironmentVariables,
+    enableEnvironmentVariables = true,
   }: SortableEditorProps) => {
     const moveCard = (dragIndex: number, hoverIndex: number) => {
       const dragItem = items[dragIndex]
@@ -99,18 +102,6 @@ export const SortableEditor = memo(
       )
     }
 
-    const withEmptyRowItems = [
-      ...items,
-      {
-        id:
-          items.reduce((largestId, item) => Math.max(largestId, item.id), 0) +
-          1,
-        keyString: '',
-        value: '',
-        enabled: true,
-      },
-    ]
-
     return (
       <DndProvider backend={HTML5Backend}>
         <TableContainer>
@@ -133,7 +124,7 @@ export const SortableEditor = memo(
               </TableRow>
             </TableHead>
             <TableBody>
-              {withEmptyRowItems.map((item, index) => (
+              {items.map((item, index) => (
                 <DraggableTableRow
                   key={index}
                   index={index}
@@ -146,14 +137,13 @@ export const SortableEditor = memo(
                   onValueChange={handleValueChange}
                   onEnabledChange={handleEnabledChange}
                   onDelete={handleDelete}
-                  isLast={index === withEmptyRowItems.length - 1}
-                  onAddNewPair={handleCreateNewRow}
                   namespace={namespace}
                   enableEnvironmentVariables={enableEnvironmentVariables}
                 />
               ))}
             </TableBody>
           </Table>
+          <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
         </TableContainer>
       </DndProvider>
     )

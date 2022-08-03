@@ -39,9 +39,8 @@ export const ListCollapsible = ({
           >
             <Stack
               sx={{
-                height: '48px',
                 justifyContent: 'center',
-                alignItems: 'center',
+                alignItems: 'left',
               }}
             >
               <Typography
@@ -49,6 +48,7 @@ export const ListCollapsible = ({
                 fontSize="small"
                 sx={{
                   opacity: dropSpace === 'Inner' && hovered ? 0 : 1,
+                  margin: 1,
                 }}
               >
                 This folder is empty

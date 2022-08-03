@@ -3,6 +3,8 @@ import { Box, Stack } from '@mui/material'
 import { Project } from 'types/src'
 import { useYMap } from 'zustand-yjs'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
 import { QuickActions } from 'src/components/app/dashboard/QuickActions'
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
@@ -34,7 +36,7 @@ export const ProjectsSection = () => {
               return (
                 <ProjectOverview
                   key={index}
-                  projectYMap={projectsMap?.get(projectId)}
+                  projectYMap={projectsMap?.get?.(projectId) || new Y.Map()}
                   project={{
                     id: projectId,
                     __typename: 'Project',

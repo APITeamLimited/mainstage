@@ -76,6 +76,11 @@ export const CollectionEditorPage = ({
     return <Container>Collection with id {collectionId} not found</Container>
   }
 
+  console.log(
+    'focusedElementDict[collectionId]?.get?',
+    focusedElementDict[collectionId]?.get?.('__typename')
+  )
+
   return (
     <div
       style={{
@@ -86,7 +91,7 @@ export const CollectionEditorPage = ({
     >
       <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
         <RESTRequestManager />
-        <ReflexContainer orientation="vertical" windowResizeAware>
+        <ReflexContainer orientation="vertical">
           <ReflexElement
             minSize={200}
             maxSize={4000}
@@ -133,13 +138,17 @@ export const CollectionEditorPage = ({
                         overflow: 'hidden',
                       }}
                     >
-                      {/*focusedElementDict?.__typename === 'LocalRESTRequest' && (
-                      <RESTInputPanel
-                        request={focusedElementDict}
-                        // Key is required to force a re-render when the request changes
-                        key={focusedElementDict.id}
-                      />
-                    )*/}
+                      {focusedElementDict[collectionId]?.get?.('__typename') ===
+                        'RESTRequest' && (
+                        <RESTInputPanel
+                          requestId={focusedElementDict[collectionId]?.get(
+                            'id'
+                          )}
+                          collectionYMap={collectionYMap}
+                          // Key is required to force a re-render when the request changes
+                          key={focusedElementDict[collectionId]?.get('id')}
+                        />
+                      )}
                     </Paper>
                   </div>
                 </ReflexElement>
@@ -165,7 +174,7 @@ export const CollectionEditorPage = ({
                         overflow: 'hidden',
                       }}
                     >
-                      {/*focusedElementDict?.__typename === 'LocalRESTRequest' && (
+                      {/*focusedElementDict?.__typename === 'RESTRequest' && (
                       <RESTResponsePanel />
                     )*/}
                     </Paper>
