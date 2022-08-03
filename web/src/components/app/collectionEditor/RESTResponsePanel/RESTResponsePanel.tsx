@@ -5,13 +5,9 @@ import { makeVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
 import { Stack, Typography, useTheme } from '@mui/material'
 
-import {
-  LocalRESTResponse,
-  localRESTResponsesVar,
-} from 'src/contexts/reactives'
+import { RESTResponse, localRESTResponsesVar } from 'src/contexts/reactives'
 
 import { CustomTabs } from '../../CustomTabs'
-import { focusedElementVar } from '../reactives'
 
 import { BodyPanel } from './BodyPanel'
 import { HeadersPanel } from './HeadersPanel'
@@ -19,7 +15,7 @@ import { QuickStats } from './QuickStats'
 
 type RESTResponsePanelProps = {}
 
-export const focusedResponseVar = makeVar<LocalRESTResponse | null>(null)
+export const focusedResponseVar = makeVar<RESTResponse | null>(null)
 
 export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
   const theme = useTheme()
@@ -35,7 +31,7 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
       (response) =>
         (response.type === 'Success' || response.type === 'Fail') &&
         response.request?.id === focusedElement?.id &&
-        focusedElement.__typename === 'LocalRESTRequest'
+        focusedElement.__typename === 'RESTRequest'
     )
 
     if (successfulResponses.length > 0) {

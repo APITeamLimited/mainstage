@@ -16,6 +16,7 @@ import {
   ListItemText,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
+import { useYMap } from 'zustand-yjs'
 
 import { routes, navigate } from '@redwoodjs/router'
 
@@ -40,6 +41,8 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
   const [showRenameDialog, setShowRenameDialog] = useState(false)
 
+  const overview = useYMap(yMap)
+
   const handleDuplicate = () => {
     const newItem = yMap.clone()
     const newId = uuid()
@@ -53,10 +56,6 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
   const handleRename = (newName: string) => {
     yMap.set('name', newName)
     yMap.set('updatedAt', new Date().toISOString())
-    const clone = yMap.clone()
-    const parent = yMap.parent
-    parent?.delete(overviewItem.id)
-    parent?.set(overviewItem.id, clone)
   }
 
   const handleDelete = () => {

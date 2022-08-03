@@ -1,4 +1,4 @@
-import { Stack, Typography, useTheme } from '@mui/material'
+import { Stack, useTheme } from '@mui/material'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 import { RESTAuth, RESTAuthBearer } from 'src/contexts/reactives'

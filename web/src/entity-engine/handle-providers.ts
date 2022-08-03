@@ -84,14 +84,14 @@ export const handleProviders = ({
           //onAwarenessUpdate: (awareness) => {
           //  //console.log('awareness bing bing', awareness)
           //},
-          //onSyncMessage: (newDoc) =>
-          //handleUpdateDispatch({
-          //  doc: newDoc,
-          //  activeWorkspace,
-          //}),
-          //onStatusChange: (status) => {
-          //  setSocketioSyncStatus(status)
-          //},
+          onSyncMessage: (newDoc) =>
+            handleUpdateDispatch({
+              doc: newDoc,
+              activeWorkspace,
+            }),
+          onStatusChange: (status) => {
+            setSocketioSyncStatus(status)
+          },
           resyncInterval: -1,
         },
       })

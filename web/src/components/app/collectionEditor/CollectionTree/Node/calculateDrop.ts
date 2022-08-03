@@ -117,14 +117,6 @@ export const calculateDrop = ({
   // generate whole new orderingIndexes for items this level
   itemsThisLevel.forEach((item, index) => item.set('orderingIndex', index))
 
-  // Trigger re-render on other clients hack
-  const parent = newItem.parent
-  if (!parent) throw 'No parent'
-  const id = newItem.get('id')
-  const clone = newItem.clone()
-  parent.delete(id)
-  parent.set(id, clone)
-
   // Cleanup
   setDropResult(null)
   setClientOffset(null)

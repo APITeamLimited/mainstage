@@ -45,10 +45,6 @@ export const ProjectActionsButton = ({
   const handleRename = (newName: string) => {
     projectYMap.set('name', newName)
     projectYMap.set('updatedAt', new Date().toISOString())
-    const clone = projectYMap.clone()
-    const parent = projectYMap.parent
-    // Don't deete, holds placeholder
-    parent?.set(projectId, clone)
   }
 
   const handleDelete = () => {

@@ -6,7 +6,6 @@ import {
   Typography,
   Box,
   useTheme,
-  ListItemButton,
   ListItemText,
   ListItemIcon,
   ListItem,
@@ -14,13 +13,15 @@ import {
   Tooltip,
 } from '@mui/material'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import {
+  focusedElementVar,
   LocalRESTResponse,
   localRESTResponsesVar,
 } from 'src/contexts/reactives'
 
 import { getNodeIcon } from './CollectionTree/Node/utils'
-import { focusedElementVar } from './reactives'
 import { focusedResponseVar } from './RESTResponsePanel'
 
 type GroupedResponses = {
@@ -29,16 +30,25 @@ type GroupedResponses = {
 
 type RESTHistoryProps = {
   onCloseAside: () => void
+  collectionYMap: Y.Map<any>
 }
 
-export const RESTHistory = ({ onCloseAside }: RESTHistoryProps) => {
-  const focusedElement = useReactiveVar(focusedElementVar)
+export const RESTHistory = ({
+  onCloseAside,
+  collectionYMap,
+}: RESTHistoryProps) => {
+  const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponse = useReactiveVar(focusedResponseVar)
   const localRESTResponses = useReactiveVar(localRESTResponsesVar)
   const theme = useTheme()
 
-  if (focusedElement?.__typename !== 'LocalRESTRequest') {
-    throw `focusedElement.__typename: '${focusedElement?.__typename}' invalid for RESTHistory`
+  if (
+    focusedElementDict[collectionYMap.get('id')]?.get('__typename') !==
+    'RESTRequest'
+  ) {
+    throw `focusedElementDict.__typename: '${focusedElementDict[
+      collectionYMap.get('id')
+    ]?.get('__typename')}' invalid for RESTHistory`
   }
 
   const handleDeleteResponse = (responseId: string) => {
@@ -57,7 +67,8 @@ export const RESTHistory = ({ onCloseAside }: RESTHistoryProps) => {
   const responses = localRESTResponses.filter(
     (response) =>
       (response.type === 'Success' || response.type === 'Fail') &&
-      response.parentId === focusedElement.id
+      response.parentId ===
+        focusedElementDict[collectionYMap.get('id')]?.get('id')
   )
 
   // Sort most recent first

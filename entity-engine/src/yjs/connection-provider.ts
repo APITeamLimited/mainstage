@@ -156,7 +156,7 @@ class OpenDoc extends Y.Doc {
     )
 
     this.on('update', async (update: Uint8Array) => {
-      console.log('handling update', update.toString())
+      console.log('handling update, sockets', this.sockets.size)
 
       const encoder = encoding.createEncoder()
       encoding.writeVarUint(encoder, messageSyncType)

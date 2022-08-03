@@ -55,12 +55,6 @@ export const CollectionTopMenu = ({
   const handleRename = (newName: string) => {
     collectionYMap.set('name', newName)
     collectionYMap.set('updatedAt', new Date().toISOString())
-    const id = collectionYMap.get('id')
-    const clone = collectionYMap.clone()
-    const parent = collectionYMap.parent
-    if (!parent) throw 'Could not find parent of collectionYMap'
-    parent.delete(id)
-    parent.set(id, clone)
   }
 
   return (

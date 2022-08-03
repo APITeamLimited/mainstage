@@ -13,7 +13,6 @@ import {
 } from 'src/contexts/reactives'
 
 import { PossibleSyncStatus } from './utils'
-import { processWorkspace } from './dispatch-handlers/Workspace'
 
 import { Workspace } from 'types/src'
 
@@ -63,11 +62,5 @@ export const updateDispatcher = ({
       })
       console.log(rootMap.size)
     }
-  } else if (
-    socketioSyncStatus === 'connected' &&
-    indexeddbSyncStatus === 'connected' &&
-    !isLocal
-  ) {
-    console.log('boi', doc.getMap('projects'))
   }
 }

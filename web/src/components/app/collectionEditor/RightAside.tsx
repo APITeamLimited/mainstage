@@ -1,28 +1,33 @@
 import { useEffect, useState } from 'react'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { useReactiveVar } from '@apollo/client'
 import CodeIcon from '@mui/icons-material/Code'
 import CommentIcon from '@mui/icons-material/Comment'
 import { Box, IconButton, Stack, Tooltip, useTheme } from '@mui/material'
 
+import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+
 import { RESTCodeGenerator } from '../CodeGenerator/RESTCodeGenerator'
 
-import { focusedElementVar } from './reactives'
 import { RESTHistory } from './RESTHistory'
 
 type RightAsideProps = {
   setShowRightAside: (showRightAside: boolean) => void
   showRightAside: boolean
+  collectionYMap: Y.Map<any>
 }
 
 type AsideType = 'code' | 'restHistory' | null
 
 export const RightAside = ({
   setShowRightAside,
+  collectionYMap,
   showRightAside,
 }: RightAsideProps) => {
   const theme = useTheme()
-  const focusedElement = useReactiveVar(focusedElementVar)
+  const focusedElementDict = useReactiveVar(focusedElementVar)
   const [activeRightAside, setActiveRightAside] = useState<AsideType>(null)
 
   const handleButtonClick = (aside: AsideType) => {
@@ -39,13 +44,22 @@ export const RightAside = ({
   }
 
   useEffect(() => {
-    if (focusedElement?.__typename !== 'LocalRESTRequest') {
+    if (
+      focusedElementDict[collectionYMap.get('id')]?.get('__typename') !==
+      'RESTRequest'
+    ) {
       if (activeRightAside === 'code') {
         setActiveRightAside(null)
         setShowRightAside(false)
       }
     }
-  }, [activeRightAside, focusedElement, setActiveRightAside, setShowRightAside])
+  }, [
+    activeRightAside,
+    collectionYMap,
+    focusedElementDict,
+    setActiveRightAside,
+    setShowRightAside,
+  ])
 
   const handleCloseAside = () => {
     setActiveRightAside(null)
@@ -71,7 +85,8 @@ export const RightAside = ({
           paddingY: 1,
         }}
       >
-        {focusedElement?.__typename === 'LocalRESTRequest' && (
+        {focusedElementDict[collectionYMap.get('id')]?.get('__typename') ===
+          'RESTRequest' && (
           <>
             <Tooltip title="Generate Code" placement="left">
               <IconButton
@@ -97,14 +112,19 @@ export const RightAside = ({
         )}
       </Stack>
       {showRightAside &&
-        focusedElement?.__typename === 'LocalRESTRequest' &&
+        focusedElementDict[collectionYMap.get('id')]?.get('__typename') ===
+          'RESTRequest' &&
         activeRightAside === 'code' && (
           <RESTCodeGenerator onCloseAside={handleCloseAside} />
         )}
       {showRightAside &&
-        focusedElement?.__typename === 'LocalRESTRequest' &&
+        focusedElementDict[collectionYMap.get('id')]?.get('__typename') ===
+          'RESTRequest' &&
         activeRightAside === 'restHistory' && (
-          <RESTHistory onCloseAside={handleCloseAside} />
+          <RESTHistory
+            onCloseAside={handleCloseAside}
+            collectionYMap={collectionYMap}
+          />
         )}
     </Stack>
   )

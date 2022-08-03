@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import DeselectIcon from '@mui/icons-material/Deselect'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
 import {
+  Box,
   Button,
   Dialog,
   DialogContent,
@@ -34,6 +35,7 @@ import {
   KeyValueEditor,
   KeyValueItem,
 } from '../collectionEditor/KeyValueEditor'
+import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 
 import { CreateEnvironmentDialog } from './CreateEnvironmentDialog'
 
@@ -58,6 +60,7 @@ export const EnvironmentManager = ({
     useState(false)
   const [keyValues, setKeyValues] = useState([] as KeyValueItem[])
   const [needSave, setNeedSave] = useState(false)
+  const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
   useEffect(() => {
     setKeyValues(activeEnvironmentYMap?.get('variables') || [])
@@ -81,16 +84,7 @@ export const EnvironmentManager = ({
     activeEnvironmentYMap.set('variables', newKeyValues)
     activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
 
-    const clone = activeEnvironmentYMap.clone()
-    const parent = environmentsYMap?.parent
-    if (!parent) throw 'No parent'
-    const id = activeEnvironmentYMap.get('id')
-    parent.delete(id)
-    parent.set(id, clone)
-    console.log('saved', clone)
     setNeedSave(false)
-
-    console.log(parent.get(id))
   }
 
   useEffect(() => {
@@ -143,6 +137,13 @@ export const EnvironmentManager = ({
         show={showCreateEnvironmentDialog}
         setShowCallback={setShowCreateEnvironmentDialog}
         onCreate={handleEnvironmentCreate}
+      />
+      <QueryDeleteDialog
+        show={showQueryDeleteDialog}
+        onClose={() => setShowQueryDeleteDialog(false)}
+        onDelete={handleEnvironmentDelete}
+        title="Delete Environment"
+        description="Are you sure you want to delete this environment?"
       />
       <Dialog
         open={show}
@@ -198,7 +199,11 @@ export const EnvironmentManager = ({
         </Stack>
         <Divider color={theme.palette.divider} />
         <DialogContent
-          style={{ height: '500px', paddingTop: 0, paddingBottom: 3 }}
+          sx={{
+            height: '500px',
+            paddingTop: 0,
+            paddingBottom: 3,
+          }}
         >
           {environments.length === 0 ? (
             <Stack
@@ -286,8 +291,8 @@ export const EnvironmentManager = ({
               />
               <Stack
                 sx={{
-                  paddingY: 3,
                   width: '100%',
+                  paddingTop: 2,
                 }}
                 justifyContent="space-between"
                 alignItems="flex-end"
@@ -300,6 +305,7 @@ export const EnvironmentManager = ({
                       namespace={`env${activeEnvironmentId}`}
                       enableEnvironmentVariables={false}
                     />
+                    <Box sx={{ marginTop: 3 }} />
                     <Stack spacing={2} direction="row">
                       <Button
                         variant="contained"
@@ -312,7 +318,7 @@ export const EnvironmentManager = ({
                       <Button
                         variant="contained"
                         color="error"
-                        onClick={handleEnvironmentDelete}
+                        onClick={() => setShowQueryDeleteDialog(true)}
                       >
                         Delete Environment
                       </Button>

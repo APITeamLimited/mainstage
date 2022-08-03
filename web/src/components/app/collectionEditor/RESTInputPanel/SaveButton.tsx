@@ -14,6 +14,11 @@ export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
   const [showSaveOptionsPopover, setShowSaveOptionsPopover] = useState(false)
   const buttonGroupRef = useRef<HTMLDivElement>(null)
 
+  const handleSaveAsClick = () => {
+    setShowSaveOptionsPopover(false)
+    onSaveAs()
+  }
+
   return (
     <>
       <ButtonGroup
@@ -51,7 +56,7 @@ export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
         }}
       >
         <Stack>
-          <MenuItem onClick={onSaveAs}>Save As</MenuItem>
+          <MenuItem onClick={handleSaveAsClick}>Save As</MenuItem>
         </Stack>
       </Popover>
     </>

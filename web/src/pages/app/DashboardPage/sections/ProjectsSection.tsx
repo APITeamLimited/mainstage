@@ -14,7 +14,9 @@ export const ProjectsSection = () => {
   const workspaceDoc = useWorkspace()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const projectsMap = workspaceDoc?.getMap<Project>('projects')
-  const projects = useYMap<Project, Record<string, Project>>(projectsMap)
+  const projects = useYMap<Project, Record<string, Project>>(
+    projectsMap || new Y.Map()
+  )
   //console.log('projects', projects.data)
 
   return (

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
-import { Stack, Switch, IconButton, Tooltip } from '@mui/material'
+import { Stack, Switch, IconButton, Tooltip, Box } from '@mui/material'
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 
@@ -19,7 +19,13 @@ export const HeadersPanel = ({
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   return (
-    <Stack spacing={2}>
+    <Stack
+      spacing={2}
+      sx={{
+        height: '100%',
+        overflowY: 'auto',
+      }}
+    >
       <Stack
         alignItems="center"
         direction="row"
@@ -38,12 +44,20 @@ export const HeadersPanel = ({
           />
         </Tooltip>
       </Stack>
-      <KeyValueEditor
-        items={headers}
-        setItems={setHeaders}
-        isBulkEditing={isBulkEditing}
-        namespace={requestId}
-      />
+      <Box
+        sx={{
+          height: '100%',
+          overflowY: 'auto',
+          paddingRight: 1,
+        }}
+      >
+        <KeyValueEditor
+          items={headers}
+          setItems={setHeaders}
+          isBulkEditing={isBulkEditing}
+          namespace={requestId}
+        />
+      </Box>
     </Stack>
   )
 }

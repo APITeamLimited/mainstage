@@ -203,5 +203,11 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     throw error
   }
 
-  return <DocContext.Provider value={doc}>{children}</DocContext.Provider>
+  return (
+    <>
+      <span>socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus </span>
+      {indexeddbSyncStatus}
+      <DocContext.Provider value={doc}>{children}</DocContext.Provider>
+    </>
+  )
 }

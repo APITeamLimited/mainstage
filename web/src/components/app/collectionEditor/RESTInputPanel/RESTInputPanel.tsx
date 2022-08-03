@@ -4,6 +4,8 @@ import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
+import { RESTRequest } from 'types/src'
+import { v4 as uuid } from 'uuid'
 import { useYMap } from 'zustand-yjs'
 
 import {
@@ -38,12 +40,12 @@ export const RESTInputPanel = ({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const restRequests = useYMap(restRequestsYMap)
 
-  const [requestYMap, setRequestYMap] = useState<Y.Map<any> | null>(
-    restRequests.get(requestId)
+  const [requestYMap, setRequestYMap] = useState<Y.Map<any>>(
+    restRequests.get(requestId) || new Y.Map()
   )
 
   useEffect(() => {
-    setRequestYMap(restRequests.get(requestId))
+    setRequestYMap(restRequests.get(requestId) || new Y.Map())
   }, [requestId, restRequests])
 
   const [unsavedEndpoint, setUnsavedEndpoint] = useState(
@@ -66,8 +68,6 @@ export const RESTInputPanel = ({
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
-  console.log('rest input panel', requestYMap)
-
   // If request changes, update unsaved request
   useEffect(() => {
     setUnsavedEndpoint(requestYMap.get('endpoint'))
@@ -76,19 +76,29 @@ export const RESTInputPanel = ({
     setUnsavedBody(requestYMap.get('body'))
     setUnsavedRequestMethod(requestYMap.get('method'))
     setUnsavedAuth(requestYMap.get('auth'))
+    setNeedSave(false)
   }, [requestYMap])
 
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
-    setNeedSave(
-      unsavedEndpoint !== requestYMap.get('endpoint') ||
-        unsavedHeaders !== requestYMap.get('headers') ||
-        unsavedParameters !== requestYMap.get('params') ||
-        unsavedBody !== requestYMap.get('body') ||
-        unsavedRequestMethod !== requestYMap.get('method') ||
-        unsavedAuth !== requestYMap.get('auth')
-    )
+    if (!needSave) {
+      setNeedSave(
+        JSON.stringify(unsavedEndpoint) !==
+          JSON.stringify(requestYMap.get('endpoint')) ||
+          JSON.stringify(unsavedHeaders) !==
+            JSON.stringify(requestYMap.get('headers')) ||
+          JSON.stringify(unsavedParameters) !==
+            JSON.stringify(requestYMap.get('params')) ||
+          JSON.stringify(unsavedBody) !==
+            JSON.stringify(requestYMap.get('body')) ||
+          JSON.stringify(unsavedRequestMethod) !==
+            JSON.stringify(requestYMap.get('method')) ||
+          JSON.stringify(unsavedAuth) !==
+            JSON.stringify(requestYMap.get('auth'))
+      )
+    }
   }, [
+    needSave,
     requestYMap,
     unsavedAuth,
     unsavedBody,
@@ -99,45 +109,44 @@ export const RESTInputPanel = ({
   ])
 
   const handleSave = () => {
-    const newRequest: LocalRESTRequest = {
-      ...request,
-      endpoint: unsavedEndpoint,
-      headers: unsavedHeaders,
-      params: unsavedParameters,
-      body: unsavedBody,
-      method: unsavedRequestMethod,
-      auth: unsavedAuth,
-    }
-    localRESTRequestsVar(
-      updateFilterLocalRESTRequestArray(localRESTRequests, newRequest)
-    )
+    requestYMap.set('endpoint', unsavedEndpoint)
+    requestYMap.set('headers', unsavedHeaders)
+    requestYMap.set('params', unsavedParameters)
+    requestYMap.set('body', unsavedBody)
+    requestYMap.set('method', unsavedRequestMethod)
+    requestYMap.set('auth', unsavedAuth)
     setNeedSave(false)
-    console.log('Saved request', newRequest)
+    console.log('Saved request')
   }
 
   const handleSaveAs = (newName: string) => {
-    const newRequest: LocalRESTRequest = {
-      ...generateLocalRESTRequest({
-        parentId: request.parentId,
-        __parentTypename: request.__parentTypename,
-        orderingIndex: request.orderingIndex,
-        name: newName,
-      }),
-      endpoint: unsavedEndpoint,
-      headers: unsavedHeaders,
-      params: unsavedParameters,
-      body: unsavedBody,
-      method: unsavedRequestMethod,
-      auth: unsavedAuth,
-    }
-    localRESTRequestsVar(
-      updateFilterLocalRESTRequestArray(localRESTRequests, newRequest)
-    )
+    const newId = uuid()
+    const clone = requestYMap.clone()
+    clone.set('id', newId)
+    clone.set('name', newName)
+    clone.set('endpoint', unsavedEndpoint)
+    clone.set('headers', unsavedHeaders)
+    clone.set('params', unsavedParameters)
+    clone.set('body', unsavedBody)
+    clone.set('method', unsavedRequestMethod)
+    clone.set('auth', unsavedAuth)
+    const parent = requestYMap.parent
+    if (!parent) throw 'No parent found'
+    parent.set(newId, clone)
   }
 
   const handleNormalSend = () => {
-    const newRequest: LocalRESTRequest = {
-      ...request,
+    const request: RESTRequest = {
+      id: requestYMap.get('id'),
+      __typename: 'RESTRequest',
+      parentId: requestYMap.get('parentId'),
+      __parentTypename: requestYMap.get('__parentTypename'),
+      orderingIndex: requestYMap.get('orderingIndex'),
+      createdAt: new Date(requestYMap.get('createdAt')),
+      updatedAt: requestYMap.get('updatedAt')
+        ? new Date(requestYMap.get('updatedAt'))
+        : null,
+      name: requestYMap.get('name'),
       endpoint: unsavedEndpoint,
       headers: unsavedHeaders,
       params: unsavedParameters,
@@ -146,7 +155,7 @@ export const RESTInputPanel = ({
       auth: unsavedAuth,
     }
 
-    restRequestQueueVar(addToQueue({ queue, request: newRequest }))
+    restRequestQueueVar(addToQueue({ queue, request }))
   }
 
   return (

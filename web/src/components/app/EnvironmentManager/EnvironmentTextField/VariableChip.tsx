@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Chip, Tooltip, useTheme } from '@mui/material'
+import { Chip, Tooltip } from '@mui/material'
+import { useYMap } from 'zustand-yjs'
 
-import {
-  activeEnvironmentVar,
-  localEnvironmentsVar,
-} from 'src/contexts/reactives'
+import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 
 type VariableChipProps = {
   variableName: string
@@ -15,7 +13,7 @@ type VariableChipProps = {
 type ResolvedVariable =
   | {
       sourceName: string
-      sourceTypename: 'LocalEnvironment'
+      sourceTypename: 'Environment'
       value: string
     }
   | null
@@ -28,37 +26,41 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
   const [resolvedVariable, setResolvedVariable] =
     useState<ResolvedVariable>(undefined)
 
-  const localEnvironments = useReactiveVar(localEnvironmentsVar)
-  const activeEnvironmentId = useReactiveVar(activeEnvironmentVar)
-  const theme = useTheme()
+  const activeEnvironmentYMap = useActiveEnvironmentYMap()
+  const activeEnvironment = useYMap(activeEnvironmentYMap)
 
   useEffect(() => {
     setVariableNameWithoutCurlyBraces(
       variableName.replace(/^\{/, '').replace(/\}$/, '')
     )
   }, [variableName])
-
+  console.log('resolvedVariable', activeEnvironment.data.variables)
   useEffect(() => {
-    const currentEnvironment = localEnvironments.find(
-      (env) => env.id === activeEnvironmentId
+    const variables = activeEnvironment.data.variables || undefined
+
+    if (!variables) return
+
+    const foundVariable = variables.find(
+      (variable) =>
+        variable.keyString === variableNameWithoutCurlyBraces &&
+        variable.enabled
     )
 
-    if (currentEnvironment) {
-      const foundVariable = currentEnvironment.variables.find(
-        (variable) => variable.keyString === variableNameWithoutCurlyBraces
-      )
-
-      if (foundVariable) {
-        setResolvedVariable({
-          sourceName: currentEnvironment.name,
-          sourceTypename: 'LocalEnvironment',
-          value: foundVariable.value,
-        })
-        return
-      }
+    if (
+      foundVariable?.value !== resolvedVariable?.value &&
+      foundVariable?.value
+    ) {
+      setResolvedVariable({
+        sourceName: activeEnvironment.data.name,
+        sourceTypename: 'Environment',
+        value: foundVariable.value,
+      })
+    } else {
+      setResolvedVariable(null)
     }
-    setResolvedVariable(null)
-  }, [localEnvironments, activeEnvironmentId, variableNameWithoutCurlyBraces])
+    // Prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeEnvironment.data, variableNameWithoutCurlyBraces])
 
   return (
     <Tooltip

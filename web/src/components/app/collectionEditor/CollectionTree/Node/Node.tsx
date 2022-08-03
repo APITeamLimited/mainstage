@@ -35,7 +35,11 @@ export type NodeProps = {
 
 export type DropSpace = 'Top' | 'Bottom' | 'Inner' | null
 
-export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
+export const Node = ({
+  collectionYMap,
+  nodeYMap = new Y.Map(),
+  parentIndex,
+}: NodeProps) => {
   const isRoot = nodeYMap?.get('__typename') === 'Collection'
 
   const [collapsed, setCollapsed] = useState(isRoot ? false : true)
@@ -50,6 +54,8 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
   const restRequests = useYMap(restRequestsYMap)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const folders = useYMap(foldersYMap)
+
+  const node = useYMap(nodeYMap)
 
   const dragDropManager = useDragDropManager()
   const monitor = dragDropManager.getMonitor()
@@ -262,11 +268,6 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
     const id = nodeYMap.get('id')
     nodeYMap.set('name', newName)
     nodeYMap.set('updatedAt', new Date().toISOString())
-    const clone = nodeYMap.clone()
-    const parent = nodeYMap.parent
-    if (!parent) throw 'No parent found'
-    parent.delete(id)
-    parent.set(id, clone)
     setRenaming(false)
   }
 

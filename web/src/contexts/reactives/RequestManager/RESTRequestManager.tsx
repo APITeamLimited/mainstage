@@ -2,18 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import { Environment, RESTRequest } from 'types/src'
 import { v4 as uuid } from 'uuid'
 
 import { findEnvironmentVariables } from 'src/utils/findVariables'
 
 import { activeEnvironmentVar } from '../ActiveEnvironment'
-import {
-  LocalEnvironment,
-  localEnvironmentsVar,
-  LocalRESTRequest,
-  LocalRESTResponse,
-  localRESTResponsesVar,
-} from '../locals'
+import { localRESTResponsesVar } from '../locals'
 
 type PendingRequest = {
   jobStatus: 'pending'
@@ -28,7 +23,7 @@ type ExecutingRequest = {
 type RESTQueuedJob = {
   id: string
   messenger: 'Browser'
-  request: LocalRESTRequest
+  request: RESTRequest
   createdAt: Date
   launchTime: Date | null
 } & (PendingRequest | ExecutingRequest)
@@ -54,7 +49,7 @@ export const addToQueue = ({
   messenger = 'Browser',
 }: {
   queue: RESTQueuedJob[]
-  request: LocalRESTRequest
+  request: RESTRequest
   messenger?: 'Browser'
 }) => {
   const newJob: RESTQueuedJob = {
@@ -69,8 +64,8 @@ export const addToQueue = ({
 }
 
 const addAuthToRequest = (
-  activeEnvironment: LocalEnvironment | null,
-  request: LocalRESTRequest,
+  activeEnvironment: Environment | null,
+  request: RESTRequest,
   axiosConfig: AxiosRequestConfig
 ): AxiosRequestConfig => {
   const { auth } = request
@@ -171,9 +166,9 @@ export const RESTRequestManager = () => {
       const originalRequest = originalJob.request
 
       // Create REST response object
-      const restResponse: LocalRESTResponse = {
+      const restResponse: RESTResponse = {
         id: uuid(),
-        __typename: 'LocalRESTResponse',
+        __typename: 'RESTResponse',
         createdAt: new Date(),
         updatedAt: null,
         parentId: originalRequest.id,
@@ -205,7 +200,7 @@ export const RESTRequestManager = () => {
       const newQueue = queue.filter((job) => job.id !== id)
       restRequestQueueVar(newQueue)
 
-      // Save response to LocalRESTResponses
+      // Save response to RESTResponses
       localRESTResponsesVar(
         [...localRESTResponses, restResponse].sort(
           (a, b) =>
@@ -237,9 +232,9 @@ export const RESTRequestManager = () => {
       const originalRequest = originalJob.request
 
       // Create REST response object
-      const restResponse: LocalRESTResponse = {
+      const restResponse: RESTResponse = {
         id: uuid(),
-        __typename: 'LocalRESTResponse',
+        __typename: 'RESTResponse',
         createdAt: new Date(),
         updatedAt: null,
         parentId: originalRequest.id,
@@ -272,7 +267,7 @@ export const RESTRequestManager = () => {
       const newQueue = queue.filter((job) => job.id !== id)
       restRequestQueueVar(newQueue)
 
-      // Save response to LocalRESTResponses
+      // Save response to RESTResponses
       localRESTResponsesVar(
         [...localRESTResponses, restResponse].sort(
           (a, b) =>
@@ -284,7 +279,7 @@ export const RESTRequestManager = () => {
   )
 
   const getFinalRequest = useCallback(
-    (request: LocalRESTRequest): AxiosRequestConfig => {
+    (request: RESTRequest): AxiosRequestConfig => {
       let body = null
 
       if (request.body.contentType === null) {

@@ -76,11 +76,6 @@ export const CollectionEditorPage = ({
     return <Container>Collection with id {collectionId} not found</Container>
   }
 
-  console.log(
-    'focusedElementDict[collectionId]?.get?',
-    focusedElementDict[collectionId]?.get?.('__typename')
-  )
-
   return (
     <div
       style={{
@@ -90,7 +85,7 @@ export const CollectionEditorPage = ({
       }}
     >
       <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
-        <RESTRequestManager />
+        {/*<RESTRequestManager />*/}
         <ReflexContainer orientation="vertical">
           <ReflexElement
             minSize={200}
@@ -183,29 +178,29 @@ export const CollectionEditorPage = ({
               </ReflexContainer>
             </div>
           </ReflexElement>
-          {/*showRightAside ? (
-          <ReflexSplitter
-            style={{
-              width: 8,
-              border: 'none',
-              backgroundColor: 'transparent',
-            }}
-          />
-        ) : (
-          <Box
-            sx={{
-              backgroundColor: theme.palette.divider,
-            }}
-          >
+          {showRightAside ? (
             <ReflexSplitter
               style={{
-                width: 1,
+                width: 8,
                 border: 'none',
                 backgroundColor: 'transparent',
               }}
             />
-          </Box>
-            )*/}
+          ) : (
+            <Box
+              sx={{
+                backgroundColor: theme.palette.divider,
+              }}
+            >
+              <ReflexSplitter
+                style={{
+                  width: 1,
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                }}
+              />
+            </Box>
+          )}
           <ReflexElement
             flex={2}
             style={{
@@ -227,10 +222,13 @@ export const CollectionEditorPage = ({
               }}
               elevation={0}
             >
-              {/*<RightAside
-              setShowRightAside={setShowRightAside}
-              showRightAside={showRightAside}
-          />*/}
+              {
+                <RightAside
+                  setShowRightAside={setShowRightAside}
+                  showRightAside={showRightAside}
+                  collectionYMap={collectionYMap}
+                />
+              }
             </Paper>
           </ReflexElement>
         </ReflexContainer>

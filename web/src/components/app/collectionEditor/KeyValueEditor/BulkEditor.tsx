@@ -1,8 +1,6 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 import { TextField } from '@mui/material'
-
-import { KeyValueItem } from './KeyValueEditor'
 
 type BulkEditorProps = {
   contents: string
@@ -16,7 +14,7 @@ export const BulkEditor = ({ contents, setContents }: BulkEditorProps) => {
     <TextField
       multiline
       fullWidth
-      rows={numberRows > 10 ? 10 : numberRows + 2}
+      rows={numberRows > 10 ? numberRows : 10}
       value={contents}
       onChange={(event) => setContents(event.target.value)}
     />
