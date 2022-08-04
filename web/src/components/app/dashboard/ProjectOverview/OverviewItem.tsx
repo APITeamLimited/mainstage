@@ -22,17 +22,17 @@ import { routes, navigate } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
 import { RenameDialog } from '../../dialogs/RenameDialog'
-
-import { OverviewType } from './utils'
+import { SingleEnvironmentEditor } from '../../EnvironmentManager/SingleEnvironmentEditor'
 
 type OverviewItemProps = {
-  overviewItem: OverviewType['overviewItem']
-  yMap: OverviewType['yMap']
+  overviewYMap: Y.Map<any>
 }
 
-export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
+export function OverviewItem({ overviewYMap }: OverviewItemProps) {
   const theme = useTheme()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const [showActionsPopover, setShowActionsPopover] = useState(false)
@@ -41,71 +41,84 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
   const [showRenameDialog, setShowRenameDialog] = useState(false)
 
-  const overview = useYMap(yMap)
+  const [showEnvironmentManager, setShowEnvironmentManager] = useState(false)
+
+  const overview = useYMap(overviewYMap)
 
   const handleDuplicate = () => {
-    const newItem = yMap.clone()
+    const newItem = overviewYMap.clone()
     const newId = uuid()
     newItem.set('id', newId)
-    newItem.set('name', `${overviewItem.name} (copy)`)
+    newItem.set('name', `${overviewYMap.get('name')} (copy)`)
     newItem.set('createdAt', new Date().toISOString())
     newItem.set('updatedAt', null)
-    yMap.parent?.set(newId, newItem)
+    overviewYMap.parent?.set(newId, newItem)
   }
 
   const handleRename = (newName: string) => {
-    yMap.set('name', newName)
-    yMap.set('updatedAt', new Date().toISOString())
+    overviewYMap.set('name', newName)
+    overviewYMap.set('updatedAt', new Date().toISOString())
   }
 
   const handleDelete = () => {
-    yMap.parent?.delete(overviewItem.id)
+    overviewYMap.parent?.delete(overviewYMap.get('id'))
   }
 
   const getTypeName = () => {
-    const typename = overviewItem.__typename
+    const typename = overviewYMap.get('__typename')
     if (typename === 'Collection') {
       return 'Collection'
-    } else if (typename === 'Project') {
-      return 'Project'
+    } else if (typename === 'Environment') {
+      return 'Environment'
     } else {
-      console.log(overviewItem)
+      console.log(overviewYMap)
       throw `Unknown type: ${typename}`
     }
   }
 
   const displayType = getTypeName()
 
-  const handleCollectionNavigation = () => {
-    // Navigate to the collection editor page
-    const branch = yMap.parent?.parent
-    if (!branch) throw 'No branch found'
-    const project = branch.parent?.parent
-    if (!project) throw 'No project found'
-
-    let params = {
-      workspaceId: activeWorkspaceId,
-      projectId: project.get('id'),
-      branchId: branch.get('id'),
-    }
-
+  const handleOverviewClick = () => {
     if (displayType === 'Collection') {
-      params = {
-        ...params,
-        collectionId: yMap.get('id'),
-      }
-    }
+      // Navigate to the collection editor page
+      const branch = overviewYMap.parent?.parent
+      if (!branch) throw 'No branch found'
+      const project = branch.parent?.parent
+      if (!project) throw 'No project found'
 
-    return navigate(routes.collectionEditor(params))
+      let params = {
+        workspaceId: activeWorkspaceId,
+        projectId: project.get('id'),
+        branchId: branch.get('id'),
+      }
+
+      if (displayType === 'Collection') {
+        params = {
+          ...params,
+          collectionId: overviewYMap.get('id'),
+        }
+      }
+
+      return navigate(routes.collectionEditor(params))
+    } else if (displayType === 'Environment') {
+      setShowEnvironmentManager(true)
+    }
   }
 
   return (
     <>
+      {displayType === 'Environment' && (
+        <SingleEnvironmentEditor
+          show={showEnvironmentManager}
+          setShow={setShowEnvironmentManager}
+          environmentYMap={overviewYMap}
+        />
+      )}
       <RenameDialog
         show={showRenameDialog}
         onClose={() => setShowRenameDialog(false)}
         onRename={handleRename}
-        original={overviewItem.name}
+        original={overviewYMap.get('name')}
         title={`Rename ${displayType}`}
       />
       <QueryDeleteDialog
@@ -113,7 +126,9 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
         onDelete={handleDelete}
         onClose={() => setShowQueryDeleteDialog(false)}
         title={`Delete ${displayType}`}
-        description={`Are you sure you want to delete ${displayType} ${overviewItem.name}?`}
+        description={`Are you sure you want to delete ${displayType} ${overviewYMap.get(
+          'name'
+        )}?`}
       />
       <Popover
         open={showActionsPopover}
@@ -170,7 +185,7 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
             maxWidth: '100%',
             padding: 0,
           }}
-          onClick={handleCollectionNavigation}
+          onClick={handleOverviewClick}
         >
           <Box
             sx={{
@@ -192,7 +207,6 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
                 direction="row"
                 justifyContent="space-between"
                 alignItems="top"
-                spacing={2}
                 width="100%"
               >
                 <Typography
@@ -237,7 +251,7 @@ export function OverviewItem({ overviewItem, yMap }: OverviewItemProps) {
                     margin: 2,
                   }}
                 >
-                  {overviewItem.name}
+                  {overviewYMap.get('name')}
                 </Typography>
               </Stack>
             </Stack>

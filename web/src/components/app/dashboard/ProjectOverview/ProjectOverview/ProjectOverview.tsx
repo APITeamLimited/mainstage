@@ -7,6 +7,7 @@ import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
 import { Branch, Project } from 'types/src'
 import { useYMap } from 'zustand-yjs'
 
+import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { userProjectBranchesVar } from 'src/contexts/reactives/UserBranches'
 
 import { BranchSwitcherButton } from '../BranchSwitcher/BranchSwitcherButton'
@@ -49,6 +50,8 @@ const ProjectOverviewInner = ({
     projectYMap.get('branches')
   )
 
+  const projectHook = useYMap(projectYMap)
+
   const userProjectBranches = useReactiveVar(userProjectBranchesVar)
   const [activeBranch, setActiveBranch] = useState(
     findActiveBranch({ branches: branches.data, userProjectBranches, project })
@@ -57,13 +60,6 @@ const ProjectOverviewInner = ({
   const [activeYBranch, setActiveYBranch] = useState(
     branches.get(activeBranch?.id || '')
   )
-
-  /*console.log(
-    'braches',
-    activeBranch,
-    branches.data,
-    projectYMap.get('branches')
-  )*/
 
   useEffect(() => {
     setActiveYBranch(branches.get(activeBranch?.id || ''))
@@ -93,7 +89,11 @@ const ProjectOverviewInner = ({
   //)
 
   return (
-    <>
+    <EnvironmentProvider
+      branchYMap={
+        projectYMap?.get?.('branches')?.get?.(activeBranch?.id) || new Y.Map()
+      }
+    >
       <Stack spacing={2}>
         <Stack
           direction="row"
@@ -103,7 +103,7 @@ const ProjectOverviewInner = ({
         >
           <Stack direction="row" alignItems="center">
             <Typography variant="h5" color={theme.palette.text.primary}>
-              {project.name}
+              {projectYMap.get('name')}
             </Typography>
             <ProjectActionsButton projectYMap={projectYMap} />
           </Stack>
@@ -117,6 +117,7 @@ const ProjectOverviewInner = ({
           sx={{
             backgroundColor: theme.palette.alternate.dark,
             padding: 2,
+            paddingBottom: 0,
           }}
         >
           {activeYBranch ? (
@@ -127,6 +128,6 @@ const ProjectOverviewInner = ({
           ) : null}
         </Paper>
       </Stack>
-    </>
+    </EnvironmentProvider>
   )
 }

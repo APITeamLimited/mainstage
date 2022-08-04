@@ -1,17 +1,21 @@
 import { makeVar, useReactiveVar } from '@apollo/client'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
+import ListAltIcon from '@mui/icons-material/ListAlt'
 import {
   Dialog,
   DialogTitle,
   Avatar,
-  List,
-  ListItem,
+  Grid,
   ListItemAvatar,
   ListItemText,
+  MenuItem,
+  SvgIcon,
+  Typography,
 } from '@mui/material'
 import { Branch, Project } from 'types/src'
 
 import { createCollectionDialogStateVar } from './CreateCollectionDialog'
+import { createEnvironmentDialogStateVar } from './CreateEnvironmentDialog'
 
 type QuickstartDialogState = {
   isOpen: boolean
@@ -37,22 +41,57 @@ export function QuickstartDialog() {
     createCollectionDialogStateVar({ isOpen: true, project })
   }
 
+  const callNewEnvironmentDialog = () => {
+    handleClose()
+    createEnvironmentDialogStateVar({ isOpen: true, project })
+  }
+
+  const items = [
+    {
+      primary: 'New Collection',
+      secondary: 'Allows quick testing of API requests',
+      icon: FeaturedPlayListIcon,
+      onClick: callNewCollectionDialog,
+    },
+    {
+      primary: 'New Environment',
+      secondary:
+        'Store frequently used variables for use in requests and tests',
+      icon: ListAltIcon,
+      onClick: callNewEnvironmentDialog,
+    },
+  ]
+
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="sm">
+    <Dialog open={isOpen} onClose={handleClose} maxWidth="lg">
       <DialogTitle>Quickstart</DialogTitle>
-      <List>
-        <ListItem button onClick={callNewCollectionDialog}>
-          <ListItemAvatar>
-            <Avatar>
-              <FeaturedPlayListIcon />
-            </Avatar>
-          </ListItemAvatar>
-          <ListItemText
-            primary="Create a new collection"
-            secondary="Allows quick testing of API requests"
-          />
-        </ListItem>
-      </List>
+      <Grid container>
+        {items.map(({ primary, secondary, icon, onClick }, index) => (
+          <Grid item sm={6} key={index}>
+            <MenuItem
+              onClick={onClick}
+              sx={{
+                height: '96px',
+                overflow: 'hidden',
+              }}
+            >
+              <ListItemAvatar>
+                <Avatar>
+                  <SvgIcon component={icon} />
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText
+                primary={primary}
+                secondary={secondary}
+                sx={{
+                  overflow: 'hidden',
+                }}
+                secondaryTypographyProps={{ style: { whiteSpace: 'normal' } }}
+              />
+            </MenuItem>
+          </Grid>
+        ))}
+      </Grid>
     </Dialog>
   )
 }

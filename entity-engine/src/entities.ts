@@ -85,6 +85,20 @@ export const createCollection = (name: string) => {
   return { collection, collectionId: id }
 }
 
+export const createEnvironment = (name: string) => {
+  const environment = new Y.Map()
+
+  const id = uuid()
+  environment.set('name', name)
+  environment.set('id', id)
+  environment.set('createdAt', new Date().toISOString())
+  environment.set('updatedAt', null)
+  environment.set('__typename', 'Environment')
+  environment.set('variables', [])
+
+  return { environment, environmentId: id }
+}
+
 export const createFolder = ({
   name = 'New Folder',
   parentId,

@@ -11,6 +11,7 @@ import {
   ListItemText,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
+import { useYMap } from 'zustand-yjs'
 
 import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
 import { RenameDialog } from '../../dialogs/RenameDialog'

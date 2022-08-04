@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
+import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+
 import { Chip, Tooltip } from '@mui/material'
 import { useYMap } from 'zustand-yjs'
 
@@ -27,7 +28,7 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
     useState<ResolvedVariable>(undefined)
 
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  const activeEnvironment = useYMap(activeEnvironmentYMap)
+  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
 
   useEffect(() => {
     setVariableNameWithoutCurlyBraces(
@@ -38,7 +39,10 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
   useEffect(() => {
     const variables = activeEnvironment.data.variables || undefined
 
-    if (!variables) return
+    if (!variables) {
+      setResolvedVariable(null)
+      return
+    }
 
     const foundVariable = variables.find(
       (variable) =>

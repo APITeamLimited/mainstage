@@ -70,7 +70,7 @@ export const handleProviders = ({
   }
 
   const newDoc = getNewDoc(doc, setDoc, activeGUID)
-  const guidChanged = newDoc.guid !== activeGUID
+  const guidChanged = doc?.guid !== activeGUID
 
   // Open the providers if they should be operational
 

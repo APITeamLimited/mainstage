@@ -1,6 +1,15 @@
 import { useEffect, useState } from 'react'
 
-import { Box, Tabs, Tab, Typography, Grid } from '@mui/material'
+import {
+  Box,
+  Tabs,
+  Tab,
+  Typography,
+  Grid,
+  Stack,
+  Container,
+  useTheme,
+} from '@mui/material'
 
 import { useAuth } from '@redwoodjs/auth'
 import { Redirect, routes, useParams } from '@redwoodjs/router'
@@ -26,16 +35,24 @@ function TabPanel(props: TabPanelProps) {
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
+      style={{
+        padding: '0px',
+        height: '100%',
+        width: '100%',
+        maxHeight: '100%',
+        overflow: 'hidden',
+      }}
       {...other}
     >
       {value === index && (
         <Box
           sx={{
-            paddingLeft: 2,
-            paddingTop: 4,
+            width: '100%',
+            height: '100%',
+            maxHeight: '100%',
           }}
         >
-          <Typography>{children}</Typography>
+          {children}
         </Box>
       )}
     </div>
@@ -44,6 +61,7 @@ function TabPanel(props: TabPanelProps) {
 
 const DashboardPage = () => {
   const params = useParams()
+  const theme = useTheme()
   const initialSection = params.initialSection || 'overview'
 
   const getInitalTabValue = () => {
@@ -65,24 +83,43 @@ const DashboardPage = () => {
         title="APITeam | Free Unlimited Team API Development"
         description="APITeam is an all in one platform for designing, testing and scaling your APIs collaboratively"
       />
-      <Box sx={{ m: 4 }}>
-        <Box>
-          <CustomTabs
-            value={tabValue}
-            onChange={setTabValue}
-            names={['Overview', 'Projects', 'Admin']}
-          />
-        </Box>
-        <TabPanel value={tabValue} index={0}>
-          Item One
-        </TabPanel>
-        <TabPanel value={tabValue} index={1}>
-          <ProjectsSection />
-        </TabPanel>
-        <TabPanel value={tabValue} index={2}>
-          Item Three
-        </TabPanel>
-      </Box>
+      <Container
+        sx={{
+          height: '100%',
+          width: '100%',
+          maxHeight: '100%',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+        maxWidth={false}
+        disableGutters
+      >
+        <Stack
+          sx={{
+            padding: 4,
+          }}
+          spacing={4}
+        >
+          <Box>
+            <CustomTabs
+              value={tabValue}
+              onChange={setTabValue}
+              names={['Overview', 'Projects', 'Admin']}
+            />
+          </Box>
+          <div>
+            <TabPanel value={tabValue} index={0}>
+              Item One
+            </TabPanel>
+            <TabPanel value={tabValue} index={1}>
+              <ProjectsSection />
+            </TabPanel>
+            <TabPanel value={tabValue} index={2}>
+              Item Three
+            </TabPanel>
+          </div>
+        </Stack>
+      </Container>
     </>
   )
 }

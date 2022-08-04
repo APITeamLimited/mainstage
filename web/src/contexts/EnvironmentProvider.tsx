@@ -36,7 +36,7 @@ export const EnvironmentProvider = ({
   const environmentsYMap = branchYMap?.get('environments')
   const allActiveEnvironmentsDict = useReactiveVar(activeEnvironmentVar)
 
-  const environments = useYMap(environmentsYMap)
+  const environments = useYMap(environmentsYMap || new Y.Map())
 
   useEffect(() => {
     // Set activeEnvironmentYMap based on activeEnvironmentId

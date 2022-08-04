@@ -129,7 +129,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     async function syncAgain() {
       await new Promise((resolve) => setTimeout(resolve, 200))
       if (socketioSyncStatus === 'connected') {
-        console.log('syncInOneSecond')
         socketioProvider?.syncAgain()
       }
     }
@@ -204,10 +203,14 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }
 
   return (
-    <>
-      <span>socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus </span>
-      {indexeddbSyncStatus}
+    <div
+      key={`${activeWorkspaceId}-${socketioSyncStatus}-${indexeddbSyncStatus}`}
+    >
+      {/*<span>
+        socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus{' '}
+        {indexeddbSyncStatus}
+  </span>*/}
       <DocContext.Provider value={doc}>{children}</DocContext.Provider>
-    </>
+    </div>
   )
 }

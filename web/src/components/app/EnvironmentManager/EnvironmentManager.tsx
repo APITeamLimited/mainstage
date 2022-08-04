@@ -62,6 +62,13 @@ export const EnvironmentManager = ({
   const [needSave, setNeedSave] = useState(false)
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
+  // Both of these seem to be needed to refresh the environment list
+  useEffect(() => {
+    if (activeEnvironment.data.variables) {
+      setKeyValues(activeEnvironment.data.variables)
+    }
+  }, [activeEnvironment.data])
+
   useEffect(() => {
     setKeyValues(activeEnvironmentYMap?.get('variables') || [])
   }, [activeEnvironmentYMap])
@@ -69,17 +76,7 @@ export const EnvironmentManager = ({
   const activeEnvironmentId =
     activeEnvironmentVarData[branchYMap?.get('id')] || null
 
-  //console.log(
-  //  'activeEnvironment',
-  //  branchYMap?.get('id'),
-  //  activeEnvironmentId,
-  //  activeEnvironmentVarData,
-  //  activeEnvironment.data
-  //)
-
   const handleEnvironmentSave = (newKeyValues: KeyValueItem[]) => {
-    console.log('saving', keyValues)
-
     if (!activeEnvironmentYMap) throw 'No active environment'
     activeEnvironmentYMap.set('variables', newKeyValues)
     activeEnvironmentYMap.set('updatedAt', new Date().toISOString())

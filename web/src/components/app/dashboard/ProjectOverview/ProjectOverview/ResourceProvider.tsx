@@ -25,6 +25,9 @@ export const ResourceProvider = ({
   const collections = useYMap<Collection, Record<string, Collection>>(
     activeYBranch.get('collections') || new Y.Map()
   )
+  const environments = useYMap<Collection, Record<string, Collection>>(
+    activeYBranch.get('environments') || new Y.Map()
+  )
   const workspaceId = useReactiveVar(activeWorkspaceIdVar)
 
   const unsortedOverviews = [] as OverviewType[]
@@ -38,17 +41,28 @@ export const ResourceProvider = ({
     })
   }
 
+  if (environments.data) {
+    Object.entries(environments.data).forEach(
+      ([environmentId, environment]) => {
+        unsortedOverviews.push({
+          overviewItem: { ...environment, __typename: 'Environment' },
+          yMap: environments.get(environmentId) as Y.Map<any>,
+        })
+      }
+    )
+  }
+
   // TODO implement sort
   const sortedOverviews = unsortedOverviews
 
   return sortedOverviews.length === 0 ? (
     <Stack
       spacing={2}
-      margin={2}
       alignItems="center"
       justifyContent="center"
       sx={{
-        height: 200,
+        margin: 2,
+        marginBottom: 4,
       }}
     >
       <Typography variant="h6">
@@ -88,15 +102,10 @@ export const ResourceProvider = ({
         flexWrap: 'wrap',
         width: '100%',
         display: 'flex',
-        minHeight: 200,
       }}
     >
       {sortedOverviews.map((overview, index) => (
-        <OverviewItem
-          key={index}
-          overviewItem={overview.overviewItem}
-          yMap={overview.yMap}
-        />
+        <OverviewItem key={index} overviewYMap={overview.yMap} />
       ))}
       <Box
         sx={{

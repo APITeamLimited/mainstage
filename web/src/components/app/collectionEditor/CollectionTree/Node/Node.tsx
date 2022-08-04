@@ -265,7 +265,6 @@ export const Node = ({
   }
 
   const handleRename = (newName: string) => {
-    const id = nodeYMap.get('id')
     nodeYMap.set('name', newName)
     nodeYMap.set('updatedAt', new Date().toISOString())
     setRenaming(false)

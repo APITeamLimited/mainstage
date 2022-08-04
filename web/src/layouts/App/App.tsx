@@ -9,7 +9,7 @@ import {
   Stack,
 } from '@mui/material'
 
-import { ModalsProvider } from 'src/components/app/dialogs'
+import { DialogsProvider } from 'src/components/app/dialogs'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
@@ -19,7 +19,7 @@ import { CommandPalette } from './components/CommandPalette'
 import { UserDropdown } from './components/UserDropdown'
 import { WorkspaceSwitcher } from './components/WorkspaceSwitcher/WorkspaceSwitcher'
 
-export const AppBarHeightContext = createContext<number | undefined>(undefined)
+export const AppBarHeightContext = createContext<number>(60)
 const AppBarHeightProvider = AppBarHeightContext.Provider
 
 export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
@@ -50,7 +50,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
     <>
       <ReactiveVarPersistor />
       <EntityEngine>
-        <ModalsProvider>
+        <DialogsProvider>
           <AppBar
             position="sticky"
             sx={{
@@ -81,9 +81,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
               </Box>
             </Stack>
           </AppBar>
-          <AppBarHeightProvider
-            value={appBarRef.current?.clientHeight || undefined}
-          >
+          <AppBarHeightProvider value={appBarRef.current?.clientHeight || 60}>
             <Box
               position="fixed"
               sx={{
@@ -103,7 +101,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
               </main>
             </Box>
           </AppBarHeightProvider>
-        </ModalsProvider>
+        </DialogsProvider>
       </EntityEngine>
     </>
   )

@@ -222,7 +222,7 @@ export class SocketIOProvider extends Observable<string> {
 
     // Listens to Yjs updates and sends them to remote peers (socket and broadcastchannel)
     this._updateHandler = (update: Uint8Array, origin) => {
-      console.log('_updateHandler')
+      console.log('_updateHandler', origin)
       if (origin !== this) {
         const encoder = encoding.createEncoder()
         encoding.writeVarUint(encoder, messageSync)
@@ -423,7 +423,7 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   destroy() {
-    console.log('destroy')
+    console.log('destroy bie')
     if (this._resyncInterval !== 0) {
       clearInterval(this._resyncInterval)
     }
