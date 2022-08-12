@@ -1,25 +1,9 @@
 import { gql } from '@apollo/client'
-import { createClient } from 'redis'
 
 import { Scope } from '../../../api/types/graphql'
 import { apolloClient } from '../apollo'
 
-const host = 'localhost'
-const port = 8912
-const username = 'user'
-const password = 'Wasd12345'
-
-const readRedis = createClient({
-  port: 8977,
-})
-
-readRedis.connect()
-
-readRedis.on('error', (err) => {
-  console.log(err)
-})
-
-/*const subscribeRedis = readRedis.duplicate()
+/*const subscribeRedis = scopesReadRedis.duplicate()
 
 subscribeRedis.on('error', (err) => {
   console.log(err)
@@ -33,17 +17,17 @@ export const findScope = async (id: string): Promise<Scope | null> => {
 const _findScopeRedis = async (id: string): Promise<Scope | null> => {
   // For dev
   return null
-  try {
-    const scopeRaw = JSON.parse((await readRedis.get(id)) || 'null')
-
-    if (isScope(scopeRaw)) {
-      return scopeRaw
-    }
-    return null
-  } catch (error) {
-    console.log('Failed to get scope from redis', error)
-    return null
-  }
+  //try {
+  //  const scopeRaw = JSON.parse((await scopesReadRedis.get(id)) || 'null')
+  //
+  //  if (isScope(scopeRaw)) {
+  //    return scopeRaw
+  //  }
+  //  return null
+  //} catch (error) {
+  //  console.log('Failed to get scope from redis', error)
+  //  return null
+  //}
 }
 
 const scopeQuery = gql`
@@ -69,7 +53,7 @@ const _findScopeBackend = async (id: string): Promise<Scope | null> => {
     if (isScope(result.data?.internalScope)) {
       const scope = result.data.internalScope as Scope
       // For dev
-      //readRedis.set(scope.id, JSON.stringify(scope))
+      //scopesReadRedis.set(scope.id, JSON.stringify(scope))
       return scope
     }
   }

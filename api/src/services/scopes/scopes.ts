@@ -1,7 +1,10 @@
+import { Scope } from 'types/graphql'
+
 import { validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
+import { scopesReadRedis } from 'src/lib/redis'
 
 export const scopes = async () => {
   validateWith(() => {
@@ -21,7 +24,6 @@ export const scopes = async () => {
   })
 
   // If user does not have a scope with variant USER and their userId, create one
-
   const userScope = scopes.find(
     (scope) =>
       scope.variant === 'USER' &&
@@ -40,5 +42,20 @@ export const scopes = async () => {
     scopes.push(newUserScope)
   }
 
+  scopes.forEach(
+    async (scope) =>
+      // Add to scopes redis
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      await setScopeInRedis(scope)
+  )
+
   return scopes
 }
+
+const setScopeInRedis = async (scope: Scope) =>
+  await Promise.all(
+    Object.entries(scopesReadRedis).map(([key, value]) =>
+      scopesReadRedis.HSET(scope.id, key, value)
+    )
+  )

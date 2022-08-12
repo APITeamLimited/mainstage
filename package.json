@@ -5,6 +5,7 @@
       "api",
       "web",
       "entity-engine",
+      "globe-test",
       "packages/*"
     ]
   },

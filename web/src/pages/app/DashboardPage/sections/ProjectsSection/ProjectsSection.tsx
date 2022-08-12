@@ -43,42 +43,44 @@ export const ProjectsSection = () => {
           width: '100%',
         }}
       >
-        <Stack spacing={4}>
-          {workspaceDoc
-            ? projectYMaps.map((project, index) => {
-                return (
-                  <ProjectOverview
-                    key={index}
-                    projectYMap={project}
-                    project={{
-                      id: project.get('id'),
-                      __typename: 'Project',
-                      __parentTypename: 'Workspace',
-                      createdAt: new Date(project.get('createdAt')),
-                      updatedAt: project.get('updatedAt')
-                        ? new Date(project.get('updatedAt'))
-                        : null,
-                      name: project.get('name'),
-                      parentId: workspaceDoc.guid,
-                    }}
-                  />
-                )
-              })
-            : null}
-          <Box display="flex" alignItems="center" justifyContent="center">
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() =>
-                createProjectDialogStateVar({
-                  isOpen: true,
+        <Scrollbar style={{ height: '70vh', paddingRight: '2rem' }}>
+          <Stack spacing={4}>
+            {workspaceDoc
+              ? projectYMaps.map((project, index) => {
+                  return (
+                    <ProjectOverview
+                      key={index}
+                      projectYMap={project}
+                      project={{
+                        id: project.get('id'),
+                        __typename: 'Project',
+                        __parentTypename: 'Workspace',
+                        createdAt: new Date(project.get('createdAt')),
+                        updatedAt: project.get('updatedAt')
+                          ? new Date(project.get('updatedAt'))
+                          : null,
+                        name: project.get('name'),
+                        parentId: workspaceDoc.guid,
+                      }}
+                    />
+                  )
                 })
-              }
-            >
-              Create New Project
-            </Button>
-          </Box>
-        </Stack>
+              : null}
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={() =>
+                  createProjectDialogStateVar({
+                    isOpen: true,
+                  })
+                }
+              >
+                Create New Project
+              </Button>
+            </Box>
+          </Stack>
+        </Scrollbar>
       </Box>
       <Box
         sx={{
