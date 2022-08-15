@@ -36,7 +36,7 @@ export const SaveAsDialog = ({ open, onClose, onSave }: SaveAsDialogProps) => {
   }
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
       <form noValidate onSubmit={formik.handleSubmit}>
         <DialogTitle>Save As</DialogTitle>
         <DialogContent>

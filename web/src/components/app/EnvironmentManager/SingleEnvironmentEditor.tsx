@@ -104,7 +104,7 @@ export const SingleEnvironmentEditor = ({
             width: '100%',
           }}
         >
-          <DialogTitle>Environment {environmentYMap.get('name')}</DialogTitle>
+          <DialogTitle>Environment - {environmentYMap.get('name')}</DialogTitle>
           <Stack
             direction="row"
             alignItems="center"

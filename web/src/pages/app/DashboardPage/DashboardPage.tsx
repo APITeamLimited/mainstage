@@ -88,7 +88,7 @@ const DashboardPage = () => {
           height: '100%',
           width: '100%',
           maxHeight: '100%',
-          overflowY: 'auto',
+          overflowY: 'hidden',
           overflowX: 'hidden',
         }}
         maxWidth={false}
@@ -107,7 +107,11 @@ const DashboardPage = () => {
               names={['Overview', 'Projects', 'Admin']}
             />
           </Box>
-          <div>
+          <Box
+            sx={{
+              paddingX: 1,
+            }}
+          >
             <TabPanel value={tabValue} index={0}>
               Item One
             </TabPanel>
@@ -117,7 +121,7 @@ const DashboardPage = () => {
             <TabPanel value={tabValue} index={2}>
               Item Three
             </TabPanel>
-          </div>
+          </Box>
         </Stack>
       </Container>
     </>

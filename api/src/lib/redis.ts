@@ -22,4 +22,6 @@ export const scopesReadRedis = createClient({
   url: `redis://${scopesUsername}:${scopesPassword}@${scopesHost}:${scopesPort}`,
 })
 
+scopesReadRedis.connect()
+
 export const scopesSubscribeRedis = scopesReadRedis.duplicate()

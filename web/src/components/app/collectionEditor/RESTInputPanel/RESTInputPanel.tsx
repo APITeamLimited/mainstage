@@ -4,15 +4,24 @@ import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
-import { RESTRequest } from 'types/src'
+import jwt_decode, { JwtPayload } from 'jwt-decode'
+import { GetBearerPubkeyScopes } from 'types/graphql'
+import { Environment, RESTRequest } from 'types/src'
 import { v4 as uuid } from 'uuid'
 import { useYMap } from 'zustand-yjs'
 
+import { useAuth } from '@redwoodjs/auth'
+import { useQuery } from '@redwoodjs/web'
+
+import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { addToQueue, restRequestQueueVar } from 'src/contexts/reactives'
+import { useWorkspace } from 'src/entity-engine'
 import {
-  addToQueue,
-  restRequestQueueVar,
-  updateFilterLocalRESTRequestArray,
-} from 'src/contexts/reactives'
+  Bearer,
+  GET_BEARER_PUBKEY__SCOPES_QUERY,
+} from 'src/entity-engine/utils'
+import { singleRESTRequestGenerator } from 'src/globe-test'
+import { jobQueueVar } from 'src/globe-test/lib'
 
 import { CustomTabs } from '../../CustomTabs'
 
@@ -35,10 +44,13 @@ export const RESTInputPanel = ({
   collectionYMap,
 }: RESTInputPanelProps) => {
   const restRequestsYMap = collectionYMap.get('restRequests')
+  const workspace = useWorkspace()
+
+  const workspaceId = workspace?.guid || ''
 
   // Although we are not using these, they ensure ui updates when the ymaps change
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const restRequests = useYMap(restRequestsYMap)
+  const restRequests = useYMap(restRequestsYMap || new Y.Map())
 
   const [requestYMap, setRequestYMap] = useState<Y.Map<any>>(
     restRequests.get(requestId) || new Y.Map()
@@ -62,11 +74,14 @@ export const RESTInputPanel = ({
     requestYMap.get('method')
   )
   const [unsavedAuth, setUnsavedAuth] = useState(requestYMap.get('auth'))
-
+  const jobQueue = useReactiveVar(jobQueueVar)
   const queue = useReactiveVar(restRequestQueueVar)
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [activeTabIndex, setActiveTabIndex] = useState(0)
+
+  const activeEnvironmentYMap = useActiveEnvironmentYMap()
+  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
 
   // If request changes, update unsaved request
   useEffect(() => {
@@ -155,7 +170,13 @@ export const RESTInputPanel = ({
       auth: unsavedAuth,
     }
 
-    restRequestQueueVar(addToQueue({ queue, request }))
+    singleRESTRequestGenerator({
+      request,
+      activeEnvironment: activeEnvironment.data as unknown as Environment,
+      // Normal send is always main scope i.e. workspace
+      scopeId: workspaceId,
+      jobQueue,
+    })
   }
 
   return (

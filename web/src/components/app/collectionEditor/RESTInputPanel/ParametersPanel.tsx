@@ -48,7 +48,6 @@ export const ParametersPanel = ({
         sx={{
           height: '100%',
           overflowY: 'auto',
-          paddingRight: 1,
         }}
       >
         <KeyValueEditor

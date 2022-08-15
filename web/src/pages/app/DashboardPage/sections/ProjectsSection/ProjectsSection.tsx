@@ -1,3 +1,5 @@
+import { useContext } from 'react'
+
 import { useReactiveVar } from '@apollo/client'
 import { Box, Button, Stack } from '@mui/material'
 import { Project } from 'types/src'
@@ -11,6 +13,7 @@ import { createProjectDialogStateVar } from 'src/components/app/dialogs'
 import { Scrollbar } from 'src/components/app/Scrollbar'
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
+import { AppBarHeightContext } from 'src/layouts/App'
 
 import { BlankProjectsSection } from './BlankProjectsSection'
 
@@ -24,26 +27,34 @@ export const ProjectsSection = () => {
 
   const projectYMaps = Array.from(projectsYMap?.values() || [])
 
+  const appBarHeight = useContext(AppBarHeightContext)
+
   return projectYMaps.length > 0 ? (
     <Stack
       alignItems="flex-start"
       justifyContent={'space-between'}
       direction="row"
-      spacing={6}
+      spacing={4}
       key={activeWorkspaceId}
       sx={{
         width: '100%',
         height: '100%',
+        maxHeight: '100%',
       }}
     >
       <Box
         sx={{
-          paddingRight: 4,
           height: '100%',
           width: '100%',
+          maxHeight: '100%',
         }}
       >
-        <Scrollbar style={{ height: '70vh', paddingRight: '2rem' }}>
+        <Scrollbar
+          style={{
+            height: `calc(100vh - ${appBarHeight + 160}px)`,
+            paddingRight: '2rem',
+          }}
+        >
           <Stack spacing={4}>
             {workspaceDoc
               ? projectYMaps.map((project, index) => {
@@ -82,11 +93,7 @@ export const ProjectsSection = () => {
           </Stack>
         </Scrollbar>
       </Box>
-      <Box
-        sx={{
-          paddingRight: 4,
-        }}
-      >
+      <Box>
         <QuickActions />
       </Box>
     </Stack>

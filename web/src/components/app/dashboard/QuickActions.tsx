@@ -12,7 +12,8 @@ const QuickActionItem = ({
   return (
     <Box
       sx={{
-        paddingX: 2,
+        paddingLeft: 3,
+        paddingRight: 2,
       }}
     >
       <Link
@@ -42,7 +43,7 @@ export const QuickActions = () => {
         elevation={2}
         sx={{
           paddingY: 2,
-          minWidth: 250,
+          minWidth: 300,
         }}
       >
         <Stack spacing={2}>

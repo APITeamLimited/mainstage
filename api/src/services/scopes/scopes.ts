@@ -1,4 +1,4 @@
-import { Scope } from 'types/graphql'
+import { Scope, ScopeVariant } from 'types/graphql'
 
 import { validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
@@ -45,17 +45,56 @@ export const scopes = async () => {
   scopes.forEach(
     async (scope) =>
       // Add to scopes redis
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      await setScopeInRedis(scope)
+      await setScopeInRedis({
+        id: scope.id,
+        createdAt: scope.createdAt.toISOString(),
+        updatedAt: scope.updatedAt?.toISOString(),
+        userId: scope.userId,
+        variant: scope.variant as ScopeVariant,
+        variantTargetId: scope.variantTargetId,
+      })
   )
 
   return scopes
 }
 
-const setScopeInRedis = async (scope: Scope) =>
-  await Promise.all(
-    Object.entries(scopesReadRedis).map(([key, value]) =>
-      scopesReadRedis.HSET(scope.id, key, value)
-    )
+const setScopeInRedis = async (scope: Scope) => {
+  console.log('createdAt', scope.createdAt)
+  const idPromise = scopesReadRedis.hSet(scope.id, 'id', scope.id)
+  const createdAtPromise = scopesReadRedis.hSet(
+    scope.id,
+    'createdAt',
+    scope.createdAt
   )
+  const updatedAtPromise = scopesReadRedis.hSet(
+    scope.id,
+    'updatedAt',
+    scope.updatedAt || ''
+  )
+  const userIdPromise = scopesReadRedis.hSet(scope.id, 'userId', scope.userId)
+  const variantPromise = scopesReadRedis.hSet(
+    scope.id,
+    'variant',
+    scope.variant
+  )
+  const variantTargetIdPromise = scopesReadRedis.hSet(
+    scope.id,
+    'variantTargetId',
+    scope.variantTargetId
+  )
+  const __typenamePromise = scopesReadRedis.hSet(
+    scope.id,
+    '__typename',
+    'Scope'
+  )
+
+  await Promise.all([
+    idPromise,
+    createdAtPromise,
+    updatedAtPromise,
+    userIdPromise,
+    variantPromise,
+    variantTargetIdPromise,
+    __typenamePromise,
+  ])
+}

@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "noEmit": true,
+    "noEmit": false,
+    "outDir": "./dist",
     "allowJs": true,
     "esModuleInterop": true,
     "strict": true,

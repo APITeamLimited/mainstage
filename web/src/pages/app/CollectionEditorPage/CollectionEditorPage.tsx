@@ -13,16 +13,12 @@ import { useYMap } from 'zustand-yjs'
 
 import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
 import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
-import { RESTResponsePanel } from 'src/components/app/collectionEditor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collectionEditor/RightAside'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
-import {
-  activeWorkspaceIdVar,
-  RESTRequestManager,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
 import { useWorkspace } from 'src/entity-engine'
+import { GlobeTestProvider } from 'src/globe-test'
 import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
 type CollectionEditorPageProps = {
@@ -85,7 +81,7 @@ export const CollectionEditorPage = ({
       }}
     >
       <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
-        {/*<RESTRequestManager />*/}
+        <GlobeTestProvider />
         <ReflexContainer orientation="vertical">
           <ReflexElement
             minSize={200}

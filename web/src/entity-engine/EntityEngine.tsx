@@ -15,7 +15,6 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { useAuth } from '@redwoodjs/auth'
-import { useParams } from '@redwoodjs/router'
 import { useQuery } from '@redwoodjs/web'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'

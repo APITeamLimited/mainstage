@@ -8,6 +8,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  useTheme,
 } from '@mui/material'
 import update from 'immutability-helper'
 import { DndProvider } from 'react-dnd'
@@ -33,6 +34,8 @@ export const SortableEditor = memo(
     namespace,
     enableEnvironmentVariables = true,
   }: SortableEditorProps) => {
+    const theme = useTheme()
+
     const moveCard = (dragIndex: number, hoverIndex: number) => {
       const dragItem = items[dragIndex]
       const newItems = update(items, {
@@ -113,15 +116,35 @@ export const SortableEditor = memo(
                 }}
               >
                 <TableRow>
-                  <TableCell />
-                  <TableCell />
-                  <TableCell>
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  />
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  />
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  >
                     <Box paddingLeft={2}>Key</Box>
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  >
                     <Box paddingLeft={2}>Value</Box>
                   </TableCell>
-                  <TableCell />
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  />
                 </TableRow>
               </TableHead>
               <TableBody>

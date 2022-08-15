@@ -85,7 +85,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
             <Box
               position="fixed"
               sx={{
-                height: `calc(100vh - ${appBarRef.current?.clientHeight}px)`,
+                height: '100%',
                 width: '100%',
                 //height: '100%',
                 backgroundColor: theme.palette.background.default,
@@ -93,7 +93,7 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
             >
               <main
                 style={{
-                  height: '100%',
+                  height: '100vh',
                   width: '100%',
                 }}
               >

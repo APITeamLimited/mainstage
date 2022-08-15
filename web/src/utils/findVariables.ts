@@ -1,8 +1,9 @@
+import { Environment } from 'types/src'
+
 import { KeyValueItem } from 'src/components/app/collectionEditor/KeyValueEditor'
-import { LocalEnvironment } from 'src/contexts/reactives'
 
 const findVariablesInString = (
-  environment: LocalEnvironment | null,
+  environment: Environment | null,
   subString: string
 ) => {
   let value: string | undefined = undefined
@@ -24,7 +25,7 @@ const findVariablesInString = (
 const bracesRegex = /{(.*?)}/g
 
 export const findEnvironmentVariablesKeyValueItem = (
-  environment: LocalEnvironment | null,
+  environment: Environment | null,
   item: KeyValueItem
 ) => ({
   key: findEnvironmentVariables(environment, item.keyString),
@@ -35,7 +36,7 @@ export const findEnvironmentVariablesKeyValueItem = (
  * Finds environment variables in a given KeyValueItem
  */
 export const findEnvironmentVariables = (
-  environment: LocalEnvironment | null,
+  environment: Environment | null,
   target: string
 ) => {
   if (environment === null) {

@@ -40,6 +40,8 @@ export const processAuthData = ({
   if (!decodedToken.exp) throw 'No expiry in bearer token'
   if (!decodedToken.userId) throw 'No userId in bearer token'
 
+  // TODO: Ensure valid aud and iss
+
   setBearer(decodedToken)
   setBearerExpiry(decodedToken.exp * 1000)
   setRawBearer(data.bearer)

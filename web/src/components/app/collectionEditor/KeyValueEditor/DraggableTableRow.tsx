@@ -2,7 +2,14 @@ import { useRef, memo } from 'react'
 
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
-import { Checkbox, IconButton, TableCell, TableRow } from '@mui/material'
+import {
+  Checkbox,
+  IconButton,
+  TableCell,
+  TableRow,
+  Tooltip,
+  useTheme,
+} from '@mui/material'
 import type { Identifier, XYCoord } from 'dnd-core'
 import { useDrag, useDrop } from 'react-dnd'
 
@@ -46,6 +53,7 @@ export const DraggableTableRow = memo(
     namespace,
     enableEnvironmentVariables = true,
   }: DraggableTableRowProps) => {
+    const theme = useTheme()
     const ref = useRef<HTMLDivElement>(null)
     const [{ handlerId }, drop] = useDrop<
       DragRow,
@@ -131,7 +139,8 @@ export const DraggableTableRow = memo(
           sx={{
             padding: 0,
             whiteSpace: 'nowrap',
-            width: '1px',
+            width: 0,
+            borderColor: theme.palette.divider,
           }}
         >
           <div ref={ref} data-handler-id={handlerId}>
@@ -144,7 +153,8 @@ export const DraggableTableRow = memo(
           sx={{
             padding: 0,
             whiteSpace: 'nowrap',
-            width: '1px',
+            width: 0,
+            borderColor: theme.palette.divider,
           }}
         >
           <Checkbox
@@ -158,6 +168,7 @@ export const DraggableTableRow = memo(
           sx={{
             maxWidth: '200px',
             width: '200px',
+            borderColor: theme.palette.divider,
           }}
         >
           {enableEnvironmentVariables ? (
@@ -179,6 +190,7 @@ export const DraggableTableRow = memo(
           sx={{
             maxWidth: '200px',
             width: '200px',
+            borderColor: theme.palette.divider,
           }}
         >
           {enableEnvironmentVariables ? (
@@ -199,12 +211,15 @@ export const DraggableTableRow = memo(
           sx={{
             padding: 0,
             whiteSpace: 'nowrap',
-            width: '1px',
+            width: 0,
+            borderColor: theme.palette.divider,
           }}
         >
-          <IconButton color="error" onClick={() => onDelete?.(index)}>
-            <HighlightOffIcon />
-          </IconButton>
+          <Tooltip title="Delete">
+            <IconButton color="error" onClick={() => onDelete?.(index)}>
+              <HighlightOffIcon />
+            </IconButton>
+          </Tooltip>
         </TableCell>
       </TableRow>
     )

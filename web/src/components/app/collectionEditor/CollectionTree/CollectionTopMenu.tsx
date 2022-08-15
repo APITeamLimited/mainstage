@@ -44,7 +44,7 @@ export const CollectionTopMenu = ({
 
   const collection = useYMap(collectionYMap)
 
-  const isActiveEnvironment = activeEnvironmentYMap?.get('id')
+  const isActiveEnvironment = activeEnvironmentYMap?.get('id') ? true : false
 
   if (!projectYMap) {
     throw `Could not find project with id ${projectYMap?.get(
@@ -129,20 +129,38 @@ export const CollectionTopMenu = ({
         <Typography variant="body2" color={theme.palette.text.secondary}>
           Environment:
         </Typography>
-        <Tooltip title="Switch Environment">
-          <Button
-            size="small"
-            variant="outlined"
-            color="secondary"
-            onClick={() => setShowEnvironmentManager(true)}
-            endIcon={<ArrowDropDownIcon />}
-            sx={{
-              marginTop: 1,
-            }}
-          >
-            {isActiveEnvironment ? activeEnvironmentYMap.get('name') : 'None'}
-          </Button>
-        </Tooltip>
+        <Box
+          sx={{
+            marginRight: 1,
+          }}
+        >
+          <Tooltip title="Switch Environment">
+            <Button
+              size="small"
+              variant="outlined"
+              color="secondary"
+              onClick={() => setShowEnvironmentManager(true)}
+              endIcon={<ArrowDropDownIcon />}
+              sx={{
+                marginTop: 1,
+                maxWidth: '100%',
+              }}
+              fullWidth
+            >
+              <span
+                style={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {isActiveEnvironment
+                  ? (activeEnvironmentYMap.get('name') as string)
+                  : 'None'}
+              </span>
+            </Button>
+          </Tooltip>
+        </Box>
       </Box>
     </>
   )
