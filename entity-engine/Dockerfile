@@ -1,4 +1,4 @@
-FROM mainstage-base:latest:latest
+FROM mainstage-base:latest
 COPY . /app
 WORKDIR /app/entity-engine
 RUN rm -rf config

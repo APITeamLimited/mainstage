@@ -3,7 +3,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import { Box, Icon, Stack, Typography, useTheme } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 export const getNewOrderingIndex = ({
   folderYMaps,

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import { Chip, Tooltip } from '@mui/material'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'

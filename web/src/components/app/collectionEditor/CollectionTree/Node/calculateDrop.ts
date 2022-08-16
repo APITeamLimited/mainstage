@@ -1,4 +1,4 @@
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import { DropSpace } from './Node'
 

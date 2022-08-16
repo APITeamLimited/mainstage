@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import AltRouteIcon from '@mui/icons-material/AltRoute'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'

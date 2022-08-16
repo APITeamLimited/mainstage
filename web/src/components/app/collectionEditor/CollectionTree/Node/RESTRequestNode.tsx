@@ -1,7 +1,7 @@
 import { useReactiveVar } from '@apollo/client'
 import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
 

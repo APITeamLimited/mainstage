@@ -11,8 +11,7 @@ import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { Workspace } from 'types/src'
 import { IndexeddbPersistence } from 'y-indexeddb'
-
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'

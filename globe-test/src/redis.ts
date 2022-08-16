@@ -24,7 +24,7 @@ const scopesHost = checkValue<string>('scopes.redis.host')
 const scopesPort = checkValue<number>('scopes.redis.port')
 
 const scopesReadRedis = createClient({
-  url: `redis://${scopesPassword}@${scopesHost}:${scopesPort}`,
+  url: `redis://${scopesUsername}:${scopesPassword}@${scopesHost}:${scopesPort}`,
 })
 
 const scopesSubscribeRedis = scopesReadRedis.duplicate()

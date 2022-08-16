@@ -1,15 +1,16 @@
 import { IncomingMessage } from 'http'
 
 import { gql } from '@apollo/client'
-import JWT from 'jsonwebtoken'
-import queryString from 'query-string'
+import * as JWT from 'jsonwebtoken'
+import * as queryString from 'query-string'
 
 import { apolloClient } from '../apollo'
+import { checkValue } from '../config'
 
 import { findScope } from './scope'
 
-const audience = 'apiteam.cloud' //checkValue<string>('entityAuth.jwt.audience')
-const issuer = 'apiteam.cloud' //checkValue<string>('entityAuth.jwt.issuer')
+const audience = checkValue<string>('api.bearer.audience')
+const issuer = checkValue<string>('api.bearer.issuer')
 
 let lastCheckedPublicKey = 0
 let publicKey: undefined | string = undefined

@@ -15,9 +15,8 @@ import {
   useTheme,
 } from '@mui/material'
 import { KeyValueItem } from 'types/src'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
-
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 

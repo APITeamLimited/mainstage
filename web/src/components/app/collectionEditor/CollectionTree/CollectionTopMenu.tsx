@@ -1,7 +1,5 @@
 import { useRef, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
@@ -16,6 +14,7 @@ import {
   MenuItem,
   ListItemText,
 } from '@mui/material'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import {

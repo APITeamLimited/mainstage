@@ -7,21 +7,34 @@ const orchestratorPassword = checkValue<string>('orchestrator.redis.password')
 const orchestratorHost = checkValue<string>('orchestrator.redis.host')
 const orchestratorPort = checkValue<number>('orchestrator.redis.port')
 
-export const orchestratorReadRedis = createClient({
+const orchestratorReadRedis = createClient({
   url: `redis://${orchestratorUserName}:${orchestratorPassword}@${orchestratorHost}:${orchestratorPort}`,
 })
 
-export const orchestratorSubscribeRedis = orchestratorReadRedis.duplicate()
+console.log(
+  `orchestratorReadRedis`,
+  `redis://${orchestratorUserName}:${orchestratorPassword}@${orchestratorHost}:${orchestratorPort}`
+)
+
+const orchestratorSubscribeRedis = orchestratorReadRedis.duplicate()
+
+orchestratorReadRedis.connect()
+orchestratorSubscribeRedis.connect()
+
+export { orchestratorReadRedis, orchestratorSubscribeRedis }
 
 const scopesUsername = checkValue<string>('scopes.redis.userName')
 const scopesPassword = checkValue<string>('scopes.redis.password')
 const scopesHost = checkValue<string>('scopes.redis.host')
 const scopesPort = checkValue<number>('scopes.redis.port')
 
-export const scopesReadRedis = createClient({
+const scopesReadRedis = createClient({
   url: `redis://${scopesUsername}:${scopesPassword}@${scopesHost}:${scopesPort}`,
 })
 
-scopesReadRedis.connect()
+const scopesSubscribeRedis = scopesReadRedis.duplicate()
 
-export const scopesSubscribeRedis = scopesReadRedis.duplicate()
+scopesReadRedis.connect()
+scopesSubscribeRedis.connect()
+
+export { scopesReadRedis, scopesSubscribeRedis }

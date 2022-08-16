@@ -1,13 +1,12 @@
 import { useEffect, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { Environment, RESTRequest } from 'types/src'
 import { v4 as uuid } from 'uuid'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useAuth } from '@redwoodjs/auth'

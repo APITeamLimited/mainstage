@@ -1,15 +1,14 @@
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
-import { populateOpenDoc } from '../../../entity-engine/src/entities'
+import { Workspace } from 'types/src'
+import * as Y from 'yjs'
 
 import {
   activeEnvironmentVar,
   localRESTResponsesVar,
 } from 'src/contexts/reactives'
 
-import { PossibleSyncStatus } from './utils'
+import { populateOpenDoc } from '../../../entity-engine/src/entities'
 
-import { Workspace } from 'types/src'
+import { PossibleSyncStatus } from './utils'
 
 export type UpdateDispatcherArgs = {
   doc: Y.Doc

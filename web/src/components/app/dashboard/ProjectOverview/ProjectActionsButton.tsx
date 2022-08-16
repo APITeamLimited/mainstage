@@ -1,7 +1,5 @@
 import { useRef, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   IconButton,
@@ -11,6 +9,7 @@ import {
   ListItemText,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'

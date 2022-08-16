@@ -2,21 +2,21 @@ import { createServer } from 'http'
 
 import { Server } from 'socket.io'
 
+import { checkValue } from './config'
 import { handleAuth } from './services'
 import { handleNewConnection } from './yjs/connection-provider'
 
 process.title = 'entity-engine'
 
-const host = 'localhost' //checkValue<string>('entity-engine.host')
-const port = 8912 //checkValue<number>('entity-engine.port')
+const entityEngineHost = checkValue<string>('entity-engine.host')
+const entityEnginePort = checkValue<number>('entity-engine.port')
 
 const httpServer = createServer()
 
 const io = new Server(httpServer, {
-  cors: {
-    origin: ['http://localhost:8910', 'http://localhost:8912'],
-    methods: ['GET', 'POST'],
-  },
+  // Disable cors
+  // TODO: Refine cors to only allow whitelisted origins
+  allowRequest: () => true,
 })
 
 io.use(async (socket, next) => {
@@ -46,8 +46,8 @@ setInterval(() => {
   )
 }, 60000)
 
-httpServer.listen(port, host, () => {
+httpServer.listen(entityEnginePort, entityEngineHost, () => {
   console.log(
-    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${host}:${port}\n\n\x1b[0m`
+    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n\x1b[0m`
   )
 })

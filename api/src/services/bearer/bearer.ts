@@ -8,12 +8,9 @@ import { db } from 'src/lib/db'
 
 import { checkValue } from '../../config'
 
-const issuer = checkValue<string>('entityAuth.jwt.issuer')
-const audience = checkValue<string>('entityAuth.jwt.audience')
-const expriesInMinutes = checkValue<number>('entityAuth.jwt.expriesInMinutes')
-const privateKeyPassphrase = checkValue<string>(
-  'entityAuth.jwt.privateKeyPassphrase'
-)
+const issuer = checkValue<string>('api.bearer.issuer')
+const audience = checkValue<string>('api.bearer.audience')
+const expriesInMinutes = checkValue<number>('api.bearer.expiryMinutes')
 
 let keyPair: {
   publicKey: string

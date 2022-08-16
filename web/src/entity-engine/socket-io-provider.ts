@@ -6,12 +6,10 @@ import * as math from 'lib0/math'
 import { Observable } from 'lib0/observable'
 import * as time from 'lib0/time'
 import { io, protocol, Socket } from 'socket.io-client'
-import * as awarenessProtocol from 'y-protocols/awareness.js'
+import * as awarenessProtocol from 'y-protocols/awareness'
+import * as Y from 'yjs'
 
 import * as syncProtocol from './sync'
-
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import { PossibleSyncStatus } from './utils'
 
 const host = 'localhost'

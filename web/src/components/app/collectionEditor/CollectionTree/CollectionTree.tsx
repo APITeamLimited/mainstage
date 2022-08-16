@@ -1,13 +1,10 @@
 import { useRef, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-
-import { useBranchYMap } from 'src/contexts/EnvironmentProvider'
+import * as Y from 'yjs'
 
 import { CollectionTopMenu } from './CollectionTopMenu'
 import { NewItemPopover } from './NewItemPopover'

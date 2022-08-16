@@ -22,7 +22,7 @@ import { routes, navigate } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
 import { RenameDialog } from '../../dialogs/RenameDialog'

@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Box, Container } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
-
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import 'react-reflex/styles.css'
 

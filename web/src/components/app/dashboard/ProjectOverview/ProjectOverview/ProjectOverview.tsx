@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
 import { Branch, Project } from 'types/src'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
+import * as Y from 'yjs'
 
 import { useReactiveVar } from '@apollo/client'
 import { useThrottle } from '@react-hook/throttle'

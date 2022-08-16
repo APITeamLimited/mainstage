@@ -1,9 +1,8 @@
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Button, Box, useTheme } from '@mui/material'
 import { Collection } from 'types/src'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
-
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
 
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 

@@ -10,8 +10,8 @@ import { handleAuth } from './services'
 process.title = 'globe-test'
 
 // This will always be localhost, container mapping will set this to the actual hostname
-const globeTestHost = 'localhost'
-const globeTestPort = checkValue<number>('globeTest.port')
+const globeTestHost = checkValue<number>('globe-test.host')
+const globeTestPort = checkValue<number>('globe-test.port')
 
 const httpServer = createServer()
 
@@ -71,6 +71,6 @@ setInterval(() => {
 
 httpServer.listen(globeTestPort, globeTestHost, () => {
   console.log(
-    `\x1b[31m\n\nAPITeam GlobeTest Manager Listening at ${globeTestHost}:${globeTestPort}\n\n\x1b[0m`
+    `\x1b[31m\n\nAPITeam GlobeTest Manager Listeniang at ${globeTestHost}:${globeTestPort}\n\n\x1b[0m`
   )
 })

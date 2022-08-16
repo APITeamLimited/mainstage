@@ -7,13 +7,18 @@
 // 'src/pages/HomePage/HomePage.js'         -> HomePage
 // 'src/pages/Admin/BooksPage/BooksPage.js' -> AdminBooksPage
 
+import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
 import { Router, Route, Set, Private, Redirect } from '@redwoodjs/router'
 
 import AppLayout from './layouts/App'
 import SplashLayout from './layouts/Splash'
-import { AppBaseRedirect } from './pages/app/AppBaseRedirect'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import DashboardPage from './pages/app/DashboardPage'
+import AboutPage from './pages/company/About/About'
+import PrivacyPolicyPage from './pages/legal/PrivacyPolicy/PrivacyPolicy'
+import TermsOfServicePage from './pages/legal/TermsOfService/TermsOfService'
+import PricingPage from './pages/platform/Pricing/Pricing'
+import WhyAPITeamPage from './pages/platform/WhyAPITeam/WhyAPITeam'
 import RootPage from './pages/splash/RootPage'
 
 export const brandedRoutes = {
@@ -63,15 +68,16 @@ const Routes = () => {
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
       <Set prerender wrap={SplashLayout}>
         <Route path="/" page={RootPage} name="root" />
-        <Route path="/platform/why-apiteam" page={NotFoundPage} name="whyAPITeam" />
-        <Route path="/platform/pricing" page={NotFoundPage} name="pricing" />
-        <Route path="/company/about" page={NotFoundPage} name="about" />
-        <Route path="/legal/terms-of-service" page={NotFoundPage} name="termsOfService" />
-        <Route path="/legal/privacy-policy" page={NotFoundPage} name="privacyPolicy" />
+        <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
+        <Route path="/platform/pricing" page={PricingPage} name="pricing" />
+        <Route path="/company/about" page={AboutPage} name="about" />
+        <Route path="/legal/terms-of-service" page={TermsOfServicePage} name="termsOfService" />
+        <Route path="/legal/privacy-policy" page={PrivacyPolicyPage} name="privacyPolicy" />
       </Set>
       <Set wrap={AppLayout}>
         <Route path="/app" redirect="/app/dashboard" />
         <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
+
         <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
       </Set>
       <Route notfound page={NotFoundPage} />

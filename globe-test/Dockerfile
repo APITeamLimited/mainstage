@@ -1,4 +1,4 @@
-FROM mainstage-base:latest:latest
+FROM mainstage-base:latest
 COPY . /app
 WORKDIR /app/globe-test
 RUN rm -rf config

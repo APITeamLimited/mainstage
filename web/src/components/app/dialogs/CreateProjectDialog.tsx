@@ -1,5 +1,3 @@
-import * as Y from '/home/harry/Documents/APITeam/mainstage/node_modules/yjs'
-
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   Button,
@@ -14,14 +12,14 @@ import {
   FormLabel,
 } from '@mui/material'
 import { useFormik } from 'formik'
+import { Project } from 'types/src'
+import * as Y from 'yjs'
 import * as Yup from 'yup'
 import { useYMap } from 'zustand-yjs'
 
 import { useWorkspace } from 'src/entity-engine'
 
 import { createProject } from '../../../../../entity-engine/src/entities'
-
-import { Project } from 'types/src'
 
 type CreateProjectDialogState = {
   isOpen: boolean
