@@ -66,7 +66,7 @@ const Routes = () => {
       <Route path="/signup" page={SignupPage} name="signup" />
       <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
-      <Set prerender wrap={SplashLayout}>
+      <Set wrap={SplashLayout}>
         <Route path="/" page={RootPage} name="root" />
         <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
         <Route path="/platform/pricing" page={PricingPage} name="pricing" />
