@@ -1,9 +1,8 @@
-import { createContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useEffect, useState } from 'react'
 import type { FC, ReactNode } from 'react'
 
 import PropTypes from 'prop-types'
 
-import { useIsBrowser } from '@redwoodjs/prerender/browserUtils'
 import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
 
 export interface Settings {
@@ -62,20 +61,20 @@ export const SettingsContext = createContext<SettingsContextValue>({
   saveSettings: () => {},
 })
 
-export const SettingsProvider: FC<SettingsProviderProps> = ({ children }) => {
-  const isBrowser = useIsBrowser()
-  const settingsState = useState<Settings>(initialSettings)
+export const SettingsProvider: FC<SettingsProviderProps> = (props) => {
+  const { children } = props
+  const [settings, setSettings] = useState<Settings>(initialSettings)
 
   useEffect(() => {
     const restoredSettings = restoreSettings()
 
     if (restoredSettings) {
-      settingsState[1](restoredSettings)
+      setSettings(restoredSettings)
     }
-  }, [settingsState])
+  }, [])
 
   const saveSettings = (updatedSettings: Settings): void => {
-    settingsState[1](updatedSettings)
+    setSettings(updatedSettings)
     storeSettings(updatedSettings)
   }
 
@@ -83,7 +82,7 @@ export const SettingsProvider: FC<SettingsProviderProps> = ({ children }) => {
     <BrowserOnly>
       <SettingsContext.Provider
         value={{
-          settings: isBrowser ? settingsState[0] : initialSettings,
+          settings,
           saveSettings,
         }}
       >
