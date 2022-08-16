@@ -30,7 +30,7 @@
     "seed": "yarn rw exec seed"
   },
   "scripts": {
-    "dev": "export OPENSSL_CONF=/dev/null && yarn rw dev"
+    "dev": "OPENSSL_CONF=/dev/null && yarn rw dev"
   },
   "packageManager": "yarn@3.2.1",
   "dependencies": {

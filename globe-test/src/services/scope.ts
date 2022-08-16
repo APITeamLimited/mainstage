@@ -3,13 +3,6 @@ import { gql } from '@apollo/client'
 import { Scope } from '../../../api/types/graphql'
 import { apolloClient } from '../apollo'
 
-/*const subscribeRedis = scopesReadRedis.duplicate()
-
-subscribeRedis.on('error', (err) => {
-  console.log(err)
-})
-*/
-
 export const findScope = async (id: string): Promise<Scope | null> => {
   return (await _findScopeRedis(id)) || (await _findScopeBackend(id))
 }

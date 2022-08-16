@@ -2,22 +2,23 @@ import { createServer } from 'http'
 
 import { Server } from 'socket.io'
 
+import { checkValue } from './config'
 import { handleCurrentTest, handleNewTest } from './handle-test'
 import { checkJobId, checkValidQueryParams } from './middleware'
 import { handleAuth } from './services'
 
 process.title = 'globe-test'
 
-const host = 'localhost' //checkValue<string>('entity-engine.host')
-const port = 8907 //checkValue<number>('entity-engine.port')
+// This will always be localhost, container mapping will set this to the actual hostname
+const globeTestHost = 'localhost'
+const globeTestPort = checkValue<number>('globeTest.port')
 
 const httpServer = createServer()
 
 const io = new Server(httpServer, {
-  cors: {
-    origin: ['http://localhost:8907', 'http://localhost:8912'],
-    methods: ['GET', 'POST'],
-  },
+  // Disable cors
+  // TODO: Refine cors to only allow whitelisted origins
+  allowRequest: () => true,
 })
 
 io.use(async (socket, next) => {
@@ -68,8 +69,8 @@ setInterval(() => {
   )
 }, 60000)
 
-httpServer.listen(port, host, () => {
+httpServer.listen(globeTestPort, globeTestHost, () => {
   console.log(
-    `\x1b[31m\n\nAPITeam GlobeTest Manager Listening at ${host}:${port}\n\n\x1b[0m`
+    `\x1b[31m\n\nAPITeam GlobeTest Manager Listening at ${globeTestHost}:${globeTestPort}\n\n\x1b[0m`
   )
 })
