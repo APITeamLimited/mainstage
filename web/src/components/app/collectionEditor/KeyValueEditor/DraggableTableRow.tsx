@@ -10,10 +10,10 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import type { Identifier, XYCoord } from 'dnd-core'
-import { useDrag, useDrop } from 'react-dnd'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
+import { Identifier, XYCoord } from 'src/components/dnd/dnd-core'
+import { useDrag, useDrop } from 'src/components/dnd/react-dnd'
 
 import { StyledInput } from '../../StyledInput'
 

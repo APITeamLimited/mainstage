@@ -1,6 +1,6 @@
-import { useDrop } from 'react-dnd'
-
 import * as Y from 'yjs'
+
+import { useDrop } from 'src/components/dnd/react-dnd'
 
 type UseNodeDropArgs = {
   nodeYMap: Y.Map<any>

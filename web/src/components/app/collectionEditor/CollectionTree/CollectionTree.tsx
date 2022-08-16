@@ -2,9 +2,10 @@ import { useRef, useState } from 'react'
 
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import * as Y from 'yjs'
+
+import { HTML5Backend } from 'src/components/dnd/backend-html5'
+import { DndProvider } from 'src/components/dnd/react-dnd'
 
 import { CollectionTopMenu } from './CollectionTopMenu'
 import { NewItemPopover } from './NewItemPopover'

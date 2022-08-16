@@ -1,4 +1,4 @@
-import { DragSourceMonitor, useDrag } from 'react-dnd'
+import { DragSourceMonitor, useDrag } from 'src/components/dnd/react-dnd'
 
 type UseNodeDragArgs = {
   nodeYMap: Y.Map<any>

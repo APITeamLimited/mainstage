@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 
-import * as Y from 'yjs'
-
-import { useReactiveVar } from '@apollo/client'
 import { useThrottle } from '@react-hook/throttle'
-import { useDragDropManager } from 'react-dnd'
 import { Folder, RESTRequest } from 'types/src'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
-import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+import { useDragDropManager } from 'src/components/dnd/react-dnd'
 
 import {
   createFolder,

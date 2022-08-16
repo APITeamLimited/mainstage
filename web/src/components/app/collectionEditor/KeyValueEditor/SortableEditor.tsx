@@ -1,4 +1,4 @@
-import { useCallback, Dispatch, SetStateAction, memo, useState } from 'react'
+import { memo } from 'react'
 
 import {
   Box,
@@ -11,10 +11,9 @@ import {
   useTheme,
 } from '@mui/material'
 import update from 'immutability-helper'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 
-import { isReactElement } from '@redwoodjs/router/dist/util'
+import { HTML5Backend } from 'src/components/dnd/backend-html5'
+import { DndProvider } from 'src/components/dnd/react-dnd'
 
 import { DraggableTableRow } from './DraggableTableRow'
 import { KeyValueItem } from './KeyValueEditor'

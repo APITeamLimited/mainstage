@@ -3,6 +3,9 @@ import type { FC, ReactNode } from 'react'
 
 import PropTypes from 'prop-types'
 
+import { useIsBrowser } from '@redwoodjs/prerender/browserUtils'
+import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
+
 export interface Settings {
   direction?: 'ltr' | 'rtl'
   responsiveFontSizes?: boolean
@@ -43,9 +46,8 @@ export const restoreSettings = (): Settings | null => {
       }
     }
   } catch (err) {
-    console.error(err)
-    // If stored data is not a strigified JSON this will fail,
-    // that's why we catch the error
+    console.log(err, 'using initialSettings')
+    settings = initialSettings
   }
 
   return settings
@@ -60,32 +62,34 @@ export const SettingsContext = createContext<SettingsContextValue>({
   saveSettings: () => {},
 })
 
-export const SettingsProvider: FC<SettingsProviderProps> = (props) => {
-  const { children } = props
-  const [settings, setSettings] = useState<Settings>(initialSettings)
+export const SettingsProvider: FC<SettingsProviderProps> = ({ children }) => {
+  const isBrowser = useIsBrowser()
+  const settingsState = useState<Settings>(initialSettings)
 
   useEffect(() => {
     const restoredSettings = restoreSettings()
 
     if (restoredSettings) {
-      setSettings(restoredSettings)
+      settingsState[1](restoredSettings)
     }
-  }, [])
+  }, [settingsState])
 
   const saveSettings = (updatedSettings: Settings): void => {
-    setSettings(updatedSettings)
+    settingsState[1](updatedSettings)
     storeSettings(updatedSettings)
   }
 
   return (
-    <SettingsContext.Provider
-      value={{
-        settings,
-        saveSettings,
-      }}
-    >
-      {children}
-    </SettingsContext.Provider>
+    <BrowserOnly>
+      <SettingsContext.Provider
+        value={{
+          settings: isBrowser ? settingsState[0] : initialSettings,
+          saveSettings,
+        }}
+      >
+        {children}
+      </SettingsContext.Provider>
+    </BrowserOnly>
   )
 }
 
