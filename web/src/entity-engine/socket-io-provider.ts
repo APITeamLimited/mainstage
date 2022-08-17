@@ -25,17 +25,16 @@ const getUrl = () => {
 
     return `http://${host}:${port}`
   } else {
-    const gatewayUrl = process.env['GATEWAY_URL']
+    // TODO: Correctly implement env variables
+    const gatewayUrl = 'https://apiteam-6pq1lw9jtzb.enterchange.io'
 
     if (!gatewayUrl) {
       throw new Error('GATEWAY_URL must be set')
     }
 
-    return `${gatewayUrl}/api/entitiy-engine`
+    return gatewayUrl
   }
 }
-
-const secure = false
 
 // todo: This should depend on awareness.outdatedTime
 const messageReconnectTimeout = 30000
@@ -318,13 +317,15 @@ export class SocketIOProvider extends Observable<string> {
 
   setupSocket() {
     if (this.shouldConnect && this.socket === null) {
-      console.log(`Connecting to ${this.url}`)
-
       this.socket = io(this.url, {
         query: {
           scopeId: this.scopeId,
           bearer: this.rawBearer,
         },
+        path:
+          process.env.NODE_ENV === 'development'
+            ? '/socket-io'
+            : '/api/entity-engine',
       })
 
       //this.socket.binaryType = 'arraybuffer'
