@@ -14,9 +14,10 @@ const entityEnginePort = checkValue<number>('entity-engine.port')
 const httpServer = createServer()
 
 const io = new Server(httpServer, {
-  // Disable cors
   // TODO: Refine cors to only allow whitelisted origins
-  allowRequest: () => true,
+  cors: {
+    origin: '*',
+  },
 })
 
 io.use(async (socket, next) => {
@@ -31,7 +32,6 @@ io.use(async (socket, next) => {
 })
 
 io.on('connection', async (socket) => {
-  console.log(new Date(), 'Socket.io Client connected', socket.id)
   await handleNewConnection(socket)
 })
 

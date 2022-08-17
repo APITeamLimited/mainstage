@@ -13,7 +13,7 @@ import { RedisPersistence } from './persistence-provider'
 import * as syncProtocol from './sync'
 import { handlePostAuth } from './utils'
 
-const persistenceProvider: RedisPersistence | null = null //new RedisPersistence()
+const persistenceProvider: RedisPersistence = new RedisPersistence()
 
 export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
@@ -69,7 +69,6 @@ export const getOpenDoc = (scope: Scope): OpenDoc => {
 
     // Connect with persistence provider
     if (persistenceProvider) {
-      // @ts-ignore
       persistenceProvider.bindState(scope.id, doc)
     }
 
@@ -164,6 +163,8 @@ class OpenDoc extends Y.Doc {
       syncProtocol.writeUpdate(encoder, update)
       const message = encoding.toUint8Array(encoder)
 
+      persistenceProvider?.writeState(this.scope.id, this)
+
       this.sockets.forEach((_, socket) => this.send(socket, message))
     })
   }
@@ -180,6 +181,8 @@ class OpenDoc extends Y.Doc {
       console.log('failed to send message from OpenDoc', e)
       this.closeSocket(socket)
     }
+
+    persistenceProvider.writeState(this.scope.id, this)
   }
 
   // Removes a connection from a doc
@@ -189,7 +192,7 @@ class OpenDoc extends Y.Doc {
       socket.id,
       'from synced doc',
       this.scope.id,
-      this.sockets.size
+      this.sockets.size - 1
     )
 
     if (this.sockets.has(socket)) {
@@ -202,10 +205,7 @@ class OpenDoc extends Y.Doc {
         null
       )
       if (this.sockets.size === 0) {
-        if (persistenceProvider) {
-          // If persisted, we store state and destroy ydocument
-          await persistenceProvider.writeState(this.scope.id, this)
-        }
+        await persistenceProvider.writeState(this.scope.id, this)
         openDocs.delete(this.scope.id)
         console.log('Closed doc', this.scope.id)
       }

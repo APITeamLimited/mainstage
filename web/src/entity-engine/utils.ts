@@ -139,7 +139,7 @@ export const determineIfReady = ({
   if (!scopes.find((scope) => scope.variantTargetId === activeWorkspace.id)) {
     setReady({
       socketioProviderReady: false,
-      indexeddbProviderReady: true,
+      indexeddbProviderReady: false,
     })
     return
   }
@@ -152,7 +152,8 @@ export const determineIfReady = ({
   ) {
     setReady({
       socketioProviderReady: true,
-      indexeddbProviderReady: true,
+      //indexeddbProviderReady: true,
+      indexeddbProviderReady: false,
     })
     return
   }

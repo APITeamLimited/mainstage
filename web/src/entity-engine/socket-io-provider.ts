@@ -12,8 +12,29 @@ import * as Y from 'yjs'
 import * as syncProtocol from './sync'
 import { PossibleSyncStatus } from './utils'
 
-const host = 'localhost'
-const port = 8912
+const getUrl = () => {
+  if (process.env.NODE_ENV === 'development') {
+    const host = process.env['ENTITY_ENGINE_HOST']
+    const port = process.env['ENTITY_ENGINE_PORT']
+
+    if (!(host && port)) {
+      throw new Error(
+        `ENTITY_ENGINE_HOST and ENTITY_ENGINE_PORT must be set, got ${host} and ${port}`
+      )
+    }
+
+    return `http://${host}:${port}`
+  } else {
+    const gatewayUrl = process.env['GATEWAY_URL']
+
+    if (!gatewayUrl) {
+      throw new Error('GATEWAY_URL must be set')
+    }
+
+    return `${gatewayUrl}/api/entitiy-engine`
+  }
+}
+
 const secure = false
 
 // todo: This should depend on awareness.outdatedTime
@@ -171,7 +192,7 @@ export class SocketIOProvider extends Observable<string> {
 
     // ensure that url is always ends with /
     this.maxBackoffTime = maxBackoffTime
-    this.url = `${secure ? 'https' : 'http'}://${host}:${port}`
+    this.url = getUrl()
     this.rawBearer = rawBearer
     this.bcChannel = `${this.url}-${scopeId}`
     this.scopeId = scopeId
@@ -421,8 +442,8 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   destroy() {
-    console.log('destroy bie')
     if (this._resyncInterval !== 0) {
+      this.socket?.emit('forceDisconnect')
       clearInterval(this._resyncInterval)
     }
     clearInterval(this._checkInterval)

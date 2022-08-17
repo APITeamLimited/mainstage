@@ -6,6 +6,9 @@ import * as promise from 'lib0/promise'
 import { createClient, RedisClientOptions } from 'redis'
 import * as Y from 'yjs'
 
+import { checkValue } from '../config'
+import { eeReadRedis, eeSubscribeRedis } from '../redis'
+
 const logger = logging.createModuleLogger('y-readRedis')
 
 /**
@@ -13,7 +16,7 @@ const logger = logging.createModuleLogger('y-readRedis')
  */
 export class PersistenceDoc {
   rp: RedisPersistence
-  name: string
+  id: string
   doc: Y.Doc
   mux: mutex.mutex
   _clock: number
@@ -22,12 +25,12 @@ export class PersistenceDoc {
 
   updateHandler: (update: Uint8Array) => void
 
-  constructor(rp: RedisPersistence, name: string, doc: Y.Doc) {
+  constructor(rp: RedisPersistence, id: string, doc: Y.Doc) {
     this.rp = rp
-    this.name = name
+    this.id = id
     this.doc = doc
     this.mux = mutex.createMutex()
-    console.log('creating persistence doc', name)
+    console.log('creating persistence doc', id)
 
     // Next expected index / len of the list of update
     this._clock = 0
@@ -35,11 +38,12 @@ export class PersistenceDoc {
 
     // Update a doc in readRedis
     this.updateHandler = async (update: Uint8Array) => {
+      console.log('updateHandler RedisPersistence', this.id)
       // mux: only store update in readRedis if this document update does not originate from readRedis
       this.mux(() => {
         // Changed from rpushBuffer to rpush
         rp.readRedis
-          ?.rPush(name + ':updates', update.toString())
+          ?.rPush(id + ':updates', Buffer.from(update).toString('base64'))
           .then((len) => {
             if (len === this._clock + 1) {
               this._clock++
@@ -50,7 +54,7 @@ export class PersistenceDoc {
             if (!rp.readRedis) {
               throw 'Redis not available'
             }
-            rp.readRedis.publish(this.name, len.toString())
+            rp.readRedis.publish(this.id, len.toString())
           })
       })
     }
@@ -60,21 +64,20 @@ export class PersistenceDoc {
     }
     doc.on('update', this.updateHandler)
 
-    rp.subRedis?.subscribe(name, () => this.getUpdates())
+    rp.subRedis?.subscribe(id, () => this.getUpdates())
   }
 
   async destroy(): Promise<unknown> {
-    console.log('destroy persistence doc', this.name)
+    console.log('destroy persistence doc', this.id)
     this.doc.off('update', this.updateHandler)
-    this.rp.persistenceDocs.delete(this.name)
-    return this.rp.subRedis?.unsubscribe(this.name) || Promise.resolve(0)
+    this.rp.persistenceDocs.delete(this.id)
+    return this.rp.subRedis?.unsubscribe(this.id) || Promise.resolve(0)
   }
 
   /**
    * Get all new updates from readRedis and increase clock if necessary.
    */
   async getUpdates(): Promise<PersistenceDoc> {
-    console.log('getUpdates', this.name)
     const startClock = this._clock
 
     if (!this.rp.readRedis) {
@@ -82,15 +85,17 @@ export class PersistenceDoc {
     }
 
     //const updates = await this.rp.readRedis.lrangeBuffer(
-    //  this.name + ':updates',
+    //  this.id + ':updates',
     //  startClock,
     //  -1
     //)
 
     // Load updates from redis using buffers
-    const updates = (
-      await this.rp.readRedis.lRange(this.name + ':updates', startClock, -1)
-    ).map((update) => Buffer.from(update))
+    const updates = await this.rp.readRedis.lRange(
+      this.id + ':updates',
+      startClock,
+      -1
+    ) //.map((update) => Buffer.from(update))
 
     logger(
       'Fetched ',
@@ -104,11 +109,13 @@ export class PersistenceDoc {
 
     this.mux(() => {
       this.doc.transact(() => {
-        updates.forEach((update) => {
-          console.log('update', update.toString(), update, typeof update)
-
-          Y.applyUpdate(this.doc, update)
-        })
+        try {
+          updates.forEach((update) => {
+            Y.applyUpdate(this.doc, Buffer.from(update, 'base64'))
+          })
+        } catch (e) {
+          console.log('error getUpdates', e)
+        }
         const nextClock = startClock + updates.length
         if (this._clock < nextClock) {
           this._clock = nextClock
@@ -139,19 +146,15 @@ export class RedisPersistence extends Observable<string> {
   subRedis: ReturnType<typeof createClient> | null
   readRedis: ReturnType<typeof createClient> | null
 
-  constructor(options?: { redisOptions?: RedisClientOptions }) {
-    const { redisOptions } = options || {}
+  constructor() {
     super()
 
-    this.readRedis = createClient(redisOptions)
-    this.subRedis = createClient(redisOptions)
-    this.readRedis.connect()
-    this.subRedis.connect()
+    this.readRedis = eeReadRedis
+    this.subRedis = eeSubscribeRedis
     this.persistenceDocs = new Map()
 
     this.subRedis.on('message', (channel, sclock) => {
       console.log('subscriber got message', channel, sclock)
-      // console.log('message', channel, sclock)
       const pdoc = this.persistenceDocs.get(channel)
       if (pdoc) {
         const clock = Number(sclock) || Number.POSITIVE_INFINITY // case of null
@@ -172,26 +175,21 @@ export class RedisPersistence extends Observable<string> {
     })
   }
 
-  bindState(name: string, ydoc: Y.Doc): PersistenceDoc {
-    console.log('bind state persistenceDocs ', this.persistenceDocs)
-
-    if (this.persistenceDocs.has(name)) {
-      throw error.create(
-        `"${name}" is already bound to this RedisPersistence instance`
-      )
+  bindState(id: string, ydoc: Y.Doc): PersistenceDoc {
+    const gotDoc = this.persistenceDocs.get(id)
+    if (gotDoc) {
+      return gotDoc
     }
-    const pd = new PersistenceDoc(this, name, ydoc)
-    this.persistenceDocs.set(name, pd)
+    const pd = new PersistenceDoc(this, id, ydoc)
+    this.persistenceDocs.set(id, pd)
     return pd
   }
 
-  async writeState(name: string, state: Y.Doc) {
-    console.log('write state', name)
-
-    const pdoc = this.persistenceDocs.get(name)
+  async writeState(id: string, state: Y.Doc) {
+    const pdoc = this.persistenceDocs.get(id)
     if (!pdoc) {
       throw error.create(
-        `"${name}" is not bound to this RedisPersistence instance`
+        `"${id}" is not bound to this RedisPersistence instance`
       )
     }
 
@@ -212,17 +210,17 @@ export class RedisPersistence extends Observable<string> {
     this.subRedis = null
   }
 
-  closeDoc(name: string) {
-    console.log('close doc', name)
-    const doc = this.persistenceDocs.get(name)
+  closeDoc(id: string) {
+    console.log('close doc', id)
+    const doc = this.persistenceDocs.get(id)
     if (doc) {
       return doc.destroy()
     }
   }
 
-  deleteDocument(name: string): Promise<number> {
-    console.log('clear document', name)
-    const doc = this.persistenceDocs.get(name)
+  deleteDocument(id: string): Promise<number> {
+    console.log('clear document', id)
+    const doc = this.persistenceDocs.get(id)
     if (doc) {
       doc.destroy()
     }
@@ -231,7 +229,7 @@ export class RedisPersistence extends Observable<string> {
       throw error.create('No readRedis instance available')
     }
 
-    return this.readRedis.del(name + ':updates')
+    return this.readRedis.del(id + ':updates')
   }
 
   /**
@@ -242,7 +240,7 @@ export class RedisPersistence extends Observable<string> {
   //  console.log('clear all documents')
   //  await promise.all(
   //    Array.from(this.persistenceDocs.keys()).map(
-  //      (name) => this.readRedis?.del(name + ':updates') || Promise.resolve(0)
+  //      (id) => this.readRedis?.del(id + ':updates') || Promise.resolve(0)
   //    )
   //  )
   //  this.destroy()

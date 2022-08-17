@@ -4,6 +4,10 @@
   "private": true,
   "dependencies": {
     "@redwoodjs/api": "2.0.0",
+    "@redwoodjs/api-server": "^2.2.0",
     "@redwoodjs/graphql-server": "2.0.0"
+  },
+  "scripts": {
+    "run-prod": "NODE_ENV=production node ./dist/server/index.js api"
   }
 }

@@ -9,12 +9,11 @@ export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
   // See if the scope has a projects folder
 
   const projectsFolder = doc.getMap('projects')
-  console.log('projectsFolder', projectsFolder.size)
 
-  if (projectsFolder.size === 0) {
-    const { project, id } = createProject('My First Project')
-    projectsFolder.set(id, project)
-  }
+  // /if (projectsFolder.size === 0) {
+  // /  const { project, id } = createProject('My First Project')
+  // /  projectsFolder.set(id, project)
+  // /}
 
   const rootMap = doc.getMap()
   rootMap.set('performedFirstRun', true)
@@ -25,8 +24,6 @@ export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
 
   // Will be used in future to handle upgrades in YJS
   rootMap.set('schemaVersion', 0)
-
-  console.log('populateOpenDoc complete')
 }
 
 export const createProject = (name: string) => {

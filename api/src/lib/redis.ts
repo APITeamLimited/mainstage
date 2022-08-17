@@ -11,11 +11,6 @@ const orchestratorReadRedis = createClient({
   url: `redis://${orchestratorUserName}:${orchestratorPassword}@${orchestratorHost}:${orchestratorPort}`,
 })
 
-console.log(
-  `orchestratorReadRedis`,
-  `redis://${orchestratorUserName}:${orchestratorPassword}@${orchestratorHost}:${orchestratorPort}`
-)
-
 const orchestratorSubscribeRedis = orchestratorReadRedis.duplicate()
 
 orchestratorReadRedis.connect()
