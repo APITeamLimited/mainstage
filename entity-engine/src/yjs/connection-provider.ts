@@ -7,13 +7,26 @@ import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
 import { Scope } from '../../../api/types/graphql'
+import { checkValue } from '../config'
 import { populateOpenDoc } from '../entities'
 
-import { RedisPersistence } from './persistence-provider'
 import * as syncProtocol from './sync'
 import { handlePostAuth } from './utils'
+import { RedisPersistence } from './y-redis'
 
-const persistenceProvider: RedisPersistence = new RedisPersistence()
+const eeRedisUsername = checkValue<string>('entity-engine.redis.userName')
+const eeRedisPassword = checkValue<string>('entity-engine.redis.password')
+const eeRedisHost = checkValue<string>('entity-engine.redis.host')
+const eeRedisPort = checkValue<number>('entity-engine.redis.port')
+
+const persistenceProvider = new RedisPersistence({
+  redisOpts: {
+    port: eeRedisPort,
+    host: eeRedisHost,
+    username: eeRedisUsername,
+    password: eeRedisPassword,
+  },
+})
 
 export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
@@ -68,9 +81,10 @@ export const getOpenDoc = (scope: Scope): OpenDoc => {
     const doc = new OpenDoc(scope)
 
     // Connect with persistence provider
-    if (persistenceProvider) {
+    // TODO: Figure out why throwing error when still works
+    try {
       persistenceProvider.bindState(scope.id, doc)
-    }
+    } catch (e) {}
 
     openDocs.set(scope.id, doc)
     return doc
@@ -163,7 +177,7 @@ class OpenDoc extends Y.Doc {
       syncProtocol.writeUpdate(encoder, update)
       const message = encoding.toUint8Array(encoder)
 
-      persistenceProvider?.writeState(this.scope.id, this)
+      //persistenceProvider?.writeState(this.scope.id, this)
 
       this.sockets.forEach((_, socket) => this.send(socket, message))
     })
@@ -182,7 +196,7 @@ class OpenDoc extends Y.Doc {
       this.closeSocket(socket)
     }
 
-    persistenceProvider.writeState(this.scope.id, this)
+    //persistenceProvider.writeState(this.scope.id, this)
   }
 
   // Removes a connection from a doc
@@ -205,7 +219,7 @@ class OpenDoc extends Y.Doc {
         null
       )
       if (this.sockets.size === 0) {
-        await persistenceProvider.writeState(this.scope.id, this)
+        //await persistenceProvider.writeState(this.scope.id, this)
         openDocs.delete(this.scope.id)
         console.log('Closed doc', this.scope.id)
       }
