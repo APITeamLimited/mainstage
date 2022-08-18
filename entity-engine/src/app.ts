@@ -12,12 +12,16 @@ const entityEngineHost = checkValue<string>('entity-engine.host')
 const entityEnginePort = checkValue<number>('entity-engine.port')
 
 const httpServer = createServer()
-
+console.log(process.env.NODE_ENV)
 const io = new Server(httpServer, {
   // TODO: Refine cors to only allow whitelisted origins
   cors: {
     origin: '*',
   },
+  path:
+    process.env.NODE_ENV === 'development'
+      ? '/socket-io'
+      : '/api/entity-engine',
 })
 
 io.use(async (socket, next) => {
@@ -40,7 +44,7 @@ setInterval(() => {
   console.log(
     `\x1b[33m${new Date().toISOString()} Connections: ${
       io.engine.clientsCount
-    } Memory: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(
+    } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
       2
     )}MB\x1b[0m`
   )

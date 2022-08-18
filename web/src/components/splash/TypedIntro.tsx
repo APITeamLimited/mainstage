@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Container } from '@mui/material'
+import { Container, Stack } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
@@ -10,6 +10,8 @@ import { LazyLoadImage } from 'react-lazy-load-image-component'
 import Typed from 'react-typed'
 
 import { Link, routes } from '@redwoodjs/router'
+
+import { SignUpOrContinueButton } from './SignUpOrContinueButton'
 
 const images = [
   {
@@ -82,9 +84,6 @@ const images = [
 
 const TypedIntro = (): JSX.Element => {
   const theme = useTheme()
-  const isMd = useMediaQuery(theme.breakpoints.up('md'), {
-    defaultMatches: true,
-  })
 
   return (
     <Box
@@ -145,33 +144,16 @@ const TypedIntro = (): JSX.Element => {
               APITeam is an all in one platform for designing, testing and
               scaling your APIs collaboratively
             </Typography>
-            <Box
-              display="flex"
-              flexDirection={{ xs: 'column', sm: 'row' }}
-              alignItems={{ xs: 'stretched', sm: 'flex-start' }}
-              marginTop={4}
+            <Stack
+              spacing={2}
+              marginTop={2}
+              direction={{
+                xs: 'column',
+                sm: 'row',
+              }}
             >
-              <Link
-                to={routes.signup()}
-                style={{
-                  textDecoration: 'none',
-                }}
-              >
-                <Button variant="contained" color="primary" size="large">
-                  <span
-                    style={{
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Sign Up
-                  </span>
-                </Button>
-              </Link>
-              <Box
-                marginTop={{ xs: 2, sm: 0 }}
-                marginLeft={{ sm: 2 }}
-                width={{ xs: '100%', md: 'auto' }}
-              >
+              <SignUpOrContinueButton />
+              <Box>
                 <Button
                   component={'a'}
                   href={'/docs/introduction'}
@@ -182,7 +164,7 @@ const TypedIntro = (): JSX.Element => {
                   See Features
                 </Button>
               </Box>
-            </Box>
+            </Stack>
           </Box>
         </Container>
         <Box

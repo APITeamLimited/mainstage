@@ -8,8 +8,7 @@
     "strict": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "composite": true,
-    "rootDir": ".",
+    "rootDir": "..",
     "paths": {
       "src/*": [
         "./src/*",
@@ -27,5 +26,6 @@
   "include": [
     "../globe-test",
     "../types",
+    "./src/*",
   ]
 }

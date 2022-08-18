@@ -1,3 +1,5 @@
+import { Divider, useTheme } from '@mui/material'
+
 import { useAuth } from '@redwoodjs/auth'
 import { navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -15,6 +17,8 @@ const RootPage = () => {
   if (isAuthenticated) {
     navigate(routes.dashboard())
   }*/
+
+  const theme = useTheme()
 
   return (
     <>

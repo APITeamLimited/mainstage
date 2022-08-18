@@ -84,7 +84,9 @@ export const getOpenDoc = (scope: Scope): OpenDoc => {
     // TODO: Figure out why throwing error when still works
     try {
       persistenceProvider.bindState(scope.id, doc)
-    } catch (e) {}
+    } catch (e) {
+      console.log(e)
+    }
 
     openDocs.set(scope.id, doc)
     return doc
@@ -220,6 +222,7 @@ class OpenDoc extends Y.Doc {
       )
       if (this.sockets.size === 0) {
         //await persistenceProvider.writeState(this.scope.id, this)
+        persistenceProvider.closeDoc(this.scope.id)
         openDocs.delete(this.scope.id)
         console.log('Closed doc', this.scope.id)
       }

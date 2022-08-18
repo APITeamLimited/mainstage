@@ -4,26 +4,36 @@ import {
   Stack,
   Typography,
   Box,
-  ThemeProvider,
   useTheme,
-  useMediaQuery,
-  SvgIcon,
+  Divider,
 } from '@mui/material'
+
 import { Link } from '@redwoodjs/router'
 
 import { brandedRoutes } from 'src/Routes'
-import getTheme from 'src/theme'
 
-const FooterSplash = () => {
+export const FOOTER_SPASH_HEIGHT = 372
+
+export const FooterSplash = () => {
   const theme = useTheme()
+
   return (
-    <ThemeProvider theme={getTheme('dark', () => {})}>
-      <Box
+    <Box
+      sx={{
+        width: '100%',
+        backgroundColor: theme.palette.alternate.dark,
+        position: 'absolute',
+        bottom: 0,
+        height: FOOTER_SPASH_HEIGHT,
+        maxHeight: FOOTER_SPASH_HEIGHT,
+      }}
+    >
+      <Stack
         sx={{
-          width: '100%',
-          backgroundColor: theme.palette.alternate.dark,
+          height: '100%',
         }}
       >
+        <Divider />
         <Container
           sx={{
             display: 'flex',
@@ -31,10 +41,7 @@ const FooterSplash = () => {
             alignSelf: 'center',
             backgroundColor: theme.palette.alternate.dark,
             alignItems: 'center',
-            paddingY: {
-              xs: 2,
-              sm: 10,
-            },
+            height: '100%',
           }}
         >
           <Stack>
@@ -63,8 +70,11 @@ const FooterSplash = () => {
                   >
                     API Team
                   </Typography>
-                  <img src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_the_United_Kingdom_%28black_and_white%3B_variant_2%29.svg" alt="icon" width='80px' />
-
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_the_United_Kingdom_%28black_and_white%3B_variant_2%29.svg"
+                    alt="icon"
+                    width="80px"
+                  />
                 </Stack>
               </Grid>
               {Object.keys(brandedRoutes).map((key, indexCategory) => {
@@ -125,9 +135,7 @@ const FooterSplash = () => {
             </Typography>
           </Stack>
         </Container>
-      </Box>
-    </ThemeProvider>
+      </Stack>
+    </Box>
   )
 }
-
-export default FooterSplash

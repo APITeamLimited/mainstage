@@ -8,9 +8,10 @@ import { alpha, useTheme } from '@mui/material/styles'
 
 import { Link, routes } from '@redwoodjs/router'
 
+import { SignUpOrContinueButton } from 'src/components/splash/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
 
-import { NavItem } from './components'
+import { NavItem } from './components/index'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -69,16 +70,7 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
           }
         })}
         <Box marginLeft={4}>
-          <Link
-            to={routes.signup()}
-            style={{
-              textDecoration: 'none',
-            }}
-          >
-            <Button variant="contained" color="primary" size="large">
-              Sign Up
-            </Button>
-          </Link>
+          <SignUpOrContinueButton />
         </Box>
       </Box>
       <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems={'center'}>

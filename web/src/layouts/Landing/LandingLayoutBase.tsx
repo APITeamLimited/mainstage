@@ -4,22 +4,24 @@ import {
   useTheme,
   AppBar,
   Box,
-  Divider,
   useMediaQuery,
   useScrollTrigger,
   Container,
 } from '@mui/material'
 
-import FooterSplash from 'src/layouts/Splash/components/FooterSplash'
-import TopNav from 'src/layouts/Splash/components/TopNav'
+import TopNav from 'src/layouts/Landing/components/TopNav'
 
-import { Topbar, Sidebar } from './components'
+import { Topbar, Sidebar } from './components/index'
 
 type SplashLayoutProps = {
   children?: React.ReactNode
+  footer: {
+    element: React.ReactNode
+    height: string | number
+  }
 }
 
-const SplashLayout = ({ children }: SplashLayoutProps) => {
+export const LandingLayoutBase = ({ children, footer }: SplashLayoutProps) => {
   const theme = useTheme()
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
@@ -46,6 +48,8 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
     <Box
       sx={{
         backgroundColor: theme.palette.background.paper,
+        position: 'relative',
+        minHeight: '100vh',
       }}
     >
       <Container>
@@ -77,13 +81,14 @@ const SplashLayout = ({ children }: SplashLayoutProps) => {
         </Container>
       </AppBar>
       <Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />
-      <main>
+      <main
+        style={{
+          paddingBottom: footer.height,
+        }}
+      >
         {children}
-        <Divider />
       </main>
-      <FooterSplash />
+      {footer.element}
     </Box>
   )
 }
-
-export default SplashLayout

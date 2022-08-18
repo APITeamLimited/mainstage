@@ -65,6 +65,14 @@ export const SettingsProvider: FC<SettingsProviderProps> = (props) => {
   const { children } = props
   const [settings, setSettings] = useState<Settings>(initialSettings)
 
+  // Change browser color scheme based on theme
+  useEffect(() => {
+    document.documentElement.setAttribute(
+      'data-color-scheme',
+      settings.theme || 'light'
+    )
+  }, [settings])
+
   useEffect(() => {
     const restoredSettings = restoreSettings()
 
