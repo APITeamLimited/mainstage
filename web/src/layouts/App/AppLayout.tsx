@@ -1,45 +1,47 @@
-import { createContext, useRef, useState } from 'react'
+import { createContext } from 'react'
 
 import {
   useTheme,
   AppBar,
   Box,
-  useMediaQuery,
   useScrollTrigger,
   Stack,
+  Divider,
 } from '@mui/material'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
-import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
+import { useSyncReady } from 'src/entity-engine/EntityEngine'
 
-import { APITeamLogo } from './components/APITeamLogo'
-import { CommandPalette } from './components/CommandPalette'
-import { UserDropdown } from './components/UserDropdown'
-import { WorkspaceSwitcher } from './components/WorkspaceSwitcher/WorkspaceSwitcher'
+import { NotConnectedBanner } from './components/NotConnectedBanner'
+import { TopNav } from './components/TopNav'
 
 export const AppBarHeightContext = createContext<number>(60)
-const AppBarHeightProvider = AppBarHeightContext.Provider
+type AppLayoutProps = {
+  children?: React.ReactNode
+  topNav?: React.ReactNode
+  appBar: React.ReactNode
+  footer: {
+    element: React.ReactNode
+    height: string | number
+  }
+  disableElevationTop?: boolean
+  dividerOnTop?: boolean
+}
 
-export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
+export const AppLayoutBase = ({
+  children,
+  topNav = <></>,
+  appBar,
+  footer = {
+    element: <></>,
+    height: 0,
+  },
+  disableElevationTop = false,
+  dividerOnTop = false,
+}: AppLayoutProps) => {
   const theme = useTheme()
-  const isMd = useMediaQuery(theme.breakpoints.up('md'), {
-    defaultMatches: true,
-  })
-  const appBarRef = useRef<HTMLDivElement>(null)
-
-  const [openSidebar, setOpenSidebar] = useState(false)
-
-  const handleSidebarOpen = (): void => {
-    setOpenSidebar(true)
-  }
-
-  const handleSidebarClose = (): void => {
-    setOpenSidebar(false)
-  }
-
-  const open = isMd ? false : openSidebar
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
@@ -47,62 +49,71 @@ export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
   })
 
   return (
-    <>
-      <ReactiveVarPersistor />
-      <EntityEngine>
-        <DialogsProvider>
+    <EntityEngine>
+      <DialogsProvider>
+        <ReactiveVarPersistor />
+        <Stack
+          sx={{
+            backgroundColor: theme.palette.background.default,
+            position: 'relative',
+            minHeight: '100vh',
+          }}
+        >
+          {topNav}
           <AppBar
-            position="sticky"
+            position={'sticky'}
             sx={{
               top: 0,
               backgroundColor: theme.palette.background.paper,
-              marginBottom: 0,
-              paddingX: 4,
-              paddingY: 1,
+              // Prevent app bar form changing color by applying desired linearGradien
+              // all the time
+              backgroundImage:
+                'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
+              // Disable shaddow on top of appbar
+              clipPath: `inset(1 0px -20px 0px)`,
             }}
-            elevation={1}
-            component="nav"
-            ref={appBarRef}
+            elevation={trigger ? 8 : disableElevationTop ? 0 : 8}
           >
-            <Stack
-              direction="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <APITeamLogo />
-                <WorkspaceSwitcher />
-              </Stack>
-              <Box>
-                <Stack direction="row" alignItems="center" spacing={2}>
-                  <ThemeModeToggler />
-                  <UserDropdown />
-                </Stack>
-              </Box>
-            </Stack>
+            {appBar}
+            {dividerOnTop && !trigger && <Divider />}
           </AppBar>
-          <AppBarHeightProvider value={appBarRef.current?.clientHeight || 60}>
-            <Box
-              position="fixed"
-              sx={{
-                height: '100%',
-                width: '100%',
-                //height: '100%',
-                backgroundColor: theme.palette.background.default,
-              }}
-            >
-              <main
-                style={{
-                  height: '100vh',
-                  width: '100%',
-                }}
-              >
-                {children}
-              </main>
-            </Box>
-          </AppBarHeightProvider>
-        </DialogsProvider>
-      </EntityEngine>
-    </>
+          <main
+            style={{
+              paddingBottom: footer.height,
+            }}
+          >
+            <InnerLayout>{children}</InnerLayout>
+          </main>
+          {footer.element}
+        </Stack>
+      </DialogsProvider>
+    </EntityEngine>
+  )
+}
+
+const InnerLayout = ({ children }: { children?: React.ReactNode }) => {
+  const syncReady = useSyncReady()
+
+  const shouldDisable =
+    syncReady.socketioProvider === 'connecting' ||
+    syncReady.socketioProvider === 'disconnected' ||
+    syncReady.indexeddbProvider === 'connecting' ||
+    syncReady.indexeddbProvider === 'disconnected'
+
+  return <>{shouldDisable ? <NotConnectedBanner /> : children}</>
+}
+
+export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
+  return (
+    <AppLayoutBase
+      topNav={<TopNav />}
+      appBar={<h1>a</h1>}
+      footer={{
+        element: <></>,
+        height: 0,
+      }}
+    >
+      {children}
+    </AppLayoutBase>
   )
 }

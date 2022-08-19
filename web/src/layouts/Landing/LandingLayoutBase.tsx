@@ -19,9 +19,14 @@ type SplashLayoutProps = {
     element: React.ReactNode
     height: string | number
   }
+  disableElevationTop?: boolean
 }
 
-export const LandingLayoutBase = ({ children, footer }: SplashLayoutProps) => {
+export const LandingLayoutBase = ({
+  children,
+  footer,
+  disableElevationTop = false,
+}: SplashLayoutProps) => {
   const theme = useTheme()
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
@@ -52,33 +57,16 @@ export const LandingLayoutBase = ({ children, footer }: SplashLayoutProps) => {
         minHeight: '100vh',
       }}
     >
-      <Container>
-        <Box
-          position={'relative'}
-          zIndex={theme.zIndex.appBar - 1}
-          sx={{
-            padding: 2,
-            paddingRight: 0,
-          }}
-        >
-          <TopNav />
-        </Box>
-      </Container>
+      <TopNav />
       <AppBar
         position={'sticky'}
         sx={{
           top: 0,
           backgroundColor: theme.palette.background.paper,
         }}
-        elevation={trigger ? 1 : 0}
+        elevation={trigger ? 4 : disableElevationTop ? 0 : 2}
       >
-        <Container
-          sx={{
-            py: 2,
-          }}
-        >
-          <Topbar onSidebarOpen={handleSidebarOpen} />
-        </Container>
+        <Topbar onSidebarOpen={handleSidebarOpen} />
       </AppBar>
       <Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />
       <main

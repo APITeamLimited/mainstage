@@ -1,18 +1,12 @@
-// In this file, all Page components from 'src/pages` are auto-imported. Nested
-// directories are supported, and should be uppercase. Each subdirectory will be
-// prepended onto the component name.
-//
-// Examples:
-//
-// 'src/pages/HomePage/HomePage.js'         -> HomePage
-// 'src/pages/Admin/BooksPage/BooksPage.js' -> AdminBooksPage
+import { Router, Route, Set, Private } from '@redwoodjs/router'
 
-import { Router, Route, Set } from '@redwoodjs/router'
-
-import { AppLayout } from './layouts/App'
-import { LandingLayoutSplash } from './layouts/Landing/LandingLayoutSplash'
+import { AppDashboardLayout } from './layouts/App/AppDashboardLayout'
+import { AppLayout } from './layouts/App/index'
+import { LandingLayoutSplash } from './layouts/Landing'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
-import DashboardPage from './pages/app/DashboardPage'
+import { DomainsPage } from './pages/app/dashboard/DomainsPage'
+import { OverviewPage } from './pages/app/dashboard/OverviewPage'
+import { ProjectsPage } from './pages/app/dashboard/ProjectsPage'
 import AboutPage from './pages/company/About/About'
 import PrivacyPolicyPage from './pages/legal/PrivacyPolicy/PrivacyPolicy'
 import TermsOfServicePage from './pages/legal/TermsOfService/TermsOfService'
@@ -73,12 +67,18 @@ const Routes = () => {
         <Route path="/legal/terms-of-service" page={TermsOfServicePage} name="termsOfService" />
         <Route path="/legal/privacy-policy" page={PrivacyPolicyPage} name="privacyPolicy" />
       </Set>
-      <Set wrap={AppLayout}>
-        <Route path="/app" redirect="/app/dashboard" />
-        <Route path="/app/dashboard" page={DashboardPage} name="dashboard" />
-
-        <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
-      </Set>
+      {/* TODO: Re-enable local workspaces when done cloud*/}
+      <Private unauthenticated="login">
+        <Set wrap={AppDashboardLayout}>
+          <Route path="/app" redirect="/app/dashboard" />
+          <Route path="/app/dashboard" page={OverviewPage} name="dashboard" />
+          <Route path="/app/dashboard/projects" page={ProjectsPage} name="projects" />
+          <Route path="/app/dashboard/domains" page={DomainsPage} name="domains" />
+        </Set>
+        <Set wrap={AppLayout}>
+          <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
+        </Set>
+      </Private>
       <Route notfound page={NotFoundPage} />
     </Router>
   )

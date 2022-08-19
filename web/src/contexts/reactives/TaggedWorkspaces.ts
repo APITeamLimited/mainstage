@@ -16,8 +16,16 @@ const localWorkspace: Workspace = {
   updatedAt: null,
 }
 
-export const defaultWorkspaces: Workspace[] = [localWorkspace]
+// TODO: Re-enable local workspaces when done cloud
 
-export const activeWorkspaceIdVar = makeVar(localWorkspace.id)
+//export const defaultWorkspaces: Workspace[] = [localWorkspace]
+
+//export const activeWorkspaceIdVar = makeVar(localWorkspace.id)
+
+//export const workspacesVar = makeVar(defaultWorkspaces)
+
+export const defaultWorkspaces: Workspace[] = []
+
+export const activeWorkspaceIdVar = makeVar()
 
 export const workspacesVar = makeVar(defaultWorkspaces)

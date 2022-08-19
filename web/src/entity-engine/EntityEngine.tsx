@@ -61,6 +61,19 @@ function useStateCallback<T>(
 const DocContext = createContext<Y.Doc | null>(null)
 export const useWorkspace = () => useContext(DocContext)
 
+type SyncReadyStatus = {
+  socketioProvider: PossibleSyncStatus
+  indexeddbProvider: PossibleSyncStatus
+}
+
+const initialSyncReadyStatus = {
+  socketioProvider: 'disabled',
+  indexeddbProvider: 'disabled',
+} as SyncReadyStatus
+
+const SyncReadyContext = createContext(initialSyncReadyStatus)
+export const useSyncReady = () => useContext(SyncReadyContext)
+
 export const EntityEngine = ({ children }: EntityEngineProps) => {
   const { isAuthenticated } = useAuth()
   const [publicKey, setPublicKey] = useState<string | null>(null)
@@ -208,7 +221,14 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus{' '}
         {indexeddbSyncStatus}
   </span>*/}
-      <DocContext.Provider value={doc}>{children}</DocContext.Provider>
+      <SyncReadyContext.Provider
+        value={{
+          socketioProvider: socketioSyncStatus,
+          indexeddbProvider: indexeddbSyncStatus,
+        }}
+      >
+        <DocContext.Provider value={doc}>{children}</DocContext.Provider>
+      </SyncReadyContext.Provider>
     </div>
   )
 }

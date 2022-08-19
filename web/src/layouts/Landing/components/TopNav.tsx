@@ -1,44 +1,56 @@
 import React from 'react'
 
-import { useTheme } from '@mui/material'
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
+import { Box, Container, Typography, useTheme } from '@mui/material'
 
+import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
 
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 
 const TopNav = () => {
   const theme = useTheme()
+  const { isAuthenticated } = useAuth()
 
   return (
-    <Box display={'flex'} justifyContent={'flex-end'} alignItems={'center'}>
-      <Box marginRight={2}>
-        <Link
-          to={routes.login()}
-          style={{
-            textDecoration: 'none',
-            color: theme.palette.text.primary,
-          }}
-        >
-          <Typography variant={'body1'}>Support</Typography>
-        </Link>
+    <Container>
+      <Box
+        position={'relative'}
+        zIndex={theme.zIndex.appBar - 1}
+        sx={{
+          paddingY: 2,
+        }}
+      >
+        <Box display={'flex'} justifyContent={'flex-end'} alignItems={'center'}>
+          <Box marginRight={2}>
+            <Link
+              to={routes.login()}
+              style={{
+                textDecoration: 'none',
+                color: theme.palette.text.primary,
+              }}
+            >
+              <Typography variant={'body1'}>Support</Typography>
+            </Link>
+          </Box>
+          {!isAuthenticated && (
+            <Box marginRight={2}>
+              <Link
+                to={routes.login()}
+                style={{
+                  textDecoration: 'none',
+                  color: theme.palette.text.primary,
+                }}
+              >
+                <Typography variant={'body1'}>Login</Typography>
+              </Link>
+            </Box>
+          )}
+          <Box>
+            <ThemeModeToggler />
+          </Box>
+        </Box>
       </Box>
-      <Box marginRight={2}>
-        <Link
-          to={routes.login()}
-          style={{
-            textDecoration: 'none',
-            color: theme.palette.text.primary,
-          }}
-        >
-          <Typography variant={'body1'}>Login</Typography>
-        </Link>
-      </Box>
-      <Box>
-        <ThemeModeToggler />
-      </Box>
-    </Box>
+    </Container>
   )
 }
 

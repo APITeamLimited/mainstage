@@ -9,6 +9,7 @@ export const LandingLayoutSplash = ({
   return (
     <LandingLayoutBase
       footer={{ element: <FooterSplash />, height: FOOTER_SPASH_HEIGHT }}
+      disableElevationTop={true}
     >
       {children}
     </LandingLayoutBase>
