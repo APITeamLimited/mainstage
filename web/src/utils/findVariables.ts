@@ -1,6 +1,6 @@
 import { Environment } from 'types/src'
 
-import { KeyValueItem } from 'src/components/app/collectionEditor/KeyValueEditor'
+import { KeyValueItem } from 'src/components/app/collection-editor/KeyValueEditor'
 
 const findVariablesInString = (
   environment: Environment | null,

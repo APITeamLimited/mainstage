@@ -1,7 +1,7 @@
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
+import { AppCollectionLayout } from './layouts/App'
 import { AppDashboardLayout } from './layouts/App/AppDashboardLayout'
-import { AppLayout } from './layouts/App/index'
 import { LandingLayoutSplash } from './layouts/Landing'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import { DomainsPage } from './pages/app/dashboard/DomainsPage'
@@ -75,7 +75,7 @@ const Routes = () => {
           <Route path="/app/dashboard/projects" page={ProjectsPage} name="projects" />
           <Route path="/app/dashboard/domains" page={DomainsPage} name="domains" />
         </Set>
-        <Set wrap={AppLayout}>
+        <Set wrap={AppCollectionLayout}>
           <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
         </Set>
       </Private>

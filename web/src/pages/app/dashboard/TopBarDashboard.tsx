@@ -10,7 +10,7 @@ export const TopBarDashboard = () => {
 
   // Current page is in pathname, find it
   const currentEndpoint = endpoints.find(
-    (endpoint) => pathname.includes(endpoint) || pathname == '/app/dashboard'
+    (endpoint) => pathname.includes(endpoint) || pathname == routes.dashboard()
   )
 
   if (!currentEndpoint) {

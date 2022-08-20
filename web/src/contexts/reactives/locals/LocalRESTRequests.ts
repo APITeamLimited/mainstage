@@ -1,7 +1,7 @@
 import { makeVar } from '@apollo/client'
 import { v4 as uuidv4 } from 'uuid'
 
-import { KeyValueItem } from 'src/components/app/collectionEditor/KeyValueEditor'
+import { KeyValueItem } from 'src/components/app/collection-editor/KeyValueEditor'
 
 import { BaseEntity } from '.'
 

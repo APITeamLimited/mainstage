@@ -1,8 +1,6 @@
 import { io } from 'socket.io-client'
 import { AcceptibleMessages } from 'types/src'
 
-import { checkValue } from 'src/config'
-
 import {
   BaseJob,
   ExecutingJob,
@@ -11,8 +9,29 @@ import {
   updateFilterQueue,
 } from './lib'
 
-const globeTestHost = 'localhost' //checkValue<string>('globeTest.host')
-const globeTestPort = '8966' //checkValue<number>('globeTest.port')
+const getUrl = () => {
+  if (process.env.NODE_ENV === 'development') {
+    const host = process.env['GLOBE_TEST_HOST']
+    const port = process.env['GLOBE_TEST_PORT']
+
+    if (!(host && port)) {
+      throw new Error(
+        `GLOBE_TEST_HOST and GLOBE_TEST_PORT must be set, got ${host} and ${port}`
+      )
+    }
+
+    return `http://${host}:${port}`
+  } else {
+    // TODO: Correctly implement env variables
+    const gatewayUrl = 'https://apiteam-6pq1lw9jtzb.enterchange.io'
+
+    if (!gatewayUrl) {
+      throw new Error('GATEWAY_URL must be set')
+    }
+
+    return gatewayUrl
+  }
+}
 
 type ExecuteArgs = {
   queueRef: React.MutableRefObject<QueuedJob[] | null>
@@ -25,7 +44,7 @@ Executes a queued job and updates the job queue on streamed messages
 */
 export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
   try {
-    const socket = io(`http://${globeTestHost}:${globeTestPort}/`, {
+    const socket = io(getUrl(), {
       query: {
         scopeId: job.scopeId,
         bearer: rawBearer,
@@ -33,12 +52,16 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
         source: job.source,
         endpoint: '/new-test',
       },
+      path:
+        process.env.NODE_ENV === 'development'
+          ? '/socket-io'
+          : '/api/globe-test',
       reconnection: false,
     })
 
-    socket.on('test-message', (message: AcceptibleMessages) => {
+    socket.on('updates', (message: AcceptibleMessages) => {
       addMessageToJob(queueRef, job, message)
-      console.log(new Date(), 'test-message', message)
+      console.log(new Date(), 'updates', message)
 
       if (message.messageType === 'STATUS') {
         if (message.message === 'ERROR' || message.message === 'SUCCESS') {

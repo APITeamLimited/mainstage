@@ -60,6 +60,8 @@ export const handleNewTest = async (socket: Socket) => {
     status: 'PENDING',
   }
 
+  console.log('newJob', newJob)
+
   await Promise.all(
     Object.entries(newJob).map(([key, value]) =>
       orchestratorReadRedis.hSet(newJob.id, key, value)
@@ -69,7 +71,7 @@ export const handleNewTest = async (socket: Socket) => {
   // Start stream before scheduling to ensure all messages are received
   orchestratorSubscribeRedis.subscribe(
     `orchestrator:executionUpdates:${newJob.id}`,
-    (channel, message) => {
+    (message) => {
       const messageObject = JSON.parse(message) as
         | WorkerMessage
         | OrchestratorMessage
@@ -78,6 +80,7 @@ export const handleNewTest = async (socket: Socket) => {
     }
   )
 
+  // Broadcast the new job
   await orchestratorReadRedis.sAdd('orchestrator:executionHistory', newJob.id)
   await orchestratorReadRedis.publish('orchestrator:execution', newJob.id)
 }

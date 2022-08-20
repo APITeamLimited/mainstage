@@ -1,1 +1,2 @@
-export * from './AppLayout'
+export * from './AppCollectionLayout'
+export * from './AppDashboardLayout'

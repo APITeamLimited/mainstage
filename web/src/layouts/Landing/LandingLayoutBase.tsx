@@ -64,7 +64,7 @@ export const LandingLayoutBase = ({
           top: 0,
           backgroundColor: theme.palette.background.paper,
         }}
-        elevation={trigger ? 4 : disableElevationTop ? 0 : 2}
+        elevation={trigger ? 8 : disableElevationTop ? 0 : 8}
       >
         <Topbar onSidebarOpen={handleSidebarOpen} />
       </AppBar>

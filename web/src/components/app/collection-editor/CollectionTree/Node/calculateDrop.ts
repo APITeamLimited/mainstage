@@ -68,6 +68,18 @@ export const calculateDrop = ({
     return
   }
 
+  // Ignore drop if parent is the drop item
+  if (
+    droppingOnSelf({
+      nodeYMap,
+      dropItem: dropResult.dropItem,
+      foldersYMap,
+      restRequestsYMap,
+    })
+  ) {
+    return
+  }
+
   const getNewItem = (calculatedDropSpace: DropSpace): Y.Map<any> => {
     if (nodeYMap.get('__parentTypename') === 'Project') {
       throw `Can't drop a project on a project`
@@ -121,4 +133,52 @@ export const calculateDrop = ({
   setDropResult(null)
   setClientOffset(null)
   setDropSpace(null)
+}
+
+const droppingOnSelf = ({
+  nodeYMap,
+  dropItem,
+  foldersYMap,
+  restRequestsYMap,
+}: {
+  nodeYMap: Y.Map<any>
+  dropItem: Y.Map<any>
+  foldersYMap: Y.Map<any>
+  restRequestsYMap: Y.Map<any>
+}): boolean => {
+  const parentId = nodeYMap.get('parentId')
+  const nodeParentType = nodeYMap.get('__parentTypename')
+
+  if (
+    nodeYMap.get('id') === dropItem.get('id') &&
+    nodeYMap.get('__typename') === dropItem.get('__typename')
+  ) {
+    return true
+  }
+
+  if (nodeParentType === 'Collection') {
+    return (
+      nodeYMap.get('id') === dropItem.get('id') &&
+      nodeYMap.get('__typename') === dropItem.get('__typename')
+    )
+  }
+
+  let parentYMap: undefined | Y.Map<any> = undefined
+
+  if (nodeParentType === 'Folder') {
+    parentYMap = foldersYMap.get(parentId)
+  } else if (nodeParentType === 'RESTRequest') {
+    parentYMap = restRequestsYMap.get(parentId)
+  }
+
+  if (!parentYMap) {
+    throw `Failed to find parent ${parentId}, type ${nodeParentType}`
+  }
+
+  return droppingOnSelf({
+    nodeYMap: parentYMap,
+    dropItem,
+    foldersYMap,
+    restRequestsYMap,
+  })
 }

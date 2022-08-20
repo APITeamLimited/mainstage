@@ -1,27 +1,19 @@
-import { createContext } from 'react'
+import { createContext, useContext, useRef } from 'react'
 
-import {
-  useTheme,
-  AppBar,
-  Box,
-  useScrollTrigger,
-  Stack,
-  Divider,
-} from '@mui/material'
+import { useTheme, useScrollTrigger, Stack } from '@mui/material'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
 import { useSyncReady } from 'src/entity-engine/EntityEngine'
 
+import { CustomAppBar } from './components/CustomAppBar'
 import { NotConnectedBanner } from './components/NotConnectedBanner'
-import { TopNav } from './components/TopNav'
 
-export const AppBarHeightContext = createContext<number>(60)
 type AppLayoutProps = {
   children?: React.ReactNode
   topNav?: React.ReactNode
-  appBar: React.ReactNode
+  appBar?: React.ReactNode | null
   footer: {
     element: React.ReactNode
     height: string | number
@@ -33,7 +25,7 @@ type AppLayoutProps = {
 export const AppLayoutBase = ({
   children,
   topNav = <></>,
-  appBar,
+  appBar = null,
   footer = {
     element: <></>,
     height: 0,
@@ -59,24 +51,24 @@ export const AppLayoutBase = ({
             minHeight: '100vh',
           }}
         >
-          {topNav}
-          <AppBar
-            position={'sticky'}
-            sx={{
-              top: 0,
-              backgroundColor: theme.palette.background.paper,
-              // Prevent app bar form changing color by applying desired linearGradien
-              // all the time
-              backgroundImage:
-                'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
-              // Disable shaddow on top of appbar
-              clipPath: `inset(1 0px -20px 0px)`,
-            }}
-            elevation={trigger ? 8 : disableElevationTop ? 0 : 8}
-          >
-            {appBar}
-            {dividerOnTop && !trigger && <Divider />}
-          </AppBar>
+          {appBar ? (
+            topNav
+          ) : (
+            <CustomAppBar
+              appBar={topNav}
+              trigger={trigger}
+              dividerOnTop={dividerOnTop}
+              disableElevationTop={disableElevationTop}
+            />
+          )}
+          {appBar && (
+            <CustomAppBar
+              appBar={appBar}
+              trigger={trigger}
+              disableElevationTop={disableElevationTop}
+              dividerOnTop={dividerOnTop}
+            />
+          )}
           <main
             style={{
               paddingBottom: footer.height,
@@ -101,19 +93,4 @@ const InnerLayout = ({ children }: { children?: React.ReactNode }) => {
     syncReady.indexeddbProvider === 'disconnected'
 
   return <>{shouldDisable ? <NotConnectedBanner /> : children}</>
-}
-
-export const AppLayout = ({ children }: { children?: React.ReactNode }) => {
-  return (
-    <AppLayoutBase
-      topNav={<TopNav />}
-      appBar={<h1>a</h1>}
-      footer={{
-        element: <></>,
-        height: 0,
-      }}
-    >
-      {children}
-    </AppLayoutBase>
-  )
 }

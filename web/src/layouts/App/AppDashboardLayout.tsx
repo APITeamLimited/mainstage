@@ -7,7 +7,7 @@ import {
   FOOTER_SPASH_HEIGHT,
 } from '../Landing/components/FooterSplash'
 
-import { AppLayoutBase } from './AppLayout'
+import { AppLayoutBase } from './AppLayoutBase'
 import { TopNav } from './components/TopNav'
 
 type AppDashboardLayoutProps = {

@@ -10,15 +10,14 @@ import 'react-reflex/styles.css'
 import { Workspace } from 'types/src'
 import { useYMap } from 'zustand-yjs'
 
-import { CollectionTree } from 'src/components/app/collectionEditor/CollectionTree'
-import { RESTInputPanel } from 'src/components/app/collectionEditor/RESTInputPanel'
-import { RightAside } from 'src/components/app/collectionEditor/RightAside'
+import { CollectionTree } from 'src/components/app/collection-editor/CollectionTree'
+import { RESTInputPanel } from 'src/components/app/collection-editor/RESTInputPanel'
+import { RightAside } from 'src/components/app/collection-editor/RightAside'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
-import { useAppBarHeight } from 'src/hooks/use-app-bar-height'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -39,7 +38,6 @@ export const CollectionEditorPage = ({
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
-  const appBarHeight = useAppBarHeight()
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
   const collectionYMap = workspace
     ?.get('projects')
@@ -49,6 +47,8 @@ export const CollectionEditorPage = ({
     ?.get('collections')
     ?.get(collectionId)
   const collection = useYMap(collectionYMap || new Y.Map())
+
+  const viewportHeightReduction = 53.3
 
   useEffect(() => {
     // Set activeWorkspaceId to the workspaceId if different from the current workspaceId
@@ -74,9 +74,12 @@ export const CollectionEditorPage = ({
   return (
     <div
       style={{
-        height: '100%',
+        display: 'fixed',
+        maxHeight: `calc(100vh - ${viewportHeightReduction}px)`,
+        height: `calc(100vh - ${viewportHeightReduction}px)`,
         backgroundColor: theme.palette.alternate.dark,
         width: '100%',
+        overflow: 'hidden',
       }}
     >
       <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
@@ -201,7 +204,6 @@ export const CollectionEditorPage = ({
             style={{
               minWidth: showRightAside ? '300px' : '50px',
               maxWidth: showRightAside ? '1000px' : '50px',
-              height: `calc(100vh - ${appBarHeight}px)`,
             }}
             size={showRightAside ? 300 : 50}
           >

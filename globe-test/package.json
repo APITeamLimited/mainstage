@@ -25,7 +25,7 @@
   },
   "scripts": {
     "init": "tsc --init",
-    "dev": "nodemon src/app.ts",
+    "dev": "NODE_ENV=development nodemon src/app.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node index.js"
   }

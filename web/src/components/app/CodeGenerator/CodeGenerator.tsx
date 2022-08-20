@@ -18,7 +18,7 @@ import {
 import {
   MonacoEditor,
   MonacoSupportedLanguage,
-} from '../collectionEditor/MonacoEditor'
+} from '../collection-editor/MonacoEditor'
 
 type CodeGeneratorProps = {
   availableCodeGens?: CodeGenDefinition[]

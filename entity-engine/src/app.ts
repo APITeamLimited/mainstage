@@ -12,9 +12,8 @@ const entityEngineHost = checkValue<string>('entity-engine.host')
 const entityEnginePort = checkValue<number>('entity-engine.port')
 
 const httpServer = createServer()
-console.log(process.env.NODE_ENV)
+
 const io = new Server(httpServer, {
-  // TODO: Refine cors to only allow whitelisted origins
   cors: {
     origin: '*',
   },
@@ -52,6 +51,6 @@ setInterval(() => {
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {
   console.log(
-    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n\x1b[0m`
+    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}${io.path()}\n\n\x1b[0m`
   )
 })

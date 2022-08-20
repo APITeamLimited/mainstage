@@ -33,7 +33,7 @@ import { activeEnvironmentVar } from 'src/contexts/reactives'
 import {
   KeyValueEditor,
   KeyValueItem,
-} from '../collectionEditor/KeyValueEditor'
+} from '../collection-editor/KeyValueEditor'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 
 import { CreateEnvironmentDialog } from './CreateEnvironmentDialog'

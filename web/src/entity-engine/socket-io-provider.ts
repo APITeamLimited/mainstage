@@ -240,7 +240,6 @@ export class SocketIOProvider extends Observable<string> {
 
     // Listens to Yjs updates and sends them to remote peers (socket and broadcastchannel)
     this._updateHandler = (update: Uint8Array, origin) => {
-      console.log('_updateHandler', origin)
       if (origin !== this) {
         const encoder = encoding.createEncoder()
         encoding.writeVarUint(encoder, messageSync)

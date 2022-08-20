@@ -20,7 +20,7 @@ import { useYMap } from 'zustand-yjs'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 
-import { KeyValueEditor } from '../collectionEditor/KeyValueEditor'
+import { KeyValueEditor } from '../collection-editor/KeyValueEditor'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 
 type SingleEnvironmentEditorProps = {
