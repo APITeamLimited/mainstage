@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 
-import * as Y from 'yjs'
-
 import { useReactiveVar } from '@apollo/client'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useAuth } from '@redwoodjs/auth'
@@ -69,7 +68,7 @@ export const GlobeTestProvider = () => {
   // Scan for pending requests and start executing them
   useEffect(() => {
     if (rawBearer === '' || rawBearer === null) {
-      console.warn('No bearer token, skipping execution')
+      // No bearer token, skipping execution
       return
     }
 

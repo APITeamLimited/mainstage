@@ -1,5 +1,6 @@
-import { invariant } from 'src/components/dnd/invariant'
 import type { Store } from 'redux'
+
+import { invariant } from 'src/components/dnd/invariant'
 
 import type {
   DragDropMonitor,
@@ -50,6 +51,8 @@ export class DragDropMonitorImpl implements DragDropMonitor {
         if (!canSkipListener) {
           listener()
         }
+      } catch {
+        //
       } finally {
         prevStateId = currentStateId
       }

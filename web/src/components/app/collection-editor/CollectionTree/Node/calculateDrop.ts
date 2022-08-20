@@ -1,12 +1,10 @@
 import * as Y from 'yjs'
 
-import { DropSpace } from './Node'
+import { DropSpaceType } from './Node'
+import { DragDetails } from './useNodeDrag'
 
 type CalculateDropArgs = {
-  dropResult: {
-    parentIndex: number
-    dropItem: Y.Map<any>
-  } | null
+  dropResult: DragDetails | null
   clientOffset: {
     x: number
     y: number
@@ -44,16 +42,24 @@ export const calculateDrop = ({
     return
   }
 
-  let calculatedDropSpace: DropSpace = null
+  let calculatedDropSpace: DropSpaceType = null
 
   if (clientOffset.y - element.top > element.height / 2) {
-    if (
-      nodeYMap.get('__typename') === 'Folder' &&
-      element.bottom - clientOffset.y > 20
-    ) {
-      calculatedDropSpace = 'Inner'
+    if (nodeYMap.get('__typename') === 'Collection') {
+      if (clientOffset.y < element.height / 2) {
+        calculatedDropSpace = 'Top'
+      } else {
+        calculatedDropSpace = 'Bottom'
+      }
     } else {
-      calculatedDropSpace = 'Bottom'
+      if (
+        nodeYMap.get('__typename') === 'Folder' &&
+        element.bottom - clientOffset.y > 15
+      ) {
+        calculatedDropSpace = 'Inner'
+      } else {
+        calculatedDropSpace = 'Bottom'
+      }
     }
   } else {
     calculatedDropSpace = 'Top'
@@ -80,50 +86,96 @@ export const calculateDrop = ({
     return
   }
 
-  const getNewItem = (calculatedDropSpace: DropSpace): Y.Map<any> => {
+  const getNewItem = (
+    calculatedDropSpace: DropSpaceType
+  ): {
+    newYMap: Y.Map<any>
+    targetYMap: Y.Map<any>
+  } => {
     if (nodeYMap.get('__parentTypename') === 'Project') {
       throw `Can't drop a project on a project`
     }
 
     const droppedYMap = dropResult.dropItem
 
+    let targetYMap: Y.Map<any> | undefined = undefined
+
+    if (nodeYMap.get('__typename') === 'Collection') {
+      // Get the last top level item in the collection and use that as the node
+      const foldersYMap = nodeYMap.get('folders') as Y.Map<any>
+      const restRequestsYMap = nodeYMap.get('restRequests') as Y.Map<any>
+
+      let lastOrderingIndex = -1
+
+      Array.from(foldersYMap.values() as unknown as Y.Map<any>).forEach(
+        (folderYMap) => {
+          if (folderYMap.get('__parentTypename') === 'Collection') {
+            if (folderYMap.get('orderingIndex') > lastOrderingIndex) {
+              targetYMap = folderYMap
+              lastOrderingIndex = folderYMap.get('orderingIndex') as number
+            }
+          }
+        }
+      )
+
+      Array.from(restRequestsYMap.values() as unknown as Y.Map<any>).forEach(
+        (restRequestYMap) => {
+          if (restRequestYMap.get('__parentTypename') === 'Collection') {
+            if (restRequestYMap.get('orderingIndex') > lastOrderingIndex) {
+              targetYMap = restRequestYMap
+              lastOrderingIndex = restRequestYMap.get('orderingIndex') as number
+            }
+          }
+        }
+      )
+    } else {
+      targetYMap = nodeYMap
+    }
+
+    if (!targetYMap) {
+      throw `Could not find targetYMap`
+    }
+
     if (calculatedDropSpace === 'Top') {
-      droppedYMap.set('parentId', nodeYMap.get('parentId'))
-      droppedYMap.set('__parentTypename', nodeYMap.get('__parentTypename'))
-      droppedYMap.set('orderingIndex', nodeYMap.get('orderingIndex') - 0.5)
+      droppedYMap.set('parentId', targetYMap.get('parentId'))
+      droppedYMap.set('__parentTypename', targetYMap.get('__parentTypename'))
+      droppedYMap.set('orderingIndex', targetYMap.get('orderingIndex') - 0.5)
     } else if (calculatedDropSpace === 'Bottom') {
-      droppedYMap.set('parentId', nodeYMap.get('parentId'))
-      droppedYMap.set('__parentTypename', nodeYMap.get('__parentTypename'))
-      droppedYMap.set('orderingIndex', nodeYMap.get('orderingIndex') + 0.5)
+      droppedYMap.set('parentId', targetYMap.get('parentId'))
+      droppedYMap.set('__parentTypename', targetYMap.get('__parentTypename'))
+      droppedYMap.set('orderingIndex', targetYMap.get('orderingIndex') + 0.5)
     } else if (calculatedDropSpace === 'Inner') {
-      if (nodeYMap.get('__typename') === 'RESTRequest') {
+      if (targetYMap.get('__typename') === 'RESTRequest') {
         throw `Can't drop onto a REST request`
       }
 
-      droppedYMap.set('parentId', nodeYMap.get('id'))
-      droppedYMap.set('__parentTypename', nodeYMap.get('__typename'))
+      droppedYMap.set('parentId', targetYMap.get('id'))
+      droppedYMap.set('__parentTypename', targetYMap.get('__typename'))
       droppedYMap.set('orderingIndex', 0)
     } else {
       throw `Unknown drop space ${calculatedDropSpace}`
     }
 
-    return droppedYMap
+    return {
+      newYMap: droppedYMap,
+      targetYMap,
+    }
   }
 
-  const newItem = getNewItem(calculatedDropSpace)
+  const { newYMap, targetYMap } = getNewItem(calculatedDropSpace)
 
   const itemsThisLevel = [
     ...Array.from(foldersYMap.values()).filter(
       (folder) =>
-        folder.get('parentId') === nodeYMap.get('parentId') &&
-        folder.get('id') !== newItem.get('id')
+        folder.get('parentId') === targetYMap.get('parentId') &&
+        folder.get('id') !== targetYMap.get('id')
     ),
     ...Array.from(restRequestsYMap.values()).filter(
       (request) =>
-        request.get('parentId') === nodeYMap.get('parentId') &&
-        request.get('id') !== newItem.get('id')
+        request.get('parentId') === targetYMap.get('parentId') &&
+        request.get('id') !== targetYMap.get('id')
     ),
-    newItem,
+    targetYMap,
   ].sort((a, b) => a.get('orderingIndex') - b.get('orderingIndex'))
 
   // generate whole new orderingIndexes for items this level
@@ -146,6 +198,10 @@ const droppingOnSelf = ({
   foldersYMap: Y.Map<any>
   restRequestsYMap: Y.Map<any>
 }): boolean => {
+  if (nodeYMap.get('__typename') === 'Collection') {
+    return false
+  }
+
   const parentId = nodeYMap.get('parentId')
   const nodeParentType = nodeYMap.get('__parentTypename')
 

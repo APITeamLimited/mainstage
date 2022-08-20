@@ -33,7 +33,6 @@ export class PersistenceDoc {
      */
     this.updateHandler = (update) => {
       // mux: only store update in redis if this document update does not originate from redis
-      console.log('YREDIS updateHandler', name)
       this.mux(() => {
         rp.redis
           .rpushBuffer(name + ':updates', Buffer.from(update))
@@ -71,7 +70,6 @@ export class PersistenceDoc {
    * @return {Promise<PersistenceDoc>}
    */
   getUpdates() {
-    console.log('YREDIS getUpdates', this.name)
     const startClock = this._clock
     return this.rp.redis
       .lrangeBuffer(this.name + ':updates', startClock, -1)
@@ -152,7 +150,6 @@ export class RedisPersistence extends Observable {
      */
     this.docs = new Map()
     this.sub.on('message', (channel, sclock) => {
-      // console.log('message', channel, sclock)
       const pdoc = this.docs.get(channel)
       if (pdoc) {
         const clock = Number(sclock) || Number.POSITIVE_INFINITY // case of null

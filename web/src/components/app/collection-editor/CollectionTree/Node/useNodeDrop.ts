@@ -2,13 +2,12 @@ import * as Y from 'yjs'
 
 import { useDrop } from 'src/components/dnd/react-dnd'
 
-type UseNodeDropArgs = {
+import { DragDetails } from './useNodeDrag'
+
+export type UseNodeDropArgs = {
   nodeYMap: Y.Map<any>
   handleDrop: (
-    dropResult: {
-      parentIndex: number
-      dropItem: Y.Map<any>
-    },
+    dropResult: DragDetails,
     clientOffset: {
       x: number
       y: number
@@ -24,13 +23,9 @@ export const useNodeDrop = ({ nodeYMap, handleDrop }: UseNodeDropArgs) =>
         handleDrop(monitor.getItem(), monitor.getClientOffset())
       },
       collect: (monitor) => {
-        //console.log('collecting', monitor.getItem())
         return {
-          hovered:
-            monitor.canDrop() &&
-            monitor.isOver({ shallow: true }) &&
-            //monitor.getItem().dropItem.get('id') !== item.get('id')
-            monitor.getItem().dropItem.get('id') !== nodeYMap.get('id'),
+          hovered: monitor.canDrop() && monitor.isOver({ shallow: true }), //&&
+          //monitor.getItem().dropItem.get('id') !== nodeYMap.get('id'),
           nodeYMapBeingHovered: monitor.getItem(),
         }
       },

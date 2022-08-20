@@ -5,6 +5,11 @@ type UseNodeDragArgs = {
   parentIndex: number
 }
 
+export type DragDetails = {
+  dropItem: Y.Map<any>
+  parentIndex: number
+}
+
 export const useNodeDrag = ({ nodeYMap, parentIndex }: UseNodeDragArgs) => {
   //console.log('dragging node', nodeYMap)
   return useDrag(
@@ -13,7 +18,7 @@ export const useNodeDrag = ({ nodeYMap, parentIndex }: UseNodeDragArgs) => {
       item: {
         dropItem: nodeYMap.get('__typename') !== 'Collection' ? nodeYMap : null,
         parentIndex,
-      },
+      } as DragDetails,
       collect: (monitor: DragSourceMonitor) => ({
         isBeingDragged: monitor.isDragging(),
         indexBeingDraged: parentIndex,

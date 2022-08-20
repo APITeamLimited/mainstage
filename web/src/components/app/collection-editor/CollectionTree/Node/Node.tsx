@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
 import { Folder, RESTRequest } from 'types/src'
 import * as Y from 'yjs'
@@ -15,8 +16,8 @@ import {
 import { calculateDrop } from './calculateDrop'
 import { FolderNode } from './FolderNode'
 import { RESTRequestNode } from './RESTRequestNode'
-import { useNodeDrag } from './useNodeDrag'
-import { useNodeDrop } from './useNodeDrop'
+import { DragDetails, useNodeDrag } from './useNodeDrag'
+import { useNodeDrop, UseNodeDropArgs } from './useNodeDrop'
 import {
   deleteRecursive,
   duplicateRecursive,
@@ -30,7 +31,7 @@ export type NodeProps = {
   parentIndex: number
 }
 
-export type DropSpace = 'Top' | 'Bottom' | 'Inner' | null
+export type DropSpaceType = 'Top' | 'Bottom' | 'Inner' | null
 
 export const Node = ({
   collectionYMap,
@@ -56,7 +57,7 @@ export const Node = ({
 
   const dragDropManager = useDragDropManager()
   const monitor = dragDropManager.getMonitor()
-  const [dropSpace, setDropSpace] = useThrottle<DropSpace>(null)
+  const [dropSpace, setDropSpace] = useThrottle<DropSpaceType>(null)
   const nodeYMapRef = useRef<HTMLDivElement>(null)
   const renamingRef = useRef<HTMLDivElement>(null)
   const [dropResult, setDropResult] = useState<{
@@ -68,23 +69,23 @@ export const Node = ({
     y: number
   } | null>(null)
 
-  const [{ isBeingDragged }, drag] = useNodeDrag({ nodeYMap, parentIndex })
+  const [{ isBeingDragged }, drag] = useNodeDrag({
+    nodeYMap,
+    parentIndex,
+  })
 
-  const handleDrop = (
-    theDropResult: {
-      parentIndex: number
-      dropItem: Folder | RESTRequest
-    },
-    theClientOffset: {
+  const handleDrop = ((
+    dropResult: DragDetails,
+    clientOffset: {
       x: number
       y: number
     } | null
   ) => {
-    setDropResult(theDropResult)
-    setClientOffset(theClientOffset)
-  }
+    setDropResult(dropResult)
+    setClientOffset(clientOffset)
+  }) as UseNodeDropArgs['handleDrop']
 
-  const [{ hovered, nodeYMapBeingHovered }, drop] = useNodeDrop({
+  const [{ hovered, nodeYMapBeingHovered }, drop, preview] = useNodeDrop({
     nodeYMap,
     handleDrop,
   })
@@ -129,17 +130,25 @@ export const Node = ({
         const element = nodeYMapRef?.current?.getBoundingClientRect()
 
         if (element && offset && hovered) {
-          if (offset.y - element.top > element.height / 2) {
-            if (
-              nodeYMap.get('__typename') === 'Folder' &&
-              element.bottom - offset.y > 20
-            ) {
-              setDropSpace('Inner')
+          if (nodeYMap.get('__typename') === 'Collection') {
+            if (offset.y < element.height / 2) {
+              setDropSpace('Top')
             } else {
               setDropSpace('Bottom')
             }
           } else {
-            setDropSpace('Top')
+            if (offset.y - element.top > element.height / 2) {
+              if (
+                nodeYMap.get('__typename') === 'Folder' &&
+                element.bottom - offset.y > 15
+              ) {
+                setDropSpace('Inner')
+              } else {
+                setDropSpace('Bottom')
+              }
+            } else {
+              setDropSpace('Top')
+            }
           }
         } else {
           setDropSpace(null)
@@ -288,44 +297,16 @@ export const Node = ({
 
   // Id the root element, just return innerContent
   return (
-    <div
-      ref={nodeYMapRef}
-      style={
-        {
-          //height: isRoot ? '100%' : 'auto',
-        }
-      }
-    >
-      <div
-        ref={drag}
-        style={
-          {
-            //height: isRoot ? '100%' : 'auto',
-          }
-        }
-      >
+    <div ref={nodeYMapRef}>
+      <div ref={nodeYMap.get('__typename') === 'Collection' ? null : drag}>
         <div
           ref={drop}
           style={{
-            //height: isRoot ? '100%' : 'auto',
             overflow: 'visible',
           }}
         >
           {dropSpace === 'Top' && hovered && <DropSpace />}
-          {isRoot && (
-            <div
-              style={
-                {
-                  //minHeight: 'calc(100% - 4rem)',
-                  //paddingBottom: '4rem',
-                  //display: 'flex',
-                  //flexDirection: 'column',
-                }
-              }
-            >
-              {innerContent}
-            </div>
-          )}
+          {isRoot && <div>{innerContent}</div>}
           {nodeYMap.get('__typename') === 'RESTRequest' && (
             <RESTRequestNode
               isBeingDragged={isBeingDragged}
@@ -364,7 +345,19 @@ export const Node = ({
               parentIndex={parentIndex}
             />
           )}
-          {dropSpace === 'Bottom' && hovered && <DropSpace />}
+          {dropSpace === 'Bottom' &&
+            nodeYMap.get('__typename') === 'Collection' &&
+            hovered && <DropSpace />}
+          {nodeYMap.get('__typename') === 'Collection' && (
+            <Box
+              sx={{
+                minHeight: '200px',
+              }}
+            />
+          )}
+          {dropSpace === 'Bottom' &&
+            nodeYMap.get('__typename') !== 'Collection' &&
+            hovered && <DropSpace />}
         </div>
       </div>
     </div>
