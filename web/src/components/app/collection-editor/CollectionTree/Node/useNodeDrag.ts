@@ -1,4 +1,8 @@
-import { DragSourceMonitor, useDrag } from 'src/components/dnd/react-dnd'
+import {
+  DragSourceMonitor,
+  DragPreviewImage,
+  useDrag,
+} from 'src/components/dnd/react-dnd'
 
 type UseNodeDragArgs = {
   nodeYMap: Y.Map<any>

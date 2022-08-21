@@ -38,15 +38,17 @@ export const singleRESTRequestGenerator = ({
     }
 
     const startTime = new Date().toISOString();
-    const res = http.request(req);
+    const res = http.request(...Object.values(req));
     const endTime = new Date().toISOString();
 
-    store("Res", {
-      startTime: startTime,
-      endTime: endTime,
-      res,
-      logType: 'rest-single'
-    });
+    console.log("RESPONSE:", res);
+
+    //store("Res", {
+    //  startTime: startTime,
+    //  endTime: endTime,
+    //  res,
+    //  logType: 'rest-single'
+    //});
   }`
 
   const job: BaseJob & PendingJob = {

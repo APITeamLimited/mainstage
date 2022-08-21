@@ -61,7 +61,13 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
 
     socket.on('updates', (message: AcceptibleMessages) => {
       addMessageToJob(queueRef, job, message)
-      console.log(new Date(), 'updates', message)
+      console.log(
+        new Date(),
+        'updates',
+        message.messageType === 'CONSOLE' || message.messageType === 'RESULTS'
+          ? { ...message, message: JSON.parse(message.message) }
+          : message
+      )
 
       if (message.messageType === 'STATUS') {
         if (message.message === 'ERROR' || message.message === 'SUCCESS') {

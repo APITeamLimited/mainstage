@@ -1,15 +1,19 @@
-import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
-
+import {
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  useTheme,
+  Box,
+} from '@mui/material'
 import * as Y from 'yjs'
-
-import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
 
 import { EditNameInput } from '../EditNameInput'
 
 import { ListCollapsible } from './ListCollapsible'
-import { DropSpace } from './Node'
 import { NodeActionButton } from './NodeActionButton'
 import { getNodeIcon } from './utils'
+
+export const FOLDER_LOWER_ADDING_HEIGHT = 15
 
 type FolderNodeProps = {
   isBeingDragged: boolean
@@ -110,6 +114,13 @@ export const FolderNode = ({
           hovered={hovered}
           dropSpace={dropSpace}
           innerContent={innerContent}
+        />
+      )}
+      {nodeYMap.get('__typename') === 'Folder' && (!collapsed || hovered) && (
+        <Box
+          sx={{
+            height: `${FOLDER_LOWER_ADDING_HEIGHT}px`,
+          }}
         />
       )}
     </>

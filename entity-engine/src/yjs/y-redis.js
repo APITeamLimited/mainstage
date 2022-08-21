@@ -221,22 +221,4 @@ export class RedisPersistence extends Observable {
     }
     return this.redis.del(name + ':updates')
   }
-
-  /**
-   * Destroys this instance and removes all known documents from the database.
-   * After that this Persistence instance is destroyed.
-   *
-   * @return {Promise<any>}
-   */
-  clearAllDocuments() {
-    return promise
-      .all(
-        Array.from(this.docs.keys()).map((name) =>
-          this.redis.del(name + ':updates')
-        )
-      )
-      .then(() => {
-        this.destroy()
-      })
-  }
 }

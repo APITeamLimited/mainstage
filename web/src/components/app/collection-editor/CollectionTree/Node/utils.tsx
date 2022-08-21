@@ -2,7 +2,6 @@ import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import { Box, Icon, Stack, Typography, useTheme } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-
 import * as Y from 'yjs'
 
 export const getNewOrderingIndex = ({
@@ -44,9 +43,9 @@ export const DropSpace = () => {
   return (
     <Box
       sx={{
-        height: '0.5rem',
+        height: '0.25rem',
         backgroundColor: theme.palette.primary.light,
-        marginBottom: -1,
+        marginBottom: -0.5,
       }}
     />
   )

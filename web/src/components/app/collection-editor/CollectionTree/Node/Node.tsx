@@ -14,12 +14,13 @@ import {
 } from '../../../../../../../entity-engine/src/entities'
 
 import { calculateDrop } from './calculateDrop'
-import { FolderNode } from './FolderNode'
+import { FolderNode, FOLDER_LOWER_ADDING_HEIGHT } from './FolderNode'
 import { RESTRequestNode } from './RESTRequestNode'
 import { DragDetails, useNodeDrag } from './useNodeDrag'
 import { useNodeDrop, UseNodeDropArgs } from './useNodeDrop'
 import {
   deleteRecursive,
+  DROP_SPACE_HEIGHT,
   duplicateRecursive,
   getNewOrderingIndex,
 } from './utils'
@@ -39,7 +40,6 @@ export const Node = ({
   parentIndex,
 }: NodeProps) => {
   const isRoot = nodeYMap?.get('__typename') === 'Collection'
-
   const [collapsed, setCollapsed] = useState(isRoot ? false : true)
   const [renaming, setRenaming] = useState(false)
 
@@ -69,7 +69,7 @@ export const Node = ({
     y: number
   } | null>(null)
 
-  const [{ isBeingDragged }, drag] = useNodeDrag({
+  const [{ isBeingDragged }, drag, preview] = useNodeDrag({
     nodeYMap,
     parentIndex,
   })
@@ -85,7 +85,7 @@ export const Node = ({
     setClientOffset(clientOffset)
   }) as UseNodeDropArgs['handleDrop']
 
-  const [{ hovered, nodeYMapBeingHovered }, drop, preview] = useNodeDrop({
+  const [{ hovered, nodeYMapBeingHovered }, drop] = useNodeDrop({
     nodeYMap,
     handleDrop,
   })
@@ -111,6 +111,7 @@ export const Node = ({
       setDropResult,
       setClientOffset,
       setDropSpace,
+      setCollapsed,
     })
   }, [
     clientOffset,
@@ -140,7 +141,7 @@ export const Node = ({
             if (offset.y - element.top > element.height / 2) {
               if (
                 nodeYMap.get('__typename') === 'Folder' &&
-                element.bottom - offset.y > 15
+                element.bottom - offset.y > FOLDER_LOWER_ADDING_HEIGHT
               ) {
                 setDropSpace('Inner')
               } else {
@@ -295,7 +296,7 @@ export const Node = ({
       />
     ))) as JSX.Element[]
 
-  // Id the root element, just return innerContent
+  // If the root element, just return innerContent
   return (
     <div ref={nodeYMapRef}>
       <div ref={nodeYMap.get('__typename') === 'Collection' ? null : drag}>

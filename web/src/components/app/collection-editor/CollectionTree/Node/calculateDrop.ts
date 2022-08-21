@@ -1,5 +1,6 @@
 import * as Y from 'yjs'
 
+import { FOLDER_LOWER_ADDING_HEIGHT } from './FolderNode'
 import { DropSpaceType } from './Node'
 import { DragDetails } from './useNodeDrag'
 
@@ -18,6 +19,7 @@ type CalculateDropArgs = {
   setDropResult: (result: null) => void
   setClientOffset: (offset: null) => void
   setDropSpace: (dropSpace: null) => void
+  setCollapsed: (collapsed: boolean) => void
 }
 
 export const calculateDrop = ({
@@ -31,6 +33,7 @@ export const calculateDrop = ({
   setDropResult,
   setClientOffset,
   setDropSpace,
+  setCollapsed,
 }: CalculateDropArgs) => {
   if (!dropResult || !clientOffset) {
     return
@@ -54,7 +57,7 @@ export const calculateDrop = ({
     } else {
       if (
         nodeYMap.get('__typename') === 'Folder' &&
-        element.bottom - clientOffset.y > 15
+        element.bottom - clientOffset.y > FOLDER_LOWER_ADDING_HEIGHT
       ) {
         calculatedDropSpace = 'Inner'
       } else {
@@ -86,12 +89,7 @@ export const calculateDrop = ({
     return
   }
 
-  const getNewItem = (
-    calculatedDropSpace: DropSpaceType
-  ): {
-    newYMap: Y.Map<any>
-    targetYMap: Y.Map<any>
-  } => {
+  const getNewItem = (calculatedDropSpace: DropSpaceType) => {
     if (nodeYMap.get('__parentTypename') === 'Project') {
       throw `Can't drop a project on a project`
     }
@@ -156,13 +154,10 @@ export const calculateDrop = ({
       throw `Unknown drop space ${calculatedDropSpace}`
     }
 
-    return {
-      newYMap: droppedYMap,
-      targetYMap,
-    }
+    return targetYMap
   }
 
-  const { newYMap, targetYMap } = getNewItem(calculatedDropSpace)
+  const targetYMap = getNewItem(calculatedDropSpace)
 
   const itemsThisLevel = [
     ...Array.from(foldersYMap.values()).filter(
@@ -185,6 +180,11 @@ export const calculateDrop = ({
   setDropResult(null)
   setClientOffset(null)
   setDropSpace(null)
+
+  // Only collapse folders
+  if (nodeYMap.get('__typename') === 'Folder') {
+    setCollapsed(true)
+  }
 }
 
 const droppingOnSelf = ({
