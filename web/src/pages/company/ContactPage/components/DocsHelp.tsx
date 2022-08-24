@@ -1,14 +1,8 @@
 import {
   Stack,
   Typography,
-  Box,
-  ListItemText,
-  ListItemAvatar,
-  ListItem,
-  Avatar,
   useTheme,
   Button,
-  Link,
   Paper,
 } from '@mui/material'
 
@@ -20,7 +14,7 @@ export const DocsHelp = () => {
   return (
     <>
       <Stack spacing={6} marginY={6}>
-        <Typography variant="h5">Docs</Typography>
+        <Typography variant="h4">Docs</Typography>
         <Paper
           sx={{
             backgroundColor: theme.palette.background.default,
@@ -28,10 +22,10 @@ export const DocsHelp = () => {
 
         >
           <Stack margin={2} spacing={2} alignItems="center">
-            <Typography variant="h6" color={theme.palette.text.primary}>
+            <Typography variant="h6" color={theme.palette.text.primary} align="center">
               Looking for the docs?
             </Typography>
-            <Typography variant="body2" color={theme.palette.text.secondary}>
+            <Typography variant="body1" color={theme.palette.text.secondary} align="center">
               Check out the APITeam docs to learn more about how to use our
               platform
             </Typography>

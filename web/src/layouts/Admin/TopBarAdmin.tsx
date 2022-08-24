@@ -6,20 +6,16 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 
-import { Link, Router, routes } from '@redwoodjs/router'
+import { Link, routes } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
-import { SignUpOrContinueButton } from 'src/pages/splash/components/SignUpOrContinueButton'
-import { brandedRoutes } from 'src/Routes'
-
-import { NavItem } from './components/index'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/ban-types
   onSidebarOpen: () => void
 }
 
-const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
+const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
   const theme = useTheme()
 
   return (
@@ -53,27 +49,9 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
           </Link>
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
-          {brandedRoutes.map((route, index) => {
-            if (route.includeAppBar === false) {
-              return <></>
-            }
-
-            const marginLeft = index === 0 ? 0 : 4
-
-            return (
-              <Box key={index} marginLeft={marginLeft}>
-                <NavItem
-                  key={index}
-                  id={route.name}
-                  title={route.name}
-                  items={route.sublinks}
-                />
-              </Box>
-            )
-          })}
-          <Box marginLeft={4}>
-            <SignUpOrContinueButton />
-          </Box>
+          <Typography variant={'h6'} color={'textPrimary'}>
+            Admin
+          </Typography>
         </Box>
         <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems={'center'}>
           <Button
@@ -95,4 +73,4 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
   )
 }
 
-export default Topbar
+export default TopBarAdmin

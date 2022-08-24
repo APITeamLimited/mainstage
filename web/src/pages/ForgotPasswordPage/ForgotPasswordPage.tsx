@@ -44,7 +44,7 @@ const ForgotPasswordPage = () => {
                 }}
               >
                 <Link
-                  to={routes.root()}
+                  to={routes.splash()}
                   style={{
                     textDecoration: 'none',
                   }}

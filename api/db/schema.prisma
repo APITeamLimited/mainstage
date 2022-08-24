@@ -19,7 +19,7 @@ model User {
   email          String           @unique
   createdAt      DateTime         @default(now())
   updatedAt      DateTime?
-  isSupport      Boolean          @default(false)
+  isAdmin        Boolean          @default(false)
   emailVerified  Boolean          @default(false)
   shortBio       String?
   profilePicture String?
@@ -30,6 +30,7 @@ model User {
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
+  Article             Article[]
 }
 
 model Team {
@@ -82,4 +83,35 @@ model Scope {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
   userId          String
+}
+
+model Tag {
+  id        String           @id @default(uuid())
+  createdAt DateTime         @default(now())
+  updatedAt DateTime?
+  name      String
+  articles  TagsOnArticles[]
+}
+
+model Article {
+  id                      String           @id @default(uuid())
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime?
+  title                   String
+  markdown                String
+  tags                    TagsOnArticles[]
+  estimatedReadingMinutes Int
+  author                  User             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId                String
+  previewImageSrc         String?
+}
+
+model TagsOnArticles {
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime?
+  tag         Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId       String
+  article     Article   @relation(fields: [blogEntryId], references: [id], onDelete: Cascade)
+  blogEntryId String
 }

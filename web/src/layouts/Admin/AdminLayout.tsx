@@ -1,29 +1,19 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 
+import { Container } from '@mui/material'
 import { useTheme, Box, useMediaQuery, useScrollTrigger } from '@mui/material'
 
-import { TopNavLanding } from 'src/layouts/Landing/components/TopNavLanding'
-
 import { CustomAppBar } from '../CustomAppBar'
+import {
+  FooterSplash,
+  FOOTER_SPASH_HEIGHT,
+} from '../Landing/components/FooterSplash'
+import { LandingLayoutBase } from '../Landing/LandingLayoutBase'
 
-import { Topbar, Sidebar } from './components/index'
+import TopBarAdmin from './TopBarAdmin'
+import TopNavAdmin from './TopNavAdmin'
 
-type SplashLayoutProps = {
-  children?: React.ReactNode
-  appBarInner?: React.ReactNode | null
-  footer: {
-    element: React.ReactNode
-    height: string | number
-  }
-  disableTop?: boolean
-}
-
-export const LandingLayoutBase = ({
-  children,
-  footer,
-  disableTop = false,
-  appBarInner = null,
-}: SplashLayoutProps) => {
+export const AdminLayout = ({ children }: { children?: React.ReactNode }) => {
   const theme = useTheme()
   const isMd = useMediaQuery(theme.breakpoints.up('md'), {
     defaultMatches: true,
@@ -54,21 +44,28 @@ export const LandingLayoutBase = ({
         minHeight: '100vh',
       }}
     >
-      <TopNavLanding disableTop={disableTop} />
-      <CustomAppBar disableTop={disableTop} trigger={trigger}>
-        {appBarInner || <Topbar onSidebarOpen={handleSidebarOpen} />}
+      <TopNavAdmin />
+      <CustomAppBar trigger={trigger}>
+        <TopBarAdmin onSidebarOpen={handleSidebarOpen} />
       </CustomAppBar>
-      <Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />
+      {/*<Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />*/}
 
       <main
         style={{
-          paddingBottom: footer.height,
+          paddingBottom: FOOTER_SPASH_HEIGHT,
           backgroundColor: theme.palette.background.default,
         }}
       >
-        {children}
+        <Container
+          sx={{
+            paddingY: 6,
+            minHeight: '94vh',
+          }}
+        >
+          {children}
+        </Container>
       </main>
-      {footer.element}
+      <FooterSplash />
     </Box>
   )
 }

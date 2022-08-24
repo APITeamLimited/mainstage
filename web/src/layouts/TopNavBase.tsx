@@ -1,0 +1,60 @@
+import { Paper, Stack, Box, useTheme } from '@mui/material'
+
+import ThemeModeToggler from 'src/components/ThemeModeToggler'
+
+import { UserDropdown } from './App/components/UserDropdown/UserDropdown'
+
+type TopNavBaseProps = {
+  leftZone?: React.ReactNode
+  disableTop?: boolean
+}
+
+export const TopNavBase = ({
+  leftZone,
+  disableTop = false,
+}: TopNavBaseProps) => {
+  const theme = useTheme()
+
+  return (
+    <Paper
+      sx={{
+        borderRadius: 0,
+        boxShadow: 'none',
+        border: 'none',
+        // For consistency with fix in landing TopNav
+        marginY: '-0.5px',
+        backgroundColor: theme.palette.background.paper,
+        // Prevent app bar form changing color by applying desired linearGradien
+        // all the time
+        backgroundImage: disableTop
+          ? undefined
+          : 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
+      }}
+      elevation={disableTop ? 0 : 8}
+    >
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{
+          paddingY: 1,
+          paddingX: 2,
+        }}
+      >
+        <Box
+          sx={{
+            minHeight: '44.3px',
+          }}
+        >
+          {leftZone}
+        </Box>
+        <Box>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <ThemeModeToggler />
+            <UserDropdown />
+          </Stack>
+        </Box>
+      </Stack>
+    </Paper>
+  )
+}

@@ -27,30 +27,13 @@ const emailIcon = (
   </svg>
 )
 
-const CONTACT_ITEMS = [
-  {
-    label: 'General Queries',
-    value: 'info@apiteam.cloud',
-    icon: emailIcon,
-  },
-  {
-    name: 'Support',
-    sublines: [
-      'Feel free to reach out to us if you have any questions or concerns via email',
-      'Alternatively, you can reach out to us via our support channels, or in our support center',
-    ],
-    value: 'support@apiteam.cloud',
-    icon: emailIcon,
-  },
-]
-
 export const ContactUs = () => {
   const theme = useTheme()
 
   return (
     <>
       <Stack spacing={6} marginY={6}>
-        <Typography variant="h5">Reach Us</Typography>
+        <Typography variant="h4">Reach Us</Typography>
         <Stack direction={{
           xs: 'column',
           sm: 'column',
@@ -58,17 +41,17 @@ export const ContactUs = () => {
         }} justifyContent="space-evenly" spacing={4}>
             <Stack spacing={2}>
               <Typography
-                variant="body1"
+                variant="h6"
                 color={theme.palette.text.primary}
                 fontWeight="bold"
               >
                 Support
               </Typography>
-              <Typography variant="body2" color={theme.palette.text.secondary}>
+              <Typography variant="body1" color={theme.palette.text.secondary}>
                 Feel free to reach out to us if you have any questions or
                 concerns via email
               </Typography>
-              <Typography variant="body2" color={theme.palette.text.secondary}>
+              <Typography variant="body1" color={theme.palette.text.secondary}>
                 Alternatively, you can reach out to us via our support channels,
                 or in our support center
               </Typography>
@@ -99,7 +82,7 @@ export const ContactUs = () => {
                 backgroundColor: theme.palette.primary.main,
               }}>
                 <Stack margin={2} spacing={2} alignItems='center'>
-                <Typography variant="body1" color={theme.palette.common.white}>
+                <Typography variant="h6" color={theme.palette.common.white} align="center">
                   Why not try our support center?
                 </Typography>
                   <RouterLink to={routes.supportCenter()} style={{
@@ -117,13 +100,13 @@ export const ContactUs = () => {
             </Stack>
             <Stack spacing={2}>
               <Typography
-                variant="body1"
+                variant="h6"
                 fontWeight="bold"
                 color={theme.palette.text.primary}
               >
                 General Queries
               </Typography>
-              <Typography variant="body2" color={theme.palette.text.secondary}>
+              <Typography variant="body1" color={theme.palette.text.secondary}>
                 Feel free to reach out to us for anything else at this email
               </Typography>
               <ListItem>

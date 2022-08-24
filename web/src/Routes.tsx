@@ -1,5 +1,6 @@
-import { Router, Route, Set, Private, routes } from '@redwoodjs/router'
+import { Router, Route, Set, Private } from '@redwoodjs/router'
 
+import { AdminLayout } from './layouts/Admin/AdminLayout'
 import { AppCollectionLayout } from './layouts/App'
 import { AppDashboardLayout } from './layouts/App/AppDashboardLayout'
 import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
@@ -90,7 +91,7 @@ export const brandedRoutes = [
       {
         path: '/legal/cookie-policy',
         name: 'Cookie Policy',
-      }
+      },
     ],
     includeAppBar: false,
   },
@@ -104,7 +105,7 @@ const Routes = () => {
       <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
       <Set wrap={LandingLayoutSplash}>
-        <Route path="/" page={RootPage} name="root" />
+        <Route path="/" page={RootPage} name="splash" />
       </Set>
       <Set wrap={LandingLayoutContained}>
         <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
@@ -130,6 +131,11 @@ const Routes = () => {
           <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
         </Set>
       </Private>
+      <Set wrap={AdminLayout}>
+        <Private unauthenticated="login">
+          <Route path="/admin" page={AdminPage} name="admin" />
+        </Private>
+      </Set>
       <Route notfound page={NotFoundPage} />
     </Router>
   )

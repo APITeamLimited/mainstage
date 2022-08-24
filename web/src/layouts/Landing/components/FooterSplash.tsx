@@ -21,13 +21,6 @@ const LogoBanners = () => {
 
   return (
     <Grid item key={-1} alignSelf='center'>
-      <Stack
-        spacing={{
-          xs: 2,
-          md: 5,
-        }}
-        alignItems="center"
-      >
         <Typography
           fontSize={22}
           fontWeight={1000}
@@ -38,12 +31,6 @@ const LogoBanners = () => {
         >
           API Team
         </Typography>
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_the_United_Kingdom_%28black_and_white%3B_variant_2%29.svg"
-          alt="icon"
-          width="80px"
-        />
-      </Stack>
     </Grid>
   )
 }

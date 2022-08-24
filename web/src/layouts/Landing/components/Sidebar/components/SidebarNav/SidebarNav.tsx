@@ -8,27 +8,25 @@ import { useTheme } from '@mui/material/styles'
 
 import { Link, routes } from '@redwoodjs/router'
 
-import { brandedRoutes } from 'src/Routes'
-
-import NavItem from './components/NavItem'
-import { APITeamLogo } from 'src/layouts/App/components/APITeamLogo'
+import { APITeamLogo } from 'src/components/APITeamLogo'
 import { SignUpOrContinueButton } from 'src/pages/splash/components/SignUpOrContinueButton'
+import { brandedRoutes } from 'src/Routes'
 
 const SidebarNav = (): JSX.Element => {
   const theme = useTheme()
 
   return (
     <Box>
-      <Box width={1} padding={1}>
-      <APITeamLogo />
+      <Box width={1} margin={1}>
+        <APITeamLogo />
       </Box>
       <Box
         sx={{
           paddingTop: 2,
         }}
       >
-        {Object.keys(brandedRoutes).map((key, indexCategory) => {
-          if (brandedRoutes[key].includeTopbar !== false) {
+        {Object.values(brandedRoutes).map((value, indexCategory) => {
+          if (value.includeAppBar !== false) {
             return (
               <Stack
                 spacing={2}
@@ -43,19 +41,19 @@ const SidebarNav = (): JSX.Element => {
                   color={theme.palette.text.secondary}
                   sx={{ paddingLeft: 1 }}
                 >
-                  {brandedRoutes[key].name}
+                  {value.name}
                 </Typography>
-                {brandedRoutes[key].subLinks.map(
+                {value.sublinks.map(
                   (
-                    subLink: {
+                    sublink: {
                       name: string
                       path: string
                     },
-                    indexSubLink
+                    indexSublink
                   ) => (
-                    <Box key={`${indexCategory}-${indexSubLink}`}>
+                    <Box key={`${indexCategory}-${indexSublink}`}>
                       <Link
-                        to={subLink.path}
+                        to={sublink.path}
                         style={{ textDecoration: 'none' }}
                       >
                         <Button
@@ -64,7 +62,7 @@ const SidebarNav = (): JSX.Element => {
                             color: theme.palette.text.primary,
                           }}
                         >
-                          {subLink.name}
+                          {sublink.name}
                         </Button>
                       </Link>
                     </Box>
@@ -76,7 +74,7 @@ const SidebarNav = (): JSX.Element => {
         })}
       </Box>
       <Box paddingX={2} paddingY={3}>
-      <SignUpOrContinueButton />
+        <SignUpOrContinueButton />
       </Box>
     </Box>
   )

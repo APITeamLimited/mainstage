@@ -5,9 +5,7 @@ import { useLocation, routes, Link } from '@redwoodjs/router'
 export const APITeamLogo = () => {
   const { pathname } = useLocation()
   const theme = useTheme()
-  const isOnDashboard = pathname.includes('/app/dashboard')
-
-  const handleClick = () => {}
+  const isInApp = pathname.includes('/app')
 
   const inner = (
     <Typography
@@ -18,13 +16,19 @@ export const APITeamLogo = () => {
         userSelect: 'none',
       }}
     >
-      API Team
+      <span
+        style={{
+          whiteSpace: 'nowrap',
+        }}
+      >
+        API Team
+      </span>
     </Typography>
   )
 
   return (
     <Link
-      to={routes.dashboard()}
+      to={isInApp ? routes.dashboard() : routes.splash()}
       style={{
         textDecoration: 'none',
         color: theme.palette.text.primary,

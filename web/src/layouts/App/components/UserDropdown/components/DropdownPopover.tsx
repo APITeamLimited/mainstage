@@ -36,7 +36,7 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
 
   const handleLogout = () => {
     logOut()
-    navigate(routes.root())
+    navigate(routes.splash())
   }
 
   return (

@@ -8,7 +8,7 @@ import {
 } from '../Landing/components/FooterSplash'
 
 import { AppLayoutBase } from './AppLayoutBase'
-import { TopNav } from './components/TopNav'
+import { TopNavApp } from './components/TopNavApp'
 
 type AppDashboardLayoutProps = {
   children?: React.ReactNode
@@ -17,7 +17,7 @@ type AppDashboardLayoutProps = {
 export const AppDashboardLayout = ({ children }: AppDashboardLayoutProps) => {
   return (
     <AppLayoutBase
-      topNav={<TopNav />}
+      topNav={<TopNavApp />}
       appBar={<TopBarDashboard />}
       footer={{
         element: <FooterSplash />,

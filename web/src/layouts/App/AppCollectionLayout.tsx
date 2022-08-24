@@ -1,5 +1,5 @@
 import { AppLayoutBase } from './AppLayoutBase'
-import { TopNav } from './components/TopNav'
+import { TopNavApp } from './components/TopNavApp'
 
 export const AppCollectionLayout = ({
   children,
@@ -8,7 +8,7 @@ export const AppCollectionLayout = ({
 }) => {
   return (
     <AppLayoutBase
-      topNav={<TopNav />}
+      topNav={<TopNavApp />}
       footer={{
         element: <></>,
         height: 0,

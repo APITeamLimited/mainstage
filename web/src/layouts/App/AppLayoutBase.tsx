@@ -7,7 +7,8 @@ import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersisto
 import { EntityEngine } from 'src/entity-engine'
 import { useSyncReady } from 'src/entity-engine/EntityEngine'
 
-import { CustomAppBar } from './components/CustomAppBar'
+import { CustomAppBar } from '../CustomAppBar'
+
 import { NotConnectedBanner } from './components/NotConnectedBanner'
 
 type AppLayoutProps = {
@@ -55,19 +56,21 @@ export const AppLayoutBase = ({
             topNav
           ) : (
             <CustomAppBar
-              appBar={topNav}
               trigger={trigger}
               dividerOnTop={dividerOnTop}
               disableElevationTop={disableElevationTop}
-            />
+            >
+              {appBar}
+            </CustomAppBar>
           )}
           {appBar && (
             <CustomAppBar
-              appBar={appBar}
               trigger={trigger}
               disableElevationTop={disableElevationTop}
               dividerOnTop={dividerOnTop}
-            />
+            >
+              {appBar}
+            </CustomAppBar>
           )}
           <main
             style={{

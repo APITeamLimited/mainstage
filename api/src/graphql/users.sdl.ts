@@ -5,7 +5,8 @@ export const schema = gql`
     lastName: String!
     email: String!
     createdAt: DateTime!
-    isSupport: Boolean!
+    updatedAt: DateTime
+    isAdmin: Boolean!
     emailVerified: Boolean!
     shortBio: String
     profilePicture: String
