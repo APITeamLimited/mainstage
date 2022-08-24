@@ -21,6 +21,8 @@ export const TopNav = () => {
         borderRadius: 0,
         boxShadow: 'none',
         border: 'none',
+        // For consistency with fix in landing TopNav
+        marginY: '-0.5px'
       }}
       elevation={8}
     >

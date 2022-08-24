@@ -6,16 +6,51 @@ import {
   Box,
   useTheme,
   Divider,
+  useMediaQuery,
+  Theme,
 } from '@mui/material'
 
 import { Link } from '@redwoodjs/router'
 
 import { brandedRoutes } from 'src/Routes'
 
-export const FOOTER_SPASH_HEIGHT = 372
+export const FOOTER_SPASH_HEIGHT = 500
+
+const LogoBanners = () => {
+  const theme = useTheme()
+
+  return (
+    <Grid item key={-1} alignSelf='center'>
+      <Stack
+        spacing={{
+          xs: 2,
+          md: 5,
+        }}
+        alignItems="center"
+      >
+        <Typography
+          fontSize={22}
+          fontWeight={1000}
+          color={theme.palette.text.primary}
+          sx={{
+            userSelect: 'none',
+          }}
+        >
+          API Team
+        </Typography>
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_the_United_Kingdom_%28black_and_white%3B_variant_2%29.svg"
+          alt="icon"
+          width="80px"
+        />
+      </Stack>
+    </Grid>
+  )
+}
 
 export const FooterSplash = () => {
   const theme = useTheme()
+  const isMd = useMediaQuery(theme.breakpoints.down('md'))
 
   return (
     <Box
@@ -38,100 +73,82 @@ export const FooterSplash = () => {
           sx={{
             display: 'flex',
             justifyContent: 'center',
-            alignSelf: 'center',
             backgroundColor: theme.palette.alternate.dark,
             alignItems: 'center',
             height: '100%',
+            padding: 4
           }}
         >
-          <Stack>
-            <Grid
-              container
-              spacing={{
-                xs: 4,
-                sm: 10,
-              }}
-            >
-              <Grid item key={-1}>
-                <Stack
-                  spacing={{
-                    xs: 2,
-                    sm: 5,
-                  }}
-                  alignItems="center"
-                >
-                  <Typography
-                    fontSize={22}
-                    fontWeight={1000}
-                    color={theme.palette.text.primary}
-                    sx={{
-                      userSelect: 'none',
-                    }}
-                  >
-                    API Team
-                  </Typography>
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/0/0d/Flag_of_the_United_Kingdom_%28black_and_white%3B_variant_2%29.svg"
-                    alt="icon"
-                    width="80px"
-                  />
-                </Stack>
-              </Grid>
-              {Object.keys(brandedRoutes).map((key, indexCategory) => {
-                if (brandedRoutes[key].includeFooter !== false) {
-                  return (
-                    <Grid item key={indexCategory} sx={{}}>
-                      <Stack spacing={1}>
-                        <Typography
-                          sx={{
-                            paddingBottom: 1,
-                            fontWeight: 'bold',
-                            color: theme.palette.text.primary,
-                          }}
-                        >
-                          {brandedRoutes[key].name}
-                        </Typography>
-                        {brandedRoutes[key].subLinks.map(
-                          (
-                            subLink: { name: string; path: string },
-                            indexLink: number
-                          ) => {
-                            return (
-                              <Typography key={indexLink}>
-                                <Link
-                                  to={subLink.path}
-                                  style={{
-                                    textDecoration: 'none',
-                                    color: theme.palette.text.primary,
-                                  }}
-                                >
-                                  {subLink.name}
-                                </Link>
-                              </Typography>
-                            )
-                          }
-                        )}
-                      </Stack>
-                    </Grid>
-                  )
-                }
-              })}
-              <Grid item xs={8}></Grid>
-            </Grid>
+          <Stack
+            justifyContent={{
+              md: "space-between",
+              xs: "space-evenly"
+            }}
+            sx={{
+              height: '100%'
+            }}
+          >
+              {isMd && <LogoBanners />}
+              <Box sx={{
+                display:'flex',
+                alignItems: 'center',
+                height: '100%',
+                justifyCOntent: 'center'
+              }}>
+              <Grid
+                container
+                spacing={{
+                  xs: 4,
+                  md: 10,
+                }}
+                justifyContent='center'
+              >
+                {!isMd && <LogoBanners />}
+                {brandedRoutes.map((route, index) => (
+                  <Grid item key={index} alignItems='center'>
+                    <Stack spacing={1}>
+                      <Typography
+                        sx={{
+                          paddingBottom: 1,
+                          fontWeight: 'bold',
+                          color: theme.palette.text.primary,
+                        }}
+                      >
+                        {route.name}
+                      </Typography>
+                      {route.sublinks.map(
+                        (
+                          subLink: { name: string; path: string },
+                          indexLink: number
+                        ) => {
+                          return (
+                            <Typography key={indexLink}>
+                              <Link
+                                to={subLink.path}
+                                style={{
+                                  textDecoration: 'none',
+                                  color: theme.palette.text.primary,
+                                }}
+                              >
+                                {subLink.name}
+                              </Link>
+                            </Typography>
+                          )
+                        }
+                      )}
+                    </Stack>
+                  </Grid>
+                ))}
+              </Grid></Box>
             <Typography
               variant="caption"
               sx={{
                 textAlign: 'center',
                 color: theme.palette.text.secondary,
-                paddingTop: {
-                  xs: 8,
-                  sm: 8,
-                  md: 0,
-                },
               }}
             >
               © {new Date().getFullYear()} APITeam. APITeam is a limited company
-              registered in England and Wales company number 13429411
+              registered in England and Wales, Company Number 13429411
             </Typography>
           </Stack>
         </Container>

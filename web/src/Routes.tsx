@@ -1,45 +1,84 @@
-import { Router, Route, Set, Private } from '@redwoodjs/router'
+import { Router, Route, Set, Private, routes } from '@redwoodjs/router'
 
 import { AppCollectionLayout } from './layouts/App'
 import { AppDashboardLayout } from './layouts/App/AppDashboardLayout'
-import { LandingLayoutSplash } from './layouts/Landing'
+import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import { DomainsPage } from './pages/app/dashboard/DomainsPage'
 import { OverviewPage } from './pages/app/dashboard/OverviewPage'
 import { ProjectsPage } from './pages/app/dashboard/ProjectsPage'
-import AboutPage from './pages/company/About/About'
+import AboutPage from './pages/company/AboutPage/AboutPage'
+import ContactPage from './pages/company/ContactPage/ContactPage'
+import CookiePolicyPage from './pages/legal/CookiePolicy/CookiePolicy'
 import PrivacyPolicyPage from './pages/legal/PrivacyPolicy/PrivacyPolicy'
 import TermsOfServicePage from './pages/legal/TermsOfService/TermsOfService'
 import PricingPage from './pages/platform/Pricing/Pricing'
 import WhyAPITeamPage from './pages/platform/WhyAPITeam/WhyAPITeam'
 import RootPage from './pages/splash/RootPage'
 
-export const brandedRoutes = {
-  platform: {
+export type LandingGroup = {
+  name: string
+  sublinks: Array<{
+    path: string
+    name: string
+    includeAppBar?: boolean
+  }>
+  includeAppBar?: boolean
+}
+
+export const brandedRoutes = [
+  {
     name: 'Platform',
-    subLinks: [
+    sublinks: [
       {
         path: '/platform/why-apiteam',
         name: 'Why APITeam',
       },
       {
-        path: '/platform/pricing',
+        path: '/pricing',
         name: 'Pricing',
+        includeAppBar: false,
+      },
+      {
+        path: '/platform/collection-editor',
+        name: 'Collection Editor',
+      },
+      {
+        path: '/platform/globe-test',
+        name: 'Globe Test',
+      },
+      {
+        path: '/platform/api-publishing',
+        name: 'API Publishing',
+      },
+      {
+        path: '/docs',
+        name: 'Docs',
+        includeAppBar: false,
       },
     ],
   },
-  company: {
+  {
     name: 'Company',
-    subLinks: [
+    sublinks: [
       {
         path: '/company/about',
         name: 'About',
       },
+      {
+        path: '/blog',
+        name: 'Blog',
+      },
+      {
+        path: '/contact',
+        name: 'Contact Us',
+      },
     ],
+    includeAppBar: false,
   },
-  legal: {
+  {
     name: 'Legal',
-    subLinks: [
+    sublinks: [
       {
         path: '/legal/terms-of-service',
         name: 'Terms of Service',
@@ -48,9 +87,14 @@ export const brandedRoutes = {
         path: '/legal/privacy-policy',
         name: 'Privacy Policy',
       },
+      {
+        path: '/legal/cookie-policy',
+        name: 'Cookie Policy',
+      }
     ],
+    includeAppBar: false,
   },
-}
+] as LandingGroup[]
 
 const Routes = () => {
   return (
@@ -61,11 +105,18 @@ const Routes = () => {
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
       <Set wrap={LandingLayoutSplash}>
         <Route path="/" page={RootPage} name="root" />
+      </Set>
+      <Set wrap={LandingLayoutContained}>
         <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
         <Route path="/platform/pricing" page={PricingPage} name="pricing" />
         <Route path="/company/about" page={AboutPage} name="about" />
+        <Route path="/contact" page={ContactPage} name="contact" />
         <Route path="/legal/terms-of-service" page={TermsOfServicePage} name="termsOfService" />
         <Route path="/legal/privacy-policy" page={PrivacyPolicyPage} name="privacyPolicy" />
+        <Route path="/legal/cookie-policy" page={CookiePolicyPage} name="cookiePolicy" />
+        <Route path="/support" page={PrivacyPolicyPage} name="supportCenter" />
+        <Route path="/docs" page={PrivacyPolicyPage} name="docs" />
+        <Route path="/docs" page={PrivacyPolicyPage} name="blog" />
       </Set>
       {/* TODO: Re-enable local workspaces when done cloud*/}
       <Private unauthenticated="login">

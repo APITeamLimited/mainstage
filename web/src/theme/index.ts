@@ -1,6 +1,7 @@
 import type { Direction, Theme } from '@mui/material'
 import { responsiveFontSizes } from '@mui/material'
 import { createTheme, ComponentsOverrides } from '@mui/material/styles'
+import { string } from 'prop-types'
 
 import { baseThemeOptions } from './base-theme-options'
 import { darkThemeOptions } from './dark-theme-options'
@@ -39,7 +40,14 @@ type ThemeChoices = 'Default' | 'Devias' | 'Minimals'
 
 const theme: ThemeChoices = 'Default'
 
-const getTheme = (config: ThemeConfig): Theme => {
+const getTheme = (config: ThemeConfig): Theme & {
+  palette: {
+    alternate: {
+      main: string
+      dark: string
+    }
+  }
+} => {
   if (theme === 'Minimals') {
     return responsiveFontSizes(getThemeMinimals(config))
   } else if (theme === 'Default') {

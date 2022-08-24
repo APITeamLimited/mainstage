@@ -6,12 +6,13 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 
-import { Link, routes } from '@redwoodjs/router'
+import { Link, Router, routes } from '@redwoodjs/router'
 
-import { SignUpOrContinueButton } from 'src/components/splash/SignUpOrContinueButton'
+import { SignUpOrContinueButton } from 'src/pages/splash/components/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
 
 import { NavItem } from './components/index'
+import { APITeamLogo } from 'src/layouts/App/components/APITeamLogo'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -48,32 +49,29 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
               color: theme.palette.text.primary,
             }}
           >
-            <Typography
-              fontSize={22}
-              fontWeight={1000}
-              color={theme.palette.text.primary}
-            >
-              API Team
-            </Typography>
+            <APITeamLogo />
           </Link>
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
-          {Object.keys(brandedRoutes).map((key, indexCategory) => {
-            if (brandedRoutes[key].includeTopbar !== false) {
-              const marginLeft = indexCategory === 0 ? 0 : 4
+          {brandedRoutes.map((route, index) => {
+              if (route.includeAppBar === false) {
+                return <></>
+              }
+
+              const marginLeft = index === 0 ? 0 : 4
 
               return (
-                <Box key={indexCategory} marginLeft={marginLeft}>
+                <Box key={index} marginLeft={marginLeft}>
                   <NavItem
-                    key={indexCategory}
-                    id={key}
-                    title={brandedRoutes[key].name}
-                    items={brandedRoutes[key].subLinks}
+                    key={index}
+                    id={route.name}
+                    title={route.name}
+                    items={route.sublinks}
                   />
                 </Box>
               )
             }
-          })}
+          )}
           <Box marginLeft={4}>
             <SignUpOrContinueButton />
           </Box>

@@ -11,31 +11,16 @@ import { Link, routes } from '@redwoodjs/router'
 import { brandedRoutes } from 'src/Routes'
 
 import NavItem from './components/NavItem'
+import { APITeamLogo } from 'src/layouts/App/components/APITeamLogo'
+import { SignUpOrContinueButton } from 'src/pages/splash/components/SignUpOrContinueButton'
 
 const SidebarNav = (): JSX.Element => {
   const theme = useTheme()
 
   return (
     <Box>
-      <Box width={1} paddingY={1}>
-        <Box
-          display={'flex'}
-          component="a"
-          href="/"
-          title="APITeam"
-          width={{ xs: 100, md: 120 }}
-        >
-          <Box
-            component={'img'}
-            src={'img/api-team.png'}
-            height={1}
-            width={1}
-            sx={{
-              pt: 6,
-              paddingLeft: 2,
-            }}
-          />
-        </Box>
+      <Box width={1} padding={1}>
+      <APITeamLogo />
       </Box>
       <Box
         sx={{
@@ -91,18 +76,7 @@ const SidebarNav = (): JSX.Element => {
         })}
       </Box>
       <Box paddingX={2} paddingY={3}>
-        <Box>
-          <Link
-            to={routes.signup()}
-            style={{
-              textDecoration: 'none',
-            }}
-          >
-            <Button variant="contained" color="primary" size="large">
-              Sign Up
-            </Button>
-          </Link>
-        </Box>
+      <SignUpOrContinueButton />
       </Box>
     </Box>
   )

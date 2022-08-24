@@ -7,6 +7,11 @@ module.exports = (config, { mode }) => {
   // Add custom rules for your project
   // config.module.rules.push(YOUR_RULE)
 
+  config.module.rules.push({
+    test: /\.md$/i,
+        use: 'raw-loader',
+  });
+
   // Add custom plugins for your project
   // config.plugins.push(YOUR_PLUGIN)
 

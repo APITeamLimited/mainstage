@@ -11,10 +11,13 @@ const TopNav = () => {
   const theme = useTheme()
   const { isAuthenticated } = useAuth()
 
-  return (
-    <Container>
+  return  (
+    <Container sx={{
+      // Fix for text from body visible above TopNav on Chrome Windows
+      marginY: '-0.5px',
+    }}>
       <Box
-        position={'relative'}
+        position='relative'
         zIndex={theme.zIndex.appBar - 1}
         sx={{
           paddingY: 2,

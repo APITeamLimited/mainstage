@@ -135,7 +135,7 @@ const NotFoundCover = (): JSX.Element => {
                     <Box
                       component={LazyLoadImage}
                       effect="blur"
-                      src={'img/footy.jpg'}
+                      src={require('web/public/img/footy.jpg')}
                       height={{ xs: 'auto', md: 1 }}
                       maxHeight={{ xs: 300, md: 1 }}
                       width={1}

@@ -1,1 +1,1 @@
-export { LandingLayoutSplash } from './LandingLayouts'
+export { LandingLayoutSplash,LandingLayoutContained } from './LandingLayouts'

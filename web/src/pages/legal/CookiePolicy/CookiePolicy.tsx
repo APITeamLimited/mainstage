@@ -2,13 +2,13 @@ import { Headline } from "src/pages/splash/components/Headline"
 import { Stack } from "@mui/material"
 import MuiMarkdown from 'mui-markdown'
 
-import tosMarkdown from './terms-of-service.md'
+import tosMarkdown from './cookie-policy.md'
 
-const TermsOfServicePage = () => {
+const CookiePolicyPage = () => {
   return <Stack spacing={2}>
-  <Headline headline="Terms of Service" />
+  <Headline headline="Cookie Policy" />
   <MuiMarkdown>{tosMarkdown}</MuiMarkdown>
   </Stack>
 }
 
-export default TermsOfServicePage
+export default CookiePolicyPage

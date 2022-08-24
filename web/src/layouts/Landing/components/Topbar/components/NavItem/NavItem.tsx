@@ -7,16 +7,13 @@ import Popover from '@mui/material/Popover'
 import Stack from '@mui/material/Stack'
 import { alpha, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-
 import { Link, useLocation } from '@redwoodjs/router'
+import { LandingGroup } from 'src/Routes'
 
 interface Props {
   title: string
   id: string
-  items: {
-    path: string
-    name: string
-  }[]
+  items: LandingGroup['sublinks']
   colorInvert?: boolean
 }
 
@@ -92,7 +89,7 @@ const NavItem = ({
         }}
       >
         <Stack spacing={0.5}>
-          {items.map((p, i) => (
+          {items.filter((item) => item.includeAppBar !== false).map((p, i) => (
             <Link key={i} to={p.path} style={{ textDecoration: 'none' }}>
               <Box>
                 <Button
@@ -108,6 +105,7 @@ const NavItem = ({
                         : 'transparent',
                     fontWeight: pathname === p.path ? 600 : 400,
                   }}
+                  fullWidth
                   onClick={handleClose}
                 >
                   {p.name}
