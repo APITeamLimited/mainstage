@@ -70,7 +70,6 @@ const text = {
 }
 
 export const darkThemeOptions: ThemeOptions = {
-  /*
   components: {
     MuiAvatar: {
       styleOverrides: {
@@ -166,7 +165,7 @@ export const darkThemeOptions: ThemeOptions = {
     styleOverrides: {
       color: text.primary,
     },
-  },*/
+  },
   palette: {
     action: {
       active: neutral[400],

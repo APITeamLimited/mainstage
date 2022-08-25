@@ -1,7 +1,7 @@
 import React from 'react'
 
 import MenuIcon from '@mui/icons-material/Menu'
-import { Container, Typography } from '@mui/material'
+import { Container, Stack, Tooltip, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
@@ -9,6 +9,8 @@ import { alpha, useTheme } from '@mui/material/styles'
 import { Link, routes } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
+import ThemeModeToggler from 'src/components/ThemeModeToggler'
+import { UserDropdown } from 'src/layouts/App/components/UserDropdown'
 
 interface Props {
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -30,6 +32,24 @@ const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
         alignItems={'center'}
         width={1}
       >
+        <Stack spacing={2} direction={'row'} alignItems={'center'}>
+        <Tooltip title='Toggle Sidebar'>
+        <Box sx={{ display: 'flex' }} alignItems={'center'}>
+          <Button
+            onClick={() => onSidebarOpen()}
+            aria-label="Menu"
+            variant={'outlined'}
+            sx={{
+              borderRadius: 2,
+              minWidth: 'auto',
+              padding: 1,
+              borderColor: alpha(theme.palette.divider, 0.2),
+            }}
+          >
+            <MenuIcon />
+          </Button>
+        </Box>
+        </Tooltip>
         <Box
           sx={{
             width: {
@@ -48,26 +68,14 @@ const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
             <APITeamLogo />
           </Link>
         </Box>
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
+        </Stack>
+        <Stack direction='row' alignItems='center' spacing={2}>
           <Typography variant={'h6'} color={'textPrimary'}>
             Admin
           </Typography>
-        </Box>
-        <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems={'center'}>
-          <Button
-            onClick={() => onSidebarOpen()}
-            aria-label="Menu"
-            variant={'outlined'}
-            sx={{
-              borderRadius: 2,
-              minWidth: 'auto',
-              padding: 1,
-              borderColor: alpha(theme.palette.divider, 0.2),
-            }}
-          >
-            <MenuIcon />
-          </Button>
-        </Box>
+          <ThemeModeToggler />
+          <UserDropdown />
+        </Stack>
       </Box>
     </Container>
   )

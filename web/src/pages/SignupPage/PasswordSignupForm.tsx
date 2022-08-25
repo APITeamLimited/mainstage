@@ -15,10 +15,22 @@ import { useFormik } from 'formik'
 import * as Yup from 'yup'
 
 import { useAuth } from '@redwoodjs/auth'
-import { navigate, routes } from '@redwoodjs/router'
+import { navigate, routes, useLocation } from '@redwoodjs/router'
 
 const PasswordLoginForm = () => {
   const { isAuthenticated, signUp } = useAuth()
+  const { search } = useLocation()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (/redirectTo/.test(search || '')) {
+        const newPath = (search|| '').split('=').slice(-1).join()
+        navigate(newPath)
+      } else {
+        navigate(routes.dashboard())
+      }
+    }
+  }, [isAuthenticated])
 
   const formik = useFormik({
     initialValues: {
@@ -46,8 +58,6 @@ const PasswordLoginForm = () => {
       }).catch((error) => {
         helpers.setFieldError('submit', error.message)
       })
-
-      console.log(response)
 
       if (response.message) {
         helpers.setStatus({ success: false })

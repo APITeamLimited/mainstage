@@ -1,6 +1,6 @@
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
-import { AdminLayout } from './layouts/Admin/AdminLayout'
+import { AdminLayout } from './components/admin/Layout/AdminLayout'
 import { AppCollectionLayout } from './layouts/App'
 import { AppDashboardLayout } from './layouts/App/AppDashboardLayout'
 import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
@@ -131,11 +131,9 @@ const Routes = () => {
           <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
         </Set>
       </Private>
-      <Set wrap={AdminLayout}>
         <Private unauthenticated="login">
           <Route path="/admin" page={AdminPage} name="admin" />
         </Private>
-      </Set>
       <Route notfound page={NotFoundPage} />
     </Router>
   )

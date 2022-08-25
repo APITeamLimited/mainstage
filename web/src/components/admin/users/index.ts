@@ -1,2 +1,1 @@
-export * from './UserList'
-export * from './UserShow'
+export * from './admin-user'
