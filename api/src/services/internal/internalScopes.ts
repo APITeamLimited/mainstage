@@ -1,18 +1,21 @@
+import { validateWith } from '@redwoodjs/api'
+
 import { db } from 'src/lib/db'
+
+import { checkInternal } from '../check-internal'
 
 export const internalScope = async ({
   id,
-  cached = false,
+  internalAPIKey,
 }: {
   id: string
-  cached: boolean
+  internalAPIKey: string
 }) => {
-  if (!cached) {
-    return db.scope.findFirst({
-      where: {
-        id,
-      },
-    })
-  }
-  throw 'Cached scope not implemented'
+  validateWith(() => checkInternal(internalAPIKey))
+
+  return db.scope.findFirst({
+    where: {
+      id,
+    },
+  })
 }

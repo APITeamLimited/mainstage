@@ -1,8 +1,8 @@
 import { validate, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
-import { db } from 'src/lib/db'
 import { checkValue } from 'src/config'
+import { db } from 'src/lib/db'
 
 import { SyncEvent, eventsRedisClient as redis } from '.'
 

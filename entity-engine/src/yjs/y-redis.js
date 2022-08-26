@@ -149,6 +149,10 @@ export class RedisPersistence extends Observable {
      * @type {Map<string,PersistenceDoc>}
      */
     this.docs = new Map()
+    /**
+     * @type {Map<string,number>}
+     */
+    this.bindCount = new Map()
     this.sub.on('message', (channel, sclock) => {
       const pdoc = this.docs.get(channel)
       if (pdoc) {
@@ -176,18 +180,20 @@ export class RedisPersistence extends Observable {
    */
   bindState(name, ydoc) {
     if (this.docs.has(name)) {
-      throw error.create(
-        `"${name}" is already bound to this RedisPersistence instance`
-      )
+      this.bindCount.set(name, this.bindCount.get(name) + 1)
+      return this.docs.get(name)
+    } else {
+      const pd = new PersistenceDoc(this, name, ydoc)
+      this.docs.set(name, pd)
+      this.bindCount.set(name, (this.bindCount.get(name) || 0) + 1)
+      return pd
     }
-    const pd = new PersistenceDoc(this, name, ydoc)
-    this.docs.set(name, pd)
-    return pd
   }
 
   destroy() {
     const docs = this.docs
     this.docs = new Map()
+    this.bindCount = new Map()
     return promise
       .all(Array.from(docs.values()).map((doc) => doc.destroy()))
       .then(() => {
@@ -205,8 +211,12 @@ export class RedisPersistence extends Observable {
    */
   closeDoc(name) {
     const doc = this.docs.get(name)
-    if (doc) {
+    const newBindCount = this.bindCount.get(name) - 1
+    if (doc && newBindCount <= 0) {
+      this.bindCount.delete(name)
       return doc.destroy()
+    } else {
+      this.bindCount.set(name, newBindCount)
     }
   }
 
@@ -217,6 +227,7 @@ export class RedisPersistence extends Observable {
   clearDocument(name) {
     const doc = this.docs.get(name)
     if (doc) {
+      this.bindCount.delete(name)
       doc.destroy()
     }
     return this.redis.del(name + ':updates')

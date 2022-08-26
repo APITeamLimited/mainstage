@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { useTheme, Box, useMediaQuery, useScrollTrigger } from '@mui/material'
+import { useTheme, Box, useScrollTrigger } from '@mui/material'
 
 import { TopNavLanding } from 'src/layouts/Landing/components/TopNavLanding'
 
@@ -13,7 +13,10 @@ type SplashLayoutProps = {
   appBarInner?: React.ReactNode | null
   footer: {
     element: React.ReactNode
-    height: string | number
+    height: {
+      xs: string | number
+      md: string | number
+    }
   }
   disableTop?: boolean
 }
@@ -25,9 +28,6 @@ export const LandingLayoutBase = ({
   appBarInner = null,
 }: SplashLayoutProps) => {
   const theme = useTheme()
-  const isMd = useMediaQuery(theme.breakpoints.up('md'), {
-    defaultMatches: true,
-  })
 
   const [openSidebar, setOpenSidebar] = useState(false)
 
@@ -38,8 +38,6 @@ export const LandingLayoutBase = ({
   const handleSidebarClose = (): void => {
     setOpenSidebar(false)
   }
-
-  const open = isMd ? false : openSidebar
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
@@ -58,16 +56,22 @@ export const LandingLayoutBase = ({
       <CustomAppBar disableTop={disableTop} trigger={trigger}>
         {appBarInner || <Topbar onSidebarOpen={handleSidebarOpen} />}
       </CustomAppBar>
-      <Sidebar onClose={handleSidebarClose} open={open} variant="temporary" />
-
-      <main
-        style={{
-          paddingBottom: footer.height,
+      <Sidebar
+        onClose={handleSidebarClose}
+        open={openSidebar}
+        variant="temporary"
+      />
+      <Box
+        sx={{
+          paddingBottom: {
+            xs: footer.height.xs,
+            md: footer.height.md,
+          },
           backgroundColor: theme.palette.background.default,
         }}
       >
-        {children}
-      </main>
+        <main>{children}</main>
+      </Box>
       {footer.element}
     </Box>
   )

@@ -12,7 +12,13 @@ export const LandingLayoutSplash = ({
 
   return (
     <LandingLayoutBase
-      footer={{ element: <FooterSplash />, height: FOOTER_SPASH_HEIGHT }}
+      footer={{
+        element: <FooterSplash />,
+        height: {
+          xs: FOOTER_SPASH_HEIGHT.xs,
+          md: FOOTER_SPASH_HEIGHT.md,
+        },
+      }}
       disableTop={true}
     >
       <Box
@@ -33,7 +39,13 @@ export const LandingLayoutContained = ({
 }) => {
   return (
     <LandingLayoutBase
-      footer={{ element: <FooterSplash />, height: FOOTER_SPASH_HEIGHT }}
+      footer={{
+        element: <FooterSplash />,
+        height: {
+          xs: FOOTER_SPASH_HEIGHT.xs,
+          md: FOOTER_SPASH_HEIGHT.md,
+        },
+      }}
     >
       <Container
         sx={{

@@ -51,6 +51,6 @@ setInterval(() => {
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {
   console.log(
-    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}${io.path()}\n\n\x1b[0m`
+    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n\x1b[0m`
   )
 })

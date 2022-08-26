@@ -21,10 +21,11 @@ export const AppDashboardLayout = ({ children }: AppDashboardLayoutProps) => {
       appBar={<TopBarDashboard />}
       footer={{
         element: <FooterSplash />,
-        height: FOOTER_SPASH_HEIGHT,
+        height: {
+          xs: FOOTER_SPASH_HEIGHT.xs,
+          md: FOOTER_SPASH_HEIGHT.md,
+        },
       }}
-      disableElevationTop={true}
-      dividerOnTop={true}
     >
       <Container
         sx={{

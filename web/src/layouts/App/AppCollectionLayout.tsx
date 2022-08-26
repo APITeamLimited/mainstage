@@ -6,17 +6,5 @@ export const AppCollectionLayout = ({
 }: {
   children?: React.ReactNode
 }) => {
-  return (
-    <AppLayoutBase
-      topNav={<TopNavApp />}
-      footer={{
-        element: <></>,
-        height: 0,
-      }}
-      disableElevationTop={true}
-      dividerOnTop={true}
-    >
-      {children}
-    </AppLayoutBase>
-  )
+  return <AppLayoutBase topNav={<TopNavApp />}>{children}</AppLayoutBase>
 }

@@ -1,6 +1,6 @@
 {
   "name": "entity-engine",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "description": "APITeam Entity Engine",
   "dependencies": {
     "@apollo/client": "^3.6.9",

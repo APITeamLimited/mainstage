@@ -1,9 +1,8 @@
 import React from 'react'
 
-import { Link, matchPath, useLocation } from 'react-router-dom'
-import { Button, Drawer, Box, useTheme, Stack, Typography } from '@mui/material'
-import { APITeamLogo } from 'src/components/APITeamLogo'
-import { useNavigate } from 'react-router-dom'
+import { Drawer } from '@mui/material'
+
+import { SideContentAdmin } from './SideContentAdmin'
 
 type SideBarAdminProps = {
   onClose: () => void
@@ -16,14 +15,6 @@ export const SideBarAdmin = ({
   variant,
   onClose,
 }: SideBarAdminProps): JSX.Element => {
-  const theme = useTheme()
-  const navigate = useNavigate()
-
-  const handleButtonClick = (tabName: string) => {
-    navigate(tabName)
-    onClose()
-  }
-
   return (
     <Drawer
       anchor="left"
@@ -37,34 +28,7 @@ export const SideBarAdmin = ({
         },
       }}
     >
-      <Stack
-        spacing={2}
-        sx={{
-          margin: 2,
-
-        }}
-      >
-        <APITeamLogo />
-        <Typography
-          variant="h6"
-          color={theme.palette.text.secondary}
-          sx={{ paddingTop: 4,  paddingLeft: 1 }}
-        >
-          Accounts
-        </Typography>
-        <Box>
-          <Button
-            sx={{
-              color: theme.palette.text.primary,
-
-            }}
-            variant="text"
-            onClick={() => handleButtonClick('adminUsers')}
-          >
-            Users
-          </Button>
-        </Box>
-      </Stack>
+      <SideContentAdmin onClose={onClose} />
     </Drawer>
   )
 }

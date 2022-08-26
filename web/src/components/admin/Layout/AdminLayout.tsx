@@ -1,18 +1,26 @@
 import { useState } from 'react'
+
 import {
   useTheme,
   useMediaQuery,
   useScrollTrigger,
   Container,
   Box,
+  Stack,
 } from '@mui/material'
-import { CustomAppBar } from 'src/layouts/CustomAppBar'
-import TopBarAdmin from './TopBarAdmin'
-import { Sidebar, Menu, LayoutProps } from 'react-admin'
-import { SideBarAdmin } from './SideBarAdmin'
+import { LayoutProps } from 'react-admin'
 
-export const AdminLayout = ({ dashboard, children }: LayoutProps) => {
+import { CustomAppBar } from 'src/layouts/CustomAppBar'
+
+import { SideBarAdmin } from './SideBarAdmin'
+import { SideCardAdmin } from './SideCardAdmin'
+import TopBarAdmin from './TopBarAdmin'
+
+export const AdminLayout = ({ children }: LayoutProps) => {
   const theme = useTheme()
+  const isMd = useMediaQuery(theme.breakpoints.up('md'), {
+    defaultMatches: true,
+  })
 
   const [openSidebar, setOpenSidebar] = useState(false)
 
@@ -41,15 +49,31 @@ export const AdminLayout = ({ dashboard, children }: LayoutProps) => {
       <CustomAppBar trigger={trigger}>
         <TopBarAdmin onSidebarOpen={handleSidebarOpen} />
       </CustomAppBar>
-      <SideBarAdmin open={openSidebar} onClose={handleSidebarClose} variant='temporary' />
+      <SideBarAdmin
+        open={isMd ? false : openSidebar}
+        onClose={handleSidebarClose}
+        variant="temporary"
+      />
       <Container
         sx={{
           backgroundColor: theme.palette.background.default,
+          paddingY: 6,
         }}
       >
         <main>
-            {children}
-          </main>
+          <Stack direction="row" spacing={6}>
+            {isMd && <SideCardAdmin />}
+            <Box
+              sx={{
+                justifyContent: 'center',
+                display: 'flex',
+                width: '100%',
+              }}
+            >
+              {children}
+            </Box>
+          </Stack>
+        </main>
       </Container>
     </Box>
   )

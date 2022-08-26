@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "./dist",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "target": "esnext",
+    "strict": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "..",
+    "paths": {
+      "src/*": [
+        "./src/*",
+        "../api/src/*",
+        "../.redwood/types/mirror/api/src/*"
+      ],
+      "types/*": ["./types/*", "../types/*", "../api/types"],
+      "@redwoodjs/testing": ["../node_modules/@redwoodjs/testing/web"]
+    },
+    "typeRoots": ["../node_modules/@types", "./node_modules/@types"],
+    "types": ["jest", "@testing-library/jest-dom", "node"],
+    "jsx": "preserve",
+    "skipLibCheck": true
+  },
+  "include": [
+    "../globe-test",
+    "../types",
+    "./src/*",
+  ]
+}

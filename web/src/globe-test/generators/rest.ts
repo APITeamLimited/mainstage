@@ -25,7 +25,7 @@ export const singleRESTRequestGenerator = ({
   const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
 
   const source = `import http from 'k6/http';
-  import { store } from 'apiteam';
+  import { tag } from 'apiteam';
 
   export default function() {
     const req = {
@@ -41,14 +41,11 @@ export const singleRESTRequestGenerator = ({
     const res = http.request(...Object.values(req));
     const endTime = new Date().toISOString();
 
-    console.log("RESPONSE:", res);
-
-    //store("Res", {
-    //  startTime: startTime,
-    //  endTime: endTime,
-    //  res,
-    //  logType: 'rest-single'
-    //});
+    tag("Res", {
+      startTime: startTime,
+      endTime: endTime,
+      res,
+    });
   }`
 
   const job: BaseJob & PendingJob = {

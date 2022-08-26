@@ -2,7 +2,10 @@ import { gql } from '@apollo/client'
 
 import { Scope } from '../../../api/types/graphql'
 import { apolloClient } from '../apollo'
+import { checkValue } from '../config'
 import { scopesReadRedis } from '../redis'
+
+const INTERNAL_API_KEY = checkValue<string>('api.internalAPIKey')
 
 export const findScope = async (id: string): Promise<Scope | null> => {
   return (await _findScopeRedis(id)) || (await _findScopeBackend(id))
@@ -25,8 +28,8 @@ const _findScopeRedis = async (id: string): Promise<Scope | null> => {
 }
 
 const scopeQuery = gql`
-  query InternalScope($id: String!) {
-    internalScope(id: $id) {
+  query InternalScope($id: String!, $internalAPIKey: String!) {
+    internalScope(id: $id, internalAPIKey: $internalAPIKey) {
       id
       variant
       variantTargetId
@@ -40,7 +43,7 @@ const scopeQuery = gql`
 const _findScopeBackend = async (id: string): Promise<Scope | null> => {
   const result = await apolloClient.query({
     query: scopeQuery,
-    variables: { id },
+    variables: { id, internalAPIKey: INTERNAL_API_KEY },
   })
 
   if (result.data) {

@@ -2,23 +2,15 @@ import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
-import jwt_decode, { JwtPayload } from 'jwt-decode'
-import { GetBearerPubkeyScopes } from 'types/graphql'
 import { Environment, RESTRequest } from 'types/src'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
-import { useAuth } from '@redwoodjs/auth'
-import { useQuery } from '@redwoodjs/web'
-
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { addToQueue, restRequestQueueVar } from 'src/contexts/reactives'
+import { restRequestQueueVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
-import {
-  Bearer,
-  GET_BEARER_PUBKEY__SCOPES_QUERY,
-} from 'src/entity-engine/utils'
+import { useScopes } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
 
@@ -44,8 +36,7 @@ export const RESTInputPanel = ({
 }: RESTInputPanelProps) => {
   const restRequestsYMap = collectionYMap.get('restRequests')
   const workspace = useWorkspace()
-
-  const workspaceId = workspace?.guid || ''
+  const scopes = useScopes()
 
   // Although we are not using these, they ensure ui updates when the ymaps change
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -169,11 +160,23 @@ export const RESTInputPanel = ({
       auth: unsavedAuth,
     }
 
+    // Find scope matching workspace guid
+    const [variant, variantTargetId] = workspace?.guid.split(
+      ':'
+    ) as Array<string>
+
+    const scopeId = scopes?.find(
+      (scope) =>
+        scope.variant === variant && scope.variantTargetId === variantTargetId
+    )?.id
+
+    if (!scopeId) throw 'No scope found'
+
     singleRESTRequestGenerator({
       request,
       activeEnvironment: activeEnvironment.data as unknown as Environment,
       // Normal send is always main scope i.e. workspace
-      scopeId: workspaceId,
+      scopeId,
       jobQueue,
     })
   }

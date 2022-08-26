@@ -61,6 +61,11 @@ function useStateCallback<T>(
 const DocContext = createContext<Y.Doc | null>(null)
 export const useWorkspace = () => useContext(DocContext)
 
+const ScopesContext = createContext<GetBearerPubkeyScopes['scopes'] | null>(
+  null
+)
+export const useScopes = () => useContext(ScopesContext)
+
 type SyncReadyStatus = {
   socketioProvider: PossibleSyncStatus
   indexeddbProvider: PossibleSyncStatus
@@ -227,7 +232,11 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
           indexeddbProvider: indexeddbSyncStatus,
         }}
       >
-        <DocContext.Provider value={doc}>{children}</DocContext.Provider>
+        <DocContext.Provider value={doc}>
+          <ScopesContext.Provider value={scopes}>
+            {children}
+          </ScopesContext.Provider>
+        </DocContext.Provider>
       </SyncReadyContext.Provider>
     </div>
   )

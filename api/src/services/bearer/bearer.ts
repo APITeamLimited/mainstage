@@ -12,7 +12,7 @@ const issuer = checkValue<string>('api.bearer.issuer')
 const audience = checkValue<string>('api.bearer.audience')
 const expriesInMinutes = checkValue<number>('api.bearer.expiryMinutes')
 
-let keyPair: {
+export let keyPair: {
   publicKey: string
   privateKey: string
 } | null = null

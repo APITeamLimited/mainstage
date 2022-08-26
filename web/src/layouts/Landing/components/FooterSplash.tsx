@@ -14,23 +14,26 @@ import { Link } from '@redwoodjs/router'
 
 import { brandedRoutes } from 'src/Routes'
 
-export const FOOTER_SPASH_HEIGHT = 500
+export const FOOTER_SPASH_HEIGHT = {
+  xs: '600px',
+  md: '500px',
+}
 
 const LogoBanners = () => {
   const theme = useTheme()
 
   return (
-    <Grid item key={-1} alignSelf='center'>
-        <Typography
-          fontSize={22}
-          fontWeight={1000}
-          color={theme.palette.text.primary}
-          sx={{
-            userSelect: 'none',
-          }}
-        >
-          API Team
-        </Typography>
+    <Grid item key={-1} alignSelf="center">
+      <Typography
+        fontSize={22}
+        fontWeight={1000}
+        color={theme.palette.text.primary}
+        sx={{
+          userSelect: 'none',
+        }}
+      >
+        API Team
+      </Typography>
     </Grid>
   )
 }
@@ -46,8 +49,14 @@ export const FooterSplash = () => {
         backgroundColor: theme.palette.alternate.dark,
         position: 'absolute',
         bottom: 0,
-        height: FOOTER_SPASH_HEIGHT,
-        maxHeight: FOOTER_SPASH_HEIGHT,
+        height: {
+          xs: FOOTER_SPASH_HEIGHT.xs,
+          md: FOOTER_SPASH_HEIGHT.md,
+        },
+        maxHeight: {
+          xs: FOOTER_SPASH_HEIGHT.xs,
+          md: FOOTER_SPASH_HEIGHT.md,
+        },
       }}
     >
       <Stack
@@ -63,36 +72,39 @@ export const FooterSplash = () => {
             backgroundColor: theme.palette.alternate.dark,
             alignItems: 'center',
             height: '100%',
-            padding: 4
+            padding: 4,
           }}
         >
           <Stack
             justifyContent={{
-              md: "space-between",
-              xs: "space-evenly"
+              md: 'space-between',
+              xs: 'space-evenly',
             }}
+            spacing={4}
             sx={{
-              height: '100%'
+              height: '100%',
             }}
           >
-              {isMd && <LogoBanners />}
-              <Box sx={{
-                display:'flex',
+            {isMd && <LogoBanners />}
+            <Box
+              sx={{
+                display: 'flex',
                 alignItems: 'center',
                 height: '100%',
-                justifyCOntent: 'center'
-              }}>
+                justifyContent: 'center',
+              }}
+            >
               <Grid
                 container
                 spacing={{
                   xs: 4,
                   md: 10,
                 }}
-                justifyContent='center'
+                justifyContent="center"
               >
                 {!isMd && <LogoBanners />}
                 {brandedRoutes.map((route, index) => (
-                  <Grid item key={index} alignItems='center'>
+                  <Grid item key={index} alignItems="center">
                     <Stack spacing={1}>
                       <Typography
                         sx={{
@@ -126,7 +138,8 @@ export const FooterSplash = () => {
                     </Stack>
                   </Grid>
                 ))}
-              </Grid></Box>
+              </Grid>
+            </Box>
             <Typography
               variant="caption"
               sx={{

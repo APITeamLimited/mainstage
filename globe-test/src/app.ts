@@ -76,6 +76,6 @@ setInterval(() => {
 
 httpServer.listen(globeTestPort, globeTestHost, () => {
   console.log(
-    `\x1b[31m\n\nAPITeam GlobeTest Manager Listeniang at ${globeTestHost}:${globeTestPort}${io.path()}\n\n\x1b[0m`
+    `\x1b[31m\n\nAPITeam GlobeTest Manager Listening at ${globeTestHost}:${globeTestPort}${io.path()}\n\n\x1b[0m`
   )
 })

@@ -60,12 +60,23 @@ export const handleProviders = ({
   if (!activeWorkspace) throw 'No active workspace'
   const isLocal = activeWorkspace.planInfo.type === 'LOCAL'
 
-  const activeGUID = isLocal
+  let activeGUID = ''
+  if (isLocal) {
+    activeGUID = `LOCAL:${activeWorkspace.id}`
+  } else {
+    const scope = scopes.find(
+      (scope) => scope.variantTargetId === activeWorkspace.id
+    )
+    if (!scope) throw 'No scope found for active workspace'
+    activeGUID = `${scope.variant}:${scope.variantTargetId}`
+  }
+
+  const scopeId = isLocal
     ? activeWorkspace.id
     : scopes.find((scope) => scope.variantTargetId === activeWorkspace.id)?.id
 
-  if (!activeGUID) {
-    throw `No GUID could be found for workspace ${activeWorkspace.id}`
+  if (!scopeId) {
+    throw `No scopeId could be found for workspace ${activeWorkspace.id}`
   }
 
   const newDoc = getNewDoc(doc, setDoc, activeGUID)
@@ -76,7 +87,7 @@ export const handleProviders = ({
   if (socketioProviderReady && (!socketioProvider || guidChanged)) {
     setSocketioProvider(
       new SocketIOProvider({
-        scopeId: activeGUID,
+        scopeId,
         rawBearer: rawBearer || '',
         doc: newDoc,
         options: {

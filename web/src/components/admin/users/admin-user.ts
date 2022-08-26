@@ -1,4 +1,5 @@
 import { ValidAdmin } from '../ReactAdmin'
+
 import { UserList } from './UserList'
 import { UserShow } from './UserShow'
 
@@ -38,7 +39,6 @@ export const ADMIN_USER_GET_ONE_QUERY = gql`
         shortBio
         profilePicture
       }
-      total
       validUntil
     }
   }

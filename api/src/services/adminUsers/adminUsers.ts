@@ -4,23 +4,20 @@ import { db } from 'src/lib/db'
 
 import { checkAdmin } from '../checkAdmin'
 
-type AdminUserArgs = {
-  page?: number
-  perPage?: number
-}
-
 export const adminUserGetList = async ({
   page = 1,
   perPage = 100,
-}: AdminUserArgs
-) => {
+}: {
+  page?: number
+  perPage?: number
+}) => {
   validateWith(checkAdmin)
 
   console.log({ page, perPage })
 
   const dataPromise = db.user.findMany({
     skip: (page - 1) * perPage,
-    take: perPage
+    take: perPage,
   })
 
   const totalPromise = db.user.count()
@@ -34,7 +31,7 @@ export const adminUserGetList = async ({
   }
 }
 
-export const adminUserGetOne = async (id: string) => {
+export const adminUserGetOne = async ({ id }: { id: string }) => {
   validateWith(checkAdmin)
 
   const data = await db.user.findFirst({

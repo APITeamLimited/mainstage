@@ -48,7 +48,7 @@ export const CollectionEditorPage = ({
     ?.get(collectionId)
   const collection = useYMap(collectionYMap || new Y.Map())
 
-  const viewportHeightReduction = 53.3
+  const viewportHeightReduction = 60.3
 
   useEffect(() => {
     // Set activeWorkspaceId to the workspaceId if different from the current workspaceId

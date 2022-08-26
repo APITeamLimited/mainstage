@@ -1,7 +1,13 @@
 import React from 'react'
 
 import MenuIcon from '@mui/icons-material/Menu'
-import { Container, Stack, Tooltip, Typography } from '@mui/material'
+import {
+  Container,
+  Stack,
+  Tooltip,
+  Typography,
+  useMediaQuery,
+} from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
@@ -19,6 +25,9 @@ interface Props {
 
 const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
   const theme = useTheme()
+  const isMd = useMediaQuery(theme.breakpoints.up('md'), {
+    defaultMatches: true,
+  })
 
   return (
     <Container
@@ -33,43 +42,44 @@ const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
         width={1}
       >
         <Stack spacing={2} direction={'row'} alignItems={'center'}>
-        <Tooltip title='Toggle Sidebar'>
-        <Box sx={{ display: 'flex' }} alignItems={'center'}>
-          <Button
-            onClick={() => onSidebarOpen()}
-            aria-label="Menu"
-            variant={'outlined'}
+          {!isMd && (
+            <Tooltip title="Toggle Sidebar">
+              <Box sx={{ display: 'flex' }} alignItems={'center'}>
+                <Button
+                  onClick={() => onSidebarOpen()}
+                  aria-label="Menu"
+                  variant={'outlined'}
+                  sx={{
+                    borderRadius: 2,
+                    minWidth: 'auto',
+                    borderColor: alpha(theme.palette.divider, 0.2),
+                  }}
+                >
+                  <MenuIcon />
+                </Button>
+              </Box>
+            </Tooltip>
+          )}
+          <Box
             sx={{
-              borderRadius: 2,
-              minWidth: 'auto',
-              padding: 1,
-              borderColor: alpha(theme.palette.divider, 0.2),
+              width: {
+                xs: 100,
+                sm: 120,
+              },
             }}
           >
-            <MenuIcon />
-          </Button>
-        </Box>
-        </Tooltip>
-        <Box
-          sx={{
-            width: {
-              xs: 100,
-              sm: 120,
-            },
-          }}
-        >
-          <Link
-            to={routes.splash()}
-            style={{
-              textDecoration: 'none',
-              color: theme.palette.text.primary,
-            }}
-          >
-            <APITeamLogo />
-          </Link>
-        </Box>
+            <Link
+              to={routes.splash()}
+              style={{
+                textDecoration: 'none',
+                color: theme.palette.text.primary,
+              }}
+            >
+              <APITeamLogo />
+            </Link>
+          </Box>
         </Stack>
-        <Stack direction='row' alignItems='center' spacing={2}>
+        <Stack direction="row" alignItems="center" spacing={2}>
           <Typography variant={'h6'} color={'textPrimary'}>
             Admin
           </Typography>

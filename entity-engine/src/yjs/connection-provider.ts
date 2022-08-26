@@ -30,10 +30,8 @@ const persistenceProvider = new RedisPersistence({
 
 export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
-
   if (postAuth === null) return
-
-  const { scope /*, jwt*/ } = postAuth
+  const { scope } = postAuth
 
   const doc = getOpenDoc(scope)
   doc.sockets.set(socket, new Set())
@@ -76,19 +74,15 @@ export const handleNewConnection = async (socket: Socket) => {
 }
 
 export const getOpenDoc = (scope: Scope): OpenDoc => {
-  return map.setIfUndefined(openDocs, scope.id, () => {
-    console.log('Creating new doc', scope.id)
+  const docName = `${scope.variant}:${scope.variantTargetId}`
+
+  return map.setIfUndefined(openDocs, docName, () => {
+    console.log('Creating new doc', docName)
     const doc = new OpenDoc(scope)
 
-    // Connect with persistence provider
-    // TODO: Figure out why throwing error when still works
-    try {
-      persistenceProvider.bindState(scope.id, doc)
-    } catch (e) {
-      console.log(e)
-    }
+    persistenceProvider.bindState(docName, doc)
 
-    openDocs.set(scope.id, doc)
+    openDocs.set(docName, doc)
     return doc
   })
 }
@@ -119,7 +113,7 @@ class OpenDoc extends Y.Doc {
     this.sockets = new Map()
     this.awareness = new awarenessProtocol.Awareness(this)
     this.awareness.setLocalState(null)
-    this.guid = scope.id
+    this.guid = `${scope.variant}:${scope.variantTargetId}`
 
     this.awareness.on(
       'update',
@@ -177,8 +171,6 @@ class OpenDoc extends Y.Doc {
       syncProtocol.writeUpdate(encoder, update)
       const message = encoding.toUint8Array(encoder)
 
-      //persistenceProvider?.writeState(this.scope.id, this)
-
       this.sockets.forEach((_, socket) => this.send(socket, message))
     })
   }
@@ -195,8 +187,6 @@ class OpenDoc extends Y.Doc {
       console.log('failed to send message from OpenDoc', e)
       this.closeSocket(socket)
     }
-
-    //persistenceProvider.writeState(this.scope.id, this)
   }
 
   // Removes a connection from a doc
@@ -205,7 +195,7 @@ class OpenDoc extends Y.Doc {
       'Removing',
       socket.id,
       'from synced doc',
-      this.scope.id,
+      this.guid,
       this.sockets.size - 1
     )
 
@@ -219,10 +209,9 @@ class OpenDoc extends Y.Doc {
         null
       )
       if (this.sockets.size === 0) {
-        //await persistenceProvider.writeState(this.scope.id, this)
-        persistenceProvider.closeDoc(this.scope.id)
-        openDocs.delete(this.scope.id)
-        console.log('Closed doc', this.scope.id)
+        persistenceProvider.closeDoc(this.guid)
+        openDocs.delete(this.guid)
+        console.log('Closed doc', this.guid)
       }
     }
 

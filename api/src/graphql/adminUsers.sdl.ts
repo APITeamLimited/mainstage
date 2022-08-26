@@ -11,8 +11,9 @@ export const schema = gql`
   }
 
   type Query {
-    adminUserGetOne(id: String!): AdminUserResponse! @requireAuth
+    adminUserGetOne(id: ID!): AdminUserResponse! @requireAuth
     adminUserGetList(page: Int, perPage: Int): AdminUsersResponse! @requireAuth
-    adminUserGetMany(ids: [String!]! page: Int, perPage: Int): AdminUsersResponse! @requireAuth
+    adminUserGetMany(ids: [ID!]!, page: Int, perPage: Int): AdminUsersResponse!
+      @requireAuth
   }
 `

@@ -76,6 +76,17 @@ export const handleNewTest = async (socket: Socket) => {
         | WorkerMessage
         | OrchestratorMessage
 
+      if (messageObject.messageType === 'STATUS') {
+        if (
+          messageObject.message === 'ERROR' ||
+          messageObject.message === 'SUCCESS'
+        ) {
+          setTimeout(() => {
+            socket.disconnect()
+          }, 1000)
+        }
+      }
+
       socket.emit('updates', messageObject)
     }
   )
@@ -127,6 +138,17 @@ export const handleCurrentTest = async (socket: Socket) => {
       const messageObject = JSON.parse(message) as
         | WorkerMessage
         | OrchestratorMessage
+
+      if (messageObject.messageType === 'STATUS') {
+        if (
+          messageObject.message === 'ERROR' ||
+          messageObject.message === 'SUCCESS'
+        ) {
+          setTimeout(() => {
+            socket.disconnect()
+          }, 1000)
+        }
+      }
 
       if (messageObject.time > latestTimestamp) {
         socket.emit('updates', messageObject)

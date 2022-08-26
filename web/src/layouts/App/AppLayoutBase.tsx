@@ -1,6 +1,6 @@
 import { createContext, useContext, useRef } from 'react'
 
-import { useTheme, useScrollTrigger, Stack } from '@mui/material'
+import { useTheme, useScrollTrigger, Stack, Box } from '@mui/material'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
@@ -15,12 +15,13 @@ type AppLayoutProps = {
   children?: React.ReactNode
   topNav?: React.ReactNode
   appBar?: React.ReactNode | null
-  footer: {
+  footer?: {
     element: React.ReactNode
-    height: string | number
+    height: {
+      xs: string | number
+      md: string | number
+    }
   }
-  disableElevationTop?: boolean
-  dividerOnTop?: boolean
 }
 
 export const AppLayoutBase = ({
@@ -29,10 +30,11 @@ export const AppLayoutBase = ({
   appBar = null,
   footer = {
     element: <></>,
-    height: 0,
+    height: {
+      xs: 0,
+      md: 0,
+    },
   },
-  disableElevationTop = false,
-  dividerOnTop = false,
 }: AppLayoutProps) => {
   const theme = useTheme()
 
@@ -55,30 +57,28 @@ export const AppLayoutBase = ({
           {appBar ? (
             topNav
           ) : (
-            <CustomAppBar
-              trigger={trigger}
-              dividerOnTop={dividerOnTop}
-              disableElevationTop={disableElevationTop}
-            >
-              {appBar}
+            <CustomAppBar trigger={trigger} disableTop={false}>
+              {topNav}
             </CustomAppBar>
           )}
           {appBar && (
-            <CustomAppBar
-              trigger={trigger}
-              disableElevationTop={disableElevationTop}
-              dividerOnTop={dividerOnTop}
-            >
+            <CustomAppBar trigger={trigger} disableTop={false}>
               {appBar}
             </CustomAppBar>
           )}
-          <main
-            style={{
-              paddingBottom: footer.height,
+          <Box
+            sx={{
+              paddingBottom: {
+                xs: footer.height.xs,
+                md: footer.height.md,
+              },
+              backgroundColor: theme.palette.background.default,
             }}
           >
-            <InnerLayout>{children}</InnerLayout>
-          </main>
+            <main>
+              <InnerLayout>{children}</InnerLayout>
+            </main>
+          </Box>
           {footer.element}
         </Stack>
       </DialogsProvider>

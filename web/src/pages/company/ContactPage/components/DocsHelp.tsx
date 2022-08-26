@@ -1,10 +1,4 @@
-import {
-  Stack,
-  Typography,
-  useTheme,
-  Button,
-  Paper,
-} from '@mui/material'
+import { Stack, Typography, useTheme, Button, Paper } from '@mui/material'
 
 import { Link as RouterLink, routes } from '@redwoodjs/router'
 
@@ -17,15 +11,22 @@ export const DocsHelp = () => {
         <Typography variant="h4">Docs</Typography>
         <Paper
           sx={{
-            backgroundColor: theme.palette.background.default,
+            backgroundColor: theme.palette.background.paper,
           }}
-
         >
           <Stack margin={2} spacing={2} alignItems="center">
-            <Typography variant="h6" color={theme.palette.text.primary} align="center">
+            <Typography
+              variant="h6"
+              color={theme.palette.text.primary}
+              align="center"
+            >
               Looking for the docs?
             </Typography>
-            <Typography variant="body1" color={theme.palette.text.secondary} align="center">
+            <Typography
+              variant="body1"
+              color={theme.palette.text.secondary}
+              align="center"
+            >
               Check out the APITeam docs to learn more about how to use our
               platform
             </Typography>
@@ -35,10 +36,7 @@ export const DocsHelp = () => {
                 textDecoration: 'none',
               }}
             >
-              <Button
-                variant="outlined"
-                color="primary"
-              >
+              <Button variant="outlined" color="primary">
                 APITeam Docs
               </Button>
             </RouterLink>
