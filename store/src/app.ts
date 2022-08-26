@@ -1,7 +1,7 @@
 import { createServer } from 'http'
 
 import { checkValue } from './config'
-import { handleScopedResource } from './handlers'
+import { retrieveScopedResource, submitScopedResource } from './handlers'
 import { requireScopedAuth } from './services'
 
 process.title = 'store'
@@ -12,15 +12,14 @@ const entityEnginePort = checkValue<number>('store.port')
 const httpServer = createServer()
 
 httpServer.addListener('request', (req, res) => {
-  if (req.url?.startsWith('/api/store')) {
-    console.log(`${new Date().toISOString()} ${req.method} ${req.url}`)
+  const endpoint = req.url?.split('?')[0].replace(/\/$/, '') || '/'
 
-    if (req.url?.startsWith('/api/store/scoped-resource')) {
-      requireScopedAuth(req, res, handleScopedResource)
-    } else {
-      res.writeHead(404, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ message: 'Not Found' }))
-    }
+  console.log(`${new Date().toISOString()} ${req.method} ${endpoint}`)
+
+  if (endpoint === '/api/store/retrieve-scoped-resource') {
+    requireScopedAuth(req, res, retrieveScopedResource)
+  } else if (endpoint === '/api/store/submit-scoped-resource') {
+    requireScopedAuth(req, res, submitScopedResource)
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ message: 'Not Found' }))

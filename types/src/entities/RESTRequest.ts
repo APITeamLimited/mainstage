@@ -1,6 +1,6 @@
 import { KeyValueItem } from '..'
 
-import { BaseEntity } from '.'
+import { BaseEntity, StoredObject } from '.'
 
 export const knownContentTypes = {
   'application/json': 'json',
@@ -76,7 +76,7 @@ type FormDataKeyValue = {
 
 type RESTReqBodyFormData = {
   contentType: 'multipart/form-data'
-  body: FormDataKeyValue[]
+  body: StoredObject<FormDataKeyValue[]>
 }
 
 export type RESTReqBody =
@@ -94,7 +94,7 @@ export type RESTReqBody =
     }
   | {
       contentType: 'application/x-www-form-urlencoded'
-      body: KeyValueItem[]
+      body: StoredObject<KeyValueItem[]>
     }
 
 export interface RESTRequest extends BaseEntity {

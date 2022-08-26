@@ -6866,6 +6866,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dotenv-webpack@npm:^7.0.3":
+  version: 7.0.3
+  resolution: "@types/dotenv-webpack@npm:7.0.3"
+  dependencies:
+    "@types/node": "*"
+    tapable: ^2.2.0
+    webpack: ^5
+  checksum: d1cacd862f0d30af7cde97f6607f6f45d8663709bfbd4bca215fded90c12deb164f545efc89fa7c1da596c9ac5cd0ccff4ed79fe65febb2e1536e628c7ea025f
+  languageName: node
+  linkType: hard
+
 "@types/draft-js@npm:^0.11.9":
   version: 0.11.9
   resolution: "@types/draft-js@npm:0.11.9"
@@ -12354,6 +12365,17 @@ __metadata:
   peerDependencies:
     webpack: ^4 || ^5
   checksum: 780bb44aaa400ccad12c47afdab5e2e4c1cba26c92d5092bacbf5233d2d81a578489b5533af9f2dc12dd311b027649ec9ba78317d445650111bdadcd66bd0d23
+  languageName: node
+  linkType: hard
+
+"dotenv-webpack@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "dotenv-webpack@npm:8.0.1"
+  dependencies:
+    dotenv-defaults: ^2.0.2
+  peerDependencies:
+    webpack: ^4 || ^5
+  checksum: ddd12406e7b27a9f324110d34ddf6efdf386f8f6dbbf903cb74b63ed582c28262197eadca4e20cdee55d1e427cc4acd47c9dadd38bfc49219ae215d0b688c2e8
   languageName: node
   linkType: hard
 
@@ -27060,15 +27082,18 @@ __metadata:
     "@redwoodjs/forms": 2.0.0
     "@redwoodjs/router": 2.0.0
     "@redwoodjs/web": 2.0.0
+    "@types/dotenv-webpack": ^7.0.3
     "@types/draft-js": ^0.11.9
     "@types/httpsnippet": ^1.23.1
     "@xml-tools/parser": ^1.0.11
     apollo3-cache-persist: ^0.14.1
     axios: ^0.27.2
     buffer: ^6.0.3
+    dotenv-webpack: ^8.0.1
     draft-js: ^0.11.7
     draft-js-plugins-editor: ^3.0.0
     draft-js-single-line-plugin: ^2.0.5
+    form-data: ^4.0.0
     formik: ^2.2.9
     http-status-codes: ^2.2.0
     https-proxy-agent: ^5.0.1

@@ -1,10 +1,11 @@
 import { io } from 'socket.io-client'
-import { AcceptibleMessages } from 'types/src'
+import { GlobeTestMessage } from 'types/src'
 
 import {
   BaseJob,
   ExecutingJob,
-  PendingJob,
+  jobQueueVar,
+  PendingLocalJob,
   QueuedJob,
   updateFilterQueue,
 } from './lib'
@@ -35,7 +36,7 @@ const getUrl = () => {
 
 type ExecuteArgs = {
   queueRef: React.MutableRefObject<QueuedJob[] | null>
-  job: BaseJob & PendingJob
+  job: BaseJob & PendingLocalJob
   rawBearer: string
 }
 
@@ -59,18 +60,16 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
       reconnection: false,
     })
 
-    socket.on('updates', (message: AcceptibleMessages) => {
-      addMessageToJob(queueRef, job, message)
-      console.log(
-        new Date(),
-        'updates',
-        message.messageType === 'CONSOLE' || message.messageType === 'RESULTS'
-          ? { ...message, message: JSON.parse(message.message) }
-          : message
-      )
+    socket.on('updates', (message) => {
+      const parsedMessage = parseMessage(message)
+      addMessageToJob(queueRef, job, parsedMessage)
+      console.log(new Date(), 'updates', parsedMessage)
 
-      if (message.messageType === 'STATUS') {
-        if (message.message === 'ERROR' || message.message === 'SUCCESS') {
+      if (parsedMessage.messageType === 'STATUS') {
+        if (
+          parsedMessage.message === 'FAILED' ||
+          parsedMessage.message === 'SUCCESS'
+        ) {
           setTimeout(() => {
             socket.disconnect()
           }, 1000)
@@ -87,17 +86,27 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
 const addMessageToJob = (
   queueRef: React.MutableRefObject<QueuedJob[] | null>,
   job: QueuedJob,
-  message: AcceptibleMessages
+  parsedMessage: GlobeTestMessage
 ) => {
-  const newJob = { ...job } as BaseJob & ExecutingJob
-  newJob.messages = [...job.messages, message]
+  const newJob = job as QueuedJob
+  newJob.messages.push(parsedMessage)
 
-  // If orchestrator message and job not set executing, get job id from it
-  // Worker messages have different jobIds as they are sub-jobs
-  if (Object(message).orchestratorId && !newJob.id) {
-    newJob.jobStatus = 'executing'
-    newJob.id = message.jobId
+  if (parsedMessage.messageType === 'STATUS') {
+    newJob.jobStatus = parsedMessage.message
   }
 
-  updateFilterQueue(queueRef.current || [], [newJob])
+  jobQueueVar(updateFilterQueue(queueRef.current || [], [newJob]))
+}
+
+/*
+Parses some json so output in correct type
+*/
+const parseMessage = (message: any) => {
+  const parsedMessage = message as GlobeTestMessage
+
+  if (message.messageType === 'METRICS' || message.messageType === 'TAG') {
+    parsedMessage.message = JSON.parse(message.message)
+  }
+
+  return parsedMessage
 }

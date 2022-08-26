@@ -34,12 +34,11 @@ export const GlobeTestProvider = () => {
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
   const workspaces = useReactiveVar(workspacesVar)
+  const jobQueue = useReactiveVar(jobQueueVar)
   const queueRef = useRef<QueuedJob[] | null>(null)
 
   // Requried for up to date state in callback
-  queueRef.current = useReactiveVar(jobQueueVar)
-
-  const jobQueue = useReactiveVar(jobQueueVar)
+  queueRef.current = jobQueue
 
   // Get bearer token from gql query
   const { data, error } = useQuery<GetBearerPubkeyScopes>(
@@ -73,15 +72,34 @@ export const GlobeTestProvider = () => {
     }
 
     jobQueue.forEach((job) => {
-      if (job.jobStatus === 'pending') {
+      if (job.jobStatus === 'LOCAL_CREATING') {
         jobQueueVar(
-          updateFilterQueue(jobQueue, [{ ...job, jobStatus: 'starting' }])
+          updateFilterQueue(jobQueue, [
+            { ...job, jobStatus: 'LOCAL_SUBMITTING' },
+          ])
         )
 
         const didExecute = execute({ queueRef, job, rawBearer })
         if (!didExecute) {
           throw new Error('Failed to execute job')
         }
+      }
+    })
+  }, [jobQueue, rawBearer])
+
+  // Scan for finished jobs and process their results
+  useEffect(() => {
+    if (rawBearer === '' || rawBearer === null) {
+      // No bearer token, skipping execution
+      return
+    }
+
+    jobQueue.forEach((job) => {
+      if (job.jobStatus === 'FAILED' || job.jobStatus === 'SUCCESS') {
+        console.log('YEET')
+        const newJob = job as QueuedJob
+        newJob.jobStatus = 'POST_PROCESSING'
+        jobQueueVar(updateFilterQueue(jobQueue, [newJob]))
       }
     })
   }, [jobQueue, rawBearer])

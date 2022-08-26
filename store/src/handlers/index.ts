@@ -1,1 +1,2 @@
-export * from './handle-scoped-resource'
+export * from './retrieve-scoped-resource'
+export * from './submit-scoped-resource'

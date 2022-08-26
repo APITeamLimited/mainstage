@@ -60,8 +60,6 @@ export const handleNewTest = async (socket: Socket) => {
     status: 'PENDING',
   }
 
-  console.log('newJob', newJob)
-
   await Promise.all(
     Object.entries(newJob).map(([key, value]) =>
       orchestratorReadRedis.hSet(newJob.id, key, value)

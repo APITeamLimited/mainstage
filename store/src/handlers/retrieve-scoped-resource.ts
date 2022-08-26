@@ -6,10 +6,16 @@ import * as queryString from 'query-string'
 import { mongoDB } from '../mongo'
 import { findScope } from '../services'
 
-export const handleScopedResource = async (
+export const retrieveScopedResource = async (
   req: IncomingMessage,
   res: ServerResponse
 ) => {
+  if (req.method !== 'GET') {
+    res.writeHead(405, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ message: 'Method Not Allowed' }))
+    return
+  }
+
   const queryParams = queryString.parse(req.url?.split('?')[1] || '')
   const scopeId = queryParams.scopeId?.toString()
   const resourceId = queryParams.resourceId?.toString()

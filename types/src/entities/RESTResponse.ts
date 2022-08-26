@@ -1,3 +1,5 @@
+import { GlobeTestMessage, StoredObject } from '..'
+
 import { RESTRequest } from './RESTRequest'
 
 import { BaseEntity } from '.'
@@ -7,7 +9,7 @@ type DiscreteResults =
   | {
       type: 'Fail'
       headers: { key: string; value: string | string[] }[]
-      body: ArrayBuffer
+      body: StoredObject<ArrayBuffer>
       statusCode: number
 
       meta: {
@@ -30,7 +32,7 @@ type DiscreteResults =
   | {
       type: 'Success'
       headers: { key: string; value: string | string[] }[]
-      body: ArrayBuffer
+      body: StoredObject<ArrayBuffer>
       statusCode: number
       meta: {
         responseSize: number // in bytes
@@ -45,5 +47,6 @@ export interface RESTResponse extends BaseEntity {
   parentId: string
   __parentTypename: 'RESTRequest'
   name: string
+  globeTestLogs: StoredObject<GlobeTestMessage[]>
   discreteResults: DiscreteResults
 }

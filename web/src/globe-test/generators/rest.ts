@@ -2,7 +2,7 @@ import * as queryString from 'query-string'
 import { RESTRequest, Environment } from 'types/src'
 import { v4 as uuid } from 'uuid'
 
-import { BaseJob, jobQueueVar, PendingJob, QueuedJob } from '../lib'
+import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
 import { getFinalRequest } from '../rest'
 
 /*
@@ -18,7 +18,7 @@ export const singleRESTRequestGenerator = ({
   scopeId: string
   activeEnvironment: Environment | null
   jobQueue: QueuedJob[]
-}): BaseJob & PendingJob => {
+}): BaseJob & PendingLocalJob => {
   const axiosConfig = getFinalRequest(request, activeEnvironment)
   const sourceName = 'rest-single.js'
 
@@ -26,6 +26,7 @@ export const singleRESTRequestGenerator = ({
 
   const source = `import http from 'k6/http';
   import { tag } from 'apiteam';
+  import { sleep } from 'k6';
 
   export default function() {
     const req = {
@@ -37,23 +38,17 @@ export const singleRESTRequestGenerator = ({
       }
     }
 
-    const startTime = new Date().toISOString();
     const res = http.request(...Object.values(req));
-    const endTime = new Date().toISOString();
 
-    tag("Res", {
-      startTime: startTime,
-      endTime: endTime,
-      res,
-    });
+    tag("RESTResult", res);
   }`
 
-  const job: BaseJob & PendingJob = {
+  const job: BaseJob & PendingLocalJob = {
     localId: uuid(),
     agent: 'GlobeTest',
     underlyingRequest: request,
     createdAt: new Date(),
-    jobStatus: 'pending',
+    jobStatus: 'LOCAL_CREATING',
     source,
     sourceName,
     scopeId,

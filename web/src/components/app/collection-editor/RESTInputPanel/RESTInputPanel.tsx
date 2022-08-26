@@ -121,7 +121,6 @@ export const RESTInputPanel = ({
     requestYMap.set('method', unsavedRequestMethod)
     requestYMap.set('auth', unsavedAuth)
     setNeedSave(false)
-    console.log('Saved request')
   }
 
   const handleSaveAs = (newName: string) => {

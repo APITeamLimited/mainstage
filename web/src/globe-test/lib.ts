@@ -1,7 +1,5 @@
 import { makeVar } from '@apollo/client'
-import { RESTRequest, AcceptibleMessages } from 'types/src'
-import { v4 as uuid } from 'uuid'
-
+import { RESTRequest, GlobeTestMessage, StatusType } from 'types/src'
 export type BaseJob = {
   // Don't trust end client to create UUIDs so these are clientside only
   localId: string
@@ -12,23 +10,25 @@ export type BaseJob = {
   scopeId: string
   source: string
   sourceName: string
-  messages: AcceptibleMessages[]
+  messages: GlobeTestMessage[]
 }
 
-export type PendingJob = {
-  jobStatus: 'pending'
-}
-
-export type StartingJob = {
-  jobStatus: 'starting'
+export type PendingLocalJob = {
+  jobStatus: 'LOCAL_CREATING' | 'LOCAL_SUBMITTING'
 }
 
 export type ExecutingJob = {
-  jobStatus: 'executing'
+  jobStatus: StatusType
   id: string
 }
 
-export type QueuedJob = BaseJob & (StartingJob | PendingJob | ExecutingJob)
+export type PostExecutionJob = {
+  jobStatus: 'POST_PROCESSING' | 'COMPLETE'
+  id: string
+}
+
+export type QueuedJob = BaseJob &
+  (PendingLocalJob | ExecutingJob | PostExecutionJob)
 
 const initialQueue: QueuedJob[] = []
 
@@ -40,6 +40,7 @@ export const updateFilterQueue = (
   updatedJobs: QueuedJob[]
 ) => {
   const idArray = updatedJobs.map((job) => job.localId)
+
   // Filter queues to see if job id in updatedJobs
   const nonUpdatedJobs = oldQueue.filter(
     (job) => !idArray.includes(job.localId)
