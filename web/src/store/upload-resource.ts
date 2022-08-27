@@ -7,28 +7,26 @@ const storeUrl =
 
 type UploadResourceType = {
   scopeId: string
-  token: string
+  rawBearer: string
   resource: Blob
   resourceName: string
 }
 
 export const uploadResource = async ({
   scopeId,
-  token,
+  rawBearer,
   resource,
   resourceName,
 }: UploadResourceType) => {
   const form = new FormData()
   form.append(resourceName, resource, resourceName)
 
-  console.log('storeUrl', storeUrl)
-
   const response = await axios({
     url: `${storeUrl}/submit-scoped-resource`,
     method: 'post',
     data: form,
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${rawBearer}`,
       'Content-Type': 'multipart/form-data',
     },
     params: {
@@ -36,11 +34,11 @@ export const uploadResource = async ({
     },
   })
 
-  if (response.status !== 200) {
+  if (response.status !== 201) {
     throw new Error(response.data)
   }
 
-  const storeReceipt = response.data[resourceName]
+  const storeReceipt = response.data.filename
 
   if (!storeReceipt) {
     throw new Error('No store receipt')

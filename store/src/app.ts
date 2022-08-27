@@ -1,5 +1,7 @@
 import { createServer } from 'http'
 
+import { Color } from 'colorterm'
+
 import { checkValue } from './config'
 import { retrieveScopedResource, submitScopedResource } from './handlers'
 import { requireScopedAuth } from './services'
@@ -42,16 +44,22 @@ httpServer.addListener('request', (req, res) => {
 // Every minute print memory usage and number of connections
 setInterval(() => {
   console.log(
-    `\x1b[32m${new Date().toISOString()} Memory: ${(
-      process.memoryUsage().heapUsed /
-      1000 /
-      1000
-    ).toFixed(2)}MB\x1b[0m`
+    Color(
+      `${new Date().toISOString()} Memory: ${(
+        process.memoryUsage().heapUsed /
+        1000 /
+        1000
+      ).toFixed(2)}MB`,
+      '#988adb'
+    )
   )
 }, 60000)
 
 httpServer.listen(storePort, storeHost, () => {
   console.log(
-    `\x1b[31m\n\nAPITeam Store Listening at ${storeHost}:${storePort}\n\n\x1b[0m`
+    Color(
+      `\n\nAPITeam Store Listening at ${storeHost}:${storePort}\n\n`,
+      '#ade823'
+    )
   )
 })

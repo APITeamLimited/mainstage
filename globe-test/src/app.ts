@@ -1,5 +1,6 @@
 import { createServer } from 'http'
 
+import { Color } from 'colorterm'
 import queryString from 'query-string'
 import { Server } from 'socket.io'
 
@@ -66,16 +67,20 @@ io.use(async (socket, next) => {
 // Every minute print memory usage and number of connections
 setInterval(() => {
   console.log(
-    `\x1b[36m${new Date().toISOString()} Connections: ${
-      io.engine.clientsCount
-    } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
-      2
-    )}MB\x1b[0m`
+    Color(
+      `${new Date().toISOString()} Connections: ${
+        io.engine.clientsCount
+      } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(2)}MB`,
+      '#54ff71'
+    )
   )
 }, 60000)
 
 httpServer.listen(globeTestPort, globeTestHost, () => {
   console.log(
-    `\x1b[31m\n\nAPITeam GlobeTest Manager Listening at ${globeTestHost}:${globeTestPort}${io.path()}\n\n\x1b[0m`
+    Color(
+      `\n\nAPITeam GlobeTest Manager Listening at ${globeTestHost}:${globeTestPort}${io.path()}\n\n`,
+      '#f531ca'
+    )
   )
 })

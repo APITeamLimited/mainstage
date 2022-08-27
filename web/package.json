@@ -29,6 +29,7 @@
     "@redwoodjs/web": "2.0.0",
     "@types/dotenv-webpack": "^7.0.3",
     "@types/httpsnippet": "^1.23.1",
+    "@types/k6": "^0.37.1",
     "@xml-tools/parser": "^1.0.11",
     "apollo3-cache-persist": "^0.14.1",
     "axios": "^0.27.2",

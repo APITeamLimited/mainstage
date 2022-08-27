@@ -11,6 +11,9 @@ export type BaseJob = {
   source: string
   sourceName: string
   messages: GlobeTestMessage[]
+  projectId: string
+  branchId: string
+  collectionId: string
 }
 
 export type PendingLocalJob = {

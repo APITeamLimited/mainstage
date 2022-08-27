@@ -10,6 +10,7 @@ export type KeyValueItem = {
 }
 
 export type StoredObject<T> = {
+  __typename: 'StoredObject'
   storeReceipt: string
   data: T | null
 }

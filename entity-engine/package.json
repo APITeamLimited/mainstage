@@ -4,6 +4,7 @@
   "description": "APITeam Entity Engine",
   "dependencies": {
     "@apollo/client": "^3.6.9",
+    "colorterm": "^1.0.0",
     "config": "^3.3.7",
     "ioredis": "^5.2.2",
     "jsonwebtoken": "^8.5.1",

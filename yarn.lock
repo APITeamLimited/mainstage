@@ -7135,6 +7135,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/k6@npm:^0.37.1":
+  version: 0.37.1
+  resolution: "@types/k6@npm:0.37.1"
+  checksum: a5af21e0d1d86e151ae999a952671db80e3e467fd3af0a2ff0f6528e5aed62e8f1d4c4f11c422809476eff86a6f9792723597b5852df97808ca5ecdb6aba7a78
+  languageName: node
+  linkType: hard
+
 "@types/keyv@npm:^3.1.1":
   version: 3.1.4
   resolution: "@types/keyv@npm:3.1.4"
@@ -10766,6 +10773,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"colorterm@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "colorterm@npm:1.0.0"
+  checksum: 61e6bed730e57d61f2f037b5e4507d642080d912a0464a65592e7debb21ae767b78a6f97fb8882c6f286b124d9dcb0d2497991868429c7574b0ad492ab0edc20
+  languageName: node
+  linkType: hard
+
 "combined-stream@npm:^1.0.8":
   version: 1.0.8
   resolution: "combined-stream@npm:1.0.8"
@@ -12731,6 +12745,7 @@ __metadata:
     "@types/jsonwebtoken": ^8.5.8
     "@types/node": ^18.0.6
     "@types/ws": ^8.5.3
+    colorterm: ^1.0.0
     config: ^3.3.7
     ioredis: ^5.2.2
     jsonwebtoken: ^8.5.1
@@ -15233,6 +15248,7 @@ __metadata:
     "@types/jsonwebtoken": ^8.5.8
     "@types/node": ^18.0.6
     "@types/ws": ^8.5.3
+    colorterm: ^1.0.0
     config: ^3.3.7
     ioredis: ^5.2.2
     jsonwebtoken: ^8.5.1
@@ -24858,6 +24874,7 @@ __metadata:
     "@types/node": ^18.0.6
     "@types/ws": ^8.5.3
     busboy: ^1.6.0
+    colorterm: ^1.0.0
     config: ^3.3.7
     ioredis: ^5.2.2
     jsonwebtoken: ^8.5.1
@@ -27096,6 +27113,7 @@ __metadata:
     "@types/dotenv-webpack": ^7.0.3
     "@types/draft-js": ^0.11.9
     "@types/httpsnippet": ^1.23.1
+    "@types/k6": ^0.37.1
     "@xml-tools/parser": ^1.0.11
     apollo3-cache-persist: ^0.14.1
     axios: ^0.27.2

@@ -1,23 +1,38 @@
-import { GlobeTestMessage, StoredObject } from '..'
+import { Response } from 'k6/http'
+
+import { DefaultMetrics, GlobeTestMessage, StoredObject } from '..'
 
 import { RESTRequest } from './RESTRequest'
 
 import { BaseEntity } from '.'
 
+export type SuccessDiscreteResult = {
+  type: 'Success'
+  statusCode: number
+  meta: {
+    responseSize: number // in bytes
+    responseDuration: number // in millis
+  }
+  globeTestLogs: StoredObject<GlobeTestMessage[]>
+  response: StoredObject<Response>
+  metrics: StoredObject<DefaultMetrics>
+}
+
+export type FailureDiscreteResult = {
+  type: 'Fail'
+  statusCode: number
+  meta: {
+    responseSize: number // in bytes
+    responseDuration: number // in millis
+  }
+  globeTestLogs: StoredObject<GlobeTestMessage[]>
+  response: StoredObject<Response>
+  metrics: StoredObject<DefaultMetrics>
+}
+
 type DiscreteResults =
   | { type: 'Loading'; request: RESTRequest }
-  | {
-      type: 'Fail'
-      headers: { key: string; value: string | string[] }[]
-      body: StoredObject<ArrayBuffer>
-      statusCode: number
-      globeTestLogs: StoredObject<GlobeTestMessage[]>
-      meta: {
-        responseSize: number // in bytes
-        responseDuration: number // in millis
-      }
-      request: RESTRequest
-    }
+  | FailureDiscreteResult
   | {
       type: 'NetworkFail'
       error: Error
@@ -28,24 +43,13 @@ type DiscreteResults =
       type: 'ScriptFail'
       error: Error
     }
-  | {
-      type: 'Success'
-      headers: { key: string; value: string | string[] }[]
-      body: StoredObject<ArrayBuffer>
-      statusCode: number
-      meta: {
-        responseSize: number // in bytes
-        responseDuration: number // in millis
-      }
-      globeTestLogs: StoredObject<GlobeTestMessage[]>
-      request: RESTRequest
-    }
+  | SuccessDiscreteResult
 
 export interface RESTResponse extends BaseEntity {
   __typename: 'RESTResponse'
   parentId: string
   __parentTypename: 'RESTRequest'
   name: string
-
+  endpoint: string
   discreteResults: DiscreteResults
 }

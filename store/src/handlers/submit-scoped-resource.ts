@@ -73,8 +73,8 @@ export const submitScopedResource = async (
       res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders })
       res.end(
         JSON.stringify({
-          message: 'File already exists in scope',
-          detail: `File ${filename} already exists in scope ${scopeId}`,
+          message: 'File already exists in workspace',
+          detail: `File ${filename} already exists in workspace ${bucketName}`,
         })
       )
       return

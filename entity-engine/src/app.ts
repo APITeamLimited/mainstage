@@ -1,5 +1,6 @@
 import { createServer } from 'http'
 
+import { Color } from 'colorterm'
 import { Server } from 'socket.io'
 
 import { checkValue } from './config'
@@ -41,16 +42,20 @@ io.on('connection', async (socket) => {
 // Every minute print memory usage and number of connections
 setInterval(() => {
   console.log(
-    `\x1b[33m${new Date().toISOString()} Connections: ${
-      io.engine.clientsCount
-    } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
-      2
-    )}MB\x1b[0m`
+    Color(
+      `${new Date().toISOString()} Connections: ${
+        io.engine.clientsCount
+      } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(2)}MB`,
+      '#70c289'
+    )
   )
 }, 60000)
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {
   console.log(
-    `\x1b[34m\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n\x1b[0m`
+    Color(
+      `\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n`,
+      '#d11515'
+    )
   )
 })

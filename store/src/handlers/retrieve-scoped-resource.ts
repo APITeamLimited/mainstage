@@ -50,7 +50,12 @@ export const retrieveScopedResource = async (
 
   if (!exists) {
     res.writeHead(404, { 'Content-Type': 'application/json', ...corsHeaders })
-    res.end(JSON.stringify({ message: 'Not Found' }))
+    res.end(
+      JSON.stringify({
+        message: 'File not found in workspace',
+        detail: `File ${filename} not found in workspace ${bucketName}`,
+      })
+    )
     return
   }
 

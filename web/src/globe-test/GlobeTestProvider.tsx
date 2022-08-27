@@ -4,7 +4,7 @@ import { useReactiveVar } from '@apollo/client'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import * as Y from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYDoc, useYMap } from 'zustand-yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
@@ -14,6 +14,7 @@ import {
   useEnvironmentsYMap,
 } from 'src/contexts/EnvironmentProvider'
 import { activeEnvironmentVar, workspacesVar } from 'src/contexts/reactives'
+import { useWorkspace } from 'src/entity-engine'
 import {
   Bearer,
   GET_BEARER_PUBKEY__SCOPES_QUERY,
@@ -28,7 +29,6 @@ export const GlobeTestProvider = () => {
   const { isAuthenticated } = useAuth()
   const [rawBearer, setRawBearer] = useState<string | null>(null)
   const [bearerExpiry, setBearerExpiry] = useState<number>(0)
-
   const environmentsYMap = useEnvironmentsYMap()
   const allActiveEnvironmentsDict = useReactiveVar(activeEnvironmentVar)
   const environments = useYMap(environmentsYMap || new Y.Map())
@@ -37,6 +37,8 @@ export const GlobeTestProvider = () => {
   const workspaces = useReactiveVar(workspacesVar)
   const jobQueue = useReactiveVar(jobQueueVar)
   const queueRef = useRef<QueuedJob[] | null>(null)
+
+  const workspace = useWorkspace()
 
   // Requried for up to date state in callback
   queueRef.current = jobQueue
@@ -97,7 +99,8 @@ export const GlobeTestProvider = () => {
 
     jobQueue.forEach((job) => {
       if (job.jobStatus === 'FAILED' || job.jobStatus === 'SUCCESS') {
-        postProcessRESTRequest({ queueRef, job, rawBearer })
+        if (!workspace) throw new Error('No workspace')
+        postProcessRESTRequest({ queueRef, job, rawBearer, workspace })
       }
     })
   }, [jobQueue, rawBearer])
