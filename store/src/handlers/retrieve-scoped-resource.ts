@@ -46,9 +46,9 @@ export const retrieveScopedResource = async (
   const bucket = new GridFSBucket(mongoDB, { bucketName })
 
   // Check if the resourceId exists in bucket
-  const exists = bucket.find({ filename }).hasNext()
+  const file = bucket.find({ filename })
 
-  if (!exists) {
+  if (!file.hasNext()) {
     res.writeHead(404, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(
       JSON.stringify({
@@ -59,18 +59,26 @@ export const retrieveScopedResource = async (
     return
   }
 
+  // Get mime type from file
+  //const mimeType = await file.next().then((file) => file.contentType)
+
   res.writeHead(200, {
     'Content-Type': 'application/octet-stream',
     ...corsHeaders,
   })
 
+  //console.log(
+  //  'loading file' + filename + ' from workspace ' + bucketName + '...'
+  //)
+
   const stream = bucket
     .openDownloadStreamByName(filename)
-    .on('error', () => {
-      res.writeHead(500)
+    .on('error', (err) => {
+      //res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
+      console.log(err)
       res.end()
     })
-    .on('finish', () => {
+    .on('end', () => {
       res.end()
     })
 

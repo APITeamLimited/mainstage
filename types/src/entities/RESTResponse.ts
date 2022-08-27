@@ -4,8 +4,6 @@ import { DefaultMetrics, GlobeTestMessage, StoredObject } from '..'
 
 import { RESTRequest } from './RESTRequest'
 
-import { BaseEntity } from '.'
-
 export type SuccessDiscreteResult = {
   type: 'Success'
   statusCode: number

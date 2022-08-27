@@ -75,8 +75,6 @@ export const CollectionEditorPage = ({
     return <Container>Collection with id {collectionId} not found</Container>
   }
 
-  console.log('showRightAside', showRightAside)
-
   return (
     <div
       style={{
@@ -168,11 +166,11 @@ export const CollectionEditorPage = ({
                       overflow: 'hidden',
                     }}
                   >
-                    {/*focusedElementDict[
-                        getFocusedElementKey(collectionYMap)
-                      ]?.get('__typename') === 'RESTRequest' && (
-                        <RESTResponsePanel collectionYMap={collectionYMap} />
-                      )*/}
+                    {focusedElementDict[
+                      getFocusedElementKey(collectionYMap)
+                    ]?.get('__typename') === 'RESTRequest' && (
+                      <RESTResponsePanel collectionYMap={collectionYMap} />
+                    )}
                   </Paper>
                 </div>
               </ReflexElement>
@@ -193,7 +191,7 @@ export const CollectionEditorPage = ({
             style={{
               minWidth: showRightAside ? '300px' : '50px',
               maxWidth: showRightAside ? '1000px' : '50px',
-              minWidth: '50px',
+              overflow: 'hidden',
             }}
             minSize={showRightAside ? 300 : 50}
             maxSize={showRightAside ? 1000 : 50}

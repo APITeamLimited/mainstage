@@ -66,6 +66,9 @@ const ScopesContext = createContext<GetBearerPubkeyScopes['scopes'] | null>(
 )
 export const useScopes = () => useContext(ScopesContext)
 
+const RawBearerContext = createContext<string | null>(null)
+export const useRawBearer = () => useContext(RawBearerContext)
+
 type SyncReadyStatus = {
   socketioProvider: PossibleSyncStatus
   indexeddbProvider: PossibleSyncStatus
@@ -234,7 +237,9 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       >
         <DocContext.Provider value={doc}>
           <ScopesContext.Provider value={scopes}>
-            {children}
+            <RawBearerContext.Provider value={rawBearer}>
+              {children}
+            </RawBearerContext.Provider>
           </ScopesContext.Provider>
         </DocContext.Provider>
       </SyncReadyContext.Provider>

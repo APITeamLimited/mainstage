@@ -5,44 +5,36 @@ const storeUrl =
     ? `${process.env['GATEWAY_URL']}/api/store`
     : `http://${process.env['STORE_HOST']}:${process.env['STORE_PORT']}/api/store`
 
-type UploadResourceArgs = {
+type RetrieveResourceArgs = {
   scopeId: string
   rawBearer: string
-  resource: Blob
   resourceName: string
 }
 
-export const uploadResource = async ({
+export const retrieveScopedResource = async ({
   scopeId,
   rawBearer,
-  resource,
   resourceName,
-}: UploadResourceArgs) => {
-  const form = new FormData()
-  form.append(resourceName, resource, resourceName)
-
+}: RetrieveResourceArgs) => {
   const response = await axios({
-    url: `${storeUrl}/submit-scoped-resource`,
-    method: 'post',
-    data: form,
+    url: `${storeUrl}/retrieve-scoped-resource`,
+    method: 'get',
     headers: {
       Authorization: `Bearer ${rawBearer}`,
       'Content-Type': 'multipart/form-data',
     },
     params: {
       scopeId,
+      filename: resourceName,
     },
   })
 
-  if (response.status !== 201) {
-    throw new Error(response.data)
+  if (response.status !== 200) {
+    throw new Error(response.statusText)
   }
 
-  const storeReceipt = response.data.filename
-
-  if (!storeReceipt) {
-    throw new Error('No store receipt')
+  return {
+    data: response.data,
+    contentType: response.headers['content-type'].split(';')[0],
   }
-
-  return storeReceipt as string
 }

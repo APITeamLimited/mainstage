@@ -185,7 +185,7 @@ const uploadResponse = async (
   rawBearer: string,
   responseId: string
 ): Promise<StoredObject<Response>> => {
-  const blob = new Blob([response as unknown as BlobPart], {
+  const blob = new Blob([JSON.stringify(response)], {
     type: 'application/json',
   })
 
@@ -209,7 +209,7 @@ const uploadMetrics = async (
   rawBearer: string,
   responseId: string
 ): Promise<StoredObject<DefaultMetrics>> => {
-  const blob = new Blob([metrics as unknown as BlobPart], {
+  const blob = new Blob([JSON.stringify(metrics)], {
     type: 'application/json',
   })
 

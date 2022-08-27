@@ -13,9 +13,8 @@ import {
 
 type HeadersPanelProps = {
   headers: {
-    key: string
-    value: string | string[]
-  }[]
+    [name: string]: string
+  }
 }
 
 export const HeadersPanel = ({ headers }: HeadersPanelProps) => {
@@ -43,21 +42,21 @@ export const HeadersPanel = ({ headers }: HeadersPanelProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {headers.map((header, index) => (
+            {Object.entries(headers).map(([key, value], index) => (
               <TableRow key={index}>
                 <TableCell
                   sx={{
                     width: '50%',
                   }}
                 >
-                  {header.key}
+                  {key}
                 </TableCell>
                 <TableCell
                   sx={{
                     width: '50%',
                   }}
                 >
-                  {header.value.toString()}
+                  {value.toString()}
                 </TableCell>
               </TableRow>
             ))}
