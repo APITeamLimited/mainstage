@@ -22,6 +22,7 @@ import {
 
 import { execute } from './execution'
 import { jobQueueVar, QueuedJob, updateFilterQueue } from './lib'
+import { postProcessRESTRequest } from './post-processors'
 
 export const GlobeTestProvider = () => {
   const { isAuthenticated } = useAuth()
@@ -96,10 +97,7 @@ export const GlobeTestProvider = () => {
 
     jobQueue.forEach((job) => {
       if (job.jobStatus === 'FAILED' || job.jobStatus === 'SUCCESS') {
-        console.log('YEET')
-        const newJob = job as QueuedJob
-        newJob.jobStatus = 'POST_PROCESSING'
-        jobQueueVar(updateFilterQueue(jobQueue, [newJob]))
+        postProcessRESTRequest({ queueRef, job, rawBearer })
       }
     })
   }, [jobQueue, rawBearer])

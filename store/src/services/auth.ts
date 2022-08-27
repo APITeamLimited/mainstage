@@ -38,9 +38,8 @@ export const getAndSetAPIPublicKey = async (): Promise<string> => {
 export const verifyJWT = async (
   request: IncomingMessage
 ): Promise<JWT.Jwt | false> => {
-  const token =
-    queryString.parse(request.url?.split('?')[1] || '').bearer?.toString() ||
-    undefined
+  // Get token from Authorization header
+  const token = request.headers.authorization?.split(' ')[1] || undefined
 
   if (!token) {
     return false

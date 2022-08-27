@@ -6,8 +6,15 @@ import { requireScopedAuth } from './services'
 
 process.title = 'store'
 
-const entityEngineHost = checkValue<string>('store.host')
-const entityEnginePort = checkValue<number>('store.port')
+const storeHost = checkValue<string>('store.host')
+const storePort = checkValue<number>('store.port')
+
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': 2592000, // 30 days
+}
 
 const httpServer = createServer()
 
@@ -15,6 +22,12 @@ httpServer.addListener('request', (req, res) => {
   const endpoint = req.url?.split('?')[0].replace(/\/$/, '') || '/'
 
   console.log(`${new Date().toISOString()} ${req.method} ${endpoint}`)
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, corsHeaders)
+    res.end()
+    return
+  }
 
   if (endpoint === '/api/store/retrieve-scoped-resource') {
     requireScopedAuth(req, res, retrieveScopedResource)
@@ -37,8 +50,8 @@ setInterval(() => {
   )
 }, 60000)
 
-httpServer.listen(entityEnginePort, entityEngineHost, () => {
+httpServer.listen(storePort, storeHost, () => {
   console.log(
-    `\x1b[31m\n\nAPITeam Store Listening at ${entityEngineHost}:${entityEnginePort}\n\n\x1b[0m`
+    `\x1b[31m\n\nAPITeam Store Listening at ${storeHost}:${storePort}\n\n\x1b[0m`
   )
 })

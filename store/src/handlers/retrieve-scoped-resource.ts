@@ -3,6 +3,7 @@ import { IncomingMessage, ServerResponse } from 'http'
 import { GridFSBucket } from 'mongodb'
 import * as queryString from 'query-string'
 
+import { corsHeaders } from '../app'
 import { mongoDB } from '../mongo'
 import { findScope } from '../services'
 
@@ -11,54 +12,55 @@ export const retrieveScopedResource = async (
   res: ServerResponse
 ) => {
   if (req.method !== 'GET') {
-    res.writeHead(405, { 'Content-Type': 'application/json' })
+    res.writeHead(405, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(JSON.stringify({ message: 'Method Not Allowed' }))
     return
   }
 
   const queryParams = queryString.parse(req.url?.split('?')[1] || '')
   const scopeId = queryParams.scopeId?.toString()
-  const resourceId = queryParams.resourceId?.toString()
+  const filename = queryParams.filename?.toString()
 
   if (!scopeId) {
-    res.writeHead(500, { 'Content-Type': 'application/json' })
+    res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(JSON.stringify({ message: 'No scopeId' }))
     return
   }
 
-  if (!resourceId) {
-    res.writeHead(500, { 'Content-Type': 'application/json' })
-    res.end(JSON.stringify({ message: 'No resourceId' }))
+  if (!filename) {
+    res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
+    res.end(JSON.stringify({ message: 'No filename' }))
     return
   }
 
   const scope = await findScope(scopeId)
 
   if (!scope) {
-    res.writeHead(500, { 'Content-Type': 'application/json' })
+    res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(JSON.stringify({ message: 'No scope' }))
     return
   }
 
   const bucketName = `${scope.variant}:${scope.variantTargetId}`
 
-  const bucket = new GridFSBucket(mongoDB, {
-    bucketName: bucketName,
-  })
+  const bucket = new GridFSBucket(mongoDB, { bucketName })
 
   // Check if the resourceId exists in bucket
-  const exists = bucket.find({ filename: resourceId }).hasNext()
+  const exists = bucket.find({ filename }).hasNext()
 
   if (!exists) {
-    res.writeHead(404, { 'Content-Type': 'application/json' })
+    res.writeHead(404, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(JSON.stringify({ message: 'Not Found' }))
     return
   }
 
-  res.writeHead(200, { 'Content-Type': 'application/octet-stream' })
+  res.writeHead(200, {
+    'Content-Type': 'application/octet-stream',
+    ...corsHeaders,
+  })
 
   const stream = bucket
-    .openDownloadStreamByName(resourceId)
+    .openDownloadStreamByName(filename)
     .on('error', () => {
       res.writeHead(500)
       res.end()

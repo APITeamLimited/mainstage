@@ -11,12 +11,11 @@ type DiscreteResults =
       headers: { key: string; value: string | string[] }[]
       body: StoredObject<ArrayBuffer>
       statusCode: number
-
+      globeTestLogs: StoredObject<GlobeTestMessage[]>
       meta: {
         responseSize: number // in bytes
         responseDuration: number // in millis
       }
-
       request: RESTRequest
     }
   | {
@@ -38,7 +37,7 @@ type DiscreteResults =
         responseSize: number // in bytes
         responseDuration: number // in millis
       }
-
+      globeTestLogs: StoredObject<GlobeTestMessage[]>
       request: RESTRequest
     }
 
@@ -47,6 +46,6 @@ export interface RESTResponse extends BaseEntity {
   parentId: string
   __parentTypename: 'RESTRequest'
   name: string
-  globeTestLogs: StoredObject<GlobeTestMessage[]>
+
   discreteResults: DiscreteResults
 }

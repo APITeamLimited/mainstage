@@ -4,6 +4,7 @@ import { GlobeTestMessage } from 'types/src'
 import {
   BaseJob,
   ExecutingJob,
+  PostExecutionJob,
   jobQueueVar,
   PendingLocalJob,
   QueuedJob,
@@ -63,7 +64,6 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
     socket.on('updates', (message) => {
       const parsedMessage = parseMessage(message)
       addMessageToJob(queueRef, job, parsedMessage)
-      console.log(new Date(), 'updates', parsedMessage)
 
       if (parsedMessage.messageType === 'STATUS') {
         if (
@@ -88,8 +88,13 @@ const addMessageToJob = (
   job: QueuedJob,
   parsedMessage: GlobeTestMessage
 ) => {
-  const newJob = job as QueuedJob
+  const newJob = job as BaseJob & (ExecutingJob | PostExecutionJob)
   newJob.messages.push(parsedMessage)
+
+  // If jobId not set, set it
+  if (!newJob.jobId) {
+    newJob.jobId = parsedMessage.jobId
+  }
 
   if (parsedMessage.messageType === 'STATUS') {
     newJob.jobStatus = parsedMessage.message
@@ -101,6 +106,7 @@ const addMessageToJob = (
 /*
 Parses some json so output in correct type
 */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseMessage = (message: any) => {
   const parsedMessage = message as GlobeTestMessage
 

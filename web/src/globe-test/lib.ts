@@ -19,12 +19,12 @@ export type PendingLocalJob = {
 
 export type ExecutingJob = {
   jobStatus: StatusType
-  id: string
+  jobId: string
 }
 
 export type PostExecutionJob = {
   jobStatus: 'POST_PROCESSING' | 'COMPLETE'
-  id: string
+  jobId: string
 }
 
 export type QueuedJob = BaseJob &

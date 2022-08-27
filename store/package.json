@@ -4,6 +4,8 @@
   "description": "APITeam Store",
   "dependencies": {
     "@apollo/client": "^3.6.9",
+    "@types/busboy": "^1.5.0",
+    "busboy": "^1.6.0",
     "config": "^3.3.7",
     "ioredis": "^5.2.2",
     "jsonwebtoken": "^8.5.1",
