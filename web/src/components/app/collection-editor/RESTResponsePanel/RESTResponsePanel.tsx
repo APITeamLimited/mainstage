@@ -4,8 +4,15 @@ import { useReactiveVar } from '@apollo/client'
 import { makeVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
 import { Stack, Typography, useTheme } from '@mui/material'
+import { useYMap } from 'zustand-yjs'
 
-import { RESTResponse, localRESTResponsesVar } from 'src/contexts/reactives'
+import {
+  RESTResponse,
+  localRESTResponsesVar,
+  focusedElementVar,
+  getFocusedElementKey,
+  FocusedElementDictionary,
+} from 'src/contexts/reactives'
 
 import { CustomTabs } from '../../CustomTabs'
 
@@ -13,34 +20,61 @@ import { BodyPanel } from './BodyPanel'
 import { HeadersPanel } from './HeadersPanel'
 import { QuickStats } from './QuickStats'
 
-type RESTResponsePanelProps = {}
+type RESTResponsePanelProps = {
+  collectionYMap: Y.Map<any>
+}
 
-export const focusedResponseVar = makeVar<RESTResponse | null>(null)
+export const focusedResponseVar = makeVar<FocusedElementDictionary>({})
 
-export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
+export const updateFocusedRESTResponse = (
+  focusedResponseDict: FocusedElementDictionary,
+  focusYMap: Y.Map<any>
+) => {
+  const newName = getFocusedElementKey(focusYMap)
+
+  focusedResponseVar({
+    ...focusedResponseDict,
+    [newName]: focusYMap,
+  })
+}
+
+export const RESTResponsePanel = ({
+  collectionYMap,
+}: RESTResponsePanelProps) => {
   const theme = useTheme()
-  const focusedResponse = useReactiveVar(focusedResponseVar)
-  const localRESTResponses = useReactiveVar(localRESTResponsesVar)
-  const focusedElement = useReactiveVar(focusedElementVar)
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
+  const focusedElementDict = useReactiveVar(focusedElementVar)
+  const restResponsesYMap = collectionYMap.get('restResponses')
+  const restResponses = useYMap<any>(restResponsesYMap)
+
+  const focusedElement =
+    focusedElementDict[getFocusedElementKey(collectionYMap)]
+
+  const focusedResponse =
+    focusedResponseDict[getFocusedElementKey(collectionYMap)]
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   useEffect(() => {
     // Make sure response only filtered to current request
-    const successfulResponses = localRESTResponses.filter(
-      (response) =>
-        (response.type === 'Success' || response.type === 'Fail') &&
-        response.request?.id === focusedElement?.id &&
-        focusedElement.__typename === 'RESTRequest'
-    )
+    const successfulResponses = Array.from(restResponsesYMap.values()).filter(
+      (response: Y.Map<any>) =>
+        response.get('parentId') === focusedElement.get('id') &&
+        (response.get('type') === 'Success' ||
+          response.get('type') === 'Fail') &&
+        focusedElement.get('__typename') === 'RESTRequest'
+    ) as Y.Map<any>[]
+
+    console.log('successfulResponses', successfulResponses)
 
     if (successfulResponses.length > 0) {
-      // Get latest createdAt successful response
-      focusedResponseVar(
+      // Select latest createdAt successful response
+      updateFocusedRESTResponse(
+        focusedResponseDict,
         successfulResponses.reduce((latest, current) => {
           if (
-            new Date(latest.createdAt).getTime() <
-            new Date(current.createdAt).getTime()
+            new Date(latest.get('createdAt')).getTime() <
+            new Date(current.get('createdAt')).getTime()
           ) {
             return current
           }
@@ -48,16 +82,19 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
         })
       )
     } else {
-      focusedResponseVar(null)
+      focusedResponseVar({})
     }
-  }, [focusedElement, localRESTResponses])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedElement, restResponses])
 
   if (focusedResponse) {
     if (
-      focusedResponse?.type !== 'Success' &&
-      focusedResponse?.type !== 'Fail'
+      focusedResponse.get('type') !== 'Success' &&
+      focusedResponse.get('type') !== 'Fail'
     ) {
-      throw `Response type: ${focusedResponse?.type} invalid for RESTResponsePanel`
+      throw `Response type: ${focusedResponse.get(
+        'type'
+      )} invalid for RESTResponsePanel`
     }
   }
 
@@ -74,9 +111,11 @@ export const RESTResponsePanel = ({}: RESTResponsePanelProps) => {
       {focusedResponse ? (
         <>
           <QuickStats
-            statusCode={focusedResponse.statusCode}
-            responseTimeMilliseconds={focusedResponse.meta.responseDuration}
-            responseSizeBytes={focusedResponse.meta.responseSize}
+            statusCode={focusedResponse.get('statusCode')}
+            responseTimeMilliseconds={
+              focusedResponse.get('meta').responseDuration
+            }
+            responseSizeBytes={focusedResponse.get('meta').responseSize}
           />
           <CustomTabs
             value={activeTabIndex}

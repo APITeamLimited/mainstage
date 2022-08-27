@@ -1,13 +1,16 @@
 import { useReactiveVar } from '@apollo/client'
 import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
-
 import * as Y from 'yjs'
 
-import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+import {
+  focusedElementVar,
+  getFocusedElementKey,
+  updateFocusedElement,
+} from 'src/contexts/reactives/FocusedElement'
 
 import { EditNameInput } from '../EditNameInput'
 
-import { DropSpace } from './Node'
+import { DropSpaceType } from './Node'
 import { NodeActionButton } from './NodeActionButton'
 import { getNodeIcon } from './utils'
 
@@ -21,7 +24,7 @@ type RESTRequestNodeProps = {
   handleRename: (name: string) => void
   handleDelete: () => void
   handleDuplicate: () => void
-  dropSpace: DropSpace
+  dropSpace: DropSpaceType
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
   parentIndex: number
@@ -46,7 +49,7 @@ export const RESTRequestNode = ({
   const focusedElementDict = useReactiveVar(focusedElementVar)
 
   const isInFocus =
-    focusedElementDict[collectionYMap.get('id')]?.get('id') ===
+    focusedElementDict[getFocusedElementKey(nodeYMap)]?.get('id') ===
     nodeYMap.get('id')
 
   return (
@@ -67,15 +70,7 @@ export const RESTRequestNode = ({
         minHeight: '48px',
         paddingY: 0,
       }}
-      onClick={
-        nodeYMap.get('__typename') === 'RESTRequest'
-          ? () =>
-              focusedElementVar({
-                ...focusedElementDict,
-                [collectionYMap.get('id')]: nodeYMap,
-              })
-          : undefined
-      }
+      onClick={() => updateFocusedElement(focusedElementDict, nodeYMap)}
     >
       {!renaming && (
         <ListItemIcon

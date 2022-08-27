@@ -103,7 +103,7 @@ export const GlobeTestProvider = () => {
         postProcessRESTRequest({ queueRef, job, rawBearer, workspace })
       }
     })
-  }, [jobQueue, rawBearer])
+  }, [jobQueue, rawBearer, workspace])
 
   return <></>
 }

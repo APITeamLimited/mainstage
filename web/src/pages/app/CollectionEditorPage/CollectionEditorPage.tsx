@@ -1,23 +1,27 @@
 import React, { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Paper, useTheme, Box, Container } from '@mui/material'
+import { Paper, useTheme, Box, Container, Divider } from '@mui/material'
+import { margin } from '@mui/system'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
-import * as Y from 'yjs'
-
-import 'react-reflex/styles.css'
-
 import { Workspace } from 'types/src'
+import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { CollectionTree } from 'src/components/app/collection-editor/CollectionTree'
 import { RESTInputPanel } from 'src/components/app/collection-editor/RESTInputPanel'
+import { RESTResponsePanel } from 'src/components/app/collection-editor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collection-editor/RightAside'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
-import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+import {
+  focusedElementVar,
+  getFocusedElementKey,
+} from 'src/contexts/reactives/FocusedElement'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
+
+import 'react-reflex/styles.css'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -71,6 +75,8 @@ export const CollectionEditorPage = ({
     return <Container>Collection with id {collectionId} not found</Container>
   }
 
+  console.log('showRightAside', showRightAside)
+
   return (
     <div
       style={{
@@ -113,70 +119,66 @@ export const CollectionEditorPage = ({
             }}
           />
           <ReflexElement minSize={500} flex={1}>
-            <div style={{ height: '100%', width: '100%' }}>
-              <ReflexContainer orientation="horizontal" windowResizeAware>
-                <ReflexElement>
-                  <div
-                    style={{
-                      height: '100%',
-                      width: '100%',
-                    }}
-                  >
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        // Set height to inputPanelHeightRefs height
-                        height: '100%',
-                        borderRadius: 0,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {focusedElementDict[collectionId]?.get?.('__typename') ===
-                        'RESTRequest' && (
-                        <RESTInputPanel
-                          requestId={focusedElementDict[collectionId]?.get(
-                            'id'
-                          )}
-                          collectionYMap={collectionYMap}
-                          // Key is required to force a re-render when the request changes
-                          key={focusedElementDict[collectionId]?.get('id')}
-                        />
-                      )}
-                    </Paper>
-                  </div>
-                </ReflexElement>
-                <ReflexSplitter
-                  style={{
-                    height: 8,
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                  }}
-                />
-                <ReflexElement
-                  style={{
-                    minWidth: '200px',
+            <ReflexContainer orientation="horizontal" windowResizeAware>
+              <ReflexElement>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    // Set height to inputPanelHeightRefs height
+                    height: '100%',
+                    borderRadius: 0,
                     overflow: 'hidden',
                   }}
                 >
-                  <div style={{ height: '100%' }}>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        borderRadius: 0,
-                        height: '100%',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {/*focusedElementDict?.__typename === 'RESTRequest' && (
-                      <RESTResponsePanel />
-                    )*/}
-                    </Paper>
-                  </div>
-                </ReflexElement>
-              </ReflexContainer>
-            </div>
+                  {focusedElementDict[
+                    getFocusedElementKey(collectionYMap)
+                  ]?.get?.('__typename') === 'RESTRequest' && (
+                    <RESTInputPanel
+                      requestId={focusedElementDict[
+                        getFocusedElementKey(collectionYMap)
+                      ]?.get('id')}
+                      collectionYMap={collectionYMap}
+                      // Key is required to force a re-render when the request changes
+                      key={focusedElementDict[
+                        getFocusedElementKey(collectionYMap)
+                      ]?.get('id')}
+                    />
+                  )}
+                </Paper>
+              </ReflexElement>
+              <ReflexSplitter
+                style={{
+                  height: 8,
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                }}
+              />
+              <ReflexElement
+                style={{
+                  minWidth: '200px',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ height: '100%' }}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      borderRadius: 0,
+                      height: '100%',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {/*focusedElementDict[
+                        getFocusedElementKey(collectionYMap)
+                      ]?.get('__typename') === 'RESTRequest' && (
+                        <RESTResponsePanel collectionYMap={collectionYMap} />
+                      )*/}
+                  </Paper>
+                </div>
+              </ReflexElement>
+            </ReflexContainer>
           </ReflexElement>
-          {showRightAside ? (
+          {showRightAside && (
             <ReflexSplitter
               style={{
                 width: 8,
@@ -184,49 +186,25 @@ export const CollectionEditorPage = ({
                 backgroundColor: 'transparent',
               }}
             />
-          ) : (
-            <Box
-              sx={{
-                backgroundColor: theme.palette.divider,
-              }}
-            >
-              <ReflexSplitter
-                style={{
-                  width: 1,
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                }}
-              />
-            </Box>
           )}
+          {!showRightAside && <Divider orientation="vertical" />}
           <ReflexElement
-            flex={2}
+            flex={showRightAside ? 1 : 0}
             style={{
               minWidth: showRightAside ? '300px' : '50px',
               maxWidth: showRightAside ? '1000px' : '50px',
+              minWidth: '50px',
             }}
-            size={showRightAside ? 300 : 50}
+            minSize={showRightAside ? 300 : 50}
+            maxSize={showRightAside ? 1000 : 50}
+            size={showRightAside ? 500 : 50}
+            propagateDimensions={true}
           >
-            <Paper
-              sx={{
-                height: '100%',
-                width: '100%',
-                maxWidth: '100%',
-                margin: 0,
-                padding: 0,
-                borderRadius: 0,
-                overflowY: 'hidden',
-              }}
-              elevation={0}
-            >
-              {
-                <RightAside
-                  setShowRightAside={setShowRightAside}
-                  showRightAside={showRightAside}
-                  collectionYMap={collectionYMap}
-                />
-              }
-            </Paper>
+            <RightAside
+              setShowRightAside={setShowRightAside}
+              showRightAside={showRightAside}
+              collectionYMap={collectionYMap}
+            />
           </ReflexElement>
         </ReflexContainer>
       </EnvironmentProvider>

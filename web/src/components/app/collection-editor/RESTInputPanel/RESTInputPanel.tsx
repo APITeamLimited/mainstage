@@ -177,6 +177,7 @@ export const RESTInputPanel = ({
       // Normal send is always main scope i.e. workspace
       scopeId,
       jobQueue,
+      requestYMap,
     })
   }
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useReactiveVar } from '@apollo/client'
 import ClearIcon from '@mui/icons-material/Clear'
 import CloseIcon from '@mui/icons-material/Close'
@@ -12,20 +13,20 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material'
-
 import * as Y from 'yjs'
+import { useYMap } from 'zustand-yjs'
 
-import {
-  focusedElementVar,
-  LocalRESTResponse,
-  localRESTResponsesVar,
-} from 'src/contexts/reactives'
+import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
+import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 
 import { getNodeIcon } from './CollectionTree/Node/utils'
-import { focusedResponseVar } from './RESTResponsePanel'
+import {
+  focusedResponseVar,
+  updateFocusedRESTResponse,
+} from './RESTResponsePanel'
 
 type GroupedResponses = {
-  [key: string]: LocalRESTResponse[]
+  [key: string]: Y.Map<any>[]
 }
 
 type RESTHistoryProps = {
@@ -38,43 +39,45 @@ export const RESTHistory = ({
   collectionYMap,
 }: RESTHistoryProps) => {
   const focusedElementDict = useReactiveVar(focusedElementVar)
-  const focusedResponse = useReactiveVar(focusedResponseVar)
-  const localRESTResponses = useReactiveVar(localRESTResponsesVar)
+  const restResponsesYMap = collectionYMap.get('restResponses')
+  const restResponses = useYMap(restResponsesYMap)
   const theme = useTheme()
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
 
   if (
-    focusedElementDict[collectionYMap.get('id')]?.get('__typename') !==
-    'RESTRequest'
+    focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+      '__typename'
+    ) !== 'RESTRequest'
   ) {
     throw `focusedElementDict.__typename: '${focusedElementDict[
-      collectionYMap.get('id')
+      getFocusedElementKey(collectionYMap)
     ]?.get('__typename')}' invalid for RESTHistory`
   }
 
   const handleDeleteResponse = (responseId: string) => {
-    localRESTResponsesVar(
-      localRESTResponses.filter((response) => response.id !== responseId)
-    )
+    const restResponse = restResponsesYMap.get(responseId) as Y.Map<any>
+    deleteRestResponse([restResponse])
   }
 
   // Filter within 30 days
-  const responsesToDelete = localRESTResponses.filter(
+  const responsesToDelete = (
+    Array.from(restResponsesYMap.values()) as Y.Map<any>[]
+  ).filter(
     (response) =>
-      new Date(response.createdAt).getTime() - new Date().getTime() >
+      new Date(response.get('createdAt')).getTime() - new Date().getTime() >
       30 * 24 * 60 * 60 * 1000
   )
 
-  const responses = localRESTResponses.filter(
-    (response) =>
-      (response.type === 'Success' || response.type === 'Fail') &&
-      response.parentId ===
-        focusedElementDict[collectionYMap.get('id')]?.get('id')
-  )
+  const responses = (
+    Array.from(restResponsesYMap.values()) as Y.Map<any>[]
+  ).filter((response) => {
+    return response.get('type') === 'Success' || response.get('type') === 'Fail'
+  })
 
   // Sort most recent first
   responses.sort((a, b) => {
-    const aDate = new Date(a.createdAt)
-    const bDate = new Date(b.createdAt)
+    const aDate = new Date(a.get('createdAt'))
+    const bDate = new Date(b.get('createdAt'))
     return bDate.getTime() - aDate.getTime()
   })
 
@@ -83,18 +86,14 @@ export const RESTHistory = ({
   }
 
   if (responsesToDelete.length > 0) {
-    localRESTResponsesVar(
-      localRESTResponses.filter(
-        (response) => !responsesToDelete.some((r) => r.id === response.id)
-      )
-    )
+    deleteRestResponse(responsesToDelete)
   }
 
   // Ensure responses not in responsesToDelete by id
   const responsesChecked = responses.filter(
     (response) =>
       !responsesToDelete.some(
-        (responseToDelete) => response.id === responseToDelete.id
+        (responseToDelete) => response.get('id') === responseToDelete.get('id')
       )
   )
 
@@ -106,11 +105,15 @@ export const RESTHistory = ({
   responsesChecked.forEach((response) => {
     // If less than a day, group by hour
     if (
-      currentDate.getTime() - response.createdAt.getTime() <
+      currentDate.getTime() - new Date(response.get('createdAt')).getTime() <
       1000 * 60 * 60 * 24
     ) {
       const hoursAgo =
-        (currentDate.getTime() - response.createdAt.getTime()) / 1000 / 60 / 60
+        (currentDate.getTime() -
+          new Date(response.get('createdAt')).getTime()) /
+        1000 /
+        60 /
+        60
 
       let timeLabel = ''
 
@@ -128,7 +131,7 @@ export const RESTHistory = ({
     } else {
       // If more than a day, group by day
       const daysAgo =
-        (currentDate.getTime() - response.createdAt.getTime()) /
+        (currentDate.getTime() - response.get('createdAt').getTime()) /
         1000 /
         60 /
         60 /
@@ -221,14 +224,18 @@ export const RESTHistory = ({
                   {timeLabel}:
                 </Typography>
                 {grouptedResonses[timeLabel].map((response, index) => {
-                  if (response.type !== 'Success' && response.type !== 'Fail') {
+                  if (
+                    response.get('type') !== 'Success' &&
+                    response.get('type') !== 'Fail'
+                  ) {
                     return null
                   }
 
                   const statusCodeColor =
-                    response.statusCode >= 200 && response.statusCode < 300
+                    response.get('statusCode') >= 200 &&
+                    response.get('statusCode') < 300
                       ? theme.palette.success.main
-                      : response.statusCode < 300
+                      : response.get('statusCode') < 300
                       ? theme.palette.warning.main
                       : theme.palette.error.main
 
@@ -239,13 +246,17 @@ export const RESTHistory = ({
                         paddingY: 0.75,
                         cursor: 'pointer',
                         backgroundColor:
-                          focusedResponse?.id === response.id
+                          focusedResponseDict[
+                            getFocusedElementKey(collectionYMap)
+                          ]?.get('id') === response.get('id')
                             ? theme.palette.alternate.main
                             : 'inherit',
                         width: '100%',
                         maxWidth: '100%',
                       }}
-                      onClick={() => focusedResponseVar(response)}
+                      onClick={() =>
+                        updateFocusedRESTResponse(focusedResponseDict, response)
+                      }
                       secondaryAction={
                         <Tooltip title="Delete" placement="left">
                           <IconButton
@@ -253,7 +264,7 @@ export const RESTHistory = ({
                             aria-label="Delete response"
                             onClick={(event) => {
                               event.stopPropagation()
-                              handleDeleteResponse(response.id)
+                              handleDeleteResponse(response.get('id'))
                             }}
                           >
                             <ClearIcon />
@@ -262,12 +273,10 @@ export const RESTHistory = ({
                       }
                     >
                       <ListItemIcon color={theme.palette.text.secondary}>
-                        {getNodeIcon(response.request, true)}
+                        {getNodeIcon(response, true)}
                       </ListItemIcon>
                       <ListItemText
-                        primary={
-                          <span style={{}}>{response.request.endpoint}</span>
-                        }
+                        primary={<span>{response.get('endpoint')}</span>}
                         sx={{
                           whiteSpace: 'nowrap',
                           marginLeft: -2,
@@ -280,6 +289,7 @@ export const RESTHistory = ({
                 })}
               </Box>
             ))}
+
             <Typography
               sx={{
                 overflow: 'hidden',

@@ -31,6 +31,9 @@ export const HeadersPanel = ({
         direction="row"
         spacing={1}
         justifyContent="flex-end"
+        sx={{
+          overflow: 'hidden',
+        }}
       >
         <Tooltip title="Delete All">
           <IconButton onClick={() => setHeaders([])}>

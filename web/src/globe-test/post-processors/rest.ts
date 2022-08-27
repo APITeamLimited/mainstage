@@ -26,7 +26,7 @@ type PostProcessRESTRequestArgs = {
   queueRef: React.MutableRefObject<QueuedJob[] | null>
   rawBearer: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  workspace: Y.Map<any>
+  workspace: Y.Doc
 }
 
 export const postProcessRESTRequest = async ({
@@ -56,10 +56,6 @@ export const postProcessRESTRequest = async ({
     .filter((message) => message.messageType === 'METRICS')
     .at(-1)?.message as DefaultMetrics
 
-  console.log('YEET', newJob)
-  console.log('response', response)
-  console.log('metrics', metrics)
-
   if (!metrics) {
     throw new Error('No METRICS message found')
   }
@@ -73,26 +69,26 @@ export const postProcessRESTRequest = async ({
     __parentTypename: newJob.underlyingRequest.__typename,
     name: `${newJob.underlyingRequest.name}-response`,
     endpoint: newJob.underlyingRequest.endpoint,
-    discreteResults:
-      response.error_code === 0
-        ? await getSuccessResult({
-            metrics,
-            response,
-            responseId,
-            rawBearer,
-            scopeId: newJob.scopeId,
-            jobId: newJob.jobId,
-          })
-        : await getFailureResult({
-            metrics,
-            response,
-            responseId,
-            rawBearer,
-            scopeId: newJob.scopeId,
-            jobId: newJob.jobId,
-          }),
+    ...(response.error_code === 0
+      ? await getSuccessResult({
+          metrics,
+          response,
+          responseId,
+          rawBearer,
+          scopeId: newJob.scopeId,
+          jobId: newJob.jobId,
+        })
+      : await getFailureResult({
+          metrics,
+          response,
+          responseId,
+          rawBearer,
+          scopeId: newJob.scopeId,
+          jobId: newJob.jobId,
+        })),
     createdAt: new Date(),
     updatedAt: null,
+    method: newJob.underlyingRequest.method,
   }
 
   storeInEntityEngine(restResponse, workspace, job)
@@ -234,19 +230,52 @@ const uploadMetrics = async (
 const storeInEntityEngine = (
   formattedResponse: RESTResponse,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  workspaceYMap: Y.Map<any>,
+  workspace: Y.Doc,
   job: QueuedJob
 ) => {
   const { projectId, branchId, collectionId } = job
 
-  const restResponsesYMap = workspaceYMap
-    ?.get('projects')
+  const restResponsesYMap = workspace
+    .get('projects')
     ?.get(projectId)
     ?.get('branches')
     ?.get(branchId)
     ?.get('collections')
     ?.get(collectionId)
-    ?.get('RESTResponses')
+    ?.get('restResponses') as Y.Map<any>
 
-  restResponsesYMap?.set(formattedResponse.id, formattedResponse)
+  if (!restResponsesYMap) {
+    throw new Error('No restResponses YMap found')
+  }
+
+  const responseYMap = new Y.Map()
+
+  responseYMap.set('id', formattedResponse.id)
+  responseYMap.set('__typename', 'RESTResponse')
+  responseYMap.set('parentId', formattedResponse.parentId)
+  responseYMap.set('__parentTypename', formattedResponse.__parentTypename)
+  responseYMap.set('name', formattedResponse.name)
+  responseYMap.set('endpoint', formattedResponse.endpoint)
+  responseYMap.set('createdAt', formattedResponse.createdAt.toISOString())
+  responseYMap.set(
+    'updatedAt',
+    formattedResponse.updatedAt
+      ? formattedResponse.updatedAt.toISOString()
+      : null
+  )
+  responseYMap.set('method', formattedResponse.method)
+
+  responseYMap.set('type', formattedResponse.type)
+  if (
+    formattedResponse.type === 'Success' ||
+    formattedResponse.type === 'Fail'
+  ) {
+    responseYMap.set('statusCode', formattedResponse.statusCode)
+    responseYMap.set('meta', formattedResponse.meta)
+    responseYMap.set('globeTestLogs', formattedResponse.globeTestLogs)
+    responseYMap.set('response', formattedResponse.response)
+    responseYMap.set('metrics', formattedResponse.metrics)
+  }
+
+  restResponsesYMap.set(formattedResponse.id, responseYMap)
 }

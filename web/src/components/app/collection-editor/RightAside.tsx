@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
 
-import * as Y from 'yjs'
-
 import { useReactiveVar } from '@apollo/client'
 import CodeIcon from '@mui/icons-material/Code'
 import CommentIcon from '@mui/icons-material/Comment'
-import { Box, IconButton, Stack, Tooltip, useTheme } from '@mui/material'
+import { Box, IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
+import * as Y from 'yjs'
 
-import { focusedElementVar } from 'src/contexts/reactives/FocusedElement'
+import {
+  focusedElementVar,
+  getFocusedElementKey,
+} from 'src/contexts/reactives/FocusedElement'
 
 import { RESTCodeGenerator } from '../CodeGenerator/RESTCodeGenerator'
 
@@ -45,8 +47,9 @@ export const RightAside = ({
 
   useEffect(() => {
     if (
-      focusedElementDict[collectionYMap.get('id')]?.get('__typename') !==
-      'RESTRequest'
+      focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+        '__typename'
+      ) !== 'RESTRequest'
     ) {
       if (activeRightAside === 'code') {
         setActiveRightAside(null)
@@ -67,65 +70,81 @@ export const RightAside = ({
   }
 
   return (
-    <Stack
-      direction="row"
+    <Paper
       sx={{
         height: '100%',
-        width: '100%',
-        maxWidth: '100%',
+        margin: 0,
+        padding: 0,
+        width: showRightAside ? '100%' : '50px',
+        maxWidth: showRightAside ? '100%' : '50px',
+        borderRadius: 0,
+        overflow: 'hidden',
+        position: 'absolute',
+        right: 0,
       }}
+      elevation={0}
     >
       <Stack
-        spacing={2}
+        direction="row"
         sx={{
-          width: '50px',
           height: '100%',
-          borderRight: activeRightAside ? '1px solid' : 'none',
-          borderColor: theme.palette.divider,
-          paddingY: 1,
         }}
       >
-        {focusedElementDict[collectionYMap.get('id')]?.get('__typename') ===
-          'RESTRequest' && (
-          <>
-            <Tooltip title="Generate Code" placement="left">
-              <IconButton
-                size="large"
-                color={activeRightAside === 'code' ? 'primary' : 'inherit'}
-                onClick={() => handleButtonClick('code')}
-              >
-                <CodeIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Request History" placement="left">
-              <IconButton
-                size="large"
-                color={
-                  activeRightAside === 'restHistory' ? 'primary' : 'inherit'
-                }
-                onClick={() => handleButtonClick('restHistory')}
-              >
-                <CommentIcon />
-              </IconButton>
-            </Tooltip>
-          </>
-        )}
+        <Stack
+          spacing={2}
+          sx={{
+            width: '50px',
+            height: '100%',
+            borderRight: activeRightAside ? '1px solid' : 'none',
+            borderColor: theme.palette.divider,
+            paddingY: 1,
+          }}
+        >
+          {focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+            '__typename'
+          ) === 'RESTRequest' && (
+            <>
+              <Tooltip title="Generate Code" placement="left">
+                <IconButton
+                  size="large"
+                  color={activeRightAside === 'code' ? 'primary' : 'inherit'}
+                  onClick={() => handleButtonClick('code')}
+                >
+                  <CodeIcon />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Request History" placement="left">
+                <IconButton
+                  size="large"
+                  color={
+                    activeRightAside === 'restHistory' ? 'primary' : 'inherit'
+                  }
+                  onClick={() => handleButtonClick('restHistory')}
+                >
+                  <CommentIcon />
+                </IconButton>
+              </Tooltip>
+            </>
+          )}
+        </Stack>
+        {showRightAside &&
+          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+            '__typename'
+          ) === 'RESTRequest' &&
+          activeRightAside === 'code' && (
+            <RESTCodeGenerator onCloseAside={handleCloseAside} />
+          )}
+        {showRightAside &&
+          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+            '__typename'
+          ) === 'RESTRequest' &&
+          activeRightAside === 'restHistory' && (
+            <RESTHistory
+              onCloseAside={handleCloseAside}
+              collectionYMap={collectionYMap}
+            />
+          )}
       </Stack>
-      {showRightAside &&
-        focusedElementDict[collectionYMap.get('id')]?.get('__typename') ===
-          'RESTRequest' &&
-        activeRightAside === 'code' && (
-          <RESTCodeGenerator onCloseAside={handleCloseAside} />
-        )}
-      {showRightAside &&
-        focusedElementDict[collectionYMap.get('id')]?.get('__typename') ===
-          'RESTRequest' &&
-        activeRightAside === 'restHistory' && (
-          <RESTHistory
-            onCloseAside={handleCloseAside}
-            collectionYMap={collectionYMap}
-          />
-        )}
-    </Stack>
+    </Paper>
   )
 }

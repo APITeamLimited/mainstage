@@ -45,11 +45,14 @@ type DiscreteResults =
     }
   | SuccessDiscreteResult
 
-export interface RESTResponse extends BaseEntity {
+export type RESTResponse = {
+  id: string
+  createdAt: Date
+  updatedAt: Date | null
   __typename: 'RESTResponse'
   parentId: string
   __parentTypename: 'RESTRequest'
   name: string
   endpoint: string
-  discreteResults: DiscreteResults
-}
+  method: string
+} & DiscreteResults

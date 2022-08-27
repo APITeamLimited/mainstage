@@ -13,11 +13,13 @@ export const singleRESTRequestGenerator = ({
   scopeId,
   activeEnvironment,
   jobQueue,
+  requestYMap,
 }: {
   request: RESTRequest
   scopeId: string
   activeEnvironment: Environment | null
   jobQueue: QueuedJob[]
+  requestYMap: Y.Map<any>
 }): BaseJob & PendingLocalJob => {
   const axiosConfig = getFinalRequest(request, activeEnvironment)
   const sourceName = 'rest-single.js'
@@ -43,6 +45,20 @@ export const singleRESTRequestGenerator = ({
     tag("RESTResult", res);
   }`
 
+  const collection = requestYMap.parent.parent
+  const branch = collection.parent.parent
+  const project = branch.parent.parent
+
+  const collectionId = collection.get('id')
+  const branchId = branch.get('id')
+  const projectId = project.get('id')
+
+  if (!collectionId || !branchId || !projectId) {
+    throw new Error(
+      `Invalid request: ${requestYMap.id} ${collectionId} ${branchId} ${projectId} must have a valid parent`
+    )
+  }
+
   const job: BaseJob & PendingLocalJob = {
     localId: uuid(),
     agent: 'GlobeTest',
@@ -53,6 +69,9 @@ export const singleRESTRequestGenerator = ({
     sourceName,
     scopeId,
     messages: [],
+    projectId: projectId,
+    branchId: branchId,
+    collectionId: collectionId,
   }
 
   jobQueueVar([...jobQueue, job])

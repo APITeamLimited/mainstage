@@ -22,10 +22,19 @@ export const getNodeIcon = (nodeYMap: Y.Map<any>, collapsed: boolean) => {
     return <FolderIcon />
   } else if (nodeYMap.get('__typename') === 'Folder' && !collapsed) {
     return <FolderOpenIcon />
-  } else if (nodeYMap.get('__typename') === 'RESTRequest') {
+  } else if (
+    nodeYMap.get('__typename') === 'RESTRequest' ||
+    nodeYMap.get('__typename') === 'RESTResponse'
+  ) {
     return (
       <Icon>
-        <Stack>
+        <Stack
+          sx={{
+            height: '100%',
+          }}
+          justifyContent="center"
+          alignItems="center"
+        >
           <Typography fontSize={8}>
             {nodeYMap.get('method')?.toUpperCase()}
           </Typography>
