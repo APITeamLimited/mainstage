@@ -118,16 +118,16 @@ export const RESTResponsePanel = ({
   }
 
   useEffect(() => {
+    if (storedResponse) {
+      setStoredResponse(null)
+    }
+    if (storedGlobeTestLogs) {
+      setStoredGlobeTestLogs(null)
+    }
+    if (storedMetrics) {
+      setStoredMetrics(null)
+    }
     if (!focusedResponse) {
-      if (storedResponse) {
-        setStoredResponse(null)
-      }
-      if (storedGlobeTestLogs) {
-        setStoredGlobeTestLogs(null)
-      }
-      if (storedMetrics) {
-        setStoredMetrics(null)
-      }
       return
     }
 

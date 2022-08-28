@@ -148,45 +148,45 @@ export const RESTHistory = ({
   })
 
   return (
-    <Box
+    <Stack
+      spacing={2}
       sx={{
-        height: '100%',
+        overflowY: 'auto',
         width: '100%',
         maxWidth: '100%',
-        maxHeight: '100%',
-        paddingY: 2,
+        height: 'calc(100% - 1em)',
+        maxHeight: 'calc(100% - 1em)',
+        paddingTop: 2,
         overflow: 'hidden',
       }}
     >
       <Stack
-        spacing={2}
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
         sx={{
-          height: '100%',
-          width: '100%',
-          maxWidth: '100%',
-          maxHeight: '100%',
+          marginX: 2,
         }}
       >
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{
-            marginX: 2,
-          }}
-        >
-          <Typography variant="h6">Response History</Typography>
-          <Tooltip title="Close">
-            <IconButton
-              onClick={onCloseAside}
-              sx={{
-                color: (theme) => theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
+        <Typography variant="h6">Response History</Typography>
+        <Tooltip title="Close">
+          <IconButton
+            onClick={onCloseAside}
+            sx={{
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
+      <Box
+        sx={{
+          maxHeight: '100%',
+          paddingBottom: 2,
+          overflowY: 'auto',
+        }}
+      >
         {responses.length === 0 ? (
           <Typography
             sx={{
@@ -200,12 +200,7 @@ export const RESTHistory = ({
             be shown here
           </Typography>
         ) : (
-          <div
-            style={{
-              width: '100%',
-              minHeight: '100%',
-            }}
-          >
+          <>
             {Object.keys(grouptedResonses).map((timeLabel, index) => (
               <Box
                 key={index}
@@ -289,7 +284,6 @@ export const RESTHistory = ({
                 })}
               </Box>
             ))}
-
             <Typography
               sx={{
                 overflow: 'hidden',
@@ -301,9 +295,9 @@ export const RESTHistory = ({
               Responses older than 30 days, or more than 30 deep are deleted
               automatically
             </Typography>
-          </div>
+          </>
         )}
-      </Stack>
-    </Box>
+      </Box>
+    </Stack>
   )
 }

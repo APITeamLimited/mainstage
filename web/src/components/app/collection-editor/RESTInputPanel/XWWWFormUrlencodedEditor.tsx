@@ -8,11 +8,13 @@ import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
 type XWWWFormUrlencodedEditorProps = {
   bodyValues: KeyValueItem[]
   setBodyValues: (newBodyValues: KeyValueItem[]) => void
+  namespace: string
 }
 
 export const XWWWFormUrlencodedEditor = ({
   bodyValues,
   setBodyValues,
+  namespace,
 }: XWWWFormUrlencodedEditorProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
@@ -40,6 +42,7 @@ export const XWWWFormUrlencodedEditor = ({
         items={bodyValues}
         setItems={setBodyValues}
         isBulkEditing={isBulkEditing}
+        namespace={namespace}
       />
     </Stack>
   )

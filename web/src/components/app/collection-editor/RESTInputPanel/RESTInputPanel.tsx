@@ -15,6 +15,7 @@ import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
 
 import { CustomTabs } from '../../CustomTabs'
+import { PanelLayout } from '../PanelLayout'
 
 import { AuthPanel } from './AuthPanel'
 import { BodyPanel } from './BodyPanel'
@@ -72,6 +73,8 @@ export const RESTInputPanel = ({
 
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
+
+  const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
   // If request changes, update unsaved request
   useEffect(() => {
@@ -183,59 +186,59 @@ export const RESTInputPanel = ({
 
   return (
     <>
-      <Stack
-        margin={2}
-        spacing={2}
-        sx={{
-          height: 'calc(100% - 2em)',
-          maxHeight: 'calc(100% - 2em)',
-          maxWidth: '100%',
-          overflow: 'hidden',
-        }}
+      <PanelLayout
+        aboveTabsArea={
+          <Stack
+            direction="row"
+            sx={{
+              width: '100%',
+              maxWidth: '100%',
+            }}
+          >
+            <EndpointBox
+              unsavedEndpoint={unsavedEndpoint}
+              setUnsavedEndpoint={(e) => setUnsavedEndpoint(e)}
+              requestMethod={unsavedRequestMethod}
+              setRequestMethod={setUnsavedRequestMethod}
+              requestId={requestId}
+            />
+            <Box marginLeft={1} />
+            <SendButton onNormalSend={handleNormalSend} />
+            <Box marginLeft={1} />
+            <SaveButton
+              needSave={needSave}
+              onSave={handleSave}
+              onSaveAs={() => setShowSaveAsDialog(true)}
+            />
+          </Stack>
+        }
+        tabNames={['Parameters', 'Body', 'Headers', 'Auth']}
+        activeTabIndex={activeTabIndex}
+        setActiveTabIndex={setActiveTabIndex}
+        actionArea={actionArea}
       >
-        <Stack
-          direction="row"
-          sx={{
-            width: '100%',
-            maxWidth: '100%',
-          }}
-        >
-          <EndpointBox
-            unsavedEndpoint={unsavedEndpoint}
-            setUnsavedEndpoint={(e) => setUnsavedEndpoint(e)}
-            requestMethod={unsavedRequestMethod}
-            setRequestMethod={setUnsavedRequestMethod}
-            requestId={requestId}
-          />
-          <Box marginLeft={1} />
-          <SendButton onNormalSend={handleNormalSend} />
-          <Box marginLeft={1} />
-          <SaveButton
-            needSave={needSave}
-            onSave={handleSave}
-            onSaveAs={() => setShowSaveAsDialog(true)}
-          />
-        </Stack>
-        <CustomTabs
-          value={activeTabIndex}
-          onChange={setActiveTabIndex}
-          names={['Parameters', 'Body', 'Headers', 'Auth']}
-        />
         {activeTabIndex === 0 && (
           <ParametersPanel
             parameters={unsavedParameters}
             setParameters={setUnsavedParameters}
             requestId={requestId}
+            setActionArea={setActionArea}
           />
         )}
         {activeTabIndex === 1 && (
-          <BodyPanel body={unsavedBody} setBody={setUnsavedBody} />
+          <BodyPanel
+            requestId={requestId}
+            body={unsavedBody}
+            setBody={setUnsavedBody}
+            setActionArea={setActionArea}
+          />
         )}
         {activeTabIndex === 2 && (
           <HeadersPanel
             headers={unsavedHeaders}
             setHeaders={setUnsavedHeaders}
             requestId={requestId}
+            setActionArea={setActionArea}
           />
         )}
         {activeTabIndex === 3 && (
@@ -245,7 +248,7 @@ export const RESTInputPanel = ({
             requestId={requestId}
           />
         )}
-      </Stack>
+      </PanelLayout>
       <SaveAsDialog
         open={showSaveAsDialog}
         onClose={() => setShowSaveAsDialog(false)}

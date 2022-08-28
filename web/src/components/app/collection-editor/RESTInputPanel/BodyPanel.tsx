@@ -1,58 +1,116 @@
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
+import { useEffect, useRef, useState } from 'react'
+
 import InventoryIcon from '@mui/icons-material/Inventory'
-import {
-  Chip,
-  Grid,
-  IconButton,
-  Tooltip,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material'
+import { Stack, Typography, useTheme } from '@mui/material'
 
 import {
   ValidContentTypes,
-  knownContentTypes,
   RESTReqBody,
+  knownContentTypes,
 } from 'src/contexts/reactives'
-import { codeFormatter } from 'src/utils/codeFormatter'
 
+import { SecondaryChips } from '../../utils/SecondaryChips'
+import { KeyValueEditor } from '../KeyValueEditor'
 import { MonacoEditor } from '../MonacoEditor'
 
-import { XWWWFormUrlencodedEditor } from './XWWWFormUrlencodedEditor'
+import { QuickActions } from './QuickActions'
 
 type BodyPanelProps = {
+  requestId: string
   body: RESTReqBody
   setBody: (newBody: RESTReqBody) => void
+  setActionArea: (actionArea: React.ReactNode) => void
 }
 
-export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
-  const theme = useTheme()
+const possibleContentTypes = [...Object.keys(knownContentTypes), null]
 
-  const handeChangeType = (newType: ValidContentTypes) => {
-    if (newType === null) {
+const getIndexOfContentType = (contentType: string | null) => {
+  return (
+    possibleContentTypes.findIndex(
+      (knownContentType) => knownContentType === contentType
+    ) || null
+  )
+}
+
+const getContentTypeFromIndex = (index: number) => {
+  if (index > possibleContentTypes.length) {
+    return null
+  }
+  return possibleContentTypes[index] as ValidContentTypes
+}
+
+const prettyPrintTypes = ['application/json', 'application/xml', 'text/html']
+const bulkEditTypes = [
+  'application/x-www-form-urlencoded',
+  'multipart/form-data',
+]
+
+export const BodyPanel = ({
+  requestId,
+  body,
+  setBody,
+  setActionArea,
+}: BodyPanelProps) => {
+  const theme = useTheme()
+  const bodyRef = useRef<RESTReqBody | null>(null)
+  const [tab, setTab] = useState<number>(0)
+  bodyRef.current = body
+  const [isBulkEditing, setIsBulkEditing] = useState(false)
+
+  const handeChipChange = (index: number) => {
+    setTab(index)
+    const contentType = getContentTypeFromIndex(index)
+
+    if (!contentType) {
+      return
+    }
+
+    if (contentType === null) {
       setBody({
-        contentType: null,
+        contentType,
         body: null,
       })
-    } else if (newType === 'multipart/form-data') {
+    } else if (contentType === 'multipart/form-data') {
       setBody({
-        contentType: newType,
+        contentType,
         body: [],
       })
-    } else if (newType === 'application/x-www-form-urlencoded') {
+    } else if (contentType === 'application/x-www-form-urlencoded') {
       setBody({
-        contentType: newType,
+        contentType,
         body: [],
       })
     } else {
       setBody({
-        contentType: newType,
+        contentType,
         body: '',
       })
     }
   }
+
+  const handlePrettyPrint = () => {
+    console.log(bodyRef.current)
+  }
+
+  const handleBodyDelete = () => {}
+
+  useEffect(() => {
+    const contentTypeFromTab = getContentTypeFromIndex(tab) || ''
+    const includePrettyPrint = prettyPrintTypes.includes(contentTypeFromTab)
+    const includeBulkEdit = bulkEditTypes.includes(contentTypeFromTab)
+
+    if (!includeBulkEdit) setIsBulkEditing(false)
+
+    setActionArea(
+      <QuickActions
+        onDeleteCallback={handleBodyDelete}
+        prettyPrintCallback={includePrettyPrint ? handlePrettyPrint : undefined}
+        isBulkEditing={includeBulkEdit ? isBulkEditing : undefined}
+        setIsBulkEditing={includeBulkEdit ? setIsBulkEditing : undefined}
+      />
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, isBulkEditing])
 
   return (
     <Stack
@@ -62,164 +120,38 @@ export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
         margin: 0,
       }}
     >
-      <Grid container spacing={2} margin={0}>
-        {[...Object.keys(knownContentTypes), null].map(
-          (knownContentType, index) => (
-            <Chip
-              color="primary"
-              key={index}
-              label={
-                <Typography
-                  sx={{
-                    color:
-                      body.contentType === knownContentType
-                        ? 'inherit'
-                        : 'text.secondary',
-                  }}
-                >
-                  {knownContentType !== null ? knownContentType : 'None'}
-                </Typography>
-              }
-              variant={
-                body.contentType === knownContentType ? 'filled' : 'outlined'
-              }
-              onClick={() =>
-                handeChangeType((knownContentType as ValidContentTypes) || null)
-              }
-              size="small"
-              sx={{
-                marginRight: 1,
-                marginBottom: 1,
-                borderWidth:
-                  body.contentType === knownContentType ? undefined : 0,
-              }}
-            />
-          )
-        )}
-      </Grid>
+      <SecondaryChips
+        names={possibleContentTypes}
+        value={getIndexOfContentType(body.contentType) || 0}
+        onChange={handeChipChange}
+      />
       {body.contentType === 'application/json' && (
-        <>
-          <Stack
-            justifyContent="flex-end"
-            alignItems="center"
-            width="100%"
-            direction="row"
-            spacing={1}
-          >
-            <Tooltip title="Pretty Print">
-              <IconButton
-                onClick={() =>
-                  setBody({
-                    ...body,
-                    body: codeFormatter(body.body, 'json'),
-                  })
-                }
-              >
-                <AutoFixHighIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete All">
-              <IconButton onClick={() => setBody({ ...body, body: '' })}>
-                <DeleteSweepIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-          <MonacoEditor
-            value={body.body}
-            language="json"
-            onChange={(value) => setBody({ ...body, body: value })}
-          />
-        </>
+        <MonacoEditor
+          value={body.body}
+          language="json"
+          onChange={(value) => setBody({ ...body, body: value })}
+        />
       )}
       {body.contentType === 'application/xml' && (
-        <>
-          <Stack
-            justifyContent="flex-end"
-            alignItems="center"
-            width="100%"
-            direction="row"
-            spacing={1}
-          >
-            <Tooltip title="Pretty Print">
-              <IconButton
-                onClick={() =>
-                  setBody({
-                    ...body,
-                    body: codeFormatter(body.body, 'xml'),
-                  })
-                }
-              >
-                <AutoFixHighIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete All">
-              <IconButton onClick={() => setBody({ ...body, body: '' })}>
-                <DeleteSweepIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-          <MonacoEditor
-            value={body.body}
-            language="xml"
-            onChange={(value) => setBody({ ...body, body: value })}
-          />
-        </>
+        <MonacoEditor
+          value={body.body}
+          language="xml"
+          onChange={(value) => setBody({ ...body, body: value })}
+        />
       )}
       {body.contentType === 'text/html' && (
-        <>
-          <Stack
-            justifyContent="flex-end"
-            alignItems="center"
-            width="100%"
-            direction="row"
-            spacing={1}
-          >
-            <Tooltip title="Pretty Print">
-              <IconButton
-                onClick={() =>
-                  setBody({
-                    ...body,
-                    body: codeFormatter(body.body, 'html'),
-                  })
-                }
-              >
-                <AutoFixHighIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Delete All">
-              <IconButton onClick={() => setBody({ ...body, body: '' })}>
-                <DeleteSweepIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-          <MonacoEditor
-            value={body.body}
-            language="html"
-            onChange={(value) => setBody({ ...body, body: value })}
-          />
-        </>
+        <MonacoEditor
+          value={body.body}
+          language="html"
+          onChange={(value) => setBody({ ...body, body: value })}
+        />
       )}
       {body.contentType === 'text/plain' && (
-        <>
-          <Stack
-            justifyContent="flex-end"
-            alignItems="center"
-            width="100%"
-            direction="row"
-            spacing={1}
-          >
-            <Tooltip title="Delete All">
-              <IconButton onClick={() => setBody({ ...body, body: '' })}>
-                <DeleteSweepIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-          <MonacoEditor
-            value={body.body}
-            language="plain"
-            onChange={(value) => setBody({ ...body, body: value })}
-          />
-        </>
+        <MonacoEditor
+          value={body.body}
+          language="plain"
+          onChange={(value) => setBody({ ...body, body: value })}
+        />
       )}
       {body.contentType === null && (
         <Stack
@@ -245,9 +177,11 @@ export const BodyPanel = ({ body, setBody }: BodyPanelProps) => {
         </Stack>
       )}
       {body.contentType === 'application/x-www-form-urlencoded' && (
-        <XWWWFormUrlencodedEditor
-          bodyValues={body.body}
-          setBodyValues={(bodyValues) => setBody({ ...body, body: bodyValues })}
+        <KeyValueEditor
+          items={body.body}
+          setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
+          isBulkEditing={isBulkEditing}
+          namespace={`${requestId}${body.contentType}`}
         />
       )}
     </Stack>

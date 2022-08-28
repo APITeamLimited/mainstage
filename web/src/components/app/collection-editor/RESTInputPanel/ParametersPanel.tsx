@@ -1,65 +1,42 @@
-import { useState } from 'react'
-
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
-import { Stack, Switch, IconButton, Tooltip, Box } from '@mui/material'
+import { useState, useEffect } from 'react'
 
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
+
+import { QuickActions } from './QuickActions'
 
 type ParametersPanelProps = {
   parameters: KeyValueItem[]
   setParameters: (newParameters: KeyValueItem[]) => void
   requestId: string
+  setActionArea: (actionArea: React.ReactNode) => void
 }
 
 export const ParametersPanel = ({
   parameters,
   setParameters,
   requestId,
+  setActionArea,
 }: ParametersPanelProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
-  return (
-    <Stack
-      spacing={2}
-      sx={{
-        height: '100%',
-        overflowY: 'auto',
-      }}
-    >
-      <Stack
-        alignItems="center"
-        direction="row"
-        spacing={1}
-        justifyContent="flex-end"
-        sx={{
-          overflow: 'hidden',
-        }}
-      >
-        <Tooltip title="Delete All">
-          <IconButton onClick={() => setParameters([])}>
-            <DeleteSweepIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Bulk Edit">
-          <Switch
-            checked={isBulkEditing}
-            onChange={(event, value) => setIsBulkEditing(value)}
-          />
-        </Tooltip>
-      </Stack>
-      <Box
-        sx={{
-          height: '100%',
-          overflowY: 'auto',
-        }}
-      >
-        <KeyValueEditor
-          items={parameters}
-          setItems={setParameters}
+  useEffect(
+    () =>
+      setActionArea(
+        <QuickActions
+          onDeleteCallback={() => setParameters([])}
           isBulkEditing={isBulkEditing}
-          namespace={requestId}
+          setIsBulkEditing={setIsBulkEditing}
         />
-      </Box>
-    </Stack>
+      ),
+    [isBulkEditing, setActionArea, setParameters]
+  )
+
+  return (
+    <KeyValueEditor
+      items={parameters}
+      setItems={setParameters}
+      isBulkEditing={isBulkEditing}
+      namespace={requestId}
+    />
   )
 }

@@ -12,7 +12,7 @@ import {
   Paper,
 } from '@mui/material'
 
-import {Link as RouterLink, routes} from '@redwoodjs/router'
+import { Link as RouterLink, routes } from '@redwoodjs/router'
 
 const emailIcon = (
   <svg
@@ -34,105 +34,122 @@ export const ContactUs = () => {
     <>
       <Stack spacing={6} marginY={6}>
         <Typography variant="h4">Reach Us</Typography>
-        <Stack direction={{
-          xs: 'column',
-          sm: 'column',
-          md: 'row',
-        }} justifyContent="space-evenly" spacing={4}>
-            <Stack spacing={2}>
-              <Typography
-                variant="h6"
-                color={theme.palette.text.primary}
-                fontWeight="bold"
+        <Stack
+          direction={{
+            xs: 'column',
+            sm: 'column',
+            md: 'row',
+          }}
+          justifyContent="space-between"
+          spacing={4}
+        >
+          <Stack spacing={2}>
+            <Typography
+              variant="h6"
+              color={theme.palette.text.primary}
+              fontWeight="bold"
+            >
+              Support
+            </Typography>
+            <Typography variant="body1" color={theme.palette.text.secondary}>
+              Feel free to reach out to us if you have any questions or concerns
+              via email
+            </Typography>
+            <Typography variant="body1" color={theme.palette.text.secondary}>
+              Alternatively, you can reach out to us via our support channels,
+              or in our support center
+            </Typography>
+            <ListItem>
+              <Box
+                component={ListItemAvatar}
+                minWidth="auto !important"
+                marginRight={2}
               >
-                Support
-              </Typography>
-              <Typography variant="body1" color={theme.palette.text.secondary}>
-                Feel free to reach out to us if you have any questions or
-                concerns via email
-              </Typography>
-              <Typography variant="body1" color={theme.palette.text.secondary}>
-                Alternatively, you can reach out to us via our support channels,
-                or in our support center
-              </Typography>
-              <ListItem>
                 <Box
-                  component={ListItemAvatar}
-                  minWidth="auto !important"
-                  marginRight={2}
+                  component={Avatar}
+                  bgcolor={theme.palette.secondary.main}
+                  width={40}
+                  height={40}
                 >
-                  <Box
-                    component={Avatar}
-                    bgcolor={theme.palette.secondary.main}
-                    width={40}
-                    height={40}
-                  >
-                    {emailIcon}
-                  </Box>
+                  {emailIcon}
                 </Box>
-                <ListItemText
-                  primary={
-                    <Link href="mailto://support@apiteam.cloud">
-                      support@apiteam.cloud
-                    </Link>
-                  }
-                />
-              </ListItem>
-              <Paper sx={{
+              </Box>
+              <ListItemText
+                primary={
+                  <Link href="mailto://support@apiteam.cloud">
+                    support@apiteam.cloud
+                  </Link>
+                }
+              />
+            </ListItem>
+            <Paper
+              sx={{
                 backgroundColor: theme.palette.primary.main,
-              }}>
-                <Stack margin={2} spacing={2} alignItems='center'>
-                <Typography variant="h6" color={theme.palette.common.white} align="center">
+              }}
+            >
+              <Stack margin={2} spacing={2} alignItems="center">
+                <Typography
+                  variant="h6"
+                  color={theme.palette.common.white}
+                  align="center"
+                >
                   Why not try our support center?
                 </Typography>
-                  <RouterLink to={routes.supportCenter()} style={{
+                <RouterLink
+                  to={routes.supportCenter()}
+                  style={{
                     textDecoration: 'none',
-                  }}>
-                    <Button variant="outlined" color='primary' sx={{
+                  }}
+                >
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    sx={{
                       color: theme.palette.common.white,
                       borderColor: theme.palette.common.white,
-                    }}>
-                      Support Center
-                    </Button>
-                  </RouterLink>
-                  </Stack>
-                </Paper>
-            </Stack>
-            <Stack spacing={2}>
-              <Typography
-                variant="h6"
-                fontWeight="bold"
-                color={theme.palette.text.primary}
-              >
-                General Queries
-              </Typography>
-              <Typography variant="body1" color={theme.palette.text.secondary}>
-                Feel free to reach out to us for anything else at this email
-              </Typography>
-              <ListItem>
-                <Box
-                  component={ListItemAvatar}
-                  minWidth="auto !important"
-                  marginRight={2}
-                >
-                  <Box
-                    component={Avatar}
-                    bgcolor={theme.palette.secondary.main}
-                    width={40}
-                    height={40}
+                    }}
                   >
-                    {emailIcon}
-                  </Box>
+                    Support Center
+                  </Button>
+                </RouterLink>
+              </Stack>
+            </Paper>
+          </Stack>
+          <Stack spacing={2}>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              color={theme.palette.text.primary}
+            >
+              General Queries
+            </Typography>
+            <Typography variant="body1" color={theme.palette.text.secondary}>
+              Feel free to reach out to us for anything else at this email
+            </Typography>
+            <ListItem>
+              <Box
+                component={ListItemAvatar}
+                minWidth="auto !important"
+                marginRight={2}
+              >
+                <Box
+                  component={Avatar}
+                  bgcolor={theme.palette.secondary.main}
+                  width={40}
+                  height={40}
+                >
+                  {emailIcon}
                 </Box>
-                <ListItemText
-                  primary={
-                    <Link href="mailto://info@apiteam.cloud">
-                      info@apiteam.cloud
-                    </Link>
-                  }
-                />
-              </ListItem>
-            </Stack>
+              </Box>
+              <ListItemText
+                primary={
+                  <Link href="mailto://info@apiteam.cloud">
+                    info@apiteam.cloud
+                  </Link>
+                }
+              />
+            </ListItem>
+          </Stack>
         </Stack>
       </Stack>
     </>

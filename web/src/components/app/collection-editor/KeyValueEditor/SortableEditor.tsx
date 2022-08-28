@@ -105,71 +105,78 @@ export const SortableEditor = memo(
     }
 
     return (
-      <DndProvider backend={HTML5Backend}>
-        <TableContainer>
-          {items.length > 0 && (
-            <Table size="small">
-              <TableHead
-                sx={{
-                  backgroundColor: 'transparent',
-                }}
-              >
-                <TableRow>
-                  <TableCell
-                    sx={{
-                      borderColor: theme.palette.divider,
-                    }}
-                  />
-                  <TableCell
-                    sx={{
-                      borderColor: theme.palette.divider,
-                    }}
-                  />
-                  <TableCell
-                    sx={{
-                      borderColor: theme.palette.divider,
-                    }}
-                  >
-                    <Box paddingLeft={2}>Key</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderColor: theme.palette.divider,
-                    }}
-                  >
-                    <Box paddingLeft={2}>Value</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      borderColor: theme.palette.divider,
-                    }}
-                  />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {items.map((item, index) => (
-                  <DraggableTableRow
-                    key={index}
-                    index={index}
-                    id={item.id}
-                    keyString={item.keyString}
-                    value={item.value}
-                    enabled={item.enabled}
-                    onMove={moveCard}
-                    onKeyStringChange={handeKeyStringChange}
-                    onValueChange={handleValueChange}
-                    onEnabledChange={handleEnabledChange}
-                    onDelete={handleDelete}
-                    namespace={namespace}
-                    enableEnvironmentVariables={enableEnvironmentVariables}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          )}
-          <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
-        </TableContainer>
-      </DndProvider>
+      <Box
+        sx={{
+          height: '100%',
+          overflowY: 'auto',
+        }}
+      >
+        <DndProvider backend={HTML5Backend}>
+          <TableContainer>
+            {items.length > 0 && (
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    backgroundColor: 'transparent',
+                  }}
+                >
+                  <TableRow>
+                    <TableCell
+                      sx={{
+                        borderColor: theme.palette.divider,
+                      }}
+                    />
+                    <TableCell
+                      sx={{
+                        borderColor: theme.palette.divider,
+                      }}
+                    />
+                    <TableCell
+                      sx={{
+                        borderColor: theme.palette.divider,
+                      }}
+                    >
+                      <Box paddingLeft={2}>Key</Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        borderColor: theme.palette.divider,
+                      }}
+                    >
+                      <Box paddingLeft={2}>Value</Box>
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        borderColor: theme.palette.divider,
+                      }}
+                    />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {items.map((item, index) => (
+                    <DraggableTableRow
+                      key={index}
+                      index={index}
+                      id={item.id}
+                      keyString={item.keyString}
+                      value={item.value}
+                      enabled={item.enabled}
+                      onMove={moveCard}
+                      onKeyStringChange={handeKeyStringChange}
+                      onValueChange={handleValueChange}
+                      onEnabledChange={handleEnabledChange}
+                      onDelete={handleDelete}
+                      namespace={namespace}
+                      enableEnvironmentVariables={enableEnvironmentVariables}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+            <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
+          </TableContainer>
+        </DndProvider>
+      </Box>
     )
   }
 )
