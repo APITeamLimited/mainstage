@@ -2,20 +2,22 @@ import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh'
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep'
 import { Stack, Switch, IconButton, Tooltip, Box } from '@mui/material'
 
-type InputQuickActionProps = {
+type QuickActionAreaProps = {
   onDeleteCallback?: () => void
   isBulkEditing?: boolean
   setIsBulkEditing?: (newIsBulkEditing: boolean) => void
   prettyPrintCallback?: () => void
+  customActions?: React.ReactNode[]
 }
 
-export const QuickActions = ({
+export const QuickActionArea = ({
   onDeleteCallback,
   isBulkEditing,
   setIsBulkEditing,
   prettyPrintCallback,
-}: InputQuickActionProps) => {
-  const actions = []
+  customActions = [],
+}: QuickActionAreaProps) => {
+  const actions = [...customActions]
 
   if (prettyPrintCallback !== undefined) {
     actions.push(

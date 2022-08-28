@@ -113,7 +113,7 @@ export const RightAside = ({
                   <CodeIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Request History" placement="left">
+              <Tooltip title="Response History" placement="left">
                 <IconButton
                   size="large"
                   color={

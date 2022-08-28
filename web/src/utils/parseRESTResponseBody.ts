@@ -1,21 +1,6 @@
-import { object } from 'prop-types'
+import { Response } from 'k6/http'
 
-import { LocalRESTResponse } from 'src/contexts/reactives'
-
-export const parseRESTResponseBody = (response: LocalRESTResponse): string => {
-  if (
-    response.type === 'Loading' ||
-    response.type === 'NetworkFail' ||
-    response.type === 'ScriptFail' //||
-    //response.type === 'Fail'
-  ) {
-    return ''
-  }
-
-  //console.log('parseRESTResponseBody')
-  //console.log(response.body)
-  //console.log(typeof response.body)
-  //
+export const parseRESTResponseBody = (response: Response): string => {
   if (typeof response.body === 'string') {
     return response.body
   } else {

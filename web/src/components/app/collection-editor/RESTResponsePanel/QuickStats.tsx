@@ -23,14 +23,14 @@ export const QuickStats = ({
   // Format response time in either milliseconds or seconds
   const responseTime =
     responseTimeMilliseconds < 1000
-      ? `${responseTimeMilliseconds} ms`
+      ? `${responseTimeMilliseconds.toFixed(0)} ms`
       : `${(responseTimeMilliseconds / 1000).toFixed(2)} s`
 
   // Get status code color, based on if status code is in the 200s or in 400/500s
   const statusCodeColor =
     statusCode >= 200 && statusCode < 300
       ? theme.palette.success.main
-      : statusCode < 300
+      : statusCode < 400
       ? theme.palette.warning.main
       : theme.palette.error.main
 

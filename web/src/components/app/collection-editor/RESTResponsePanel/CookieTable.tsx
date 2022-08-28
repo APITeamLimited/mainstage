@@ -1,0 +1,96 @@
+import { useEffect } from 'react'
+
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import CookieIcon from '@mui/icons-material/Cookie'
+import {
+  TableHead,
+  Table,
+  TableBody,
+  TableRow,
+  TableContainer,
+  TableCell,
+  Tooltip,
+  useTheme,
+  IconButton,
+  Box,
+} from '@mui/material'
+import { ResponseCookie } from 'k6/http'
+
+import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
+import { QuickActionArea } from '../../utils/QuickActionArea'
+
+type CookieTableProps = {
+  cookies: ResponseCookie[]
+  setActionArea: (actionArea: React.ReactNode) => void
+}
+
+export const CookieTable = ({ cookies, setActionArea }: CookieTableProps) => {
+  const theme = useTheme()
+
+  useEffect(() => {
+    const customActions = []
+
+    if (cookies.length > 0) {
+      customActions.push(
+        <Tooltip title="Copy All" key="Copy All">
+          <Box>
+            <IconButton>
+              <ContentCopyIcon />
+            </IconButton>
+          </Box>
+        </Tooltip>
+      )
+    }
+
+    setActionArea(<QuickActionArea customActions={customActions} />)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cookies])
+
+  return cookies.length > 0 ? (
+    <TableContainer>
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            {Object.keys(cookies[0]).map((key, index) => (
+              <TableCell key={index}>{key}</TableCell>
+            ))}
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {cookies.map((cookie, index) => (
+            <TableRow key={index}>
+              {Object.entries(cookie).map(([key, value], index) => (
+                <TableCell
+                  sx={{
+                    wordBreak: 'break-all',
+                  }}
+                  key={index}
+                >
+                  {key.toLowerCase() === 'expires'
+                    ? new Date(value).toLocaleString()
+                    : value}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  ) : (
+    <EmptyPanelMessage
+      icon={
+        <CookieIcon
+          sx={{
+            marginBottom: 2,
+            width: 80,
+            height: 80,
+            color: theme.palette.action.disabled,
+          }}
+        />
+      }
+      primaryText="No Cookies"
+      secondaryMessages={['All received cookies will be shown here']}
+    />
+  )
+}

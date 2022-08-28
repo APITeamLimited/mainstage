@@ -1,4 +1,4 @@
-import { Stack, Switch, IconButton, Tooltip, Box } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { CustomTabs } from '../CustomTabs'
 
@@ -18,35 +18,38 @@ export const PanelLayout = ({
   setActiveTabIndex,
   actionArea,
   aboveTabsArea,
-}: PanelLayoutProps) => {
-  return (
+}: PanelLayoutProps) => (
+  <Stack
+    padding={2}
+    spacing={2}
+    sx={{
+      height: 'calc(100% - 2rem)',
+      maxHeight: 'calc(100% - 2rem)',
+      maxWidth: '100%',
+    }}
+  >
+    {aboveTabsArea}
     <Stack
-      padding={2}
+      direction="row"
+      spacing={2}
+      justifyContent="space-between"
+      alignItems="top"
+    >
+      <CustomTabs
+        value={activeTabIndex}
+        onChange={setActiveTabIndex}
+        names={tabNames}
+      />
+      {actionArea}
+    </Stack>
+    <Stack
       spacing={2}
       sx={{
-        height: 'calc(100% - 2rem)',
-        maxHeight: 'calc(100% - 2rem)',
-        maxWidth: '100%',
+        height: '100%',
+        overflow: 'hidden',
       }}
     >
-      {aboveTabsArea}
-      <Stack direction="row" spacing={2} justifyContent="space-between">
-        <CustomTabs
-          value={activeTabIndex}
-          onChange={setActiveTabIndex}
-          names={tabNames}
-        />
-        {actionArea}
-      </Stack>
-      <Stack
-        spacing={2}
-        sx={{
-          height: '100%',
-          overflow: 'hidden',
-        }}
-      >
-        {children}
-      </Stack>
+      {children}
     </Stack>
-  )
-}
+  </Stack>
+)

@@ -13,14 +13,18 @@ export const RawViewer = ({ rawBody }: { rawBody: string }) => {
   <title>APITEam Response</title>
   <style>
     code {
-      font-family: 'Roboto Mono', monospace;
       font-size: 14px;
       color: ${theme.palette.text.primary};
+    }
+    body {
+      background-color: ${theme.palette.background.paper};
     }
   </style>
 </head>
 <body>
-  <code>${filteredBody}</code>
+  <pre>
+    <code>${filteredBody}</code>
+  </pre>
 </body>
   `
 
@@ -33,8 +37,6 @@ export const RawViewer = ({ rawBody }: { rawBody: string }) => {
         height: '100%',
         width: '100%',
         border: 'none',
-        backgroundColor: 'transparent',
-        color: theme.palette.text.primary,
       }}
     />
   )

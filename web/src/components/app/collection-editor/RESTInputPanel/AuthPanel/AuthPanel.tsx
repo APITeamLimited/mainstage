@@ -1,7 +1,11 @@
+import { useEffect } from 'react'
+
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import { Grid, Stack, useTheme, Typography, Chip } from '@mui/material'
 
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
+import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
 import { RESTAuth } from 'src/contexts/reactives'
 
 import { APIKeyAuthForm } from './APIKeyAuthForm'
@@ -32,16 +36,44 @@ const authMethodLabels = [
   },
 ]
 
+const getIndexOfAuthMethod = (authMethod: string) => {
+  return (
+    authMethodLabels
+      .map((method) => method.authType)
+      .findIndex((knownContentType) => knownContentType === authMethod) || null
+  )
+}
+
+const getAuthMethodFromIndex = (index: number) => {
+  if (index > authMethodLabels.length) {
+    return undefined
+  }
+  return authMethodLabels[index].authType
+}
+
 type AuthPanelProps = {
   auth: RESTAuth
   setAuth: (auth: RESTAuth) => void
   requestId: string
+  setActionArea: (actionArea: React.ReactNode) => void
 }
 
-export const AuthPanel = ({ auth, setAuth, requestId }: AuthPanelProps) => {
+export const AuthPanel = ({
+  auth,
+  setActionArea,
+  setAuth,
+  requestId,
+}: AuthPanelProps) => {
   const theme = useTheme()
 
-  const handleChangeAuthType = (newAuthType: string) => {
+  useEffect(() => {
+    setActionArea(<></>)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleChangeAuthType = (index: number) => {
+    const newAuthType = getAuthMethodFromIndex(index)
+
     if (newAuthType === 'none') {
       setAuth({
         authType: 'none',
@@ -85,45 +117,21 @@ export const AuthPanel = ({ auth, setAuth, requestId }: AuthPanelProps) => {
   }
 
   return (
-    <Stack
-      spacing={2}
-      sx={{
-        height: '100%',
-        margin: 0,
-      }}
-    >
-      <Grid container spacing={2} margin={0}>
-        {authMethodLabels.map((authMethod, index) => (
-          <Chip
-            color="primary"
-            key={index}
-            label={
-              <Typography
-                sx={{
-                  color:
-                    auth.authType === authMethod.authType
-                      ? 'inherit'
-                      : 'text.secondary',
-                }}
-              >
-                {authMethod.label}
-              </Typography>
-            }
-            variant={
-              auth.authType === authMethod.authType ? 'filled' : 'outlined'
-            }
-            onClick={() => handleChangeAuthType(authMethod.authType)}
-            size="small"
-            sx={{
-              marginRight: 1,
-              marginBottom: 1,
-              borderWidth:
-                auth.authType === authMethod.authType ? undefined : 0,
-            }}
-          />
-        ))}
-      </Grid>
-      {/*auth.authType === 'inherit' && (
+    <>
+      <SecondaryChips
+        names={authMethodLabels.map((method) => method.label)}
+        value={getIndexOfAuthMethod(auth.authType) || 0}
+        onChange={handleChangeAuthType}
+      />
+      <Stack
+        spacing={2}
+        sx={{
+          height: '100%',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+        }}
+      >
+        {/*auth.authType === 'inherit' && (
         <Stack
           sx={{
             display: 'flex',
@@ -146,73 +154,83 @@ export const AuthPanel = ({ auth, setAuth, requestId }: AuthPanelProps) => {
           </Typography>
         </Stack>
           )*/}
-      {auth.authType === 'none' && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-        >
-          <LockOpenIcon
-            sx={{
-              marginBottom: 2,
-              width: 80,
-              height: 80,
-              color: theme.palette.action.disabled,
-            }}
+        {auth.authType === 'none' && (
+          <EmptyPanelMessage
+            primaryText="None"
+            secondaryMessages={['No auth will be used']}
+            icon={
+              <LockOpenIcon
+                sx={{
+                  marginBottom: 2,
+                  width: 80,
+                  height: 80,
+                  color: theme.palette.action.disabled,
+                }}
+              />
+            }
           />
-          <Typography variant="h6">None</Typography>
-          <Typography variant="caption" color={theme.palette.text.secondary}>
-            No auth will be used
-          </Typography>
-        </Stack>
-      )}
-      {auth.authType === 'basic' && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        >
-          <BasicAuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
-        </Stack>
-      )}
-      {auth.authType === 'bearer' && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        >
-          <BearerAuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
-        </Stack>
-      )}
-      {auth.authType === 'oauth-2' && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        >
-          <OAuth2AuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
-        </Stack>
-      )}
-      {auth.authType === 'api-key' && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        >
-          <APIKeyAuthForm auth={auth} setAuth={setAuth} requestId={requestId} />
-        </Stack>
-      )}
-    </Stack>
+        )}
+        {auth.authType === 'basic' && (
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <BasicAuthForm
+              auth={auth}
+              setAuth={setAuth}
+              requestId={requestId}
+            />
+          </Stack>
+        )}
+        {auth.authType === 'bearer' && (
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <BearerAuthForm
+              auth={auth}
+              setAuth={setAuth}
+              requestId={requestId}
+            />
+          </Stack>
+        )}
+        {auth.authType === 'oauth-2' && (
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <OAuth2AuthForm
+              auth={auth}
+              setAuth={setAuth}
+              requestId={requestId}
+            />
+          </Stack>
+        )}
+        {auth.authType === 'api-key' && (
+          <Stack
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: '100%',
+            }}
+          >
+            <APIKeyAuthForm
+              auth={auth}
+              setAuth={setAuth}
+              requestId={requestId}
+            />
+          </Stack>
+        )}
+      </Stack>
+    </>
   )
 }

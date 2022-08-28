@@ -22,6 +22,7 @@ import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
 
 import 'react-reflex/styles.css'
+import { RESTRequestFocusWatcher } from 'src/contexts/state-watchers/RESTRequestFocusWatcher'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -88,6 +89,7 @@ export const CollectionEditorPage = ({
     >
       <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
         <GlobeTestProvider />
+        <RESTRequestFocusWatcher collectionYMap={collectionYMap} />
         <ReflexContainer orientation="vertical">
           <ReflexElement
             minSize={200}

@@ -60,12 +60,16 @@ export const postProcessRESTRequest = async ({
     throw new Error('No METRICS message found')
   }
 
+  if (response.status === 0) {
+    throw `Failed to fetch request: ${response.request.url}: ${response.error}`
+  }
+
   const responseId = uuid()
 
   const restResponse: RESTResponse = {
     id: responseId,
     __typename: 'RESTResponse',
-    parentId: newJob.underlyingRequest.parentId,
+    parentId: newJob.underlyingRequest.id,
     __parentTypename: newJob.underlyingRequest.__typename,
     name: `${newJob.underlyingRequest.name}-response`,
     endpoint: newJob.underlyingRequest.endpoint,

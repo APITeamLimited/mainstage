@@ -43,6 +43,7 @@ export const CustomTabs = ({ value, onChange, names }: CustomTabsProps) => {
           sx={{
             marginRight: index === names.length - 1 ? 0 : 2,
             color: value === index ? undefined : theme.palette.text.secondary,
+            textTransform: 'none',
           }}
           onClick={() => onChange(index)}
           key={index}

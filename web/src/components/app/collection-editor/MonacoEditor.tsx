@@ -8,7 +8,7 @@ export type MonacoSupportedLanguage = 'json' | 'xml' | 'html' | 'plain'
 type MonacoEditorProps = {
   value: string
   onChange?: (value: string) => void
-  language: MonacoSupportedLanguage
+  language: string
   readOnly?: boolean
   enableMinimap?: boolean
   height?: string

@@ -246,6 +246,7 @@ export const RESTInputPanel = ({
             auth={unsavedAuth}
             setAuth={setUnsavedAuth}
             requestId={requestId}
+            setActionArea={setActionArea}
           />
         )}
       </PanelLayout>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import InventoryIcon from '@mui/icons-material/Inventory'
-import { Stack, Typography, useTheme } from '@mui/material'
+import { Stack, useTheme } from '@mui/material'
 
 import {
   ValidContentTypes,
@@ -9,11 +9,11 @@ import {
   knownContentTypes,
 } from 'src/contexts/reactives'
 
+import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
+import { QuickActionArea } from '../../utils/QuickActionArea'
 import { SecondaryChips } from '../../utils/SecondaryChips'
 import { KeyValueEditor } from '../KeyValueEditor'
 import { MonacoEditor } from '../MonacoEditor'
-
-import { QuickActions } from './QuickActions'
 
 type BodyPanelProps = {
   requestId: string
@@ -22,21 +22,23 @@ type BodyPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
 }
 
-const possibleContentTypes = [...Object.keys(knownContentTypes), null]
+const possibleContentTypes = [...Object.keys(knownContentTypes), 'None']
 
 const getIndexOfContentType = (contentType: string | null) => {
+  const findWith = contentType === null ? 'None' : contentType
+
   return (
     possibleContentTypes.findIndex(
-      (knownContentType) => knownContentType === contentType
+      (knownContentType) => knownContentType === findWith
     ) || null
   )
 }
 
 const getContentTypeFromIndex = (index: number) => {
   if (index > possibleContentTypes.length) {
-    return null
+    return undefined
   }
-  return possibleContentTypes[index] as ValidContentTypes
+  return possibleContentTypes[index] as ValidContentTypes | 'None'
 }
 
 const prettyPrintTypes = ['application/json', 'application/xml', 'text/html']
@@ -58,16 +60,18 @@ export const BodyPanel = ({
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
   const handeChipChange = (index: number) => {
-    setTab(index)
     const contentType = getContentTypeFromIndex(index)
 
     if (!contentType) {
+      handeChipChange(0)
       return
     }
 
-    if (contentType === null) {
+    setTab(index)
+
+    if (contentType === 'None') {
       setBody({
-        contentType,
+        contentType: null,
         body: null,
       })
     } else if (contentType === 'multipart/form-data') {
@@ -92,7 +96,31 @@ export const BodyPanel = ({
     console.log(bodyRef.current)
   }
 
-  const handleBodyDelete = () => {}
+  const handleBodyDelete = () => {
+    if (bodyRef.current?.contentType === undefined) {
+      throw new Error('bodyRef.current is undefined')
+    }
+
+    if (bodyRef.current?.contentType === null) {
+      return
+    }
+
+    if (
+      bodyRef.current?.contentType === 'multipart/form-data' ||
+      bodyRef.current?.contentType === 'application/x-www-form-urlencoded'
+    ) {
+      setBody({
+        contentType: bodyRef.current.contentType,
+        body: [],
+      })
+      return
+    }
+
+    setBody({
+      contentType: bodyRef.current.contentType,
+      body: '',
+    })
+  }
 
   useEffect(() => {
     const contentTypeFromTab = getContentTypeFromIndex(tab) || ''
@@ -101,9 +129,11 @@ export const BodyPanel = ({
 
     if (!includeBulkEdit) setIsBulkEditing(false)
 
+    const isDeletable = bodyRef.current?.contentType !== null
+
     setActionArea(
-      <QuickActions
-        onDeleteCallback={handleBodyDelete}
+      <QuickActionArea
+        onDeleteCallback={isDeletable ? handleBodyDelete : undefined}
         prettyPrintCallback={includePrettyPrint ? handlePrettyPrint : undefined}
         isBulkEditing={includeBulkEdit ? isBulkEditing : undefined}
         setIsBulkEditing={includeBulkEdit ? setIsBulkEditing : undefined}
@@ -154,28 +184,24 @@ export const BodyPanel = ({
         />
       )}
       {body.contentType === null && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-        >
-          <InventoryIcon
-            sx={{
-              marginBottom: 2,
-              width: 80,
-              height: 80,
-              color: theme.palette.action.disabled,
-            }}
-          />
-          <Typography variant="h6">No body selected</Typography>
-          <Typography variant="caption" color={theme.palette.text.secondary}>
-            If you want to add a body, select from the types above
-          </Typography>
-        </Stack>
+        <EmptyPanelMessage
+          primaryText="No body"
+          secondaryMessages={[
+            'If you want to add a body, select from the types above',
+          ]}
+          icon={
+            <InventoryIcon
+              sx={{
+                marginBottom: 2,
+                width: 80,
+                height: 80,
+                color: theme.palette.action.disabled,
+              }}
+            />
+          }
+        />
       )}
+
       {body.contentType === 'application/x-www-form-urlencoded' && (
         <KeyValueEditor
           items={body.body}

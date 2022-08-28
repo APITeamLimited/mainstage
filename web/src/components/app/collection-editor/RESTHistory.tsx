@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useReactiveVar } from '@apollo/client'
 import ClearIcon from '@mui/icons-material/Clear'
 import CloseIcon from '@mui/icons-material/Close'
@@ -40,6 +41,7 @@ export const RESTHistory = ({
 }: RESTHistoryProps) => {
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const restResponsesYMap = collectionYMap.get('restResponses')
+  const restRequestsYMap = collectionYMap.get('restRequests')
   const restResponses = useYMap(restResponsesYMap)
   const theme = useTheme()
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
@@ -60,18 +62,33 @@ export const RESTHistory = ({
   }
 
   // Filter within 30 days
-  const responsesToDelete = (
+  /*const responsesToDelete = (
     Array.from(restResponsesYMap.values()) as Y.Map<any>[]
   ).filter(
     (response) =>
       new Date(response.get('createdAt')).getTime() - new Date().getTime() >
       30 * 24 * 60 * 60 * 1000
-  )
+  )*/
+  const responsesToDelete: Y.Map<any>[] = []
 
-  const responses = (
+  const rawResponses: Y.Map<any>[] = (
     Array.from(restResponsesYMap.values()) as Y.Map<any>[]
   ).filter((response) => {
     return response.get('type') === 'Success' || response.get('type') === 'Fail'
+  })
+
+  const responses: Y.Map<any>[] = []
+
+  rawResponses.forEach((response) => {
+    // Ensure that the response has a parent request else mark it for deletion
+    const parentId = response.get('parentId')
+
+    if (!parentId) {
+      responsesToDelete.push(response)
+      return
+    }
+    if (!restRequestsYMap.has(parentId)) responsesToDelete.push(response)
+    responses.push(response)
   })
 
   // Sort most recent first
@@ -81,7 +98,7 @@ export const RESTHistory = ({
     return bDate.getTime() - aDate.getTime()
   })
 
-  if (responses.length > 30) {
+  if (responses.length > 100) {
     responsesToDelete.push(...responses.slice(30))
   }
 
@@ -230,7 +247,7 @@ export const RESTHistory = ({
                     response.get('statusCode') >= 200 &&
                     response.get('statusCode') < 300
                       ? theme.palette.success.main
-                      : response.get('statusCode') < 300
+                      : response.get('statusCode') < 400
                       ? theme.palette.warning.main
                       : theme.palette.error.main
 
@@ -292,8 +309,7 @@ export const RESTHistory = ({
               }}
               fontSize="small"
             >
-              Responses older than 30 days, or more than 30 deep are deleted
-              automatically
+              Responses more than 100 deep are deleted automatically
             </Typography>
           </>
         )}

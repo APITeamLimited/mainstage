@@ -8,6 +8,7 @@ import {
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
 
+import { focusedResponseVar } from '../../RESTResponsePanel'
 import { EditNameInput } from '../EditNameInput'
 
 import { DropSpaceType } from './Node'
@@ -47,10 +48,30 @@ export const RESTRequestNode = ({
 }: RESTRequestNodeProps) => {
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
 
   const isInFocus =
     focusedElementDict[getFocusedElementKey(nodeYMap)]?.get('id') ===
     nodeYMap.get('id')
+
+  const handleClick = () => {
+    // Set focused response to most recent of this node's responses
+    const responses = Array.from(
+      collectionYMap.get('restResponses').values() as Y.Map<any>[]
+    )
+      .filter((response) => response.get('parentId') === nodeYMap.get('id'))
+      .sort(
+        (a, b) =>
+          new Date(b.get('createdAt')).getTime() -
+          new Date(a.get('createdAt')).getTime()
+      )
+
+    if (responses.length > 0) {
+      focusedResponseDict[getFocusedElementKey(collectionYMap)] = responses[0]
+    }
+
+    updateFocusedElement(focusedElementDict, nodeYMap)
+  }
 
   return (
     <ListItem
@@ -70,7 +91,7 @@ export const RESTRequestNode = ({
         minHeight: '48px',
         paddingY: 0,
       }}
-      onClick={() => updateFocusedElement(focusedElementDict, nodeYMap)}
+      onClick={handleClick}
     >
       {!renaming && (
         <ListItemIcon

@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
 
+import { QuickActionArea } from '../../utils/QuickActionArea'
 import { KeyValueItem, KeyValueEditor } from '../KeyValueEditor'
-
-import { QuickActions } from './QuickActions'
-
 type HeadersPanelProps = {
   headers: KeyValueItem[]
   setHeaders: (newHeaders: KeyValueItem[]) => void
@@ -22,13 +20,14 @@ export const HeadersPanel = ({
   useEffect(
     () =>
       setActionArea(
-        <QuickActions
+        <QuickActionArea
           onDeleteCallback={() => setHeaders([])}
           isBulkEditing={isBulkEditing}
           setIsBulkEditing={setIsBulkEditing}
         />
       ),
-    [isBulkEditing, setActionArea, setHeaders]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isBulkEditing, setHeaders]
   )
 
   return (
