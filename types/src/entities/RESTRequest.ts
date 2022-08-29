@@ -1,6 +1,6 @@
-import { KeyValueItem } from '..'
+import { KeyValueItem, StoredObject } from '..'
 
-import { BaseEntity, StoredObject } from '.'
+import { BaseEntity } from '.'
 
 export const knownContentTypes = {
   'application/json': 'json',

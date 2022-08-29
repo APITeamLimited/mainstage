@@ -8,6 +8,7 @@ import {
   RESTReqBody,
   knownContentTypes,
 } from 'src/contexts/reactives'
+import { codeFormatter } from 'src/utils/codeFormatter'
 
 import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
 import { QuickActionArea } from '../../utils/QuickActionArea'
@@ -54,8 +55,11 @@ export const BodyPanel = ({
   setActionArea,
 }: BodyPanelProps) => {
   const theme = useTheme()
+
+  const [unsavedBodies, setUnsavedBodies] = useState<RESTReqBody[]>([body])
+
   const bodyRef = useRef<RESTReqBody | null>(null)
-  const [tab, setTab] = useState<number>(0)
+  const [tab, setTab] = useState<number>()
   bodyRef.current = body
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
@@ -67,33 +71,72 @@ export const BodyPanel = ({
       return
     }
 
+    setUnsavedBodies((prev) => {
+      const newUnsavedBodies = prev.filter(
+        (unsavedBody) => unsavedBody.contentType !== body.contentType
+      )
+      return [...newUnsavedBodies, body]
+    })
+
     setTab(index)
 
     if (contentType === 'None') {
-      setBody({
-        contentType: null,
-        body: null,
-      })
-    } else if (contentType === 'multipart/form-data') {
-      setBody({
-        contentType,
-        body: [],
-      })
-    } else if (contentType === 'application/x-www-form-urlencoded') {
-      setBody({
-        contentType,
-        body: [],
-      })
+      setBody(
+        unsavedBodies.find(
+          (unsavedBody) => unsavedBody.contentType === null
+        ) || {
+          contentType: null,
+          body: null,
+        }
+      )
+    } else if (
+      contentType === 'application/x-www-form-urlencoded' ||
+      contentType === 'multipart/form-data'
+    ) {
+      setBody(
+        unsavedBodies.find(
+          (unsavedBody) => unsavedBody.contentType === contentType
+        ) || {
+          contentType: contentType,
+          body: [],
+        }
+      )
     } else {
-      setBody({
-        contentType,
-        body: '',
-      })
+      setBody(
+        unsavedBodies.find(
+          (unsavedBody) => unsavedBody.contentType === contentType
+        ) || {
+          contentType: contentType,
+          body: '',
+        }
+      )
     }
   }
 
   const handlePrettyPrint = () => {
-    console.log(bodyRef.current)
+    if (bodyRef.current === null) throw new Error('bodyRef.current is null')
+    if (!bodyRef.current.contentType) {
+      throw new Error('bodyRef.current.contentType is null')
+    }
+
+    if (bodyRef.current.contentType === 'application/json') {
+      setBody({
+        contentType: bodyRef.current.contentType,
+        body: codeFormatter(bodyRef.current.body, 'json'),
+      })
+    } else if (bodyRef.current.contentType === 'application/xml') {
+      setBody({
+        contentType: bodyRef.current.contentType,
+        body: codeFormatter(bodyRef.current.body, 'xml'),
+      })
+    } else if (bodyRef.current.contentType === 'text/html') {
+      setBody({
+        contentType: bodyRef.current.contentType,
+        body: codeFormatter(bodyRef.current.body, 'html'),
+      })
+    } else {
+      throw new Error('Unsupported content type for pretty print')
+    }
   }
 
   const handleBodyDelete = () => {
@@ -123,7 +166,15 @@ export const BodyPanel = ({
   }
 
   useEffect(() => {
-    const contentTypeFromTab = getContentTypeFromIndex(tab) || ''
+    // Don't run for application/x-www-form-urlencoded and multipart/form-data
+    if (
+      bodyRef.current?.contentType === 'multipart/form-data' ||
+      bodyRef.current?.contentType === 'application/x-www-form-urlencoded'
+    ) {
+      return
+    }
+
+    const contentTypeFromTab = (tab && getContentTypeFromIndex(tab)) || ''
     const includePrettyPrint = prettyPrintTypes.includes(contentTypeFromTab)
     const includeBulkEdit = bulkEditTypes.includes(contentTypeFromTab)
 
@@ -206,7 +257,7 @@ export const BodyPanel = ({
         <KeyValueEditor
           items={body.body}
           setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
-          isBulkEditing={isBulkEditing}
+          setActionArea={setActionArea}
           namespace={`${requestId}${body.contentType}`}
         />
       )}

@@ -8,11 +8,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "composite": true,
-    "rootDirs": [
-      "./src",
-      "../api/src",
-      "../.redwood/types/mirror/api/src"
-    ],
+    "rootDirs": ["./src", "../api/src", "../.redwood/types/mirror/api/src"],
     "paths": {
       "src/*": [
         "./src/*",
@@ -22,8 +18,9 @@
       "types/*": ["./types/*", "../types/*", "../api/types"],
       "@redwoodjs/testing": ["../node_modules/@redwoodjs/testing/web"]
     },
+    "skipLibCheck": true,
     "typeRoots": ["../node_modules/@types", "./node_modules/@types"],
     "types": ["jest", "@testing-library/jest-dom"],
-    "jsx": "preserve",
-  },
+    "jsx": "preserve"
+  }
 }

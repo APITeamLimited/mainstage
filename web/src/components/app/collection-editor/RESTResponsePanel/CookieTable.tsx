@@ -34,7 +34,27 @@ export const CookieTable = ({ cookies, setActionArea }: CookieTableProps) => {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
           <Box>
-            <IconButton>
+            <IconButton
+              onClick={() =>
+                navigator.clipboard.writeText(
+                  `Name\tValue\tDomain\tPath\tHttpOnly\tSecure\tMax Age\tExpires\n${cookies
+                    .map((cookie) => {
+                      const values = Object.values(cookie)
+
+                      return values
+                        .map((value, index) => {
+                          if (index === values.length - 1) {
+                            return value
+                          }
+
+                          return `${value}\t`
+                        })
+                        .join('')
+                    })
+                    .join('\n')}`
+                )
+              }
+            >
               <ContentCopyIcon />
             </IconButton>
           </Box>

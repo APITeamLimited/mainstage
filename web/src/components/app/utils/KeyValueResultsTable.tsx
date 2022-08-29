@@ -34,7 +34,16 @@ export const KeyValueResultsTable = ({
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
           <Box>
-            <IconButton>
+            <IconButton
+              onClick={() =>
+                // Set as space separated string with newlines between each value
+                navigator.clipboard.writeText(
+                  `Name\tValue\n${values
+                    .map(({ key, value }) => `${key}\t${value}`)
+                    .join('\n')}`
+                )
+              }
+            >
               <ContentCopyIcon />
             </IconButton>
           </Box>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
@@ -65,52 +65,86 @@ export const AuthPanel = ({
   requestId,
 }: AuthPanelProps) => {
   const theme = useTheme()
+  const [tab, setTab] = useState<number>(0)
+  const [unsavedAuths, setUnsavedAuths] = useState<RESTAuth[]>([auth])
 
   useEffect(() => {
     setActionArea(<></>)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleChangeAuthType = (index: number) => {
+  const handleChipChange = (index: number) => {
     const newAuthType = getAuthMethodFromIndex(index)
 
+    if (newAuthType === undefined) {
+      handleChipChange(0)
+      return
+    }
+
+    setUnsavedAuths((prevAuths) => {
+      const newUnsavedauths = prevAuths.filter(
+        (prevAuth) => prevAuth.authType !== auth.authType
+      )
+      return [...newUnsavedauths, { ...auth, auth }]
+    })
+
+    setTab(index)
+
     if (newAuthType === 'none') {
-      setAuth({
-        authType: 'none',
-        authActive: true,
-      })
+      setAuth(
+        unsavedAuths.find((unsavedAuth) => unsavedAuth.authType === 'none') || {
+          authType: 'none',
+          authActive: true,
+        }
+      )
     } else if (newAuthType === 'basic') {
-      setAuth({
-        authType: 'basic',
-        authActive: true,
-        username: '',
-        password: '',
-      })
+      setAuth(
+        unsavedAuths.find(
+          (unsavedAuth) => unsavedAuth.authType === 'basic'
+        ) || {
+          authType: 'basic',
+          authActive: true,
+          username: '',
+          password: '',
+        }
+      )
     } else if (newAuthType === 'bearer') {
-      setAuth({
-        authType: 'bearer',
-        authActive: true,
-        token: '',
-      })
+      setAuth(
+        unsavedAuths.find(
+          (unsavedAuth) => unsavedAuth.authType === 'bearer'
+        ) || {
+          authType: 'bearer',
+          authActive: true,
+          token: '',
+        }
+      )
     } else if (newAuthType === 'oauth-2') {
-      setAuth({
-        authType: 'oauth-2',
-        authActive: true,
-        token: '',
-        oidcDiscoveryURL: '',
-        authURL: '',
-        accessTokenURL: '',
-        clientID: '',
-        scope: '',
-      })
+      setAuth(
+        unsavedAuths.find(
+          (unsavedAuth) => unsavedAuth.authType === 'oauth-2'
+        ) || {
+          authType: 'oauth-2',
+          authActive: true,
+          token: '',
+          oidcDiscoveryURL: '',
+          authURL: '',
+          accessTokenURL: '',
+          clientID: '',
+          scope: '',
+        }
+      )
     } else if (newAuthType === 'api-key') {
-      setAuth({
-        authType: 'api-key',
-        authActive: true,
-        key: '',
-        value: '',
-        addTo: 'header',
-      })
+      setAuth(
+        unsavedAuths.find(
+          (unsavedAuth) => unsavedAuth.authType === 'api-key'
+        ) || {
+          authType: 'api-key',
+          authActive: true,
+          key: '',
+          value: '',
+          addTo: 'header',
+        }
+      )
     } else {
       throw `handleChangeAuthType unsupported authType: ${newAuthType}`
     }
@@ -121,7 +155,7 @@ export const AuthPanel = ({
       <SecondaryChips
         names={authMethodLabels.map((method) => method.label)}
         value={getIndexOfAuthMethod(auth.authType) || 0}
-        onChange={handleChangeAuthType}
+        onChange={handleChipChange}
       />
       <Stack
         spacing={2}

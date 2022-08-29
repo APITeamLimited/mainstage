@@ -1,5 +1,3 @@
-const Dotenv = require('dotenv-webpack')
-
 /** @returns {import('webpack').Configuration} Webpack Configuration */
 module.exports = (config, { mode }) => {
   if (mode === 'development') {
@@ -16,8 +14,6 @@ module.exports = (config, { mode }) => {
 
   // Add custom plugins for your project
   // config.plugins.push(YOUR_PLUGIN)
-
-  config.plugins.push(new Dotenv())
 
   return config
 }

@@ -184,38 +184,6 @@ export const RESTResponsePanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedResponse, rawBearer, scopes, workspace])
 
-  /*useEffect(() => {
-    // Make sure response only filtered to current request
-    const successfulResponses = Array.from(restResponsesYMap.values()).filter(
-      (response: Y.Map<any>) =>
-        response.get('parentId') === focusedElement.get('id') &&
-        (response.get('type') === 'Success' ||
-          response.get('type') === 'Fail') &&
-        focusedElement.get('__typename') === 'RESTRequest'
-    ) as Y.Map<any>[]
-
-    console.log('successfulResponses', successfulResponses)
-
-    if (successfulResponses.length > 0) {
-      // Select latest createdAt successful response
-      updateFocusedRESTResponse(
-        focusedResponseDict,
-        successfulResponses.reduce((latest, current) => {
-          if (
-            new Date(latest.get('createdAt')).getTime() <
-            new Date(current.get('createdAt')).getTime()
-          ) {
-            return current
-          }
-          return latest
-        })
-      )
-    } else {
-      focusedResponseVar({})
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedElement, restResponses])*/
-
   if (focusedResponse) {
     if (
       focusedResponse.get('type') !== 'Success' &&

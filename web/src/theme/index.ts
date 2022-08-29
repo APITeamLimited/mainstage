@@ -40,7 +40,9 @@ type ThemeChoices = 'Default' | 'Devias' | 'Minimals'
 
 const theme: ThemeChoices = 'Default'
 
-const getTheme = (config: ThemeConfig): Theme & {
+const getTheme = (
+  config: ThemeConfig
+): Theme & {
   palette: {
     alternate: {
       main: string
@@ -53,7 +55,6 @@ const getTheme = (config: ThemeConfig): Theme & {
   } else if (theme === 'Default') {
     return responsiveFontSizes(
       createTheme({
-        //...baseThemeOptions,
         ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
         direction: config.direction,
       })

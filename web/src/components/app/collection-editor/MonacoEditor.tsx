@@ -46,7 +46,9 @@ export const MonacoEditor = ({
         //  Change string color to white
 
         'editorCursor.foreground': theme.palette.text.primary,
-        'editor.selectionBackground': theme.palette.alternate.main,
+        //'editor.selectionBackground': isDark
+        //  ? theme.palette.grey[700]
+        //  : theme.palette.grey[300],
         'editor.selectionHighlightBackground': theme.palette.alternate.main,
         'editor.inactiveSelectionBackground': theme.palette.alternate.main,
         'editor.lineHighlightBackground': theme.palette.alternate.main,

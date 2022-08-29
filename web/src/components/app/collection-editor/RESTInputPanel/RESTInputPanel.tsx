@@ -15,6 +15,7 @@ import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
 
 import { CustomTabs } from '../../CustomTabs'
+import { KeyValueEditor } from '../KeyValueEditor'
 import { PanelLayout } from '../PanelLayout'
 
 import { AuthPanel } from './AuthPanel'
@@ -75,17 +76,6 @@ export const RESTInputPanel = ({
   const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
-
-  // If request changes, update unsaved request
-  useEffect(() => {
-    setUnsavedEndpoint(requestYMap.get('endpoint'))
-    setUnsavedHeaders(requestYMap.get('headers'))
-    setUnsavedParameters(requestYMap.get('params'))
-    setUnsavedBody(requestYMap.get('body'))
-    setUnsavedRequestMethod(requestYMap.get('method'))
-    setUnsavedAuth(requestYMap.get('auth'))
-    setNeedSave(false)
-  }, [requestYMap])
 
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
@@ -218,10 +208,10 @@ export const RESTInputPanel = ({
         actionArea={actionArea}
       >
         {activeTabIndex === 0 && (
-          <ParametersPanel
-            parameters={unsavedParameters}
-            setParameters={setUnsavedParameters}
-            requestId={requestId}
+          <KeyValueEditor
+            items={unsavedParameters}
+            setItems={setUnsavedParameters}
+            namespace={requestId}
             setActionArea={setActionArea}
           />
         )}
@@ -234,10 +224,10 @@ export const RESTInputPanel = ({
           />
         )}
         {activeTabIndex === 2 && (
-          <HeadersPanel
-            headers={unsavedHeaders}
-            setHeaders={setUnsavedHeaders}
-            requestId={requestId}
+          <KeyValueEditor
+            items={unsavedHeaders}
+            setItems={setUnsavedHeaders}
+            namespace={requestId}
             setActionArea={setActionArea}
           />
         )}

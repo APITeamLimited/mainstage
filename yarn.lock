@@ -4435,6 +4435,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prettier/plugin-xml@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "@prettier/plugin-xml@npm:2.2.0"
+  dependencies:
+    "@xml-tools/parser": ^1.0.11
+    prettier: ">=2.4.0"
+  checksum: a76c791aced51a406fad0cf6ab10cb119443d0d426d7a52be6d718513737d576d2a31adf9b7b07fbc6431c37fecce02b166e85fd781ca05ee5555550a8769b19
+  languageName: node
+  linkType: hard
+
 "@prisma/client@npm:3.14.0":
   version: 3.14.0
   resolution: "@prisma/client@npm:3.14.0"
@@ -7275,6 +7285,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prettier@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "@types/prettier@npm:2.7.0"
+  checksum: 7416351864a6cd41fdb79683b720dc1b6bdc59da81edb52a85674135b385ef6e1a49c7780b0fe9fba2c5383df4ab195769d3cfc9e3a4f831e5bab4143ed5dd38
+  languageName: node
+  linkType: hard
+
 "@types/pretty-hrtime@npm:^1.0.0":
   version: 1.0.1
   resolution: "@types/pretty-hrtime@npm:1.0.1"
@@ -8241,6 +8258,13 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: d9ff126ba128ac56fd5c54a4295e68bf95b923d1ce728152d9dd1980bd9f35eaac5771c0072a840ee6296323c3c9891186cd29c7541579dcb5b4d4c74bfef379
+  languageName: node
+  linkType: hard
+
+"add@npm:^2.0.6":
+  version: 2.0.6
+  resolution: "add@npm:2.0.6"
+  checksum: 6b21d5f2e58cf5e15d56cc6f9ebce04f04f4c33ae25f09d600ddacf8df00036ba521f17feb1b3f81307b7c6d2ef0bed8b511a0f86f062eb90c2f909b48b588ae
   languageName: node
   linkType: hard
 
@@ -15825,6 +15849,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"html-prettify@npm:^1.0.7":
+  version: 1.0.7
+  resolution: "html-prettify@npm:1.0.7"
+  checksum: df92342e090a03d6f0385824d9e097b129bafd36de70f6a7125eeb6ab4549bf63ba5b56bdfa7d943b70a92bc2d529b2decda1b62d302ab77877b67a571bd00ae
+  languageName: node
+  linkType: hard
+
 "html-tags@npm:^3.1.0":
   version: 3.2.0
   resolution: "html-tags@npm:3.2.0"
@@ -21842,7 +21873,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.6.2, prettier@npm:^2.7.1":
+"prettier@npm:>=2.4.0, prettier@npm:^2.6.2, prettier@npm:^2.7.1":
   version: 2.7.1
   resolution: "prettier@npm:2.7.1"
   bin:
@@ -27104,6 +27135,7 @@ __metadata:
     "@mui/material": ^5.8.6
     "@mui/styles": ^5.8.7
     "@mui/x-data-grid": ^5.15.3
+    "@prettier/plugin-xml": ^2.2.0
     "@react-hook/throttle": ^2.2.0
     "@reduxjs/toolkit": ^1.8.3
     "@redwoodjs/auth": 2.0.0
@@ -27114,7 +27146,9 @@ __metadata:
     "@types/draft-js": ^0.11.9
     "@types/httpsnippet": ^1.23.1
     "@types/k6": ^0.37.1
+    "@types/prettier": ^2.7.0
     "@xml-tools/parser": ^1.0.11
+    add: ^2.0.6
     apollo3-cache-persist: ^0.14.1
     axios: ^0.27.2
     buffer: ^6.0.3
@@ -27124,6 +27158,7 @@ __metadata:
     draft-js-single-line-plugin: ^2.0.5
     form-data: ^4.0.0
     formik: ^2.2.9
+    html-prettify: ^1.0.7
     http-status-codes: ^2.2.0
     https-proxy-agent: ^5.0.1
     httpsnippet: ^2.0.0
@@ -27161,6 +27196,8 @@ __metadata:
     stripe: ^9.11.0
     use-double-click: ^1.0.5
     uuid: ^8.3.2
+    xml-formatter: ^2.6.1
+    yarn: ^1.22.19
     yjs: ^13.5.40
     yup: ^0.32.11
     zustand: ^4.0.0
@@ -27862,10 +27899,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"xml-formatter@npm:^2.6.1":
+  version: 2.6.1
+  resolution: "xml-formatter@npm:2.6.1"
+  dependencies:
+    xml-parser-xo: ^3.2.0
+  checksum: 97af94786f14d295eb74d5062e311f6c7b351d7b2b11c76d275eeb5197d98450bd0197de51dda9fbd6f03fbd23432e535fd13e8780a207cb1158a3d987bf02e5
+  languageName: node
+  linkType: hard
+
 "xml-name-validator@npm:^3.0.0":
   version: 3.0.0
   resolution: "xml-name-validator@npm:3.0.0"
   checksum: da310f6a7a52f8eb0fce3d04ffa1f97387ca68f47e8620ae3a259909c4e832f7003313b918e53840a6bf57fb38d5ae3c5f79f31f911b2818a7439f7898f8fbf1
+  languageName: node
+  linkType: hard
+
+"xml-parser-xo@npm:^3.2.0":
+  version: 3.2.0
+  resolution: "xml-parser-xo@npm:3.2.0"
+  checksum: 33101bc707eeccda575f2df2de20d9b01513467c16c53e9f87205ab4bcc800586f1080cf37550b681b9c123b4a7778dcdb324989782c2a6c6698ae5ab623be84
   languageName: node
   linkType: hard
 
@@ -28055,6 +28108,16 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^20.2.2
   checksum: b1dbfefa679848442454b60053a6c95d62f2d2e21dd28def92b647587f415969173c6e99a0f3bab4f1b67ee8283bf735ebe3544013f09491186ba9e8a9a2b651
+  languageName: node
+  linkType: hard
+
+"yarn@npm:^1.22.19":
+  version: 1.22.19
+  resolution: "yarn@npm:1.22.19"
+  bin:
+    yarn: bin/yarn.js
+    yarnpkg: bin/yarn.js
+  checksum: a6f9cdf67cca7e11141a18ffc1736a24dd569885b2ec0838982fcf21e5138840c66d9ebfc1846b0b35bc7b415cb985c65d79fb43aa1721b865e4f60c5569062a
   languageName: node
   linkType: hard
 

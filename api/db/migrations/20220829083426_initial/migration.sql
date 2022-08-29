@@ -6,7 +6,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
-    "isSupport" BOOLEAN NOT NULL DEFAULT false,
+    "isAdmin" BOOLEAN NOT NULL DEFAULT false,
     "emailVerified" BOOLEAN NOT NULL DEFAULT false,
     "shortBio" TEXT,
     "profilePicture" TEXT,
@@ -80,6 +80,41 @@ CREATE TABLE "Scope" (
     CONSTRAINT "Scope_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Tag" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+    "name" TEXT NOT NULL,
+
+    CONSTRAINT "Tag_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Article" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+    "title" TEXT NOT NULL,
+    "markdown" TEXT NOT NULL,
+    "estimatedReadingMinutes" INTEGER NOT NULL,
+    "authorId" TEXT NOT NULL,
+    "previewImageSrc" TEXT,
+
+    CONSTRAINT "Article_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "TagsOnArticles" (
+    "id" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3),
+    "tagId" TEXT NOT NULL,
+    "blogEntryId" TEXT NOT NULL,
+
+    CONSTRAINT "TagsOnArticles_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -94,3 +129,12 @@ ALTER TABLE "TeamMembership" ADD CONSTRAINT "TeamMembership_teamId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "TeamInvitation" ADD CONSTRAINT "TeamInvitation_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Article" ADD CONSTRAINT "Article_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TagsOnArticles" ADD CONSTRAINT "TagsOnArticles_tagId_fkey" FOREIGN KEY ("tagId") REFERENCES "Tag"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TagsOnArticles" ADD CONSTRAINT "TagsOnArticles_blogEntryId_fkey" FOREIGN KEY ("blogEntryId") REFERENCES "Article"("id") ON DELETE CASCADE ON UPDATE CASCADE;

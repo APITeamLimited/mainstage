@@ -19,7 +19,7 @@ export const EmptyPanelMessage = ({
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
-        paddingY: 4,
+        paddingY: 6,
         overflowY: 'auto',
         overflowX: 'hidden',
       }}

@@ -3,8 +3,6 @@ import { ComponentType, ReactElement } from 'react'
 import { ApolloClient } from '@apollo/client'
 import { DocumentNode } from 'graphql'
 
-import { UserAdmin } from './users'
-
 export type ValidAdmin = {
   gqlName: string
   displayName: string
@@ -37,7 +35,7 @@ export type ValidAdmin = {
   }
 }
 
-export const admins: Array<ValidAdmin> = [UserAdmin]
+export const admins: Array<ValidAdmin> = []
 
 export class DataProviderInstance {
   apollo: ApolloClient<unknown>

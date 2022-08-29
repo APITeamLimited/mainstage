@@ -1,4 +1,9 @@
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import { Box, IconButton, Tooltip } from '@mui/material'
+
+import { QuickActionArea } from '../../utils/QuickActionArea'
 
 import { BulkEditor } from './BulkEditor'
 import { SortableEditor } from './SortableEditor'
@@ -13,20 +18,72 @@ export type KeyValueItem = {
 type KeyValueEditorProps = {
   items: KeyValueItem[]
   setItems: (newItems: KeyValueItem[]) => void
-  isBulkEditing?: boolean
   namespace: string
   enableEnvironmentVariables?: boolean
+  setActionArea?: (actionArea: React.ReactNode) => void
 }
 
 export const KeyValueEditor = ({
   items,
   setItems,
-  isBulkEditing = false,
   namespace,
   enableEnvironmentVariables,
+  setActionArea,
 }: KeyValueEditorProps) => {
+  const [isBulkEditing, setIsBulkEditing] = useState(false)
   const [bulkContents, setBulkContents] = useState('')
-  const [doneFirstNonBulkRender, setDoneFirstNonBulkRender] = useState(false)
+
+  const itemsRef = useRef<KeyValueItem[]>(items)
+  itemsRef.current = items
+
+  useEffect(() => {
+    if (!setActionArea) {
+      return
+    }
+
+    if (!itemsRef.current) {
+      setActionArea(<></>)
+      return
+    }
+
+    const customActions = []
+
+    const enableCopy = itemsRef.current.length > 0
+    if (enableCopy) {
+      customActions.push(
+        <Tooltip title="Copy All" key="Copy All">
+          <Box>
+            <IconButton
+              onClick={() =>
+                isBulkEditing
+                  ? navigator.clipboard.writeText(bulkContents)
+                  : navigator.clipboard.writeText(
+                      `Name\tValue\n${itemsRef.current
+                        .map(({ keyString, value }) => `${keyString}\t${value}`)
+                        .join('\n')}`
+                    )
+              }
+            >
+              <ContentCopyIcon />
+            </IconButton>
+          </Box>
+        </Tooltip>
+      )
+    }
+
+    const enableDeleteButton =
+      itemsRef.current.length > 0 || bulkContents !== ''
+
+    setActionArea(
+      <QuickActionArea
+        onDeleteCallback={enableDeleteButton ? () => setItems([]) : undefined}
+        isBulkEditing={isBulkEditing}
+        setIsBulkEditing={setIsBulkEditing}
+        customActions={customActions}
+      />
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBulkEditing, items, bulkContents])
 
   const generateBulkContents = (keyValueItems: KeyValueItem[]) => {
     const generatedLines: string[] = []
@@ -75,28 +132,33 @@ export const KeyValueEditor = ({
     return foundItems
   }
 
+  // Handle bulk editor toggle
   useEffect(() => {
     if (isBulkEditing) {
       setBulkContents(generateBulkContents(items))
-      setDoneFirstNonBulkRender(false)
-    } else if (!doneFirstNonBulkRender && bulkContents !== '') {
+    } else if (bulkContents !== '') {
       setItems(generateKeyValueItems(bulkContents))
       setBulkContents('')
-      setDoneFirstNonBulkRender(true)
     }
     // Don't add bulkContents, don't want state to update when editing and not
     // TextField is potentially not formatted correctly
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBulkEditing, items, setItems])
+  }, [isBulkEditing, setItems])
 
   return isBulkEditing ? (
-    <BulkEditor contents={bulkContents} setContents={setBulkContents} />
+    <BulkEditor
+      key={JSON.stringify(items)}
+      contents={bulkContents}
+      setContents={setBulkContents}
+    />
   ) : (
     <SortableEditor
       items={items}
       setItems={setItems}
       namespace={namespace}
       enableEnvironmentVariables={enableEnvironmentVariables}
+      // Not re-rendering when supposed to so use key
+      key={bulkContents}
     />
   )
 }

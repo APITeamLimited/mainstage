@@ -21,8 +21,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: '*',
   },
-  path:
-    process.env.NODE_ENV === 'development' ? '/socket-io' : '/api/globe-test',
+  path: '/api/globe-test',
 })
 
 io.use(async (socket, next) => {

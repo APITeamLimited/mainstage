@@ -321,10 +321,7 @@ export class SocketIOProvider extends Observable<string> {
           scopeId: this.scopeId,
           bearer: this.rawBearer,
         },
-        path:
-          process.env.NODE_ENV === 'development'
-            ? '/socket-io'
-            : '/api/entity-engine',
+        path: '/api/entity-engine',
       })
 
       //this.socket.binaryType = 'arraybuffer'

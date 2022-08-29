@@ -54,10 +54,7 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
         source: job.source,
         endpoint: '/new-test',
       },
-      path:
-        process.env.NODE_ENV === 'development'
-          ? '/socket-io'
-          : '/api/globe-test',
+      path: '/api/globe-test',
       reconnection: false,
     })
 

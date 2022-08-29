@@ -18,10 +18,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: '*',
   },
-  path:
-    process.env.NODE_ENV === 'development'
-      ? '/socket-io'
-      : '/api/entity-engine',
+  path: '/api/entity-engine',
 })
 
 io.use(async (socket, next) => {
