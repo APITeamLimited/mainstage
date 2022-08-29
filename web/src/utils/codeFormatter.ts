@@ -1,9 +1,10 @@
 import htmlFormatter from 'html-prettify'
+import { BuiltInParserName } from 'prettier'
 import parserBabel from 'prettier/parser-babel'
 import prettier from 'prettier/standalone'
 import xmlFormatter from 'xml-formatter'
 
-type FormatterSupportedLanguage = 'json' | 'xml' | 'html'
+type FormatterSupportedLanguage = 'xml' | BuiltInParserName
 
 export const codeFormatter = (
   content: string,

@@ -40,6 +40,7 @@
     "markdown-to-jsx": "^7.1.7",
     "nodemon": "^2.0.19",
     "react-router-dom": "^6.3.0",
+    "stream-browserify": "^3.0.0",
     "y-indexeddb": "^9.0.9"
   }
 }

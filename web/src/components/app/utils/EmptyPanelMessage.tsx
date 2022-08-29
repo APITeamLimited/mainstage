@@ -3,6 +3,7 @@ import { Stack, Typography, useTheme } from '@mui/material'
 type EmptyPanelMessageProps = {
   icon: React.ReactNode
   primaryText: string
+  children?: React.ReactNode
   secondaryMessages?: string[]
 }
 
@@ -10,6 +11,7 @@ export const EmptyPanelMessage = ({
   icon,
   primaryText,
   secondaryMessages = [],
+  children,
 }: EmptyPanelMessageProps) => {
   const theme = useTheme()
   return (
@@ -19,7 +21,7 @@ export const EmptyPanelMessage = ({
         alignItems: 'center',
         justifyContent: 'center',
         height: '100%',
-        paddingY: 6,
+        width: '100%',
         overflowY: 'auto',
         overflowX: 'hidden',
       }}
@@ -38,6 +40,7 @@ export const EmptyPanelMessage = ({
           {message}
         </Typography>
       ))}
+      {children}
     </Stack>
   )
 }

@@ -18,7 +18,10 @@ import { KeyValueItem } from 'types/src'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
-import { activeEnvironmentVar } from 'src/contexts/reactives'
+import {
+  activeEnvironmentVar,
+  updateActiveEnvironmentId,
+} from 'src/contexts/reactives'
 
 import { KeyValueEditor } from '../collection-editor/KeyValueEditor'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
@@ -72,12 +75,12 @@ export const SingleEnvironmentEditor = ({
     const environmentsYMap = environmentYMap.parent
     if (!environmentsYMap) throw 'No environmentsYMap'
 
+    const branchYMap = environmentsYMap.parent
+    if (!branchYMap) throw 'No branchYMap'
+
     environmentsYMap?.delete(environmentId)
 
-    activeEnvironmentVar({
-      ...activeEnvironmentVarData,
-      [branchYMap?.get('id')]: null,
-    })
+    updateActiveEnvironmentId(activeEnvironmentVarData, branchYMap, null)
   }
 
   return (
@@ -128,7 +131,7 @@ export const SingleEnvironmentEditor = ({
         <DialogContent
           sx={{
             height: '500px',
-            paddingY: 3,
+            padding: 2,
           }}
         >
           <Stack
@@ -145,7 +148,7 @@ export const SingleEnvironmentEditor = ({
               namespace={`env-${environmentId}`}
               enableEnvironmentVariables={false}
             />
-            <Box sx={{ marginTop: 3 }} />
+            <Box sx={{ marginTop: 2 }} />
             <Stack spacing={2} direction="row">
               <Button
                 variant="contained"

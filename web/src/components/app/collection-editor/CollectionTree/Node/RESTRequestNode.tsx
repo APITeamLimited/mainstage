@@ -90,6 +90,7 @@ export const RESTRequestNode = ({
         cursor: 'pointer',
         minHeight: '48px',
         paddingY: 0,
+        zIndex: 0,
       }}
       onClick={handleClick}
     >

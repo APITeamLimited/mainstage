@@ -25,16 +25,21 @@ import { useYMap } from 'zustand-yjs'
 import {
   useActiveEnvironmentYMap,
   useBranchYMap,
-  useEnvironments,
   useEnvironmentsYMap,
 } from 'src/contexts/EnvironmentProvider'
-import { activeEnvironmentVar } from 'src/contexts/reactives'
+import {
+  activeEnvironmentVar,
+  getBranchEnvironmentKey,
+  updateActiveEnvironmentId,
+} from 'src/contexts/reactives'
 
+import { createEnvironment } from '../../../../../entity-engine/src/entities'
 import {
   KeyValueEditor,
   KeyValueItem,
 } from '../collection-editor/KeyValueEditor'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
+import { EmptyPanelMessage } from '../utils/EmptyPanelMessage'
 
 import { CreateEnvironmentDialog } from './CreateEnvironmentDialog'
 
@@ -48,8 +53,6 @@ export const EnvironmentManager = ({
   setShowCallback,
 }: EnvironmentManagerProps) => {
   const theme = useTheme()
-  const environmentsHook = useEnvironments()
-  const environments = Object.values(environmentsHook.data) as Environment[]
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
   const environmentsYMap = useEnvironmentsYMap()
@@ -73,7 +76,7 @@ export const EnvironmentManager = ({
   }, [activeEnvironmentYMap])
 
   const activeEnvironmentId =
-    activeEnvironmentVarData[branchYMap?.get('id')] || null
+    activeEnvironmentVarData[getBranchEnvironmentKey(branchYMap)] || null
 
   const handleEnvironmentSave = (newKeyValues: KeyValueItem[]) => {
     if (!activeEnvironmentYMap) throw 'No active environment'
@@ -93,25 +96,18 @@ export const EnvironmentManager = ({
   const handleEnvironmentCreate = (name: string) => {
     if (!environmentsYMap) throw 'No environmentsYMap'
 
-    const newId = uuid()
+    const { environment, environmentId } = createEnvironment(name)
 
-    const newEnvironmentYMap = new Y.Map()
+    environmentsYMap.set(environmentId, environment)
 
-    newEnvironmentYMap.set('id', newId)
-    newEnvironmentYMap.set('name', name)
-    newEnvironmentYMap.set('variables', [])
-    newEnvironmentYMap.set('createdAt', new Date().toISOString())
-    newEnvironmentYMap.set('updatedAt', null)
-
-    environmentsYMap.set(newId, newEnvironmentYMap)
-
-    const isFirstEnvironment = environments.length === 0
+    const isFirstEnvironment = environmentsYMap.size === 0
 
     if (isFirstEnvironment) {
-      activeEnvironmentVar({
-        ...activeEnvironmentVarData,
-        [branchYMap?.get('id')]: newId,
-      })
+      updateActiveEnvironmentId(
+        activeEnvironmentVarData,
+        branchYMap,
+        environmentId
+      )
     }
   }
 
@@ -121,10 +117,7 @@ export const EnvironmentManager = ({
 
     environmentsYMap?.delete(activeEnvironmentYMap.get('id'))
 
-    activeEnvironmentVar({
-      ...activeEnvironmentVarData,
-      [branchYMap?.get('id')]: null,
-    })
+    updateActiveEnvironmentId(activeEnvironmentVarData, branchYMap, null)
   }
 
   return (
@@ -167,12 +160,13 @@ export const EnvironmentManager = ({
             {activeEnvironmentId && (
               <Tooltip title="Deselect Environment">
                 <IconButton
-                  onClick={() => {
-                    activeEnvironmentVar({
-                      ...activeEnvironmentVarData,
-                      [branchYMap.get('id')]: null,
-                    })
-                  }}
+                  onClick={() =>
+                    updateActiveEnvironmentId(
+                      activeEnvironmentVarData,
+                      branchYMap,
+                      null
+                    )
+                  }
                   sx={{
                     color: (theme) => theme.palette.grey[500],
                   }}
@@ -197,35 +191,26 @@ export const EnvironmentManager = ({
         <DialogContent
           sx={{
             height: '500px',
-            paddingTop: 0,
-            paddingBottom: 3,
+            padding: 0,
           }}
         >
-          {environments.length === 0 ? (
-            <Stack
-              sx={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: '100%',
-              }}
+          {environmentsYMap.size === 0 ? (
+            <EmptyPanelMessage
+              primaryText="Looks like nothings here yet 😢"
+              secondaryMessages={[
+                'Add an environment to use its variables in requests',
+              ]}
+              icon={
+                <LayersClearIcon
+                  sx={{
+                    marginBottom: 2,
+                    width: 80,
+                    height: 80,
+                    color: theme.palette.action.disabled,
+                  }}
+                />
+              }
             >
-              <LayersClearIcon
-                sx={{
-                  marginBottom: 2,
-                  width: 80,
-                  height: 80,
-                  color: theme.palette.action.disabled,
-                }}
-              />
-              <Typography variant="h6">
-                Looks like nothings here yet 😢
-              </Typography>
-              <Typography
-                variant="caption"
-                color={theme.palette.text.secondary}
-              >
-                Add an environment to use its variables in requests
-              </Typography>
               <Button
                 variant="outlined"
                 onClick={() => setShowCreateEnvironmentDialog(true)}
@@ -235,42 +220,47 @@ export const EnvironmentManager = ({
               >
                 Create Environment
               </Button>
-            </Stack>
+            </EmptyPanelMessage>
           ) : (
             <Stack
               direction="row"
               sx={{
                 height: '100%',
               }}
-              spacing={3}
             >
               <Stack
                 sx={{
                   minWidth: '200px',
                   maxWidth: '400px',
                   overflow: 'auto',
-                  paddingY: 3,
+                  padding: 2,
                 }}
                 spacing={2}
               >
-                {environments.map((environment, index) => (
-                  <Button
-                    key={index}
-                    variant={
-                      environment.id === activeEnvironmentId
-                        ? 'contained'
-                        : 'text'
-                    }
-                    onClick={() => {
-                      activeEnvironmentVar({
-                        ...activeEnvironmentVarData,
-                        [branchYMap.get('id')]: environment.id,
-                      })
-                    }}
-                  >
-                    {environment.name}
-                  </Button>
-                ))}
+                {Array.from(environmentsYMap.values()).map(
+                  (environment, index) => (
+                    <Button
+                      key={index}
+                      variant={
+                        environment.get('id') ===
+                        activeEnvironmentVarData[
+                          getBranchEnvironmentKey(branchYMap)
+                        ]
+                          ? 'contained'
+                          : 'text'
+                      }
+                      onClick={() => {
+                        updateActiveEnvironmentId(
+                          activeEnvironmentVarData,
+                          branchYMap,
+                          environment.get('id')
+                        )
+                      }}
+                    >
+                      {environment.get('name')}
+                    </Button>
+                  )
+                )}
                 <Divider color={theme.palette.divider} />
                 <Button
                   variant="outlined"
@@ -288,7 +278,8 @@ export const EnvironmentManager = ({
               <Stack
                 sx={{
                   width: '100%',
-                  paddingTop: 2,
+                  height: 'calc(100% - 2em)',
+                  padding: 2,
                 }}
                 justifyContent="space-between"
                 alignItems="flex-end"
@@ -301,7 +292,7 @@ export const EnvironmentManager = ({
                       namespace={`env${activeEnvironmentId}`}
                       enableEnvironmentVariables={false}
                     />
-                    <Box sx={{ marginTop: 3 }} />
+                    <Box sx={{ marginTop: 2 }} />
                     <Stack spacing={2} direction="row">
                       <Button
                         variant="contained"
@@ -321,32 +312,22 @@ export const EnvironmentManager = ({
                     </Stack>
                   </>
                 ) : (
-                  <Stack
-                    sx={{
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      height: '100%',
-                      width: '100%',
-                    }}
-                  >
-                    <DeselectIcon
-                      sx={{
-                        marginBottom: 2,
-                        width: 80,
-                        height: 80,
-                        color: theme.palette.action.disabled,
-                      }}
-                    />
-                    <Typography variant="h6">
-                      No environment selected
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      color={theme.palette.text.secondary}
-                    >
-                      Select an environment to use its variables in requests
-                    </Typography>
-                  </Stack>
+                  <EmptyPanelMessage
+                    primaryText="No active environment"
+                    secondaryMessages={[
+                      'Select an environment to use its variables in requests',
+                    ]}
+                    icon={
+                      <DeselectIcon
+                        sx={{
+                          marginBottom: 2,
+                          width: 80,
+                          height: 80,
+                          color: theme.palette.action.disabled,
+                        }}
+                      />
+                    }
+                  />
                 )}
               </Stack>
             </Stack>

@@ -108,6 +108,7 @@ export const SortableEditor = memo(
       <Box
         sx={{
           height: '100%',
+          width: '100%',
           overflowY: 'auto',
         }}
       >

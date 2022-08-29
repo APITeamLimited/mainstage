@@ -4,23 +4,23 @@ import { useReactiveVar } from '@apollo/client'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
-import { activeEnvironmentVar } from './reactives'
+import { activeEnvironmentVar, getBranchEnvironmentKey } from './reactives'
 
 // Doesn't appear to work so commenting out for now
 //const ActiveEnvironmentContext = createContext({})
 //export const useActiveEnvironment = () => useContext(ActiveEnvironmentContext)
 
-const ActiveEnvironmentYMapContext = createContext(new Y.Map())
+const ActiveEnvironmentYMapContext = createContext(new Y.Map<any>())
 export const useActiveEnvironmentYMap = () =>
   useContext(ActiveEnvironmentYMapContext)
 
 const EnvironmentsContext = createContext({})
 export const useEnvironments = () => useContext(EnvironmentsContext)
 
-const EnvironmentsYMapContext = createContext(null)
+const EnvironmentsYMapContext = createContext(new Y.Map<any>())
 export const useEnvironmentsYMap = () => useContext(EnvironmentsYMapContext)
 
-const BranchYMapContext = createContext<Y.Map<any> | null>(null)
+const BranchYMapContext = createContext<Y.Map<any>>(new Y.Map())
 export const useBranchYMap = () => useContext(BranchYMapContext)
 
 type EnvironmentProviderProps = {
@@ -40,7 +40,7 @@ export const EnvironmentProvider = ({
   useEffect(() => {
     // Set activeEnvironmentYMap based on activeEnvironmentId
     const activeEnvironmentId =
-      allActiveEnvironmentsDict[branchYMap?.get('id')] || null
+      allActiveEnvironmentsDict[getBranchEnvironmentKey(branchYMap)] || null
     const activeEnvironmentYMap = activeEnvironmentId
       ? environmentsYMap?.get(activeEnvironmentId)
       : null

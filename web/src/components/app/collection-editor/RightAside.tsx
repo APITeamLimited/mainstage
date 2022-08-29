@@ -132,7 +132,12 @@ export const RightAside = ({
             '__typename'
           ) === 'RESTRequest' &&
           activeRightAside === 'code' && (
-            <RESTCodeGenerator onCloseAside={handleCloseAside} />
+            <RESTCodeGenerator
+              requestYMap={
+                focusedElementDict[getFocusedElementKey(collectionYMap)]
+              }
+              onCloseAside={handleCloseAside}
+            />
           )}
         {showRightAside &&
           focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(

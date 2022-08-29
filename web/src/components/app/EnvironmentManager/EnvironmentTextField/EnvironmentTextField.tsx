@@ -27,7 +27,6 @@ export type EnvironmentTextFieldProps = {
   label?: string
   error?: boolean
   helperText?: string | false
-  onClick?: () => void
 }
 
 const onError = (error: Error) => {
@@ -81,9 +80,9 @@ export const EnvironmentTextField = ({
   label = '',
   error = false,
   helperText = '',
-  onClick = () => undefined,
 }: EnvironmentTextFieldProps) => {
   const theme = useTheme()
+  const [focused, setFocused] = useState(false)
 
   const initialConfig = {
     namespace,
@@ -109,15 +108,7 @@ export const EnvironmentTextField = ({
         maxWidth: '100%',
       }}
     >
-      {label !== '' && (
-        <Typography
-          sx={{
-            marginBottom: 0.5,
-          }}
-        >
-          {label}
-        </Typography>
-      )}
+      {label !== '' && <Typography gutterBottom>{label}</Typography>}
       <div
         style={{
           overflow: 'hidden',
@@ -130,7 +121,7 @@ export const EnvironmentTextField = ({
           borderColor: 'transparent',
           ...wrapperStyles,
         }}
-        onClick={() => onClick()}
+        onClick={() => setFocused(true)}
       >
         <LexicalComposer initialConfig={initialConfig} key={namespace}>
           <InnerValues

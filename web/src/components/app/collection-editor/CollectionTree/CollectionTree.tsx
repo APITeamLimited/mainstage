@@ -50,6 +50,8 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
           sx={{
             margin: 2,
             padding: 0,
+            backgroundColor: 'primary',
+            marginBottom: 1.875,
           }}
         >
           <AddIcon />

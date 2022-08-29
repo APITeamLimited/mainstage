@@ -22,6 +22,7 @@ import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 
 import { getNodeIcon } from './CollectionTree/Node/utils'
 import {
+  clearFocusedRESTResponse,
   focusedResponseVar,
   updateFocusedRESTResponse,
 } from './RESTResponsePanel'
@@ -58,6 +59,7 @@ export const RESTHistory = ({
 
   const handleDeleteResponse = (responseId: string) => {
     const restResponse = restResponsesYMap.get(responseId) as Y.Map<any>
+    clearFocusedRESTResponse(focusedElementDict, restResponse)
     deleteRestResponse([restResponse])
   }
 

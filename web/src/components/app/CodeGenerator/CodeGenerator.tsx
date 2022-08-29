@@ -23,16 +23,18 @@ import {
 type CodeGeneratorProps = {
   availableCodeGens?: CodeGenDefinition[]
   onCloseAside: () => void
+  onGenerateCode: (codeGen: CodeGenDefinition | null) => void
+  codeGenerated: CodeGenerated
 }
 
-type CodeGenDefinition = {
+export type CodeGenDefinition = {
   name: string
   lang: string
   mode: string
   caption: string
 }
 
-type CodeGenerated = {
+export type CodeGenerated = {
   language: string
   value: string
 } | null
@@ -40,6 +42,8 @@ type CodeGenerated = {
 export const CodeGenerator = ({
   availableCodeGens = [],
   onCloseAside,
+  onGenerateCode,
+  codeGenerated,
 }: CodeGeneratorProps) => {
   const theme = useTheme()
   const [activeCodeGen, setActiveCodeGen] = useState<CodeGenDefinition | null>(
@@ -47,7 +51,6 @@ export const CodeGenerator = ({
   )
   const [showCodeGenPopover, setShowCodeGenPopover] = useState(false)
   const codeGenButtonRef = useRef<HTMLButtonElement>(null)
-  const [codeGenerated, setCodeGenerated] = useState<CodeGenerated>(null)
 
   useEffect(() => {
     if (availableCodeGens.length > 0) {
@@ -57,6 +60,10 @@ export const CodeGenerator = ({
     }
     setShowCodeGenPopover(false)
   }, [availableCodeGens])
+
+  useEffect(() => {
+    onGenerateCode(activeCodeGen || null)
+  }, [activeCodeGen, onGenerateCode])
 
   return (
     <>
@@ -146,17 +153,31 @@ export const CodeGenerator = ({
                     {activeCodeGen.caption}
                   </span>
                 </Button>
-                <Tooltip title="Copy to clipboard">
+                {codeGenerated ? (
+                  <Tooltip title="Copy All">
+                    <IconButton
+                      size="small"
+                      sx={{
+                        color: theme.palette.text.secondary,
+                      }}
+                      onClick={() =>
+                        navigator.clipboard.writeText(codeGenerated.value)
+                      }
+                    >
+                      <ContentCopyIcon />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
                   <IconButton
                     size="small"
                     sx={{
                       color: theme.palette.text.secondary,
                     }}
-                    disabled={!codeGenerated}
+                    disabled
                   >
                     <ContentCopyIcon />
                   </IconButton>
-                </Tooltip>
+                )}
               </Stack>
               {codeGenerated ? (
                 <div
@@ -171,6 +192,7 @@ export const CodeGenerator = ({
                     readOnly
                     enableMinimap={false}
                     scrollBeyondLastLine={false}
+                    wordWrap="on"
                   />
                 </div>
               ) : (

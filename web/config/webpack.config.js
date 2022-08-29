@@ -15,5 +15,10 @@ module.exports = (config, { mode }) => {
   // Add custom plugins for your project
   // config.plugins.push(YOUR_PLUGIN)
 
+  //config.resolve.fallback = {
+  //  stream: require.resolve('stream-browserify'),
+  //  process: require.resolve('process'),
+  //}
+
   return config
 }

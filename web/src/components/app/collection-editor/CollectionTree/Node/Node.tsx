@@ -304,6 +304,8 @@ export const Node = ({
           ref={drop}
           style={{
             overflow: 'visible',
+            paddingTop:
+              nodeYMap.get('__typename') === 'Collection' ? '0.125rem' : 0,
           }}
         >
           {dropSpace === 'Top' && hovered && <DropSpace />}

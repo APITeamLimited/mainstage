@@ -26,10 +26,11 @@ const authMethodLabels = [
     authType: 'bearer',
     label: 'Bearer',
   },
-  {
-    authType: 'oauth-2',
-    label: 'OAuth 2',
-  },
+  // TODO: Add OAuth2 support and more auth methods
+  //{
+  //  authType: 'oauth-2',
+  //  label: 'OAuth 2',
+  //},
   {
     authType: 'api-key',
     label: 'API Key',
@@ -234,7 +235,7 @@ export const AuthPanel = ({
             />
           </Stack>
         )}
-        {auth.authType === 'oauth-2' && (
+        {/*auth.authType === 'oauth-2' && (
           <Stack
             sx={{
               display: 'flex',
@@ -248,7 +249,7 @@ export const AuthPanel = ({
               requestId={requestId}
             />
           </Stack>
-        )}
+          )*/}
         {auth.authType === 'api-key' && (
           <Stack
             sx={{

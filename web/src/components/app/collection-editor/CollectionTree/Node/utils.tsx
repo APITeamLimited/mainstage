@@ -54,7 +54,11 @@ export const DropSpace = () => {
       sx={{
         height: '0.25rem',
         backgroundColor: theme.palette.primary.light,
-        marginBottom: -0.5,
+        // Prevent drop space from taking up space
+        marginY: -0.25,
+        position: 'relative',
+        overflow: 'visible',
+        zIndex: 1,
       }}
     />
   )
