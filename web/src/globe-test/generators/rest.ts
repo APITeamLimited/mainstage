@@ -34,7 +34,7 @@ export const singleRESTRequestGenerator = ({
     const req = {
       method: '${axiosConfig.method}',
       url: '${axiosConfig.url}${queryEncoded.length > 1 ? queryEncoded : ''}',
-      body: ${JSON.stringify(axiosConfig.data)},
+      data: ${JSON.stringify(axiosConfig.data)},
       params: {
         headers: ${JSON.stringify(axiosConfig.headers)},
       }

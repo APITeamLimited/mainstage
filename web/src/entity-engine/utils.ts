@@ -1,11 +1,8 @@
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
+import { Workspace } from 'types/src'
 
-import {
-  activeWorkspaceIdVar,
-  Workspace,
-  workspacesVar,
-} from 'src/contexts/reactives'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 export type Bearer = JwtPayload & { userId: string }
 
@@ -83,6 +80,12 @@ export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
       variantTargetId
       userId
     }
+  }
+`
+
+export const GET_PUBLIC_BEARER = gql`
+  query GetPublicBearer($clientID: ID!) {
+    publicBearer(clientID: $clientID)
   }
 `
 

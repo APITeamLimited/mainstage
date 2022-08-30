@@ -1,5 +1,6 @@
 import JWT from 'jsonwebtoken'
 import keypair from 'keypair'
+import { Scalars } from 'types/graphql'
 
 import { validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
@@ -84,4 +85,57 @@ export const bearer = async () => {
   )
 
   return signed
+}
+
+/*
+Public bearer is used by yjs clients to demonstrate that they are a certain user,
+they are meant to be shared publicy amongst a team
+*/
+export const publicBearer = async ({
+  clientID,
+}: {
+  clientID: Scalars['ID']
+}) => {
+  validateWith(() => {
+    if (!context.currentUser) {
+      throw 'You must be logged in to access this resource.'
+    }
+  })
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const userId = context.currentUser.id
+
+  const { privateKey } = await getKeyPair()
+
+  // TODO: include a users role within a team in the payload
+
+  const signed = JWT.sign(
+    {
+      userId,
+      clientID: parseInt(clientID),
+    },
+    privateKey,
+    {
+      algorithm: 'RS256',
+      issuer,
+      audience: `${audience}-public`,
+      // Does not expire
+      expiresIn: expriesInMinutes * 60 * 24 * 365.25,
+    }
+  )
+
+  return signed
+}
+
+export const verify = async (token: string) => {
+  const { publicKey } = await getKeyPair()
+
+  const verified = JWT.verify(token, publicKey, {
+    algorithms: ['RS256'],
+    issuer,
+    audience,
+  })
+
+  return verified
 }

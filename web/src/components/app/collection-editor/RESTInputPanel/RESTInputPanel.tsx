@@ -192,9 +192,9 @@ export const RESTInputPanel = ({
               setRequestMethod={setUnsavedRequestMethod}
               requestId={requestId}
             />
-            <Box marginLeft={1} />
+            <Box marginLeft={2} />
             <SendButton onNormalSend={handleNormalSend} />
-            <Box marginLeft={1} />
+            <Box marginLeft={2} />
             <SaveButton
               needSave={needSave}
               onSave={handleSave}

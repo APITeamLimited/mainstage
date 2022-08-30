@@ -47,12 +47,13 @@ export const verifyJWT = async (
 
   if (publicKey === undefined) {
     await getAndSetAPIPublicKey()
+    return await verifyJWT(request)
   }
 
   let decodedToken: JWT.Jwt | false = false
 
   try {
-    decodedToken = JWT.verify(token, publicKey as string, {
+    decodedToken = JWT.verify(token, publicKey, {
       audience,
       issuer,
       complete: true,

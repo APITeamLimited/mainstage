@@ -1,16 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { ApolloClient } from '@apollo/client'
 import * as bc from 'lib0/broadcastchannel'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
 import * as math from 'lib0/math'
 import { Observable } from 'lib0/observable'
+import { uuidv4 } from 'lib0/random'
 import * as time from 'lib0/time'
 import { io, protocol, Socket } from 'socket.io-client'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
 import * as syncProtocol from './sync'
-import { PossibleSyncStatus } from './utils'
+import { GET_PUBLIC_BEARER, PossibleSyncStatus } from './utils'
 
 const getUrl = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -119,7 +121,7 @@ messageHandlers[messageAwareness] = (
   provider.onAwarenessUpdate?.(provider.awareness)
 }
 
-type ScopeProviderConstructorArgs = {
+type SocketIOProviderConstructorArgs = {
   scopeId: string
   rawBearer: string
   doc: Y.Doc
@@ -135,9 +137,13 @@ type ScopeProviderConstructorArgs = {
     onStatusChange?: ((status: PossibleSyncStatus) => void) | undefined
     onSyncMessage?: ((newDoc: Y.Doc) => void) | undefined
   }
+  forceRemake: (socketIOProviderInstance: SocketIOProvider) => void
+  apolloClient: ApolloClient<unknown>
 }
 
 export class SocketIOProvider extends Observable<string> {
+  updateAwarenessInterval
+  apolloClient: ApolloClient<unknown>
   maxBackoffTime: number
   bcChannel: string
   url: string
@@ -169,13 +175,16 @@ export class SocketIOProvider extends Observable<string> {
     | undefined
   onStatusChange: ((status: PossibleSyncStatus) => void) | undefined
   onSyncMessage: ((newDoc: Y.Doc) => void) | undefined
+  forceRemake: (socketioProviderInstance: SocketIOProvider) => void
 
   constructor({
     scopeId,
     rawBearer,
     doc,
     options,
-  }: ScopeProviderConstructorArgs) {
+    apolloClient,
+    forceRemake,
+  }: SocketIOProviderConstructorArgs) {
     const {
       connect = true,
       awareness = new awarenessProtocol.Awareness(doc),
@@ -205,10 +214,16 @@ export class SocketIOProvider extends Observable<string> {
     this.messageHandlers = messageHandlers.slice()
     this._synced = false
     this.socket = null
+    this.apolloClient = apolloClient
     this.socketLastMessageReceived = 0
     this.onAwarenessUpdate = onAwarenessUpdate
     this.onStatusChange = onStatusChange
     this.onSyncMessage = onSyncMessage
+    this.updateAwarenessInterval = setInterval(
+      async () => this.getAndSetPublicBearer(),
+      20000
+    )
+    this.forceRemake = forceRemake
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
@@ -293,7 +308,8 @@ export class SocketIOProvider extends Observable<string> {
         )
         // no message received in a long time - not even your own awareness
         // updates (which are updated every 15 seconds)
-        this.socket?.disconnect()
+        this.disconnect()
+        this.connect()
       }
     }, messageReconnectTimeout / 10)
 
@@ -314,7 +330,12 @@ export class SocketIOProvider extends Observable<string> {
     }
   }
 
-  setupSocket() {
+  setupSocket(orderReconnect = false) {
+    if (orderReconnect) {
+      this.shouldConnect = false
+      this.forceRemake(this)
+    }
+
     if (this.shouldConnect && this.socket === null) {
       this.socket = io(this.url, {
         query: {
@@ -337,8 +358,6 @@ export class SocketIOProvider extends Observable<string> {
       this.socket.on('message', (data) => {
         this.socketLastMessageReceived = time.getUnixTime()
         const encoder = this.readMessage(new Uint8Array(data), true)
-
-        //console.log('we got message')
 
         if (encoding.length(encoder) > 1) {
           //console.log('greater 1', encoding.length(encoder))
@@ -374,9 +393,8 @@ export class SocketIOProvider extends Observable<string> {
 
         // Start with no reconnect timeout and increase timeout by
         // using exponential backoff starting with 100ms
-        console.log('reconnect exp')
         setTimeout(
-          this.setupSocket,
+          () => this.setupSocket(true),
           math.min(
             math.pow(2, this.socketUnsuccessfulReconnects) * 100,
             this.maxBackoffTime
@@ -420,6 +438,8 @@ export class SocketIOProvider extends Observable<string> {
           )
           this.socket?.send(encoding.toUint8Array(encoderAwarenessState))
         }
+
+        this.getAndSetPublicBearer()
       })
       this.onStatusChange?.('connecting')
     }
@@ -430,7 +450,6 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   set synced(state) {
-    console.log('Setting synced to ' + state)
     if (this._synced !== state) {
       this._synced = state
       this.emit('synced', [state])
@@ -439,6 +458,9 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   destroy() {
+    console.log('destroy')
+    this.awareness.setLocalState(null)
+
     if (this._resyncInterval !== 0) {
       this.socket?.emit('forceDisconnect')
       clearInterval(this._resyncInterval)
@@ -458,96 +480,17 @@ export class SocketIOProvider extends Observable<string> {
     super.destroy()
   }
 
-  connectBc() {
-    if (this.disableBc) {
-      return
-    }
-
-    if (!this.bcConnected) {
-      bc.subscribe(this.bcChannel, this._bcSubscriber)
-      this.bcConnected = true
-    }
-
-    // send sync step1 to bc
-    // write sync step 1
-    const encoderSync = encoding.createEncoder()
-    encoding.writeVarUint(encoderSync, messageSync)
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    syncProtocol.writeSyncStep1(encoderSync, this.doc)
-    bc.publish(this.bcChannel, encoding.toUint8Array(encoderSync), this)
-
-    // broadcast local state
-    const encoderState = encoding.createEncoder()
-    encoding.writeVarUint(encoderState, messageSync)
-    syncProtocol.writeSyncStep2(encoderState, this.doc)
-    bc.publish(this.bcChannel, encoding.toUint8Array(encoderState), this)
-
-    // write queryAwareness
-    const encoderAwarenessQuery = encoding.createEncoder()
-    encoding.writeVarUint(encoderAwarenessQuery, messageQueryAwareness)
-
-    bc.publish(
-      this.bcChannel,
-      encoding.toUint8Array(encoderAwarenessQuery),
-      this
-    )
-
-    // broadcast local awareness state
-    const encoderAwarenessState = encoding.createEncoder()
-    encoding.writeVarUint(encoderAwarenessState, messageAwareness)
-    encoding.writeVarUint8Array(
-      encoderAwarenessState,
-      awarenessProtocol.encodeAwarenessUpdate(this.awareness, [
-        this.doc.clientID,
-      ])
-    )
-
-    bc.publish(
-      this.bcChannel,
-      encoding.toUint8Array(encoderAwarenessState),
-      this
-    )
-  }
-
-  disconnectBc() {
-    // broadcast message with local awareness state set to null (indicating disconnect)
-    const encoder = encoding.createEncoder()
-    encoding.writeVarUint(encoder, messageAwareness)
-
-    encoding.writeVarUint8Array(
-      encoder,
-      awarenessProtocol.encodeAwarenessUpdate(
-        this.awareness,
-        [this.doc.clientID],
-        new Map()
-      )
-    )
-
-    this.broadcastMessage(encoding.toUint8Array(encoder))
-
-    if (this.bcConnected) {
-      bc.unsubscribe(this.bcChannel, this._bcSubscriber)
-      this.bcConnected = false
-    }
-  }
-
   disconnect() {
-    console.log('disconnect socket', this.socket)
     this.shouldConnect = false
-    this.disconnectBc()
     if (this.socket !== null) {
       this.socket.disconnect()
     }
   }
 
   connect() {
-    console.log('connecting to', this.url)
     this.shouldConnect = true
     if (!this.socketConnected && this.socket === null) {
       this.setupSocket()
-      this.connectBc()
     }
   }
 
@@ -581,5 +524,25 @@ export class SocketIOProvider extends Observable<string> {
 
   permissionDeniedHandler(reason: string) {
     console.warn(`Permission denied to access ${this.url}.\n${reason}`)
+  }
+
+  // Provides a way to connect clientID to userId
+  async getAndSetPublicBearer() {
+    if (!this.socketConnected) return
+
+    const result = await this.apolloClient.query({
+      query: GET_PUBLIC_BEARER,
+      variables: { clientID: this.awareness.clientID },
+      // Prevent using same token twice
+      fetchPolicy: 'network-only',
+    })
+
+    if (!result.data?.publicBearer) {
+      throw new Error('Public bearer token not found')
+    }
+
+    console.log('aww', this.awareness.getStates())
+
+    this.awareness.setLocalStateField('publicBearer', result.data.publicBearer)
   }
 }

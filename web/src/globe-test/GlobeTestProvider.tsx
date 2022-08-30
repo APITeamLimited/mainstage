@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import jwt_decode, { JwtPayload } from 'jwt-decode'
+import jwt_decode from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import * as Y from 'yjs'
-import { useYDoc, useYMap } from 'zustand-yjs'
+import { useYMap } from 'zustand-yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
 
+import { focusedResponseVar } from 'src/components/app/collection-editor/RESTResponsePanel'
 import {
   useActiveEnvironmentYMap,
   useEnvironmentsYMap,
@@ -18,7 +19,6 @@ import { useWorkspace } from 'src/entity-engine'
 import {
   Bearer,
   GET_BEARER_PUBKEY__SCOPES_QUERY,
-  processAuthData,
 } from 'src/entity-engine/utils'
 
 import { execute } from './execution'
@@ -37,6 +37,7 @@ export const GlobeTestProvider = () => {
   const workspaces = useReactiveVar(workspacesVar)
   const jobQueue = useReactiveVar(jobQueueVar)
   const queueRef = useRef<QueuedJob[] | null>(null)
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
 
   const workspace = useWorkspace()
 
@@ -100,10 +101,16 @@ export const GlobeTestProvider = () => {
     jobQueue.forEach((job) => {
       if (job.jobStatus === 'FAILED' || job.jobStatus === 'SUCCESS') {
         if (!workspace) throw new Error('No workspace')
-        postProcessRESTRequest({ queueRef, job, rawBearer, workspace })
+        postProcessRESTRequest({
+          queueRef,
+          job,
+          rawBearer,
+          workspace,
+          focusedResponseDict,
+        })
       }
     })
-  }, [jobQueue, rawBearer, workspace])
+  }, [focusedResponseDict, jobQueue, rawBearer, workspace])
 
   return <></>
 }

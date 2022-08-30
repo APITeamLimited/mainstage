@@ -3,9 +3,9 @@ import type { Prisma } from '@prisma/client'
 import { validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
+import { checkValue } from 'src/config'
 import { db } from 'src/lib/db'
 import { generateResetToken } from 'src/lib/token'
-import { checkValue } from 'src/config'
 
 const markedForDeletionExpiryHours = <number>(
   checkValue('teams.markedForDeletionExpiryHours')
@@ -37,15 +37,17 @@ export const teams = async () => {
   return teams as PrivateTeam[]
 }
 
-export const team = async ({ id }: Prisma.TeamWhereUniqueInput) => {
-  // Ensure user is member of the team
+/*
+Retrieves team info of a team a user is in
+*/
+export const team = async ({ id }: { id: string }) => {
   if (!context.currentUser) {
     throw 'You must be logged in to access this resource.'
   }
 
   const userId = context.currentUser.id
 
-  return (await db.team.findFirst({
+  return await db.team.findFirst({
     where: {
       id,
       memberships: {
@@ -54,43 +56,32 @@ export const team = async ({ id }: Prisma.TeamWhereUniqueInput) => {
         },
       },
     },
-  })) as PrivateTeam
-}
-
-export const createTeam = async (
-  ownerId: string,
-  name: string | undefined,
-  shortBio: string | undefined
-) => {
-  const user = await db.user.findUnique({
-    where: { id: ownerId },
   })
-
+}
+export const createTeam = async ({
+  name,
+  shortBio,
+}: {
+  name: string
+  shortBio: string | undefined
+}) => {
   validateWith(() => {
-    // Check user exists in db
-    if (!user) {
-      throw `User does not exist with id '${ownerId}'`
+    if (!context.currentUser) {
+      throw 'You must be logged in to access this resource.'
     }
   })
 
-  // Shouldn't be needed, but better than ts-ignoring it
-  if (!user) {
-    throw 'User does not exist'
-  }
-
-  const teamName = name || `${user.firstName}'s Team`
-
-  const team = (await db.team.create({
+  const team = await db.team.create({
     data: {
-      name: teamName,
+      name,
       shortBio,
     },
-  })) as PrivateTeam
+  })
 
   const ownerMembership = await db.teamMembership.create({
     data: {
       team: { connect: { id: team.id } },
-      user: { connect: { id: ownerId } },
+      user: { connect: { id: context.currentUser?.id } },
       role: 'OWNER',
     },
   })
@@ -160,13 +151,13 @@ export const updateTeam = async ({ id, input }: UpdateTeamInput) => {
     throw 'You must be an admin or owner of the team to update it'
   }
 
-  const updatedTeam = (await db.team.update({
+  const updatedTeam = await db.team.update({
     where: { id },
     data: {
       ...input,
       updatedAt: new Date(),
     },
-  })) as PrivateTeam
+  })
 
   return updatedTeam
 }
@@ -218,6 +209,8 @@ export const deleteTeam = async ({ id }: Team) => {
       ),
     },
   })
+
+  // TODO: send email
 
   return true
 }

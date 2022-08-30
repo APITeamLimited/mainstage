@@ -28,7 +28,6 @@ import { PanelLayout } from '../PanelLayout'
 
 import { BodyPanel } from './BodyPanel'
 import { CookieTable } from './CookieTable'
-import { HeadersPanel } from './HeadersPanel'
 import { QuickStats } from './QuickStats'
 
 type RESTResponsePanelProps = {
@@ -206,7 +205,8 @@ export const RESTResponsePanel = ({
           responseSizeBytes={focusedResponse.get('meta').responseSize}
         />
       }
-      tabNames={['Body', 'Headers', 'Cookies', 'Request']}
+      // TODO: add request and globe test log tabs
+      tabNames={['Body', 'Headers', 'Cookies']}
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}

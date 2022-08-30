@@ -12,20 +12,17 @@ import { MonacoEditor } from '../MonacoEditor'
 
 import { HTMLViewer } from './HTMLViewer'
 
-type BodyPanelProps = {
-  response: Response
+type FinalRequestPanelProps = {
+  finalRequest: Response['request']
   setActionArea: (actionArea: React.ReactNode) => void
 }
 
-export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
+export const FinalRequestPanel = ({
+  finalRequest,
+  setActionArea,
+}: FinalRequestPanelProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
-  const [rawBody, setRawBody] = useState('')
   const [calculatedBody, setCalculatedBody] = useState(false)
-
-  const contentType = response.headers['Content-Type']
-    ? response.headers['Content-Type'].toString().toLowerCase().split(';')[0] ||
-      'text/plain'
-    : 'text/plain'
 
   const [prettifiedBody, setPrettifiedBody] = useState<string | null>(null)
   const [prettyBodyName, setPrettyBodyName] = useState<string | null>(null)
@@ -62,7 +59,7 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
   }, [activeTabIndex, prettifiedBody, rawBody])
 
   useEffect(() => {
-    const rawBody = parseRESTResponseBody(response)
+    const rawBody = parseRESTResponseBody(finalRequest)
     setRawBody(rawBody)
 
     if (contentType === 'application/json') {
@@ -75,14 +72,14 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
       setPrettifiedBody(codeFormatter(rawBody, 'html'))
       setPrettyBodyName('HTML')
     } else {
-      setActiveTabIndex(1)
       setPrettifiedBody(null)
+      setActiveTabIndex(1)
     }
 
     setCalculatedBody(true)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [response])
+  }, [finalRequest])
 
   return calculatedBody ? (
     <>

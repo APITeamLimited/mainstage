@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 
+import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { Workspace } from 'types/src'
@@ -107,6 +108,8 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const socketioSyncStatusRef = useRef<PossibleSyncStatus>(socketioSyncStatus)
   const indexeddbSyncStatusRef = useRef<PossibleSyncStatus>(indexeddbSyncStatus)
 
+  const apolloClient = useApolloClient()
+
   // Get bearer token from gql query
   const { data, error } = useQuery<GetBearerPubkeyScopes>(
     GET_BEARER_PUBKEY__SCOPES_QUERY,
@@ -201,6 +204,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       setSocketioSyncStatus,
       setIndexeddbSyncStatus,
       handleUpdateDispatch,
+      apolloClient,
     })
   }, [
     activeWorkspace,

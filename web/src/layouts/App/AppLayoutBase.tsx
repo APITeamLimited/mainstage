@@ -2,6 +2,8 @@ import { createContext, useContext, useRef } from 'react'
 
 import { useTheme, useScrollTrigger, Stack, Box } from '@mui/material'
 
+import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
+
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
@@ -14,7 +16,7 @@ import { NotConnectedBanner } from './components/NotConnectedBanner'
 type AppLayoutProps = {
   children?: React.ReactNode
   topNav?: React.ReactNode
-  appBar?: React.ReactNode | null
+  appBar?: React.ReactNode | undefined
   footer?: {
     element: React.ReactNode
     height: {
@@ -27,7 +29,7 @@ type AppLayoutProps = {
 export const AppLayoutBase = ({
   children,
   topNav = <></>,
-  appBar = null,
+  appBar = undefined,
   footer = {
     element: <></>,
     height: {
@@ -44,45 +46,47 @@ export const AppLayoutBase = ({
   })
 
   return (
-    <EntityEngine>
-      <DialogsProvider>
-        <ReactiveVarPersistor />
-        <Stack
-          sx={{
-            backgroundColor: theme.palette.background.default,
-            position: 'relative',
-            minHeight: '100vh',
-          }}
-        >
-          {appBar ? (
-            topNav
-          ) : (
-            <CustomAppBar trigger={trigger} disableTop={false}>
-              {topNav}
-            </CustomAppBar>
-          )}
-          {appBar && (
-            <CustomAppBar trigger={trigger} disableTop={false}>
-              {appBar}
-            </CustomAppBar>
-          )}
-          <Box
+    <BrowserOnly>
+      <EntityEngine>
+        <DialogsProvider>
+          <ReactiveVarPersistor />
+          <Stack
             sx={{
-              paddingBottom: {
-                xs: footer.height.xs,
-                md: footer.height.md,
-              },
               backgroundColor: theme.palette.background.default,
+              position: 'relative',
+              minHeight: '100vh',
             }}
           >
-            <main>
-              <InnerLayout>{children}</InnerLayout>
-            </main>
-          </Box>
-          {footer.element}
-        </Stack>
-      </DialogsProvider>
-    </EntityEngine>
+            {appBar ? (
+              topNav
+            ) : (
+              <CustomAppBar trigger={trigger} disableTop={false}>
+                {topNav}
+              </CustomAppBar>
+            )}
+            {appBar && (
+              <CustomAppBar trigger={trigger} disableTop={false}>
+                {appBar}
+              </CustomAppBar>
+            )}
+            <Box
+              sx={{
+                paddingBottom: {
+                  xs: footer.height.xs,
+                  md: footer.height.md,
+                },
+                backgroundColor: theme.palette.background.default,
+              }}
+            >
+              <main>
+                <InnerLayout>{children}</InnerLayout>
+              </main>
+            </Box>
+            {footer.element}
+          </Stack>
+        </DialogsProvider>
+      </EntityEngine>
+    </BrowserOnly>
   )
 }
 

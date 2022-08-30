@@ -354,7 +354,7 @@ export const Node = ({
           {nodeYMap.get('__typename') === 'Collection' && (
             <Box
               sx={{
-                minHeight: '200px',
+                minHeight: '300px',
               }}
             />
           )}

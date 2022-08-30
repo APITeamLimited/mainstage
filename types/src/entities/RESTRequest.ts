@@ -94,7 +94,7 @@ export type RESTReqBody =
     }
   | {
       contentType: 'application/x-www-form-urlencoded'
-      body: StoredObject<KeyValueItem[]>
+      body: KeyValueItem[]
     }
 
 export interface RESTRequest extends BaseEntity {

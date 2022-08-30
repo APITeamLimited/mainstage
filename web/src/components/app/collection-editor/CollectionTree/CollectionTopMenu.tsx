@@ -110,7 +110,6 @@ export const CollectionTopMenu = ({
             variant="h6"
             sx={{
               whiteSpace: 'nowrap',
-              textOverflow: 'ellipsis',
               overflow: 'hidden',
             }}
             color={theme.palette.text.primary}

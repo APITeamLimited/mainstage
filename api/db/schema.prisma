@@ -80,6 +80,7 @@ model Scope {
   id              String    @id @default(uuid())
   variant         String
   variantTargetId String
+  role            String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
   userId          String

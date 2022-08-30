@@ -1,8 +1,7 @@
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
 import { AdminLayout } from './components/admin/Layout/AdminLayout'
-import { AppCollectionLayout } from './layouts/App'
-import { AppDashboardLayout } from './layouts/App/AppDashboardLayout'
+import { AppUnifiedLayout } from './layouts/App'
 import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import { DomainsPage } from './pages/app/dashboard/DomainsPage'
@@ -121,19 +120,17 @@ const Routes = () => {
       </Set>
       {/* TODO: Re-enable local workspaces when done cloud*/}
       <Private unauthenticated="login">
-        <Set wrap={AppDashboardLayout}>
+        <Set wrap={AppUnifiedLayout}>
           <Route path="/app" redirect="/app/dashboard" />
           <Route path="/app/dashboard" page={OverviewPage} name="dashboard" />
           <Route path="/app/dashboard/projects" page={ProjectsPage} name="projects" />
           <Route path="/app/dashboard/domains" page={DomainsPage} name="domains" />
-        </Set>
-        <Set wrap={AppCollectionLayout}>
           <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
         </Set>
       </Private>
-        <Private unauthenticated="login">
-          <Route path="/admin" page={AdminPage} name="admin" />
-        </Private>
+      <Private unauthenticated="login">
+        <Route path="/admin" page={AdminPage} name="admin" />
+      </Private>
       <Route notfound page={NotFoundPage} />
     </Router>
   )

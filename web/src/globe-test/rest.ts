@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios'
+import qs from 'qs'
 import { RESTRequest, Environment } from 'types/src'
 
 import { findEnvironmentVariables } from 'src/utils/findVariables'
@@ -15,22 +16,34 @@ export const getFinalRequest = (
   if (request.body.contentType === null) {
     body = null
   } else if (request.body.contentType === 'application/x-www-form-urlencoded') {
-    throw 'application/x-www-form-urlencoded not implemented'
+    body = qs.stringify(
+      request.body.body
+        .filter(({ enabled }) => enabled)
+        .map(({ keyString, value }) => ({ [keyString]: value }))
+        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    )
   } else if (request.body.contentType === 'multipart/form-data') {
     throw 'multipart/form-data not implemented'
   } else {
     body = request.body.body
   }
 
+  const finalHeaders = request.headers
+    .filter((header) => header.enabled)
+    .map((header) => ({
+      [header.keyString]: header.value,
+    }))
+    .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+
+  // if finalHeaders doesn't have a content-type, add one
+  if (!finalHeaders['content-type'] && request.body.contentType) {
+    finalHeaders['content-type'] = request.body.contentType
+  }
+
   const withAuthRequest = addAuthToRequest(activeEnvironment, request, {
     method: request.method,
     url: request.endpoint,
-    headers: request.headers
-      .filter((header) => header.enabled)
-      .map((header) => ({
-        [header.keyString]: header.value,
-      }))
-      .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+    headers: finalHeaders,
     params: request.params
       .filter(
         (param) => param.enabled && param.keyString !== '' && param.value !== ''
@@ -135,7 +148,7 @@ const makeEnvironmentAwareRequest = (
     ),
 
     data: config.data
-      ? JSON.parse(findEnvironmentVariables(activeEnvironment, config.data))
+      ? findEnvironmentVariables(activeEnvironment, config.data)
       : null,
   }
 }

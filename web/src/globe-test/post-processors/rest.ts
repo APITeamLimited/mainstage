@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Response } from 'k6/http'
 import {
   DefaultMetrics,
@@ -10,6 +11,8 @@ import {
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 
+import { updateFocusedRESTResponse } from 'src/components/app/collection-editor/RESTResponsePanel'
+import { FocusedElementDictionary } from 'src/contexts/reactives'
 import { uploadResource } from 'src/store'
 
 import {
@@ -27,6 +30,7 @@ type PostProcessRESTRequestArgs = {
   rawBearer: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspace: Y.Doc
+  focusedResponseDict: FocusedElementDictionary
 }
 
 export const postProcessRESTRequest = async ({
@@ -34,6 +38,7 @@ export const postProcessRESTRequest = async ({
   queueRef,
   rawBearer,
   workspace,
+  focusedResponseDict,
 }: PostProcessRESTRequestArgs): Promise<void> => {
   const newJob = job as BaseJob & (ExecutingJob | PostExecutionJob)
   newJob.jobStatus = 'POST_PROCESSING'
@@ -95,7 +100,7 @@ export const postProcessRESTRequest = async ({
     method: newJob.underlyingRequest.method,
   }
 
-  storeInEntityEngine(restResponse, workspace, job)
+  storeInEntityEngine(restResponse, workspace, job, focusedResponseDict)
 }
 
 type DiscreteArgs = {
@@ -235,12 +240,13 @@ const storeInEntityEngine = (
   formattedResponse: RESTResponse,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspace: Y.Doc,
-  job: QueuedJob
+  job: QueuedJob,
+  focusedResponseDict: FocusedElementDictionary
 ) => {
   const { projectId, branchId, collectionId } = job
 
   const restResponsesYMap = workspace
-    .get('projects')
+    .getMap<any>('projects')
     ?.get(projectId)
     ?.get('branches')
     ?.get(branchId)
@@ -282,4 +288,7 @@ const storeInEntityEngine = (
   }
 
   restResponsesYMap.set(formattedResponse.id, responseYMap)
+
+  // Update focused response
+  updateFocusedRESTResponse(focusedResponseDict, responseYMap)
 }

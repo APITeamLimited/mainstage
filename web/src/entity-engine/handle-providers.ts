@@ -1,3 +1,4 @@
+import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { Workspace } from 'types/src'
 import { IndexeddbPersistence } from 'y-indexeddb'
@@ -21,6 +22,7 @@ type HandleProvidersArgs = {
   setSocketioSyncStatus: (syncStatus: PossibleSyncStatus) => void
   setIndexeddbSyncStatus: (syncStatus: PossibleSyncStatus) => void
   handleUpdateDispatch: (args: HandleUpdateDispatchArgs) => void
+  apolloClient: ApolloClient<unknown>
 }
 
 export const handleProviders = ({
@@ -37,13 +39,15 @@ export const handleProviders = ({
   setSocketioSyncStatus,
   setIndexeddbSyncStatus,
   handleUpdateDispatch,
+  apolloClient,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady, indexeddbProviderReady } = ready
 
   // Close the providers if they should not be operational
 
   if (!socketioProviderReady && socketioProvider) {
-    socketioProvider.destroy()
+    socketioProvider?.destroy?.()
+    socketioProvider = null
     setSocketioProvider(null)
     console.log('closed socketio provider')
     setSocketioSyncStatus('disabled')
@@ -84,28 +88,43 @@ export const handleProviders = ({
 
   // Open the providers if they should be operational
 
-  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
-    setSocketioProvider(
-      new SocketIOProvider({
-        scopeId,
-        rawBearer: rawBearer || '',
-        doc: newDoc,
-        options: {
-          //onAwarenessUpdate: (awareness) => {
-          //  //console.log('awareness bing bing', awareness)
-          //},
-          onSyncMessage: (newDoc) =>
-            handleUpdateDispatch({
-              doc: newDoc,
-              activeWorkspace,
-            }),
-          onStatusChange: (status) => {
-            setSocketioSyncStatus(status)
-          },
-          resyncInterval: -1,
+  const newSocketIOInstance = () => {
+    if (socketioProvider) {
+      socketioProvider.destroy()
+      socketioProvider = null
+      setSocketioProvider(null)
+    }
+
+    return new SocketIOProvider({
+      scopeId,
+      rawBearer: rawBearer || '',
+      apolloClient,
+      doc: newDoc,
+      options: {
+        //onAwarenessUpdate: (awareness) => {
+        //  //console.log('awareness bing bing', awareness)
+        //},
+        onSyncMessage: (newDoc) =>
+          handleUpdateDispatch({
+            doc: newDoc,
+            activeWorkspace,
+          }),
+        onStatusChange: (status) => {
+          setSocketioSyncStatus(status)
         },
-      })
-    )
+        resyncInterval: -1,
+      },
+      forceRemake: (socketioProviderInstance: SocketIOProvider | null) => {
+        if (socketioProviderInstance) socketioProviderInstance.destroy()
+        socketioProviderInstance = null
+        setSocketioProvider(null)
+        setSocketioProvider(newSocketIOInstance())
+      },
+    })
+  }
+
+  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
+    setSocketioProvider(newSocketIOInstance())
     setSocketioSyncStatus('connecting')
   }
 
