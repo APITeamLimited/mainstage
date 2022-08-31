@@ -100,15 +100,16 @@ export const handleProviders = ({
   // Open the providers if they should be operational
 
   const newSocketIOInstance = () => {
-    console.log('newSocketIOInstance', guidChanged, socketioProvider)
+    console.log(
+      'newSocketIOInstance',
+      activeWorkspace,
+      guidChanged,
+      socketioProvider
+    )
     if (socketioProvider) {
-      socketioProvider.disconnect()
-      socketioProvider.destroy()
       socketioProvider = null
-      setSocketioProvider(null)
+      //setSocketioProvider(null)
     }
-
-    if (!guidChanged) return
 
     return new SocketIOProvider({
       scopeId,
@@ -128,12 +129,6 @@ export const handleProviders = ({
           setSocketioSyncStatus(status)
         },
         resyncInterval: -1,
-      },
-      forceRemake: (socketioProviderInstance: SocketIOProvider | null) => {
-        if (socketioProviderInstance) socketioProviderInstance.destroy()
-        socketioProviderInstance = null
-        setSocketioProvider(null)
-        setSocketioProvider(newSocketIOInstance())
       },
     })
   }

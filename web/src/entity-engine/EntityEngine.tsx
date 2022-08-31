@@ -21,6 +21,7 @@ import { useQuery } from '@redwoodjs/web'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { handleProviders, HandleUpdateDispatchArgs } from './handle-providers'
+import { SocketIOManager } from './provider-manager'
 import { SocketIOProvider } from './socket-io-provider'
 import { updateDispatcher } from './update-dispatcher'
 import {
@@ -92,7 +93,6 @@ const SyncReadyContext = createContext(initialSyncReadyStatus)
 export const useSyncReady = () => useContext(SyncReadyContext)
 
 export const EntityEngine = ({ children }: EntityEngineProps) => {
-  const { pathname } = useLocation()
   const { isAuthenticated } = useAuth()
   const [publicKey, setPublicKey] = useState<string | null>(null)
   const [bearer, setBearer] = useState<Bearer | null>(null)
@@ -126,6 +126,8 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       skip: bearerExpiry > Date.now() || !isAuthenticated,
     }
   )
+
+  const { pathname } = useLocation()
 
   // Needed for callbacks to work
   socketioSyncStatusRef.current = socketioSyncStatus
@@ -268,22 +270,27 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus{' '}
         {indexeddbSyncStatus}
   </span>*/}
-      <SyncReadyContext.Provider
-        value={{
-          socketioProvider: socketioSyncStatus,
-          indexeddbProvider: indexeddbSyncStatus,
-        }}
+      <SocketIOManager
+        key={`${activeWorkspaceId}${pathname.slice(3)}`}
+        socketioProvider={socketioProvider}
       >
-        <DocContext.Provider value={doc}>
-          <ScopesContext.Provider value={scopes}>
-            <RawBearerContext.Provider value={rawBearer}>
-              <RefetchScopesCallbackContext.Provider value={refetchScopes}>
-                {children}
-              </RefetchScopesCallbackContext.Provider>
-            </RawBearerContext.Provider>
-          </ScopesContext.Provider>
-        </DocContext.Provider>
-      </SyncReadyContext.Provider>
+        <SyncReadyContext.Provider
+          value={{
+            socketioProvider: socketioSyncStatus,
+            indexeddbProvider: indexeddbSyncStatus,
+          }}
+        >
+          <DocContext.Provider value={doc}>
+            <ScopesContext.Provider value={scopes}>
+              <RawBearerContext.Provider value={rawBearer}>
+                <RefetchScopesCallbackContext.Provider value={refetchScopes}>
+                  {children}
+                </RefetchScopesCallbackContext.Provider>
+              </RawBearerContext.Provider>
+            </ScopesContext.Provider>
+          </DocContext.Provider>
+        </SyncReadyContext.Provider>
+      </SocketIOManager>
     </div>
   )
 }

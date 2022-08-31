@@ -139,6 +139,7 @@ type SocketIOProviderConstructorArgs = {
   }
   forceRemake: (socketIOProviderInstance: SocketIOProvider) => void
   apolloClient: ApolloClient<unknown>
+  activeWorkspaceId: string
 }
 
 export class SocketIOProvider extends Observable<string> {
@@ -177,6 +178,7 @@ export class SocketIOProvider extends Observable<string> {
   onStatusChange: ((status: PossibleSyncStatus) => void) | undefined
   onSyncMessage: ((newDoc: Y.Doc) => void) | undefined
   forceRemake: (socketioProviderInstance: SocketIOProvider) => void
+  activeWorkspaceId: string
 
   constructor({
     scopeId,
@@ -185,6 +187,7 @@ export class SocketIOProvider extends Observable<string> {
     options,
     apolloClient,
     forceRemake,
+    activeWorkspaceId,
   }: SocketIOProviderConstructorArgs) {
     const {
       connect = true,
@@ -209,6 +212,7 @@ export class SocketIOProvider extends Observable<string> {
     this.awareness = awareness
     this.socketConnected = false
     this.socketConnecting = false
+    this.activeWorkspaceId = activeWorkspaceId
     this.bcConnected = false
     this.disableBc = disableBc
     this.socketUnsuccessfulReconnects = 0
@@ -335,7 +339,6 @@ export class SocketIOProvider extends Observable<string> {
   setupSocket(orderReconnect = false) {
     if (orderReconnect) {
       this.shouldConnect = false
-      this.forceRemake(this)
     }
 
     if (this.shouldConnect && this.socket === null) {
@@ -460,8 +463,6 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   destroy() {
-    this.disconnect()
-
     this.shouldConnect = false
     console.log('destroy')
     this.awareness.setLocalState(null)
@@ -471,8 +472,6 @@ export class SocketIOProvider extends Observable<string> {
       clearInterval(this._resyncInterval)
     }
     clearInterval(this._checkInterval)
-
-    this.disconnect()
 
     if (typeof window !== 'undefined') {
       window.removeEventListener('beforeunload', this._beforeUnloadHandler)
@@ -487,11 +486,8 @@ export class SocketIOProvider extends Observable<string> {
 
   disconnect() {
     this.socket?.emit('forceDisconnect')
-
-    this.shouldConnect = false
-    if (this.socket !== null) {
-      this.socket.disconnect()
-    }
+    this.socket?.disconnect()
+    this.destroy()
   }
 
   connect() {
