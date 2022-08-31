@@ -1,6 +1,11 @@
+import { SafeUser } from 'types/src'
+
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
+import { setUserRedis } from 'src/helpers'
+
 import { db } from './db'
+import { coreCacheReadRedis } from './redis'
 
 /**
  * The session object sent in as the first argument to getCurrentUser() will
@@ -19,12 +24,19 @@ import { db } from './db'
  * fields to the `select` object below once you've decided they are safe to be
  * seen if someone were to open the Web Inspector in their browser.
  */
+
 export const getCurrentUser = async (session) => {
-  return await db.user.findUnique({
-    where: { id: session.id },
-    // Only select the id field
-    select: { id: true },
-  })
+  const userCoreCache = await coreCacheReadRedis.get(`user:${session.id}`)
+
+  if (userCoreCache) return JSON.parse(userCoreCache) as SafeUser
+
+  const userDb = await db.user.findUnique({ where: { id: session.id } })
+
+  if (!userDb) return null
+
+  const safeUser = await setUserRedis(userDb)
+
+  return safeUser
 }
 
 /**

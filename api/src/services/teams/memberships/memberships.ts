@@ -1,14 +1,14 @@
+import { TeamRole } from 'types/src'
+
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { createTeamScope, deleteScope } from 'src/helpers'
+import { createMembership, createTeamScope, deleteScope } from 'src/helpers'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { scopes } from 'src/services/scopes/scopes'
 
 import { checkOwner } from '../validators/check-owner'
 import { checkOwnerAdmin } from '../validators/check-owner-admin'
-
-export type TeamRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 
 export const addUserToTeam = async ({
   teamId,
@@ -65,31 +65,9 @@ export const addUserToTeam = async ({
   }
 
   // Create membership
-  const membership = await db.membership.create({
-    data: {
-      team: { connect: { id: teamId } },
-      user: { connect: { id: userId } },
-      role,
-    },
-  })
+  const membership = await createMembership(team, user, role)
 
-  const setPromise = coreCacheReadRedis.hSet(
-    `team:${teamId}`,
-    `membership:${membership.id}`,
-    JSON.stringify(membership)
-  )
-
-  const publishPromise = coreCacheReadRedis.publish(
-    `team:${teamId}`,
-    JSON.stringify({
-      type: 'ADD_MEMBER',
-      payload: membership,
-    })
-  )
-
-  const createTeamScopePromise = createTeamScope(team, membership, user)
-
-  await Promise.all([setPromise, publishPromise, createTeamScopePromise])
+  await createTeamScope(team, membership, user)
 
   // TODO: Send email
 

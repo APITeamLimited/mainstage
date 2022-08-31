@@ -147,7 +147,7 @@ class OpenDoc extends Y.Doc {
       socket.id,
       'from synced doc',
       this.guid,
-      this.sockets.size - 1
+      this.sockets.size
     )
 
     if (this.sockets.has(socket)) {

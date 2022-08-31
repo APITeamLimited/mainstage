@@ -89,7 +89,6 @@ export const handleProviders = ({
   const guidChanged = doc?.guid !== activeGUID
 
   if (guidChanged) {
-    console.log('guid changed', socketioProvider)
     socketioProvider?.disconnect()
     socketioProvider?.destroy()
     socketioProvider = null
@@ -100,12 +99,6 @@ export const handleProviders = ({
   // Open the providers if they should be operational
 
   const newSocketIOInstance = () => {
-    console.log(
-      'newSocketIOInstance',
-      activeWorkspace,
-      guidChanged,
-      socketioProvider
-    )
     if (socketioProvider) {
       socketioProvider = null
       //setSocketioProvider(null)

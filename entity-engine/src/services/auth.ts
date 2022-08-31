@@ -22,8 +22,15 @@ const PublicKeyQuery = gql`
 `
 
 export const getAndSetAPIPublicKey = async (): Promise<string> => {
+  const checkAgain = Date.now() - lastCheckedPublicKey > 1000 * 60 * 60
+
+  if (!checkAgain && publicKey) {
+    return publicKey
+  }
+
   const query = await apolloClient.query({
     query: PublicKeyQuery,
+    fetchPolicy: 'cache-first',
   })
 
   if (query.data?.publicKey) {

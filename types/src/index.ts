@@ -2,6 +2,8 @@ export * from './entities'
 export * from './zustand-yjs'
 export * from './globe-test'
 export * from './entity-engine'
+export * from './user'
+export * from './team'
 
 export type KeyValueItem = {
   id: number

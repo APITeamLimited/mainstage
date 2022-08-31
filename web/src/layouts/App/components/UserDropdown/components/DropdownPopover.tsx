@@ -35,8 +35,19 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
     : 'Anonymous'
 
   const handleLogout = () => {
+    // Clear local storage of everything
+    localStorage.clear()
+
+    // Clear all cookies
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c
+        .replace(/^ +/, '')
+        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+    })
+
     logOut()
     navigate(routes.splash())
+    window.location.href = routes.splash()
   }
 
   return (

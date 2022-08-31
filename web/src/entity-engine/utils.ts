@@ -134,8 +134,8 @@ export const GET_SCOPES_QUERY = gql`
 `
 
 export const GET_PUBLIC_BEARER = gql`
-  query GetPublicBearer($clientID: ID!) {
-    publicBearer(clientID: $clientID)
+  query GetPublicBearer($clientID: ID!, $scopeId: String!) {
+    publicBearer(clientID: $clientID, scopeId: $scopeId)
   }
 `
 

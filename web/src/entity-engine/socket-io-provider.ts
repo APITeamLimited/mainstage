@@ -464,7 +464,6 @@ export class SocketIOProvider extends Observable<string> {
 
   destroy() {
     this.shouldConnect = false
-    console.log('destroy')
     this.awareness.setLocalState(null)
 
     if (this._resyncInterval !== 0) {
@@ -535,7 +534,7 @@ export class SocketIOProvider extends Observable<string> {
 
     const result = await this.apolloClient.query({
       query: GET_PUBLIC_BEARER,
-      variables: { clientID: this.awareness.clientID },
+      variables: { clientID: this.awareness.clientID, scopeId: this.scopeId },
       // Prevent using same token twice
       fetchPolicy: 'network-only',
     })

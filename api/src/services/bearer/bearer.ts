@@ -2,10 +2,11 @@ import JWT from 'jsonwebtoken'
 import keypair from 'keypair'
 import { Scalars } from 'types/graphql'
 
-import { validateWith } from '@redwoodjs/api'
+import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
+import { coreCacheReadRedis } from 'src/lib/redis'
 
 import { checkValue } from '../../config'
 
@@ -13,47 +14,57 @@ const issuer = checkValue<string>('api.bearer.issuer')
 const audience = checkValue<string>('api.bearer.audience')
 const expriesInMinutes = checkValue<number>('api.bearer.expiryMinutes')
 
-export let keyPair: {
+type KeyPair = {
   publicKey: string
   privateKey: string
-} | null = null
+}
 
-export const getKeyPair = async (): Promise<{
-  publicKey: string
-  privateKey: string
-}> => {
+export let keyPair: KeyPair | null = null
+
+export const getKeyPair = async (): Promise<KeyPair> => {
   if (keyPair) {
     return keyPair
   }
 
   // Filter by created in case second pair accidentally gets created
-  const existingKeyPair = await db.entityAuthKeyPair.findFirst({
+  const existingKeyPairCoreCache = await coreCacheReadRedis.get(`authKeyPair`)
+
+  if (existingKeyPairCoreCache) {
+    keyPair = JSON.parse(existingKeyPairCoreCache) as KeyPair
+    return keyPair
+  }
+
+  const existingKeyPairDb = await db.entityAuthKeyPair.findFirst({
     orderBy: {
       createdAt: 'asc',
     },
   })
 
-  if (!existingKeyPair) {
-    // Create a new pem key pair
-    const pair = keypair()
-
-    // Save the key pair to the database
-    await db.entityAuthKeyPair.create({
-      data: {
-        publicKey: pair.public,
-        privateKey: pair.private,
-      },
-    })
+  if (existingKeyPairDb) {
+    await coreCacheReadRedis.set(`authKeyPair`, JSON.stringify(keyPair))
 
     keyPair = {
+      publicKey: existingKeyPairDb.publicKey,
+      privateKey: existingKeyPairDb.privateKey,
+    }
+
+    return keyPair
+  }
+
+  // Create a new pem key pair
+  const pair = keypair()
+
+  // Save the key pair to the database
+  await db.entityAuthKeyPair.create({
+    data: {
       publicKey: pair.public,
       privateKey: pair.private,
-    }
-  } else {
-    keyPair = {
-      publicKey: existingKeyPair.publicKey,
-      privateKey: existingKeyPair.privateKey,
-    }
+    },
+  })
+
+  keyPair = {
+    publicKey: pair.public,
+    privateKey: pair.private,
   }
   return keyPair
 }
@@ -93,17 +104,17 @@ they are meant to be shared publicy amongst a team
 */
 export const publicBearer = async ({
   clientID,
+  scopeId,
 }: {
-  clientID: Scalars['ID']
+  clientID: string
+  scopeId: string
 }) => {
-  validateWith(() => {
-    if (!context.currentUser) {
-      throw 'You must be logged in to access this resource.'
-    }
-  })
+  if (!context.currentUser) {
+    throw new ServiceValidationError(
+      'You must be logged in to access this resource.'
+    )
+  }
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const userId = context.currentUser.id
 
   const { privateKey } = await getKeyPair()
@@ -113,6 +124,7 @@ export const publicBearer = async ({
   const signed = JWT.sign(
     {
       userId,
+      scopeId,
       clientID: parseInt(clientID),
     },
     privateKey,

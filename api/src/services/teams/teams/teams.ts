@@ -4,7 +4,7 @@ import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { checkValue } from 'src/config'
-import { createTeamScope } from 'src/helpers'
+import { createMembership, createTeamScope } from 'src/helpers'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { generateResetToken } from 'src/lib/token'
@@ -107,13 +107,7 @@ export const createTeam = async ({
     },
   })
 
-  const ownerMembership = await db.membership.create({
-    data: {
-      team: { connect: { id: team.id } },
-      user: { connect: { id: context.currentUser?.id } },
-      role: 'OWNER',
-    },
-  })
+  const ownerMembership = await createMembership(team, user, 'OWNER')
 
   const createTeamScopePromise = createTeamScope(team, ownerMembership, user)
 
@@ -122,11 +116,6 @@ export const createTeam = async ({
     `team:${team.id}`,
     'team',
     JSON.stringify(team)
-  )
-  const ownerMembershipPromise = coreCacheReadRedis.hSet(
-    `team:${team.id}`,
-    `membership:${ownerMembership.id}`,
-    JSON.stringify(ownerMembership)
   )
 
   const teamPublishPromise = coreCacheReadRedis.publish(
@@ -137,12 +126,7 @@ export const createTeam = async ({
     })
   )
 
-  await Promise.all([
-    createTeamScopePromise,
-    teamPromise,
-    ownerMembershipPromise,
-    teamPublishPromise,
-  ])
+  await Promise.all([createTeamScopePromise, teamPromise, teamPublishPromise])
 
   return team
 }

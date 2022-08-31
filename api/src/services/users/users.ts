@@ -5,18 +5,6 @@ import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
 
-type User = Prisma.PromiseReturnType<typeof db.user.create>
-
-export type PrivateUser = Omit<
-  User,
-  | 'updatedAt'
-  | 'emailVerified'
-  | 'hashedPassword'
-  | 'salt'
-  | 'resetToken'
-  | 'resetTokenExpiresAt'
->
-
 export const teamUsers = async ({ teamId }: { teamId: string }) => {
   // Ensure user is member of the team
   if (!context.currentUser) {
@@ -38,7 +26,7 @@ export const teamUsers = async ({ teamId }: { teamId: string }) => {
     }
   })
 
-  return (await db.user.findMany({
+  return await db.user.findMany({
     where: {
       memberships: {
         some: {
@@ -46,7 +34,7 @@ export const teamUsers = async ({ teamId }: { teamId: string }) => {
         },
       },
     },
-  })) as PrivateUser[]
+  })
 }
 
 export const teamUser = async ({
@@ -98,7 +86,7 @@ export const teamUser = async ({
     throw `User does not exist with id '${id}' in team '${teamId}'`
   }
 
-  return user as PrivateUser
+  return user
 }
 
 export const currentUser = async () => {
@@ -124,7 +112,7 @@ export const currentUser = async () => {
     throw 'User profile does not exist.'
   }
 
-  return currentUser as PrivateUser
+  return currentUser
 }
 
 export const updateCurrentUser = async (input: {
@@ -161,5 +149,5 @@ export const updateCurrentUser = async (input: {
     },
   })
 
-  return user as PrivateUser
+  return user
 }
