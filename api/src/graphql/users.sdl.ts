@@ -10,7 +10,7 @@ export const schema = gql`
     emailVerified: Boolean!
     shortBio: String
     profilePicture: String
-    memberships: [TeamMembership!]!
+    memberships: [Membership!]!
   }
 
   type Query {

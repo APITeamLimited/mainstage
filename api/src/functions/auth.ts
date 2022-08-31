@@ -1,3 +1,5 @@
+import { User } from '@prisma/client'
+
 import { DbAuthHandler } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
@@ -16,7 +18,7 @@ export const handler = async (event, context) => {
     // You could use this return value to, for example, show the email
     // address in a toast message so the user will know it worked and where
     // to look for the email.
-    handler: (user) => {
+    handler: (user: User) => {
       return user
     },
 
@@ -45,7 +47,7 @@ export const handler = async (event, context) => {
     // didn't validate their email yet), throw an error and it will be returned
     // by the `logIn()` function from `useAuth()` in the form of:
     // `{ message: 'Error message' }`
-    handler: (user) => {
+    handler: (user: User) => {
       return user
     },
 
@@ -67,7 +69,7 @@ export const handler = async (event, context) => {
     // the database. Returning anything truthy will automatically logs the user
     // in. Return `false` otherwise, and in the Reset Password page redirect the
     // user to the login page.
-    handler: (user) => {
+    handler: (user: User) => {
       return user
     },
 

@@ -1,14 +1,13 @@
-import { PlanInfo } from 'types/src'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 
 /**
  * populates an open doc with the necessary projects folder
  */
-export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
+export const populateOpenDoc = (doc: Y.Doc) => {
   // See if the scope has a projects folder
 
-  const projectsFolder = doc.getMap('projects')
+  //const projectsFolder = doc.getMap('projects')
 
   // /if (projectsFolder.size === 0) {
   // /  const { project, id } = createProject('My First Project')
@@ -17,10 +16,6 @@ export const populateOpenDoc = (doc: Y.Doc, planInfo: PlanInfo) => {
 
   const rootMap = doc.getMap()
   rootMap.set('performedFirstRun', true)
-
-  // TODO: this top level info cannot be accessed from the client, maybe
-  // remove as not needed?
-  rootMap.set('planInfo', planInfo)
 
   // Will be used in future to handle upgrades in YJS
   rootMap.set('schemaVersion', 0)

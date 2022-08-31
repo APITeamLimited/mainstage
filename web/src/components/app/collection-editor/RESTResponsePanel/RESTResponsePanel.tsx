@@ -194,7 +194,7 @@ export const RESTResponsePanel = ({
     }
   }
 
-  return focusedResponse && loaded ? (
+  return focusedResponse ? (
     <PanelLayout
       aboveTabsArea={
         <QuickStats
@@ -210,8 +210,22 @@ export const RESTResponsePanel = ({
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
+      rootPanelStyles={
+        undefined
+        // An idea
+        /*
+        loaded
+          ? {
+              opacity: 1,
+              transition: 'opacity 0.25s ease-in-out',
+            }
+          : {
+              opacity: 0,
+              transition: 'opacity 0.25s ease-in-out',
+            }*/
+      }
     >
-      {activeTabIndex === 0 && (
+      {activeTabIndex === 0 && storedResponse && (
         <BodyPanel response={storedResponse} setActionArea={setActionArea} />
       )}
       {activeTabIndex === 1 && (
@@ -238,26 +252,20 @@ export const RESTResponsePanel = ({
         overflow: 'hidden',
       }}
     >
-      {focusedResponse ? (
-        <h1>Loading</h1>
-      ) : (
-        <EmptyPanelMessage
-          icon={
-            <CommentIcon
-              sx={{
-                marginBottom: 2,
-                width: 80,
-                height: 80,
-                color: theme.palette.action.disabled,
-              }}
-            />
-          }
-          primaryText="No response yet"
-          secondaryMessages={[
-            'Add a url above and hit send to see the response',
-          ]}
-        />
-      )}
+      <EmptyPanelMessage
+        icon={
+          <CommentIcon
+            sx={{
+              marginBottom: 2,
+              width: 80,
+              height: 80,
+              color: theme.palette.action.disabled,
+            }}
+          />
+        }
+        primaryText="No response yet"
+        secondaryMessages={['Add a url above and hit send to see the response']}
+      />
     </Stack>
   )
 }

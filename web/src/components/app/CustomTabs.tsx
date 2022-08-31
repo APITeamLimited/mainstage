@@ -28,15 +28,14 @@ export const CustomTabs = ({ value, onChange, names }: CustomTabsProps) => {
           top: '36px',
         },
       }}
-      style={
-        {
-          // Correction for overly large uncotnrollable inner component height.
-          // Having no marginBottom would be the most pure way, but not sure if
-          // it looks as good as the marginBottoms below.
-          //marginBottom: '-1em',
-          //marginBottom: '-0.25em',
-        }
-      }
+      style={{
+        // Correction for overly large uncotnrollable inner component height.
+        // Having no marginBottom would be the most pure way, but not sure if
+        // it looks as good as the marginBottoms below.
+        //marginBottom: '-1em',
+        //marginBottom: '-0.25em',
+        overflow: 'visible',
+      }}
     >
       {names.map((name, index) => (
         <Button

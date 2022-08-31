@@ -33,7 +33,7 @@ export const updateDispatcher = ({
 
   const rootMap = doc.getMap()
 
-  const isLocal = !activeWorkspace.planInfo.remote
+  const isLocal = !activeWorkspace.remote
 
   // Only perform first run formatting if local, remote ones are done in the backend
   // We also only want to run when synced and connected to prevent duplicate, formatting

@@ -541,7 +541,7 @@ export class SocketIOProvider extends Observable<string> {
       throw new Error('Public bearer token not found')
     }
 
-    console.log('aww', this.awareness.getStates())
+    //console.log('aww', this.awareness.getStates())
 
     this.awareness.setLocalStateField('publicBearer', result.data.publicBearer)
   }

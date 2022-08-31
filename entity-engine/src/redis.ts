@@ -2,21 +2,21 @@ import { createClient } from 'redis'
 
 import { checkValue } from './config'
 
-const scopesUsername = checkValue<string>('scopes.redis.userName')
-const scopesPassword = checkValue<string>('scopes.redis.password')
-const scopesHost = checkValue<string>('scopes.redis.host')
-const scopesPort = checkValue<number>('scopes.redis.port')
+const coreCacheUsername = checkValue<string>('coreCache.redis.userName')
+const coreCachePassword = checkValue<string>('coreCache.redis.password')
+const coreCacheHost = checkValue<string>('coreCache.redis.host')
+const coreCachePort = checkValue<number>('coreCache.redis.port')
 
-const scopesReadRedis = createClient({
-  url: `redis://${scopesUsername}:${scopesPassword}@${scopesHost}:${scopesPort}`,
+const coreCacheReadRedis = createClient({
+  url: `redis://${coreCacheUsername}:${coreCachePassword}@${coreCacheHost}:${coreCachePort}`,
 })
 
-const scopesSubscribeRedis = scopesReadRedis.duplicate()
+const coreCacheSubscribeRedis = coreCacheReadRedis.duplicate()
 
-scopesReadRedis.connect()
-scopesSubscribeRedis.connect()
+coreCacheReadRedis.connect()
+coreCacheSubscribeRedis.connect()
 
-export { scopesReadRedis, scopesSubscribeRedis }
+export { coreCacheReadRedis, coreCacheSubscribeRedis }
 
 /*const eeRedisUsername = checkValue<string>('entity-engine.redis.userName')
 const eeRedisPassword = checkValue<string>('entity-engine.redis.password')

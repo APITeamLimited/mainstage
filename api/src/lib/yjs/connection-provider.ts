@@ -60,6 +60,8 @@ class OpenDoc extends Y.Doc {
     this.scope = scope
     this.mux = mutex.createMutex()
     this.sockets = new Map()
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     this.awareness = new awarenessProtocol.Awareness(this)
     this.awareness.setLocalState(null)
     this.guid = `${scope.variant}:${scope.variantTargetId}`

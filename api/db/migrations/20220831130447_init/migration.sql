@@ -34,7 +34,7 @@ CREATE TABLE "Team" (
 );
 
 -- CreateTable
-CREATE TABLE "TeamMembership" (
+CREATE TABLE "Membership" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
@@ -42,11 +42,11 @@ CREATE TABLE "TeamMembership" (
     "teamId" TEXT NOT NULL,
     "role" TEXT NOT NULL,
 
-    CONSTRAINT "TeamMembership_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Membership_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "TeamInvitation" (
+CREATE TABLE "Invitation" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
@@ -54,7 +54,7 @@ CREATE TABLE "TeamInvitation" (
     "teamId" TEXT NOT NULL,
     "role" TEXT NOT NULL,
 
-    CONSTRAINT "TeamInvitation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Invitation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -73,9 +73,12 @@ CREATE TABLE "Scope" (
     "id" TEXT NOT NULL,
     "variant" TEXT NOT NULL,
     "variantTargetId" TEXT NOT NULL,
+    "role" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
     "userId" TEXT NOT NULL,
+    "displayName" TEXT NOT NULL,
+    "profilePicture" TEXT,
 
     CONSTRAINT "Scope_pkey" PRIMARY KEY ("id")
 );
@@ -119,16 +122,19 @@ CREATE TABLE "TagsOnArticles" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "TeamInvitation_email_key" ON "TeamInvitation"("email");
+CREATE UNIQUE INDEX "Team_name_key" ON "Team"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Invitation_email_key" ON "Invitation"("email");
 
 -- AddForeignKey
-ALTER TABLE "TeamMembership" ADD CONSTRAINT "TeamMembership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TeamMembership" ADD CONSTRAINT "TeamMembership_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TeamInvitation" ADD CONSTRAINT "TeamInvitation_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Article" ADD CONSTRAINT "Article_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

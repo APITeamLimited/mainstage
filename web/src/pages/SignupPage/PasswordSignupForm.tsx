@@ -24,13 +24,13 @@ const PasswordLoginForm = () => {
   useEffect(() => {
     if (isAuthenticated) {
       if (/redirectTo/.test(search || '')) {
-        const newPath = (search|| '').split('=').slice(-1).join()
+        const newPath = (search || '').split('=').slice(-1).join()
         navigate(newPath)
       } else {
         navigate(routes.dashboard())
       }
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated, search])
 
   const formik = useFormik({
     initialValues: {

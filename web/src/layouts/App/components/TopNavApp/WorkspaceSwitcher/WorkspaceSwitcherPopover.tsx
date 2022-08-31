@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import CloudIcon from '@mui/icons-material/Cloud'
-import GroupsIcon from '@mui/icons-material/Groups'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
+import CheckIcon from '@mui/icons-material/Check'
 import {
   Box,
-  ListItemText,
   MenuItem,
   Popover,
   Typography,
   SvgIcon,
   useTheme,
   Stack,
+  Avatar,
 } from '@mui/material'
 import { Workspace } from 'types/src'
 
@@ -19,10 +19,35 @@ import { navigate, routes } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
+import { CreateTeamDialog } from './CreateTeamDialog'
+
 interface WorkspacePopoverProps {
   anchorEl: null | Element
   onClose: () => void
   open: boolean
+}
+
+type WorkspaceGroups = {
+  personal: Workspace[]
+  teams: Workspace[]
+}
+
+const getWorkspaceGroups = (workspaces: Workspace[]): WorkspaceGroups => {
+  const personal = workspaces.find(
+    (workspace) => workspace.scope?.variant === 'USER'
+  )
+  const teams = workspaces.filter(
+    (workspace) => workspace.scope?.variant === 'TEAM'
+  )
+
+  if (!personal) {
+    throw new Error('No personal workspace found')
+  }
+
+  return {
+    personal: [personal],
+    teams,
+  }
 }
 
 export const WorkspaceSwitcherPopover = ({
@@ -34,6 +59,16 @@ export const WorkspaceSwitcherPopover = ({
   const workspaces = useReactiveVar(workspacesVar)
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const [workspaceGroups, setWorkspaceGroups] = useState<WorkspaceGroups>(
+    getWorkspaceGroups(workspaces)
+  )
+  const [createTeamDialogOpen, setCreateTeamDialogOpen] =
+    useState<boolean>(false)
+
+  useEffect(
+    () => setWorkspaceGroups(getWorkspaceGroups(workspaces)),
+    [workspaces]
+  )
 
   useEffect(() => {
     setActiveWorkspace(
@@ -48,109 +83,154 @@ export const WorkspaceSwitcherPopover = ({
   }
 
   return (
-    <Popover
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        horizontal: 'center',
-        vertical: 'bottom',
-      }}
-      onClose={onClose}
-      open={!!open}
-      sx={{
-        mt: 1,
-      }}
-    >
-      <Stack>
-        {workspaces.map((workspace, index) => (
-          <MenuItem
-            key={index}
-            onClick={() => switchWorkspace(workspace.id)}
-            sx={{
-              padding: 2,
-              alignItems: 'center',
-              display: 'flex',
-              backgroundColor:
-                activeWorkspace && activeWorkspace.id === workspace.id
-                  ? theme.palette.background.default
-                  : theme.palette.background.paper,
-            }}
-          >
-            {workspace.planInfo.type === 'FREE' && !workspace.planInfo.isTeam && (
-              <>
-                <SvgIcon
-                  component={CloudIcon}
+    <>
+      <CreateTeamDialog
+        isOpen={createTeamDialogOpen}
+        onClose={(successful: boolean) => {
+          setCreateTeamDialogOpen(false)
+          successful && onClose()
+        }}
+      />
+      <Popover
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          horizontal: 'left',
+          vertical: 'bottom',
+        }}
+        onClose={onClose}
+        open={!!open}
+        sx={{
+          mt: 1,
+        }}
+      >
+        <Stack
+          sx={{
+            paddingX: 1,
+            paddingY: 2,
+          }}
+          spacing={2}
+        >
+          {Object.entries(workspaceGroups).map(
+            ([groupName, workspaces], indexGroup) => (
+              <Box key={indexGroup}>
+                <Typography
+                  color={theme.palette.text.secondary}
                   sx={{
-                    paddingRight: 2,
-                    color: theme.palette.text.secondary,
-                    width: 24,
+                    paddingLeft: 1,
                   }}
-                />
-                <ListItemText
-                  primary={
-                    <Typography variant="body1">{workspace.name}</Typography>
-                  }
-                  secondary={
-                    <Typography
-                      fontSize="small"
-                      color={theme.palette.text.secondary}
+                  fontSize="0.8rem"
+                  gutterBottom
+                >
+                  {groupName === 'personal' ? 'Personal Account' : 'Teams'}
+                </Typography>
+                {workspaces.map((workspace, indexWorkspace) => {
+                  if (!workspace.scope) throw new Error('No scope found')
+                  const { scope } = workspace
+                  const isActive = workspace.id === activeWorkspaceId
+
+                  return (
+                    <MenuItem
+                      key={`${indexGroup}-${indexWorkspace}`}
+                      onClick={() => !isActive && switchWorkspace(workspace.id)}
+                      sx={{
+                        width: '250px',
+                        padding: 1,
+                        // ROund the corners of the menu item
+                        borderRadius: 'md',
+                      }}
                     >
-                      Your private workspace backed up on APITeam servers
-                    </Typography>
-                  }
-                />
-              </>
-            )}
-            {workspace.planInfo.isTeam && (
-              <>
-                <SvgIcon
-                  component={GroupsIcon}
-                  sx={{
-                    paddingRight: 2,
-                    color: theme.palette.text.secondary,
-                    width: 24,
-                  }}
-                />
-                <ListItemText
-                  primary={
-                    <Typography variant="body1">{workspace.name}</Typography>
-                  }
-                  secondary={
-                    <Typography
-                      fontSize="small"
-                      color={theme.palette.text.secondary}
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          overflow: 'hidden',
+                          width: '100%',
+                        }}
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          sx={{
+                            width: '100%',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          <Avatar
+                            src={scope.profilePicture || ''}
+                            sx={{
+                              width: '25px',
+                              height: '25px',
+                            }}
+                          />
+                          <Typography
+                            fontWeight={isActive ? 'bold' : 'normal'}
+                            sx={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {scope.displayName}
+                          </Typography>
+                        </Stack>
+                        {isActive && (
+                          <SvgIcon fontSize="small" component={CheckIcon} />
+                        )}
+                      </Stack>
+                    </MenuItem>
+                  )
+                })}
+                {groupName === 'teams' && (
+                  <MenuItem
+                    key={indexGroup}
+                    sx={{
+                      width: '250px',
+                      padding: 1,
+                      // ROund the corners of the menu item
+                      borderRadius: 'md',
+                    }}
+                    onClick={() => setCreateTeamDialogOpen(true)}
+                  >
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{
+                        overflow: 'hidden',
+                        width: '100%',
+                      }}
+                      alignItems="center"
                     >
-                      Collaborative workspace backed up on APITeam servers
-                    </Typography>
-                  }
-                />
-              </>
-            )}
-            {workspace.planInfo.type === 'LOCAL' && (
-              <>
-                <Box
-                  sx={{
-                    paddingRight: 2,
-                    width: 24,
-                  }}
-                />
-                <ListItemText
-                  primary={
-                    <Typography variant="body1">{workspace.name}</Typography>
-                  }
-                  secondary={
-                    <Typography
-                      fontSize="small"
-                      color={theme.palette.text.secondary}
-                    >
-                      Local to this browser only
-                    </Typography>
-                  }
-                />
-              </>
-            )}
-          </MenuItem>
-        ))}
-      </Stack>
-    </Popover>
+                      <Box>
+                        <Avatar
+                          sx={{
+                            width: '25px',
+                            height: '25px',
+                            maxWidth: '25px',
+                            maxHeight: '25px',
+                            backgroundColor: 'transparent',
+                            overflow: 'visible',
+                          }}
+                        >
+                          <SvgIcon
+                            sx={{
+                              color: theme.palette.primary.main,
+                              fontSize: '29px',
+                            }}
+                            component={AddCircleOutlineIcon}
+                          />
+                        </Avatar>
+                      </Box>
+                      <Typography>Create Team</Typography>
+                    </Stack>
+                  </MenuItem>
+                )}
+              </Box>
+            )
+          )}
+        </Stack>
+      </Popover>
+    </>
   )
 }

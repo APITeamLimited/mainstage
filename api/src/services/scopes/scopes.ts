@@ -1,100 +1,56 @@
-import { Scope, ScopeVariant } from 'types/graphql'
+import { Scope } from '@prisma/client'
 
-import { validateWith } from '@redwoodjs/api'
+import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
+import { createPersonalScope } from 'src/helpers'
 import { db } from 'src/lib/db'
-import { scopesReadRedis } from 'src/lib/redis'
+import { coreCacheReadRedis } from 'src/lib/redis'
 
+/*
+Gets all scopes belonging to the current user.
+*/
 export const scopes = async () => {
-  validateWith(() => {
-    if (!context.currentUser) {
-      throw 'You must be logged in to access this resource.'
-    }
-  })
-
-  if (context.currentUser === undefined || context.currentUser === null) {
-    throw 'You must be logged in to access this resource.'
+  if (!context.currentUser) {
+    throw new ServiceValidationError(
+      'You must be logged in to access this resource.'
+    )
   }
 
-  const scopes = await db.scope.findMany({
-    where: {
-      userId: context.currentUser.id,
-    },
+  const user = await db.user.findUnique({
+    where: { id: context.currentUser.id },
   })
 
-  // If user does not have a scope with variant USER and their userId, create one
-  const userScope = scopes.find(
-    (scope) =>
-      scope.variant === 'USER' &&
-      scope.variantTargetId === context.currentUser?.id
-  )
+  if (!user) throw 'Unexpected error, user not found'
+  // Personal scope may not exist yet, create if not
+  await createPersonalScope(user)
 
-  if (!userScope) {
-    const newUserScope = await db.scope.create({
-      data: {
-        userId: context.currentUser.id,
-        variant: 'USER',
-        variantTargetId: context.currentUser.id,
-      },
-    })
+  const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
 
-    scopes.push(newUserScope)
-  }
+  console.log('rawScopes', rawScopes)
 
-  scopes.forEach(
-    async (scope) =>
-      // Add to scopes redis
-      await setScopeInRedis({
-        id: scope.id,
-        createdAt: scope.createdAt.toISOString(),
-        updatedAt: scope.updatedAt?.toISOString(),
-        userId: scope.userId,
-        variant: scope.variant as ScopeVariant,
-        variantTargetId: scope.variantTargetId,
-      })
-  )
-
-  return scopes
+  return Object.values(rawScopes).map((rawScope) => {
+    return JSON.parse(rawScope) as Scope
+  })
 }
 
-const setScopeInRedis = async (scope: Scope) => {
-  console.log('createdAt', scope.createdAt)
-  const idPromise = scopesReadRedis.hSet(scope.id, 'id', scope.id)
-  const createdAtPromise = scopesReadRedis.hSet(
-    scope.id,
-    'createdAt',
-    scope.createdAt
-  )
-  const updatedAtPromise = scopesReadRedis.hSet(
-    scope.id,
-    'updatedAt',
-    scope.updatedAt || ''
-  )
-  const userIdPromise = scopesReadRedis.hSet(scope.id, 'userId', scope.userId)
-  const variantPromise = scopesReadRedis.hSet(
-    scope.id,
-    'variant',
-    scope.variant
-  )
-  const variantTargetIdPromise = scopesReadRedis.hSet(
-    scope.id,
-    'variantTargetId',
-    scope.variantTargetId
-  )
-  const __typenamePromise = scopesReadRedis.hSet(
-    scope.id,
-    '__typename',
-    'Scope'
-  )
+/*
+Gets a single scope by id from cache, must be called by the current user.
+*/
+export const scope = async ({ id }: { id: string }) => {
+  if (!context.currentUser) {
+    throw new ServiceValidationError(
+      'You must be logged in to access this resource.'
+    )
+  }
 
-  await Promise.all([
-    idPromise,
-    createdAtPromise,
-    updatedAtPromise,
-    userIdPromise,
-    variantPromise,
-    variantTargetIdPromise,
-    __typenamePromise,
-  ])
+  if (!context?.currentUser?.id) throw 'Unexpected error'
+
+  const redisScopeRaw = await coreCacheReadRedis.get(`scope__id:${id}`)
+  if (!redisScopeRaw) return null
+
+  const redisScope = JSON.parse(redisScopeRaw) as Scope
+
+  if (redisScope.userId !== context.currentUser.id) return null
+  return redisScope
 }

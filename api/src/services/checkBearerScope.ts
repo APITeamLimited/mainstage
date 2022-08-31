@@ -5,7 +5,7 @@ import * as queryString from 'query-string'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
-import { scopesReadRedis } from 'src/lib/redis'
+import { coreCacheReadRedis } from 'src/lib/redis'
 import { getScope } from 'src/lib/scope'
 import { publicKey } from 'src/services/publicKey/publicKey'
 

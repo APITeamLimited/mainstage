@@ -10,13 +10,26 @@
     ]
   },
   "devDependencies": {
+    "@auth0/auth0-spa-js": "1.22.3",
+    "@azure/msal-browser": "2.28.1",
+    "@clerk/clerk-js": "4.3.1",
+    "@clerk/types": "3.4.1",
+    "@nhost/nhost-js": "1.4.10",
     "@redwoodjs/core": "2.0.0",
+    "@supabase/supabase-js": "^1.35.6",
     "@types/config": "^0.0.41",
+    "@types/crypto-js": "4.1.1",
+    "@types/lodash.escape": "4.0.7",
     "@types/md5": "^2.3.2",
     "@types/react": "^17.0.45",
     "@types/react-lazy-load-image-component": "^1.5.2",
+    "@types/split2": "3.2.1",
     "@types/use-double-click": "^1.0.1",
-    "@types/uuid": "^8.3.4"
+    "@types/uuid": "^8.3.4",
+    "firebase": "^9.9.3",
+    "gotrue-js": "^0.9.29",
+    "magic-sdk": "9.0.0",
+    "netlify-identity-widget": "1.9.2"
   },
   "eslintConfig": {
     "extends": "@redwoodjs/eslint-config",
@@ -37,10 +50,6 @@
     "config": "^3.3.7",
     "create-fastify-ts": "^0.2.2",
     "graphql-scalars": "^1.17.0",
-    "markdown-to-jsx": "^7.1.7",
-    "nodemon": "^2.0.19",
-    "react-router-dom": "^6.3.0",
-    "stream-browserify": "^3.0.0",
-    "y-indexeddb": "^9.0.9"
+    "react-router-dom": "^6.3.0"
   }
 }

@@ -70,6 +70,13 @@ export const useScopes = () => useContext(ScopesContext)
 const RawBearerContext = createContext<string | null>(null)
 export const useRawBearer = () => useContext(RawBearerContext)
 
+const RefetchScopesCallbackContext = createContext<
+  ((teamId: string) => Promise<void>) | null
+>(null)
+
+export const useRefetchScopesCallback = () =>
+  useContext(RefetchScopesCallbackContext)
+
 type SyncReadyStatus = {
   socketioProvider: PossibleSyncStatus
   indexeddbProvider: PossibleSyncStatus
@@ -174,18 +181,41 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     )
   }, [workspaces, activeWorkspaceId])
 
+  const refetchScopes = useCallback(
+    async (teamId: string) => {
+      const { data } = await apolloClient.query<GetBearerPubkeyScopes>({
+        query: GET_BEARER_PUBKEY__SCOPES_QUERY,
+        fetchPolicy: 'network-only',
+      })
+
+      processAuthData({
+        data,
+        activeWorkspaceId,
+        workspaces,
+        setPublicKey,
+        setBearer,
+        setBearerExpiry,
+        setRawBearer,
+        setScopes,
+        switchToTeam: teamId,
+      })
+    },
+    [activeWorkspaceId, apolloClient, workspaces]
+  )
+
   // Handle GetBearerPubkeyScopes updates
   useEffect(() => {
     processAuthData({
       data,
       workspaces,
+      activeWorkspaceId,
       setPublicKey,
       setBearer,
       setBearerExpiry,
       setRawBearer,
       setScopes,
     })
-  }, [data, workspaces])
+  }, [activeWorkspaceId, data, workspaces])
 
   // Create and destroy the providers based on readiness
   useEffect(() => {
@@ -208,6 +238,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     })
   }, [
     activeWorkspace,
+    apolloClient,
     doc,
     handleUpdateDispatch,
     indexeddbProvider,
@@ -242,7 +273,9 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         <DocContext.Provider value={doc}>
           <ScopesContext.Provider value={scopes}>
             <RawBearerContext.Provider value={rawBearer}>
-              {children}
+              <RefetchScopesCallbackContext.Provider value={refetchScopes}>
+                {children}
+              </RefetchScopesCallbackContext.Provider>
             </RawBearerContext.Provider>
           </ScopesContext.Provider>
         </DocContext.Provider>

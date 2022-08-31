@@ -25,7 +25,7 @@ export const teamUsers = async ({ teamId }: { teamId: string }) => {
 
   const userId = context.currentUser.id
 
-  const membership = await db.teamMembership.findFirst({
+  const membership = await db.membership.findFirst({
     where: {
       teamId,
       userId,
@@ -63,7 +63,7 @@ export const teamUser = async ({
 
   const userId = context.currentUser.id
 
-  const currentMembership = await db.teamMembership.findFirst({
+  const currentMembership = await db.membership.findFirst({
     where: {
       teamId,
       userId,

@@ -62,7 +62,7 @@ export const handleProviders = ({
   if (!socketioProviderReady && !indexeddbProviderReady) return
 
   if (!activeWorkspace) throw 'No active workspace'
-  const isLocal = activeWorkspace.planInfo.type === 'LOCAL'
+  const isLocal = !activeWorkspace.remote
 
   let activeGUID = ''
   if (isLocal) {

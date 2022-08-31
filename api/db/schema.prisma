@@ -13,17 +13,17 @@ generator client {
 
 // Make user model with UUID as primary key
 model User {
-  id             String           @id @default(uuid())
+  id             String       @id @default(uuid())
   firstName      String
   lastName       String
-  email          String           @unique
-  createdAt      DateTime         @default(now())
+  email          String       @unique
+  createdAt      DateTime     @default(now())
   updatedAt      DateTime?
-  isAdmin        Boolean          @default(false)
-  emailVerified  Boolean          @default(false)
+  isAdmin        Boolean      @default(false)
+  emailVerified  Boolean      @default(false)
   shortBio       String?
   profilePicture String?
-  memberships    TeamMembership[]
+  memberships    Membership[]
 
   // Password auth
   hashedPassword      String
@@ -34,20 +34,20 @@ model User {
 }
 
 model Team {
-  id                         String           @id @default(uuid())
-  name                       String
-  createdAt                  DateTime         @default(now())
+  id                         String       @id @default(uuid())
+  name                       String       @unique
+  createdAt                  DateTime     @default(now())
   updatedAt                  DateTime?
   shortBio                   String?
   profilePicture             String?
-  maxMembers                 Int              @default(10)
-  memberships                TeamMembership[]
-  invitations                TeamInvitation[]
+  maxMembers                 Int          @default(10)
+  memberships                Membership[]
+  invitations                Invitation[]
   markedForDeletionToken     String?
   markedForDeletionExpiresAt DateTime?
 }
 
-model TeamMembership {
+model Membership {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime?
@@ -58,7 +58,7 @@ model TeamMembership {
   role      String
 }
 
-model TeamInvitation {
+model Invitation {
   id        String    @id @default(uuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime?
@@ -84,6 +84,8 @@ model Scope {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime?
   userId          String
+  displayName     String
+  profilePicture  String?
 }
 
 model Tag {

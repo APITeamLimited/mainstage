@@ -9,21 +9,25 @@ export type Bearer = JwtPayload & { userId: string }
 type ProcessAuthDataArgs = {
   data: GetBearerPubkeyScopes | undefined
   workspaces: Workspace[]
+  activeWorkspaceId: string | null
   setPublicKey: (key: string | null) => void
   setBearer: (bearer: Bearer | null) => void
   setBearerExpiry: (expiry: number) => void
   setRawBearer: (bearer: string | null) => void
   setScopes: (scopes: GetBearerPubkeyScopes['scopes']) => void
+  switchToTeam?: string
 }
 
 export const processAuthData = ({
   data,
+  activeWorkspaceId,
   workspaces,
   setPublicKey,
   setBearer,
   setBearerExpiry,
   setRawBearer,
   setScopes,
+  switchToTeam,
 }: ProcessAuthDataArgs) => {
   if (!data) {
     // No data yet, just return
@@ -45,29 +49,47 @@ export const processAuthData = ({
   setScopes(data.scopes)
 
   const newWorkspaces: Workspace[] = workspaces.filter(
-    (workspace) => workspace.planInfo.type === 'LOCAL'
+    (workspace) => !workspace.remote
   )
 
   data.scopes.forEach((scope) => {
-    if (scope.variant === 'USER') {
+    if (scope.variant === 'USER' && scope.__typename === 'Scope') {
       newWorkspaces.push({
         __typename: 'Workspace',
         id: scope.variantTargetId,
-        name: 'Personal Cloud',
-
-        // TODO: actually imlement this
-        planInfo: {
-          type: 'FREE',
-          remote: true,
-          isTeam: false,
-        },
+        scope,
+        remote: true,
+        isTeam: false,
+        createdAt: new Date(scope.createdAt),
+        updatedAt: scope.updatedAt ? new Date(scope.updatedAt) : null,
+      })
+    } else if (scope.variant === 'TEAM' && scope.__typename === 'Scope') {
+      newWorkspaces.push({
+        __typename: 'Workspace',
+        id: scope.variantTargetId,
+        scope,
+        remote: true,
+        isTeam: true,
+        createdAt: new Date(scope.createdAt),
+        updatedAt: scope.updatedAt ? new Date(scope.updatedAt) : null,
       })
     }
   })
 
-  activeWorkspaceIdVar(newWorkspaces[0].id)
-
+  if (!activeWorkspaceId) {
+    console.log('No active workspace id')
+    activeWorkspaceIdVar(newWorkspaces[0].id)
+  }
   workspacesVar(newWorkspaces)
+
+  if (switchToTeam) {
+    const workspace = newWorkspaces.find(
+      (workspace) => workspace.id === switchToTeam
+    )
+    if (workspace) {
+      activeWorkspaceIdVar(workspace.id)
+    }
+  }
 }
 
 export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
@@ -78,7 +100,30 @@ export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
       id
       variant
       variantTargetId
+      role
+      createdAt
+      updatedAt
       userId
+      displayName
+      profilePicture
+    }
+  }
+`
+
+export const GET_SCOPES_QUERY = gql`
+  query GetScopes {
+    bearer
+    publicKey
+    scopes {
+      id
+      variant
+      variantTargetId
+      role
+      createdAt
+      updatedAt
+      userId
+      displayName
+      profilePicture
     }
   }
 `
@@ -129,9 +174,7 @@ export const determineIfReady = ({
     return
   }
 
-  const isLocal = activeWorkspace.__typename === 'Local'
-
-  if (isLocal) {
+  if (!activeWorkspace.remote) {
     setReady({
       socketioProviderReady: false,
       indexeddbProviderReady: true,

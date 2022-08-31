@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Box, Container, Divider } from '@mui/material'
-import { margin } from '@mui/system'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { Workspace } from 'types/src'
 import * as Y from 'yjs'
@@ -84,6 +83,7 @@ export const CollectionEditorPage = ({
         height: `calc(100vh - ${viewportHeightReduction}px)`,
         backgroundColor: theme.palette.alternate.dark,
         width: '100%',
+        minWidth: '100%',
         overflow: 'hidden',
       }}
     >
@@ -118,7 +118,7 @@ export const CollectionEditorPage = ({
               backgroundColor: 'transparent',
             }}
           />
-          <ReflexElement minSize={500} flex={1}>
+          <ReflexElement minSize={600} flex={1}>
             <ReflexContainer orientation="horizontal" windowResizeAware>
               <ReflexElement>
                 <Paper

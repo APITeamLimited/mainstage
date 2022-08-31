@@ -7,11 +7,8 @@ const localWorkspace: Workspace = {
   __typename: 'Workspace',
   id: 'LOCAL_ID',
   name: 'Local Storage',
-  planInfo: {
-    type: 'LOCAL',
-    remote: false,
-    isTeam: false,
-  },
+  remote: false,
+  isTeam: false,
   createdAt: new Date(),
   updatedAt: null,
 }
@@ -26,6 +23,6 @@ const localWorkspace: Workspace = {
 
 export const defaultWorkspaces: Workspace[] = []
 
-export const activeWorkspaceIdVar = makeVar()
+export const activeWorkspaceIdVar = makeVar<string | null>(null)
 
 export const workspacesVar = makeVar(defaultWorkspaces)

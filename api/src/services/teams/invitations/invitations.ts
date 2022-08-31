@@ -1,5 +1,7 @@
 import { validate, validateWith } from '@redwoodjs/api'
+
 import { db } from 'src/lib/db'
+
 import { TeamRole } from './memberships'
 
 export const inviteUserToTeam = async (
@@ -16,7 +18,7 @@ export const inviteUserToTeam = async (
     where: { id: teamId },
   })
 
-  const teamMembersPromise = db.teamMembership.findMany({
+  const teamMembersPromise = db.membership.findMany({
     where: {
       team: { id: teamId },
     },
@@ -26,7 +28,7 @@ export const inviteUserToTeam = async (
     where: { email },
   })
 
-  const existingInvitationPromise = db.teamInvitation.findFirst({
+  const existingInvitationPromise = db.invitation.findFirst({
     where: {
       team: { id: teamId },
       email,
@@ -37,7 +39,7 @@ export const inviteUserToTeam = async (
     teamPromise,
     teamMembersPromise,
     emailUserPromise,
-    existingInvitationPromise
+    existingInvitationPromise,
   ])
 
   validateWith(() => {
@@ -48,7 +50,9 @@ export const inviteUserToTeam = async (
 
     // Check email is not already a member of the team
     if (emailUser) {
-      const indexMember = teamMembers.find((member) => member.userId === emailUser.id)
+      const indexMember = teamMembers.find(
+        (member) => member.userId === emailUser.id
+      )
       if (indexMember) {
         throw `User with email '${email}' is already a member of team '${team.name}'`
       }
@@ -66,7 +70,7 @@ export const inviteUserToTeam = async (
   })
 
   // Create invitation
-  const invitation = await db.teamInvitation.create({
+  const invitation = await db.invitation.create({
     data: {
       team: { connect: { id: teamId } },
       email,

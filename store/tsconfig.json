@@ -23,9 +23,6 @@
     "jsx": "preserve",
     "skipLibCheck": true
   },
-  "include": [
-    "../globe-test",
-    "../types",
-    "./src/*",
-  ]
+  "include": ["../globe-test", "../types", "./src/*"],
+
 }

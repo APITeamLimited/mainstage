@@ -14,7 +14,7 @@ const _findScopeRedis = async (id: string): Promise<Scope | null> => {
   // For dev
   return null
   //try {
-  //  const scopeRaw = JSON.parse((await scopesReadRedis.get(id)) || 'null')
+  //  const scopeRaw = JSON.parse((await coreCacheReadRedis.get(id)) || 'null')
   //
   //  if (isScope(scopeRaw)) {
   //    return scopeRaw
@@ -49,7 +49,7 @@ const _findScopeBackend = async (id: string): Promise<Scope | null> => {
     if (isScope(result.data?.internalScope)) {
       const scope = result.data.internalScope as Scope
       // For dev
-      //scopesReadRedis.set(scope.id, JSON.stringify(scope))
+      //coreCacheReadRedis.set(scope.id, JSON.stringify(scope))
       return scope
     }
   }

@@ -1,29 +1,9 @@
-import { BaseEntity } from '.'
-
-export type PlanInfo =
-  | {
-      type: 'LOCAL'
-      remote: false
-      isTeam: false
-    }
-  | {
-      type: 'FREE'
-      remote: true
-      isTeam: boolean
-    }
-  | {
-      type: 'PRO'
-      remote: true
-      isTeam: boolean
-    }
-  | {
-      type: 'ENTERPRISE'
-      remote: true
-      isTeam: true
-    }
+import { BaseEntity } from 'types/src'
+import { GetBearerPubkeyScopes } from 'web/types/graphql'
 
 export interface Workspace extends BaseEntity {
   __typename: 'Workspace'
-  planInfo: PlanInfo
-  name: string
+  remote: boolean
+  isTeam: boolean
+  scope: GetBearerPubkeyScopes['scopes'][0] | null
 }

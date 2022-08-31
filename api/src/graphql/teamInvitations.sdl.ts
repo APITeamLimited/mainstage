@@ -1,5 +1,5 @@
 export const schema = gql`
-  type TeamInvitation {
+  type Invitation {
     id: String!
     createdAt: DateTime!
     updatedAt: DateTime
@@ -10,8 +10,8 @@ export const schema = gql`
   }
 
   type Query {
-    teamInvitations: [TeamInvitation!]! @requireAuth
-    teamInvitation(id: String!): TeamInvitation @requireAuth
+    teamInvitations: [Invitation!]! @requireAuth
+    Invitation(id: String!): Invitation @requireAuth
   }
 
   input CreateTeamInvitationInput {
@@ -26,12 +26,12 @@ export const schema = gql`
   }
 
   type Mutation {
-    createTeamInvitation(input: CreateTeamInvitationInput!): TeamInvitation!
+    createTeamInvitation(input: CreateTeamInvitationInput!): Invitation!
       @requireAuth
     updateTeamInvitation(
       id: String!
       input: UpdateTeamInvitationInput!
-    ): TeamInvitation! @requireAuth
-    deleteTeamInvitation(id: String!): TeamInvitation! @requireAuth
+    ): Invitation! @requireAuth
+    deleteTeamInvitation(id: String!): Invitation! @requireAuth
   }
 `

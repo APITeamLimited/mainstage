@@ -1,9 +1,9 @@
-import applicationFormEncoded from '../../../fixtures/requests/application-form-encoded.json';
-import full from '../../../fixtures/requests/full.json';
-import query from '../../../fixtures/requests/query.json';
-import short from '../../../fixtures/requests/short.json';
-import { runCustomFixtures } from '../../../fixtures/runCustomFixtures';
-import { Request } from '../../../httpsnippet';
+import applicationFormEncoded from '../../../fixtures/requests/application-form-encoded.json'
+import full from '../../../fixtures/requests/full.json'
+import query from '../../../fixtures/requests/query.json'
+import short from '../../../fixtures/requests/short.json'
+import { runCustomFixtures } from '../../../fixtures/runCustomFixtures'
+import { Request } from '../../../httpsnippet'
 
 runCustomFixtures({
   targetId: 'shell',
@@ -69,4 +69,4 @@ runCustomFixtures({
       expected: 'build-parameters.sh',
     },
   ],
-});
+})

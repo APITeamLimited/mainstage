@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material'
+import { Stack, SxProps } from '@mui/material'
 
 import { CustomTabs } from '../CustomTabs'
 
@@ -9,6 +9,7 @@ type PanelLayoutProps = {
   setActiveTabIndex: (index: number) => void
   actionArea?: React.ReactNode
   aboveTabsArea?: React.ReactNode
+  rootPanelStyles?: SxProps
 }
 
 export const PanelLayout = ({
@@ -18,6 +19,7 @@ export const PanelLayout = ({
   setActiveTabIndex,
   actionArea,
   aboveTabsArea,
+  rootPanelStyles,
 }: PanelLayoutProps) => (
   <Stack
     padding={2}
@@ -26,6 +28,7 @@ export const PanelLayout = ({
       height: 'calc(100% - 2rem)',
       maxHeight: 'calc(100% - 2rem)',
       maxWidth: '100%',
+      ...rootPanelStyles,
     }}
   >
     {aboveTabsArea}
