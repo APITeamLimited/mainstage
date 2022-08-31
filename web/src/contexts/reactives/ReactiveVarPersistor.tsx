@@ -7,13 +7,13 @@ import { localEnvironmentsVar } from './locals'
 import { activeEnvironmentVar, activeWorkspaceIdVar } from '.'
 
 export const ReactiveVarPersistor = () => {
-  /*const [performedStartup, setPerformedStartup] = useState(false)
+  const [performedStartup, setPerformedStartup] = useState(false)
 
   // The reactive variables we want to persist
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
 
   // If we haven't performed the startup yet, get persisted variables from local storage
-  useEffect(() => {
+  /*useEffect(() => {
     if (!performedStartup) {
       const persistedWorkspaceId = localStorage.getItem('activeWorkspaceId')
       activeWorkspaceIdVar(
@@ -25,11 +25,13 @@ export const ReactiveVarPersistor = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [performedStartup])
 
-  // If any of the reactive variables change, persist them to local storage
+  // If any of the reactive variables change, persist them to local storage*/
 
   useEffect(() => {
-    localStorage.setItem('activeWorkspaceId', activeWorkspaceId || '')
+    if (activeWorkspaceId) {
+      localStorage.setItem('activeWorkspaceId', activeWorkspaceId)
+    }
   }, [activeWorkspaceId])
 
-  return null*/
+  return null
 }

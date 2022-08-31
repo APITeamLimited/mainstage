@@ -56,6 +56,13 @@ export const handleNewConnection = async (socket: Socket) => {
     doc.messageListener(socket, new Uint8Array(message))
   )
 
+  socket.on('forceDisconnect', () => {
+    console.log('forceDisconnect')
+    doc.sockets.delete(socket)
+    doc.scopes.delete(socket)
+    socket.disconnect()
+  })
+
   // On disconnect remove the connection from the doc
   socket.on('disconnect', () => {
     doc.closeSocket(socket)
@@ -119,11 +126,7 @@ class OpenDoc extends Y.Doc {
 
     // TODO: add logic with persistence provider to load state and
     // populate the doc with the state only when not already populated
-    populateOpenDoc(this, {
-      type: 'PRO',
-      remote: true,
-      isTeam: false,
-    })
+    populateOpenDoc(this)
     this.mux = mutex.createMutex()
     this.scopes = new Map()
     this.sockets = new Map()
@@ -162,14 +165,13 @@ class OpenDoc extends Y.Doc {
           added.forEach((clientID) => {
             // Verify the publicBearer of the client
 
-            console.log('Added id', clientID)
+            //console.log('Added id', clientID)
 
             connControlledIDs.add(clientID)
             this.verifyAwareness(clientID)
           })
 
           updated.forEach((clientID) => {
-            console.log('Updated id', clientID)
             this.verifyAwareness(clientID, true)
           })
 

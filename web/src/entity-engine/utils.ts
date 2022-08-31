@@ -77,8 +77,13 @@ export const processAuthData = ({
   })
 
   if (!activeWorkspaceId) {
-    console.log('No active workspace id')
-    activeWorkspaceIdVar(newWorkspaces[0].id)
+    console.log(
+      'No active workspace id',
+      localStorage.getItem('activeWorkspaceId')
+    )
+    activeWorkspaceIdVar(
+      localStorage.getItem('activeWorkspaceId') || newWorkspaces[0].id
+    )
   }
   workspacesVar(newWorkspaces)
 
@@ -86,7 +91,7 @@ export const processAuthData = ({
     const workspace = newWorkspaces.find(
       (workspace) => workspace.id === switchToTeam
     )
-    if (workspace) {
+    if (workspace && workspace.id !== activeWorkspaceId) {
       activeWorkspaceIdVar(workspace.id)
     }
   }

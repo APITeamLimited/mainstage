@@ -32,6 +32,8 @@ type WorkspaceGroups = {
   teams: Workspace[]
 }
 
+const gatewayURL = process.env.GATEWAY_URL
+
 const getWorkspaceGroups = (workspaces: Workspace[]): WorkspaceGroups => {
   const personal = workspaces.find(
     (workspace) => workspace.scope?.variant === 'USER'

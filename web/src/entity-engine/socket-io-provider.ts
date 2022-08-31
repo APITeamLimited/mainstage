@@ -161,6 +161,7 @@ export class SocketIOProvider extends Observable<string> {
   socket: Socket | null
   socketLastMessageReceived: number
   shouldConnect: boolean
+  lastPinged: number
   _resyncInterval
   _bcSubscriber: (data: ArrayBuffer, origin: any) => void
   _updateHandler: (update: Uint8Array, origin: any) => void
@@ -214,6 +215,7 @@ export class SocketIOProvider extends Observable<string> {
     this.messageHandlers = messageHandlers.slice()
     this._synced = false
     this.socket = null
+    this.lastPinged = new Date().getTime()
     this.apolloClient = apolloClient
     this.socketLastMessageReceived = 0
     this.onAwarenessUpdate = onAwarenessUpdate
@@ -458,6 +460,9 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   destroy() {
+    this.disconnect()
+
+    this.shouldConnect = false
     console.log('destroy')
     this.awareness.setLocalState(null)
 
@@ -481,6 +486,8 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   disconnect() {
+    this.socket?.emit('forceDisconnect')
+
     this.shouldConnect = false
     if (this.socket !== null) {
       this.socket.disconnect()

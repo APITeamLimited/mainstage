@@ -45,12 +45,15 @@ export const handleProviders = ({
 
   // Close the providers if they should not be operational
 
+  //if (socketioProvider) {
+  //  console.log('socketioProvider exists')
+  //  socketioProvider.disconnect()
+  //  socketioProvider.destroy()
+  //}
+
   if (!socketioProviderReady && socketioProvider) {
-    socketioProvider?.destroy?.()
-    socketioProvider = null
-    setSocketioProvider(null)
-    console.log('closed socketio provider')
-    setSocketioSyncStatus('disabled')
+    socketioProvider.disconnect()
+    socketioProvider.destroy()
   }
 
   if (!indexeddbProviderReady && indexeddbProvider) {
@@ -83,17 +86,29 @@ export const handleProviders = ({
     throw `No scopeId could be found for workspace ${activeWorkspace.id}`
   }
 
-  const newDoc = getNewDoc(doc, setDoc, activeGUID)
   const guidChanged = doc?.guid !== activeGUID
+
+  if (guidChanged) {
+    console.log('guid changed', socketioProvider)
+    socketioProvider?.disconnect()
+    socketioProvider?.destroy()
+    socketioProvider = null
+  }
+
+  const newDoc = getNewDoc(doc, setDoc, activeGUID)
 
   // Open the providers if they should be operational
 
   const newSocketIOInstance = () => {
+    console.log('newSocketIOInstance', guidChanged, socketioProvider)
     if (socketioProvider) {
+      socketioProvider.disconnect()
       socketioProvider.destroy()
       socketioProvider = null
       setSocketioProvider(null)
     }
+
+    if (!guidChanged) return
 
     return new SocketIOProvider({
       scopeId,

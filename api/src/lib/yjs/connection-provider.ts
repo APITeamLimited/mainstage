@@ -162,7 +162,7 @@ class OpenDoc extends Y.Doc {
       if (this.sockets.size === 0) {
         persistenceProvider.closeDoc(this.guid)
         openDocs.delete(this.guid)
-        console.log('Closed doc', guid)
+        console.log('Closed doc', this.guid)
       }
     }
 

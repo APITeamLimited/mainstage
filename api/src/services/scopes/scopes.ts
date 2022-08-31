@@ -27,8 +27,6 @@ export const scopes = async () => {
 
   const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
 
-  console.log('rawScopes', rawScopes)
-
   return Object.values(rawScopes).map((rawScope) => {
     return JSON.parse(rawScope) as Scope
   })

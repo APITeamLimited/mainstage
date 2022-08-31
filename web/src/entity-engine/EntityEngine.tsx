@@ -15,6 +15,7 @@ import { IndexeddbPersistence } from 'y-indexeddb'
 import * as Y from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
+import { useLocation } from '@redwoodjs/router'
 import { useQuery } from '@redwoodjs/web'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
@@ -91,6 +92,7 @@ const SyncReadyContext = createContext(initialSyncReadyStatus)
 export const useSyncReady = () => useContext(SyncReadyContext)
 
 export const EntityEngine = ({ children }: EntityEngineProps) => {
+  const { pathname } = useLocation()
   const { isAuthenticated } = useAuth()
   const [publicKey, setPublicKey] = useState<string | null>(null)
   const [bearer, setBearer] = useState<Bearer | null>(null)
@@ -176,10 +178,11 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }, [activeWorkspace, bearer, bearerExpiry, publicKey, rawBearer, scopes])
 
   useEffect(() => {
+    if (activeWorkspaceId === activeWorkspace?.id) return
     setActiveWorkspace(
       workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
     )
-  }, [workspaces, activeWorkspaceId])
+  }, [workspaces, activeWorkspaceId, activeWorkspace])
 
   const refetchScopes = useCallback(
     async (teamId: string) => {
@@ -187,6 +190,9 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         query: GET_BEARER_PUBKEY__SCOPES_QUERY,
         fetchPolicy: 'network-only',
       })
+
+      const filteredSwitchToTeam =
+        activeWorkspaceId === teamId ? undefined : teamId
 
       processAuthData({
         data,
@@ -197,7 +203,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         setBearerExpiry,
         setRawBearer,
         setScopes,
-        switchToTeam: teamId,
+        switchToTeam: filteredSwitchToTeam,
       })
     },
     [activeWorkspaceId, apolloClient, workspaces]
@@ -257,9 +263,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }
 
   return (
-    <div
-      key={`${activeWorkspaceId}-${socketioSyncStatus}-${indexeddbSyncStatus}`}
-    >
+    <div>
       {/*<span>
         socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus{' '}
         {indexeddbSyncStatus}
