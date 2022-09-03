@@ -22,8 +22,7 @@ export const schema = gql`
   }
 
   type Query {
-    memberships: [Membership!]! @requireAuth
-    membership(id: String!): Membership @requireAuth
+    memberships(teamId: String!): [Membership!]! @requireAuth
   }
 
   type Mutation {

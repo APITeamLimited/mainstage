@@ -19,7 +19,7 @@ export type MemberAwareness = {
   userId: string
   displayName: string
   role: TeamRole
-  profilePicture: string
+  profilePicture: string | null
   joinedTeam: Date
   lastOnline: Date | null
 }
@@ -29,7 +29,12 @@ export type ServerAwareness = {
 } & (
   | {
       variant: 'TEAM'
-      team: Team
+      team: Omit<
+        Team,
+        | 'markedForDeletion'
+        | 'markedForDeletionToken'
+        | 'markedForDeletionExpiresAt'
+      >
       members: MemberAwareness[]
     }
   | {

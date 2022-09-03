@@ -1,3 +1,4 @@
+import { getDisplayName } from '@apiteam/types'
 import { User, Membership, Team } from '@prisma/client'
 import { Scope } from '@prisma/client'
 
@@ -9,7 +10,7 @@ Creates or updates an existing personal scope with latest user data.
 */
 export const createPersonalScope = async (user: User) => {
   const role = null
-  const displayName = `${user.firstName} ${user.lastName}`
+  const displayName = getDisplayName(user)
   const profilePicture = user.profilePicture
 
   const getLatestScope = async () => {
@@ -64,6 +65,7 @@ export const createPersonalScope = async (user: User) => {
         role,
         userId: user.id,
         displayName,
+        slug: `${user.firstName}-${user.lastName}`,
         profilePicture,
       },
     })
@@ -107,6 +109,7 @@ export const createTeamScope = async (
   const role = membership.role
   const displayName = team.name
   const profilePicture = team.profilePicture
+  const slug = team.slug
 
   const getLatestScope = async () => {
     const existingScope = await db.scope.findFirst({
@@ -122,7 +125,8 @@ export const createTeamScope = async (
       if (
         existingScope.role !== role ||
         existingScope.displayName !== displayName ||
-        existingScope.profilePicture !== profilePicture
+        existingScope.profilePicture !== profilePicture ||
+        existingScope.slug !== slug
       ) {
         const updatedScope = await db.scope.update({
           where: {
@@ -132,6 +136,7 @@ export const createTeamScope = async (
             role,
             displayName,
             profilePicture,
+            slug,
             updatedAt: new Date(),
           },
         })
@@ -156,6 +161,7 @@ export const createTeamScope = async (
         userId: user.id,
         displayName,
         profilePicture,
+        slug: team.slug,
       },
     })
 

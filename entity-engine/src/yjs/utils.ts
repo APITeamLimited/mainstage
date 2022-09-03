@@ -1,3 +1,5 @@
+import { getDisplayName, MemberAwareness, SafeUser } from '@apiteam/types'
+import { Membership } from '@prisma/client'
 import { Jwt } from 'jsonwebtoken'
 import queryString from 'query-string'
 import { Socket } from 'socket.io'
@@ -12,28 +14,40 @@ export const handlePostAuth = async (
   jwt: Jwt
 }> => {
   const jwt = await verifyJWT(socket.request)
-
-  if (jwt === false) {
-    return null
-  }
+  if (jwt === false) return null
 
   const scopeId =
     queryString
       .parse(socket.request.url?.split('?')[1] || '')
       .scopeId?.toString() || undefined
 
-  if (!scopeId) {
-    return null
-  }
-
+  if (!scopeId) return null
   const scope = await findScope(scopeId)
-
-  if (scope === null) {
-    return null
-  }
+  if (scope === null) return null
 
   return {
     scope,
     jwt,
   }
 }
+
+export type LastOnlineTime = {
+  userId: string
+  lastOnline: Date
+}
+
+export const createMemberAwareness = (
+  user: SafeUser,
+  membership: Membership,
+  lastOnlineTimes: LastOnlineTime[]
+) =>
+  ({
+    userId: membership.userId,
+    displayName: getDisplayName(user),
+    role: membership.role,
+    profilePicture: user.profilePicture,
+    joinedTeam: membership.createdAt,
+    lastOnline:
+      lastOnlineTimes.find((l) => l.userId === membership.userId)?.lastOnline ||
+      null,
+  } as MemberAwareness)

@@ -14,7 +14,7 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import { KeyValueItem } from 'types/src'
+import { KeyValueItem } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 

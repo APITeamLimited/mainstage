@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
-import { Environment, RESTRequest } from 'types/src'
+import { Environment, RESTRequest } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'

@@ -1,6 +1,7 @@
+import { ensureCorrectType } from '@apiteam/types'
+import { Scope } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 import keypair from 'keypair'
-import { Scalars } from 'types/graphql'
 
 import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
@@ -19,19 +20,14 @@ type KeyPair = {
   privateKey: string
 }
 
-export let keyPair: KeyPair | null = null
-
 export const getKeyPair = async (): Promise<KeyPair> => {
-  if (keyPair) {
-    return keyPair
-  }
-
   // Filter by created in case second pair accidentally gets created
-  const existingKeyPairCoreCache = await coreCacheReadRedis.get(`authKeyPair`)
+  const existingKeyPairCoreCache = ensureCorrectType(
+    await coreCacheReadRedis.get(`authKeyPair`)
+  )
 
-  if (existingKeyPairCoreCache) {
-    keyPair = JSON.parse(existingKeyPairCoreCache) as KeyPair
-    return keyPair
+  if (existingKeyPairCoreCache !== null) {
+    return JSON.parse(existingKeyPairCoreCache) as KeyPair
   }
 
   const existingKeyPairDb = await db.entityAuthKeyPair.findFirst({
@@ -41,14 +37,14 @@ export const getKeyPair = async (): Promise<KeyPair> => {
   })
 
   if (existingKeyPairDb) {
-    await coreCacheReadRedis.set(`authKeyPair`, JSON.stringify(keyPair))
-
-    keyPair = {
+    const keyPairDb = {
       publicKey: existingKeyPairDb.publicKey,
       privateKey: existingKeyPairDb.privateKey,
     }
 
-    return keyPair
+    await coreCacheReadRedis.set(`authKeyPair`, JSON.stringify(keyPairDb))
+
+    return keyPairDb
   }
 
   // Create a new pem key pair
@@ -62,11 +58,10 @@ export const getKeyPair = async (): Promise<KeyPair> => {
     },
   })
 
-  keyPair = {
+  return {
     publicKey: pair.public,
     privateKey: pair.private,
   }
-  return keyPair
 }
 
 export const bearer = async () => {
@@ -120,6 +115,19 @@ export const publicBearer = async ({
   const { privateKey } = await getKeyPair()
 
   // TODO: include a users role within a team in the payload
+  const scopeRaw = ensureCorrectType(
+    await coreCacheReadRedis.get(`scope__id:${scopeId}`)
+  )
+
+  if (!scopeRaw) {
+    throw new ServiceValidationError('No scope found for the current user')
+  }
+
+  const scope = JSON.parse(scopeRaw) as Scope
+
+  if (scope.userId !== userId) {
+    throw new ServiceValidationError('No scope found for the current user')
+  }
 
   const signed = JWT.sign(
     {

@@ -1,4 +1,4 @@
-import { Workspace } from 'types/src'
+import { Workspace } from '@apiteam/types'
 import * as Y from 'yjs'
 
 import {

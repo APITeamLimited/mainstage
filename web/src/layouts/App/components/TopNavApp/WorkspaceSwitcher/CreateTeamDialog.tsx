@@ -22,8 +22,8 @@ type CreateTeamDialogProps = {
 }
 
 export const CREATE_TEAM_MUTATION = gql`
-  mutation CreateTeam($name: String!, $shortBio: String) {
-    createTeam(name: $name, shortBio: $shortBio) {
+  mutation CreateTeam($name: String!, $slug: String!) {
+    createTeam(name: $name, slug: $slug) {
       id
       name
     }
@@ -40,12 +40,12 @@ export const CreateTeamDialog = ({
   const formik = useFormik({
     initialValues: {
       name: '',
-      shortBio: '',
+      slug: '',
       submit: null,
     },
     validationSchema: Yup.object({
       name: Yup.string().max(25).required('Teams must have a name'),
-      shortBio: Yup.string().max(100),
+      slug: Yup.string().max(25).required('Teams must have a slug'),
     }),
     onSubmit: async (values): Promise<void> => {
       try {
@@ -53,7 +53,7 @@ export const CreateTeamDialog = ({
           mutation: CREATE_TEAM_MUTATION,
           variables: {
             name: values.name,
-            shortBio: values.shortBio,
+            slug: values.slug,
           },
         })
 
@@ -104,17 +104,17 @@ export const CreateTeamDialog = ({
               helperText={formik.touched.name && formik.errors.name}
             />
             <TextField
-              id="shortBio"
-              label="Short Bio (optional)"
-              name="shortBio"
+              id="slug"
+              label="Team Slug"
+              name="slug"
               fullWidth
               variant="outlined"
               size="small"
-              value={formik.values.shortBio}
+              value={formik.values.slug}
               onBlur={formik.handleBlur}
               onChange={formik.handleChange}
-              error={Boolean(formik.touched.shortBio && formik.errors.shortBio)}
-              helperText={formik.touched.shortBio && formik.errors.shortBio}
+              error={Boolean(formik.touched.slug && formik.errors.slug)}
+              helperText={formik.touched.slug && formik.errors.slug}
               multiline
             />
             <Typography variant="body1">

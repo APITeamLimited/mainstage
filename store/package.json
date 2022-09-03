@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "APITeam Store",
   "dependencies": {
+    "@apiteam/types": "*",
     "@apollo/client": "^3.6.9",
     "@types/busboy": "^1.5.0",
     "busboy": "^1.6.0",

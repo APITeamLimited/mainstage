@@ -1,26 +1,29 @@
-import { Team, Membership, User } from '@prisma/client'
+import {
+  DecodedPublicBearer,
+  getDisplayName,
+  RedisTeamPublishMessage,
+  SafeUser,
+  ServerAwareness,
+  TeamRole,
+} from '@apiteam/types'
+import { Team, Membership } from '@prisma/client'
 import * as JWT from 'jsonwebtoken'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
 import * as map from 'lib0/map'
 import * as mutex from 'lib0/mutex'
 import { Socket } from 'socket.io'
-import {
-  DecodedPublicBearer,
-  MemberAwareness,
-  ServerAwareness,
-} from 'types/src'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
 import { Scope } from '../../../api/types/graphql'
 import { checkValue } from '../config'
 import { populateOpenDoc } from '../entities'
-import { coreCacheReadRedis } from '../redis'
+import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../redis'
 import { getAndSetAPIPublicKey } from '../services'
 
 import * as syncProtocol from './sync'
-import { handlePostAuth } from './utils'
+import { createMemberAwareness, handlePostAuth, LastOnlineTime } from './utils'
 import { RedisPersistence } from './y-redis'
 
 const eeRedisUsername = checkValue<string>('entity-engine.redis.userName')
@@ -30,6 +33,8 @@ const eeRedisPort = checkValue<number>('entity-engine.redis.port')
 
 const publicAudience = `${checkValue<string>('api.bearer.audience')}-public`
 const issuer = checkValue<string>('api.bearer.issuer')
+
+const bannedAwarenessKeys = ['variantTargetId', 'variant', 'team', 'members']
 
 const persistenceProvider = new RedisPersistence({
   redisOpts: {
@@ -42,10 +47,17 @@ const persistenceProvider = new RedisPersistence({
 
 export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
-  if (postAuth === null) return
+
+  if (postAuth === null) {
+    console.error('Failed to carry out post-auth')
+    socket.disconnect()
+    return
+  }
+
   const { scope } = postAuth
 
-  const doc = getOpenDoc(scope)
+  const doc = await getOpenDoc(scope)
+
   doc.sockets.set(socket, new Set())
   doc.scopes.set(socket, new Set())
   const scopeSet = doc.scopes.get(socket)
@@ -60,9 +72,62 @@ export const handleNewConnection = async (socket: Socket) => {
 
   scopeSet.add(scope)
 
-  socket.on('message', (message: ArrayBuffer) =>
+  const serverAwareness = doc.serverAwareness
+
+  if (serverAwareness.variant === 'TEAM') {
+    const member = serverAwareness.members.find(
+      (member) => member.userId === scope.userId
+    )
+
+    if (!member) {
+      socket.disconnect()
+      doc.sockets.delete(socket)
+      doc.scopes.delete(socket)
+      console.warn('Could not find member for socket')
+      return
+    }
+
+    member.lastOnline = new Date()
+
+    const newServerAwareness: ServerAwareness = {
+      ...serverAwareness,
+      members: serverAwareness.members.map((member) => {
+        if (member.userId === scope.userId) {
+          return {
+            ...member,
+            lastOnline: new Date(),
+          }
+        }
+
+        return member
+      }),
+    }
+
+    doc.awareness.setLocalState(newServerAwareness)
+
+    const setPromise = coreCacheReadRedis.hSet(
+      `team:${doc.variantTargetId}`,
+      `lastOnlineTime:${scope.userId}`,
+      member.lastOnline.getTime()
+    )
+
+    const publishPromise = coreCacheReadRedis.publish(
+      `team:${doc.variantTargetId}`,
+      JSON.stringify({
+        type: 'LAST_ONLINE_TIME',
+        payload: {
+          userId: scope.userId,
+          lastOnline: member.lastOnline,
+        },
+      } as RedisTeamPublishMessage)
+    )
+
+    await Promise.all([setPromise, publishPromise])
+  }
+
+  socket.on('message', (message: ArrayBuffer) => {
     doc.messageListener(socket, new Uint8Array(message))
-  )
+  })
 
   socket.on('forceDisconnect', () => doc.closeSocket(socket))
 
@@ -77,7 +142,6 @@ export const handleNewConnection = async (socket: Socket) => {
     encoding.writeVarUint(encoder, messageSyncType)
 
     syncProtocol.writeSyncStep1(encoder, doc)
-    //console.log(encoder, doc.getMap('projects').size)
     doc.send(socket, encoding.toUint8Array(encoder))
 
     const awarenessStates = doc.awareness.getStates()
@@ -99,11 +163,10 @@ export const handleNewConnection = async (socket: Socket) => {
   }
 }
 
-export const getOpenDoc = (scope: Scope): OpenDoc => {
+export const getOpenDoc = async (scope: Scope): Promise<OpenDoc> => {
   const docName = `${scope.variant}:${scope.variantTargetId}`
 
-  return map.setIfUndefined(openDocs, docName, () => {
-    console.log('Creating new doc', docName)
+  const openDoc = map.setIfUndefined(openDocs, docName, () => {
     const doc = new OpenDoc(scope)
 
     persistenceProvider.bindState(docName, doc)
@@ -111,6 +174,11 @@ export const getOpenDoc = (scope: Scope): OpenDoc => {
     openDocs.set(docName, doc)
     return doc
   })
+
+  if (openDoc.awareness.getLocalState() === null) {
+    await openDoc.connectAwareness()
+  }
+  return openDoc
 }
 
 const openDocs = new Map<string, OpenDoc>()
@@ -126,6 +194,7 @@ class OpenDoc extends Y.Doc {
   variant: string
   variantTargetId: string
   lastVerifiedClients: Map<number, number>
+  activeSubscriptions: string[]
 
   constructor(scope: Scope) {
     super()
@@ -139,10 +208,9 @@ class OpenDoc extends Y.Doc {
     this.lastVerifiedClients = new Map()
     this.awareness = new awarenessProtocol.Awareness(this)
     // TODO: make this a configurable value with user info and roles etc.
-    this.awareness.setLocalState({
-      teamInfo: {},
-    })
+    this.awareness.setLocalState(null)
     this.guid = `${scope.variant}:${scope.variantTargetId}`
+    this.activeSubscriptions = []
 
     this.awareness.on(
       'update',
@@ -158,7 +226,6 @@ class OpenDoc extends Y.Doc {
         },
         connectionWithChange: Socket | null
       ) => {
-        //console.log('awareness update', added, updated, removed)
         const changedClients = added.concat(updated, removed)
 
         if (connectionWithChange !== null) {
@@ -170,10 +237,6 @@ class OpenDoc extends Y.Doc {
           }
 
           added.forEach((clientID) => {
-            // Verify the publicBearer of the client
-
-            //console.log('Added id', clientID)
-
             connControlledIDs.add(clientID)
             this.verifyAwareness(connectionWithChange, clientID)
           })
@@ -220,8 +283,6 @@ class OpenDoc extends Y.Doc {
     this.variant = scope.variant
     this.variantTargetId = scope.variantTargetId
 
-    this.connectAwareness()
-
     setInterval(() => this.discardUnawareClients(), 5000)
   }
 
@@ -234,21 +295,13 @@ class OpenDoc extends Y.Doc {
         err != null && this.closeSocket(socket)
       })
     } catch (e) {
-      console.log('failed to send message from OpenDoc', e)
+      console.warn('failed to send message from OpenDoc', e)
       this.closeSocket(socket)
     }
   }
 
   // Removes a connection from a doc
   async closeSocket(socket: Socket) {
-    console.log(
-      'Removing',
-      socket.id,
-      'from synced doc',
-      this.guid,
-      this.sockets.size - 1
-    )
-
     if (this.sockets.has(socket)) {
       const controlledIds: Set<number> = this.sockets.get(socket) || new Set()
       this.sockets.delete(socket)
@@ -258,10 +311,26 @@ class OpenDoc extends Y.Doc {
         Array.from(controlledIds),
         null
       )
+      // Close doc if no more connections
       if (this.sockets.size === 0) {
+        const patternSuscriptions = this.activeSubscriptions.filter((pattern) =>
+          pattern.endsWith('*')
+        )
+        const regularSuscriptions = this.activeSubscriptions.filter(
+          (pattern) => !pattern.endsWith('*')
+        )
+        const patternUnsubscribePromise =
+          coreCacheSubscribeRedis.pUnsubscribe(patternSuscriptions)
+        const regularUnsubscribePromise =
+          coreCacheSubscribeRedis.unsubscribe(regularSuscriptions)
+        await Promise.all([
+          patternUnsubscribePromise,
+          regularUnsubscribePromise,
+        ])
+
         persistenceProvider.closeDoc(this.guid)
         openDocs.delete(this.guid)
-        console.log('Closed doc', this.guid)
+        super.destroy()
       }
     }
 
@@ -275,8 +344,6 @@ class OpenDoc extends Y.Doc {
       const encoder = encoding.createEncoder()
       const decoder = decoding.createDecoder(message)
       const messageType = decoding.readVarUint(decoder)
-
-      //console.log('message type', messageType)
 
       switch (messageType) {
         case messageSyncType:
@@ -331,7 +398,16 @@ class OpenDoc extends Y.Doc {
         `team:${this.variantTargetId}`
       )
 
-      const team = JSON.parse(allTeamInfoRaw.team) as Team
+      const team = JSON.parse(allTeamInfoRaw.team) as any
+      delete team.markedForDeletionExpiresAt
+      delete team.markedForDeletionAt
+      delete team.markedForDeletionToken
+      team as Omit<
+        Team,
+        | 'markedForDeletion'
+        | 'markedForDeletionToken'
+        | 'markedForDeletionExpiresAt'
+      >
       const memberships = [] as Membership[]
 
       Object.entries(allTeamInfoRaw).map(([key, value]) => {
@@ -341,14 +417,12 @@ class OpenDoc extends Y.Doc {
       })
 
       const usersRaw = await coreCacheReadRedis.mGet(
-        memberships.map((m) => `user:${m.userId}`)
+        memberships.map((m) => `user__id:${m.userId}`)
       )
-      const users = usersRaw.map((u) => JSON.parse(u || '') as User)
 
-      const lastOnlineTimes = [] as {
-        userId: string
-        lastOnline: Date
-      }[]
+      const users = usersRaw.map((u) => JSON.parse(u || '') as SafeUser)
+
+      const lastOnlineTimes = [] as LastOnlineTime[]
 
       Object.entries(allTeamInfoRaw).map(([key, value]) => {
         if (key.startsWith('lastOnlineTime:')) {
@@ -366,17 +440,7 @@ class OpenDoc extends Y.Doc {
             `Could not find user ${m.userId} for membership ${m.id} cannot create server awareness`
           )
         }
-
-        return {
-          userId: m.userId,
-          displayName: `${user.firstName} ${user.lastName}`,
-          role: m.role,
-          profilePicture: user.profilePicture,
-          joinedTeam: m.createdAt,
-          lastOnline:
-            lastOnlineTimes.find((l) => l.userId === m.userId)?.lastOnline ||
-            null,
-        } as MemberAwareness
+        return createMemberAwareness(user, m, lastOnlineTimes)
       })
 
       const initialAwareness: ServerAwareness = {
@@ -387,6 +451,60 @@ class OpenDoc extends Y.Doc {
       }
 
       this.awareness.setLocalState(initialAwareness)
+
+      // Subscribe to redis pubsub for team updates
+      this.activeSubscriptions.push(`team:${this.variantTargetId}`)
+      await coreCacheSubscribeRedis.subscribe(
+        `team:${this.variantTargetId}`,
+        (message) => {
+          console.log('message', message)
+          const parsedMessage = JSON.parse(message) as RedisTeamPublishMessage
+
+          if (parsedMessage.type === 'ADD_MEMBER') {
+            this.addMember(parsedMessage.payload)
+            return
+          } else if (parsedMessage.type === 'REMOVE_MEMBER') {
+            this.removeMember(parsedMessage.payload)
+            return
+          } else if (parsedMessage.type === 'CHANGE_ROLE') {
+            this.changeRoleMember(parsedMessage.payload)
+            return
+          } else if (parsedMessage.type === 'LAST_ONLINE_TIME') {
+            const serverAwareness =
+              this.awareness.getLocalState() as ServerAwareness
+            if (serverAwareness.variant !== 'TEAM') return
+
+            const newServerAwareness: ServerAwareness = {
+              ...serverAwareness,
+              members: serverAwareness.members.map((m) => {
+                if (m.userId === parsedMessage.payload.userId) {
+                  return {
+                    ...m,
+                    lastOnline: parsedMessage.payload.lastOnline,
+                  }
+                }
+                return m
+              }),
+            }
+
+            this.awareness.setLocalState(newServerAwareness)
+            return
+          }
+          console.warn(
+            `Unknown message type for message ${message} ignoring...`
+          )
+        }
+      )
+
+      // Subscribe to user updates
+      const membershipSubscribePromises = memberships.map((m) => {
+        this.activeSubscriptions.push(`user__id:${m.userId}`)
+        return coreCacheSubscribeRedis.subscribe(
+          `user__id:${m.userId}`,
+          (message) => this.updateMemberUser(JSON.parse(message) as SafeUser)
+        )
+      })
+      await Promise.all(membershipSubscribePromises)
     } else if (this.variant === 'USER') {
       const initialAwareness: ServerAwareness = {
         variantTargetId: this.variantTargetId,
@@ -397,8 +515,6 @@ class OpenDoc extends Y.Doc {
     } else {
       throw new Error(`Unknown variant ${this.variant}`)
     }
-
-    console.log(this.awareness.getLocalState())
   }
 
   // Verify tokens of all clients and boot them if they are invalid, if they are valid,
@@ -408,6 +524,12 @@ class OpenDoc extends Y.Doc {
 
     const awareness = this.awareness.getStates().get(clientID)
     if (!awareness) return
+
+    // If pretending to be a server, disconnect
+    if (bannedAwarenessKeys.some((k) => awareness[k])) {
+      this.closeSocket(socket)
+      return
+    }
 
     // Verify the publicBearer of the client
     if (awareness.publicBearer) {
@@ -427,13 +549,13 @@ class OpenDoc extends Y.Doc {
           return
         }
 
-        const hasScopeId =
+        const hasScope =
           (Array.from(this.scopes.get(socket) || new Set()) as Scope[]).find(
             (s) => s.id === decodedToken.payload.scopeId
           ) !== undefined
             ? true
             : false
-        if (!hasScopeId) {
+        if (!hasScope) {
           this.disconnectClient(clientID)
           return
         }
@@ -469,11 +591,15 @@ class OpenDoc extends Y.Doc {
   discardUnawareClients() {
     const currentTime = new Date().getTime()
 
-    for (const [clientID, lastVerified] of this.lastVerifiedClients) {
+    this.lastVerifiedClients.forEach((lastVerified, clientID) => {
       if (currentTime - lastVerified > 30000) {
+        console.log(
+          "Client hasn't updated its awareness in 30 seconds",
+          clientID
+        )
         this.disconnectClient(clientID)
       }
-    }
+    })
   }
 
   async updateServerAwareness(decodedToken: DecodedPublicBearer) {
@@ -492,22 +618,146 @@ class OpenDoc extends Y.Doc {
       }
 
       member.lastOnline = new Date()
-      member.displayName = decodedToken.payload.displayName
-      member.profilePicture = decodedToken.payload.profilePicture
-      member.role = decodedToken.payload.role
 
-      await coreCacheReadRedis.hSet(
+      const setPromise = coreCacheReadRedis.hSet(
         `team:${this.variantTargetId}`,
         `lastOnlineTime:${decodedToken.payload.userId}`,
         member.lastOnline.getTime()
       )
 
+      const publishPromise = coreCacheReadRedis.publish(
+        `team:${this.variantTargetId}`,
+        JSON.stringify({
+          type: 'LAST_ONLINE_TIME',
+          payload: {
+            userId: decodedToken.payload.userId,
+            lastOnline: member.lastOnline,
+          },
+        } as RedisTeamPublishMessage)
+      )
+
+      await Promise.all([setPromise, publishPromise])
+
       const newServerAwareness: ServerAwareness = {
         ...serverAwareness,
-        members: [...serverAwareness.members, member],
+        members: serverAwareness.members.map((m) =>
+          m.userId === member.userId ? member : m
+        ),
       }
 
+      console.log('648 newServerAwareness', newServerAwareness)
       this.awareness.setLocalState(newServerAwareness)
     }
+  }
+
+  get serverAwareness() {
+    return this.awareness.getLocalState() as ServerAwareness
+  }
+
+  async addMember(member: Membership) {
+    const serverAwareness = this.serverAwareness
+    if (serverAwareness.variant !== 'TEAM') {
+      console.warn(
+        `Tried to add member to a ${serverAwareness.variant} doc, ignoring`
+      )
+      return
+    }
+
+    const user = await coreCacheReadRedis.get(`user__id:${member.userId}`)
+    if (!user) {
+      console.warn(
+        `Could not find user ${member.userId} in cache, skipping adding to team ${this.variantTargetId}`
+      )
+      return
+    }
+
+    this.activeSubscriptions.push(`user__id:${member.userId}`)
+    coreCacheSubscribeRedis.subscribe(`user__id:${member.userId}`, (message) =>
+      this.updateMemberUser(JSON.parse(message) as SafeUser)
+    )
+
+    const newServerAwareness: ServerAwareness = {
+      ...serverAwareness,
+      members: [
+        ...serverAwareness.members,
+        createMemberAwareness(JSON.parse(user) as SafeUser, member, []),
+      ],
+    }
+
+    console.log('686 newServerAwareness', newServerAwareness)
+    this.awareness.setLocalState(newServerAwareness)
+  }
+
+  async removeMember(member: Membership) {
+    const serverAwareness = this.serverAwareness
+    if (serverAwareness.variant !== 'TEAM') {
+      console.warn(
+        `Tried to remove member from a ${serverAwareness.variant} doc, ignoring`
+      )
+      return
+    }
+
+    const newServerAwareness: ServerAwareness = {
+      ...serverAwareness,
+      members: serverAwareness.members.filter(
+        (m) => m.userId !== member.userId
+      ),
+    }
+
+    console.log('707 newServerAwareness', newServerAwareness)
+    this.awareness.setLocalState(newServerAwareness)
+
+    this.activeSubscriptions = this.activeSubscriptions.filter(
+      (s) => s !== `user__id:${member.userId}`
+    )
+    await coreCacheSubscribeRedis.unsubscribe(`user__id:${member.userId}`)
+  }
+
+  changeRoleMember(member: Membership) {
+    const serverAwareness = this.serverAwareness
+    if (serverAwareness.variant !== 'TEAM') {
+      console.warn(
+        `Tried to change role of member from a ${serverAwareness.variant} doc, ignoring`
+      )
+      return
+    }
+
+    const newServerAwareness: ServerAwareness = {
+      ...serverAwareness,
+      members: serverAwareness.members.map((m) =>
+        m.userId === member.userId ? { ...m, role: member.role as TeamRole } : m
+      ),
+    }
+
+    console.log('732 newServerAwareness', newServerAwareness)
+    this.awareness.setLocalState(newServerAwareness)
+  }
+
+  updateMemberUser(user: SafeUser) {
+    const serverAwareness = this.serverAwareness
+    if (serverAwareness.variant !== 'TEAM') {
+      console.warn(
+        `Tried to update member from a ${serverAwareness.variant} doc, ignoring`
+      )
+      return
+    }
+
+    const newServerAwareness: ServerAwareness = {
+      ...serverAwareness,
+      members: serverAwareness.members.map((m) =>
+        m.userId === user.id
+          ? {
+              ...m,
+              ...{
+                displayName: getDisplayName(user),
+                profilePicture: user.profilePicture,
+              },
+            }
+          : m
+      ),
+    }
+
+    console.log('759 newServerAwareness', newServerAwareness)
+    this.awareness.setLocalState(newServerAwareness)
   }
 }

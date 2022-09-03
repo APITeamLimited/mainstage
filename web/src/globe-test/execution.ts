@@ -1,5 +1,5 @@
+import { GlobeTestMessage } from '@apiteam/types'
 import { io } from 'socket.io-client'
-import { GlobeTestMessage } from 'types/src'
 
 import {
   BaseJob,

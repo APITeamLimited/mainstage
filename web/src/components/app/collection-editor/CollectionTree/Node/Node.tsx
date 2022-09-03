@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
-import { Folder, RESTRequest } from 'types/src'
+import { Folder, RESTRequest } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 

@@ -5,7 +5,7 @@ import { makeVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
 import { Stack, Typography, useTheme } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
-import { DefaultMetrics, GlobeTestMessage } from 'types/src'
+import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYDoc, useYMap } from 'zustand-yjs'
 

@@ -1,7 +1,8 @@
+import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types'
 import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import { Workspace } from 'types/src'
 import { IndexeddbPersistence } from 'y-indexeddb'
+import { Awareness } from 'y-protocols/awareness.js'
 import * as Y from 'yjs'
 
 import { SocketIOProvider } from './socket-io-provider'
@@ -22,6 +23,7 @@ type HandleProvidersArgs = {
   setSocketioSyncStatus: (syncStatus: PossibleSyncStatus) => void
   setIndexeddbSyncStatus: (syncStatus: PossibleSyncStatus) => void
   handleUpdateDispatch: (args: HandleUpdateDispatchArgs) => void
+  setAwareness: (newAwareness: ServerAwareness) => void
   apolloClient: ApolloClient<unknown>
 }
 
@@ -39,18 +41,12 @@ export const handleProviders = ({
   setSocketioSyncStatus,
   setIndexeddbSyncStatus,
   handleUpdateDispatch,
+  setAwareness,
   apolloClient,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady, indexeddbProviderReady } = ready
 
   // Close the providers if they should not be operational
-
-  //if (socketioProvider) {
-  //  console.log('socketioProvider exists')
-  //  socketioProvider.disconnect()
-  //  socketioProvider.destroy()
-  //}
-
   if (!socketioProviderReady && socketioProvider) {
     socketioProvider.disconnect()
     socketioProvider.destroy()
@@ -98,17 +94,16 @@ export const handleProviders = ({
 
   // Open the providers if they should be operational
 
-  const newSocketIOInstance = () => {
+  const newSocketIOInstance = (doc: Y.Doc) => {
     if (socketioProvider) {
       socketioProvider = null
-      //setSocketioProvider(null)
     }
 
     return new SocketIOProvider({
       scopeId,
       rawBearer: rawBearer || '',
       apolloClient,
-      doc: newDoc,
+      doc,
       options: {
         //onAwarenessUpdate: (awareness) => {
         //  //console.log('awareness bing bing', awareness)
@@ -121,13 +116,26 @@ export const handleProviders = ({
         onStatusChange: (status) => {
           setSocketioSyncStatus(status)
         },
+        onAwarenessUpdate: (awareness) => {
+          const statesArray = Array.from(awareness.getStates().values()) as (
+            | ServerAwareness
+            | ClientAwareness
+          )[]
+          const serverAwareness = statesArray?.filter(
+            (client) => 'variant' in client
+          ) as ServerAwareness[]
+
+          if (serverAwareness.length === 0) throw 'No server awareness found'
+
+          setAwareness(serverAwareness[0])
+        },
         resyncInterval: -1,
       },
     })
   }
 
   if (socketioProviderReady && (!socketioProvider || guidChanged)) {
-    setSocketioProvider(newSocketIOInstance())
+    setSocketioProvider(newSocketIOInstance(newDoc))
     setSocketioSyncStatus('connecting')
   }
 
@@ -141,8 +149,6 @@ export const handleProviders = ({
     setIndexeddbProvider(newIndexeddbProvider)
     setIndexeddbSyncStatus('connecting')
   }
-
-  newDoc.autoLoad = true
 
   handleUpdateDispatch({
     doc: newDoc,

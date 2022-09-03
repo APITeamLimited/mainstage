@@ -1,5 +1,5 @@
+import { RESTRequest } from '@apiteam/types'
 import * as Har from 'har-format'
-import { RESTRequest } from 'types/src'
 
 import { HarRequest } from './httpsnippet'
 // scotch support HAR Spec 1.2

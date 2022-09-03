@@ -22,6 +22,7 @@ CREATE TABLE "User" (
 CREATE TABLE "Team" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "slug" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
     "shortBio" TEXT,
@@ -123,6 +124,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Team_name_key" ON "Team"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Team_slug_key" ON "Team"("slug");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Invitation_email_key" ON "Invitation"("email");

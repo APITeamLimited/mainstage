@@ -1,5 +1,5 @@
+import { RESTRequest, GlobeTestMessage, StatusType } from '@apiteam/types'
 import { makeVar } from '@apollo/client'
-import { RESTRequest, GlobeTestMessage, StatusType } from 'types/src'
 
 export type BaseJob = {
   // Don't trust end client to create UUIDs so these are clientside only

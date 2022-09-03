@@ -1,6 +1,6 @@
+import { RESTRequest, Environment } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
 import qs from 'qs'
-import { RESTRequest, Environment } from 'types/src'
 
 import { findEnvironmentVariables } from 'src/utils/findVariables'
 

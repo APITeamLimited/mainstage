@@ -9,6 +9,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "rootDir": "..",
+    "rootDirs": ["./src", "../.redwood/types/mirror/api/src", "../types/src"],
     "paths": {
       "src/*": [
         "./src/*",
@@ -23,6 +24,6 @@
     "jsx": "preserve",
     "skipLibCheck": true
   },
-  "include": ["../globe-test", "../types", "./src/*"],
+  "include": ["../globe-test", "../types/src", "./src/*"],
 
 }

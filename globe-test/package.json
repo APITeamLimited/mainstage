@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "APITeam GlobeTest Manager",
   "dependencies": {
+    "@apiteam/types": "*",
     "@apollo/client": "^3.6.9",
     "colorterm": "^1.0.0",
     "config": "^3.3.7",

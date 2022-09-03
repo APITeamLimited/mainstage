@@ -35,7 +35,8 @@ model User {
 
 model Team {
   id                         String       @id @default(uuid())
-  name                       String       @unique
+  name                       String
+  slug                       String       @unique
   createdAt                  DateTime     @default(now())
   updatedAt                  DateTime?
   shortBio                   String?
@@ -66,6 +67,8 @@ model Invitation {
   team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId    String
   role      String
+
+  @@unique([email, teamId])
 }
 
 model EntityAuthKeyPair {
@@ -86,6 +89,7 @@ model Scope {
   userId          String
   displayName     String
   profilePicture  String?
+  slug            String
 }
 
 model Tag {

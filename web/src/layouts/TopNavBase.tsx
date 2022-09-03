@@ -6,11 +6,13 @@ import { UserDropdown } from './App/components/UserDropdown/UserDropdown'
 
 type TopNavBaseProps = {
   leftZone?: React.ReactNode
+  rightZone?: React.ReactNode
   disableTop?: boolean
 }
 
 export const TopNavBase = ({
   leftZone,
+  rightZone,
   disableTop = false,
 }: TopNavBaseProps) => {
   const theme = useTheme()
@@ -50,6 +52,7 @@ export const TopNavBase = ({
         </Box>
         <Box>
           <Stack direction="row" alignItems="center" spacing={2}>
+            {rightZone}
             <ThemeModeToggler />
             <UserDropdown />
           </Stack>

@@ -1,4 +1,4 @@
-import { RESTRequest } from 'types/src'
+import { RESTRequest } from '@apiteam/types'
 
 import { buildHarRequest } from './buildHar'
 import { HTTPSnippet } from './httpsnippet'

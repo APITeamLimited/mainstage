@@ -1,4 +1,4 @@
-import { SafeUser } from 'types/src'
+import { ensureCorrectType, SafeUser } from '@apiteam/types'
 
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
@@ -26,7 +26,9 @@ import { coreCacheReadRedis } from './redis'
  */
 
 export const getCurrentUser = async (session) => {
-  const userCoreCache = await coreCacheReadRedis.get(`user:${session.id}`)
+  const userCoreCache = ensureCorrectType(
+    await coreCacheReadRedis.get(`user__id:${session.id}`)
+  )
 
   if (userCoreCache) return JSON.parse(userCoreCache) as SafeUser
 

@@ -7,11 +7,12 @@ import {
   useState,
 } from 'react'
 
+import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types'
 import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import { Workspace } from 'types/src'
 import { IndexeddbPersistence } from 'y-indexeddb'
+import { Awareness } from 'y-protocols/awareness.js'
 import * as Y from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
@@ -21,7 +22,7 @@ import { useQuery } from '@redwoodjs/web'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { handleProviders, HandleUpdateDispatchArgs } from './handle-providers'
-import { SocketIOManager } from './provider-manager'
+import { SocketIOManager } from './socket-io-manager'
 import { SocketIOProvider } from './socket-io-provider'
 import { updateDispatcher } from './update-dispatcher'
 import {
@@ -79,6 +80,12 @@ const RefetchScopesCallbackContext = createContext<
 export const useRefetchScopesCallback = () =>
   useContext(RefetchScopesCallbackContext)
 
+const AwarenessContext = createContext<ServerAwareness | null>(null)
+export const useServerAwareness = () => useContext(AwarenessContext)
+
+const WorkspaceInfoContext = createContext<Workspace | null>(null)
+export const useWorkspaceInfo = () => useContext(WorkspaceInfoContext)
+
 type SyncReadyStatus = {
   socketioProvider: PossibleSyncStatus
   indexeddbProvider: PossibleSyncStatus
@@ -119,6 +126,8 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const indexeddbSyncStatusRef = useRef<PossibleSyncStatus>(indexeddbSyncStatus)
 
   const apolloClient = useApolloClient()
+
+  const [awareness, setAwareness] = useState<ServerAwareness | null>(null)
 
   // Get bearer token from gql query
   const { data, error } = useQuery<GetBearerPubkeyScopes>(
@@ -253,6 +262,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       setIndexeddbSyncStatus,
       handleUpdateDispatch,
       apolloClient,
+      setAwareness,
     })
   }, [
     activeWorkspace,
@@ -275,31 +285,36 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }
 
   return (
-    <div>
-      {/*<span>
-        socketioSyncStatus {socketioSyncStatus} indexeddbSyncStatus{' '}
-        {indexeddbSyncStatus}
-  </span>*/}
+    <>
       <SocketIOManager
         key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}`}
+        // No clue why ts-error here
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         socketioProvider={socketioProvider}
       />
-      <SyncReadyContext.Provider
-        value={{
-          socketioProvider: socketioSyncStatus,
-          indexeddbProvider: indexeddbSyncStatus,
-        }}
-      >
-        <DocContext.Provider value={doc}>
-          <ScopesContext.Provider value={scopes}>
-            <RawBearerContext.Provider value={rawBearer}>
-              <RefetchScopesCallbackContext.Provider value={refetchScopes}>
-                {children}
-              </RefetchScopesCallbackContext.Provider>
-            </RawBearerContext.Provider>
-          </ScopesContext.Provider>
-        </DocContext.Provider>
-      </SyncReadyContext.Provider>
-    </div>
+      <div key={socketioSyncStatusRef.current}>
+        <SyncReadyContext.Provider
+          value={{
+            socketioProvider: socketioSyncStatus,
+            indexeddbProvider: indexeddbSyncStatus,
+          }}
+        >
+          <DocContext.Provider value={doc}>
+            <ScopesContext.Provider value={scopes}>
+              <RawBearerContext.Provider value={rawBearer}>
+                <RefetchScopesCallbackContext.Provider value={refetchScopes}>
+                  <AwarenessContext.Provider value={awareness}>
+                    <WorkspaceInfoContext.Provider value={activeWorkspace}>
+                      {children}
+                    </WorkspaceInfoContext.Provider>
+                  </AwarenessContext.Provider>
+                </RefetchScopesCallbackContext.Provider>
+              </RawBearerContext.Provider>
+            </ScopesContext.Provider>
+          </DocContext.Provider>
+        </SyncReadyContext.Provider>
+      </div>
+    </>
   )
 }

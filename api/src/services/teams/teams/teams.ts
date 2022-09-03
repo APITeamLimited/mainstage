@@ -59,10 +59,10 @@ export const team = async ({ id }: { id: string }) => {
 }
 export const createTeam = async ({
   name,
-  shortBio,
+  slug,
 }: {
   name: string
-  shortBio: string | undefined
+  slug: string
 }) => {
   if (!context.currentUser) {
     throw new ServiceValidationError(
@@ -70,10 +70,17 @@ export const createTeam = async ({
     )
   }
 
-  // Check name one word with only letters and numbers
-  if (name.match(/[^a-z0-9]+/g)) {
+  // Check name not empty and length at least 5 chars
+  if (!name || name.length < 5) {
     throw new ServiceValidationError(
-      'Name must be one word with only lowercase letters and numbers'
+      'Name required and must be at least 5 characters long'
+    )
+  }
+
+  // Check slug one word with only letters and numbers
+  if (slug.match(/[^a-z0-9]+/g)) {
+    throw new ServiceValidationError(
+      'Slug must be one word with only lowercase letters and numbers'
     )
   }
 
@@ -81,29 +88,29 @@ export const createTeam = async ({
     where: { id: context.currentUser.id },
   })
 
-  const existingTeamPromise = db.team.findFirst({
+  const existingTeamSlugPromise = await db.team.findFirst({
     where: {
-      name,
+      slug,
     },
   })
 
-  const [user, existingTeam] = await Promise.all([
+  const [user, existingTeamSlug] = await Promise.all([
     userPromise,
-    existingTeamPromise,
+    existingTeamSlugPromise,
   ])
 
   if (!user) {
     throw new ServiceValidationError('User creating team not found')
   }
 
-  if (existingTeam) {
-    throw new ServiceValidationError('Name already taken')
+  if (existingTeamSlug) {
+    throw new ServiceValidationError('Slug already taken')
   }
 
   const team = await db.team.create({
     data: {
       name,
-      shortBio,
+      slug,
     },
   })
 
@@ -134,10 +141,12 @@ export const createTeam = async ({
 export const updateTeam = async ({
   id,
   name,
+  slug,
   shortBio,
 }: {
   id: string
   name?: string
+  slug?: string
   shortBio?: string
 }) => {
   validateWith(async () => checkOwnerAdmin({ teamId: id }))
@@ -149,26 +158,25 @@ export const updateTeam = async ({
   })
 
   // Check name one word with only letters and numbers
-  if (name && name.match(/[^a-z0-9]+/g)) {
+  if (slug && slug.match(/[^a-z0-9]+/g)) {
     throw new ServiceValidationError(
       'Name must be one word with only lowercase letters and numbers'
     )
   }
 
-  validateWith(() => {
-    // Check team exists in db
-    if (!team) {
-      throw new Error(`Team does not exist with id '${id}'`)
-    }
-  })
+  if (name && name.length < 5) {
+    throw new ServiceValidationError(
+      'Name required and must be at least 5 characters long'
+    )
+  }
 
   if (!team) {
-    throw new Error('Unexpected error')
+    throw new ServiceValidationError(`Team does not exist with id '${id}'`)
   }
 
   const updatedTeam = await db.team.update({
     where: { id },
-    data: { name, shortBio, updatedAt: new Date() },
+    data: { name, slug, shortBio, updatedAt: new Date() },
   })
 
   // Set in core cache

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
-import { Branch, Project } from 'types/src'
+import { Branch, Project } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 

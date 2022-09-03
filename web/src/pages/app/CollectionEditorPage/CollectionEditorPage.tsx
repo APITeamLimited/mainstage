@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 
+import { Workspace } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Box, Container, Divider } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
-import { Workspace } from 'types/src'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
@@ -53,13 +53,6 @@ export const CollectionEditorPage = ({
   const collection = useYMap(collectionYMap || new Y.Map())
 
   const viewportHeightReduction = 60.3
-
-  useEffect(() => {
-    // Set activeWorkspaceId to the workspaceId if different from the current workspaceId
-    if (workspaceId !== activeWorkspaceId) {
-      activeWorkspaceIdVar(workspaceId)
-    }
-  }, [activeWorkspaceId, workspaceId])
 
   useEffect(() => {
     setActiveWorkspace(

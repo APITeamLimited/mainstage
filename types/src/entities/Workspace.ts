@@ -1,5 +1,6 @@
-import { BaseEntity } from 'types/src'
 import { GetBearerPubkeyScopes } from 'web/types/graphql'
+
+import { BaseEntity } from '..'
 
 export interface Workspace extends BaseEntity {
   __typename: 'Workspace'

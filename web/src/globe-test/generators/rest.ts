@@ -1,5 +1,5 @@
+import { RESTRequest, Environment } from '@apiteam/types'
 import * as queryString from 'query-string'
-import { RESTRequest, Environment } from 'types/src'
 import { v4 as uuid } from 'uuid'
 
 import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'

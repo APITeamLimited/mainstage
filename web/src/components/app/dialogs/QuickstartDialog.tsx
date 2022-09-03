@@ -12,7 +12,7 @@ import {
   SvgIcon,
   Typography,
 } from '@mui/material'
-import { Branch, Project } from 'types/src'
+import { Branch, Project } from '@apiteam/types'
 
 import { createCollectionDialogStateVar } from './CreateCollectionDialog'
 import { createEnvironmentDialogStateVar } from './CreateEnvironmentDialog'

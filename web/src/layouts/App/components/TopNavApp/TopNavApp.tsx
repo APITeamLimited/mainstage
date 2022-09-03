@@ -4,6 +4,7 @@ import { TopNavBase } from 'src/layouts/TopNavBase'
 
 import { APITeamLogo } from '../../../../components/APITeamLogo'
 
+import { OnlineMembers } from './OnlineMembers'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher/index'
 
 export const TopNavApp = () => {
@@ -19,6 +20,7 @@ export const TopNavApp = () => {
           )*/}
         </Stack>
       }
+      rightZone={<OnlineMembers />}
     />
   )
 }

@@ -17,7 +17,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { Environment } from 'types/src'
+import { Environment } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'

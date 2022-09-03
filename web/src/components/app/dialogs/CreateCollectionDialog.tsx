@@ -15,7 +15,7 @@ import {
   Box,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import { Branch, Project } from 'types/src'
+import { Branch, Project } from '@apiteam/types'
 import * as Y from 'yjs'
 import * as Yup from 'yup'
 import { useYMap } from 'zustand-yjs'

@@ -1,5 +1,4 @@
-import { Branch, Collection, Project } from 'types/src'
-
+import { Branch, Collection, Project } from '@apiteam/types'
 import * as Y from 'yjs'
 
 import { UserProjectBranch } from 'src/contexts/reactives/UserBranches'

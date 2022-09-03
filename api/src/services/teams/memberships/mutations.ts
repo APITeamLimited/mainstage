@@ -1,4 +1,4 @@
-import { TeamRole } from 'types/src'
+import { TeamRole } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 

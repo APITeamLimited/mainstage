@@ -1,1 +1,2 @@
-export * from './memberships'
+export * from './mutations'
+export * from './queries'

@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "APITeam Entity Engine",
   "dependencies": {
+    "@apiteam/types": "*",
     "@apollo/client": "^3.6.9",
     "colorterm": "^1.0.0",
     "config": "^3.3.7",
@@ -30,5 +31,6 @@
     "dev": "NODE_ENV=development nodemon src/app.ts",
     "build": "tsc -p tsconfig.json",
     "run-prod": "NODE_ENV=production node ./dist/entity-engine/src/app.js"
-  }
+  },
+  "private": true
 }

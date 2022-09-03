@@ -1,30 +1,79 @@
+import { useCallback, useEffect, useMemo, useState } from 'react'
+
 import { Box, Stack, Button } from '@mui/material'
 import { Container } from '@mui/system'
 
 import { navigate, routes, useLocation } from '@redwoodjs/router'
 
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
+
+type PageEndpoint = {
+  name: string
+  endpoint: string
+  activeSecondaryEndpoints?: string[]
+}
+
 export const TopBarDashboard = () => {
   const { pathname } = useLocation()
-  const pages = ['Overview', 'Projects']
-  const endpoints = ['overview', 'projects']
+  const workspaceInfo = useWorkspaceInfo()
 
-  // Current page is in pathname, find it
-  const currentEndpoint = endpoints.find(
-    (endpoint) => pathname.includes(endpoint) || pathname == routes.dashboard()
+  const pages = useMemo<PageEndpoint[]>(() => {
+    const isLeastAdmin =
+      workspaceInfo?.scope?.role === 'ADMIN' ||
+      workspaceInfo?.scope?.role === 'OWNER' ||
+      false
+
+    const isOwner = workspaceInfo?.scope?.role === 'OWNER' || false
+
+    const currentPages = [
+      {
+        name: 'Overview',
+        endpoint: routes.dashboard(),
+      },
+      {
+        name: 'Settings',
+        endpoint: routes.settingsWorkspace(),
+        activeSecondaryEndpoints: [routes.settingsWorkspaceMembers()],
+      },
+    ]
+
+    return currentPages
+  }, [workspaceInfo?.scope?.role])
+
+  const getCurrentPage = useCallback(() => {
+    const primaryPage = pages.find((page) => page.endpoint === pathname) || null
+    if (primaryPage) return primaryPage
+
+    // Check if any of the secondary pages are active
+    return (
+      pages.find((page) => {
+        return page.activeSecondaryEndpoints?.find(
+          (endpoint) => endpoint === pathname
+        )
+      }) || null
+    )
+  }, [pages, pathname])
+
+  const [currentEndpoint, setCurrentEndpoint] = useState<PageEndpoint | null>(
+    getCurrentPage()
+  )
+
+  useEffect(
+    () => setCurrentEndpoint(getCurrentPage()),
+    [getCurrentPage, pathname]
   )
 
   if (!currentEndpoint) {
     return <></>
   }
 
-  const value = endpoints.indexOf(currentEndpoint)
-
   const handleChange = (newValue: number) => {
-    if (pages[newValue] === 'Overview') {
-      navigate(routes.dashboard())
-    } else {
-      navigate(`/app/dashboard/${endpoints[newValue]}`)
-    }
+    pages.forEach((page, index) => {
+      if (newValue === index) {
+        navigate(page.endpoint)
+        return
+      }
+    })
   }
 
   return (
@@ -40,10 +89,10 @@ export const TopBarDashboard = () => {
           <Box key={index}>
             <Button
               variant="text"
-              color={value === index ? 'primary' : 'secondary'}
+              color={currentEndpoint.name === page.name ? 'primary' : 'info'}
               onClick={() => handleChange(index)}
             >
-              {page}
+              {page.name}
             </Button>
           </Box>
         ))}

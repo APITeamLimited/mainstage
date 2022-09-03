@@ -1,3 +1,3 @@
-import { Environment, RESTRequest } from 'types/src'
+import { Environment, RESTRequest } from '@apiteam/types'
 
 export const singleRESTTestScript = (request: RESTRequest)

@@ -1,5 +1,5 @@
+import { SafeUser } from '@apiteam/types'
 import { User } from '@prisma/client'
-import { SafeUser } from 'types/src'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
 
@@ -17,6 +17,11 @@ export const setUserRedis = async (user: User) => {
     profilePicture: user.profilePicture,
   }
 
-  await coreCacheReadRedis.set(`user:${user.id}`, JSON.stringify(safeUser))
+  await coreCacheReadRedis.set(`user__id:${user.id}`, JSON.stringify(safeUser))
+  await coreCacheReadRedis.publish(
+    `user__id:${user.id}`,
+    JSON.stringify(safeUser)
+  )
+
   return safeUser
 }

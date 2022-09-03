@@ -20,6 +20,7 @@ export const schema = gql`
     userId: String!
     displayName: String!
     profilePicture: String
+    slug: String!
   }
 
   type Query {

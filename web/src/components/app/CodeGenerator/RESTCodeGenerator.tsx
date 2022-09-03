@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { RESTRequest } from 'types/src'
+import { RESTRequest } from '@apiteam/types'
 import * as Y from 'yjs'
 
 import {

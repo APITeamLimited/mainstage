@@ -1,4 +1,4 @@
-import { Environment } from 'types/src'
+import { Environment } from '@apiteam/types'
 
 import { KeyValueItem } from 'src/components/app/collection-editor/KeyValueEditor'
 

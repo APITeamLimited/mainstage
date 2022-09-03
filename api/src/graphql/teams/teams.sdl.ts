@@ -4,6 +4,7 @@ export const schema = gql`
     name: String!
     createdAt: DateTime!
     updatedAt: DateTime
+    slug: String!
     shortBio: String
     profilePicture: String
     maxMembers: Int!
@@ -17,8 +18,12 @@ export const schema = gql`
   }
 
   type Mutation {
-    createTeam(name: String!, shortBio: String): Team @requireAuth
-    updateTeam(id: String!, name: String!, shortBio: String!): Team!
-      @requireAuth
+    createTeam(name: String!, slug: String!): Team @requireAuth
+    updateTeam(
+      id: String!
+      name: String
+      slug: String
+      shortBio: String
+    ): Team! @requireAuth
   }
 `

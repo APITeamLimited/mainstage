@@ -1,5 +1,5 @@
+import { TeamRole } from '@apiteam/types'
 import { User, Team, Membership } from '@prisma/client'
-import { TeamRole } from 'types/src'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'

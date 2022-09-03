@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Environment, RESTRequest } from 'types/src'
+import { Environment, RESTRequest } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 
 import { findEnvironmentVariables } from 'src/utils/findVariables'

@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Response } from 'k6/http'
 import {
   DefaultMetrics,
   FailureDiscreteResult,
@@ -7,7 +6,8 @@ import {
   StoredObject,
   SuccessDiscreteResult,
   TagType,
-} from 'types/src'
+} from '@apiteam/types'
+import { Response } from 'k6/http'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 

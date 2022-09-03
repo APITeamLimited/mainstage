@@ -1,3 +1,4 @@
+import { ensureCorrectType } from '@apiteam/types'
 import { Scope } from '@prisma/client'
 
 import { ServiceValidationError, validateWith } from '@redwoodjs/api'
@@ -27,6 +28,8 @@ export const scopes = async () => {
 
   const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
 
+  console.log('returning scopes', rawScopes)
+
   return Object.values(rawScopes).map((rawScope) => {
     return JSON.parse(rawScope) as Scope
   })
@@ -44,7 +47,9 @@ export const scope = async ({ id }: { id: string }) => {
 
   if (!context?.currentUser?.id) throw 'Unexpected error'
 
-  const redisScopeRaw = await coreCacheReadRedis.get(`scope__id:${id}`)
+  const redisScopeRaw = ensureCorrectType(
+    await coreCacheReadRedis.get(`scope__id:${id}`)
+  )
   if (!redisScopeRaw) return null
 
   const redisScope = JSON.parse(redisScopeRaw) as Scope

@@ -137,9 +137,7 @@ type SocketIOProviderConstructorArgs = {
     onStatusChange?: ((status: PossibleSyncStatus) => void) | undefined
     onSyncMessage?: ((newDoc: Y.Doc) => void) | undefined
   }
-  forceRemake: (socketIOProviderInstance: SocketIOProvider) => void
   apolloClient: ApolloClient<unknown>
-  activeWorkspaceId: string
 }
 
 export class SocketIOProvider extends Observable<string> {
@@ -154,7 +152,6 @@ export class SocketIOProvider extends Observable<string> {
   awareness: awarenessProtocol.Awareness
   socketConnecting: boolean
   socketConnected: boolean
-  bcConnected: boolean
   disableBc: boolean
   socketUnsuccessfulReconnects: number
   messageHandlers: MessageHandlersType
@@ -177,8 +174,6 @@ export class SocketIOProvider extends Observable<string> {
     | undefined
   onStatusChange: ((status: PossibleSyncStatus) => void) | undefined
   onSyncMessage: ((newDoc: Y.Doc) => void) | undefined
-  forceRemake: (socketioProviderInstance: SocketIOProvider) => void
-  activeWorkspaceId: string
 
   constructor({
     scopeId,
@@ -186,8 +181,6 @@ export class SocketIOProvider extends Observable<string> {
     doc,
     options,
     apolloClient,
-    forceRemake,
-    activeWorkspaceId,
   }: SocketIOProviderConstructorArgs) {
     const {
       connect = true,
@@ -212,8 +205,6 @@ export class SocketIOProvider extends Observable<string> {
     this.awareness = awareness
     this.socketConnected = false
     this.socketConnecting = false
-    this.activeWorkspaceId = activeWorkspaceId
-    this.bcConnected = false
     this.disableBc = disableBc
     this.socketUnsuccessfulReconnects = 0
     this.messageHandlers = messageHandlers.slice()
@@ -229,7 +220,6 @@ export class SocketIOProvider extends Observable<string> {
       async () => this.getAndSetPublicBearer(),
       20000
     )
-    this.forceRemake = forceRemake
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
@@ -287,7 +277,6 @@ export class SocketIOProvider extends Observable<string> {
       }
 
     this._beforeUnloadHandler = () => {
-      console.log('_beforeUnloadHandler')
       awarenessProtocol.removeAwarenessStates(
         this.awareness,
         [doc.clientID],
@@ -518,9 +507,6 @@ export class SocketIOProvider extends Observable<string> {
   broadcastMessage(buf: ArrayBuffer) {
     if (this.socketConnected && this.socket !== null) {
       this.socket.send(buf)
-    }
-    if (this.bcConnected) {
-      bc.publish(this.bcChannel, buf, this)
     }
   }
 

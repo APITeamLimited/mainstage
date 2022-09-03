@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { Workspace } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import CheckIcon from '@mui/icons-material/Check'
@@ -13,7 +14,6 @@ import {
   Stack,
   Avatar,
 } from '@mui/material'
-import { Workspace } from 'types/src'
 
 import { navigate, routes } from '@redwoodjs/router'
 
@@ -80,6 +80,8 @@ export const WorkspaceSwitcherPopover = ({
     activeWorkspaceIdVar(workspaceId)
     navigate(routes.dashboard())
     onClose()
+    console.log('switchWorkspace', workspaceId)
+    activeWorkspaceIdVar(workspaceId)
   }
 
   return (
@@ -98,7 +100,7 @@ export const WorkspaceSwitcherPopover = ({
           vertical: 'bottom',
         }}
         onClose={onClose}
-        open={!!open}
+        open={open}
         sx={{
           mt: 1,
         }}
@@ -172,7 +174,7 @@ export const WorkspaceSwitcherPopover = ({
                               textOverflow: 'ellipsis',
                             }}
                           >
-                            {scope.displayName}
+                            {scope.slug}
                           </Typography>
                         </Stack>
                         {isActive && (

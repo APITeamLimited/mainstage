@@ -1,37 +1,40 @@
 import { useState, useRef, useEffect } from 'react'
 
+import { Workspace } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
-import CloudIcon from '@mui/icons-material/Cloud'
-import GroupsIcon from '@mui/icons-material/Groups'
+import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import {
-  Box,
-  SvgIcon,
   Typography,
   useTheme,
   Stack,
-  Button,
   Skeleton,
   Tooltip,
+  Avatar,
+  Chip,
+  IconButton,
+  Box,
 } from '@mui/material'
-import { Workspace } from 'types/src'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
 
 export const WorkspaceSwitcher = () => {
-  const anchorRef = useRef<HTMLButtonElement | null>(null)
+  const anchorRef = useRef<Element | null>(null)
   const [openPopover, setOpenPopover] = useState<boolean>(false)
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const workspaces = useReactiveVar(workspacesVar)
   const theme = useTheme()
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
 
-  useEffect(() => {
-    setActiveWorkspace(
-      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
-    )
-  }, [activeWorkspace, activeWorkspaceId, workspaces])
+  useEffect(
+    () =>
+      setActiveWorkspace(
+        workspaces.find((workspace) => workspace.id === activeWorkspaceId) ||
+          null
+      ),
+    [activeWorkspace, activeWorkspaceId, workspaces]
+  )
 
   const handleOpenPopover = (): void => {
     setOpenPopover(true)
@@ -59,60 +62,71 @@ export const WorkspaceSwitcher = () => {
 
   return (
     <>
-      <Tooltip title="Switch Workspace">
-        <Button
-          onClick={handleOpenPopover}
-          color="secondary"
-          variant="outlined"
-          ref={anchorRef}
+      <Stack
+        direction="row"
+        alignItems="center"
+        sx={{
+          width: '100%',
+          overflow: 'hidden',
+        }}
+        ref={anchorRef}
+      >
+        <Avatar
+          src={activeWorkspace?.scope?.profilePicture || ''}
           sx={{
-            alignItems: 'center',
-            display: 'flex',
+            width: '25px',
+            height: '25px',
+          }}
+        />
+
+        <Typography
+          fontWeight="bold"
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            WebkitUserSelect: 'none',
+            marginLeft: 1,
           }}
         >
-          <Stack spacing={1} direction="row" alignItems="center">
-            {activeWorkspace.remote && !activeWorkspace.isTeam && (
-              <SvgIcon
-                component={CloudIcon}
-                sx={{
-                  paddingRight: 0.5,
-                  color: theme.palette.text.secondary,
-                }}
-              />
-            )}
-            {activeWorkspace.isTeam && (
-              <SvgIcon
-                component={GroupsIcon}
-                sx={{
-                  paddingRight: 0.5,
-                  color: theme.palette.text.secondary,
-                }}
-              />
-            )}
-            {
-              // Needed to keep the space
-              !activeWorkspace.remote && <Box />
+          {activeWorkspace.scope ? activeWorkspace.scope.slug : 'Local'}
+        </Typography>
+        <Box>
+          <Chip
+            label={
+              !activeWorkspace.scope
+                ? 'Local'
+                : activeWorkspace.scope.variant === 'USER'
+                ? 'USER'
+                : 'TEAM'
             }
-            <Stack alignItems="flex-start">
-              <Typography
-                variant="body2"
-                fontSize={10}
-                color={theme.palette.text.secondary}
-                textTransform="none"
-              >
-                Workspace
-              </Typography>
-              <Typography
-                variant="body1"
-                color={theme.palette.text.primary}
-                fontSize={12}
-              >
-                {activeWorkspace.scope?.displayName}
-              </Typography>
-            </Stack>
-          </Stack>
-        </Button>
-      </Tooltip>
+            color="primary"
+            size="small"
+            sx={{
+              fontSize: '10px',
+              padding: 0,
+              '& .MuiChip-label': {
+                paddingX: '6px',
+                fontWeight: 'bold',
+              },
+              marginLeft: 1,
+              transistion: 'background-color 0',
+              height: '20px',
+              backgroundColor: !activeWorkspace.scope
+                ? theme.palette.grey[500]
+                : activeWorkspace.scope.variant === 'USER'
+                ? theme.palette.primary.main
+                : theme.palette.mode === 'light'
+                ? theme.palette.grey[900]
+                : theme.palette.grey[100],
+            }}
+          />
+          <Tooltip title="Switch Workspace">
+            <IconButton onClick={handleOpenPopover}>
+              <UnfoldMoreIcon />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Stack>
       <WorkspaceSwitcherPopover
         anchorEl={anchorRef.current}
         onClose={handleClosePopover}

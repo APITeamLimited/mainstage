@@ -15,7 +15,6 @@ export class SocketIOManager extends React.Component {
   }
 
   componentWillUnmount() {
-    console.log('SocketIOManager unmounting')
     this.socketioProvider?.disconnect()
     this.socketioProvider?.destroy()
   }

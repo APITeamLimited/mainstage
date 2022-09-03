@@ -1,6 +1,6 @@
+import { Workspace } from '@apiteam/types'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import { Workspace } from 'types/src'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
@@ -111,6 +111,7 @@ export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
       userId
       displayName
       profilePicture
+      slug
     }
   }
 `
@@ -129,6 +130,7 @@ export const GET_SCOPES_QUERY = gql`
       userId
       displayName
       profilePicture
+      slug
     }
   }
 `

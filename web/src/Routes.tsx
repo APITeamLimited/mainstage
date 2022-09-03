@@ -1,12 +1,12 @@
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
-import { AdminLayout } from './components/admin/Layout/AdminLayout'
 import { AppUnifiedLayout } from './layouts/App'
 import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import { DomainsPage } from './pages/app/dashboard/DomainsPage'
 import { OverviewPage } from './pages/app/dashboard/OverviewPage'
-import { ProjectsPage } from './pages/app/dashboard/ProjectsPage'
+import GeneralSettingsPage from './pages/app/dashboard/SettingsPages/GeneralSettingsPage/GeneralSettingsPage'
+import { MembersSettingsPage } from './pages/app/dashboard/SettingsPages/MembersSettingsPage/MembersSettingsPage'
 import AboutPage from './pages/company/AboutPage/AboutPage'
 import ContactPage from './pages/company/ContactPage/ContactPage'
 import CookiePolicyPage from './pages/legal/CookiePolicy/CookiePolicy'
@@ -123,7 +123,8 @@ const Routes = () => {
         <Set wrap={AppUnifiedLayout}>
           <Route path="/app" redirect="/app/dashboard" />
           <Route path="/app/dashboard" page={OverviewPage} name="dashboard" />
-          <Route path="/app/dashboard/projects" page={ProjectsPage} name="projects" />
+          <Route path="/app/dashboard/settings" page={GeneralSettingsPage} name="settingsWorkspace" />
+          <Route path="/app/dashboard/settings/members" page={MembersSettingsPage} name="settingsWorkspaceMembers" />
           <Route path="/app/dashboard/domains" page={DomainsPage} name="domains" />
           <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
         </Set>

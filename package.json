@@ -6,7 +6,8 @@
       "web",
       "entity-engine",
       "globe-test",
-      "store"
+      "store",
+      "types"
     ]
   },
   "devDependencies": {

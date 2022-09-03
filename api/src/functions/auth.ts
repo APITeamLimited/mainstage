@@ -2,6 +2,7 @@ import { User } from '@prisma/client'
 
 import { DbAuthHandler } from '@redwoodjs/api'
 
+import { setUserRedis } from 'src/helpers'
 import { db } from 'src/lib/db'
 
 export const handler = async (event, context) => {
@@ -104,7 +105,7 @@ export const handler = async (event, context) => {
     //
     // If this returns anything else, it will be returned by the
     // `signUp()` function in the form of: `{ message: 'String here' }`.
-    handler: ({
+    handler: async ({
       username,
       hashedPassword,
       salt,
@@ -118,8 +119,7 @@ export const handler = async (event, context) => {
         lastName: string
       }
     }) => {
-      console.log(username, hashedPassword, salt, userAttributes)
-      return db.user.create({
+      const user = await db.user.create({
         data: {
           email: username,
           hashedPassword: hashedPassword,
@@ -128,6 +128,9 @@ export const handler = async (event, context) => {
           lastName: userAttributes.lastName,
         },
       })
+
+      await setUserRedis(user)
+      return user
     },
 
     errors: {
