@@ -1,9 +1,8 @@
 import { useReactiveVar } from '@apollo/client'
 import { Breadcrumbs, useTheme, Typography } from '@mui/material'
+import * as Y from 'yjs'
 
 import { localFoldersVar, localCollectionsVar } from 'src/contexts/reactives'
-
-import { Y.Map<any> } from './CollectionTree/Node'
 
 type PanelBreadcrumbsProps = {
   item: Y.Map<any>

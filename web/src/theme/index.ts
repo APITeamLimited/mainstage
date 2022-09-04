@@ -38,36 +38,27 @@ export interface ThemeConfig {
 
 type ThemeChoices = 'Default' | 'Devias' | 'Minimals'
 
-const theme: ThemeChoices = 'Default'
+export const theme: ThemeChoices = 'Default'
 
-const getTheme = (
-  config: ThemeConfig
-): Theme & {
+type CustomThemeType = Theme & {
   palette: {
     alternate: {
       main: string
       dark: string
     }
   }
-} => {
-  if (theme === 'Minimals') {
-    return responsiveFontSizes(getThemeMinimals(config))
-  } else if (theme === 'Default') {
+}
+
+export const getTheme = (config: ThemeConfig): CustomThemeType => {
+  if (theme === 'Default') {
     return responsiveFontSizes(
       createTheme({
         ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
         direction: config.direction,
       })
-    )
-  } else {
-    return responsiveFontSizes(
-      createTheme({
-        ...baseThemeOptions,
-        ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
-        direction: config.direction,
-      })
-    )
+    ) as unknown as CustomThemeType
   }
+  throw new Error('Invalid theme')
 }
 
 export default getTheme

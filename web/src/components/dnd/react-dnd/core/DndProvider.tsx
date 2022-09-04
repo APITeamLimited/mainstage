@@ -4,8 +4,8 @@ import { memo, useEffect } from 'react'
 import type {
   BackendFactory,
   DragDropManager,
-} from 'web/src/components/dnd/dnd-core'
-import { createDragDropManager } from 'web/src/components/dnd/dnd-core'
+} from 'src/components/dnd/dnd-core'
+import { createDragDropManager } from 'src/components/dnd/dnd-core'
 
 import { DndContext } from './DndContext'
 

@@ -1,4 +1,4 @@
-import { GetBearerPubkeyScopes } from 'web/types/graphql'
+import { Scope } from '@prisma/client'
 
 import { BaseEntity } from '..'
 
@@ -6,5 +6,5 @@ export interface Workspace extends BaseEntity {
   __typename: 'Workspace'
   remote: boolean
   isTeam: boolean
-  scope: GetBearerPubkeyScopes['scopes'][0] | null
+  scope: Scope
 }

@@ -10,30 +10,19 @@ export const schema = gql`
     emailVerified: Boolean!
     shortBio: String
     profilePicture: String
-    memberships: [Membership!]!
+    emailMarketing: Boolean
   }
 
   type Query {
-    teamUsers(teamId: String!): [User!]! @requireAuth
-    teamUser(id: String!, teamId: String!): User! @requireAuth
     currentUser: User! @requireAuth
   }
 
-  input CreateUserInput {
-    firstName: String!
-    lastName: String!
-    email: String!
-    shortBio: String
-  }
-
-  input UpdateUserInput {
-    firstName: String
-    lastName: String
-    email: String
-    shortBio: String
-  }
-
   type Mutation {
-    updateCurrentUser(input: UpdateUserInput!): User @requireAuth
+    updateCurrentUser(
+      firstName: String
+      lastName: String
+      shortBio: String
+      emailMarketing: Boolean
+    ): User! @requireAuth
   }
 `

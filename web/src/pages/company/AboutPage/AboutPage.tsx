@@ -7,13 +7,14 @@ import {
   Divider,
   useMediaQuery,
 } from '@mui/material'
+
 import { NewsletterSignup } from 'src/components/landing/NewsletterSignup'
 import { Headline } from 'src/pages/splash/components/Headline'
 
 const UnionJackGrid = (
   <Grid item xs={12} md={6} style={{ textAlign: 'center' }} marginBottom={6}>
     <img
-      src={require('web/public/img/union-jack.jpg')}
+      src={require('public/img/union-jack.jpg')}
       alt="Union Jack"
       width="300px"
     />

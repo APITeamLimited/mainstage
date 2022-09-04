@@ -1,12 +1,15 @@
 {
-  "name": "api",
+  "name": "@apiteam/api",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@apiteam/mailman": "*",
     "@redwoodjs/api": "2.0.0",
     "@redwoodjs/api-server": "^2.2.0",
     "@redwoodjs/graphql-server": "2.0.0",
+    "@types/nodemailer": "^6.4.5",
     "@types/yargs": "^17.0.12",
+    "nodemailer": "^6.7.8",
     "yjs": "^13.5.41",
     "yup": "^0.32.11"
   },

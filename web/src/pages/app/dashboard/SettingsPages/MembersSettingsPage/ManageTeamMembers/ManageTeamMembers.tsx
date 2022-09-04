@@ -17,7 +17,6 @@ import { useQuery } from '@redwoodjs/web'
 
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
-import { ManageInvitationRow } from '../ManagePendingInvitations/ManageInvitationRow'
 import { MEMBERS_CARD_HEIGHT } from '../MembersSettingsPage'
 
 import { MemberRow } from './MemberRow'

@@ -7,7 +7,8 @@
       "entity-engine",
       "globe-test",
       "store",
-      "types"
+      "types",
+      "mailman"
     ]
   },
   "devDependencies": {

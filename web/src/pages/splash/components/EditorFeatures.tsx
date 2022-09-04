@@ -126,8 +126,8 @@ const EditorFeatures = (): JSX.Element => {
                   <img
                     src={
                       theme.palette.mode === 'light'
-                        ? require('web/public/img/app-demo-light.png')
-                        : require('web/public/img/app-demo-dark.png')
+                        ? require('public/img/app-demo-light.png')
+                        : require('public/img/app-demo-dark.png')
                     }
                     alt=""
                   />

@@ -1,9 +1,10 @@
-import type { Prisma } from '@prisma/client'
+import { User } from '@prisma/client'
 
-import { validate, validateWith } from '@redwoodjs/api'
+import { ServiceValidationError, validate, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
+import { coreCacheReadRedis } from 'src/lib/redis'
 
 export const teamUsers = async ({ teamId }: { teamId: string }) => {
   // Ensure user is member of the team
@@ -91,63 +92,21 @@ export const teamUser = async ({
 
 export const currentUser = async () => {
   // Ensure logged in
-  validateWith(() => {
-    if (!context.currentUser) {
-      throw 'You must be logged in to access this resource.'
-    }
-  })
-
-  // Shouldn't be needed, but better than ts-ignoring it
   if (!context.currentUser) {
-    throw 'You must be logged in to access this resource.'
+    throw new ServiceValidationError(
+      'You must be logged in to access this resource.'
+    )
   }
 
-  const currentUser = await db.user.findUnique({
-    where: {
-      id: context.currentUser.id,
-    },
-  })
+  const userRedisRaw = await coreCacheReadRedis.get(
+    `user__id:${context.currentUser.id}`
+  )
 
-  if (!currentUser) {
-    throw 'User profile does not exist.'
+  if (userRedisRaw) {
+    return JSON.parse(userRedisRaw) as User
   }
 
-  return currentUser
-}
-
-export const updateCurrentUser = async (input: {
-  firstName: string | undefined
-  lastName: string | undefined
-  email: string | undefined
-  shortBio: string | undefined
-}) => {
-  validateWith(() => {
-    if (!context.currentUser) {
-      throw 'You must be logged in to access this resource.'
-    }
-  })
-
-  if (input.email) {
-    validate(input.email, {
-      email: { message: 'Please provide a valid email address' },
-    })
-  }
-
-  // Shouldn't be needed, but better than ts-ignoring it
-  if (!context.currentUser) {
-    throw 'You must be logged in to access this resource.'
-  }
-
-  const userId = context.currentUser.id
-
-  const user = await db.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      ...input,
-    },
-  })
-
-  return user
+  throw new ServiceValidationError(
+    'User profile not found. Please log out and log back in.'
+  )
 }

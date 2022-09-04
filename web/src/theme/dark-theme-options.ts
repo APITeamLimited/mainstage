@@ -24,42 +24,54 @@ const divider = '#2D3748'
 const primary = {
   main: '#7582EB',
   light: '#909BEF',
+  lighter: '#A9B4F3',
   dark: '#515BA4',
+  darker: '#3C4573',
   contrastText: neutral[900],
 }
 
 const secondary = {
   main: '#10B981',
   light: '#3FC79A',
+  lighter: '#6EE7B7',
   dark: '#0B815A',
+  darker: '#075E40',
   contrastText: neutral[900],
 }
 
 const success = {
   main: '#14B8A6',
   light: '#43C6B7',
+  lighter: '#9AE6E4',
   dark: '#0E8074',
+  darker: '#075E54',
   contrastText: neutral[900],
 }
 
 const info = {
   main: '#2196F3',
   light: '#64B6F7',
+  lighter: '#B3DAFF',
   dark: '#0B79D0',
+  darker: '#075DA0',
   contrastText: neutral[900],
 }
 
 const warning = {
   main: '#FFB020',
   light: '#FFBF4C',
+  lighter: '#FFDCA8',
   dark: '#B27B16',
+  darker: '#7C510E',
   contrastText: neutral[900],
 }
 
 const error = {
   main: '#D14343',
   light: '#DA6868',
+  lighter: '#F9D1D1',
   dark: '#922E2E',
+  darker: '#6B1F1F',
   contrastText: neutral[900],
 }
 
@@ -69,7 +81,8 @@ const text = {
   disabled: 'rgba(255, 255, 255, 0.48)',
 }
 
-export const darkThemeOptions: ThemeOptions = {
+export const darkThemeOptions = {
+  /*
   components: {
     MuiAvatar: {
       styleOverrides: {
@@ -165,7 +178,7 @@ export const darkThemeOptions: ThemeOptions = {
     styleOverrides: {
       color: text.primary,
     },
-  },
+  },*/
   palette: {
     action: {
       active: neutral[400],
@@ -216,4 +229,4 @@ export const darkThemeOptions: ThemeOptions = {
     '0px 25px 50px rgba(0, 0, 0, 0.24)',
     '0px 25px 50px rgba(0, 0, 0, 0.24)',
   ],
-}
+} as unknown as ThemeOptions

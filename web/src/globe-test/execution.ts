@@ -60,6 +60,7 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
 
     socket.on('updates', (message) => {
       const parsedMessage = parseMessage(message)
+      console.log(parsedMessage)
       addMessageToJob(queueRef, job, parsedMessage)
 
       if (parsedMessage.messageType === 'STATUS') {

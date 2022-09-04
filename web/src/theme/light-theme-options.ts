@@ -77,7 +77,7 @@ const text = {
   disabled: 'rgba(55, 65, 81, 0.48)',
 }
 
-export const lightThemeOptions: ThemeOptions = {
+export const lightThemeOptions = {
   /*
   components: {
     MuiAvatar: {
@@ -221,4 +221,4 @@ export const lightThemeOptions: ThemeOptions = {
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
     '0px 25px 50px rgba(100, 116, 139, 0.25)',
   ],
-}
+} as unknown as ThemeOptions

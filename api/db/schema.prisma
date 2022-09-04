@@ -31,6 +31,7 @@ model User {
   resetToken          String?
   resetTokenExpiresAt DateTime?
   Article             Article[]
+  emailMarketing      Boolean   @default(false)
 }
 
 model Team {

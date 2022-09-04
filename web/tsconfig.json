@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "noEmit": true,
+    "noEmit": false,
+    "outDir": "./dist",
     "allowJs": true,
     "esModuleInterop": true,
     "target": "ESNext",
@@ -9,10 +10,10 @@
     "moduleResolution": "Node",
     "lib": ["ESNext", "DOM"],
     "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
     "rootDirs": [
       "./src",
       "../.redwood/types/mirror/web/src",
-      "../api/src",
       "../.redwood/types/mirror/api/src"
     ],
     "paths": {
@@ -27,13 +28,12 @@
     },
     "typeRoots": ["../node_modules/@types", "./node_modules/@types"],
     "types": ["jest", "@testing-library/jest-dom"],
-    "jsx": "preserve",
+    "jsx": "react"
   },
   "include": [
     "src",
     "../.redwood/types/includes/all-*",
     "../.redwood/types/includes/web-*",
     "./types"
-  ],
-
+  ]
 }

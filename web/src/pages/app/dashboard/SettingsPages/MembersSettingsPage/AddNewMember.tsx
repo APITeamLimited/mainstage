@@ -212,6 +212,7 @@ export const AddNewMember = ({
                     newPairs.splice(index, 1)
                     formik.setFieldValue('pairs', newPairs)
                   }}
+                  disabled={formik.values.pairs.length === 1}
                 >
                   <ClearIcon />
                 </IconButton>

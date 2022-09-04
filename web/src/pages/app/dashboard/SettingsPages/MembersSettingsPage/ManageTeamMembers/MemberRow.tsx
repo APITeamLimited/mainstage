@@ -52,7 +52,7 @@ export const MemberRow = ({
         showTransferOwnership: false,
         denyReason:
           userRole === 'OWNER'
-            ? 'Transfer your ownership to another admin to change your role'
+            ? 'Transfer your ownership to an admin to change your role'
             : 'You cannot change your own role',
       }
     }

@@ -2,77 +2,13 @@ import { TeamRole } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { createMembership, createTeamScope, deleteScope } from 'src/helpers'
+import { createTeamScope, deleteScope } from 'src/helpers'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { scopes } from 'src/services/scopes/scopes'
 
 import { checkOwner } from '../validators/check-owner'
 import { checkOwnerAdmin } from '../validators/check-owner-admin'
-
-export const addUserToTeam = async ({
-  teamId,
-  userId,
-  role,
-}: {
-  userId: string
-  teamId: string
-  role: TeamRole
-}) => {
-  await checkOwnerAdmin({ teamId })
-
-  const userPromise = await db.user.findUnique({
-    where: { id: userId },
-  })
-
-  const teamPromise = await db.team.findUnique({
-    where: { id: teamId },
-  })
-
-  const teamMembersPromise = db.membership.findMany({
-    where: {
-      team: { id: teamId },
-    },
-  })
-
-  const [user, team, teamMembers] = await Promise.all([
-    userPromise,
-    teamPromise,
-    teamMembersPromise,
-  ])
-
-  // Check user exists in db
-  if (!user) {
-    throw new ServiceValidationError(`User does not exist with id '${userId}'`)
-  }
-
-  // Check team exists in db
-  if (!team) {
-    throw new ServiceValidationError(`Team does not exist with id '${teamId}'`)
-  }
-
-  if (teamMembers.length >= team.maxMembers) {
-    throw new ServiceValidationError(
-      `Team '${team.name}' has reached its maximum capacity of ${team.maxMembers} members`
-    )
-  }
-
-  // Check user is not already a member of the team
-  if (teamMembers.find((member) => member.userId === userId)) {
-    throw new ServiceValidationError(
-      `User with id '${userId}' is already a member of team '${team.name}'`
-    )
-  }
-
-  // Create membership
-  const membership = await createMembership(team, user, role)
-
-  await createTeamScope(team, membership, user)
-
-  // TODO: Send email
-
-  return membership
-}
 
 export const removeUserFromTeam = async ({
   userId,

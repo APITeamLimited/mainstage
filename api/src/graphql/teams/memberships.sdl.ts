@@ -26,11 +26,6 @@ export const schema = gql`
   }
 
   type Mutation {
-    addUserToTeam(
-      teamId: String!
-      userId: String!
-      role: TeamRole!
-    ): Membership! @requireAuth
     removeUserFromTeam(userId: String!, teamId: String!): Membership!
       @requireAuth
     changeUserRole(

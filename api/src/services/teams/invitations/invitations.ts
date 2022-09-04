@@ -8,6 +8,7 @@ import {
   setInvitationRedis,
 } from 'src/helpers/invitations'
 import { db } from 'src/lib/db'
+import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
 
 import { checkOwnerAdmin } from '../validators'
@@ -115,13 +116,16 @@ export const createInvitations = async ({
     )
   )
 
-  await Promise.all(
-    newInvitations.map((invitation) => {
-      if (invitation) {
-        return setInvitationRedis(invitation)
-      }
-    })
-  )
+  await Promise.all([
+    ...newInvitations.map((invitation) => setInvitationRedis(invitation)),
+    ...newInvitations.map((invitation) =>
+      dispatchEmail({
+        template: 'team-invite-new',
+        to: invitation.email,
+        data: {},
+      })
+    ),
+  ])
 
   return newInvitations
 }
