@@ -19,7 +19,7 @@ const mailmanSubscribeRedis = mailmanReadRedis.duplicate()
 mailmanReadRedis.connect()
 mailmanSubscribeRedis.connect()
 
-export const dispatchEmail = async (input: MailmanInput) => {
+export const dispatchEmail = async (input: MailmanInput<unknown>) => {
   const jobId = uuid()
 
   await Promise.all([
@@ -66,7 +66,7 @@ const handleSMTPSend = async (to: string, output: MailmanOutput) => {
   }
 
   await smtpTransporter.sendMail({
-    from: checkValue<string>('mailman.smtp.userName'),
+    from: `APITeam ${checkValue<string>('mailman.smtp.userName')}`,
     to,
     subject: output.content.title,
     html: output.content.html,

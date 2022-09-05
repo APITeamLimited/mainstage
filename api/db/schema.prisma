@@ -50,14 +50,17 @@ model Team {
 }
 
 model Membership {
-  id        String    @id @default(uuid())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime?
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  teamId    String
-  role      String
+  id              String    @id @default(uuid())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime?
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  team            Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  teamId          String
+  role            String
+  wantsTeamEmails Boolean   @default(true)
+
+  @@unique([userId, teamId])
 }
 
 model Invitation {
@@ -68,6 +71,7 @@ model Invitation {
   team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
   teamId    String
   role      String
+  accepted  Boolean   @default(false)
 
   @@unique([email, teamId])
 }
@@ -91,6 +95,8 @@ model Scope {
   displayName     String
   profilePicture  String?
   slug            String
+
+  @@unique([variant, variantTargetId, userId])
 }
 
 model Tag {

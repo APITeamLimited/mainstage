@@ -1,3 +1,5 @@
+import { ROUTES } from '@apiteam/types/dist/routes'
+
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
 import { AppUnifiedLayout } from './layouts/App'
@@ -99,10 +101,15 @@ export const brandedRoutes = [
 const Routes = () => {
   return (
     <Router>
-      <Route path="/login" page={LoginPage} name="login" />
-      <Route path="/signup" page={SignupPage} name="signup" />
+      <Route path={ROUTES.login} page={LoginPage} name="login" />
+      <Route path={ROUTES.signup} page={SignupPage} name="signup" />
       <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
+      <Route path={ROUTES.userUnsubscribe} page={ResetPasswordPage} name="userUnsubscribe" />
+      <Route path={ROUTES.blanketUnsubscribe} page={ResetPasswordPage} name="blanketUnsubscribe" />
+      <Route path={ROUTES.declineInvitation} page={ResetPasswordPage} name="declineInvitation" />
+      <Route path={ROUTES.acceptInvitation} page={ResetPasswordPage} name="acceptInvitation" />
+      <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
       <Set wrap={LandingLayoutSplash}>
         <Route path="/" page={RootPage} name="splash" />
       </Set>
@@ -112,25 +119,25 @@ const Routes = () => {
         <Route path="/company/about" page={AboutPage} name="about" />
         <Route path="/contact" page={ContactPage} name="contact" />
         <Route path="/legal/terms-of-service" page={TermsOfServicePage} name="termsOfService" />
-        <Route path="/legal/privacy-policy" page={PrivacyPolicyPage} name="privacyPolicy" />
-        <Route path="/legal/cookie-policy" page={CookiePolicyPage} name="cookiePolicy" />
-        <Route path="/support" page={PrivacyPolicyPage} name="supportCenter" />
-        <Route path="/docs" page={PrivacyPolicyPage} name="docs" />
-        <Route path="/docs" page={PrivacyPolicyPage} name="blog" />
+        <Route path={ROUTES.privacyPolicy} page={PrivacyPolicyPage} name="privacyPolicy" />
+        <Route path={ROUTES.cookiePolicy} page={CookiePolicyPage} name="cookiePolicy" />
+        <Route path={ROUTES.supportCenter} page={PrivacyPolicyPage} name="supportCenter" />
+        <Route path={ROUTES.docs} page={PrivacyPolicyPage} name="docs" />
+        <Route path={ROUTES.blog} page={PrivacyPolicyPage} name="blog" />
       </Set>
       {/* TODO: Re-enable local workspaces when done cloud*/}
       <Private unauthenticated="login">
         <Set wrap={AppUnifiedLayout}>
-          <Route path="/app" redirect="/app/dashboard" />
-          <Route path="/app/dashboard" page={OverviewPage} name="dashboard" />
-          <Route path="/app/dashboard/settings" page={GeneralSettingsPage} name="settingsWorkspace" />
-          <Route path="/app/dashboard/settings/members" page={MembersSettingsPage} name="settingsWorkspaceMembers" />
-          <Route path="/app/dashboard/domains" page={DomainsPage} name="domains" />
-          <Route path="/app/collection" page={CollectionEditorPage} name="collectionEditor" />
+          <Route path="/app" redirect={ROUTES.dashboard} />
+          <Route path={ROUTES.dashboard} page={OverviewPage} name="dashboard" />
+          <Route path={ROUTES.settingsWorkspace} page={GeneralSettingsPage} name="settingsWorkspace" />
+          <Route path={ROUTES.settingsWorkspaceMembers} page={MembersSettingsPage} name="settingsWorkspaceMembers" />
+          <Route path={ROUTES.domains} page={DomainsPage} name="domains" />
+          <Route path={ROUTES.collectionEditor} page={CollectionEditorPage} name="collectionEditor" />
         </Set>
       </Private>
       <Private unauthenticated="login">
-        <Route path="/admin" page={AdminPage} name="admin" />
+        <Route path={ROUTES.admin} page={AdminPage} name="admin" />
       </Private>
       <Route notfound page={NotFoundPage} />
     </Router>

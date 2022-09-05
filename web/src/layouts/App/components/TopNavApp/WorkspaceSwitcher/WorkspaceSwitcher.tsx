@@ -96,7 +96,7 @@ export const WorkspaceSwitcher = () => {
               !activeWorkspace.scope
                 ? 'Local'
                 : activeWorkspace.scope.variant === 'USER'
-                ? 'USER'
+                ? 'PERSONAL'
                 : 'TEAM'
             }
             color="primary"

@@ -2,10 +2,8 @@ import { TeamRole } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { createTeamScope, deleteScope } from 'src/helpers'
+import { deleteMembership, updateMembership } from 'src/helpers'
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
-import { scopes } from 'src/services/scopes/scopes'
 
 import { checkOwner } from '../validators/check-owner'
 import { checkOwnerAdmin } from '../validators/check-owner-admin'
@@ -64,44 +62,7 @@ export const removeUserFromTeam = async ({
     )
   }
 
-  const oldScopes = await scopes()
-
-  // Find scope matching team
-  const scopeToDelete = oldScopes.find(
-    (scope) => scope.variant === 'TEAM' && scope.variantTargetId === teamId
-  )
-
-  const scopeToDeletePromise = scopeToDelete
-    ? deleteScope(scopeToDelete.id)
-    : Promise.resolve()
-
-  // Delete membership
-  const dbPromise = await db.membership.deleteMany({
-    where: {
-      team: { id: teamId },
-      user: { id: userId },
-    },
-  })
-
-  const delCorePromise = coreCacheReadRedis.hDel(
-    `team:${teamId}`,
-    `membership:${membership?.id}`
-  )
-
-  const publishPromise = coreCacheReadRedis.publish(
-    `team:${teamId}`,
-    JSON.stringify({
-      type: 'REMOVE_MEMBER',
-      payload: membership,
-    })
-  )
-
-  await Promise.all([
-    dbPromise,
-    delCorePromise,
-    publishPromise,
-    scopeToDeletePromise,
-  ])
+  await deleteMembership(membership)
 
   // TODO: Send email
 
@@ -172,28 +133,7 @@ export const changeUserRole = async ({
   }
 
   // Update membership
-  const updatedMembership = await db.membership.update({
-    where: { id: membership.id },
-    data: { role },
-  })
-
-  const setPromise = coreCacheReadRedis.hSet(
-    `team:${teamId}`,
-    `membership:${membership.id}`,
-    JSON.stringify(updatedMembership)
-  )
-
-  const publishPromise = coreCacheReadRedis.publish(
-    `team:${teamId}`,
-    JSON.stringify({
-      type: 'CHANGE_ROLE',
-      payload: updatedMembership,
-    })
-  )
-
-  const updateTeamScopePromise = createTeamScope(team, membership, user)
-
-  await Promise.all([setPromise, publishPromise, updateTeamScopePromise])
+  const updatedMembership = await updateMembership(membership, role, team, user)
 
   // TODO: send email
 
@@ -286,76 +226,23 @@ export const changeTeamOwner = async ({
   }
 
   // Update memberships
-  const oldOwnerUpdatedPromise = db.membership.update({
-    where: {
-      id: oldOwnerMembership.id,
-    },
-    data: {
-      role: 'ADMIN',
-    },
-  })
+  const oldOwnerUpdatedPromise = await updateMembership(
+    oldOwnerMembership,
+    'ADMIN',
+    team,
+    oldOwner
+  )
 
-  const newOwnerUpdatedPromise = db.membership.update({
-    where: {
-      id: newOwnerMembership.id,
-    },
-    data: {
-      role: 'OWNER',
-    },
-  })
+  const newOwnerUpdatedPromise = await updateMembership(
+    newOwnerMembership,
+    'OWNER',
+    team,
+    newOwner
+  )
 
   const [oldOwnerUpdated, newOwnerUpdated] = await Promise.all([
     oldOwnerUpdatedPromise,
     newOwnerUpdatedPromise,
-  ])
-
-  const setPromiseOldOwner = coreCacheReadRedis.hSet(
-    `team:${teamId}`,
-    `membership:${oldOwnerMembership.id}`,
-    JSON.stringify(oldOwnerUpdated)
-  )
-
-  const setPromiseNewOwner = coreCacheReadRedis.hSet(
-    `team:${teamId}`,
-    `membership:${newOwnerMembership.id}`,
-    JSON.stringify(newOwnerUpdated)
-  )
-
-  const publishPromiseOldOwner = coreCacheReadRedis.publish(
-    `team:${teamId}`,
-    JSON.stringify({
-      type: 'CHANGE_ROLE',
-      payload: oldOwnerUpdated,
-    })
-  )
-
-  const publishPromiseNewOwner = coreCacheReadRedis.publish(
-    `team:${teamId}`,
-    JSON.stringify({
-      type: 'CHANGE_ROLE',
-      payload: newOwnerUpdated,
-    })
-  )
-
-  const updateTeamScopeOldOwnerPromise = createTeamScope(
-    team,
-    oldOwnerUpdated,
-    oldOwner
-  )
-
-  const updateTeamScopeNewOwnerPromise = createTeamScope(
-    team,
-    newOwnerUpdated,
-    newOwner
-  )
-
-  await Promise.all([
-    updateTeamScopeOldOwnerPromise,
-    updateTeamScopeNewOwnerPromise,
-    setPromiseOldOwner,
-    setPromiseNewOwner,
-    publishPromiseOldOwner,
-    publishPromiseNewOwner,
   ])
 
   // TODO: send email

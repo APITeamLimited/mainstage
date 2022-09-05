@@ -11,6 +11,8 @@ export type MailmanInput<T> = {
   data: T
   to: string
   template: TemplateIdentifier
+  userUnsubscribeUrl: string | null
+  blanketUnsubscribeUrl: string
 }
 
 export type MailmanOutput = {

@@ -5,7 +5,7 @@ import { Typography } from '@mui/material'
 import { MailmanInput } from '..'
 import { BaseMessageLayout } from '../layouts'
 
-type NotifyDeclineInvitationData = {
+export type NotifyDeclineInvitationData = {
   recipientFirstName: string
   targetFirstName: string
   targetLastName: string

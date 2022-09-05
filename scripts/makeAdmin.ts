@@ -1,3 +1,4 @@
+import { setUserRedis } from 'api/src/helpers/user'
 import { db } from 'api/src/lib/db'
 import yargs from 'yargs/yargs'
 
@@ -7,17 +8,19 @@ export default async () => {
   }).argv
 
   const user = await db.user.findFirst({
-    where: { email: argv.email },
+    where: { email: argv['email'] },
   })
 
   if (!user) {
-    throw new Error(`User not found: ${argv.email}`)
+    throw new Error(`User not found: ${argv['email']}`)
   }
 
-  await db.user.update({
+  const updatedUser = await db.user.update({
     where: { id: user.id },
     data: { isAdmin: true },
   })
+
+  await setUserRedis(updatedUser)
 
   console.log(`User ${user.email} is now an admin.`)
 }

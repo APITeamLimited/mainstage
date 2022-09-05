@@ -1,4 +1,7 @@
+import { MailmanInput, TeamInvitationData } from '@apiteam/mailman'
+import { SafeUser } from '@apiteam/types'
 import { Invitation } from '@prisma/client'
+import { Team } from '@prisma/client'
 import * as Yup from 'yup'
 
 import { ServiceValidationError } from '@redwoodjs/api'
@@ -7,6 +10,11 @@ import {
   deleteInvitationRedis,
   setInvitationRedis,
 } from 'src/helpers/invitations'
+import {
+  generateAcceptInvitationUrl,
+  generateBlanketUnsubscribeUrl,
+  generateUserUnsubscribeUrl,
+} from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
@@ -34,7 +42,12 @@ export const createInvitations = async ({
   teamId: string
   invitations: InvitationInput[]
 }) => {
-  console.log('createTeamInvitations')
+  if (!context.currentUser) {
+    throw new ServiceValidationError(
+      'You must be logged in to create an invitation.'
+    )
+  }
+
   await checkOwnerAdmin({ teamId })
 
   await invitationCreateSchema.validate({ pairs: invitations }).catch((err) => {
@@ -64,20 +77,46 @@ export const createInvitations = async ({
     },
   })
 
-  const [existingMemberships, existingInvitations] = await Promise.all([
-    existingMembershipsPromise,
-    existingInvitationsPromise,
-  ])
+  const invitingUserRawPromise = coreCacheReadRedis.get(
+    `user__id:${context.currentUser.id}`
+  )
+  const teamRawPromise = coreCacheReadRedis.hGet(`team:${teamId}`, 'team')
+
+  const [existingMemberships, existingInvitations, invitingUserRaw, teamRaw] =
+    await Promise.all([
+      existingMembershipsPromise,
+      existingInvitationsPromise,
+      invitingUserRawPromise,
+      teamRawPromise,
+    ])
+
+  if (!invitingUserRaw) {
+    throw new ServiceValidationError(
+      'Inviting user not found, contact support.'
+    )
+  }
+
+  const invitingUser: SafeUser = JSON.parse(invitingUserRaw)
+
+  if (!teamRaw) {
+    throw new ServiceValidationError('Team not found, contact support.')
+  }
+
+  const team = JSON.parse(teamRaw) as Team
 
   const existingUserIds = existingMemberships.map((m) => m.userId)
 
-  const existingUsers = await db.user.findMany({
-    where: {
-      id: {
-        in: existingUserIds,
-      },
-    },
-  })
+  // Check if user exists for each invitation
+  const existingUsersRaw = await coreCacheReadRedis.mGet(existingUserIds)
+
+  const existingUsers = existingUsersRaw
+    .map((user) => {
+      if (user) {
+        return JSON.parse(user) as SafeUser
+      }
+      return null
+    })
+    .filter((user) => user !== null) as SafeUser[]
 
   const existingUserEmails = existingUsers.map((u) => u.email)
 
@@ -118,13 +157,52 @@ export const createInvitations = async ({
 
   await Promise.all([
     ...newInvitations.map((invitation) => setInvitationRedis(invitation)),
-    ...newInvitations.map((invitation) =>
-      dispatchEmail({
-        template: 'team-invite-new',
+    ...newInvitations.map(async (invitation) => {
+      const existingUser =
+        existingUsers.find((user) => user.email === invitation.email) || null
+
+      const blanketUnsubscribeUrlPromise = generateBlanketUnsubscribeUrl(
+        invitation.email
+      )
+
+      const userUnsubscribeUrlPromise = existingUser
+        ? generateUserUnsubscribeUrl(existingUser)
+        : Promise.resolve(null)
+
+      const acceptLinkPromise = generateAcceptInvitationUrl(invitation.email)
+
+      const declineLinkPromise = generateAcceptInvitationUrl(invitation.email)
+
+      const [
+        blanketUnsubscribeUrl,
+        userUnsubscribeUrl,
+        acceptLink,
+        declineLink,
+      ] = await Promise.all([
+        blanketUnsubscribeUrlPromise,
+        userUnsubscribeUrlPromise,
+        acceptLinkPromise,
+        declineLinkPromise,
+      ])
+
+      const input: MailmanInput<TeamInvitationData> = {
         to: invitation.email,
-        data: {},
-      })
-    ),
+        template: 'team-invitation',
+        blanketUnsubscribeUrl,
+        userUnsubscribeUrl,
+        data: {
+          inviteeFirstName: existingUser ? existingUser.firstName : null,
+          isExistingUser: existingUser !== null,
+          inviterFirstName: invitingUser.firstName,
+          inviterLastName: invitingUser.lastName,
+          teamName: team.name,
+          acceptLink,
+          declineLink,
+        },
+      }
+
+      return dispatchEmail(input)
+    }),
   ])
 
   return newInvitations

@@ -1,11 +1,9 @@
-import { ensureCorrectType } from '@apiteam/types'
+import { ensureCorrectType, SafeUser } from '@apiteam/types'
 import { Scope } from '@prisma/client'
 
 import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
-import { createPersonalScope } from 'src/helpers'
-import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 
 /*
@@ -18,17 +16,19 @@ export const scopes = async () => {
     )
   }
 
-  const user = await db.user.findUnique({
-    where: { id: context.currentUser.id },
-  })
+  const userRaw = await coreCacheReadRedis.get(
+    `user__id:${context.currentUser.id}`
+  )
 
-  if (!user) throw 'Unexpected error, user not found'
+  if (!userRaw) {
+    throw new ServiceValidationError('User not found')
+  }
+
+  const user = JSON.parse(userRaw) as SafeUser
+
   // Personal scope may not exist yet, create if not
-  await createPersonalScope(user)
 
   const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
-
-  console.log('returning scopes', rawScopes)
 
   return Object.values(rawScopes).map((rawScope) => {
     return JSON.parse(rawScope) as Scope

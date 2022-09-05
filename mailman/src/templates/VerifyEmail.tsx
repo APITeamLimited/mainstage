@@ -5,15 +5,15 @@ import { Button, Link, Typography } from '@mui/material'
 import { MailmanInput } from '..'
 import { BaseMessageLayout } from '../layouts'
 
-type VerifyEmailData = {
+export type VerifyEmailData = {
   firstName: string
-  verifyKey: string
+  verifyLink: string
 }
 
 export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
-  const { data } = input
-
-  const link = 'https://api.team/verify?email=' + data.verifyKey
+  const {
+    data: { firstName, verifyLink },
+  } = input
 
   return (
     <BaseMessageLayout title={verifyEmailTitle(input)} messageType="MANDATORY">
@@ -33,13 +33,13 @@ export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
           textAlign: 'center',
         }}
       >
-        Hi {data.firstName}, thanks for signing up to APITeam. Please click the
+        Hi {firstName}, thanks for signing up to APITeam. Please click the
         button below to verify your email address.
       </Typography>
       <Button
         variant="contained"
         color="primary"
-        href={link}
+        href={verifyLink}
         sx={{
           marginBottom: 2,
           alignSelf: 'center',
@@ -61,19 +61,23 @@ export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
         variant="body1"
         sx={{
           textAlign: 'center',
+          overflowWrap: 'break-word',
         }}
       >
-        <Link href={link}>{link}</Link>
+        <a href={verifyLink}>{verifyLink}</a>
       </Typography>
     </BaseMessageLayout>
   )
 }
 
-export const verifyEmailText = ({ data }: MailmanInput<VerifyEmailData>) => {
-  const link = 'https://api.team/verify?email=' + data.verifyKey
-  return `Hi ${data.firstName}, please verify your email by clicking the button below. If the button doesn't work, copy and paste the following link into your browser: ${link}`
+export const verifyEmailText = ({
+  data: { firstName, verifyLink },
+}: MailmanInput<VerifyEmailData>) => {
+  return `Hi ${firstName}, please verify your email by clicking the button below. If the button doesn't work, copy and paste the following link into your browser: ${verifyLink}`
 }
 
-export const verifyEmailTitle = ({ data }: MailmanInput<VerifyEmailData>) => {
-  return `Verify your email ${data.firstName}`
+export const verifyEmailTitle = ({
+  data: { firstName },
+}: MailmanInput<VerifyEmailData>) => {
+  return `Verify your APITeam email ${firstName}`
 }

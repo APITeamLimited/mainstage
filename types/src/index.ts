@@ -5,6 +5,7 @@ export * from './entity-engine'
 export * from './user'
 export * from './team'
 export * from './redis'
+export * from './routes'
 
 export type KeyValueItem = {
   id: number

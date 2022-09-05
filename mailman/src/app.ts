@@ -34,7 +34,7 @@ const handleRenderRequests = async () => {
 
   console.log(
     Color(
-      `\n\nAPITeam Mailman with worker id ${workerId} listening on redis at ${mailmanRedisHost}:${mailmanRedisPort}\n\n`,
+      `\n\nAPITeam Mailman with worker id ${workerId} listening on Mailman redis at ${mailmanRedisHost}:${mailmanRedisPort}\n\n`,
       '#8F00FF'
     )
   )

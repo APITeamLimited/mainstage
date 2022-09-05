@@ -19,8 +19,19 @@ export const setUserRedis = async (user: User) => {
   }
 
   await coreCacheReadRedis.set(`user__id:${user.id}`, JSON.stringify(safeUser))
+
   await coreCacheReadRedis.publish(
     `user__id:${user.id}`,
+    JSON.stringify(safeUser)
+  )
+
+  await coreCacheReadRedis.set(
+    `user__email:${user.email}`,
+    JSON.stringify(safeUser)
+  )
+
+  await coreCacheReadRedis.publish(
+    `user__email:${user.email}`,
     JSON.stringify(safeUser)
   )
 

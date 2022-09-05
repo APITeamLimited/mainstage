@@ -1,6 +1,7 @@
 import React from 'react'
 
-import { Box, Card, Divider, Link, Typography, useTheme } from '@mui/material'
+import { ROUTES } from '@apiteam/types'
+import { Box, Card, Divider, Typography, useTheme } from '@mui/material'
 import { Email, Box as EmailBox } from 'react-html-email'
 
 import { checkValue } from '../config'
@@ -9,7 +10,11 @@ import { useInput } from '../MailmanProvider'
 type BaseMessageLayoutProps = {
   title: string
   children?: React.ReactNode
-  messageType: 'MANDATORY' | 'OPTIONAL_PROMOTIONAL' | 'OPTIONAL_TEAM_UPDATES'
+  messageType:
+    | 'MANDATORY'
+    | 'OPTIONAL_PROMOTIONAL'
+    | 'OPTIONAL_TEAM_UPDATES'
+    | 'NON_USER_INVITE'
 }
 
 export const mainSpacing = 4
@@ -22,7 +27,7 @@ export const BaseMessageLayout = ({
   const theme = useTheme()
   const input = useInput()
 
-  const { to } = input
+  const { to, userUnsubscribeUrl, blanketUnsubscribeUrl } = input
 
   return (
     <Email
@@ -50,7 +55,13 @@ export const BaseMessageLayout = ({
           >
             API Team
           </Typography>
-          <Card sx={{ p: mainSpacing, marginBottom: mainSpacing }}>
+          <Card
+            sx={{
+              p: mainSpacing,
+              marginBottom: mainSpacing,
+              maxWidth: 600,
+            }}
+          >
             {children}
             <Divider sx={{ marginY: mainSpacing }} />
             <Typography
@@ -61,9 +72,7 @@ export const BaseMessageLayout = ({
               color={theme.palette.text.secondary}
             >
               Have a question? Reach out to us at{' '}
-              <Link href="mailto:support@apiteam.cloud">
-                support@apiteam.cloud
-              </Link>
+              <a href="mailto:support@apiteam.cloud">support@apiteam.cloud</a>
             </Typography>
           </Card>
           <Typography
@@ -105,8 +114,8 @@ export const BaseMessageLayout = ({
                 }}
               >
                 You have opted in to receive optional emails about APITeam
-                announcements and new features. You can unsubscribe at any time
-                by clicking unsubscribe below:
+                announcements and new features. You can manage your email
+                preferences at any time by clicking below:
               </Typography>
               <Typography
                 color={theme.palette.text.secondary}
@@ -117,24 +126,115 @@ export const BaseMessageLayout = ({
                   marginX: mainSpacing,
                 }}
               >
-                <Link href="#">Unsubscribe</Link>
+                <a href={userUnsubscribeUrl}>Unsubscribe</a>
+              </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                Alternatively, you can unsubscribe from all non-essential emails
+                by clicking below:
+              </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                  overflowWrap: 'break-word',
+                }}
+              >
+                <a href={blanketUnsubscribeUrl}>Unsubscribe-All</a>
               </Typography>
             </>
           )}
           {messageType === 'OPTIONAL_TEAM_UPDATES' && (
-            <Typography
-              color={theme.palette.text.secondary}
-              fontSize={12}
-              sx={{
-                textAlign: 'left',
-                marginBottom: 2,
-                marginX: mainSpacing,
-              }}
-            >
-              You have opted in to receive optional email notifications about a
-              team you are in. You can change your preferences in your
-              team&apos;s settings.
-            </Typography>
+            <>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                You have opted in to receive optional email notifications about
+                a team you are in. You can change your preferences in your
+                team&apos;s settings. Alternatively, you can manage your email
+                preferences at any time by clicking below:
+              </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                <a href={userUnsubscribeUrl}>Unsubscribe</a>
+              </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                Alternatively, you can unsubscribe from all non-essential emails
+                by clicking below:
+              </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                <a href={blanketUnsubscribeUrl}>Unsubscribe-All</a>
+              </Typography>
+            </>
+          )}
+          {messageType === 'NON_USER_INVITE' && (
+            <>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                You are receiving this email as someone invited you to join
+                APITeam. If you do not wish to receive any further emails from
+                APITeam, click below:
+              </Typography>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize={12}
+                sx={{
+                  textAlign: 'left',
+                  marginBottom: 2,
+                  marginX: mainSpacing,
+                }}
+              >
+                <a href={blanketUnsubscribeUrl}>
+                  Do not contact me (Unusubscribe)
+                </a>
+              </Typography>
+            </>
           )}
           <Typography
             color={theme.palette.text.secondary}
@@ -145,16 +245,16 @@ export const BaseMessageLayout = ({
               marginX: mainSpacing,
             }}
           >
-            <span>
-              APITeam values your privacy, to learn more about how we use your
-              data please visit our{' '}
-              <Link
-                href={`${checkValue<string>('gateway')}/legal/privacy-policy`}
-              >
-                Privacy Policy
-              </Link>
-              .
-            </span>
+            APITeam values your privacy, to learn more about how we use your
+            data please visit our{' '}
+            <a
+              href={`${checkValue<string>('gateway.url')}${
+                ROUTES.privacyPolicy
+              }`}
+            >
+              Privacy Policy
+            </a>
+            .
           </Typography>
           <Typography
             color={theme.palette.text.secondary}

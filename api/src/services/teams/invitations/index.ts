@@ -1,1 +1,2 @@
-export * from './invitations'
+export * from './team-admin'
+export * from './decline-invitation'

@@ -2,7 +2,6 @@ import React, { createContext, useContext } from 'react'
 
 import { getTheme } from '@apiteam/web/src/theme'
 import { ThemeProvider } from '@mui/material'
-import { Email } from 'react-html-email'
 
 import { MailmanInput } from './lib'
 

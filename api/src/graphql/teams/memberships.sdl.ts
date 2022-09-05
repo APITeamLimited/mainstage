@@ -14,6 +14,7 @@ export const schema = gql`
     team: Team!
     teamId: String!
     role: TeamRole!
+    wantsTeamEmails: Boolean!
   }
 
   type ChangeOwnerOutput {

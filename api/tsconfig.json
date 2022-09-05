@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react",
     "noEmit": false,
     "outDir": "./dist",
     "allowJs": true,
@@ -26,5 +27,4 @@
     "../.redwood/types/includes/all-*",
     "../.redwood/types/includes/api-*",
   ],
-
 }

@@ -10,6 +10,11 @@ import {
   notifyDeclineInvitationText,
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitaiton'
+import {
+  TeamInvitation,
+  teamInvitationText,
+  teamInvitationTitle,
+} from './TeamInvitation'
 import { VerifyEmail, verifyEmailText, verifyEmailTitle } from './VerifyEmail'
 
 type EmailTemplateSchema = {
@@ -36,6 +41,20 @@ export const VALID_TEMPLATES = {
     text: notifyDeclineInvitationText,
     title: notifyDeclineInvitationTitle,
   },
+  'team-invitation': {
+    html: TeamInvitation,
+    text: teamInvitationText,
+    title: teamInvitationTitle,
+  },
 } as const as EmailTemplateSchema
 
-export type TemplateIdentifier = keyof typeof VALID_TEMPLATES
+export type TemplateIdentifier =
+  | 'verify-email'
+  | 'notify-accept-invitation'
+  | 'notify-decline-invitation'
+  | 'team-invitation'
+
+export { TeamInvitationData } from './TeamInvitation'
+export { NotifyAcceptInvitationData } from './NotifyAcceptInvitation'
+export { NotifyDeclineInvitationData } from './NotifyDeclineInvitaiton'
+export { VerifyEmailData } from './VerifyEmail'

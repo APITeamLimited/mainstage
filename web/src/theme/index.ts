@@ -6,7 +6,6 @@ import { string } from 'prop-types'
 import { baseThemeOptions } from './base-theme-options'
 import { darkThemeOptions } from './dark-theme-options'
 import { lightThemeOptions } from './light-theme-options'
-import getThemeMinimals from './minimals'
 
 interface Neutral {
   100: string

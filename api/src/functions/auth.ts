@@ -2,7 +2,7 @@ import { User } from '@prisma/client'
 
 import { DbAuthHandler } from '@redwoodjs/api'
 
-import { setUserRedis } from 'src/helpers'
+import { createPersonalScope, setUserRedis } from 'src/helpers'
 import { db } from 'src/lib/db'
 
 export const handler = async (event, context) => {
@@ -129,7 +129,7 @@ export const handler = async (event, context) => {
         },
       })
 
-      await setUserRedis(user)
+      await Promise.all([setUserRedis(user), createPersonalScope(user)])
       return user
     },
 

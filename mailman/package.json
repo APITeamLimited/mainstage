@@ -24,11 +24,11 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4"
   },
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
-    "init": "tsc --init",
+    "init": "rm -rf ./dist && tsc --init",
     "dev": "NODE_ENV=development nodemon src/app.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "rm -rf ./dist && tsc -p tsconfig.json",
     "run-prod": "NODE_ENV=production node ./dist/mailman/src/app.js"
   },
   "private": true

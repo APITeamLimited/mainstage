@@ -5,7 +5,7 @@ import { Typography } from '@mui/material'
 import { MailmanInput } from '..'
 import { BaseMessageLayout } from '../layouts'
 
-type NotifyAcceptInvitationData = {
+export type NotifyAcceptInvitationData = {
   recipientFirstName: string
   targetFirstName: string
   targetLastName: string

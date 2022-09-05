@@ -1,5 +1,5 @@
-import { ScopeVariant } from 'types/graphql'
 import { RESTResponse } from '@apiteam/types'
+import { ScopeVariant } from 'types/graphql'
 import * as Y from 'yjs'
 
 import { validateWith } from '@redwoodjs/api'
