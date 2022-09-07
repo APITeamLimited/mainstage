@@ -1,0 +1,69 @@
+{
+  "gateway": {
+      "url": "${GATEWAY_URL}"
+  },
+  "teams": {
+    "markedForDeletionExpiryHours": 24
+  },
+  "api": {
+      "host": "${API_HOST}",
+      "port": "${API_PORT}",
+      "gqlEndpoint": "/api/graphql",
+      "bearer": {
+          "privateKeyPassphrase": "Wasd12345",
+          "issuer": "${API_BEARER_ISSUER}",
+          "audience": "${API_BEARER_AUDIENCE}",
+          "expiryMinutes": 120
+      },
+      "internalAPIKey": "${API_INTERNAL_API_KEY}"
+  },
+  "coreCache": {
+      "redis": {
+          "userName": "default",
+          "password": "${CORE_CACHE_REDIS_PASSWORD}",
+          "host": "${CORE_CACHE_REDIS_HOST}",
+          "port": "${CORE_CACHE_REDIS_PORT}"
+      }
+  },
+  "orchestrator": {
+      "redis": {
+          "userName": "default",
+          "password": "${ORCHESTRATOR_REDIS_PASSWORD}",
+          "host": "${ORCHESTRATOR_REDIS_HOST}",
+          "port": "${ORCHESTRATOR_REDIS_PORT}"
+      }
+  },
+  "globe-test": {
+      "host": "${GLOBE_TEST_HOST}",
+      "port": "${GLOBE_TEST_PORT}"
+  },
+  "entity-engine": {
+      "host": "${ENTITY_ENGINE_HOST}",
+      "port": "${ENTITY_ENGINE_PORT}",
+      "redis": {
+          "userName": "default",
+          "password": "${ENTITY_ENGINE_REDIS_PASSWORD}",
+          "host": "${ENTITY_ENGINE_REDIS_HOST}",
+          "port": "${ENTITY_ENGINE_REDIS_PORT}"
+      }
+  },
+  "mailman": {
+      "redis": {
+          "userName": "default",
+          "password": "${MAILMAN_REDIS_PASSWORD}",
+          "host": "${MAILMAN_REDIS_HOST}",
+          "port": "${MAILMAN_REDIS_PORT}"
+      }
+  },
+  "store": {
+      "host": "${STORE_HOST}",
+      "port": "${STORE_PORT}",
+      "mongo": {
+          "userName": "${STORE_MONGO_USER}",
+          "password": "${STORE_MONGO_PASSWORD}",
+          "host": "${STORE_MONGO_HOST}",
+          "port": "${STORE_MONGO_PORT}",
+          "database": "${STORE_MONGO_DATABASE}"
+      }
+  }
+}

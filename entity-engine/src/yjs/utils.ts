@@ -1,10 +1,10 @@
 import { getDisplayName, MemberAwareness, SafeUser } from '@apiteam/types'
 import { Membership } from '@prisma/client'
+import { Scope } from '@prisma/client'
 import { Jwt } from 'jsonwebtoken'
 import queryString from 'query-string'
 import { Socket } from 'socket.io'
 
-import { Scope } from '../../../api/types/graphql'
 import { findScope, verifyJWT } from '../services'
 
 export const handlePostAuth = async (

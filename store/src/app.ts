@@ -8,7 +8,7 @@ import { requireScopedAuth } from './services'
 
 process.title = 'store'
 
-const storeHost = checkValue<string>('store.host')
+const storeHost = '0.0.0.0'
 const storePort = checkValue<number>('store.port')
 
 export const corsHeaders = {

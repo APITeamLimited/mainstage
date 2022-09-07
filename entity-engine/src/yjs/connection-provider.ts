@@ -7,6 +7,7 @@ import {
   TeamRole,
 } from '@apiteam/types'
 import { Team, Membership } from '@prisma/client'
+import { Scope } from '@prisma/client'
 import * as JWT from 'jsonwebtoken'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
@@ -16,7 +17,6 @@ import { Socket } from 'socket.io'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
-import { Scope } from '../../../api/types/graphql'
 import { checkValue } from '../config'
 import { populateOpenDoc } from '../entities'
 import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../redis'

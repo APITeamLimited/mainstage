@@ -1,6 +1,9 @@
 FROM mainstage-base:latest
-COPY . /app
-WORKDIR /app/store
-RUN rm -rf config
-RUN yarn build
-ENTRYPOINT [ "yarn", "run-prod" ]
+
+# Remove store
+RUN rm -rf /store
+COPY . .
+RUN rm -rf store/config
+RUN cd store && rm -rf dist && yarn build
+COPY production.json store/config/production.json
+ENTRYPOINT [ "yarn", "start-store" ]

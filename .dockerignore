@@ -1,5 +1,9 @@
 **/.git
+# TODO temporary
+**/dist
 **/.DS_Store
 **/node_modules
-**/dist
 **/config
+
+# Don't ignore webpack.config.js
+!web/config/webpack.config.js

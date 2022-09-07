@@ -1,6 +1,8 @@
 import { GlobeTestMessage } from '@apiteam/types'
 import { io } from 'socket.io-client'
 
+import { checkValue } from 'src/config'
+
 import {
   BaseJob,
   ExecutingJob,
@@ -24,14 +26,9 @@ const getUrl = () => {
 
     return `http://${host}:${port}`
   } else {
-    // TODO: Correctly implement env variables
-    const gatewayUrl = 'https://apiteam-6pq1lw9jtzb.enterchange.io'
-
-    if (!gatewayUrl) {
-      throw new Error('GATEWAY_URL must be set')
-    }
-
-    return gatewayUrl
+    // Get current domain
+    const domain = window.location.hostname
+    return `https://${domain}`
   }
 }
 

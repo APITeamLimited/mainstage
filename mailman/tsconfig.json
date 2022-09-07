@@ -5,10 +5,10 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "baseUrl": ".",
+    "strict": false,
     "paths": {
-      "src/*": ["./src/*"],
-      "web/src/*": ["../web/src/*"]
+      "src/*": ["./src/*"]
     },
-    "declaration": true
+    "declaration": true,
   }
 }

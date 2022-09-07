@@ -6,6 +6,7 @@ export * from './user'
 export * from './team'
 export * from './redis'
 export * from './routes'
+export * from './theme'
 
 export type KeyValueItem = {
   id: number

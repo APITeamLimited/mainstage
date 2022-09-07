@@ -4,7 +4,6 @@
   "description": "APITeam email generator",
   "dependencies": {
     "@apiteam/types": "*",
-    "@apiteam/web": "*",
     "@mui/icons-material": "^5.8.4",
     "@mui/material": "^5.8.6",
     "@mui/styles": "^5.8.7",
@@ -28,8 +27,9 @@
   "scripts": {
     "init": "rm -rf ./dist && tsc --init",
     "dev": "NODE_ENV=development nodemon src/app.ts",
+    "install": "rm -rf ./dist && tsc -p tsconfig.json",
     "build": "rm -rf ./dist && tsc -p tsconfig.json",
-    "run-prod": "NODE_ENV=production node ./dist/mailman/src/app.js"
+    "start": "NODE_ENV=production node ./dist/app.js"
   },
   "private": true
 }

@@ -1,6 +1,9 @@
 FROM mainstage-base:latest
-COPY . /app
-WORKDIR /app/mailman
-RUN rm -rf config
-RUN yarn build
-ENTRYPOINT [ "yarn", "run-prod" ]
+
+# Remove mailman
+RUN rm -rf /mailman
+COPY . .
+RUN rm -rf mailman/config
+RUN cd mailman && rm -rf dist && yarn build
+COPY production.json mailman/config/production.json
+ENTRYPOINT [ "yarn", "start-mailman" ]

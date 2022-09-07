@@ -15,6 +15,8 @@
     "yup": "^0.32.11"
   },
   "scripts": {
-    "run-prod": "NODE_ENV=production node ./dist/server/index.js api"
+    "install": "rw build api",
+    "build": "rw build api",
+    "start": "./start.sh"
   }
 }

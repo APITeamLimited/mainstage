@@ -126,7 +126,7 @@ export const BaseMessageLayout = ({
                   marginX: mainSpacing,
                 }}
               >
-                <a href={userUnsubscribeUrl}>Unsubscribe</a>
+                <a href={userUnsubscribeUrl || undefined}>Unsubscribe</a>
               </Typography>
               <Typography
                 color={theme.palette.text.secondary}
@@ -179,7 +179,7 @@ export const BaseMessageLayout = ({
                   marginX: mainSpacing,
                 }}
               >
-                <a href={userUnsubscribeUrl}>Unsubscribe</a>
+                <a href={userUnsubscribeUrl || undefined}>Unsubscribe</a>
               </Typography>
               <Typography
                 color={theme.palette.text.secondary}

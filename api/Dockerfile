@@ -1,7 +1,8 @@
 FROM mainstage-base:latest
-COPY . /app
-WORKDIR /app
-RUN rm -rf /config
-RUN rm -rf /api/config
-RUN yarn rw build api
-ENTRYPOINT [ "yarn", "rw", "serve", "api", "--socket", ${API_HOST} ]
+
+# Remove mailman
+RUN rm -rf /api
+COPY . .
+RUN cd api && rm -rf dist && cd .. && yarn rw build api
+COPY production.json config/production.json
+ENTRYPOINT [ "yarn", "rw", "serve", "api", "--apiRootPath", "api"]

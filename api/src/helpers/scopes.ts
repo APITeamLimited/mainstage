@@ -1,4 +1,4 @@
-import { getDisplayName } from '@apiteam/types'
+import { getDisplayName, SafeUser } from '@apiteam/types'
 import { User, Membership, Team } from '@prisma/client'
 import { Scope } from '@prisma/client'
 
@@ -104,7 +104,7 @@ Creates or updates an existing team scope with latest team data.
 export const createTeamScope = async (
   team: Team,
   membership: Membership,
-  user: User
+  user: SafeUser
 ) => {
   const role = membership.role
   const displayName = team.name

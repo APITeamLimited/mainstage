@@ -1,7 +1,8 @@
 FROM mainstage-base:latest
-COPY . /app
-WORKDIR /app
-RUN rm -rf /config
-RUN rm -rf /api/config
-RUN yarn rw build web --prerender=false
-ENTRYPOINT [ "yarn", "rw", "serve", "web"]
+
+# Remove mailman
+RUN rm -rf /web
+COPY . .
+RUN cd web && rm -rf dist && cd .. && NODE_ENV=production yarn rw build web
+COPY production.json config/production.json
+ENTRYPOINT [ "yarn", "rw", "serve", "web" ]

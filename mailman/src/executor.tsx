@@ -54,7 +54,7 @@ export const handleRenderRequest = async (
   } catch (error) {
     return {
       content: null,
-      error: error.toString(),
+      error: String(error),
     }
   }
 }

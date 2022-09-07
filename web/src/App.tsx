@@ -9,9 +9,10 @@ import {
 } from 'src/contexts/settings-context'
 import FatalErrorPage from 'src/pages/FatalErrorPage'
 import Routes from 'src/Routes'
+
 import './scaffold.css'
 import './index.css'
-import getTheme from 'src/theme'
+import { getTheme } from '@apiteam/types/src'
 
 import { CustomApolloProvider } from './contexts/custom-apollo-provider'
 

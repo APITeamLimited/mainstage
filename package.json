@@ -45,7 +45,13 @@
     "seed": "yarn rw exec seed"
   },
   "scripts": {
-    "dev": "OPENSSL_CONF=/dev/null && yarn rw dev"
+    "dev": "OPENSSL_CONF=/dev/null && yarn rw dev",
+    "start-entity-engine": "cd entity-engine && yarn start",
+    "start-globe-test": "cd globe-test && yarn start",
+    "start-mailman": "cd mailman && yarn start",
+    "start-store": "cd store && yarn start",
+    "start-web": "yarn rw serve web",
+    "start-api": "cd api && yarn start"
   },
   "packageManager": "yarn@3.2.1",
   "dependencies": {

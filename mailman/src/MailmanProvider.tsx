@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react'
 
-import { getTheme } from '@apiteam/web/src/theme'
+import { getTheme } from '@apiteam/types'
 import { ThemeProvider } from '@mui/material'
 
 import { MailmanInput } from './lib'

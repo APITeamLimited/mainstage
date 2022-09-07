@@ -1,13 +1,20 @@
 {
   "compilerOptions": {
-    "composite": true,
+    "noEmit": false,
     "outDir": "./dist",
-    "skipLibCheck": true,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "target": "esnext",
+    "strict": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
     "baseUrl": ".",
     "paths": {
       "src/*": [
-        "./src/*"
+        "./src/*",
       ],
-    }
-  },
+    },
+    "skipLibCheck": true,
+    "declaration": true
+  }
 }

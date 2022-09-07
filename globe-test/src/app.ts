@@ -12,7 +12,7 @@ import { handleAuth } from './services'
 process.title = 'globe-test'
 
 // This will always be localhost, container mapping will set this to the actual hostname
-const globeTestHost = checkValue<number>('globe-test.host')
+const globeTestHost = '0.0.0.0'
 const globeTestPort = checkValue<number>('globe-test.port')
 
 const httpServer = createServer()

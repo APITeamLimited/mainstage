@@ -9,7 +9,7 @@ import { handleNewConnection } from './yjs/connection-provider'
 
 process.title = 'entity-engine'
 
-const entityEngineHost = checkValue<string>('entity-engine.host')
+const entityEngineHost = '0.0.0.0'
 const entityEnginePort = checkValue<number>('entity-engine.port')
 
 const httpServer = createServer()

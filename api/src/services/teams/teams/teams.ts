@@ -114,9 +114,7 @@ export const createTeam = async ({
     },
   })
 
-  const ownerMembership = await createMembership(team, user, 'OWNER')
-
-  const setTeamScopePromise = setTeamScope(team, ownerMembership, user)
+  await createMembership(team, user, 'OWNER')
 
   // Set in core cache
   const teamPromise = coreCacheReadRedis.hSet(
@@ -133,7 +131,7 @@ export const createTeam = async ({
     })
   )
 
-  await Promise.all([setTeamScopePromise, teamPromise, teamPublishPromise])
+  await Promise.all([teamPromise, teamPublishPromise])
 
   return team
 }

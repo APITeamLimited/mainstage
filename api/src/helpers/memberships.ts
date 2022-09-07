@@ -7,7 +7,7 @@ import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { scopes } from 'src/lib/scopes'
 
-import { setTeamScope, deleteScope } from './scopes'
+import { createTeamScope, deleteScope } from './scopes'
 
 /*
 Creates a membership and scopes for a user in a team
@@ -43,7 +43,7 @@ export const createMembership = async (
   await Promise.all([
     setPromise,
     publishPromise,
-    setTeamScope(team, membership, user),
+    createTeamScope(team, membership, user),
   ])
 
   return membership

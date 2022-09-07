@@ -3,7 +3,7 @@ import { TemplateIdentifier } from './templates'
 export type MailmanJob = {
   id: string
   assignedId: string | null
-  input: MailmanInput<unknown>
+  input: MailmanInput<any>
   output?: MailmanOutput
 }
 

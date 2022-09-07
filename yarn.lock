@@ -37,7 +37,6 @@ __metadata:
   resolution: "@apiteam/mailman@workspace:mailman"
   dependencies:
     "@apiteam/types": "*"
-    "@apiteam/web": "*"
     "@mui/icons-material": ^5.8.4
     "@mui/material": ^5.8.6
     "@mui/styles": ^5.8.7
