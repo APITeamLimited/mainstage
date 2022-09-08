@@ -46,7 +46,7 @@ setInterval(() => {
       '#70c289'
     )
   )
-}, 1000)
+}, 60000)
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {
   console.log(

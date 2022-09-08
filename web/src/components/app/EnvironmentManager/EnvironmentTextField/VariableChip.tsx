@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 
+import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { activeEnvironmentVar } from 'src/contexts/reactives'
 
 type VariableChipProps = {
   variableName: string
@@ -24,17 +26,18 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
     useState(variableName.replace(/^\{/, '').replace(/\}$/, ''))
 
   const [resolvedVariable, setResolvedVariable] =
-    useState<ResolvedVariable>(undefined)
+    useState<ResolvedVariable | null>(null)
 
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
+  const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
 
   useEffect(() => {
     setVariableNameWithoutCurlyBraces(
       variableName.replace(/^\{/, '').replace(/\}$/, '')
     )
   }, [variableName])
-  console.log('resolvedVariable', activeEnvironment.data.variables)
+
   useEffect(() => {
     const variables = activeEnvironment.data.variables || undefined
 
@@ -49,21 +52,27 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
         variable.enabled
     )
 
-    if (
-      foundVariable?.value !== resolvedVariable?.value &&
-      foundVariable?.value
-    ) {
+    if (foundVariable?.value !== resolvedVariable?.value) {
+      if (!foundVariable?.value) {
+        setResolvedVariable(null)
+        return
+      }
+
       setResolvedVariable({
         sourceName: activeEnvironment.data.name,
         sourceTypename: 'Environment',
         value: foundVariable.value,
       })
-    } else {
+    } else if (!foundVariable && resolvedVariable) {
       setResolvedVariable(null)
     }
     // Prevent infinite loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironment.data, variableNameWithoutCurlyBraces])
+  }, [
+    activeEnvironment.data,
+    resolvedVariable,
+    variableNameWithoutCurlyBraces,
+    activeEnvironmentDict,
+  ])
 
   return (
     <Tooltip

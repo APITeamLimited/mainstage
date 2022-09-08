@@ -88,4 +88,6 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
 
     await setInvitationRedis(updatedInvitation)
   }
+
+  return true
 }

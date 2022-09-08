@@ -6,7 +6,7 @@ import { handleRenderRequest } from './executor'
 export const startDevServer = () => {
   const httpServer = createServer()
 
-  httpServer.listen(3000, '0.0.0.0', () => {
+  httpServer.listen(3001, '0.0.0.0', () => {
     console.log('Development server listening on port 3000')
   })
 

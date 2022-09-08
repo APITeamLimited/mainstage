@@ -1,117 +1,239 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { useAuth } from '@redwoodjs/auth'
 import {
-  Form,
-  Label,
-  PasswordField,
-  Submit,
-  FieldError,
-} from '@redwoodjs/forms'
-import { navigate, routes } from '@redwoodjs/router'
-import { MetaTags } from '@redwoodjs/web'
-import { toast, Toaster } from '@redwoodjs/web/toast'
+  Alert,
+  Snackbar,
+  Button,
+  Card,
+  Box,
+  Divider,
+  Container,
+  Typography,
+  FormHelperText,
+  Stack,
+  TextField,
+  useTheme,
+} from '@mui/material'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 
-const ResetPasswordPage = ({ resetToken }) => {
+import { useAuth } from '@redwoodjs/auth'
+import { navigate, routes, Link } from '@redwoodjs/router'
+import { MetaTags } from '@redwoodjs/web'
+
+type ResetPasswordFormProps = {
+  resetToken: string
+}
+
+const ResetPasswordPage = ({ resetToken }: ResetPasswordFormProps) => {
   const { isAuthenticated, reauthenticate, validateResetToken, resetPassword } =
     useAuth()
-  const [enabled, setEnabled] = useState(true)
+  const [enabled, setEnabled] = useState(false)
+
+  const theme = useTheme()
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate(routes.dashboard())
     }
-  }, [isAuthenticated])
+  }, [])
+
+  const [snackSuccessMessage, setSnackSuccessMessage] = useState<string | null>(
+    null
+  )
+
+  const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
+    null
+  )
 
   useEffect(() => {
     const validateToken = async () => {
       const response = await validateResetToken(resetToken)
+      console.log(response)
       if (response.error) {
         setEnabled(false)
-        toast.error(response.error)
+        setSnackErrorMessage(
+          'That reset link is invalid, please request another reset link'
+        )
       } else {
         setEnabled(true)
       }
     }
     validateToken()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const passwordRef = useRef<HTMLInputElement>()
-  useEffect(() => {
-    passwordRef.current.focus()
-  }, [])
+  const formik = useFormik({
+    initialValues: {
+      password: '',
+      passwordConfirmation: '',
+      submit: null,
+    },
+    validationSchema: Yup.object({
+      password: Yup.string()
+        .min(8, 'Must be at least 8 characters')
+        .max(255)
+        .required('Password is required'),
+      passwordConfirmation: Yup.string().oneOf(
+        [Yup.ref('password'), null],
+        'Passwords must match'
+      ),
+    }),
+    onSubmit: async (values, helpers): Promise<void> => {
+      const response = await resetPassword({
+        resetToken,
+        password: values.password,
+      })
+      console.log(response)
 
-  const onSubmit = async (data) => {
-    const response = await resetPassword({
-      resetToken,
-      password: data.password,
-    })
+      if (response.error) {
+        helpers.setStatus({ success: false })
+        helpers.setErrors({ submit: response.error })
+        return
+      }
 
-    if (response.error) {
-      toast.error(response.error)
-    } else {
-      toast.success('Password changed!')
-      await reauthenticate()
-      navigate(routes.login())
-    }
-  }
+      setSnackSuccessMessage(
+        'Password reset, you shall be redirected momentarily'
+      )
+
+      setTimeout(async () => {
+        await reauthenticate()
+        navigate(routes.login())
+      }, 2000)
+    },
+  })
 
   return (
     <>
+      <Snackbar
+        open={!!snackSuccessMessage}
+        onClose={() => setSnackSuccessMessage(null)}
+        autoHideDuration={5000}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          {snackSuccessMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={!!snackErrorMessage}
+        onClose={() => setSnackSuccessMessage(null)}
+        autoHideDuration={5000}
+      >
+        <Alert severity="error" sx={{ width: '100%' }}>
+          {snackErrorMessage}
+        </Alert>
+      </Snackbar>
       <MetaTags title="Reset Password" />
-
-      <main className="rw-main">
-        <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-        <div className="rw-scaffold rw-login-container">
-          <div className="rw-segment">
-            <header className="rw-segment-header">
-              <h2 className="rw-heading rw-heading-secondary">
-                Reset Password
-              </h2>
-            </header>
-
-            <div className="rw-segment-main">
-              <div className="rw-form-wrapper">
-                <Form onSubmit={onSubmit} className="rw-form-wrapper">
-                  <div className="text-left">
-                    <Label
+      <main>
+        <Box
+          sx={{
+            backgroundColor: theme.palette.background.default,
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <Container
+            maxWidth="sm"
+            sx={{
+              p: 4,
+            }}
+          >
+            <Card elevation={16} sx={{ p: 4 }}>
+              <Stack spacing={4}>
+                <Link
+                  to={routes.splash()}
+                  style={{
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Typography
+                    fontSize={22}
+                    fontWeight={1000}
+                    color={theme.palette.text.primary}
+                    sx={{ textAlign: 'center' }}
+                  >
+                    API Team
+                  </Typography>
+                </Link>
+                <Typography variant="h5" sx={{ textAlign: 'center' }}>
+                  Reset Password
+                </Typography>
+                <form noValidate onSubmit={formik.handleSubmit}>
+                  <Stack spacing={2}>
+                    <TextField
+                      fullWidth
+                      id="password"
                       name="password"
-                      className="rw-label"
-                      errorClassName="rw-label rw-label-error"
-                    >
-                      New Password
-                    </Label>
-                    <PasswordField
-                      name="password"
-                      autoComplete="new-password"
-                      className="rw-input"
-                      errorClassName="rw-input rw-input-error"
+                      label="Password"
+                      type="password"
+                      value={formik.values.password}
+                      onChange={formik.handleChange}
+                      error={Boolean(
+                        formik.touched.password && formik.errors.password
+                      )}
+                      helperText={
+                        formik.touched.password && formik.errors.password
+                      }
                       disabled={!enabled}
-                      ref={passwordRef}
-                      validation={{
-                        required: {
-                          value: true,
-                          message: 'Password is required',
-                        },
-                      }}
                     />
-
-                    <FieldError name="password" className="rw-field-error" />
-                  </div>
-
-                  <div className="rw-button-group">
-                    <Submit
-                      className="rw-button rw-button-blue"
+                    <TextField
+                      fullWidth
+                      id="passwordConfirmation"
+                      name="passwordConfirmation"
+                      label="Confirm Password"
+                      type="password"
+                      value={formik.values.passwordConfirmation}
+                      onChange={formik.handleChange}
+                      error={Boolean(
+                        formik.touched.passwordConfirmation &&
+                          formik.errors.passwordConfirmation
+                      )}
+                      helperText={
+                        formik.touched.passwordConfirmation &&
+                        formik.errors.passwordConfirmation
+                      }
                       disabled={!enabled}
+                    />
+                    <Button
+                      disabled={formik.isSubmitting || !enabled}
+                      size="large"
+                      type="submit"
+                      variant="contained"
                     >
                       Submit
-                    </Submit>
-                  </div>
-                </Form>
-              </div>
-            </div>
-          </div>
-        </div>
+                    </Button>
+                  </Stack>
+                </form>
+                <Divider />
+                <Stack spacing={2}>
+                  <Link
+                    to={routes.login()}
+                    style={{
+                      textDecoration: 'none',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Typography variant="body2">
+                      Remembered your password?
+                    </Typography>
+                  </Link>
+                  <Link
+                    to={routes.forgotPassword()}
+                    style={{
+                      textDecoration: 'none',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Typography variant="body2">
+                      Get a new reset link
+                    </Typography>
+                  </Link>
+                </Stack>
+              </Stack>
+            </Card>
+          </Container>
+        </Box>
       </main>
     </>
   )

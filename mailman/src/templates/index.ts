@@ -1,6 +1,11 @@
 import { MailmanInput } from 'src/lib'
 
 import {
+  ForgotPassword,
+  forgotPasswordText,
+  forgotPasswordTitle,
+} from './ForgotPassword'
+import {
   NotifyAcceptInvitation,
   notifyAcceptInvitationText,
   notifyAcceptInvitationTitle,
@@ -10,6 +15,16 @@ import {
   notifyDeclineInvitationText,
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitaiton'
+import {
+  NotifyPasswordReset,
+  notifyPasswordResetText,
+  notifyPasswordResetTitle,
+} from './NotifyPasswordReset'
+import {
+  SignupWelcome,
+  signupWelcomeText,
+  signupWelcomeTitle,
+} from './SignupWelcome'
 import {
   TeamInvitation,
   teamInvitationText,
@@ -46,6 +61,21 @@ export const VALID_TEMPLATES = {
     text: teamInvitationText,
     title: teamInvitationTitle,
   },
+  'signup-welcome': {
+    html: SignupWelcome,
+    text: signupWelcomeText,
+    title: signupWelcomeTitle,
+  },
+  'forgot-password': {
+    html: ForgotPassword,
+    text: forgotPasswordText,
+    title: forgotPasswordTitle,
+  },
+  'notify-password-reset': {
+    html: NotifyPasswordReset,
+    text: notifyPasswordResetText,
+    title: notifyPasswordResetTitle,
+  },
 } as const as EmailTemplateSchema
 
 export type TemplateIdentifier =
@@ -53,8 +83,14 @@ export type TemplateIdentifier =
   | 'notify-accept-invitation'
   | 'notify-decline-invitation'
   | 'team-invitation'
+  | 'signup-welcome'
+  | 'forgot-password'
+  | 'notify-password-reset'
 
 export { TeamInvitationData } from './TeamInvitation'
 export { NotifyAcceptInvitationData } from './NotifyAcceptInvitation'
 export { NotifyDeclineInvitationData } from './NotifyDeclineInvitaiton'
 export { VerifyEmailData } from './VerifyEmail'
+export { SignupWelcomeData } from './SignupWelcome'
+export { ForgotPasswordData } from './ForgotPassword'
+export { NotifyPasswordResetData } from './NotifyPasswordReset'

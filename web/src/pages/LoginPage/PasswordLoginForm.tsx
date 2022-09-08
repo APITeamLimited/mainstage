@@ -21,13 +21,13 @@ const PasswordLoginForm = () => {
   useEffect(() => {
     if (isAuthenticated) {
       if (/redirectTo/.test(search || '')) {
-        const newPath = (search|| '').split('=').slice(-1).join()
+        const newPath = (search || '').split('=').slice(-1).join()
         navigate(newPath)
       } else {
         navigate(routes.dashboard())
       }
     }
-  }, [isAuthenticated])
+  }, [isAuthenticated, search])
 
   const formik = useFormik({
     initialValues: {
@@ -64,54 +64,47 @@ const PasswordLoginForm = () => {
 
   return (
     <form noValidate onSubmit={formik.handleSubmit}>
-      <TextField
-        error={Boolean(formik.touched.email && formik.errors.email)}
-        fullWidth
-        helperText={formik.touched.email && formik.errors.email}
-        label="Email Address"
-        margin="normal"
-        name="email"
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        type="email"
-        value={formik.values.email}
-      />
-      <TextField
-        error={Boolean(formik.touched.password && formik.errors.password)}
-        fullWidth
-        helperText={formik.touched.password && formik.errors.password}
-        label="Password"
-        margin="normal"
-        name="password"
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        type="password"
-        value={formik.values.password}
-      />
       <Stack spacing={2}>
-        {formik.errors.submit ? (
-          <Box>
-            <FormHelperText error>{formik.errors.submit}</FormHelperText>
-          </Box>
-        ) : (
-          <Box sx={{ mb: -1 }} />
+        <TextField
+          error={Boolean(formik.touched.email && formik.errors.email)}
+          fullWidth
+          helperText={formik.touched.email && formik.errors.email}
+          label="Email Address"
+          margin="normal"
+          name="email"
+          onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          type="email"
+          value={formik.values.email}
+        />
+        <TextField
+          error={Boolean(formik.touched.password && formik.errors.password)}
+          fullWidth
+          helperText={formik.touched.password && formik.errors.password}
+          label="Password"
+          margin="normal"
+          name="password"
+          onBlur={formik.handleBlur}
+          onChange={formik.handleChange}
+          type="password"
+          value={formik.values.password}
+        />
+        {formik.errors.submit && (
+          <FormHelperText error>{formik.errors.submit}</FormHelperText>
         )}
-        <Box>
-          <Button
-            disabled={formik.isSubmitting}
-            fullWidth
-            size="large"
-            type="submit"
-            variant="contained"
-          >
-            Login
-          </Button>
-        </Box>
-        <Box>
-          <Alert severity="warning">
-            APITeam will never ask you for your password
-          </Alert>
-        </Box>
+        <Button
+          disabled={formik.isSubmitting}
+          fullWidth
+          size="large"
+          type="submit"
+          variant="contained"
+        >
+          Login
+        </Button>
+        <Alert severity="warning">
+          APITeam will never ask you for your password via email or support
+          channels
+        </Alert>
       </Stack>
     </form>
   )

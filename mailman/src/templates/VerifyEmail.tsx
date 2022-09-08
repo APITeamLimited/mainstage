@@ -1,22 +1,25 @@
 import React from 'react'
 
-import { Button, Link, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 
 import { MailmanInput } from '..'
 import { BaseMessageLayout } from '../layouts'
 
 export type VerifyEmailData = {
   firstName: string
-  verifyLink: string
+  verifyCode: string
 }
 
 export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
   const {
-    data: { firstName, verifyLink },
+    data: { firstName, verifyCode },
   } = input
 
   return (
-    <BaseMessageLayout title={verifyEmailTitle(input)} messageType="MANDATORY">
+    <BaseMessageLayout
+      title={verifyEmailTitle(input)}
+      messageType="SIGNUP_CONFIRMATION"
+    >
       <Typography
         variant="h6"
         sx={{
@@ -33,47 +36,29 @@ export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
           textAlign: 'center',
         }}
       >
-        Hi {firstName}, thanks for signing up to APITeam. Please click the
-        button below to verify your email address.
-      </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        href={verifyLink}
-        sx={{
-          marginBottom: 2,
-          alignSelf: 'center',
-        }}
-      >
-        Verify Email
-      </Button>
-      <Typography
-        variant="body1"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        If that doesn&apos;t work, copy and paste the following link into your
-        browser:
+        Hi {firstName}, thanks for signing up to APITeam. Please enter the
+        following code to verify your email address. This code will expire in 15
+        minutes.
       </Typography>
       <Typography
-        variant="body1"
+        variant="h6"
+        fontWeight="bold"
         sx={{
           textAlign: 'center',
-          overflowWrap: 'break-word',
+          // Increase font spacing
+          letterSpacing: 2,
         }}
       >
-        <a href={verifyLink}>{verifyLink}</a>
+        {verifyCode}
       </Typography>
     </BaseMessageLayout>
   )
 }
 
 export const verifyEmailText = ({
-  data: { firstName, verifyLink },
+  data: { firstName, verifyCode },
 }: MailmanInput<VerifyEmailData>) => {
-  return `Hi ${firstName}, please verify your email by clicking the button below. If the button doesn't work, copy and paste the following link into your browser: ${verifyLink}`
+  return `Hi ${firstName}, please verify your email address by entering the following code: ${verifyCode}, this expires in 15 minutes.`
 }
 
 export const verifyEmailTitle = ({

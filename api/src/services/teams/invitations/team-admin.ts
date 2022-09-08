@@ -155,11 +155,20 @@ export const createInvitations = async ({
     )
   )
 
+  const existingNonTeamUsersRaw = await coreCacheReadRedis.mGet(
+    newInvitations.map((i) => `user__email:${i.email}`)
+  )
+
+  const existingNonTeamUsers = existingNonTeamUsersRaw
+    .filter((u) => u !== null)
+    .map((u) => JSON.parse(u || '') as SafeUser)
+
   await Promise.all([
     ...newInvitations.map((invitation) => setInvitationRedis(invitation)),
     ...newInvitations.map(async (invitation) => {
       const existingUser =
-        existingUsers.find((user) => user.email === invitation.email) || null
+        existingNonTeamUsers.find((user) => user.email === invitation.email) ||
+        null
 
       const blanketUnsubscribeUrlPromise = generateBlanketUnsubscribeUrl(
         invitation.email

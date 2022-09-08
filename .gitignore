@@ -1,6 +1,8 @@
 .idea
 .DS_Store
 .env
+.env-staging
+.env-production
 .netlify
 .redwood
 dev.db*

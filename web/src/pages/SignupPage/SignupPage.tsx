@@ -1,6 +1,7 @@
 import {
   Box,
   Card,
+  Stack,
   Container,
   Divider,
   Typography,
@@ -22,31 +23,24 @@ const SignupPage = () => {
         <Box
           sx={{
             backgroundColor: theme.palette.background.default,
-            height: '100vh',
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           <Container
             maxWidth="sm"
             sx={{
-              py: {
-                xs: '60px',
-                md: '120px',
-              },
+              p: 4,
             }}
           >
             <Card elevation={16} sx={{ p: 4 }}>
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
+              <Stack spacing={4}>
                 <Link
                   to={routes.splash()}
                   style={{
                     textDecoration: 'none',
+                    textAlign: 'center',
                   }}
                 >
                   <Typography
@@ -57,27 +51,21 @@ const SignupPage = () => {
                     API Team
                   </Typography>
                 </Link>
-                <Box sx={{ mt: 4 }} />
-                <Typography variant="h5">Signup</Typography>
-              </Box>
-              <Box
-                sx={{
-                  flexGrow: 1,
-                  mt: 3,
-                }}
-              >
+                <Typography variant="h5" sx={{ textAlign: 'center' }}>
+                  Signup
+                </Typography>
                 <PasswordSignupForm />
-              </Box>
-              <Divider sx={{ my: 3 }} />
-              <Link
-                to={routes.login()}
-                style={{
-                  textDecoration: 'none',
-                  color: theme.palette.text.secondary,
-                }}
-              >
-                <Typography variant="body2">Login</Typography>
-              </Link>
+                <Divider />
+                <Link
+                  to={routes.login()}
+                  style={{
+                    textDecoration: 'none',
+                    color: theme.palette.text.secondary,
+                  }}
+                >
+                  <Typography variant="body2">Login</Typography>
+                </Link>
+              </Stack>
             </Card>
           </Container>
         </Box>

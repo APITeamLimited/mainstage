@@ -1,8 +1,8 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   Alert,
-  Box,
+  Snackbar,
   Button,
   FormHelperText,
   Stack,
@@ -23,6 +23,14 @@ const ForgotPasswordForm = () => {
     }
   }, [isAuthenticated])
 
+  const [snackSuccessMessage, setSnackSuccessMessage] = useState<string | null>(
+    null
+  )
+
+  const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
+    null
+  )
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -36,58 +44,71 @@ const ForgotPasswordForm = () => {
     }),
     onSubmit: async (values, helpers): Promise<void> => {
       const response = await forgotPassword(values.email)
+      console.log(response)
 
       if (response.error) {
         helpers.setStatus({ success: false })
         helpers.setErrors({ submit: response.error })
         helpers.setSubmitting(false)
+        return
       }
 
-      navigate(routes.login())
+      setSnackSuccessMessage('Email sent, check your inbox')
     },
   })
 
   return (
-    <form noValidate onSubmit={formik.handleSubmit}>
-      <TextField
-        error={Boolean(formik.touched.email && formik.errors.email)}
-        fullWidth
-        helperText={formik.touched.email && formik.errors.email}
-        label="Email Address"
-        margin="normal"
-        name="email"
-        onBlur={formik.handleBlur}
-        onChange={formik.handleChange}
-        type="email"
-        value={formik.values.email}
-      />
-      <Stack spacing={2}>
-        {formik.errors.submit ? (
-          <Box>
+    <>
+      <Snackbar
+        open={!!snackErrorMessage}
+        onClose={() => setSnackErrorMessage(null)}
+        autoHideDuration={5000}
+      >
+        <Alert severity="error" sx={{ width: '100%' }}>
+          {snackErrorMessage}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={!!snackSuccessMessage}
+        onClose={() => setSnackSuccessMessage(null)}
+        autoHideDuration={5000}
+      >
+        <Alert severity="success" sx={{ width: '100%' }}>
+          {snackSuccessMessage}
+        </Alert>
+      </Snackbar>
+      <form noValidate onSubmit={formik.handleSubmit}>
+        <Stack spacing={2}>
+          <TextField
+            error={Boolean(formik.touched.email && formik.errors.email)}
+            fullWidth
+            helperText={formik.touched.email && formik.errors.email}
+            label="Email Address"
+            margin="normal"
+            name="email"
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            type="email"
+            value={formik.values.email}
+          />
+          {formik.errors.submit && (
             <FormHelperText error>{formik.errors.submit}</FormHelperText>
-          </Box>
-        ) : (
-          <Box sx={{ mb: -1 }} />
-        )}
-        <Box>
+          )}
           <Button
             disabled={formik.isSubmitting}
-            fullWidth
             size="large"
             type="submit"
             variant="contained"
           >
             Submit
           </Button>
-        </Box>
-        <Box>
           <Alert severity="info">
             If the email address you provided is associated with an account, you
             shall receive an email with a link to reset your password
           </Alert>
-        </Box>
-      </Stack>
-    </form>
+        </Stack>
+      </form>
+    </>
   )
 }
 

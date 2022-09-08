@@ -1,9 +1,20 @@
+import { SignupWelcomeData } from '@apiteam/mailman'
+import { ROUTES } from '@apiteam/types'
 import { User } from '@prisma/client'
 
-import { DbAuthHandler } from '@redwoodjs/api'
+import { DbAuthHandler, ServiceValidationError } from '@redwoodjs/api'
 
+import { checkValue } from 'src/config'
 import { createPersonalScope, setUserRedis } from 'src/helpers'
+import {
+  generateBlanketUnsubscribeUrl,
+  generateUserUnsubscribeUrl,
+} from 'src/helpers/routing'
 import { db } from 'src/lib/db'
+import { dispatchEmail } from 'src/lib/mailman'
+import { coreCacheReadRedis } from 'src/lib/redis'
+
+const gatewayUrl = checkValue<string>('gateway.url')
 
 export const handler = async (event, context) => {
   const forgotPasswordOptions = {
@@ -19,12 +30,23 @@ export const handler = async (event, context) => {
     // You could use this return value to, for example, show the email
     // address in a toast message so the user will know it worked and where
     // to look for the email.
-    handler: (user: User) => {
-      return user
+    handler: async (user: User) => {
+      await dispatchEmail({
+        template: 'forgot-password',
+        to: user.email,
+        data: {
+          firstName: user.firstName,
+          resetLink: `${gatewayUrl}${ROUTES.resetPassword}?resetToken=${user.resetToken}`,
+        },
+        userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
+        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
+      })
+
+      return true
     },
 
-    // How long the resetToken is valid for, in seconds (default is 24 hours)
-    expires: 60 * 60 * 24,
+    // How long the resetToken is valid for in seconds
+    expires: 60 * 15,
 
     errors: {
       // for security reasons you may want to be vague here rather than expose
@@ -70,7 +92,17 @@ export const handler = async (event, context) => {
     // the database. Returning anything truthy will automatically logs the user
     // in. Return `false` otherwise, and in the Reset Password page redirect the
     // user to the login page.
-    handler: (user: User) => {
+    handler: async (user: User) => {
+      await dispatchEmail({
+        template: 'notify-password-reset',
+        to: user.email,
+        data: {
+          firstName: user.firstName,
+        },
+        userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
+        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
+      })
+
       return user
     },
 
@@ -117,8 +149,26 @@ export const handler = async (event, context) => {
       userAttributes: {
         firstName: string
         lastName: string
+        verifyCode: string
+        emailMarketing?: boolean
       }
     }) => {
+      const verifyCodeFetchRaw = await coreCacheReadRedis.get(
+        `verificationCode__email__code:${username}:${userAttributes.verifyCode}`
+      )
+
+      if (!verifyCodeFetchRaw) {
+        throw new ServiceValidationError(
+          'Invalid verification code, it may have expired.'
+        )
+      }
+
+      if (verifyCodeFetchRaw !== userAttributes.verifyCode) {
+        throw new ServiceValidationError(
+          'Verification code does not match username'
+        )
+      }
+
       const user = await db.user.create({
         data: {
           email: username,
@@ -126,7 +176,19 @@ export const handler = async (event, context) => {
           salt: salt,
           firstName: userAttributes.firstName,
           lastName: userAttributes.lastName,
+          emailMarketing: userAttributes.emailMarketing,
         },
+      })
+
+      await dispatchEmail({
+        to: username,
+        template: 'signup-welcome',
+        data: {
+          firstName: userAttributes.firstName,
+          dashboardLink: `${gatewayUrl}${ROUTES.dashboard}`,
+        } as SignupWelcomeData,
+        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(username),
+        userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
       })
 
       await Promise.all([setUserRedis(user), createPersonalScope(user)])

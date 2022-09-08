@@ -38,7 +38,7 @@ export const declineInvitaiton = async ({ token }: { token: string }) => {
     },
   })
 
-  if (!invitation || invitation.acceped) {
+  if (!invitation || invitation.accepted) {
     throw new ServiceValidationError(
       'Invitation not found, it may have been deleted, declined or already accepted'
     )
@@ -52,4 +52,6 @@ export const declineInvitaiton = async ({ token }: { token: string }) => {
     }),
     deleteInvitationRedis(invitation),
   ])
+
+  return true
 }

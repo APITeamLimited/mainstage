@@ -5,6 +5,7 @@ import {
   Divider,
   Typography,
   useTheme,
+  Stack,
 } from '@mui/material'
 
 import { Link, routes } from '@redwoodjs/router'
@@ -22,27 +23,19 @@ const ForgotPasswordPage = () => {
         <Box
           sx={{
             backgroundColor: theme.palette.background.default,
-            height: '100vh',
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           <Container
             maxWidth="sm"
             sx={{
-              py: {
-                xs: '60px',
-                md: '120px',
-              },
+              p: 4,
             }}
           >
             <Card elevation={16} sx={{ p: 4 }}>
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
+              <Stack spacing={4}>
                 <Link
                   to={routes.splash()}
                   style={{
@@ -53,44 +46,39 @@ const ForgotPasswordPage = () => {
                     fontSize={22}
                     fontWeight={1000}
                     color={theme.palette.text.primary}
+                    sx={{ textAlign: 'center' }}
                   >
                     API Team
                   </Typography>
                 </Link>
-                <Box sx={{ mt: 4 }} />
-                <Typography variant="h5">Reset Password</Typography>
-              </Box>
-              <Box
-                sx={{
-                  flexGrow: 1,
-                  mt: 3,
-                }}
-              >
+                <Typography variant="h5" sx={{ textAlign: 'center' }}>
+                  Reset Password
+                </Typography>
                 <ForgotPasswordForm />
-              </Box>
-              <Divider sx={{ my: 3 }} />
-              <Link
-                to={routes.signup()}
-                style={{
-                  textDecoration: 'none',
-                  color: theme.palette.text.secondary,
-                }}
-              >
-                <Typography variant="body2">Create Account</Typography>
-              </Link>
-              <Box sx={{ mt: 1 }}>
-                <Link
-                  to={routes.login()}
-                  style={{
-                    textDecoration: 'none',
-                    color: theme.palette.text.secondary,
-                  }}
-                >
-                  <Typography variant="body2">
-                    Remembered your password?
-                  </Typography>
-                </Link>
-              </Box>
+                <Divider />
+                <Stack spacing={2}>
+                  <Link
+                    to={routes.signup()}
+                    style={{
+                      textDecoration: 'none',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Typography variant="body2">Create Account</Typography>
+                  </Link>
+                  <Link
+                    to={routes.login()}
+                    style={{
+                      textDecoration: 'none',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Typography variant="body2">
+                      Remembered your password?
+                    </Typography>
+                  </Link>
+                </Stack>
+              </Stack>
             </Card>
           </Container>
         </Box>

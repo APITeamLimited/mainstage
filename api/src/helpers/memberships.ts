@@ -132,7 +132,7 @@ export const updateMembership = async (
     })
   )
 
-  const updateTeamScopePromise = setTeamScope(team, membership, user)
+  const updateTeamScopePromise = createTeamScope(team, membership, user)
 
   await Promise.all([setPromise, publishPromise, updateTeamScopePromise])
 

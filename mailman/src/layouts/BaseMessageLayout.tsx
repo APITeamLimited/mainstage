@@ -15,6 +15,7 @@ type BaseMessageLayoutProps = {
     | 'OPTIONAL_PROMOTIONAL'
     | 'OPTIONAL_TEAM_UPDATES'
     | 'NON_USER_INVITE'
+    | 'SIGNUP_CONFIRMATION'
 }
 
 export const mainSpacing = 4
@@ -236,6 +237,20 @@ export const BaseMessageLayout = ({
               </Typography>
             </>
           )}
+          {messageType === 'SIGNUP_CONFIRMATION' && (
+            <Typography
+              color={theme.palette.text.secondary}
+              fontSize={12}
+              sx={{
+                textAlign: 'left',
+                marginBottom: 2,
+                marginX: mainSpacing,
+              }}
+            >
+              You are receiving this email as you signed up for APITeam. If you
+              did not sign up for APITeam, please let us know
+            </Typography>
+          )}
           <Typography
             color={theme.palette.text.secondary}
             fontSize={12}
@@ -265,7 +280,7 @@ export const BaseMessageLayout = ({
               marginX: mainSpacing,
             }}
           >
-            © {new Date().getFullYear()} APITeam
+            © {new Date().getFullYear()} APITeam.
           </Typography>
         </Box>
       </EmailBox>

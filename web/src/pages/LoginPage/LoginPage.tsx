@@ -1,5 +1,6 @@
 import {
   Box,
+  Stack,
   Card,
   Container,
   Divider,
@@ -22,31 +23,24 @@ const LoginPage = () => {
         <Box
           sx={{
             backgroundColor: theme.palette.background.default,
-            height: '100vh',
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           <Container
             maxWidth="sm"
             sx={{
-              py: {
-                xs: '60px',
-                md: '120px',
-              },
+              p: 4,
             }}
           >
             <Card elevation={16} sx={{ p: 4 }}>
-              <Box
-                sx={{
-                  alignItems: 'center',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                }}
-              >
+              <Stack spacing={4}>
                 <Link
                   to={routes.splash()}
                   style={{
                     textDecoration: 'none',
+                    textAlign: 'center',
                   }}
                 >
                   <Typography
@@ -57,38 +51,37 @@ const LoginPage = () => {
                     API Team
                   </Typography>
                 </Link>
-                <Box sx={{ mt: 4 }} />
-                <Typography variant="h5">Login</Typography>
-              </Box>
-              <Box
-                sx={{
-                  flexGrow: 1,
-                  mt: 3,
-                }}
-              >
-                <PasswordLoginForm />
-              </Box>
-              <Divider sx={{ my: 3 }} />
-              <Link
-                to={routes.signup()}
-                style={{
-                  textDecoration: 'none',
-                  color: theme.palette.text.secondary,
-                }}
-              >
-                <Typography variant="body2">Create account</Typography>
-              </Link>
-              <Box sx={{ mt: 1 }}>
-                <Link
-                  to={routes.forgotPassword()}
-                  style={{
-                    textDecoration: 'none',
-                    color: theme.palette.text.secondary,
+                <Typography
+                  variant="h5"
+                  sx={{
+                    textAlign: 'center',
                   }}
                 >
-                  <Typography variant="body2">Forgot password?</Typography>
-                </Link>
-              </Box>
+                  Login
+                </Typography>
+                <PasswordLoginForm />
+                <Divider />
+                <Stack spacing={2}>
+                  <Link
+                    to={routes.signup()}
+                    style={{
+                      textDecoration: 'none',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Typography variant="body2">Create account</Typography>
+                  </Link>
+                  <Link
+                    to={routes.forgotPassword()}
+                    style={{
+                      textDecoration: 'none',
+                      color: theme.palette.text.secondary,
+                    }}
+                  >
+                    <Typography variant="body2">Forgot password?</Typography>
+                  </Link>
+                </Stack>
+              </Stack>
             </Card>
           </Container>
         </Box>

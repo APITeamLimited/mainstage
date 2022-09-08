@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { Environment } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import DeselectIcon from '@mui/icons-material/Deselect'
@@ -17,7 +18,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { Environment } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
