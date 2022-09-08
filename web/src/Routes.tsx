@@ -107,12 +107,12 @@ const Routes = () => {
       <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
       <Route path={ROUTES.userUnsubscribe} page={ResetPasswordPage} name="userUnsubscribe" />
       <Route path={ROUTES.blanketUnsubscribe} page={ResetPasswordPage} name="blanketUnsubscribe" />
-      <Route path={ROUTES.declineInvitation} page={ResetPasswordPage} name="declineInvitation" />
-      <Route path={ROUTES.acceptInvitation} page={ResetPasswordPage} name="acceptInvitation" />
       <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
       <Set wrap={LandingLayoutSplash}>
         <Route path="/" page={RootPage} name="splash" />
       </Set>
+      <Route path={ROUTES.acceptInvitation} page={AcceptInvitationPage} name="acceptInvitation" />
+      <Route path={ROUTES.declineInvitation} page={DeclineInvitationPage} name="declineInvitation" />
       <Set wrap={LandingLayoutContained}>
         <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
         <Route path="/platform/pricing" page={PricingPage} name="pricing" />

@@ -18,6 +18,7 @@ import {
   Checkbox,
 } from '@mui/material'
 import { useFormik } from 'formik'
+import * as queryString from 'query-string'
 import {
   GetVerifyCodeMutation,
   GetVerifyCodeMutationVariables,
@@ -34,22 +35,24 @@ const GET_VERIFY_CODE_MUTATION = gql`
   }
 `
 
-const PasswordLoginForm = () => {
+const PasswordSignupForm = () => {
   const { isAuthenticated, signUp } = useAuth()
   const { search } = useLocation()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   const theme = useTheme()
 
   useEffect(() => {
     if (isAuthenticated) {
-      if (/redirectTo/.test(search || '')) {
-        const newPath = (search || '').split('=').slice(-1).join()
-        navigate(newPath)
-      } else {
+      const { redirectTo } = queryString.parse(search || '')
+      if (typeof redirectTo === 'string') {
+        navigate(redirectTo)
+        setIsRedirecting(true)
+      } else if (!isRedirecting) {
         navigate(routes.dashboard())
       }
     }
-  }, [isAuthenticated, search])
+  }, [isAuthenticated, isRedirecting, search])
 
   const formik = useFormik({
     initialValues: {
@@ -191,12 +194,6 @@ const PasswordLoginForm = () => {
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1)
   }
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(routes.dashboard())
-    }
-  }, [isAuthenticated])
 
   return (
     <>
@@ -454,4 +451,4 @@ const PasswordLoginForm = () => {
   )
 }
 
-export default PasswordLoginForm
+export default PasswordSignupForm

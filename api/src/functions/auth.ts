@@ -169,11 +169,30 @@ export const handler = async (event, context) => {
         )
       }
 
+      const getSlug = async (name: string, i = 0): Promise<string> => {
+        const toCheck = `${name}${i > 0 ? i : ''}`
+
+        // Check slug is unique
+        const existingScope = await db.scope.findFirst({
+          where: {
+            slug: toCheck,
+          },
+        })
+
+        if (existingScope) {
+          return getSlug(name, i + 1)
+        }
+        return toCheck
+      }
+
+      const slug = await getSlug(username.split('@')[0])
+
       const user = await db.user.create({
         data: {
           email: username,
           hashedPassword: hashedPassword,
           salt: salt,
+          slug,
           firstName: userAttributes.firstName,
           lastName: userAttributes.lastName,
           emailMarketing: userAttributes.emailMarketing,

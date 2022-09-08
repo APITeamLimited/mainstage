@@ -13,7 +13,11 @@ import { MetaTags } from '@redwoodjs/web'
 
 import PasswordLoginForm from './PasswordLoginForm'
 
-const LoginPage = () => {
+type LoginPageProps = {
+  redirectTo?: string
+}
+
+const LoginPage = ({ redirectTo }: LoginPageProps) => {
   const theme = useTheme()
 
   return (
@@ -63,7 +67,11 @@ const LoginPage = () => {
                 <Divider />
                 <Stack spacing={2}>
                   <Link
-                    to={routes.signup()}
+                    to={
+                      redirectTo
+                        ? routes.signup({ redirectTo })
+                        : routes.signup()
+                    }
                     style={{
                       textDecoration: 'none',
                       color: theme.palette.text.secondary,

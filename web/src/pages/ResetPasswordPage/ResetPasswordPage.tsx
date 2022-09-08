@@ -105,6 +105,7 @@ const ResetPasswordPage = ({ resetToken }: ResetPasswordFormProps) => {
 
   return (
     <>
+      <MetaTags title="Reset Password" />
       <Snackbar
         open={!!snackSuccessMessage}
         onClose={() => setSnackSuccessMessage(null)}
@@ -123,7 +124,6 @@ const ResetPasswordPage = ({ resetToken }: ResetPasswordFormProps) => {
           {snackErrorMessage}
         </Alert>
       </Snackbar>
-      <MetaTags title="Reset Password" />
       <main>
         <Box
           sx={{

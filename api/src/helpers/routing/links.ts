@@ -61,12 +61,18 @@ export const acceptInvitationAudience = `${checkValue<string>(
   'api.bearer.audience'
 )}-accept-invitation`
 
-export const generateAcceptInvitationUrl = async (email: string) => {
+export const generateAcceptInvitationUrl = async (
+  invitationId: string,
+  teamName: string,
+  invitationEmail: string
+) => {
   const { privateKey } = await getKeyPair()
 
   const token = JWT.sign(
     {
-      email,
+      invitationId,
+      teamName,
+      invitationEmail,
     },
     privateKey,
     {
@@ -84,12 +90,18 @@ export const declineInvitationAudience = `${checkValue<string>(
   'api.bearer.audience'
 )}-decline-invitation`
 
-export const generateDeclineInvitationUrl = async (email: string) => {
+export const generateDeclineInvitationUrl = async (
+  invitationId: string,
+  teamName: string,
+  invitationEmail: string
+) => {
   const { privateKey } = await getKeyPair()
 
   const token = JWT.sign(
     {
-      email,
+      invitationId,
+      teamName,
+      invitationEmail,
     },
     privateKey,
     {

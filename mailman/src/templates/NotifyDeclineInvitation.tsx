@@ -7,8 +7,7 @@ import { BaseMessageLayout } from '../layouts'
 
 export type NotifyDeclineInvitationData = {
   recipientFirstName: string
-  targetFirstName: string
-  targetLastName: string
+  targetEmail: string
   teamName: string
 }
 
@@ -20,7 +19,7 @@ export const NotifyDeclineInvitation = (
   return (
     <BaseMessageLayout
       title={notifyDeclineInvitationTitle(input)}
-      messageType="OPTIONAL_TEAM_UPDATES"
+      messageType="MANDATORY"
     >
       <Typography
         variant="h6"
@@ -29,7 +28,7 @@ export const NotifyDeclineInvitation = (
           textAlign: 'center',
         }}
       >
-        {data.targetFirstName} joined your team
+        {data.targetEmail}, declined the invitation
       </Typography>
       <Typography
         variant="body1"
@@ -38,10 +37,9 @@ export const NotifyDeclineInvitation = (
           textAlign: 'center',
         }}
       >
-        Hi {data.recipientFirstName}, {data.targetFirstName}{' '}
-        {data.targetLastName} has declined the invite to join your team{' '}
-        {data.teamName}. If your team member did this by mistake, you can resend
-        an invite to them.
+        Hi {data.recipientFirstName}, {data.targetEmail}
+        has declined the invite to join your team {data.teamName}. If you think
+        this was done by mistake, you can resend an invite to them.
       </Typography>
     </BaseMessageLayout>
   )
@@ -50,11 +48,10 @@ export const NotifyDeclineInvitation = (
 export const notifyDeclineInvitationText = ({
   data,
 }: MailmanInput<NotifyDeclineInvitationData>) => {
-  return `Hi ${data.recipientFirstName}, ${data.targetFirstName} ${data.targetLastName} has declined the invite to join your team ${data.teamName}.`
+  return `Hi ${data.recipientFirstName}, ${data.targetEmail} has declined the invite to join your team ${data.teamName}. If your think this was done by mistake, you can resend an invite to them.`
 }
 
 export const notifyDeclineInvitationTitle = ({
   data,
-}: MailmanInput<NotifyDeclineInvitationData>) => {
-  return `${data.targetFirstName} joined your team`
-}
+}: MailmanInput<NotifyDeclineInvitationData>) =>
+  `${data.targetEmail}, declined to join ${data.teamName}`

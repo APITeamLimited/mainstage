@@ -13,6 +13,7 @@ import {
 import {
   generateAcceptInvitationUrl,
   generateBlanketUnsubscribeUrl,
+  generateDeclineInvitationUrl,
   generateUserUnsubscribeUrl,
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
@@ -59,9 +60,14 @@ export const createInvitations = async ({
     throw new ServiceValidationError('At least one invitation is required')
   }
 
+  // Ensure all emails are lowercase
+  invitations = invitations.map((i) => ({
+    ...i,
+    email: i.email.toLowerCase(),
+  }))
+
   // Ensure all emails are unique
-  const uniqueEmails = new Set(invitations.map((i) => i.email))
-  if (uniqueEmails.size !== invitations.length) {
+  if (new Set(invitations.map((i) => i.email)).size !== invitations.length) {
     throw new ServiceValidationError('Emails must be unique')
   }
 
@@ -178,9 +184,17 @@ export const createInvitations = async ({
         ? generateUserUnsubscribeUrl(existingUser)
         : Promise.resolve(null)
 
-      const acceptLinkPromise = generateAcceptInvitationUrl(invitation.email)
+      const acceptLinkPromise = generateAcceptInvitationUrl(
+        invitation.id,
+        team.name,
+        invitation.email
+      )
 
-      const declineLinkPromise = generateAcceptInvitationUrl(invitation.email)
+      const declineLinkPromise = generateDeclineInvitationUrl(
+        invitation.id,
+        team.name,
+        invitation.email
+      )
 
       const [
         blanketUnsubscribeUrl,

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
   Alert,
@@ -9,6 +9,7 @@ import {
   TextField,
 } from '@mui/material'
 import { useFormik } from 'formik'
+import * as queryString from 'query-string'
 import * as Yup from 'yup'
 
 import { useAuth } from '@redwoodjs/auth'
@@ -17,17 +18,19 @@ import { navigate, routes, useLocation } from '@redwoodjs/router'
 const PasswordLoginForm = () => {
   const { isAuthenticated, logIn } = useAuth()
   const { search } = useLocation()
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated) {
-      if (/redirectTo/.test(search || '')) {
-        const newPath = (search || '').split('=').slice(-1).join()
-        navigate(newPath)
-      } else {
+      const { redirectTo } = queryString.parse(search || '')
+      if (typeof redirectTo === 'string') {
+        navigate(redirectTo)
+        setIsRedirecting(true)
+      } else if (!isRedirecting) {
         navigate(routes.dashboard())
       }
     }
-  }, [isAuthenticated, search])
+  }, [isAuthenticated, isRedirecting, search])
 
   const formik = useFormik({
     initialValues: {

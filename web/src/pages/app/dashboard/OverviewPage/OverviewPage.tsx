@@ -1,29 +1,54 @@
-import { useContext } from 'react'
+import { useEffect } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
-import { Box, Button, Stack } from '@mui/material'
 import { Project } from '@apiteam/types'
+import { useReactiveVar } from '@apollo/client'
+import { Button, Stack } from '@mui/material'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
-import { QuickActions } from 'src/components/app/dashboard/QuickActions'
 import { createProjectDialogStateVar } from 'src/components/app/dialogs'
-import { Scrollbar } from 'src/components/app/Scrollbar'
-import { activeWorkspaceIdVar } from 'src/contexts/reactives'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 
 import { BlankProjectsSection } from './BlankProjectsSection'
 
-export const OverviewPage = () => {
+type OverviewPageProps = {
+  requestedWorkspaceId?: string
+}
+
+export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
   const workspaceDoc = useWorkspace()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const workspaces = useReactiveVar(workspacesVar)
   const projectsYMap = workspaceDoc?.getMap<Project>('projects')
   const projects = useYMap<Project, Record<string, Project>>(
     projectsYMap || new Y.Map()
   )
 
   const projectYMaps = Array.from(projectsYMap?.values() || [])
+
+  useEffect(() => {
+    const handleSwitch = (tries = 0) => {
+      if (tries > 10) {
+        throw new Error('Could not switch workspace')
+      }
+
+      if (requestedWorkspaceId !== activeWorkspaceId) {
+        // Ensure that the workspace is loaded
+        const workspace = workspaces.find(
+          (workspace) => workspace.id === requestedWorkspaceId
+        )
+        if (workspace) {
+          activeWorkspaceIdVar(requestedWorkspaceId)
+          return
+        }
+        setTimeout(() => handleSwitch(tries + 1), 500)
+      }
+    }
+
+    if (requestedWorkspaceId) handleSwitch()
+  }, [requestedWorkspaceId, activeWorkspaceId, workspaces])
 
   return projectYMaps.length > 0 ? (
     <Stack

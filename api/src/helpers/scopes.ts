@@ -12,6 +12,7 @@ export const createPersonalScope = async (user: User) => {
   const role = null
   const displayName = getDisplayName(user)
   const profilePicture = user.profilePicture
+  const slug = user.slug
 
   const getLatestScope = async () => {
     const existingScopesRaw = await coreCacheReadRedis.hGetAll(
@@ -32,7 +33,8 @@ export const createPersonalScope = async (user: User) => {
       if (
         existingScope.role !== role ||
         existingScope.displayName !== displayName ||
-        existingScope.profilePicture !== profilePicture
+        existingScope.profilePicture !== profilePicture ||
+        existingScope.slug !== slug
       ) {
         const updatedScope = await db.scope.update({
           where: {
@@ -41,6 +43,7 @@ export const createPersonalScope = async (user: User) => {
           data: {
             role,
             displayName,
+            slug,
             profilePicture,
             updatedAt: new Date(),
           },
@@ -65,7 +68,7 @@ export const createPersonalScope = async (user: User) => {
         role,
         userId: user.id,
         displayName,
-        slug: `${user.firstName}-${user.lastName}`,
+        slug,
         profilePicture,
       },
     })

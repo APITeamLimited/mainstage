@@ -32,7 +32,7 @@ export const schema = gql`
       invitations: [InvitationInput!]!
     ): [Invitation!]! @requireAuth
     deleteInvitation(teamId: String!, email: String!): Invitation! @requireAuth
-    acceptInvitation(token: String!): Boolean!
-    declineInvitation(token: String!): Boolean!
+    acceptInvitation(token: String!): String! @requireAuth
+    declineInvitation(token: String!): Boolean! @skipAuth
   }
 `

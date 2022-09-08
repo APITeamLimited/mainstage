@@ -173,7 +173,7 @@ export const AddNewMember = ({
                   value={pair.email}
                   onChange={(e) => {
                     const newPairs = [...formik.values.pairs]
-                    newPairs[index].email = e.target.value
+                    newPairs[index].email = e.target.value.toLowerCase()
                     formik.setFieldValue('pairs', newPairs)
                   }}
                   error={

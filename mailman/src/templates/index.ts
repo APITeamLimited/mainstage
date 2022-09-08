@@ -14,7 +14,7 @@ import {
   NotifyDeclineInvitation,
   notifyDeclineInvitationText,
   notifyDeclineInvitationTitle,
-} from './NotifyDeclineInvitaiton'
+} from './NotifyDeclineInvitation'
 import {
   NotifyPasswordReset,
   notifyPasswordResetText,
@@ -89,7 +89,7 @@ export type TemplateIdentifier =
 
 export { TeamInvitationData } from './TeamInvitation'
 export { NotifyAcceptInvitationData } from './NotifyAcceptInvitation'
-export { NotifyDeclineInvitationData } from './NotifyDeclineInvitaiton'
+export { NotifyDeclineInvitationData } from './NotifyDeclineInvitation'
 export { VerifyEmailData } from './VerifyEmail'
 export { SignupWelcomeData } from './SignupWelcome'
 export { ForgotPasswordData } from './ForgotPassword'
