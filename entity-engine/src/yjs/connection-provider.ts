@@ -19,17 +19,19 @@ import * as Y from 'yjs'
 
 import { checkValue } from '../config'
 import { populateOpenDoc } from '../entities'
-import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../redis'
+import {
+  coreCacheReadRedis,
+  coreCacheSubscribeRedis,
+  eeRedisHost,
+  eeRedisPassword,
+  eeRedisPort,
+  eeRedisUsername,
+} from '../redis'
 import { getAndSetAPIPublicKey } from '../services'
 
 import * as syncProtocol from './sync'
 import { createMemberAwareness, handlePostAuth, LastOnlineTime } from './utils'
 import { RedisPersistence } from './y-redis'
-
-const eeRedisUsername = checkValue<string>('entity-engine.redis.userName')
-const eeRedisPassword = checkValue<string>('entity-engine.redis.password')
-const eeRedisHost = checkValue<string>('entity-engine.redis.host')
-const eeRedisPort = checkValue<number>('entity-engine.redis.port')
 
 const publicAudience = `${checkValue<string>('api.bearer.audience')}-public`
 const issuer = checkValue<string>('api.bearer.issuer')
@@ -186,6 +188,34 @@ const openDocs = new Map<string, OpenDoc>()
 const messageSyncType = 0
 const messageAwarenessType = 1
 
+// Subscriptions can exist between open docs so don't close them if open in another doc
+const globalActiveSubscriptions = new Map<string, number>()
+
+const handleAddSubscription = (name: string) => {
+  const count = map.setIfUndefined(globalActiveSubscriptions, name, () => 0)
+  globalActiveSubscriptions.set(name, count + 1)
+}
+
+const handleRemoveSubscription = async (name: string) => {
+  const count = globalActiveSubscriptions.get(name)
+
+  if (!count) return
+
+  if (count === 1) {
+    globalActiveSubscriptions.delete(name)
+
+    const isPattern = name.endsWith('*')
+
+    isPattern
+      ? await coreCacheSubscribeRedis.pUnsubscribe(name)
+      : await coreCacheSubscribeRedis.unsubscribe(name)
+
+    return
+  }
+
+  globalActiveSubscriptions.set(name, count - 1)
+}
+
 class OpenDoc extends Y.Doc {
   mux: mutex.mutex
   sockets: Map<Socket, Set<number>>
@@ -313,20 +343,9 @@ class OpenDoc extends Y.Doc {
       )
       // Close doc if no more connections
       if (this.sockets.size === 0) {
-        const patternSuscriptions = this.activeSubscriptions.filter((pattern) =>
-          pattern.endsWith('*')
+        await Promise.all(
+          this.activeSubscriptions.map(handleRemoveSubscription)
         )
-        const regularSuscriptions = this.activeSubscriptions.filter(
-          (pattern) => !pattern.endsWith('*')
-        )
-        const patternUnsubscribePromise =
-          coreCacheSubscribeRedis.pUnsubscribe(patternSuscriptions)
-        const regularUnsubscribePromise =
-          coreCacheSubscribeRedis.unsubscribe(regularSuscriptions)
-        await Promise.all([
-          patternUnsubscribePromise,
-          regularUnsubscribePromise,
-        ])
 
         persistenceProvider.closeDoc(this.guid)
         openDocs.delete(this.guid)
@@ -398,16 +417,7 @@ class OpenDoc extends Y.Doc {
         `team:${this.variantTargetId}`
       )
 
-      const team = JSON.parse(allTeamInfoRaw.team) as any
-      delete team.markedForDeletionExpiresAt
-      delete team.markedForDeletionAt
-      delete team.markedForDeletionToken
-      team as Omit<
-        Team,
-        | 'markedForDeletion'
-        | 'markedForDeletionToken'
-        | 'markedForDeletionExpiresAt'
-      >
+      const team = JSON.parse(allTeamInfoRaw.team) as Team
       const memberships = [] as Membership[]
 
       Object.entries(allTeamInfoRaw).map(([key, value]) => {
@@ -454,6 +464,10 @@ class OpenDoc extends Y.Doc {
 
       // Subscribe to redis pubsub for team updates
       this.activeSubscriptions.push(`team:${this.variantTargetId}`)
+      handleAddSubscription(`team:${this.variantTargetId}`)
+
+      globalActiveSubscriptions.get(`team:${this.variantTargetId}`)
+
       await coreCacheSubscribeRedis.subscribe(
         `team:${this.variantTargetId}`,
         (message) => {
@@ -499,6 +513,7 @@ class OpenDoc extends Y.Doc {
       // Subscribe to user updates
       const membershipSubscribePromises = memberships.map((m) => {
         this.activeSubscriptions.push(`user__id:${m.userId}`)
+        handleAddSubscription(`user__id:${m.userId}`)
         return coreCacheSubscribeRedis.subscribe(
           `user__id:${m.userId}`,
           (message) => this.updateMemberUser(JSON.parse(message) as SafeUser)
@@ -672,6 +687,7 @@ class OpenDoc extends Y.Doc {
     }
 
     this.activeSubscriptions.push(`user__id:${member.userId}`)
+    handleAddSubscription(`user__id:${member.userId}`)
     coreCacheSubscribeRedis.subscribe(`user__id:${member.userId}`, (message) =>
       this.updateMemberUser(JSON.parse(message) as SafeUser)
     )
@@ -710,7 +726,8 @@ class OpenDoc extends Y.Doc {
     this.activeSubscriptions = this.activeSubscriptions.filter(
       (s) => s !== `user__id:${member.userId}`
     )
-    await coreCacheSubscribeRedis.unsubscribe(`user__id:${member.userId}`)
+
+    await handleRemoveSubscription(`user__id:${member.userId}`)
   }
 
   changeRoleMember(member: Membership) {

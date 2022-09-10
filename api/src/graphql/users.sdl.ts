@@ -24,5 +24,7 @@ export const schema = gql`
       shortBio: String
       emailMarketing: Boolean
     ): User! @requireAuth
+    sendAccountDeleteEmail: Boolean! @requireAuth
+    handleAccountDelete(token: String!): Boolean! @skipAuth
   }
 `

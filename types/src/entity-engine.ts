@@ -29,12 +29,7 @@ export type ServerAwareness = {
 } & (
   | {
       variant: 'TEAM'
-      team: Omit<
-        Team,
-        | 'markedForDeletion'
-        | 'markedForDeletionToken'
-        | 'markedForDeletionExpiresAt'
-      >
+      team: Team
       members: MemberAwareness[]
     }
   | {

@@ -42,6 +42,7 @@ export const BaseMessageLayout = ({
           sx={{
             backgroundColor: theme.palette.background.default,
             padding: mainSpacing,
+            maxWidth: 1000,
           }}
         >
           <Typography
@@ -60,7 +61,6 @@ export const BaseMessageLayout = ({
             sx={{
               p: mainSpacing,
               marginBottom: mainSpacing,
-              maxWidth: 600,
             }}
           >
             {children}

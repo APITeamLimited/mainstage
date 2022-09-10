@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 
-import { InvitationDecodedToken } from '@apiteam/types'
 import { useMutation } from '@apollo/client'
 import {
   Box,
@@ -14,32 +13,32 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material'
-import jwt_decode from 'jwt-decode'
+import jwt_decode, { JwtPayload } from 'jwt-decode'
 import {
-  DeclineTeamInvitation,
-  DeclineTeamInvitationVariables,
+  HandleAccountDelete,
+  HandleAccountDeleteVariables,
 } from 'types/graphql'
 
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
-type DeclineInvitationPageProps = {
+type DeleteAccountPageProps = {
   token: string
 }
 
-const DECLINE_TEAM_INVITATION = gql`
-  mutation DeclineTeamInvitation($token: String!) {
-    declineInvitation(token: $token)
+const HANDLE_ACCOUNT_DELETE_MUTATION = gql`
+  mutation HandleAccountDelete($token: String!) {
+    handleAccountDelete(token: $token)
   }
 `
 
-const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
+const DeleteAccountPage = ({ token }: DeleteAccountPageProps) => {
   const theme = useTheme()
 
-  const [declineInvitation] = useMutation<
-    DeclineTeamInvitation,
-    DeclineTeamInvitationVariables
-  >(DECLINE_TEAM_INVITATION)
+  const [handleAccountDelete] = useMutation<
+    HandleAccountDelete,
+    HandleAccountDeleteVariables
+  >(HANDLE_ACCOUNT_DELETE_MUTATION)
 
   const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
     null
@@ -50,7 +49,10 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
 
   const decodedToken = useMemo(() => {
     try {
-      const decoded = jwt_decode(token) as unknown as InvitationDecodedToken
+      const decoded = jwt_decode(token) as unknown as JwtPayload & {
+        userId: string
+      }
+
       // Check if the token is expired
       if ((decoded.exp || 0) * 1000 < Date.now()) {
         throw new Error('Token expired')
@@ -63,7 +65,7 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
 
   return (
     <>
-      <MetaTags title="Decline Invitation" />
+      <MetaTags title="Delete Account" />
       <Snackbar
         open={!!snackErrorMessage}
         onClose={() => setSnackErrorMessage(null)}
@@ -120,7 +122,7 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
                     textAlign: 'center',
                   }}
                 >
-                  Decline Invitation
+                  Delete Account
                 </Typography>
                 {decodedToken ? (
                   <>
@@ -130,45 +132,32 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
                         textAlign: 'center',
                       }}
                     >
-                      Confirm decline of {decodedToken.teamName}?
+                      Confirm deletion of your account
                     </Typography>
                     <Button
                       variant="contained"
-                      color="primary"
+                      color="error"
                       onClick={async () => {
                         try {
-                          const result = await declineInvitation({
+                          const result = await handleAccountDelete({
                             variables: {
                               token,
                             },
                           })
 
-                          if (result.data?.declineInvitation) {
+                          if (result.data?.handleAccountDelete) {
                             setSnackSuccessMessage(
-                              "You've successfully declined the invitation"
+                              'Account deleted successfully'
                             )
-                            setTimeout(() => {
-                              if (!result.data?.declineInvitation) {
-                                throw new Error(
-                                  'Something went wrong. Should have a workspaceId'
-                                )
-                              }
-
-                              navigate(
-                                routes.dashboard({
-                                  requestedWorkspaceId:
-                                    result.data.declineInvitation,
-                                })
-                              )
-                            }, 3000)
+                            setTimeout(() => navigate(routes.splash()), 3000)
                           } else {
                             setSnackErrorMessage(
-                              'Something went wrong while declining the invitation'
+                              'Something went wrong while deleting your account'
                             )
                           }
                         } catch (e) {
                           setSnackErrorMessage(
-                            'Something went wrong while declining the invitation'
+                            'Something went wrong while deleting your account'
                           )
                         }
                       }}
@@ -187,7 +176,8 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
                     }}
                     color={theme.palette.error.main}
                   >
-                    Invalid invitation token
+                    Invalid delete account link, it may have expired, please get
+                    a new link from the settings page.
                   </Typography>
                 )}
                 <Divider />
@@ -211,4 +201,4 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
   )
 }
 
-export default DeclineInvitationPage
+export default DeleteAccountPage

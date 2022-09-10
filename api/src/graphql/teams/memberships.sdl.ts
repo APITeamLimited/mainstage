@@ -5,6 +5,11 @@ export const schema = gql`
     MEMBER
   }
 
+  enum ChangeRoleInput {
+    ADMIN
+    MEMBER
+  }
+
   type Membership {
     id: String!
     createdAt: DateTime!
@@ -32,7 +37,7 @@ export const schema = gql`
     changeUserRole(
       userId: String!
       teamId: String!
-      role: TeamRole!
+      role: ChangeRoleInput!
     ): Membership! @requireAuth
     changeTeamOwner(userId: String!, teamId: String!): ChangeOwnerOutput!
       @requireAuth

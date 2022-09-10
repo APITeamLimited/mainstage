@@ -35,7 +35,11 @@ const GET_VERIFY_CODE_MUTATION = gql`
   }
 `
 
-const PasswordSignupForm = () => {
+type PasswordSignupFormProps = {
+  suggestedEmail?: string
+}
+
+const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
   const { isAuthenticated, signUp } = useAuth()
   const { search } = useLocation()
   const [isRedirecting, setIsRedirecting] = useState(false)
@@ -58,7 +62,10 @@ const PasswordSignupForm = () => {
     initialValues: {
       firstName: '',
       lastName: '',
-      email: '',
+      email:
+        suggestedEmail !== 'undefined' && suggestedEmail !== undefined
+          ? suggestedEmail
+          : '',
       password: '',
       verifyCode: '',
       emailMarketing: false,

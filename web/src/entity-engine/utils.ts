@@ -95,6 +95,14 @@ export const processAuthData = ({
       activeWorkspaceIdVar(workspace.id)
     }
   }
+
+  // Check activeWorkspaceId in workspaces else set to first
+  if (
+    !newWorkspaces.find((workspace) => workspace.id === activeWorkspaceId) &&
+    newWorkspaces.length > 0
+  ) {
+    activeWorkspaceIdVar(newWorkspaces[0].id)
+  }
 }
 
 export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`

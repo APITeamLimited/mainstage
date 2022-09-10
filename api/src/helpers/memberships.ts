@@ -1,11 +1,10 @@
 import { SafeUser, TeamRole } from '@apiteam/types'
-import { Team, Membership } from '@prisma/client'
+import { Team, Membership, Scope } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
-import { scopes } from 'src/lib/scopes'
 
 import { createTeamScope, deleteScope } from './scopes'
 
@@ -50,7 +49,13 @@ export const createMembership = async (
 }
 
 export const deleteMembership = async (membership: Membership) => {
-  const oldScopes = await scopes()
+  const oldScopesRaw = await coreCacheReadRedis.hGetAll(
+    `scope__userId:${membership.userId}`
+  )
+
+  const oldScopes = Object.values(oldScopesRaw).map(
+    (scope) => JSON.parse(scope) as Scope
+  )
   const { teamId, userId } = membership
 
   // Find scope matching team
@@ -132,7 +137,7 @@ export const updateMembership = async (
     })
   )
 
-  const updateTeamScopePromise = createTeamScope(team, membership, user)
+  const updateTeamScopePromise = createTeamScope(team, updatedMembership, user)
 
   await Promise.all([setPromise, publishPromise, updateTeamScopePromise])
 

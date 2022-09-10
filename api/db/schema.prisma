@@ -36,18 +36,16 @@ model User {
 }
 
 model Team {
-  id                         String       @id @default(uuid())
-  name                       String
-  slug                       String       @unique
-  createdAt                  DateTime     @default(now())
-  updatedAt                  DateTime?
-  shortBio                   String?
-  profilePicture             String?
-  maxMembers                 Int          @default(10)
-  memberships                Membership[]
-  invitations                Invitation[]
-  markedForDeletionToken     String?
-  markedForDeletionExpiresAt DateTime?
+  id             String       @id @default(uuid())
+  name           String
+  slug           String       @unique
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime?
+  shortBio       String?
+  profilePicture String?
+  maxMembers     Int          @default(10)
+  memberships    Membership[]
+  invitations    Invitation[]
 }
 
 model Membership {

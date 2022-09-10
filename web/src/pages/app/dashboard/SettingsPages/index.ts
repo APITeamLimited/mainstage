@@ -10,7 +10,13 @@ export const SETTINGS_TABS = [
   {
     label: 'members',
     displayName: 'Members',
-    requiredRole: 'OWNER',
+    requiredRole: 'ADMIN',
     teamOnly: true,
+  },
+  {
+    label: 'danger-zone',
+    displayName: 'Danger Zone',
+    requiredRole: 'OWNER',
+    isDangerous: true,
   },
 ] as SideTab[]

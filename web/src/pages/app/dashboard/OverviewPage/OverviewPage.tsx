@@ -29,21 +29,24 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
   const projectYMaps = Array.from(projectsYMap?.values() || [])
 
   useEffect(() => {
-    const handleSwitch = (tries = 0) => {
+    const handleSwitch = async (tries = 0) => {
       if (tries > 10) {
         throw new Error('Could not switch workspace')
       }
 
+      //
+      await new Promise((resolve) => setTimeout(resolve, 200))
+
       if (requestedWorkspaceId !== activeWorkspaceId) {
         // Ensure that the workspace is loaded
         const workspace = workspaces.find(
-          (workspace) => workspace.id === requestedWorkspaceId
+          (workspace) => workspace.scope.id === requestedWorkspaceId
         )
         if (workspace) {
-          activeWorkspaceIdVar(requestedWorkspaceId)
+          activeWorkspaceIdVar(workspace.id)
           return
         }
-        setTimeout(() => handleSwitch(tries + 1), 500)
+        await handleSwitch(tries + 1)
       }
     }
 

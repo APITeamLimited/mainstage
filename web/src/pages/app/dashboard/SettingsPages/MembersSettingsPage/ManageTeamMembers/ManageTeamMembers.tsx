@@ -11,7 +11,11 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { ListTeamMembers, ListTeamMembersVariables } from 'types/graphql'
+import {
+  ListTeamMembers,
+  ListTeamMembersVariables,
+  ScopeRole,
+} from 'types/graphql'
 
 import { useQuery } from '@redwoodjs/web'
 
@@ -25,7 +29,7 @@ type ManageTeamMembersProps = {
   teamId: string
 }
 
-const LIST_TEAM_MEMBERS = gql`
+export const LIST_TEAM_MEMBERS = gql`
   query ListTeamMembers($teamId: String!) {
     memberships(teamId: $teamId) {
       id
@@ -36,6 +40,7 @@ const LIST_TEAM_MEMBERS = gql`
         email
         profilePicture
       }
+      teamId
       role
       createdAt
       updatedAt
@@ -88,7 +93,7 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
             justifyContent="center"
           >
             <Typography variant="h6" color={theme.palette.error.main}>
-              Error loading pending invitations
+              Error loading members
             </Typography>
           </Stack>
         </Box>
@@ -137,7 +142,7 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
             <MemberRow
               key={index}
               membership={membership}
-              userRole={userRole}
+              userRole={userRole as ScopeRole}
               currentUserId={workspaceInfo.scope.userId}
               setSnackSuccessMessage={setSnackSuccessMessage}
               setSnackErrorMessage={setSnackErrorMessage}

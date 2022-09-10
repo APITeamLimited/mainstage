@@ -26,8 +26,6 @@ export const scopes = async () => {
 
   const user = JSON.parse(userRaw) as SafeUser
 
-  // Personal scope may not exist yet, create if not
-
   const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
 
   return Object.values(rawScopes).map((rawScope) => {

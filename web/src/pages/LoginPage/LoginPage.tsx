@@ -15,9 +15,10 @@ import PasswordLoginForm from './PasswordLoginForm'
 
 type LoginPageProps = {
   redirectTo?: string
+  suggestedEmail?: string
 }
 
-const LoginPage = ({ redirectTo }: LoginPageProps) => {
+const LoginPage = ({ redirectTo, suggestedEmail }: LoginPageProps) => {
   const theme = useTheme()
 
   return (
@@ -63,14 +64,14 @@ const LoginPage = ({ redirectTo }: LoginPageProps) => {
                 >
                   Login
                 </Typography>
-                <PasswordLoginForm />
+                <PasswordLoginForm suggestedEmail={suggestedEmail} />
                 <Divider />
                 <Stack spacing={2}>
                   <Link
                     to={
                       redirectTo
-                        ? routes.signup({ redirectTo })
-                        : routes.signup()
+                        ? routes.signup({ redirectTo, suggestedEmail })
+                        : routes.signup({ suggestedEmail })
                     }
                     style={{
                       textDecoration: 'none',

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 
+import { Branch, Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   Button,
@@ -15,7 +16,6 @@ import {
   Box,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import { Branch, Project } from '@apiteam/types'
 import * as Y from 'yjs'
 import * as Yup from 'yup'
 import { useYMap } from 'zustand-yjs'
@@ -68,11 +68,6 @@ export function CreateEnvironmentDialog() {
     },
     validationSchema: Yup.object({
       name: Yup.string().max(25).required('Environments must have a name'),
-      // Check projectId is in projects
-      //projectIndex: Yup.string().oneOf(
-      //  Object.entries(projects.data).map(([projectId]) => projectId),
-      //  'Project must be one of the available projects'
-      //),
     }),
     onSubmit: async (values): Promise<void> => {
       const { environment, environmentId } = createEnvironment(values.name)

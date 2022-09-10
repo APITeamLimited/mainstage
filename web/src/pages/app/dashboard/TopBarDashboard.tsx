@@ -33,7 +33,10 @@ export const TopBarDashboard = () => {
       {
         name: 'Settings',
         endpoint: routes.settingsWorkspace(),
-        activeSecondaryEndpoints: [routes.settingsWorkspaceMembers()],
+        activeSecondaryEndpoints: [
+          routes.settingsWorkspaceMembers(),
+          routes.settingsWorkspaceDangerZone(),
+        ],
       },
     ]
 

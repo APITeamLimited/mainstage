@@ -7,10 +7,12 @@ import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
 import { CollectionEditorPage } from './pages/app/CollectionEditorPage'
 import { DomainsPage } from './pages/app/dashboard/DomainsPage'
 import { OverviewPage } from './pages/app/dashboard/OverviewPage'
+import DangerZoneSettingsPage from './pages/app/dashboard/SettingsPages/DangerZoneSettingsPage/DangerZoneSettingsPage'
 import GeneralSettingsPage from './pages/app/dashboard/SettingsPages/GeneralSettingsPage/GeneralSettingsPage'
 import { MembersSettingsPage } from './pages/app/dashboard/SettingsPages/MembersSettingsPage/MembersSettingsPage'
 import AboutPage from './pages/company/AboutPage/AboutPage'
 import ContactPage from './pages/company/ContactPage/ContactPage'
+import DeleteTeamPage from './pages/DeleteTeamPage/DeleteTeamPage'
 import CookiePolicyPage from './pages/legal/CookiePolicy/CookiePolicy'
 import PrivacyPolicyPage from './pages/legal/PrivacyPolicy/PrivacyPolicy'
 import TermsOfServicePage from './pages/legal/TermsOfService/TermsOfService'
@@ -108,6 +110,8 @@ const Routes = () => {
       <Route path={ROUTES.userUnsubscribe} page={ResetPasswordPage} name="userUnsubscribe" />
       <Route path={ROUTES.blanketUnsubscribe} page={ResetPasswordPage} name="blanketUnsubscribe" />
       <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
+      <Route path={ROUTES.deleteAccount} page={DeleteAccountPage} name="deleteAccount" />
+      <Route path={ROUTES.deleteTeam} page={DeleteTeamPage} name="deleteTeam" />
       <Set wrap={LandingLayoutSplash}>
         <Route path="/" page={RootPage} name="splash" />
       </Set>
@@ -132,6 +136,7 @@ const Routes = () => {
           <Route path={ROUTES.dashboard} page={OverviewPage} name="dashboard" />
           <Route path={ROUTES.settingsWorkspace} page={GeneralSettingsPage} name="settingsWorkspace" />
           <Route path={ROUTES.settingsWorkspaceMembers} page={MembersSettingsPage} name="settingsWorkspaceMembers" />
+          <Route path={ROUTES.settingsWorkspaceDangerZone} page={DangerZoneSettingsPage} name="settingsWorkspaceDangerZone" />
           <Route path={ROUTES.domains} page={DomainsPage} name="domains" />
           <Route path={ROUTES.collectionEditor} page={CollectionEditorPage} name="collectionEditor" />
         </Set>

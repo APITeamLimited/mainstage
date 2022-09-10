@@ -79,7 +79,12 @@ export const MembersSettingsPage = () => {
 
   return (
     <Stack spacing={6}>
-      <Box>
+      <Box
+        sx={{
+          top: '-1em',
+          position: 'relative',
+        }}
+      >
         <Headline headline={prettyType} />
         <Divider
           sx={{

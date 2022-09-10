@@ -7,10 +7,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { checkValue } from 'src/config'
 import { createMembership } from 'src/helpers'
-import {
-  deleteInvitationRedis,
-  setInvitationRedis,
-} from 'src/helpers/invitations'
+import { deleteInvitationRedis } from 'src/helpers/invitations'
 import {
   acceptInvitationAudience,
   generateBlanketUnsubscribeUrl,

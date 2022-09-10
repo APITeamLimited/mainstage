@@ -1,5 +1,5 @@
 import { getDisplayName, SafeUser } from '@apiteam/types'
-import { User, Membership, Team } from '@prisma/client'
+import { Membership, Team } from '@prisma/client'
 import { Scope } from '@prisma/client'
 
 import { db } from 'src/lib/db'
@@ -8,7 +8,7 @@ import { coreCacheReadRedis } from 'src/lib/redis'
 /*
 Creates or updates an existing personal scope with latest user data.
 */
-export const createPersonalScope = async (user: User) => {
+export const createPersonalScope = async (user: SafeUser) => {
   const role = null
   const displayName = getDisplayName(user)
   const profilePicture = user.profilePicture
@@ -214,7 +214,7 @@ export const deleteScope = async (scopeId: string) => {
   })
 
   await coreCacheReadRedis.del(`scope__id:${scopeId}`)
-  await coreCacheReadRedis.del(`scope__userId:${scope.userId}`)
+  await coreCacheReadRedis.hDel(`scope__userId:${scope.userId}`, scopeId)
   await coreCacheReadRedis.publish(`scope__id:${scopeId}`, 'DELETED')
   await coreCacheReadRedis.publish(`scope__userId:${scope.userId}`, 'DELETED')
 }

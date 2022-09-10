@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TeamRole } from '@apiteam/types'
 import {
   Box,
-  Card,
+  useTheme,
   ListItemText,
   MenuItem,
   Stack,
@@ -19,6 +19,7 @@ export type SideTab = {
   displayName: string
   requiredRole?: TeamRole
   teamOnly?: boolean
+  isDangerous?: boolean
 }
 
 type SideTabManagerProps = {
@@ -35,17 +36,17 @@ export const SideTabManager = ({
   const { pathname } = useLocation()
   const workspaceInfo = useWorkspaceInfo()
   const [role, setRole] = useState<TeamRole | null>()
+  const theme = useTheme()
 
   useEffect(() => {
     if (!workspaceInfo?.scope) {
       setRole(null)
       return
-    }
-    if (workspaceInfo?.scope.variant === 'USER') {
+    } else if (workspaceInfo.scope.variant === 'USER') {
       setRole('OWNER')
       return
     }
-    setRole(workspaceInfo.scope.role)
+    setRole(workspaceInfo.scope.role as TeamRole)
   }, [workspaceInfo])
 
   const getActiveTab = useCallback(() => {
@@ -64,7 +65,10 @@ export const SideTabManager = ({
     <Stack direction="row" spacing={6}>
       <Stack spacing={2}>
         {possibleTabs.map(
-          ({ label, displayName, requiredRole, teamOnly }, index) => {
+          (
+            { label, displayName, requiredRole, teamOnly, isDangerous },
+            index
+          ) => {
             const isActive = label === activeTab.label
 
             if (requiredRole === 'OWNER') {
@@ -74,6 +78,7 @@ export const SideTabManager = ({
               }
             } else if (requiredRole === 'ADMIN') {
               if (role !== 'ADMIN' && role !== 'OWNER') {
+                console.log('not admin or owner', workspaceInfo)
                 isActive && navigate(basePath)
                 return null
               }
@@ -91,7 +96,14 @@ export const SideTabManager = ({
               >
                 <ListItemText
                   primary={
-                    <Typography fontWeight={isActive ? 'bold' : 'normal'}>
+                    <Typography
+                      fontWeight={isActive ? 'bold' : 'normal'}
+                      color={
+                        isDangerous
+                          ? theme.palette.error.main
+                          : theme.palette.text.primary
+                      }
+                    >
                       {displayName}
                     </Typography>
                   }

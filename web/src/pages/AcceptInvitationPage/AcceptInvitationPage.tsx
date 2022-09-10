@@ -71,7 +71,12 @@ const AcceptInvitationPage = ({ token }: AcceptInvitationPageProps) => {
 
   const decodedToken = useMemo(() => {
     try {
-      return jwt_decode(token) as unknown as InvitationDecodedToken
+      const decoded = jwt_decode(token) as unknown as InvitationDecodedToken
+      // Check if the token is expired
+      if ((decoded.exp || 0) * 1000 < Date.now()) {
+        throw new Error('Token expired')
+      }
+      return decoded
     } catch (e) {
       return null
     }
@@ -235,7 +240,10 @@ const AcceptInvitationPage = ({ token }: AcceptInvitationPageProps) => {
                           onClick={() => {
                             navigate(
                               routes.login({
-                                redirectTo: routes.acceptInvitation({ token }),
+                                redirectTo: routes.acceptInvitation({
+                                  token,
+                                }),
+                                suggestedEmail: decodedToken.invitationEmail,
                               })
                             )
                           }}
@@ -248,7 +256,10 @@ const AcceptInvitationPage = ({ token }: AcceptInvitationPageProps) => {
                           onClick={() => {
                             navigate(
                               routes.signup({
-                                redirectTo: routes.acceptInvitation({ token }),
+                                redirectTo: routes.acceptInvitation({
+                                  token,
+                                }),
+                                suggestedEmail: decodedToken.invitationEmail,
                               })
                             )
                           }}

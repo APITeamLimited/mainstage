@@ -169,7 +169,13 @@ export const handler = async (event, context) => {
         )
       }
 
-      const getSlug = async (name: string, i = 0): Promise<string> => {
+      const getSlug = async (
+        unformattedName: string,
+        i = 0
+      ): Promise<string> => {
+        // Remove any non alphanumeric characters
+        const name = unformattedName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+
         const toCheck = `${name}${i > 0 ? i : ''}`
 
         // Check slug is unique

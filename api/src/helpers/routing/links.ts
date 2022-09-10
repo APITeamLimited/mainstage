@@ -114,3 +114,82 @@ export const generateDeclineInvitationUrl = async (
 
   return `${gateway}${ROUTES.declineInvitation}?token=${token}`
 }
+
+export const deleteTeamAudience = `${checkValue<string>(
+  'api.bearer.audience'
+)}-delete-team`
+
+export const generateDeleteTeamUrl = async (
+  teamId: string,
+  teamName: string
+) => {
+  const { privateKey } = await getKeyPair()
+
+  const token = JWT.sign(
+    {
+      teamId,
+      teamName,
+    },
+    privateKey,
+    {
+      algorithm: 'RS256',
+      issuer,
+      audience: deleteTeamAudience,
+      expiresIn: 60 * 15,
+    }
+  )
+
+  return `${gateway}${ROUTES.deleteTeam}?token=${token}`
+}
+
+export const deleteAccountAudience = `${checkValue<string>(
+  'api.bearer.audience'
+)}-delete-account`
+
+export const generateDeleteAccountUrl = async (userId: string) => {
+  const { privateKey } = await getKeyPair()
+
+  const token = JWT.sign(
+    {
+      userId,
+    },
+    privateKey,
+    {
+      algorithm: 'RS256',
+      issuer,
+      audience: deleteAccountAudience,
+      expiresIn: 60 * 15,
+    }
+  )
+
+  return `${gateway}${ROUTES.deleteAccount}?token=${token}`
+}
+
+export const changeOwnerAudience = `${checkValue<string>(
+  'api.bearer.audience'
+)}-change-owner`
+
+export const generateChangeOwnerUrl = async (
+  teamId: string,
+  teamName: string,
+  newOwnerEmail: string
+) => {
+  const { privateKey } = await getKeyPair()
+
+  const token = JWT.sign(
+    {
+      teamId,
+      teamName,
+      newOwnerEmail,
+    },
+    privateKey,
+    {
+      algorithm: 'RS256',
+      issuer,
+      audience: changeOwnerAudience,
+      expiresIn: 60 * 15,
+    }
+  )
+
+  return `${gateway}${ROUTES.changeOwner}?token=${token}`
+}

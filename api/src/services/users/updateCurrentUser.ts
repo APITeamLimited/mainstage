@@ -1,5 +1,3 @@
-import * as Yup from 'yup'
-
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { setUserRedis } from 'src/helpers'

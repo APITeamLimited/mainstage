@@ -10,7 +10,7 @@ import { VALID_TEMPLATES } from './templates'
 const inliner = new CSSInliner()
 
 export const handleRenderRequest = async (
-  input: MailmanInput<unknown>
+  input: MailmanInput<any>
 ): Promise<MailmanOutput> => {
   const { template: templateName } = input
 

@@ -1,5 +1,18 @@
-import { MailmanInput } from 'src/lib'
-
+import {
+  ConfirmAccountDelete,
+  confirmAccountDeleteText,
+  confirmAccountDeleteTitle,
+} from './ConfirmAccountDelete'
+import {
+  ConfirmChangeOwner,
+  confirmChangeOwnerText,
+  confirmChangeOwnerTitle,
+} from './ConfirmChangeOwner'
+import {
+  ConfirmTeamDelete,
+  confirmTeamDeleteText,
+  confirmTeamDeleteTitle,
+} from './ConfirmTeamDelete'
 import {
   ForgotPassword,
   forgotPasswordText,
@@ -11,15 +24,35 @@ import {
   notifyAcceptInvitationTitle,
 } from './NotifyAcceptInvitation'
 import {
+  NotifyAccountDeleted,
+  notifyAccountDeletedText,
+  notifyAccountDeletedTitle,
+} from './NotifyAccountDeleted'
+import {
   NotifyDeclineInvitation,
   notifyDeclineInvitationText,
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitation'
 import {
+  NotifyNewRole,
+  notifyNewRoleText,
+  notifyNewRoleTitle,
+} from './NotifyNewRole'
+import {
   NotifyPasswordReset,
   notifyPasswordResetText,
   notifyPasswordResetTitle,
 } from './NotifyPasswordReset'
+import {
+  NotifyRemovedFromTeam,
+  notifyRemovedFromTeamText,
+  notifyRemovedFromTeamTitle,
+} from './NotifyRemovedFromTeam'
+import {
+  NotifyTeamDeleted,
+  notifyTeamDeletedText,
+  notifyTeamDeletedTitle,
+} from './NotifyTeamDeleted'
 import {
   SignupWelcome,
   signupWelcomeText,
@@ -31,14 +64,6 @@ import {
   teamInvitationTitle,
 } from './TeamInvitation'
 import { VerifyEmail, verifyEmailText, verifyEmailTitle } from './VerifyEmail'
-
-type EmailTemplateSchema = {
-  [key: string]: {
-    html: (input: MailmanInput<unknown>) => JSX.Element
-    text: (input: MailmanInput<unknown>) => string
-    title: (input: MailmanInput<unknown>) => string
-  }
-}
 
 export const VALID_TEMPLATES = {
   'verify-email': {
@@ -76,16 +101,44 @@ export const VALID_TEMPLATES = {
     text: notifyPasswordResetText,
     title: notifyPasswordResetTitle,
   },
-} as const as EmailTemplateSchema
+  'notify-new-role': {
+    html: NotifyNewRole,
+    text: notifyNewRoleText,
+    title: notifyNewRoleTitle,
+  },
+  'confirm-team-delete': {
+    html: ConfirmTeamDelete,
+    text: confirmTeamDeleteText,
+    title: confirmTeamDeleteTitle,
+  },
+  'notify-team-deleted': {
+    html: NotifyTeamDeleted,
+    text: notifyTeamDeletedText,
+    title: notifyTeamDeletedTitle,
+  },
+  'confirm-account-delete': {
+    html: ConfirmAccountDelete,
+    text: confirmAccountDeleteText,
+    title: confirmAccountDeleteTitle,
+  },
+  'notify-account-deleted': {
+    html: NotifyAccountDeleted,
+    text: notifyAccountDeletedText,
+    title: notifyAccountDeletedTitle,
+  },
+  'notify-removed-from-team': {
+    html: NotifyRemovedFromTeam,
+    text: notifyRemovedFromTeamText,
+    title: notifyRemovedFromTeamTitle,
+  },
+  'confirm-change-owner': {
+    html: ConfirmChangeOwner,
+    text: confirmChangeOwnerText,
+    title: confirmChangeOwnerTitle,
+  },
+} as const
 
-export type TemplateIdentifier =
-  | 'verify-email'
-  | 'notify-accept-invitation'
-  | 'notify-decline-invitation'
-  | 'team-invitation'
-  | 'signup-welcome'
-  | 'forgot-password'
-  | 'notify-password-reset'
+export type TemplateIdentifier = keyof typeof VALID_TEMPLATES
 
 export { TeamInvitationData } from './TeamInvitation'
 export { NotifyAcceptInvitationData } from './NotifyAcceptInvitation'
@@ -94,3 +147,10 @@ export { VerifyEmailData } from './VerifyEmail'
 export { SignupWelcomeData } from './SignupWelcome'
 export { ForgotPasswordData } from './ForgotPassword'
 export { NotifyPasswordResetData } from './NotifyPasswordReset'
+export { NotifyNewRoleData } from './NotifyNewRole'
+export { ConfirmTeamDeleteData } from './ConfirmTeamDelete'
+export { NotifyTeamDeletedData } from './NotifyTeamDeleted'
+export { ConfirmAccountDeleteData } from './ConfirmAccountDelete'
+export { NotifyAccountDeletedData } from './NotifyAccountDeleted'
+export { NotifyRemovedFromTeamData } from './NotifyRemovedFromTeam'
+export { ConfirmChangeOwnerData } from './ConfirmChangeOwner'

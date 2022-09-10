@@ -15,9 +15,10 @@ import PasswordSignupForm from './PasswordSignupForm'
 
 type SignupPageProps = {
   redirectTo?: string
+  suggestedEmail?: string
 }
 
-const SignupPage = ({ redirectTo }: SignupPageProps) => {
+const SignupPage = ({ redirectTo, suggestedEmail }: SignupPageProps) => {
   const theme = useTheme()
 
   return (
@@ -58,11 +59,13 @@ const SignupPage = ({ redirectTo }: SignupPageProps) => {
                 <Typography variant="h5" sx={{ textAlign: 'center' }}>
                   Signup
                 </Typography>
-                <PasswordSignupForm />
+                <PasswordSignupForm suggestedEmail={suggestedEmail} />
                 <Divider />
                 <Link
                   to={
-                    redirectTo ? routes.login({ redirectTo }) : routes.login()
+                    redirectTo
+                      ? routes.login({ redirectTo, suggestedEmail })
+                      : routes.login({ suggestedEmail })
                   }
                   style={{
                     textDecoration: 'none',

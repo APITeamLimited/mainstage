@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
+import { Workspace } from '@apiteam/types'
 import { Box, Divider, Stack } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
@@ -10,11 +11,39 @@ import { Headline } from 'src/pages/splash/components/Headline'
 
 import { SETTINGS_TABS } from '..'
 
-const GeneralSettingsTab = () => {
-  return <></>
+import { DeleteAccountCard } from './DeleteAccountCard'
+import { DeleteTeamCard } from './DeleteTeamCard'
+import { TransferOwnershipCard } from './TransferOwnershipCard'
+
+type DangerZoneSettingsTabProps = {
+  workspaceInfo: Workspace
 }
 
-export const GeneralSettingsPage = () => {
+const DangerZoneSettingsTab = ({
+  workspaceInfo,
+}: DangerZoneSettingsTabProps) => {
+  const isTeam = useMemo(
+    () => workspaceInfo.scope.variant === 'TEAM',
+    [workspaceInfo]
+  )
+
+  return (
+    <Stack spacing={4}>
+      {isTeam ? (
+        <>
+          <TransferOwnershipCard workspaceInfo={workspaceInfo} />
+          <DeleteTeamCard workspaceInfo={workspaceInfo} />
+        </>
+      ) : (
+        <>
+          <DeleteAccountCard workspaceInfo={workspaceInfo} />
+        </>
+      )}
+    </Stack>
+  )
+}
+
+export const DangerZoneSettingsPage = () => {
   const basePath = useMemo(() => routes.settingsWorkspace(), [])
   const workspaceInfo = useWorkspaceInfo()
 
@@ -28,6 +57,8 @@ export const GeneralSettingsPage = () => {
   }, [workspaceInfo])
 
   if (!prettyType) return null
+
+  if (!workspaceInfo) return null
 
   return (
     <Stack spacing={6}>
@@ -45,10 +76,10 @@ export const GeneralSettingsPage = () => {
         />
       </Box>
       <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
-        <GeneralSettingsTab />
+        <DangerZoneSettingsTab workspaceInfo={workspaceInfo} />
       </SideTabManager>
     </Stack>
   )
 }
 
-export default GeneralSettingsPage
+export default DangerZoneSettingsPage

@@ -15,7 +15,11 @@ import * as Yup from 'yup'
 import { useAuth } from '@redwoodjs/auth'
 import { navigate, routes, useLocation } from '@redwoodjs/router'
 
-const PasswordLoginForm = () => {
+type PasswordLoginFormProps = {
+  suggestedEmail?: string
+}
+
+const PasswordLoginForm = ({ suggestedEmail }: PasswordLoginFormProps) => {
   const { isAuthenticated, logIn } = useAuth()
   const { search } = useLocation()
   const [isRedirecting, setIsRedirecting] = useState(false)
@@ -34,7 +38,10 @@ const PasswordLoginForm = () => {
 
   const formik = useFormik({
     initialValues: {
-      email: '',
+      email:
+        suggestedEmail !== 'undefined' && suggestedEmail !== undefined
+          ? suggestedEmail
+          : '',
       password: '',
       submit: null,
     },
