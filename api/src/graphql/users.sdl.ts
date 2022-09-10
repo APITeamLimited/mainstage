@@ -11,6 +11,7 @@ export const schema = gql`
     shortBio: String
     profilePicture: String
     emailMarketing: Boolean
+    slug: String!
   }
 
   type Query {
@@ -22,6 +23,7 @@ export const schema = gql`
       firstName: String
       lastName: String
       shortBio: String
+      slug: String
       emailMarketing: Boolean
     ): User! @requireAuth
     sendAccountDeleteEmail: Boolean! @requireAuth

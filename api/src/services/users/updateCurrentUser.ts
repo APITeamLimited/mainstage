@@ -8,11 +8,13 @@ export const updateCurrentUser = async ({
   lastName,
   shortBio,
   emailMarketing,
+  slug,
 }: {
   firstName?: string
   lastName?: string
   shortBio?: string | null
   emailMarketing?: boolean
+  slug?: string
 }) => {
   if (!context.currentUser) {
     throw new ServiceValidationError(
@@ -34,6 +36,26 @@ export const updateCurrentUser = async ({
     )
   }
 
+  // Check name one word with only letters and numbers
+  if (slug) {
+    if (slug.length < 5) {
+      throw new ServiceValidationError(
+        'Slug must be at least 5 characters long'
+      )
+    }
+
+    // Ensure name is only alphanumeric no spaces
+    if (slug.match(/[^a-z0-9]+/g)) {
+      throw new ServiceValidationError(
+        'Slug must be one word with only lowercase letters and numbers'
+      )
+    }
+
+    if (slug === context.currentUser.slug) {
+      throw new ServiceValidationError('Slug must be new')
+    }
+  }
+
   const updatedUser = await db.user.update({
     where: {
       id: context.currentUser.id,
@@ -43,10 +65,13 @@ export const updateCurrentUser = async ({
       lastName,
       shortBio,
       emailMarketing,
+      slug,
     },
   })
 
   await setUserRedis(updatedUser)
+
+  console.log('updatedUser', updatedUser)
 
   return updatedUser
 }

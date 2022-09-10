@@ -39,7 +39,8 @@ export const schema = gql`
       teamId: String!
       role: ChangeRoleInput!
     ): Membership! @requireAuth
-    changeTeamOwner(userId: String!, teamId: String!): ChangeOwnerOutput!
+    sendChangeTeamOwnerEmail(teamId: String!, userId: String!): Boolean!
       @requireAuth
+    handleChangeOwner(token: String!): Boolean! @skipAuth
   }
 `

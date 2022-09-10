@@ -172,7 +172,8 @@ export const changeOwnerAudience = `${checkValue<string>(
 export const generateChangeOwnerUrl = async (
   teamId: string,
   teamName: string,
-  newOwnerEmail: string
+  newOwnerEmail: string,
+  membershipId: string
 ) => {
   const { privateKey } = await getKeyPair()
 
@@ -181,6 +182,7 @@ export const generateChangeOwnerUrl = async (
       teamId,
       teamName,
       newOwnerEmail,
+      membershipId,
     },
     privateKey,
     {

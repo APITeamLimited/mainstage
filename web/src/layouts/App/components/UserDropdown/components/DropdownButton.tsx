@@ -45,7 +45,7 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
             height: 30,
             width: 30,
           }}
-          src={currentUser?.profilePicture}
+          src={currentUser?.profilePicture || ''}
         >
           <SvgIcon
             component={AccountCircleIcon}

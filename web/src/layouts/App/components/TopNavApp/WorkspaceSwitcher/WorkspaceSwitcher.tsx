@@ -88,7 +88,7 @@ export const WorkspaceSwitcher = () => {
             marginLeft: 1,
           }}
         >
-          {activeWorkspace.scope ? activeWorkspace.scope.slug : 'Local'}
+          {activeWorkspace.scope ? activeWorkspace.scope.displayName : 'Local'}
         </Typography>
         <Box>
           <Chip

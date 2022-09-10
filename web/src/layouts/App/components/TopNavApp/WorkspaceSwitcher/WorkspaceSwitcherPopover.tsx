@@ -174,7 +174,7 @@ export const WorkspaceSwitcherPopover = ({
                               textOverflow: 'ellipsis',
                             }}
                           >
-                            {scope.slug}
+                            {scope.displayName}
                           </Typography>
                         </Stack>
                         {isActive && (

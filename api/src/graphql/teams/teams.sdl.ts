@@ -20,14 +20,12 @@ export const schema = gql`
   type Mutation {
     createTeam(name: String!, slug: String!): Team @requireAuth
     updateTeam(
-      id: String!
+      teamId: String!
       name: String
       slug: String
       shortBio: String
     ): Team! @requireAuth
     sendDeleteTeamEmail(teamId: String!): Boolean! @requireAuth
     handleTeamDelete(token: String!): Boolean! @skipAuth
-    sendChangeTeamOwnerEmail(teamId: String!, userId: String!): Boolean!
-      @requireAuth
   }
 `

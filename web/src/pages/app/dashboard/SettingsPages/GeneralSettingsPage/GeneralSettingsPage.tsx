@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
+import { Workspace } from '@apiteam/types'
 import { Box, Divider, Stack } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
@@ -10,8 +11,46 @@ import { Headline } from 'src/pages/splash/components/Headline'
 
 import { SETTINGS_TABS } from '..'
 
-const GeneralSettingsTab = () => {
-  return <></>
+import { ChangePersonalSlugCard } from './ChangePersonalSlugCard'
+import { ChangeTeamNameCard } from './ChangeTeamNameCard'
+import { ChangeTeamSlugCard } from './ChangeTeamSlugCard'
+
+type GeneralSettingsTabProps = {
+  workspaceInfo: Workspace
+}
+
+const GeneralSettingsTab = ({ workspaceInfo }: GeneralSettingsTabProps) => {
+  const isTeam = useMemo(
+    () => workspaceInfo.scope.variant === 'TEAM',
+    [workspaceInfo]
+  )
+
+  const isAtLeastAdmin = useMemo(
+    () =>
+      isTeam &&
+      (workspaceInfo.scope.role === 'ADMIN' ||
+        workspaceInfo.scope.role === 'OWNER'),
+    [workspaceInfo, isTeam]
+  )
+
+  return (
+    <Stack spacing={4}>
+      {isTeam ? (
+        <>
+          {isAtLeastAdmin && (
+            <>
+              <ChangeTeamNameCard workspaceInfo={workspaceInfo} />
+              <ChangeTeamSlugCard workspaceInfo={workspaceInfo} />
+            </>
+          )}
+        </>
+      ) : (
+        <>
+          <ChangePersonalSlugCard workspaceInfo={workspaceInfo} />
+        </>
+      )}
+    </Stack>
+  )
 }
 
 export const GeneralSettingsPage = () => {
@@ -28,6 +67,7 @@ export const GeneralSettingsPage = () => {
   }, [workspaceInfo])
 
   if (!prettyType) return null
+  if (!workspaceInfo) return null
 
   return (
     <Stack spacing={6}>
@@ -45,7 +85,7 @@ export const GeneralSettingsPage = () => {
         />
       </Box>
       <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
-        <GeneralSettingsTab />
+        <GeneralSettingsTab workspaceInfo={workspaceInfo} />
       </SideTabManager>
     </Stack>
   )

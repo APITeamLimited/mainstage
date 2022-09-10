@@ -1,19 +1,13 @@
-import type { Team } from '@prisma/client'
+import { Team } from '@prisma/client'
 
-import { ServiceValidationError, validateWith } from '@redwoodjs/api'
+import { ServiceValidationError } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
-import { checkValue } from 'src/config'
-import { createMembership, setTeamScope } from 'src/helpers'
+import { createMembership, createTeamScope } from 'src/helpers'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
-import { generateResetToken } from 'src/lib/token'
 
 import { checkOwnerAdmin } from '../validators/check-owner-admin'
-
-const markedForDeletionExpiryHours = <number>(
-  checkValue('teams.markedForDeletionExpiryHours')
-)
 
 export const teams = async () => {
   if (!context.currentUser) {
@@ -137,45 +131,81 @@ export const createTeam = async ({
 }
 
 export const updateTeam = async ({
-  id,
+  teamId,
   name,
   slug,
   shortBio,
 }: {
-  id: string
+  teamId: string
   name?: string
   slug?: string
   shortBio?: string
 }) => {
-  validateWith(async () => checkOwnerAdmin({ teamId: id }))
+  await checkOwnerAdmin({ teamId })
 
   const team = await db.team.findUnique({
     where: {
-      id,
+      id: teamId,
     },
   })
 
-  // Check name one word with only letters and numbers
-  if (slug && slug.match(/[^a-z0-9]+/g)) {
-    throw new ServiceValidationError(
-      'Name must be one word with only lowercase letters and numbers'
-    )
-  }
-
-  if (name && name.length < 5) {
-    throw new ServiceValidationError(
-      'Name required and must be at least 5 characters long'
-    )
-  }
-
   if (!team) {
-    throw new ServiceValidationError(`Team does not exist with id '${id}'`)
+    throw new Error('Team not found')
   }
 
-  const updatedTeam = await db.team.update({
-    where: { id },
-    data: { name, slug, shortBio, updatedAt: new Date() },
-  })
+  // Check name one word with only letters and numbers
+  if (slug) {
+    if (slug.length < 5) {
+      throw new ServiceValidationError(
+        'Slug must be at least 5 characters long'
+      )
+    }
+
+    // Ensure name is only alphanumeric no spaces
+    if (slug.match(/[^a-z0-9]+/g)) {
+      throw new ServiceValidationError(
+        'Slug must be one word with only lowercase letters and numbers'
+      )
+    }
+
+    if (slug === team.slug) {
+      throw new ServiceValidationError('Slug must be new')
+    }
+  }
+
+  if (name) {
+    if (name.length < 5) {
+      throw new ServiceValidationError(
+        'Name must be at least 5 characters long'
+      )
+    }
+
+    // Ensure name is only alphanumeric and spaces
+    if (!name.match(/^[a-zA-Z0-9 ]+$/)) {
+      throw new ServiceValidationError(
+        'Name must be alphanumeric and spaces only'
+      )
+    }
+
+    if (name === team.name) {
+      throw new ServiceValidationError('Name must be new')
+    }
+  }
+
+  let updatedTeam: Team | undefined = undefined
+
+  try {
+    updatedTeam = await db.team.update({
+      where: { id: teamId },
+      data: { name, slug, shortBio, updatedAt: new Date() },
+    })
+  } catch (e: any) {
+    if (e.code === 'P2002') {
+      throw new ServiceValidationError(`${e.meta.target[0]} already taken`)
+    } else {
+      throw new Error('An unknown error occurred while updating your team')
+    }
+  }
 
   // Set in core cache
   const teamPromise = coreCacheReadRedis.hSet(
@@ -188,12 +218,44 @@ export const updateTeam = async ({
     `team:${updatedTeam.id}`,
     JSON.stringify({
       type: 'UPDATE',
-
       payload: updatedTeam,
     })
   )
 
   await Promise.all([teamPromise, teamPublishPromise])
+
+  const memberships = await db.membership.findMany({
+    where: {
+      teamId,
+    },
+  })
+
+  const userIds = memberships.map((m) => m.userId)
+
+  const users = await db.user.findMany({
+    where: {
+      id: {
+        in: userIds,
+      },
+    },
+  })
+
+  // Call createTeamScope for each scope
+  await Promise.all(
+    memberships.map(async (membership) => {
+      const user = users.find((u) => u.id === membership.userId)
+
+      if (!user) {
+        throw new Error(`User not found with id '${membership.userId}'`)
+      }
+
+      if (!updatedTeam) {
+        throw new Error('Failed to update team')
+      }
+
+      return createTeamScope(updatedTeam, membership, user)
+    })
+  )
 
   return updatedTeam
 }

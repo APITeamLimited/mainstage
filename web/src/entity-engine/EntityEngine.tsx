@@ -7,12 +7,11 @@ import {
   useState,
 } from 'react'
 
-import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types'
+import { ServerAwareness, Workspace } from '@apiteam/types'
 import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import { Awareness } from 'y-protocols/awareness.js'
 import * as Y from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
@@ -22,6 +21,7 @@ import { useQuery } from '@redwoodjs/web'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { handleProviders, HandleUpdateDispatchArgs } from './handle-providers'
+import { ScopeUpdater } from './ScopeUpdater'
 import { SocketIOManager } from './socket-io-manager'
 import { SocketIOProvider } from './socket-io-provider'
 import { updateDispatcher } from './update-dispatcher'
@@ -73,8 +73,8 @@ export const useScopes = () => useContext(ScopesContext)
 const RawBearerContext = createContext<string | null>(null)
 export const useRawBearer = () => useContext(RawBearerContext)
 
-const RefetchScopesCallbackContext = createContext<
-  ((teamId: string) => Promise<void>) | null
+export const RefetchScopesCallbackContext = createContext<
+  ((teamId?: string) => Promise<void>) | null
 >(null)
 
 export const useRefetchScopesCallback = () =>
@@ -206,7 +206,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }, [workspaces, activeWorkspaceId, activeWorkspace])
 
   const refetchScopes = useCallback(
-    async (teamId: string) => {
+    async (teamId?: string) => {
       const { data } = await apolloClient.query<GetBearerPubkeyScopes>({
         query: GET_BEARER_PUBKEY__SCOPES_QUERY,
         fetchPolicy: 'network-only',
@@ -306,6 +306,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
                 <RefetchScopesCallbackContext.Provider value={refetchScopes}>
                   <AwarenessContext.Provider value={awareness}>
                     <WorkspaceInfoContext.Provider value={activeWorkspace}>
+                      <ScopeUpdater />
                       {children}
                     </WorkspaceInfoContext.Provider>
                   </AwarenessContext.Provider>

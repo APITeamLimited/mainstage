@@ -1,5 +1,3 @@
-import * as Y from 'yjs'
-
 import { SocketIOProvider } from './socket-io-provider'
 
 type EntityManagerNewProps = {

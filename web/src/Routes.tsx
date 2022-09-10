@@ -10,6 +10,7 @@ import { OverviewPage } from './pages/app/dashboard/OverviewPage'
 import DangerZoneSettingsPage from './pages/app/dashboard/SettingsPages/DangerZoneSettingsPage/DangerZoneSettingsPage'
 import GeneralSettingsPage from './pages/app/dashboard/SettingsPages/GeneralSettingsPage/GeneralSettingsPage'
 import { MembersSettingsPage } from './pages/app/dashboard/SettingsPages/MembersSettingsPage/MembersSettingsPage'
+import ChangeOwnerPage from './pages/ChangeOwnerPage/ChangeOwnerPage'
 import AboutPage from './pages/company/AboutPage/AboutPage'
 import ContactPage from './pages/company/ContactPage/ContactPage'
 import DeleteTeamPage from './pages/DeleteTeamPage/DeleteTeamPage'
@@ -112,6 +113,7 @@ const Routes = () => {
       <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
       <Route path={ROUTES.deleteAccount} page={DeleteAccountPage} name="deleteAccount" />
       <Route path={ROUTES.deleteTeam} page={DeleteTeamPage} name="deleteTeam" />
+      <Route path={ROUTES.changeOwner} page={ChangeOwnerPage} name="changeOwner" />
       <Set wrap={LandingLayoutSplash}>
         <Route path="/" page={RootPage} name="splash" />
       </Set>

@@ -4,11 +4,14 @@ import {
   NotifyRemovedFromTeamData,
 } from '@apiteam/mailman'
 import { SafeUser, TeamRole } from '@apiteam/types'
+import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
+import { checkValue } from 'src/config'
 import { deleteMembership, updateMembership } from 'src/helpers'
 import {
+  changeOwnerAudience,
   generateBlanketUnsubscribeUrl,
   generateChangeOwnerUrl,
   generateUserUnsubscribeUrl,
@@ -16,9 +19,11 @@ import {
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { getKeyPair } from 'src/services/bearer/bearer'
 
 import { checkOwner } from '../validators/check-owner'
-import { checkOwnerAdmin } from '../validators/check-owner-admin'
+
+const issuer = checkValue<string>('api.bearer.issuer')
 
 export const sendChangeTeamOwnerEmail = async ({
   userId,
@@ -70,7 +75,7 @@ export const sendChangeTeamOwnerEmail = async ({
 
   await dispatchEmail({
     template: 'confirm-change-owner',
-    to: user.email,
+    to: context.currentUser.email,
     data: {
       newOwnerFirstname: user.firstName,
       newOwnerLastname: user.lastName,
@@ -79,7 +84,8 @@ export const sendChangeTeamOwnerEmail = async ({
       changeOwnerLink: await generateChangeOwnerUrl(
         teamId,
         team.name,
-        user.email
+        user.email,
+        membership.id
       ),
       targetName: context.currentUser.firstName,
     } as ConfirmChangeOwnerData,
@@ -90,115 +96,115 @@ export const sendChangeTeamOwnerEmail = async ({
   return true
 }
 
-export const changeTeamOwner = async ({
-  userId,
-  teamId,
-}: {
-  userId: string
-  teamId: string
-}) => {
-  await checkOwner({ teamId })
+export const handleChangeOwner = async ({ token }: { token: string }) => {
+  const { publicKey } = await getKeyPair()
 
-  if (!context.currentUser) {
-    throw new ServiceValidationError('User is not logged in')
+  let decodedToken:
+    | (JWT.Jwt & {
+        payload: JWT.JwtPayload & {
+          teamId: string
+          teamName: string
+          newOwnerEmail: string
+          membershipId: string
+        }
+      })
+    | undefined
+
+  try {
+    decodedToken = JWT.verify(token, publicKey, {
+      issuer,
+      audience: changeOwnerAudience,
+      complete: true,
+    }) as JWT.Jwt & {
+      payload: JWT.JwtPayload & {
+        teamId: string
+        teamName: string
+        newOwnerEmail: string
+        membershipId: string
+      }
+    }
+  } catch (error) {
+    throw new ServiceValidationError('Invalid token')
   }
 
-  const oldOwnerPromise = db.user.findUnique({
-    where: { id: context.currentUser.id },
-  })
-
-  const newOwnerPromise = db.user.findUnique({
-    where: { id: userId },
-  })
-
-  const teamPromise = db.team.findUnique({
-    where: { id: teamId },
-  })
-
-  const oldOwnerMembershipPromise = await db.membership.findFirst({
+  const newOwnerMembership = await db.membership.findFirst({
     where: {
-      team: { id: teamId },
+      id: decodedToken.payload.membershipId,
+    },
+  })
+
+  if (!newOwnerMembership) {
+    throw new Error('New owner membership not found')
+  }
+
+  const oldOwnerMembership = await db.membership.findFirst({
+    where: {
+      teamId: decodedToken.payload.teamId,
       role: 'OWNER',
     },
   })
 
-  const newOwnerMembershipPromise = db.membership.findFirst({
-    where: {
-      team: { id: teamId },
-      user: { id: userId },
-    },
+  if (!oldOwnerMembership) {
+    throw new Error('Old owner membership not found')
+  }
+
+  const newOwner = await db.user.findUnique({
+    where: { id: newOwnerMembership.userId },
   })
 
-  const [oldOwner, newOwner, team, newOwnerMembership, oldOwnerMembership] =
-    await Promise.all([
-      oldOwnerPromise,
-      newOwnerPromise,
-      teamPromise,
-      newOwnerMembershipPromise,
-      oldOwnerMembershipPromise,
-    ])
-
-  if (!team) {
-    throw new ServiceValidationError(`Team does not exist with id '${teamId}'`)
+  if (!newOwner) {
+    throw new Error('New owner not found')
   }
 
-  if (!oldOwnerMembership) {
-    throw new ServiceValidationError(
-      `Old owner is not a member of team '${teamId}'`
-    )
-  }
+  const oldOwner = await db.user.findUnique({
+    where: { id: oldOwnerMembership.userId },
+  })
 
   if (!oldOwner) {
-    throw new ServiceValidationError(
-      `Old owner does not exist with id '${userId}'`
-    )
+    throw new Error('Old owner not found')
   }
 
-  // Check user exists in db
-  if (!newOwner) {
-    throw new ServiceValidationError(
-      `New owner does not exist with id '${userId}'`
-    )
+  const team = await db.team.findUnique({
+    where: { id: decodedToken.payload.teamId },
+  })
+
+  if (!team) {
+    throw new Error('Team not found')
   }
 
-  // Check user is a member of the team
-  if (!newOwnerMembership) {
-    throw new ServiceValidationError(
-      `New owner with id '${newOwner.id}' is not a member of team '${teamId}'`
-    )
-  }
-
-  // Check user is not the owner of the team
-  if (newOwnerMembership.role === 'OWNER') {
-    throw new ServiceValidationError(
-      `User with id '${newOwner.id}' is already the owner of team '${teamId}'`
-    )
-  }
-
-  // Update memberships
-  const oldOwnerUpdatedPromise = await updateMembership(
-    oldOwnerMembership,
-    'ADMIN',
-    team,
-    oldOwner
-  )
-
-  const newOwnerUpdatedPromise = await updateMembership(
-    newOwnerMembership,
-    'OWNER',
-    team,
-    newOwner
-  )
-
-  const [oldOwnerUpdated, newOwnerUpdated] = await Promise.all([
-    oldOwnerUpdatedPromise,
-    newOwnerUpdatedPromise,
+  await Promise.all([
+    updateMembership(oldOwnerMembership, 'ADMIN', team, oldOwner),
+    updateMembership(newOwnerMembership, 'OWNER', team, newOwner),
   ])
 
-  // TODO: send email
+  await Promise.all([
+    dispatchEmail({
+      template: 'notify-new-role',
+      to: newOwner.email,
+      data: {
+        targetName: newOwner.firstName,
+        teamName: team.name,
+        newRole: 'OWNER',
+      } as NotifyNewRoleData,
+      userUnsubscribeUrl: await generateUserUnsubscribeUrl(newOwner),
+      blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
+        newOwner.email
+      ),
+    }),
+    dispatchEmail({
+      template: 'notify-removed-from-team',
+      to: oldOwner.email,
+      data: {
+        targetName: oldOwner.firstName,
+        teamName: team.name,
+        newRole: 'ADMIN',
+      } as NotifyNewRoleData,
+      userUnsubscribeUrl: await generateUserUnsubscribeUrl(oldOwner),
+      blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
+        oldOwner.email
+      ),
+    }),
+  ])
 
-  return {
-    oldOwnerMembership: oldOwnerUpdated,
-    newOwnerMembership: newOwnerUpdated,
-  }
+  return true
 }
