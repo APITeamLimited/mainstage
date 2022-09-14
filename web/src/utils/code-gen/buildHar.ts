@@ -110,7 +110,7 @@ export const buildHarRequest = (req: RESTRequest): HarRequest => {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
     headersSize: -1, // TODO: It would be cool if we can calculate the header size
     httpVersion: 'HTTP/1.1',
-    cookies: [], // scotch does not have formal support for Cookies as of right now
+    cookies: [], // APITeam does not have formal support for Cookies as of right now
     headers: buildHarHeaders(req),
     method: req.method,
     queryString: buildHarQueryStrings(req),

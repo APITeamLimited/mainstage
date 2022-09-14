@@ -7,6 +7,7 @@ import {
   ListItemText,
   Popover,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 
@@ -42,9 +43,9 @@ export const TeamMembersDropdown = ({
     >
       <Stack
         sx={{
-          paddingX: 1,
-          paddingY: 2,
           width: '300px',
+          backgroundColor: 'background.paper',
+          paddingY: 1,
         }}
       >
         {members.map((member, index) => {
@@ -94,9 +95,17 @@ export const TeamMembersDropdown = ({
               key={index}
               secondaryAction={
                 display === 'now' ? (
-                  <OnlineDot />
+                  <Tooltip title="Online now">
+                    <span>
+                      <OnlineDot />
+                    </span>
+                  </Tooltip>
                 ) : display !== 'never' ? (
-                  <Typography variant="body2">{display}</Typography>
+                  <Tooltip title={`Last seen ${display} ago`}>
+                    <span>
+                      <Typography variant="body2">{display}</Typography>
+                    </span>
+                  </Tooltip>
                 ) : null
               }
             >
@@ -105,7 +114,11 @@ export const TeamMembersDropdown = ({
               </ListItemAvatar>
               <ListItemText
                 primary={
-                  <span>
+                  <span
+                    style={{
+                      userSelect: 'none',
+                    }}
+                  >
                     {member.displayName}
                     <RoleChip role={member.role} />
                   </span>

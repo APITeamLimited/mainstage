@@ -5,6 +5,10 @@ import { CustomTabs } from '../CustomTabs'
 type PanelLayoutProps = {
   children?: React.ReactNode
   tabNames: string[]
+  tabIcons?: {
+    name: string
+    icon: React.ReactNode
+  }[]
   activeTabIndex: number
   setActiveTabIndex: (index: number) => void
   actionArea?: React.ReactNode
@@ -15,6 +19,7 @@ type PanelLayoutProps = {
 export const PanelLayout = ({
   children,
   tabNames,
+  tabIcons,
   activeTabIndex,
   setActiveTabIndex,
   actionArea,
@@ -42,6 +47,7 @@ export const PanelLayout = ({
         value={activeTabIndex}
         onChange={setActiveTabIndex}
         names={tabNames}
+        icons={tabIcons}
       />
       {actionArea}
     </Stack>

@@ -110,6 +110,10 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
     }
   })
 
+  if (ownerAdminMemberships.length === 0) {
+    throw new Error('Team has no owners or admins')
+  }
+
   const ownerAdminUsers = (
     await coreCacheReadRedis.mGet(
       ownerAdminMemberships.map((m) => `user__id:${m.userId}`)

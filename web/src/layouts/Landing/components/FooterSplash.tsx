@@ -123,6 +123,7 @@ export const FooterSplash = () => {
                           return (
                             <Typography key={indexLink}>
                               <Link
+                                key={indexLink}
                                 to={subLink.path}
                                 style={{
                                   textDecoration: 'none',

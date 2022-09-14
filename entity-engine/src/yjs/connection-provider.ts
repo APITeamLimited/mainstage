@@ -105,7 +105,7 @@ export const handleNewConnection = async (socket: Socket) => {
       }),
     }
 
-    doc.awareness.setLocalState(newServerAwareness)
+    doc.setAndBroadcastServerAwareness(newServerAwareness)
 
     const setPromise = coreCacheReadRedis.hSet(
       `team:${doc.variantTargetId}`,
@@ -426,9 +426,12 @@ class OpenDoc extends Y.Doc {
         }
       })
 
-      const usersRaw = await coreCacheReadRedis.mGet(
-        memberships.map((m) => `user__id:${m.userId}`)
-      )
+      const usersRaw =
+        memberships.length > 0
+          ? await coreCacheReadRedis.mGet(
+              memberships.map((m) => `user__id:${m.userId}`)
+            )
+          : []
 
       const users = usersRaw.map((u) => JSON.parse(u || '') as SafeUser)
 
@@ -460,7 +463,7 @@ class OpenDoc extends Y.Doc {
         members,
       }
 
-      this.awareness.setLocalState(initialAwareness)
+      this.setAndBroadcastServerAwareness(initialAwareness)
 
       // Subscribe to redis pubsub for team updates
       this.activeSubscriptions.push(`team:${this.variantTargetId}`)
@@ -501,7 +504,7 @@ class OpenDoc extends Y.Doc {
               }),
             }
 
-            this.awareness.setLocalState(newServerAwareness)
+            this.setAndBroadcastServerAwareness(newServerAwareness)
             return
           }
           console.warn(
@@ -526,7 +529,7 @@ class OpenDoc extends Y.Doc {
         variant: this.variant,
       }
 
-      this.awareness.setLocalState(initialAwareness)
+      this.setAndBroadcastServerAwareness(initialAwareness)
     } else {
       throw new Error(`Unknown variant ${this.variant}`)
     }
@@ -660,8 +663,8 @@ class OpenDoc extends Y.Doc {
         ),
       }
 
-      console.log('648 newServerAwareness', newServerAwareness)
-      this.awareness.setLocalState(newServerAwareness)
+      console.log('648 newServerAwareness')
+      this.setAndBroadcastServerAwareness(newServerAwareness)
     }
   }
 
@@ -701,7 +704,7 @@ class OpenDoc extends Y.Doc {
     }
 
     console.log('686 newServerAwareness', newServerAwareness)
-    this.awareness.setLocalState(newServerAwareness)
+    this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 
   async removeMember(member: Membership) {
@@ -721,7 +724,7 @@ class OpenDoc extends Y.Doc {
     }
 
     console.log('707 newServerAwareness', newServerAwareness)
-    this.awareness.setLocalState(newServerAwareness)
+    this.setAndBroadcastServerAwareness(newServerAwareness)
 
     this.activeSubscriptions = this.activeSubscriptions.filter(
       (s) => s !== `user__id:${member.userId}`
@@ -747,7 +750,7 @@ class OpenDoc extends Y.Doc {
     }
 
     console.log('732 newServerAwareness', newServerAwareness)
-    this.awareness.setLocalState(newServerAwareness)
+    this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 
   updateMemberUser(user: SafeUser) {
@@ -775,6 +778,25 @@ class OpenDoc extends Y.Doc {
     }
 
     console.log('759 newServerAwareness', newServerAwareness)
-    this.awareness.setLocalState(newServerAwareness)
+    this.setAndBroadcastServerAwareness(newServerAwareness)
+  }
+
+  setAndBroadcastServerAwareness(serverAwareness: ServerAwareness) {
+    this.awareness.setLocalState(serverAwareness)
+    const encoder = encoding.createEncoder()
+
+    encoding.writeVarUint(encoder, messageAwarenessType)
+    encoding.writeVarUint8Array(
+      encoder,
+      awarenessProtocol.encodeAwarenessUpdate(
+        this.awareness,
+        Array.from(this.awareness.getStates().keys())
+      )
+    )
+
+    // Send to all clients
+    Array.from(this.sockets.keys()).forEach((socket) => {
+      socket.send(encoding.toUint8Array(encoder))
+    })
   }
 }

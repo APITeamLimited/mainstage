@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 
+import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { makeVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
-import { Stack, Typography, useTheme } from '@mui/material'
+import { Skeleton, Stack, Box, useTheme } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
-import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYDoc, useYMap } from 'zustand-yjs'
 
+import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
+import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -19,16 +21,19 @@ import {
   useScopes,
   useWorkspace,
 } from 'src/entity-engine/EntityEngine'
+import { isExecutingRESTRequestVar } from 'src/globe-test/execution'
+import { parseMessage } from 'src/globe-test/execution'
 import { retrieveScopedResource } from 'src/store'
 
-import { CustomTabs } from '../../CustomTabs'
 import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
 import { KeyValueResultsTable } from '../../utils/KeyValueResultsTable'
 import { PanelLayout } from '../PanelLayout'
 
 import { BodyPanel } from './BodyPanel'
 import { CookieTable } from './CookieTable'
+import { ExecutionPanel } from './ExecutionPanel'
 import { QuickStats } from './QuickStats'
+import { UnderlyingRequestPanel } from './UnderlyingRequestPanel'
 
 type RESTResponsePanelProps = {
   collectionYMap: Y.Map<any>
@@ -68,6 +73,7 @@ export const RESTResponsePanel = ({
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const restResponsesYMap = collectionYMap.get('restResponses')
   const workspace = useWorkspace()
+  const isExecutingRESTRequest = useReactiveVar(isExecutingRESTRequestVar)
 
   const restResponses = useYMap<any>(restResponsesYMap)
   const focusedElement =
@@ -135,7 +141,9 @@ export const RESTResponsePanel = ({
       await Promise.all([globeTestLogsPromise, responsePromise, metricsPromise])
 
     setStoredResponse(responseResult.data)
-    setStoredGlobeTestLogs(globeTestLogsResult.data)
+    setStoredGlobeTestLogs(
+      globeTestLogsResult.data.map((log: string) => parseMessage(log))
+    )
     setStoredMetrics(metricsResult.data)
   }
 
@@ -167,13 +175,6 @@ export const RESTResponsePanel = ({
     if (storedMetrics) {
       setStoredMetrics(null)
     }
-    if (!focusedResponse) {
-      return
-    }
-
-    if (!focusedResponse.get('id')) {
-      return
-    }
 
     if (!workspace) {
       throw new Error('No workspace YDoc')
@@ -181,7 +182,7 @@ export const RESTResponsePanel = ({
 
     updateData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedResponse, rawBearer, scopes, workspace])
+  }, [focusedResponse])
 
   if (focusedResponse) {
     if (
@@ -194,26 +195,35 @@ export const RESTResponsePanel = ({
     }
   }
 
-  return focusedResponse ? (
-    <PanelLayout
-      aboveTabsArea={
-        <QuickStats
-          statusCode={focusedResponse.get('statusCode')}
-          responseTimeMilliseconds={
-            focusedResponse.get('meta').responseDuration
+  return (
+    <>
+      {isExecutingRESTRequest && <SendingRequestAnimation />}
+      {focusedResponse ? (
+        <PanelLayout
+          aboveTabsArea={
+            <QuickStats
+              statusCode={focusedResponse.get('statusCode')}
+              responseTimeMilliseconds={
+                focusedResponse.get('meta').responseDuration
+              }
+              responseSizeBytes={focusedResponse.get('meta').responseSize}
+            />
           }
-          responseSizeBytes={focusedResponse.get('meta').responseSize}
-        />
-      }
-      // TODO: add request and globe test log tabs
-      tabNames={['Body', 'Headers', 'Cookies']}
-      activeTabIndex={activeTabIndex}
-      setActiveTabIndex={setActiveTabIndex}
-      actionArea={actionArea}
-      rootPanelStyles={
-        undefined
-        // An idea
-        /*
+          // TODO: add request and globe test log tabs
+          tabNames={['Body', 'Headers', 'Cookies', 'Execution', 'Request']}
+          tabIcons={[
+            {
+              name: 'Execution',
+              icon: <GlobeTestIcon />,
+            },
+          ]}
+          activeTabIndex={activeTabIndex}
+          setActiveTabIndex={setActiveTabIndex}
+          actionArea={actionArea}
+          rootPanelStyles={
+            undefined
+            // An idea
+            /*
         loaded
           ? {
               opacity: 1,
@@ -223,49 +233,82 @@ export const RESTResponsePanel = ({
               opacity: 0,
               transition: 'opacity 0.25s ease-in-out',
             }*/
-      }
-    >
-      {activeTabIndex === 0 && storedResponse && (
-        <BodyPanel response={storedResponse} setActionArea={setActionArea} />
-      )}
-      {activeTabIndex === 1 && (
-        <KeyValueResultsTable
-          setActionArea={setActionArea}
-          values={mappedHeaders}
-        />
-      )}
-      {activeTabIndex === 2 && (
-        <CookieTable
-          // Reduce cookie values to array of ResponseCookie
-          cookies={mappedCookies}
-          setActionArea={setActionArea}
-        />
-      )}
-    </PanelLayout>
-  ) : (
-    <Stack
-      margin={2}
-      spacing={2}
-      sx={{
-        height: 'calc(100% - 2em)',
-        maxHeight: 'calc(100% - 2em)',
-        overflow: 'hidden',
-      }}
-    >
-      <EmptyPanelMessage
-        icon={
-          <CommentIcon
-            sx={{
-              marginBottom: 2,
-              width: 80,
-              height: 80,
-              color: theme.palette.action.disabled,
-            }}
+          }
+        >
+          {storedResponse && storedMetrics && storedGlobeTestLogs ? (
+            <>
+              {activeTabIndex === 0 && (
+                <BodyPanel
+                  response={storedResponse}
+                  setActionArea={setActionArea}
+                />
+              )}
+              {activeTabIndex === 1 && (
+                <KeyValueResultsTable
+                  setActionArea={setActionArea}
+                  values={mappedHeaders}
+                />
+              )}
+              {activeTabIndex === 2 && (
+                <CookieTable
+                  // Reduce cookie values to array of ResponseCookie
+                  cookies={mappedCookies}
+                  setActionArea={setActionArea}
+                />
+              )}
+              {activeTabIndex === 3 && (
+                <ExecutionPanel
+                  setActionArea={setActionArea}
+                  globeTestLogs={storedGlobeTestLogs}
+                  metrics={storedMetrics}
+                />
+              )}
+              {activeTabIndex === 4 && (
+                <UnderlyingRequestPanel
+                  setActionArea={setActionArea}
+                  request={storedResponse.request}
+                />
+              )}
+            </>
+          ) : (
+            <Box
+              height="100%"
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Skeleton width={100000} height={100000} />
+            </Box>
+          )}
+        </PanelLayout>
+      ) : (
+        <Stack
+          margin={2}
+          spacing={2}
+          sx={{
+            height: 'calc(100% - 2em)',
+            maxHeight: 'calc(100% - 2em)',
+            overflow: 'hidden',
+          }}
+        >
+          <EmptyPanelMessage
+            icon={
+              <CommentIcon
+                sx={{
+                  marginBottom: 2,
+                  width: 80,
+                  height: 80,
+                  color: theme.palette.action.disabled,
+                }}
+              />
+            }
+            primaryText="No response yet"
+            secondaryMessages={[
+              'Add a url above and hit send to see the response',
+            ]}
           />
-        }
-        primaryText="No response yet"
-        secondaryMessages={['Add a url above and hit send to see the response']}
-      />
-    </Stack>
+        </Stack>
+      )}
+    </>
   )
 }

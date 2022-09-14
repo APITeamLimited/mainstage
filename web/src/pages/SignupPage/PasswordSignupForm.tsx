@@ -103,14 +103,14 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
         helpers.setStatus({ success: false })
         helpers.setErrors({ submit: response.message })
         helpers.setSubmitting(false)
-      } else if (response.error) {
+      } else if (response.errors) {
         // If error contains 'username', change the field name to 'email'
         const errorMessage = response.error.includes('Username')
           ? response.error.replace('Username', 'Email')
           : response.error
 
         helpers.setStatus({ success: false })
-        helpers.setErrors({ submit: errorMessage })
+        helpers.setFieldError('submit', errorMessage)
         helpers.setSubmitting(false)
       }
     },

@@ -19,7 +19,6 @@ type CalculateDropArgs = {
   setDropResult: (result: null) => void
   setClientOffset: (offset: null) => void
   setDropSpace: (dropSpace: null) => void
-  setCollapsed: (collapsed: boolean) => void
 }
 
 export const calculateDrop = ({
@@ -33,7 +32,6 @@ export const calculateDrop = ({
   setDropResult,
   setClientOffset,
   setDropSpace,
-  setCollapsed,
 }: CalculateDropArgs) => {
   if (!dropResult || !clientOffset) {
     return
@@ -180,11 +178,6 @@ export const calculateDrop = ({
   setDropResult(null)
   setClientOffset(null)
   setDropSpace(null)
-
-  // Only collapse folders
-  if (nodeYMap.get('__typename') === 'Folder') {
-    setCollapsed(true)
-  }
 }
 
 const droppingOnSelf = ({

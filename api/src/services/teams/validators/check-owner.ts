@@ -1,6 +1,8 @@
+import { Membership } from '@prisma/client'
+
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
+import { coreCacheReadRedis } from 'src/lib/redis'
 
 export const checkOwner = async ({ teamId }: { teamId: string }) => {
   if (!context.currentUser) {
@@ -9,12 +11,17 @@ export const checkOwner = async ({ teamId }: { teamId: string }) => {
     )
   }
 
-  const currentUserMembership = await db.membership.findFirst({
-    where: {
-      team: { id: teamId },
-      user: { id: context.currentUser?.id },
-    },
-  })
+  const currentUserMembership = (
+    Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
+      .filter(([key, _]) => {
+        return key.startsWith('membership:')
+      })
+      .map(([_, value]) => {
+        return JSON.parse(value)
+      }) as Membership[]
+  )
+    .filter((membership) => membership.userId === context.currentUser?.id)
+    .shift()
 
   if (!currentUserMembership) {
     throw new ServiceValidationError(

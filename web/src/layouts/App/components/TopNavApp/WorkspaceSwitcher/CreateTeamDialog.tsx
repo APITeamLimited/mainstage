@@ -14,6 +14,9 @@ import { useFormik } from 'formik'
 import { CreateTeam } from 'types/graphql'
 import * as Yup from 'yup'
 
+import { navigate, routes } from '@redwoodjs/router'
+
+import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 import { useRefetchScopesCallback } from 'src/entity-engine/EntityEngine'
 
 type CreateTeamDialogProps = {
@@ -62,7 +65,14 @@ export const CreateTeamDialog = ({
           return
         }
 
-        await fetchScopesCallback?.(data.createTeam.id)
+        activeWorkspaceIdVar(data.createTeam.id)
+        navigate(
+          routes.dashboard({
+            requestedWorkspaceId: data.createTeam.id,
+          })
+        )
+        // Reload the page to get the new workspace
+        window.location.reload()
         handleClose(true)
       } catch (error) {
         formik.setFieldError('submit', String(error))

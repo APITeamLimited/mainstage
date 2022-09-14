@@ -33,6 +33,10 @@ type MessageCombination =
       message: StatusType
     }
   | {
+      messageType: 'SUMMARY_METRICS'
+      message: Record<string, unknown>
+    }
+  | {
       messageType: 'METRICS'
       message: Record<string, unknown>
     }
@@ -48,6 +52,17 @@ type MessageCombination =
       messageType: 'TAG'
       message: TagType
     }
+  | {
+      messageType: 'JOB_INFO'
+      message: {
+        id: string
+        options: Record<string, unknown>
+        scopeId: string
+        source: string
+        sourceName: string
+        status: StatusType
+      }
+    }
 
 export type GlobeTestMessage = {
   jobId: string
@@ -55,7 +70,7 @@ export type GlobeTestMessage = {
 } & ClientType &
   MessageCombination
 
-type CounterMetric = {
+export type CounterMetric = {
   type: 'counter'
   values: {
     count: number
@@ -63,7 +78,7 @@ type CounterMetric = {
   }
 }
 
-type TrendMetric = {
+export type TrendMetric = {
   type: 'trend'
   values: {
     avg: number
@@ -75,7 +90,7 @@ type TrendMetric = {
   }
 }
 
-type RateMetric = {
+export type RateMetric = {
   type: 'rate'
   values: {
     fails: number

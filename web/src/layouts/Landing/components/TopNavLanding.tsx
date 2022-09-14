@@ -1,5 +1,6 @@
-import React from 'react'
+import { routes } from '@redwoodjs/router'
 
+import { TopNavLink } from 'src/components/utils/TopNavLink'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 type TopNavProps = {
@@ -7,5 +8,16 @@ type TopNavProps = {
 }
 
 export const TopNavLanding = ({ disableTop = false }: TopNavProps) => {
-  return <TopNavBase disableTop={disableTop} />
+  return (
+    <TopNavBase
+      disableTop={disableTop}
+      rightZone={
+        <>
+          {/*
+          <TopNavLink name="Contact" path={routes.contact()} />
+          <TopNavLink name="Docs" path={routes.docs()} />*/}
+        </>
+      }
+    />
+  )
 }

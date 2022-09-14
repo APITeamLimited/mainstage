@@ -101,12 +101,19 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           value={prettifiedBody}
           readOnly
           wordWrap="on"
+          namespace={`${response.id}-0`}
         />
       )}
       {activeTabIndex === 1 && (
         //<RawViewer rawBody={rawBody} />
         // removed this as competitors are using monaco editor
-        <MonacoEditor language="plain" value={rawBody} readOnly wordWrap="on" />
+        <MonacoEditor
+          language="plain"
+          value={rawBody}
+          readOnly
+          wordWrap="on"
+          namespace={`${response.id}-1`}
+        />
       )}
       {activeTabIndex === 2 && <HTMLViewer html={rawBody} />}
     </>

@@ -113,7 +113,10 @@ export const createInvitations = async ({
   const existingUserIds = existingMemberships.map((m) => m.userId)
 
   // Check if user exists for each invitation
-  const existingUsersRaw = await coreCacheReadRedis.mGet(existingUserIds)
+  const existingUsersRaw =
+    existingUserIds.length > 0
+      ? await coreCacheReadRedis.mGet(existingUserIds)
+      : []
 
   const existingUsers = existingUsersRaw
     .map((user) => {
@@ -161,9 +164,12 @@ export const createInvitations = async ({
     )
   )
 
-  const existingNonTeamUsersRaw = await coreCacheReadRedis.mGet(
-    newInvitations.map((i) => `user__email:${i.email}`)
-  )
+  const existingNonTeamUsersRaw =
+    newInvitations.length > 0
+      ? await coreCacheReadRedis.mGet(
+          newInvitations.map((i) => `user__email:${i.email}`)
+        )
+      : []
 
   const existingNonTeamUsers = existingNonTeamUsersRaw
     .filter((u) => u !== null)
@@ -236,12 +242,10 @@ export const invitations = async ({ teamId }: { teamId: string }) => {
 
   const ids = await coreCacheReadRedis.sMembers(`invitation__teamId:${teamId}`)
 
-  if (ids.length === 0) {
-    return [] as Invitation[]
-  }
-
   const invitations = (
-    await coreCacheReadRedis.mGet(ids.map((id) => `invitation__id:${id}`))
+    ids.length > 0
+      ? await coreCacheReadRedis.mGet(ids.map((id) => `invitation__id:${id}`))
+      : []
   ).filter((i) => i !== null) as string[]
 
   return invitations.map((i) => JSON.parse(i) as Invitation)

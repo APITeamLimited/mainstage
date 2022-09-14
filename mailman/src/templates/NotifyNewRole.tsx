@@ -51,7 +51,7 @@ export const notifyNewRoleText = ({
   data: { teamName, newRole, targetName },
 }: MailmanInput<NotifyNewRoleData>) => {
   const prettyRole = newRole.charAt(0) + newRole.slice(1).toLowerCase()
-  return `Hi ${targetName}, your role in ${teamName} has been updated to ${prettyRole}. If you have any questions, please contact your team's admin or owner.`
+  return `Hi ${targetName}, your role in ${teamName} has been updated to ${prettyRole}. If you have any questions, please contact your team's admins or owner.`
 }
 
 export const notifyNewRoleTitle = ({

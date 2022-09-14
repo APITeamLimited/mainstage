@@ -76,7 +76,15 @@ export const KeyValueEditor = ({
 
     setActionArea(
       <QuickActionArea
-        onDeleteCallback={enableDeleteButton ? () => setItems([]) : undefined}
+        onDeleteCallback={
+          enableDeleteButton
+            ? () => {
+                setItems([])
+                setBulkContents('')
+                console.log('delete')
+              }
+            : undefined
+        }
         isBulkEditing={isBulkEditing}
         setIsBulkEditing={setIsBulkEditing}
         customActions={customActions}
@@ -147,9 +155,9 @@ export const KeyValueEditor = ({
 
   return isBulkEditing ? (
     <BulkEditor
-      key={JSON.stringify(items)}
       contents={bulkContents}
       setContents={setBulkContents}
+      monacoNamespace={namespace}
     />
   ) : (
     <SortableEditor

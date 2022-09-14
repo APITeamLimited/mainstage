@@ -73,6 +73,7 @@ export const RESTCodeGenerator = ({
       onCloseAside={onCloseAside}
       onGenerateCode={handleGenerateCode}
       codeGenerated={codeGenerated}
+      monacoNamespace="restCodeGenerator"
     />
   )
 }

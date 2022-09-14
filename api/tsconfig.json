@@ -8,7 +8,7 @@
     "strict": true,
     "target": "esnext",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
     "rootDirs": ["./src", "../.redwood/types/mirror/api/src"],
     "paths": {

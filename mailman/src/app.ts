@@ -98,7 +98,7 @@ export const checkIfCanExecute = async (jobInfo: { [x: string]: string }) => {
 }
 
 const checkForPendingJobs = async () => {
-  const queuedJobs = await mailmanReadRedis.SMEMBERS('queuedRenderJobs')
+  const queuedJobs = await mailmanReadRedis.sMembers('queuedRenderJobs')
 
   const estimatedCount = MAX_CONCURRENT_JOBS - currentJobCount
   if (estimatedCount <= 0) return

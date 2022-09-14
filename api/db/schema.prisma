@@ -127,3 +127,14 @@ model TagsOnArticles {
   article     Article   @relation(fields: [blogEntryId], references: [id], onDelete: Cascade)
   blogEntryId String
 }
+
+model VerifiedDomain {
+  id              String    @id @default(uuid())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime?
+  domain          String
+  variant         String
+  variantTargetId String
+  txtRecord       String
+  verified        Boolean   @default(false)
+}

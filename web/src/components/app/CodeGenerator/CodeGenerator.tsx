@@ -25,6 +25,7 @@ type CodeGeneratorProps = {
   onCloseAside: () => void
   onGenerateCode: (codeGen: CodeGenDefinition | null) => void
   codeGenerated: CodeGenerated
+  monacoNamespace: string
 }
 
 export type CodeGenDefinition = {
@@ -44,6 +45,7 @@ export const CodeGenerator = ({
   onCloseAside,
   onGenerateCode,
   codeGenerated,
+  monacoNamespace,
 }: CodeGeneratorProps) => {
   const theme = useTheme()
   const [activeCodeGen, setActiveCodeGen] = useState<CodeGenDefinition | null>(
@@ -116,7 +118,15 @@ export const CodeGenerator = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="h6">Code Generator</Typography>
+            <Typography variant="h6">
+              <span
+                style={{
+                  userSelect: 'none',
+                }}
+              >
+                Code Generator
+              </span>
+            </Typography>
             <Tooltip title="Close">
               <IconButton
                 onClick={onCloseAside}
@@ -130,7 +140,13 @@ export const CodeGenerator = ({
           </Stack>
           {availableCodeGens.length === 0 || activeCodeGen === null ? (
             <Typography variant="body2">
-              No code generators available
+              <span
+                style={{
+                  userSelect: 'none',
+                }}
+              >
+                No code generators available
+              </span>
             </Typography>
           ) : (
             <>
@@ -193,6 +209,7 @@ export const CodeGenerator = ({
                     enableMinimap={false}
                     scrollBeyondLastLine={false}
                     wordWrap="on"
+                    namespace={monacoNamespace}
                   />
                 </div>
               ) : (

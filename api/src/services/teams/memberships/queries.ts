@@ -20,9 +20,12 @@ export const memberships = async ({ teamId }: { teamId: string }) => {
     }
   })
 
-  const usersRaw = await coreCacheReadRedis.mGet(
-    memberships.map((membership) => `user__id:${membership.userId}`)
-  )
+  const usersRaw =
+    memberships.length > 0
+      ? await coreCacheReadRedis.mGet(
+          memberships.map((membership) => `user__id:${membership.userId}`)
+        )
+      : []
 
   const users = usersRaw
     .filter((user) => user !== null)

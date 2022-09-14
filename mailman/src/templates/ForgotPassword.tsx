@@ -46,7 +46,7 @@ export const ForgotPassword = (input: MailmanInput<ForgotPasswordData>) => {
         href={resetLink}
         sx={{
           marginBottom: 2,
-          textAlign: 'center',
+          alignSelf: 'center',
         }}
       >
         Reset Password

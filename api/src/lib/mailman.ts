@@ -50,23 +50,30 @@ export const dispatchEmail = async (input: MailmanInput<unknown>) => {
 
 let smtpTransporter: nodemailer.Transporter | null = null
 
+const smtpHost = checkValue<string>('api.mail.smtp.host')
+const smtpPort = checkValue<number>('api.mail.smtp.port')
+const smtpUserName = checkValue<string>('api.mail.smtp.userName')
+const smtpPassword = checkValue<string>('api.mail.smtp.password')
+
 const handleSMTPSend = async (to: string, output: MailmanOutput) => {
   if (!output.content) throw new Error('No content to send')
 
   if (!smtpTransporter) {
     smtpTransporter = nodemailer.createTransport({
-      host: checkValue<string>('mailman.smtp.host'),
-      port: checkValue<number>('mailman.smtp.port'),
+      host: smtpHost,
+      port: smtpPort,
       secure: true,
       auth: {
-        user: checkValue<string>('mailman.smtp.userName'),
-        pass: checkValue<string>('mailman.smtp.password'),
+        user: smtpUserName,
+        pass: smtpPassword,
       },
     })
   }
 
   await smtpTransporter.sendMail({
-    from: `APITeam ${checkValue<string>('mailman.smtp.userName')}`,
+    from: `${checkValue<string>('api.mail.from.name')} ${checkValue<string>(
+      'api.mail.from.email'
+    )}`,
     to,
     subject: output.content.title,
     html: output.content.html,

@@ -108,7 +108,17 @@ export const EnvironmentTextField = ({
         maxWidth: '100%',
       }}
     >
-      {label !== '' && <Typography gutterBottom>{label}</Typography>}
+      {label !== '' && (
+        <Typography gutterBottom>
+          <span
+            style={{
+              userSelect: 'none',
+            }}
+          >
+            {label}
+          </span>
+        </Typography>
+      )}
       <div
         style={{
           overflow: 'hidden',
@@ -143,7 +153,13 @@ export const EnvironmentTextField = ({
           }}
           variant="body2"
         >
-          {helperText}
+          <span
+            style={{
+              userSelect: 'none',
+            }}
+          >
+            {helperText}
+          </span>
         </Typography>
       )}
     </Stack>

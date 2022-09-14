@@ -52,6 +52,7 @@ export const getTheme = (config: ThemeConfig): CustomThemeType => {
   if (theme === 'Default') {
     return responsiveFontSizes(
       createTheme({
+        ...baseThemeOptions,
         ...(config.mode === 'dark' ? darkThemeOptions : lightThemeOptions),
         direction: config.direction,
       })

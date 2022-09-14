@@ -1,7 +1,6 @@
 import { GlobeTestMessage } from '@apiteam/types'
+import { makeVar } from '@apollo/client'
 import { io } from 'socket.io-client'
-
-import { checkValue } from 'src/config'
 
 import {
   BaseJob,
@@ -38,6 +37,8 @@ type ExecuteArgs = {
   rawBearer: string
 }
 
+export const isExecutingRESTRequestVar = makeVar(false)
+
 /*
 Executes a queued job and updates the job queue on streamed messages
 */
@@ -55,9 +56,10 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
       reconnection: false,
     })
 
+    isExecutingRESTRequestVar(true)
+
     socket.on('updates', (message) => {
       const parsedMessage = parseMessage(message)
-      console.log(parsedMessage)
       addMessageToJob(queueRef, job, parsedMessage)
 
       if (parsedMessage.messageType === 'STATUS') {
@@ -72,9 +74,11 @@ export const execute = ({ queueRef, job, rawBearer }: ExecuteArgs): boolean => {
       }
     })
   } catch (error) {
+    isExecutingRESTRequestVar(false)
     console.log('error', error)
     return false
   }
+
   return true
 }
 
@@ -102,11 +106,30 @@ const addMessageToJob = (
 Parses some json so output in correct type
 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parseMessage = (message: any) => {
+export const parseMessage = (message: any) => {
   const parsedMessage = message as GlobeTestMessage
 
-  if (message.messageType === 'METRICS' || message.messageType === 'TAG') {
+  if (
+    message.messageType === 'SUMMARY_METRICS' ||
+    message.messageType === 'METRICS' ||
+    message.messageType === 'TAG' ||
+    message.messageType === 'JOB_INFO'
+  ) {
     parsedMessage.message = JSON.parse(message.message)
+
+    if (message.messageType === 'JOB_INFO') {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      parsedMessage.message.options = JSON.parse(message.message.options)
+    }
+  }
+
+  if (message.workerId === '' && message.orchestratorId !== '') {
+    delete parsedMessage.workerId
+  }
+
+  if (message.orchestratorId === '' && message.workerId !== '') {
+    delete parsedMessage.orchestratorId
   }
 
   return parsedMessage

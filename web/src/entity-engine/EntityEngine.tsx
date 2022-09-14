@@ -199,11 +199,10 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }, [activeWorkspace, bearer, bearerExpiry, publicKey, rawBearer, scopes])
 
   useEffect(() => {
-    if (activeWorkspaceId === activeWorkspace?.id) return
     setActiveWorkspace(
       workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
     )
-  }, [workspaces, activeWorkspaceId, activeWorkspace])
+  }, [workspaces, activeWorkspaceId])
 
   const refetchScopes = useCallback(
     async (teamId?: string) => {

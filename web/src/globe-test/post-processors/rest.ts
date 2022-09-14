@@ -15,6 +15,7 @@ import { updateFocusedRESTResponse } from 'src/components/app/collection-editor/
 import { FocusedElementDictionary } from 'src/contexts/reactives'
 import { uploadResource } from 'src/store'
 
+import { isExecutingRESTRequestVar } from '../execution'
 import {
   BaseJob,
   ExecutingJob,
@@ -58,11 +59,11 @@ export const postProcessRESTRequest = async ({
   }
 
   const metrics = job.messages
-    .filter((message) => message.messageType === 'METRICS')
+    .filter((message) => message.messageType === 'SUMMARY_METRICS')
     .at(-1)?.message as DefaultMetrics
 
   if (!metrics) {
-    throw new Error('No METRICS message found')
+    throw new Error('No SUMMARY_METRICS message found')
   }
 
   if (response.status === 0) {
@@ -291,4 +292,6 @@ const storeInEntityEngine = (
 
   // Update focused response
   updateFocusedRESTResponse(focusedResponseDict, responseYMap)
+
+  isExecutingRESTRequestVar(false)
 }

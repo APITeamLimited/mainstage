@@ -28,7 +28,6 @@ export const singleRESTRequestGenerator = ({
 
   const source = `import http from 'k6/http';
   import { tag } from 'apiteam';
-  import { sleep } from 'k6';
 
   export default function() {
     const req = {

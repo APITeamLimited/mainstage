@@ -1,5 +1,8 @@
 import { Stack } from '@mui/material'
 
+import { routes } from '@redwoodjs/router'
+
+import { TopNavLink } from 'src/components/utils/TopNavLink'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 import { APITeamLogo } from '../../../../components/APITeamLogo'
@@ -20,7 +23,14 @@ export const TopNavApp = () => {
           )*/}
         </Stack>
       }
-      rightZone={<OnlineMembers />}
+      rightZone={
+        <>
+          <OnlineMembers />
+          {/*
+          <TopNavLink name="Support" path={routes.supportCenter()} />
+          <TopNavLink name="Docs" path={routes.docs()} />*/}
+        </>
+      }
     />
   )
 }

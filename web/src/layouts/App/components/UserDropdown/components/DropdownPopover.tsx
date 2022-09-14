@@ -1,20 +1,25 @@
+import { useState } from 'react'
+
+import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import AddIcon from '@mui/icons-material/Add'
 import {
   Avatar,
   Box,
   Divider,
-  ListItemText,
   MenuItem,
   Popover,
   Typography,
   SvgIcon,
-  Button,
-  useTheme,
   Stack,
+  useTheme,
 } from '@mui/material'
 
 import { useAuth } from '@redwoodjs/auth'
-import { Link, navigate, routes } from '@redwoodjs/router'
+import { navigate, routes } from '@redwoodjs/router'
+
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
+import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceSwitcher/CreateTeamDialog'
 
 import { CurrentUser } from './DropdownButton'
 
@@ -27,12 +32,16 @@ interface AccountPopoverProps {
 
 export const DropdownPopover = (props: AccountPopoverProps) => {
   const { anchorEl, onClose, open, currentUser } = props
-  const theme = useTheme()
   const { logOut } = useAuth()
+  const workspaces = useReactiveVar(workspacesVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+  const theme = useTheme()
 
   const fullName = currentUser
     ? `${props.currentUser?.firstName} ${props.currentUser?.lastName}`
     : 'Anonymous'
+
+  const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false)
 
   const handleLogout = () => {
     // Clear local storage of everything
@@ -50,160 +59,138 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
     window.location.reload()
   }
 
+  const handleNavigatePersonalSettings = () => {
+    // Set active workspace to personal workspace
+    const personalWorkspace = workspaces.find(
+      (workspace) => workspace.scope?.variant === 'USER'
+    )
+
+    if (!personalWorkspace) {
+      throw new Error('No personal workspace found')
+    }
+
+    if (personalWorkspace.id !== activeWorkspaceId) {
+      activeWorkspaceIdVar(personalWorkspace.id)
+    }
+
+    navigate(routes.settingsWorkspace())
+    onClose?.()
+  }
+
+  const handleNavigateDashboard = () => {
+    navigate(routes.dashboard())
+    onClose?.()
+  }
+
   return (
-    <Popover
-      anchorEl={anchorEl}
-      anchorOrigin={{
-        horizontal: 'center',
-        vertical: 'bottom',
-      }}
-      onClose={onClose}
-      open={!!open}
-      sx={{
-        mt: 1,
-      }}
-    >
-      <Box
+    <>
+      <Popover
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          horizontal: 'left',
+          vertical: 'bottom',
+        }}
+        onClose={onClose}
+        open={!!open}
         sx={{
-          alignItems: 'center',
-          p: 2,
-          paddingLeft: 3,
-          display: 'flex',
+          mt: 1,
         }}
       >
-        <Avatar
-          src={currentUser?.profilePicture}
+        <Stack
           sx={{
-            height: 60,
-            width: 60,
+            padding: 1,
+            backgroundColor: theme.palette.background.paper,
           }}
+          spacing={1}
         >
-          <SvgIcon
-            component={AccountCircleIcon}
+          <Box
             sx={{
-              height: 60,
-              width: 60,
+              alignItems: 'center',
+              py: 1,
+              paddingLeft: 1,
+              display: 'flex',
             }}
-          />
-        </Avatar>
-        <Box
-          sx={{
-            mx: 2,
-          }}
-        >
-          <Typography variant="h6">{fullName}</Typography>
-          <Typography color="textSecondary" variant="body2">
-            {currentUser?.email || null}
-          </Typography>
-        </Box>
-      </Box>
-      <Divider />
-      <Box sx={{ my: 1 }}>
-        <Link
-          to="/dashboard/social/profile"
-          style={{
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-        >
-          <MenuItem>
-            <ListItemText
-              primary={
-                <Typography variant="body1" marginLeft={1} paddingY={0.25}>
-                  Profile
-                </Typography>
-              }
-            />
-          </MenuItem>
-        </Link>
-        <Link
-          to="/dashboard/account"
-          style={{
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-        >
-          <MenuItem>
-            <ListItemText
-              primary={
-                <Typography variant="body1" marginLeft={1} paddingY={0.25}>
-                  Settings
-                </Typography>
-              }
-            />
-          </MenuItem>
-        </Link>
-        <Link
-          to="/dashboard"
-          style={{
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-        >
-          <MenuItem>
-            <ListItemText
-              primary={
-                <Typography variant="body1" marginLeft={1} paddingY={0.25}>
-                  Change organization
-                </Typography>
-              }
-            />
-          </MenuItem>
-        </Link>
-      </Box>
-      <Divider />
-      <Box sx={{ my: 1 }}>
-        <>
-          {currentUser ? (
-            <>
-              <MenuItem>
-                <Button>Invite</Button>
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                <ListItemText
-                  primary={
-                    <Typography variant="body1" marginLeft={1} paddingY={0.25}>
-                      Logout
-                    </Typography>
-                  }
-                />
-              </MenuItem>
-            </>
-          ) : (
-            <Stack
-              spacing={2}
+          >
+            <Avatar
+              src={currentUser?.profilePicture || ''}
               sx={{
-                mx: 3,
-                mb: 3,
-                mt: 2,
+                height: 60,
+                width: 60,
               }}
             >
-              <Typography
+              <SvgIcon
+                component={AccountCircleIcon}
                 sx={{
-                  color: theme.palette.text.secondary,
-                  fontSize: 'small',
+                  height: 60,
+                  width: 60,
                 }}
-              >
-                Login to APITeam to access free cloud backup and team
-                collaboration
+              />
+            </Avatar>
+            <Box
+              sx={{
+                mx: 2,
+              }}
+            >
+              <Typography variant="h6">{fullName}</Typography>
+              <Typography color="textSecondary" variant="body2">
+                {currentUser?.email || null}
               </Typography>
-              <Box>
-                <Link
-                  to={routes.login()}
-                  style={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                  }}
-                >
-                  <Button variant="contained" color="primary">
-                    Login
-                  </Button>
-                </Link>
-              </Box>
-            </Stack>
-          )}
-        </>
-      </Box>
-    </Popover>
+            </Box>
+          </Box>
+          <Divider />
+          <Box>
+            {currentUser ? (
+              <>
+                <MenuItem onClick={handleNavigateDashboard}>Dashboard</MenuItem>
+                <Divider />
+                <MenuItem onClick={() => setOpenCreateTeamDialog(true)}>
+                  <Stack
+                    direction="row"
+                    spacing={1}
+                    sx={{
+                      overflow: 'hidden',
+                      width: '100%',
+                    }}
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    <Typography>New Team</Typography>
+                    <AddIcon fontSize="small" />
+                  </Stack>
+                </MenuItem>
+                <MenuItem onClick={handleNavigatePersonalSettings}>
+                  Personal Settings
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+              </>
+            ) : (
+              <MenuItem
+                onClick={() =>
+                  navigate(
+                    routes.login({
+                      redirectTo: routes.dashboard(),
+                    })
+                  )
+                }
+              >
+                Login
+              </MenuItem>
+            )}
+          </Box>
+        </Stack>
+      </Popover>
+      <CreateTeamDialog
+        isOpen={openCreateTeamDialog}
+        onClose={(successful: boolean) => {
+          if (successful) {
+            navigate(routes.dashboard())
+            setOpenCreateTeamDialog(false)
+          } else {
+            setOpenCreateTeamDialog(false)
+          }
+        }}
+      />
+    </>
   )
 }

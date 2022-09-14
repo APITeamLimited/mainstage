@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { Folder, RESTRequest } from '@apiteam/types'
 import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
-import { Folder, RESTRequest } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
@@ -111,12 +111,17 @@ export const Node = ({
       setDropResult,
       setClientOffset,
       setDropSpace,
-      setCollapsed,
     })
+
+    // Open if this node is a folder
+    if (nodeYMap.get('__typename') === 'Folder' && hovered) {
+      setCollapsed(false)
+    }
   }, [
     clientOffset,
     dropResult,
     foldersYMap,
+    hovered,
     nodeYMap,
     parentIndex,
     restRequestsYMap,

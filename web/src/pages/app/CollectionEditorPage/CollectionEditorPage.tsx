@@ -36,13 +36,11 @@ export const CollectionEditorPage = ({
   branchId,
   collectionId,
 }: CollectionEditorPageProps) => {
-  const workspaces = useReactiveVar(workspacesVar)
   const workspace = useWorkspace()
-  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+  const activeWorkspace = useWorkspace()
   const collectionYMap = workspace
     ?.get('projects')
     ?.get(projectId)
@@ -53,12 +51,6 @@ export const CollectionEditorPage = ({
   const collection = useYMap(collectionYMap || new Y.Map())
 
   const viewportHeightReduction = 60.3
-
-  useEffect(() => {
-    setActiveWorkspace(
-      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
-    )
-  }, [activeWorkspaceId, workspaces])
 
   if (!activeWorkspace) {
     return <Container>Workspace with id {workspaceId} not found</Container>
@@ -111,8 +103,22 @@ export const CollectionEditorPage = ({
               backgroundColor: 'transparent',
             }}
           />
-          <ReflexElement minSize={600} flex={1}>
-            <ReflexContainer orientation="horizontal" windowResizeAware>
+          <ReflexElement
+            minSize={600}
+            flex={1}
+            style={{
+              overflow: 'hidden',
+            }}
+          >
+            <ReflexContainer
+              orientation="horizontal"
+              windowResizeAware
+              style={{
+                // Hack to get rid of white space at top of page
+                height: `calc(100vh - ${viewportHeightReduction - 1}px)`,
+                marginTop: -1,
+              }}
+            >
               <ReflexElement>
                 <Paper
                   elevation={0}

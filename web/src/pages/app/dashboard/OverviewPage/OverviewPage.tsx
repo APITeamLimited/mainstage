@@ -11,7 +11,7 @@ import { createProjectDialogStateVar } from 'src/components/app/dialogs'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 
-import { BlankProjectsSection } from './BlankProjectsSection'
+import { NoProjectsCard } from './NoProjectsCard'
 
 type OverviewPageProps = {
   requestedWorkspaceId?: string
@@ -53,16 +53,11 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
     if (requestedWorkspaceId) handleSwitch()
   }, [requestedWorkspaceId, activeWorkspaceId, workspaces])
 
-  return projectYMaps.length > 0 ? (
-    <Stack
-      spacing={4}
-      sx={{
-        width: '100%',
-      }}
-    >
+  return (
+    <Stack spacing={4}>
       <Stack direction="row" justifyContent="flex-end">
         <Button
-          variant="outlined"
+          variant="contained"
           color="primary"
           onClick={() =>
             createProjectDialogStateVar({
@@ -70,32 +65,36 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
             })
           }
         >
-          Create New Project
+          New Project
         </Button>
       </Stack>
-      {workspaceDoc
-        ? projectYMaps.map((project, index) => {
-            return (
-              <ProjectOverview
-                key={index}
-                projectYMap={project}
-                project={{
-                  id: project.get('id'),
-                  __typename: 'Project',
-                  __parentTypename: 'Workspace',
-                  createdAt: new Date(project.get('createdAt')),
-                  updatedAt: project.get('updatedAt')
-                    ? new Date(project.get('updatedAt'))
-                    : null,
-                  name: project.get('name'),
-                  parentId: workspaceDoc.guid,
-                }}
-              />
-            )
-          })
-        : null}
+      {projectYMaps.length > 0 ? (
+        <>
+          {workspaceDoc
+            ? projectYMaps.map((project, index) => {
+                return (
+                  <ProjectOverview
+                    key={index}
+                    projectYMap={project}
+                    project={{
+                      id: project.get('id'),
+                      __typename: 'Project',
+                      __parentTypename: 'Workspace',
+                      createdAt: new Date(project.get('createdAt')),
+                      updatedAt: project.get('updatedAt')
+                        ? new Date(project.get('updatedAt'))
+                        : null,
+                      name: project.get('name'),
+                      parentId: workspaceDoc.guid,
+                    }}
+                  />
+                )
+              })
+            : null}
+        </>
+      ) : (
+        <NoProjectsCard />
+      )}
     </Stack>
-  ) : (
-    <BlankProjectsSection />
   )
 }

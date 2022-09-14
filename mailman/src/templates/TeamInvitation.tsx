@@ -60,7 +60,7 @@ export const TeamInvitation = (input: MailmanInput<TeamInvitationData>) => {
         href={acceptLink}
         sx={{
           marginBottom: 2,
-          textAlign: 'center',
+          alignSelf: 'center',
         }}
       >
         Accept Invitation
@@ -80,7 +80,7 @@ export const TeamInvitation = (input: MailmanInput<TeamInvitationData>) => {
         color="error"
         href={declineLink}
         sx={{
-          textAlign: 'center',
+          alignSelf: 'center',
         }}
       >
         Decline Invitation

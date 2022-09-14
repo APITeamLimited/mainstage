@@ -187,7 +187,15 @@ export const RESTHistory = ({
           marginX: 2,
         }}
       >
-        <Typography variant="h6">Response History</Typography>
+        <Typography variant="h6">
+          <span
+            style={{
+              userSelect: 'none',
+            }}
+          >
+            Response History
+          </span>
+        </Typography>
         <Tooltip title="Close">
           <IconButton
             onClick={onCloseAside}
@@ -215,8 +223,14 @@ export const RESTHistory = ({
             }}
             fontSize="small"
           >
-            No history yet, when this request is sent its response history will
-            be shown here
+            <span
+              style={{
+                userSelect: 'none',
+              }}
+            >
+              No history yet, when this request is sent its response history
+              will be shown here
+            </span>
           </Typography>
         ) : (
           <>
@@ -235,7 +249,13 @@ export const RESTHistory = ({
                     marginBottom: 1,
                   }}
                 >
-                  {timeLabel}:
+                  <span
+                    style={{
+                      userSelect: 'none',
+                    }}
+                  >
+                    {timeLabel}:
+                  </span>
                 </Typography>
                 {grouptedResonses[timeLabel].map((response, index) => {
                   if (
@@ -290,7 +310,15 @@ export const RESTHistory = ({
                         {getNodeIcon(response, true)}
                       </ListItemIcon>
                       <ListItemText
-                        primary={<span>{response.get('endpoint')}</span>}
+                        primary={
+                          <span
+                            style={{
+                              userSelect: 'none',
+                            }}
+                          >
+                            {response.get('endpoint')}
+                          </span>
+                        }
                         sx={{
                           whiteSpace: 'nowrap',
                           marginLeft: -2,
@@ -311,7 +339,13 @@ export const RESTHistory = ({
               }}
               fontSize="small"
             >
-              Responses more than 100 deep are deleted automatically
+              <span
+                style={{
+                  userSelect: 'none',
+                }}
+              >
+                Responses more than 100 deep are deleted automatically
+              </span>
             </Typography>
           </>
         )}

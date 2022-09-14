@@ -1,10 +1,9 @@
 import htmlFormatter from 'html-prettify'
-import { BuiltInParserName } from 'prettier'
 import parserBabel from 'prettier/parser-babel'
 import prettier from 'prettier/standalone'
 import xmlFormatter from 'xml-formatter'
 
-type FormatterSupportedLanguage = 'xml' | BuiltInParserName
+type FormatterSupportedLanguage = 'json' | 'xml' | 'html' | 'javascript'
 
 export const codeFormatter = (
   content: string,
@@ -14,6 +13,12 @@ export const codeFormatter = (
     case 'json':
       return prettier?.format(content, {
         parser: 'json',
+        plugins: [parserBabel],
+        tabWidth: 4,
+      })
+    case 'javascript':
+      return prettier?.format(content, {
+        parser: 'babel',
         plugins: [parserBabel],
         tabWidth: 4,
       })

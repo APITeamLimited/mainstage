@@ -53,7 +53,7 @@ export const SignupWelcome = (input: MailmanInput<SignupWelcomeData>) => {
         color="success"
         href={dashboardLink}
         sx={{
-          textAlign: 'center',
+          alignSelf: 'center',
         }}
       >
         Go to Dashboard

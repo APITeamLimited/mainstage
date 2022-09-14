@@ -26,12 +26,12 @@
  * Extracted from https://github.com/node-fetch/node-fetch/blob/64c5c296a0250b852010746c76144cb9e14698d9/src/utils/form-data.js
  */
 
-import type FormData from 'form-data';
+import type FormData from 'form-data'
 
-const carriage = '\r\n';
-const dashes = '-'.repeat(2);
+const carriage = '\r\n'
+const dashes = '-'.repeat(2)
 
-const NAME = Symbol.toStringTag;
+const NAME = Symbol.toStringTag
 
 export const isBlob = (object: any) =>
   typeof object === 'object' &&
@@ -39,37 +39,42 @@ export const isBlob = (object: any) =>
   typeof object.type === 'string' &&
   typeof object.stream === 'function' &&
   typeof object.constructor === 'function' &&
-  /^(Blob|File)$/.test(object[NAME]);
+  /^(Blob|File)$/.test(object[NAME])
 
-const getFooter = (boundary: string) => `${dashes}${boundary}${dashes}${carriage.repeat(2)}`;
+const getFooter = (boundary: string) =>
+  `${dashes}${boundary}${dashes}${carriage.repeat(2)}`
 
-const getHeader = (boundary: string, name: string, field: { name: string; type: string }) => {
-  let header = '';
+const getHeader = (
+  boundary: string,
+  name: string,
+  field: { name: string; type: string }
+) => {
+  let header = ''
 
-  header += `${dashes}${boundary}${carriage}`;
-  header += `Content-Disposition: form-data; name="${name}"`;
+  header += `${dashes}${boundary}${carriage}`
+  header += `Content-Disposition: form-data; name="${name}"`
 
   if (isBlob(field)) {
-    header += `; filename="${field.name}"${carriage}`;
-    header += `Content-Type: ${field.type || 'application/octet-stream'}`;
+    header += `; filename="${field.name}"${carriage}`
+    header += `Content-Type: ${field.type || 'application/octet-stream'}`
   }
 
-  return `${header}${carriage.repeat(2)}`;
-};
+  return `${header}${carriage.repeat(2)}`
+}
 
 export const formDataIterator = function* (form: FormData, boundary: string) {
   // @ts-expect-error not sure how this ever worked
   for (const [name, value] of form) {
-    yield getHeader(boundary, name, value);
+    yield getHeader(boundary, name, value)
 
     if (isBlob(value)) {
-      yield* value.stream();
+      yield* value.stream()
     } else {
-      yield value;
+      yield value
     }
 
-    yield carriage;
+    yield carriage
   }
 
-  yield getFooter(boundary);
-};
+  yield getFooter(boundary)
+}

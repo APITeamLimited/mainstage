@@ -31,6 +31,10 @@ export const TopBarDashboard = () => {
         endpoint: routes.dashboard(),
       },
       {
+        name: 'Domains',
+        endpoint: routes.domains(),
+      },
+      {
         name: 'Settings',
         endpoint: routes.settingsWorkspace(),
         activeSecondaryEndpoints: [

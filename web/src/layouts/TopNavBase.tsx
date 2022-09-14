@@ -1,6 +1,10 @@
 import { Paper, Stack, Box, useTheme } from '@mui/material'
 
+import { useAuth } from '@redwoodjs/auth'
+import { routes } from '@redwoodjs/router'
+
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
+import { TopNavLink } from 'src/components/utils/TopNavLink'
 
 import { UserDropdown } from './App/components/UserDropdown/UserDropdown'
 
@@ -16,6 +20,7 @@ export const TopNavBase = ({
   disableTop = false,
 }: TopNavBaseProps) => {
   const theme = useTheme()
+  const { isAuthenticated } = useAuth()
 
   return (
     <Paper
@@ -53,6 +58,9 @@ export const TopNavBase = ({
         <Box>
           <Stack direction="row" alignItems="center" spacing={2}>
             {rightZone}
+            {!isAuthenticated && (
+              <TopNavLink name="Login" path={routes.login()} />
+            )}
             <ThemeModeToggler />
             <UserDropdown />
           </Stack>

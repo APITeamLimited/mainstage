@@ -74,9 +74,9 @@ const addAuthToRequest = (
   } else if (auth.authType === 'basic') {
     return {
       ...axiosConfig,
-      auth: {
-        username: findEnvironmentVariables(activeEnvironment, auth.username),
-        password: findEnvironmentVariables(activeEnvironment, auth.password),
+      headers: {
+        ...axiosConfig.headers,
+        Authorization: `Basic ${btoa(`${auth.username}:${auth.password}`)}`,
       },
     }
   } else if (auth.authType === 'bearer') {

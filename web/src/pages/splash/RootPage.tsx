@@ -12,15 +12,11 @@ const RootPage = () => (
       title="APITeam | Free Unlimited Team API Development"
       description="APITeam is an all in one platform for designing, testing and scaling your APIs collaboratively"
     />
-    <main style={{
-      overflowX: 'hidden',
-    }}>
-      <TypedIntro />
-      <EditorFeatures />
-      <GlobeTestOverview />
-      <PublishOverview />
-      <PricingOverview />
-    </main>
+    <TypedIntro />
+    <EditorFeatures />
+    <GlobeTestOverview />
+    <PublishOverview />
+    {/*<PricingOverview />*/}
   </>
 )
 

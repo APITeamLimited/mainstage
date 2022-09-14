@@ -174,9 +174,13 @@ export const BodyPanel = ({
       return
     }
 
-    const contentTypeFromTab = (tab && getContentTypeFromIndex(tab)) || ''
-    const includePrettyPrint = prettyPrintTypes.includes(contentTypeFromTab)
-    const includeBulkEdit = bulkEditTypes.includes(contentTypeFromTab)
+    const contentTypeFromTab = getContentTypeFromIndex(tab || 0)
+    const includePrettyPrint = contentTypeFromTab
+      ? prettyPrintTypes.includes(contentTypeFromTab)
+      : false
+    const includeBulkEdit = contentTypeFromTab
+      ? bulkEditTypes.includes(contentTypeFromTab)
+      : false
 
     if (!includeBulkEdit) setIsBulkEditing(false)
 
@@ -211,6 +215,7 @@ export const BodyPanel = ({
           value={body.body}
           language="json"
           onChange={(value) => setBody({ ...body, body: value })}
+          namespace={`request-${requestId}-json`}
         />
       )}
       {body.contentType === 'application/xml' && (
@@ -218,6 +223,7 @@ export const BodyPanel = ({
           value={body.body}
           language="xml"
           onChange={(value) => setBody({ ...body, body: value })}
+          namespace={`request-${requestId}-xml`}
         />
       )}
       {body.contentType === 'text/html' && (
@@ -225,6 +231,7 @@ export const BodyPanel = ({
           value={body.body}
           language="html"
           onChange={(value) => setBody({ ...body, body: value })}
+          namespace={`request-${requestId}-html`}
         />
       )}
       {body.contentType === 'text/plain' && (
@@ -232,6 +239,7 @@ export const BodyPanel = ({
           value={body.body}
           language="plain"
           onChange={(value) => setBody({ ...body, body: value })}
+          namespace={`request-${requestId}-plain`}
         />
       )}
       {body.contentType === null && (

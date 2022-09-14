@@ -13,7 +13,10 @@ import {
   Chip,
   IconButton,
   Box,
+  ButtonBase,
 } from '@mui/material'
+
+import { navigate, routes } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
@@ -58,75 +61,83 @@ export const WorkspaceSwitcher = () => {
     )
   }
 
-  //console.log('workspaces', workspaces)
-
   return (
     <>
-      <Stack
-        direction="row"
-        alignItems="center"
-        sx={{
-          width: '100%',
-          overflow: 'hidden',
-        }}
-        ref={anchorRef}
-      >
-        <Avatar
-          src={activeWorkspace?.scope?.profilePicture || ''}
+      <ButtonBase onClick={() => navigate(routes.dashboard())} disableRipple>
+        <Stack
+          direction="row"
+          alignItems="center"
           sx={{
-            width: '25px',
-            height: '25px',
-          }}
-        />
-
-        <Typography
-          fontWeight="bold"
-          sx={{
+            width: '100%',
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            WebkitUserSelect: 'none',
-            marginLeft: 1,
           }}
+          ref={anchorRef}
         >
-          {activeWorkspace.scope ? activeWorkspace.scope.displayName : 'Local'}
-        </Typography>
-        <Box>
-          <Chip
-            label={
-              !activeWorkspace.scope
-                ? 'Local'
-                : activeWorkspace.scope.variant === 'USER'
-                ? 'PERSONAL'
-                : 'TEAM'
-            }
-            color="primary"
-            size="small"
+          <Avatar
+            src={activeWorkspace?.scope?.profilePicture || ''}
             sx={{
-              fontSize: '10px',
-              padding: 0,
-              '& .MuiChip-label': {
-                paddingX: '6px',
-                fontWeight: 'bold',
-              },
-              marginLeft: 1,
-              transistion: 'background-color 0',
-              height: '20px',
-              backgroundColor: !activeWorkspace.scope
-                ? theme.palette.grey[500]
-                : activeWorkspace.scope.variant === 'USER'
-                ? theme.palette.primary.main
-                : theme.palette.mode === 'light'
-                ? theme.palette.grey[900]
-                : theme.palette.grey[100],
+              width: '25px',
+              height: '25px',
             }}
           />
-          <Tooltip title="Switch Workspace">
-            <IconButton onClick={handleOpenPopover}>
-              <UnfoldMoreIcon />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Stack>
+
+          <Typography
+            fontWeight="bold"
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              WebkitUserSelect: 'none',
+              marginLeft: 1,
+            }}
+          >
+            {activeWorkspace.scope
+              ? activeWorkspace.scope.displayName
+              : 'Local'}
+          </Typography>
+          <Box>
+            <Chip
+              label={
+                !activeWorkspace.scope
+                  ? 'Local'
+                  : activeWorkspace.scope.variant === 'USER'
+                  ? 'PERSONAL'
+                  : 'TEAM'
+              }
+              color="primary"
+              size="small"
+              sx={{
+                fontSize: '10px',
+                padding: 0,
+                '& .MuiChip-label': {
+                  paddingX: '6px',
+                  fontWeight: 'bold',
+                },
+                marginLeft: 1,
+                transistion: 'background-color 0',
+                height: '20px',
+                backgroundColor: !activeWorkspace.scope
+                  ? theme.palette.grey[500]
+                  : activeWorkspace.scope.variant === 'USER'
+                  ? theme.palette.primary.main
+                  : theme.palette.mode === 'light'
+                  ? theme.palette.grey[900]
+                  : theme.palette.grey[100],
+              }}
+            />
+          </Box>
+        </Stack>
+      </ButtonBase>
+      <Tooltip
+        title="Switch Workspace"
+        sx={{
+          position: 'relative',
+          left: '-1rem',
+        }}
+      >
+        <IconButton onClick={handleOpenPopover}>
+          <UnfoldMoreIcon />
+        </IconButton>
+      </Tooltip>
       <WorkspaceSwitcherPopover
         anchorEl={anchorRef.current}
         onClose={handleClosePopover}

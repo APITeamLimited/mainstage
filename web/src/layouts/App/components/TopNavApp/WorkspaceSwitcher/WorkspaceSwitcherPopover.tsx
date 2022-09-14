@@ -107,10 +107,10 @@ export const WorkspaceSwitcherPopover = ({
       >
         <Stack
           sx={{
-            paddingX: 1,
-            paddingY: 2,
+            padding: 1,
+            backgroundColor: theme.palette.background.paper,
           }}
-          spacing={2}
+          spacing={1}
         >
           {Object.entries(workspaceGroups).map(
             ([groupName, workspaces], indexGroup) => (
@@ -177,9 +177,7 @@ export const WorkspaceSwitcherPopover = ({
                             {scope.displayName}
                           </Typography>
                         </Stack>
-                        {isActive && (
-                          <SvgIcon fontSize="small" component={CheckIcon} />
-                        )}
+                        {isActive && <CheckIcon fontSize="small" />}
                       </Stack>
                     </MenuItem>
                   )

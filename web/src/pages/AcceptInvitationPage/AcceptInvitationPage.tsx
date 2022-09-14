@@ -213,8 +213,6 @@ const AcceptInvitationPage = ({ token }: AcceptInvitationPageProps) => {
                       >
                         Your account does not have the email address associated
                         with this invitation.
-                        {currentUserData?.currentUser?.email}{' '}
-                        {decodedToken.invitationEmail}
                       </Typography>
                     )
                   ) : (

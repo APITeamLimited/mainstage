@@ -153,17 +153,15 @@ const TypedIntro = (): JSX.Element => {
               }}
             >
               <SignUpOrContinueButton />
-              <Box>
-                <Button
-                  component={'a'}
-                  href={'/docs/introduction'}
-                  variant="outlined"
-                  color="primary"
-                  size="large"
-                >
-                  See Features
-                </Button>
-              </Box>
+              {/*<Button
+                component={'a'}
+                href={'/docs/introduction'}
+                variant="outlined"
+                color="primary"
+                size="large"
+              >
+                See Features
+            </Button>*/}
             </Stack>
           </Box>
         </Container>

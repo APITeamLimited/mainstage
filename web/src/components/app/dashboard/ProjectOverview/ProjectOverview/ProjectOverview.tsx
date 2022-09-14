@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { Branch, Project } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
-import { Branch, Project } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
@@ -101,9 +101,7 @@ const ProjectOverviewInner = ({
           spacing={2}
         >
           <Stack direction="row" alignItems="center">
-            <Typography variant="h5" color={theme.palette.text.primary}>
-              {projectYMap.get('name')}
-            </Typography>
+            <Typography variant="h5">{projectYMap.get('name')}</Typography>
             <ProjectActionsButton projectYMap={projectYMap} />
           </Stack>
           <Stack direction="row" alignItems="right" spacing={1}>

@@ -4,6 +4,10 @@ type CustomTabsProps = {
   value: number
   onChange: (newValue: number) => void
   names: string[]
+  icons?: {
+    name: string
+    icon: React.ReactNode
+  }[]
   borderBottom?: boolean
 }
 
@@ -11,6 +15,7 @@ export const CustomTabs = ({
   value,
   onChange,
   names,
+  icons,
   borderBottom = false,
 }: CustomTabsProps) => {
   const theme = useTheme()
@@ -44,20 +49,27 @@ export const CustomTabs = ({
           overflow: 'visible',
         }}
       >
-        {names.map((name, index) => (
-          <Button
-            sx={{
-              marginRight: index === names.length - 1 ? 0 : 2,
-              color: value === index ? undefined : theme.palette.text.secondary,
-              textTransform: 'none',
-            }}
-            onClick={() => onChange(index)}
-            key={index}
-            //size="small"
-          >
-            {name}
-          </Button>
-        ))}
+        {names.map((name, index) => {
+          const endIcon =
+            icons?.find((icon) => icon.name === name)?.icon || null
+
+          return (
+            <Button
+              sx={{
+                marginRight: index === names.length - 1 ? 0 : 2,
+                color:
+                  value === index ? undefined : theme.palette.text.secondary,
+                textTransform: 'none',
+              }}
+              onClick={() => onChange(index)}
+              key={index}
+              //size="small"
+              endIcon={endIcon}
+            >
+              {name}
+            </Button>
+          )
+        })}
       </Tabs>
       {borderBottom && (
         <Divider

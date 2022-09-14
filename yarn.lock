@@ -24,8 +24,10 @@ __metadata:
     "@redwoodjs/api": 2.0.0
     "@redwoodjs/api-server": ^2.2.0
     "@redwoodjs/graphql-server": 2.0.0
+    "@types/extract-domain": ^2.3.1
     "@types/nodemailer": ^6.4.5
     "@types/yargs": ^17.0.12
+    extract-domain: ^2.4.8
     nodemailer: ^6.7.8
     yjs: ^13.5.41
     yup: ^0.32.11
@@ -95,6 +97,7 @@ __metadata:
     "@types/draft-js": ^0.11.9
     "@types/httpsnippet": ^1.23.1
     "@types/k6": ^0.37.1
+    "@types/postman-collection": ^3.5.7
     "@types/prettier": ^2.7.0
     "@xml-tools/parser": ^1.0.11
     add: ^2.0.6
@@ -122,6 +125,7 @@ __metadata:
     memoize-one: ^6.0.0
     monaco-editor-webpack-plugin: ^7.0.1
     mui-markdown: ^0.5.5
+    postman-collection: ^4.1.5
     prettier: ^2.7.1
     prism-react-renderer: ^1.3.5
     process: ^0.11.10
@@ -2842,6 +2846,13 @@ __metadata:
     "@ethersproject/rlp": ^5.7.0
     "@ethersproject/signing-key": ^5.7.0
   checksum: aa4d51379caab35b9c468ed1692a23ae47ce0de121890b4f7093c982ee57e30bd2df0c743faed0f44936d7e59c55fffd80479f2c28ec6777b8de06bfb638c239
+  languageName: node
+  linkType: hard
+
+"@faker-js/faker@npm:5.5.3":
+  version: 5.5.3
+  resolution: "@faker-js/faker@npm:5.5.3"
+  checksum: 3f7fbf0b0cfe23c7750ab79b123be8f845e5f376ec28bf43b7b017983b6fc3a9dc22543c4eea52e30cc119699c0f47f62a2c02e9eae9b6a20b75955e9c3eb887
   languageName: node
   linkType: hard
 
@@ -8176,6 +8187,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/extract-domain@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@types/extract-domain@npm:2.3.1"
+  checksum: 7a0fc59afc0d217c6c8ab66b815ab76bcd06c0baf755cf12c3582b85b06d7e9b851440ac6086761b45506de83f993b340a7b5990821b01294cb3bf9a7b972461
+  languageName: node
+  linkType: hard
+
 "@types/glob@npm:*, @types/glob@npm:^7.1.1":
   version: 7.2.0
   resolution: "@types/glob@npm:7.2.0"
@@ -8531,6 +8549,15 @@ __metadata:
   version: 1.5.4
   resolution: "@types/phoenix@npm:1.5.4"
   checksum: ea146325918847b94c545d99c62d233dca9cf71111bed674eeee3c75e5a8e967fe785c9cf70e4b869c12337200955346bce63fa42de2eb3969f7db621c2da48b
+  languageName: node
+  linkType: hard
+
+"@types/postman-collection@npm:^3.5.7":
+  version: 3.5.7
+  resolution: "@types/postman-collection@npm:3.5.7"
+  dependencies:
+    "@types/node": "*"
+  checksum: 2d75cd0d8ff019c64cae3c34347c15172fdc749d27d4d44d2cebe2561d2211eb0433ac0a175448e0246d6e7f278541c57158ba16b1ee096c8c0ed7e764fd8244
   languageName: node
   linkType: hard
 
@@ -11804,6 +11831,13 @@ __metadata:
   version: 0.0.2
   resolution: "charenc@npm:0.0.2"
   checksum: a45ec39363a16799d0f9365c8dd0c78e711415113c6f14787a22462ef451f5013efae8a28f1c058f81fc01f2a6a16955f7a5fd0cd56247ce94a45349c89877d8
+  languageName: node
+  linkType: hard
+
+"charset@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "charset@npm:1.0.1"
+  checksum: 20575230d85e940dcf4694ce488881207fb2a3c916f1c62b9e105c4e42f9ff7f3a52cd6c473ca0342dcef61272c6c6e533fcee62a08d101deeff0793a547a6ea
   languageName: node
   linkType: hard
 
@@ -15758,6 +15792,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"extract-domain@npm:^2.4.8":
+  version: 2.4.8
+  resolution: "extract-domain@npm:2.4.8"
+  dependencies:
+    psl: ^1.8.0
+  dependenciesMeta:
+    psl:
+      optional: true
+  checksum: c99196beaa3bc1a548035043090cb1e0b52f9b17dd989d33ca5bb5996086906db10717725bdac63d361c3f1b6665a855af09eb510858c543d06ff05123b6bbbe
+  languageName: node
+  linkType: hard
+
 "extract-files@npm:^11.0.0":
   version: 11.0.0
   resolution: "extract-files@npm:11.0.0"
@@ -16128,6 +16174,13 @@ __metadata:
     fs-extra: ^10.1.0
     ramda: ^0.28.0
   checksum: a04322ab12e77b5b5d3bed1259f9aa431d26b9e161445f25eb8e539845cc0051a4d501840a726cad83db727b40b88dd113a7e97e8b136690ce108f363eb116e9
+  languageName: node
+  linkType: hard
+
+"file-type@npm:3.9.0":
+  version: 3.9.0
+  resolution: "file-type@npm:3.9.0"
+  checksum: 7ae074b350c2300807a99d428600a8ee6b2ace901400898706a20ddc2c43c9abb7e05177ff55ed67a2fd26dfa9b91857b21ec9c0ab3202b9cabebc7e65900240
   languageName: node
   linkType: hard
 
@@ -17954,6 +18007,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"http-reasons@npm:0.1.0":
+  version: 0.1.0
+  resolution: "http-reasons@npm:0.1.0"
+  checksum: 1de8a3b4675eec6ed8730c3051a0e5bd63f930c5bec4df3f59878be2a04f4a9815fc614b1b6f0285f440912334b2b1b2b636d2fbbe38990754bfac5e720b2141
+  languageName: node
+  linkType: hard
+
 "http-signature@npm:~1.1.0":
   version: 1.1.1
   resolution: "http-signature@npm:1.1.1"
@@ -18049,7 +18109,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"iconv-lite@npm:^0.6.2":
+"iconv-lite@npm:0.6.3, iconv-lite@npm:^0.6.2":
   version: 0.6.3
   resolution: "iconv-lite@npm:0.6.3"
   dependencies:
@@ -20683,6 +20743,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"liquid-json@npm:0.3.1":
+  version: 0.3.1
+  resolution: "liquid-json@npm:0.3.1"
+  checksum: ce222e9e14891d1153efb2c9d74cc3972cb86dc8cf82d58cbde77fb5f77b66045a3a63c1e89deff12a4d22696143667871d686d45e0db5a5d34f206131600549
+  languageName: node
+  linkType: hard
+
 "listr-silent-renderer@npm:^1.1.1":
   version: 1.1.1
   resolution: "listr-silent-renderer@npm:1.1.1"
@@ -21655,6 +21722,15 @@ __metadata:
   version: 1.52.0
   resolution: "mime-db@npm:1.52.0"
   checksum: 0557a01deebf45ac5f5777fe7740b2a5c309c6d62d40ceab4e23da9f821899ce7a900b7ac8157d4548ddbb7beffe9abc621250e6d182b0397ec7f10c7b91a5aa
+  languageName: node
+  linkType: hard
+
+"mime-format@npm:2.0.1":
+  version: 2.0.1
+  resolution: "mime-format@npm:2.0.1"
+  dependencies:
+    charset: ^1.0.0
+  checksum: f6c0183841c3f48eab9674384270191414112cd334359741fc2c8448ef1e488fe9740cc63dd6bf6eb09ffe5a44a8122ac8e305bc90077afbffea33338944a412
   languageName: node
   linkType: hard
 
@@ -24125,6 +24201,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postman-collection@npm:^4.1.5":
+  version: 4.1.5
+  resolution: "postman-collection@npm:4.1.5"
+  dependencies:
+    "@faker-js/faker": 5.5.3
+    file-type: 3.9.0
+    http-reasons: 0.1.0
+    iconv-lite: 0.6.3
+    liquid-json: 0.3.1
+    lodash: 4.17.21
+    mime-format: 2.0.1
+    mime-types: 2.1.35
+    postman-url-encoder: 3.0.5
+    semver: 7.3.7
+    uuid: 8.3.2
+  checksum: 74f2810bea971ce6e31699cbede6e6facae0c314f0ed502822aa098a3fc3c109d1a9b02043d180894c21fc91e6e12a0fcbb5035421bb2e3bb67a5939ecb14510
+  languageName: node
+  linkType: hard
+
+"postman-url-encoder@npm:3.0.5":
+  version: 3.0.5
+  resolution: "postman-url-encoder@npm:3.0.5"
+  dependencies:
+    punycode: ^2.1.1
+  checksum: b7d389c1e7edd27e3992685caf0443fde6f47c92cb26fd9536fccbdf4f3a8bb4e723940c6fcb63eb69db72221f472143b3db3b4c28d4e0588d766f1668624b4d
+  languageName: node
+  linkType: hard
+
 "prelude-ls@npm:^1.2.1":
   version: 1.2.1
   resolution: "prelude-ls@npm:1.2.1"
@@ -24499,7 +24603,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"psl@npm:^1.1.33":
+"psl@npm:^1.1.33, psl@npm:^1.8.0":
   version: 1.9.0
   resolution: "psl@npm:1.9.0"
   checksum: 6a3f805fdab9442f44de4ba23880c4eba26b20c8e8e0830eff1cb31007f6825dace61d17203c58bfe36946842140c97a1ba7f67bc63ca2d88a7ee052b65d97ab
@@ -26564,16 +26668,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:^6.0.0, semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.2.0, semver@npm:^6.3.0":
-  version: 6.3.0
-  resolution: "semver@npm:6.3.0"
-  bin:
-    semver: ./bin/semver.js
-  checksum: 1f4959e15bcfbaf727e964a4920f9260141bb8805b399793160da4e7de128e42a7d1f79c1b7d5cd21a6073fba0d55feb9966f5fef3e5ccb8e1d7ead3d7527458
-  languageName: node
-  linkType: hard
-
-"semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7":
+"semver@npm:7.3.7, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7":
   version: 7.3.7
   resolution: "semver@npm:7.3.7"
   dependencies:
@@ -26581,6 +26676,15 @@ __metadata:
   bin:
     semver: bin/semver.js
   checksum: cffd30102de68a9f8cac9ef57b43c2173dc999da4fc5189872b421f9c9e2660f70243b8e964781ac6dc48ba2542647bb672beeb4d756c89c4a9e05e1144fa40a
+  languageName: node
+  linkType: hard
+
+"semver@npm:^6.0.0, semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.2.0, semver@npm:^6.3.0":
+  version: 6.3.0
+  resolution: "semver@npm:6.3.0"
+  bin:
+    semver: ./bin/semver.js
+  checksum: 1f4959e15bcfbaf727e964a4920f9260141bb8805b399793160da4e7de128e42a7d1f79c1b7d5cd21a6073fba0d55feb9966f5fef3e5ccb8e1d7ead3d7527458
   languageName: node
   linkType: hard
 

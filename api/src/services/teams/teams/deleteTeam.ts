@@ -125,9 +125,11 @@ export const handleTeamDelete = async ({ token }: { token: string }) => {
   })
 
   const userMemberships = (
-    await coreCacheReadRedis.mGet(
-      memberships.map((membership) => `user__id:${membership.userId}`)
-    )
+    memberships.length > 0
+      ? await coreCacheReadRedis.mGet(
+          memberships.map((membership) => `user__id:${membership.userId}`)
+        )
+      : []
   )
     .filter((user) => user)
     .map((user) => JSON.parse(user || '') as SafeUser)

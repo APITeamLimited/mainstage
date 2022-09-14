@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { memo, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 
 import Editor, { useMonaco, Monaco } from '@monaco-editor/react'
 import { useTheme, Box } from '@mui/material'
@@ -14,22 +14,44 @@ type MonacoEditorProps = {
   height?: string
   scrollBeyondLastLine?: boolean
   wordWrap?: 'on' | 'off' | 'wordWrapColumn' | 'bounded' | undefined
+  namespace: string
 }
 
 export const MonacoEditor = ({
   value,
-  onChange = () => undefined,
+  onChange,
   language,
   readOnly = false,
   enableMinimap = true,
   scrollBeyondLastLine = true,
   wordWrap = 'off',
+  namespace,
 }: MonacoEditorProps) => {
   const theme = useTheme()
 
-  const isDark = theme.palette.mode === 'dark'
+  const isDark = useMemo(
+    () => theme.palette.mode === 'dark',
+    [theme.palette.mode]
+  )
 
   const monaco = useMonaco()
+
+  // Some namespace characters can't be used as a uri
+  const actualNamespace = useMemo(
+    () => namespace.replaceAll(':', ''),
+    [namespace]
+  )
+
+  // Need to call synchronously else the cursor position will mess up
+  useLayoutEffect(() => {
+    const instance = monaco?.editor
+      .getModels()
+      .find((model) => model.uri.path === `/${actualNamespace}`)
+
+    if (!instance) return
+
+    if (instance.getValue() !== value) instance?.setValue(value)
+  }, [monaco, actualNamespace, value])
 
   useEffect(() => {
     monaco?.editor.defineTheme('custom-theme', {
@@ -87,7 +109,7 @@ export const MonacoEditor = ({
 
         fontFamily: theme.typography.fontFamily,
         fontSize: 16,
-        fontWeight: theme.typography.fontWeightRegular,
+        fontWeight: theme.typography.fontWeightRegular as string,
         scrollBeyondLastLine,
         'bracketPairColorization.enabled': true,
         contextmenu: false,
@@ -95,8 +117,9 @@ export const MonacoEditor = ({
 
         // Disable new line sequences
       }}
-      value={value}
-      onChange={(value) => onChange(value || '')}
+      path={actualNamespace}
+      defaultValue={value}
+      onChange={(value) => onChange?.(value || '')}
     />
   ) : (
     <></>

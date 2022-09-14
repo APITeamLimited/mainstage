@@ -32,7 +32,7 @@ export type LandingGroup = {
 }
 
 export const brandedRoutes = [
-  {
+  /*{
     name: 'Platform',
     sublinks: [
       {
@@ -80,7 +80,7 @@ export const brandedRoutes = [
       },
     ],
     includeAppBar: false,
-  },
+  },*/
   {
     name: 'Legal',
     sublinks: [

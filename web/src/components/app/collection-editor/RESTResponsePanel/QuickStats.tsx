@@ -47,32 +47,50 @@ export const QuickStats = ({
       <Typography variant="body2" color={statusCodeColor} fontWeight={600}>
         <span
           style={{
-            color: theme.palette.text.primary,
+            userSelect: 'none',
           }}
         >
-          Status:{' '}
+          <span
+            style={{
+              color: theme.palette.text.primary,
+            }}
+          >
+            Status:{' '}
+          </span>
+          {statusCode} {reasonPhrase}
         </span>
-        {statusCode} {reasonPhrase}
       </Typography>
       <Typography variant="body2" color={statusCodeColor} fontWeight={600}>
         <span
           style={{
-            color: theme.palette.text.primary,
+            userSelect: 'none',
           }}
         >
-          Response Time:{' '}
+          <span
+            style={{
+              color: theme.palette.text.primary,
+            }}
+          >
+            Response Time:{' '}
+          </span>
+          {responseTime}
         </span>
-        {responseTime}
       </Typography>
       <Typography variant="body2" color={statusCodeColor} fontWeight={600}>
         <span
           style={{
-            color: theme.palette.text.primary,
+            userSelect: 'none',
           }}
         >
-          Response Size:{' '}
+          <span
+            style={{
+              color: theme.palette.text.primary,
+            }}
+          >
+            Response Size:{' '}
+          </span>
+          {responseSize}
         </span>
-        {responseSize}
       </Typography>
     </Stack>
   )

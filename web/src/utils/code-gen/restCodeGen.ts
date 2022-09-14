@@ -187,7 +187,7 @@ export const generateRESTCode = (
   }
 
   try {
-    const code = new HTTPSnippet(buildHarRequest(request)).convert(
+    const code = new HTTPSnippet({ ...buildHarRequest(request) }).convert(
       codegenInfo.lang,
       codegenInfo.mode,
       {
@@ -199,7 +199,7 @@ export const generateRESTCode = (
 
     return code.toString()
   } catch (e) {
-    console.error(e)
+    //console.error(e)
     return null
   }
 }

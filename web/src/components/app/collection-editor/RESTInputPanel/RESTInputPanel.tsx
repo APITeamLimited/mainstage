@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
+import { Environment, RESTRequest } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
-import { Environment, RESTRequest } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
@@ -211,7 +211,7 @@ export const RESTInputPanel = ({
           <KeyValueEditor
             items={unsavedParameters}
             setItems={setUnsavedParameters}
-            namespace={requestId}
+            namespace={`request:${requestId}:params`}
             setActionArea={setActionArea}
           />
         )}
@@ -227,7 +227,7 @@ export const RESTInputPanel = ({
           <KeyValueEditor
             items={unsavedHeaders}
             setItems={setUnsavedHeaders}
-            namespace={requestId}
+            namespace={`request:${requestId}:headers`}
             setActionArea={setActionArea}
           />
         )}
