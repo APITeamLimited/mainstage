@@ -260,7 +260,6 @@ export const BodyPanel = ({
           }
         />
       )}
-
       {body.contentType === 'application/x-www-form-urlencoded' && (
         <KeyValueEditor
           items={body.body}

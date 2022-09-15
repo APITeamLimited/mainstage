@@ -99,6 +99,7 @@ __metadata:
     "@types/k6": ^0.37.1
     "@types/postman-collection": ^3.5.7
     "@types/prettier": ^2.7.0
+    "@unlimited-react-components/kernel": ^1.0.2
     "@xml-tools/parser": ^1.0.11
     add: ^2.0.6
     apollo3-cache-persist: ^0.14.1
@@ -146,6 +147,7 @@ __metadata:
     react-monaco-editor: ^0.49.0
     react-reflex: ^4.0.9
     react-typed: ^1.2.0
+    sass-loader: ^13.0.2
     simplebar-react: ^2.4.1
     socket.io-client: ^4.5.1
     stripe: ^9.11.0
@@ -9046,6 +9048,16 @@ __metadata:
     "@typescript-eslint/types": 5.26.0
     eslint-visitor-keys: ^3.3.0
   checksum: ccf0549ebeabcb7997bda1616aaad6acd076ac4f49ab85ecd6e41a4acc1e0e242f24bd8809fedfac228a7e51b035485e4ae265453f3d96991650dc42a5cae923
+  languageName: node
+  linkType: hard
+
+"@unlimited-react-components/kernel@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@unlimited-react-components/kernel@npm:1.0.2"
+  peerDependencies:
+    react: ^17.0.2
+    react-dom: ^17.0.2
+  checksum: b00eea96956558f04a980ec1b39310ef6ca0869d40e41a2590614d3c01f4fc8d021cc3b39b90d24c34cb0da2d3978ce76edb22edb0f5e1f199e417b950fbe43d
   languageName: node
   linkType: hard
 
@@ -26464,6 +26476,31 @@ __metadata:
   dependencies:
     sparse-bitfield: ^3.0.3
   checksum: 7dea5b2c0cb507132d4a6e1a65082b1118b435f9bb5b13665e71e581875dc574d4fb26dd0246d72daa1d7a453b131043aa0f8c1a8813ca2d4b577335156f99ac
+  languageName: node
+  linkType: hard
+
+"sass-loader@npm:^13.0.2":
+  version: 13.0.2
+  resolution: "sass-loader@npm:13.0.2"
+  dependencies:
+    klona: ^2.0.4
+    neo-async: ^2.6.2
+  peerDependencies:
+    fibers: ">= 3.1.0"
+    node-sass: ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+    sass: ^1.3.0
+    sass-embedded: "*"
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    fibers:
+      optional: true
+    node-sass:
+      optional: true
+    sass:
+      optional: true
+    sass-embedded:
+      optional: true
+  checksum: 3d12cdf6717834a6d001b061b9092b0bf1f572087d3f37c7a51443c644aacba5d64755e05ad011568478f019ec49d64ddc64639fd6764cf8ce8b7890388875e9
   languageName: node
   linkType: hard
 

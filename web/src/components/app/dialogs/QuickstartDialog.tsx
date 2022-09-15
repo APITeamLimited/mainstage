@@ -1,5 +1,7 @@
+import { Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
+import ImportExportIcon from '@mui/icons-material/ImportExport'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import {
   Dialog,
@@ -10,12 +12,11 @@ import {
   ListItemText,
   MenuItem,
   SvgIcon,
-  Typography,
 } from '@mui/material'
-import { Branch, Project } from '@apiteam/types'
 
 import { createCollectionDialogStateVar } from './CreateCollectionDialog'
 import { createEnvironmentDialogStateVar } from './CreateEnvironmentDialog'
+import { importDialogStateVar } from './ImportDialog'
 
 type QuickstartDialogState = {
   isOpen: boolean
@@ -36,34 +37,40 @@ export function QuickstartDialog() {
     quickstartDialogStateVar({ isOpen: false, project: null })
   }
 
-  const callNewCollectionDialog = () => {
-    handleClose()
-    createCollectionDialogStateVar({ isOpen: true, project })
-  }
-
-  const callNewEnvironmentDialog = () => {
-    handleClose()
-    createEnvironmentDialogStateVar({ isOpen: true, project })
-  }
-
   const items = [
     {
       primary: 'New Collection',
       secondary: 'Allows quick testing of API requests',
       icon: FeaturedPlayListIcon,
-      onClick: callNewCollectionDialog,
+      onClick: () => {
+        handleClose()
+        createCollectionDialogStateVar({ isOpen: true, project })
+      },
     },
     {
       primary: 'New Environment',
       secondary:
         'Store frequently used variables for use in requests and tests',
       icon: ListAltIcon,
-      onClick: callNewEnvironmentDialog,
+      onClick: () => {
+        handleClose()
+        createEnvironmentDialogStateVar({ isOpen: true, project })
+      },
+    },
+    {
+      primary: 'Import',
+      secondary:
+        'Quickly get started with an existing API, Postman Collection, or something else',
+      icon: ImportExportIcon,
+      onClick: () => {
+        handleClose()
+        importDialogStateVar({ isOpen: true, project })
+      },
     },
   ]
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="lg">
+    <Dialog open={isOpen} onClose={handleClose} maxWidth="md">
       <DialogTitle>Quickstart</DialogTitle>
       <Grid container>
         {items.map(({ primary, secondary, icon, onClick }, index) => (

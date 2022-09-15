@@ -1,7 +1,14 @@
-import { memo, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
 import Editor, { useMonaco, Monaco } from '@monaco-editor/react'
-import { useTheme, Box } from '@mui/material'
+import { useTheme, Box, Typography, Stack } from '@mui/material'
 
 export type MonacoSupportedLanguage = 'json' | 'xml' | 'html' | 'plain'
 
@@ -15,6 +22,8 @@ type MonacoEditorProps = {
   scrollBeyondLastLine?: boolean
   wordWrap?: 'on' | 'off' | 'wordWrapColumn' | 'bounded' | undefined
   namespace: string
+  placeholder?: string[]
+  topPlaceholderFudgeFactor?: number
 }
 
 export const MonacoEditor = ({
@@ -26,6 +35,8 @@ export const MonacoEditor = ({
   scrollBeyondLastLine = true,
   wordWrap = 'off',
   namespace,
+  placeholder,
+  topPlaceholderFudgeFactor,
 }: MonacoEditorProps) => {
   const theme = useTheme()
 
@@ -98,29 +109,65 @@ export const MonacoEditor = ({
   ])
 
   return monaco ? (
-    <Editor
-      height={'100%'}
-      language={language}
-      theme={'custom-theme'}
-      loading={<></>}
-      options={{
-        minimap: { enabled: enableMinimap },
-        readOnly,
+    <>
+      {value === '' && placeholder && (
+        <Stack
+          sx={{
+            position: 'absolute',
+            top: topPlaceholderFudgeFactor ?? 95,
+            left: 95,
+            right: 30,
+            display: 'flex',
+            color: theme.palette.text.secondary,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 1,
+          }}
+        >
+          {placeholder.map((text, index) => (
+            <Box
+              key={index}
+              sx={{
+                height: '22px',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 16,
+                  fontFamily: theme.typography.fontFamily,
+                  fontWeight: theme.typography.fontWeightRegular as string,
+                }}
+              >
+                {text}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
+      )}
+      <Editor
+        height="100%"
+        language={language}
+        theme={'custom-theme'}
+        loading={<></>}
+        options={{
+          minimap: { enabled: enableMinimap },
+          readOnly,
 
-        fontFamily: theme.typography.fontFamily,
-        fontSize: 16,
-        fontWeight: theme.typography.fontWeightRegular as string,
-        scrollBeyondLastLine,
-        'bracketPairColorization.enabled': true,
-        contextmenu: false,
-        wordWrap,
+          fontFamily: theme.typography.fontFamily,
+          fontSize: 16,
+          fontWeight: theme.typography.fontWeightRegular as string,
+          scrollBeyondLastLine,
+          'bracketPairColorization.enabled': true,
+          contextmenu: false,
+          wordWrap,
 
-        // Disable new line sequences
-      }}
-      path={actualNamespace}
-      defaultValue={value}
-      onChange={(value) => onChange?.(value || '')}
-    />
+          // Disable new line sequences
+        }}
+        path={actualNamespace}
+        defaultValue={value}
+        onChange={(value) => onChange?.(value || '')}
+      />
+    </>
   ) : (
     <></>
   )
