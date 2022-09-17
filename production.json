@@ -26,7 +26,8 @@
       "from": {
         "name": "APITeam Support",
         "email": "support@apiteam.cloud"
-      }
+      },
+      "sendgridAPIKey": "${SENDGRID_API_KEY}"
     }
   },
   "coreCache": {

@@ -14,8 +14,8 @@ const RootPage = () => (
     />
     <TypedIntro />
     <EditorFeatures />
-    <GlobeTestOverview />
-    <PublishOverview />
+    {/*<GlobeTestOverview />*/}
+    {/*<PublishOverview />*/}
     {/*<PricingOverview />*/}
   </>
 )

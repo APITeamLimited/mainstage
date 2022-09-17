@@ -50,17 +50,19 @@ export const ConfirmAccountDelete = (
         This action is irreversible and will delete all data associated with
         your account.
       </Alert>
-      <Button
-        variant="contained"
-        color="error"
-        href={deleteLink}
-        sx={{
-          alignSelf: 'center',
-          marginBottom: 2,
-        }}
-      >
-        Delete Account
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="error"
+          href={deleteLink}
+          sx={{
+            alignSelf: 'center',
+            marginBottom: 2,
+          }}
+        >
+          Delete Account
+        </Button>
+      </div>
       <Typography
         variant="body1"
         sx={{

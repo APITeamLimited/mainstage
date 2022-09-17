@@ -1,56 +1,53 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import { Card, Stack, useTheme, Typography, Box } from '@mui/material'
+import { useState } from 'react'
+
+import { Card, Stack, useTheme, Typography, Box, Button } from '@mui/material'
 
 type FileDropzoneProps = {
   primaryText: string
-  children?: React.ReactNode
   secondaryMessages?: string[]
   accept?: string
+  onFiles?: (files: FileList) => void
 }
 
 export const FileDropzone = ({
   primaryText,
   secondaryMessages = [],
-  children,
-  accept,
+  accept = '*',
+  onFiles,
 }: FileDropzoneProps) => {
   const theme = useTheme()
 
-  const dropLabel = 'DROP'
-
-  const [labelText, setLabelText] = React.useState<string>(primaryText)
-  const [isDragOver, setIsDragOver] = React.useState<boolean>(false)
-  const [isMouseOver, setIsMouseOver] = React.useState<boolean>(false)
+  const [labelText, setLabelText] = useState<string>(primaryText)
+  const [isDragOver, setIsDragOver] = useState<boolean>(false)
+  const [isMouseOver, setIsMouseOver] = useState<boolean>(false)
   const stopDefaults = (e: React.DragEvent) => {
     e.stopPropagation()
     e.preventDefault()
   }
+
+  const [files, setFiles] = useState<FileList | null>(null)
+
   const dragEvents = {
     onMouseEnter: () => {
-      console.log('mouse enter')
       setIsMouseOver(true)
     },
     onMouseLeave: () => {
-      console.log('mouse leave')
       setIsMouseOver(false)
     },
     onDragEnter: (e: React.DragEvent) => {
-      console.log('drag enter')
       stopDefaults(e)
       setIsDragOver(true)
       setLabelText(e.dataTransfer.items[0].name)
     },
     onDragLeave: (e: React.DragEvent) => {
-      console.log('drag leave')
       stopDefaults(e)
       setIsDragOver(false)
       setLabelText(primaryText)
     },
     onDragOver: stopDefaults,
     onDrop: (e: React.DragEvent<HTMLElement>) => {
-      console.log('drop')
       stopDefaults(e)
       setLabelText(primaryText)
       setIsDragOver(false)
@@ -59,8 +56,11 @@ export const FileDropzone = ({
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
-    console.log(files)
+    console.log('files', event.target.files)
+    if (event.target.files) {
+      setFiles(event.target.files)
+      onFiles?.(event.target.files)
+    }
   }
 
   return (
@@ -80,10 +80,6 @@ export const FileDropzone = ({
           // Set cursor to pointer if mouse is over the dropzone
           cursor: 'pointer',
         }}
-        //onClick={(e) => {
-        //  e.stopPropagation()
-        //  e.preventDefault()
-        //}}
       >
         <Card
           sx={{
@@ -112,14 +108,50 @@ export const FileDropzone = ({
               userSelect: 'none',
             }}
           >
-            <Typography
-              variant="h6"
-              gutterBottom={secondaryMessages.length > 0}
-              color={theme.palette.text.secondary}
-            >
-              {primaryText}
-            </Typography>
-            {children}
+            {files ? (
+              <>
+                <Typography
+                  variant="h6"
+                  color={theme.palette.text.secondary}
+                  gutterBottom
+                >
+                  Current File:
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color={theme.palette.text.secondary}
+                  gutterBottom
+                >
+                  {files[0].name}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color={theme.palette.text.secondary}
+                >
+                  Click here or drag and drop to change
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Typography
+                  variant="h6"
+                  color={theme.palette.text.secondary}
+                  gutterBottom={secondaryMessages.length > 0}
+                >
+                  {primaryText}
+                </Typography>
+                {secondaryMessages.map((message, index) => (
+                  <Typography
+                    variant="body2"
+                    color={theme.palette.text.secondary}
+                    key={index}
+                    gutterBottom={index !== secondaryMessages.length - 1}
+                  >
+                    {message}
+                  </Typography>
+                ))}
+              </>
+            )}
           </Stack>
         </Card>
       </label>

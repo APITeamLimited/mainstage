@@ -15,6 +15,8 @@ import {
   Step,
   StepLabel,
   StepContent,
+  Typography,
+  useTheme,
 } from '@mui/material'
 import { useFormik } from 'formik'
 import {
@@ -57,6 +59,8 @@ type AddDomainDialogProps = {
 }
 
 export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
+  const theme = useTheme()
+
   const workspace = useWorkspaceInfo()
   const [txtRecord, setTxtRecord] = useState('')
   const [activeStep, setActiveStep] = useState(0)
@@ -211,6 +215,15 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
                   </Stack>
                 </StepContent>
               </Step>
+              <Step>
+                <StepLabel>Domain Verified</StepLabel>
+                <StepContent>
+                  <Typography color={theme.palette.success.main}>
+                    Domain verified successfully, you&apos;ll now be able to use
+                    it to run tests with greater load limits.
+                  </Typography>
+                </StepContent>
+              </Step>
             </Stepper>
           </DialogContent>
           <DialogActions>
@@ -243,6 +256,11 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
                 disabled={isVerifyingDomain}
               >
                 Verify Domain
+              </Button>
+            )}
+            {activeStep === 2 && (
+              <Button variant="contained" onClick={handleClose}>
+                Close
               </Button>
             )}
           </DialogActions>

@@ -67,15 +67,6 @@ export const addVerifiedDomain = async ({
     )
   }
 
-  // Check verifiedDomain is not already verified for another team
-  const existingInOtherTeam = verifiedDomains.find((d) => d.verified)
-
-  if (existingInOtherTeam) {
-    throw new ServiceValidationError(
-      'Verified domain is already verified by another account, please remove it from your dns records and wait 24 hours for it to be removed.'
-    )
-  }
-
   // Create verifiedDomain
   const newDomain = await db.verifiedDomain.create({
     data: {

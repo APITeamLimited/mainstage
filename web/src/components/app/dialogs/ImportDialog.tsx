@@ -21,6 +21,8 @@ import {
   useTheme,
 } from '@mui/material'
 
+import { importRaw } from 'src/utils/importers'
+
 import { MonacoEditor } from '../collection-editor/MonacoEditor'
 import { FileDropzone } from '../utils/FileDropzone'
 import { SecondaryChips } from '../utils/SecondaryChips'
@@ -46,11 +48,19 @@ export const ImportDialog = () => {
 
   const handleClose = () => {
     importDialogStateVar({ isOpen: false, project: null })
-    setActiveTab(0)
-    setRawText('')
+    handleTabChange(0)
   }
 
-  const handleImport = () => {}
+  const handleTabChange = (newTab: number) => {
+    setRawText('')
+    setActiveTab(newTab)
+  }
+
+  const handleImport = () => {
+    console.log('import', rawText)
+    const result = importRaw(rawText)
+    console.log('result', result)
+  }
 
   return (
     <Dialog open={isOpen} onClose={handleClose} maxWidth="md" fullWidth>
@@ -87,7 +97,7 @@ export const ImportDialog = () => {
           <SecondaryChips
             names={['Raw Text', 'File']}
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={handleTabChange}
           />
           {activeTab === 0 && (
             <Card
@@ -115,14 +125,31 @@ export const ImportDialog = () => {
               />
             </Card>
           )}
-          {activeTab === 1 && <FileDropzone primaryText="Drop file here" />}
+          {activeTab === 1 && (
+            <FileDropzone
+              primaryText="Drop file here"
+              secondaryMessages={['Or click to browse']}
+              onFiles={(files) => {
+                // Set raw tet file 0 contents
+                const reader = new FileReader()
+                reader.readAsText(files[0])
+                reader.onload = (e) => {
+                  console.log('e', e)
+                  if (e.target?.result) {
+                    console.log('setRawText(e.target.result as string)')
+                    setRawText(e.target.result as string)
+                  }
+                }
+              }}
+            />
+          )}
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
         <Button
           onClick={handleImport}
-          disabled={activeTab === 0 ? rawText.length === 0 : true}
+          disabled={rawText.length === 0}
           variant="contained"
         >
           Continue

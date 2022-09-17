@@ -1,5 +1,5 @@
 import { MailmanInput, MailmanOutput } from '@apiteam/mailman'
-import nodemailer from 'nodemailer'
+import sgMail from '@sendgrid/mail'
 import { createClient } from 'redis'
 import { v4 as uuid } from 'uuid'
 
@@ -18,6 +18,8 @@ const mailmanSubscribeRedis = mailmanReadRedis.duplicate()
 
 mailmanReadRedis.connect()
 mailmanSubscribeRedis.connect()
+
+sgMail.setApiKey(checkValue<string>('api.mail.sendgridAPIKey'))
 
 export const dispatchEmail = async (input: MailmanInput<unknown>) => {
   const jobId = uuid()
@@ -42,41 +44,34 @@ export const dispatchEmail = async (input: MailmanInput<unknown>) => {
 
   // Use smtp for now until sendgrid api access
   await Promise.all([
-    handleSMTPSend(input.to, output),
+    handleSendgridSend(input.to, output),
     mailmanReadRedis.del(jobId),
     mailmanReadRedis.sRem('queuedRenderJobs', jobId),
   ])
 }
 
-let smtpTransporter: nodemailer.Transporter | null = null
-
-const smtpHost = checkValue<string>('api.mail.smtp.host')
-const smtpPort = checkValue<number>('api.mail.smtp.port')
-const smtpUserName = checkValue<string>('api.mail.smtp.userName')
-const smtpPassword = checkValue<string>('api.mail.smtp.password')
-
-const handleSMTPSend = async (to: string, output: MailmanOutput) => {
+const handleSendgridSend = async (to: string, output: MailmanOutput) => {
   if (!output.content) throw new Error('No content to send')
 
-  if (!smtpTransporter) {
-    smtpTransporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: smtpPort,
-      secure: true,
-      auth: {
-        user: smtpUserName,
-        pass: smtpPassword,
-      },
-    })
-  }
-
-  await smtpTransporter.sendMail({
-    from: `${checkValue<string>('api.mail.from.name')} ${checkValue<string>(
-      'api.mail.from.email'
-    )}`,
+  const msg = {
     to,
+    from: {
+      email: checkValue<string>('api.mail.from.email'),
+      name: checkValue<string>('api.mail.from.name'),
+    },
     subject: output.content.title,
     html: output.content.html,
     text: output.content.text,
-  })
+  }
+
+  await sgMail.send(msg).then(
+    () => {},
+    (error) => {
+      console.error(error)
+
+      if (error.response) {
+        console.error(error.response.body)
+      }
+    }
+  )
 }

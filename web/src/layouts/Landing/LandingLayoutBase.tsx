@@ -19,6 +19,7 @@ type SplashLayoutProps = {
     }
   }
   disableTop?: boolean
+  backgroundColor?: string
 }
 
 export const LandingLayoutBase = ({
@@ -26,6 +27,7 @@ export const LandingLayoutBase = ({
   footer,
   disableTop = false,
   appBarInner = null,
+  backgroundColor,
 }: SplashLayoutProps) => {
   const theme = useTheme()
 
@@ -67,7 +69,7 @@ export const LandingLayoutBase = ({
             xs: footer.height.xs,
             md: footer.height.md,
           },
-          backgroundColor: theme.palette.background.default,
+          backgroundColor: backgroundColor ?? theme.palette.background.default,
         }}
       >
         <main>{children}</main>

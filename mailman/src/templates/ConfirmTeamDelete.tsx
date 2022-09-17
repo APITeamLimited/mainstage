@@ -50,17 +50,19 @@ export const ConfirmTeamDelete = (
         This action is irreversible and will delete all data associated with
         this team.
       </Alert>
-      <Button
-        variant="contained"
-        color="error"
-        href={deleteLink}
-        sx={{
-          alignSelf: 'center',
-          marginBottom: 2,
-        }}
-      >
-        Delete Team
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="error"
+          href={deleteLink}
+          sx={{
+            alignSelf: 'center',
+            marginBottom: 2,
+          }}
+        >
+          Delete Team
+        </Button>
+      </div>
       <Typography
         variant="body1"
         sx={{

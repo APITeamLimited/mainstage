@@ -1,9 +1,6 @@
 import axios from 'axios'
 
-const storeUrl =
-  process.env['NODE_ENV'] === 'production'
-    ? `${process.env['GATEWAY_URL']}/api/store`
-    : `http://${process.env['STORE_HOST']}:${process.env['STORE_PORT']}/api/store`
+import { getGlobetestUrl } from './upload-resource'
 
 type RetrieveResourceArgs = {
   scopeId: string
@@ -17,7 +14,7 @@ export const retrieveScopedResource = async ({
   resourceName,
 }: RetrieveResourceArgs) => {
   const response = await axios({
-    url: `${storeUrl}/retrieve-scoped-resource`,
+    url: `${getGlobetestUrl()}/retrieve-scoped-resource`,
     method: 'get',
     headers: {
       Authorization: `Bearer ${rawBearer}`,

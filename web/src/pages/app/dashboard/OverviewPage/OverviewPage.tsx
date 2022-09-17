@@ -55,7 +55,7 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
 
   return (
     <Stack spacing={4}>
-      <Stack direction="row" justifyContent="flex-end">
+      <Stack direction="row" justifyContent="flex-end" alignItems="top">
         <Button
           variant="contained"
           color="primary"

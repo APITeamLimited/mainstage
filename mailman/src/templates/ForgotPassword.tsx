@@ -40,17 +40,19 @@ export const ForgotPassword = (input: MailmanInput<ForgotPasswordData>) => {
         Please click the link below to reset your password. This link will
         expire in 15 minutes.
       </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        href={resetLink}
-        sx={{
-          marginBottom: 2,
-          alignSelf: 'center',
-        }}
-      >
-        Reset Password
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          href={resetLink}
+          sx={{
+            marginBottom: 2,
+            alignSelf: 'center',
+          }}
+        >
+          Reset Password
+        </Button>
+      </div>
       <Typography
         variant="body1"
         sx={{
@@ -59,12 +61,20 @@ export const ForgotPassword = (input: MailmanInput<ForgotPasswordData>) => {
         }}
       >
         Can&apos;t click the button? Copy and paste the following link into your
-        browser <a href={resetLink}>{resetLink}</a>
+        browser:
       </Typography>
       <Typography
         variant="body1"
         sx={{
           marginBottom: 2,
+          textAlign: 'center',
+        }}
+      >
+        <a href={resetLink}>{resetLink}</a>
+      </Typography>
+      <Typography
+        variant="body1"
+        sx={{
           textAlign: 'center',
         }}
       >

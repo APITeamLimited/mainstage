@@ -1,89 +1,36 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { Container, Stack } from '@mui/material'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { LazyLoadImage } from 'react-lazy-load-image-component'
 import Typed from 'react-typed'
-
-import { Link, routes } from '@redwoodjs/router'
 
 import { SignUpOrContinueButton } from './SignUpOrContinueButton'
 
 const images = [
   {
-    group: [
-      {
-        cover:
-          'https://docs.microsoft.com/bg-bg/power-bi/consumer/media/end-user-dashboards/power-bi-dashboard.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img1--dark.png',
-      },
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img4.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img4--dark.png',
-      },
-    ],
+    light: require('public/img/splash/app-demo-new-light.png'),
+    dark: require('public/img/splash/app-demo-new-dark.png'),
   },
   {
-    group: [
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img13.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img13--dark.png',
-      },
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img10.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img10--dark.png',
-      },
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img7.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img7--dark.png',
-      },
-    ],
+    light: require('public/img/splash/integrated-load-testing-light.png'),
+    dark: require('public/img/splash/integrated-load-testing-dark.png'),
   },
   {
-    group: [
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img6.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img6--dark.png',
-      },
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img24.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img24--dark.png',
-      },
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img17.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img17--dark.png',
-      },
-      {
-        cover:
-          'https://assets.maccarianagency.com/screenshots/the-front/img12.png',
-        coverDark:
-          'https://assets.maccarianagency.com/screenshots/the-front/img12--dark.png',
-      },
-    ],
+    light: require('public/img/splash/code-generation-light.png'),
+    dark: require('public/img/splash/code-generation-dark.png'),
   },
 ]
 
 const TypedIntro = (): JSX.Element => {
   const theme = useTheme()
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const handleNextImage = () => {
+    console.log('handleNextImage')
+    setCurrentImageIndex((prev) => (prev + 1) % images.length)
+  }
 
   return (
     <Box
@@ -99,8 +46,12 @@ const TypedIntro = (): JSX.Element => {
         marginBottom: 10,
       }}
     >
-      <Box paddingY={{ xs: 0, sm: '4rem', md: '8rem' }}>
-        <Container>
+      <Container>
+        <Stack
+          paddingY={{ xs: 0, sm: '4rem', md: '8rem' }}
+          alignItems="baseline"
+          direction="row"
+        >
           <Box maxWidth={{ xs: 1, sm: '50%' }}>
             <Typography
               variant="h2"
@@ -130,8 +81,9 @@ const TypedIntro = (): JSX.Element => {
                     'with load testing',
                     'that scale',
                   ]}
-                  typeSpeed={100}
+                  typeSpeed={150}
                   loop={true}
+                  preStringTyped={handleNextImage}
                 />
               </Typography>
             </Typography>
@@ -164,51 +116,34 @@ const TypedIntro = (): JSX.Element => {
             </Button>*/}
             </Stack>
           </Box>
-        </Container>
-        <Box
-          sx={{
-            transform: 'rotate(-20deg)',
-            display: { xs: 'none', sm: 'block' },
-          }}
-        >
-          <Box
-            display={'flex'}
-            width={'50rem'}
-            left={'45%'}
-            top={0}
-            position={'absolute'}
-            sx={{
-              transform: 'translate3d(15%, -30%, 0)',
-            }}
-          >
-            {images.map((item, i) => (
-              <Box key={i} marginTop={{ sm: -(i * 16) }} marginX={1}>
-                {item.group.map((g, j) => (
-                  <Box
-                    key={j}
-                    padding={1}
-                    bgcolor={'background.paper'}
-                    borderRadius={2}
-                    boxShadow={3}
-                    marginTop={2}
-                  >
-                    <Box
-                      component={LazyLoadImage}
-                      effect="blur"
-                      src={
-                        theme.palette.mode === 'dark' ? g.coverDark : g.cover
-                      }
-                      height={1}
-                      width={1}
-                      maxWidth={320}
-                    />
-                  </Box>
-                ))}
-              </Box>
-            ))}
-          </Box>
-        </Box>
-      </Box>
+          {images.map((image, index) => (
+            <Box
+              sx={{
+                display: { xs: 'none', sm: 'block' },
+                maxWidth: { xs: 1, sm: '75%' },
+                position: 'absolute',
+                width: '100%',
+                right: 0,
+                textAlign: 'right',
+                top: '4rem',
+              }}
+              key={index}
+            >
+              <img
+                src={theme.palette.mode == 'light' ? image.light : image.dark}
+                width="100%"
+                alt="Splash demo"
+                style={{
+                  // Fade to white when src changes
+                  transition: 'opacity 0.5s ease-in-out',
+                  opacity: currentImageIndex === index ? 0.2 : 0,
+                  maxWidth: '1000px',
+                }}
+              />
+            </Box>
+          ))}
+        </Stack>
+      </Container>
       <Box
         sx={{
           height: '15vh',

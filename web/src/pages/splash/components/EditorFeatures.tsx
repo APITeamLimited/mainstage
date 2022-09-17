@@ -17,7 +17,8 @@ const EditorFeatures = (): JSX.Element => {
   return (
     <Container
       sx={{
-        marginY: 20,
+        paddingY: 20,
+        backgroundColor: theme.palette.background.paper,
       }}
     >
       <Grid container spacing={4}>
@@ -106,32 +107,29 @@ const EditorFeatures = (): JSX.Element => {
               sx={{
                 position: 'relative',
                 borderRadius: '2.75rem',
-                boxShadow: 1,
+                boxShadow: 0,
                 width: '75% !important',
                 marginX: 'auto',
               }}
             >
-              <Box>
-                <Box
-                  position={'relative'}
-                  zIndex={2}
-                  maxWidth={1}
-                  height={'auto'}
-                  sx={{
-                    verticalAlign: 'middle',
-                    display: { xs: 'none', sm: 'block' },
-                    overflow: 'show',
-                  }}
-                >
-                  <img
-                    src={
-                      theme.palette.mode === 'light'
-                        ? require('public/img/app-demo-light.png')
-                        : require('public/img/app-demo-dark.png')
-                    }
-                    alt=""
-                  />
-                </Box>
+              <Box
+                position={'relative'}
+                zIndex={2}
+                maxWidth={1}
+                height={'auto'}
+                sx={{
+                  verticalAlign: 'middle',
+                  display: { xs: 'none', sm: 'block' },
+                }}
+              >
+                <img
+                  src={
+                    theme.palette.mode === 'light'
+                      ? require('public/img/splash/app-demo-new-light.png')
+                      : require('public/img/splash/app-demo-new-dark.png')
+                  }
+                  alt="App demo"
+                />
               </Box>
             </Box>
             <Box

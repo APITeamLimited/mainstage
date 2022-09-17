@@ -43,9 +43,7 @@ export const performVerification = async ({
   }
 
   if (verifiedDomain.verified) {
-    throw new ServiceValidationError(
-      'Domain is already verified by another account, please remove it from your dns records and wait 24 hours for it to be removed.'
-    )
+    throw new ServiceValidationError('Domain is already verified')
   }
 
   // Lookup DNS txt record, convert to promise

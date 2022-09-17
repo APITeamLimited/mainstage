@@ -54,17 +54,19 @@ export const TeamInvitation = (input: MailmanInput<TeamInvitationData>) => {
         invited you to join their team {teamName} on APITeam. If you would like
         to join this team, please click the button below.
       </Typography>
-      <Button
-        variant="contained"
-        color="primary"
-        href={acceptLink}
-        sx={{
-          marginBottom: 2,
-          alignSelf: 'center',
-        }}
-      >
-        Accept Invitation
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          href={acceptLink}
+          sx={{
+            marginBottom: 2,
+            alignSelf: 'center',
+          }}
+        >
+          Accept Invitation
+        </Button>
+      </div>
       <Typography
         variant="body1"
         sx={{
@@ -75,16 +77,18 @@ export const TeamInvitation = (input: MailmanInput<TeamInvitationData>) => {
         If you do not wish to join this team, simply ignore this email or click
         decline below.
       </Typography>
-      <Button
-        variant="contained"
-        color="error"
-        href={declineLink}
-        sx={{
-          alignSelf: 'center',
-        }}
-      >
-        Decline Invitation
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="error"
+          href={declineLink}
+          sx={{
+            alignSelf: 'center',
+          }}
+        >
+          Decline Invitation
+        </Button>
+      </div>
     </BaseMessageLayout>
   )
 }

@@ -24,6 +24,7 @@ __metadata:
     "@redwoodjs/api": 2.0.0
     "@redwoodjs/api-server": ^2.2.0
     "@redwoodjs/graphql-server": 2.0.0
+    "@sendgrid/mail": ^7.7.0
     "@types/extract-domain": ^2.3.1
     "@types/nodemailer": ^6.4.5
     "@types/yargs": ^17.0.12
@@ -6382,6 +6383,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sendgrid/client@npm:^7.7.0":
+  version: 7.7.0
+  resolution: "@sendgrid/client@npm:7.7.0"
+  dependencies:
+    "@sendgrid/helpers": ^7.7.0
+    axios: ^0.26.0
+  checksum: acf1db2dcc5181f6f9befba811ba6acb31e50051ab6bded952cb073f117c9237d86013602cdf523b91582c40545e1085a413f1e9e490a46b1d664a5c956c1f3f
+  languageName: node
+  linkType: hard
+
+"@sendgrid/helpers@npm:^7.7.0":
+  version: 7.7.0
+  resolution: "@sendgrid/helpers@npm:7.7.0"
+  dependencies:
+    deepmerge: ^4.2.2
+  checksum: 14dfe9af191dd9ad18f0b2744d6d12dbc80f830507b6112d8c4c1c4741ff282393a06e4b4559c0f404d33971639ecadb1017e0cc3b7187e56ec64ab9ee5ff21c
+  languageName: node
+  linkType: hard
+
+"@sendgrid/mail@npm:^7.7.0":
+  version: 7.7.0
+  resolution: "@sendgrid/mail@npm:7.7.0"
+  dependencies:
+    "@sendgrid/client": ^7.7.0
+    "@sendgrid/helpers": ^7.7.0
+  checksum: 5a1d617f1e3f8d47d4fe188ff08f18fca63e3006545ad1f954bf30887806c810f6c0dea7d8850c24de03b3aca75f70f4324369ed2497d957870b8a65f1451127
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.24.1":
   version: 0.24.20
   resolution: "@sinclair/typebox@npm:0.24.20"
@@ -10441,6 +10471,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:^0.26.0":
+  version: 0.26.1
+  resolution: "axios@npm:0.26.1"
+  dependencies:
+    follow-redirects: ^1.14.8
+  checksum: 77ad7f1e6ca04fcd3fa8af1795b09d8b7c005b71a31f28d99ba40cda0bdcc12a4627801d7fac5efa62b9f667a8402bd54c669039694373bc8d44f6be611f785c
+  languageName: node
+  linkType: hard
+
 "axios@npm:^0.27.2":
   version: 0.27.2
   resolution: "axios@npm:0.27.2"
@@ -14458,6 +14497,7 @@ __metadata:
     jsonwebtoken: ^8.5.1
     lib0: ^0.2.51
     lodash: ^4.17.21
+    mongodb: ^4.9.0
     nodemon: ^2.0.19
     query-string: ^7.1.1
     redis: ^4.2.0
@@ -16458,6 +16498,16 @@ __metadata:
     debug:
       optional: true
   checksum: ea21337fe38eac8d75f5af12c425cc40e0bb44dcc3091fd0bde1c828596251a7a9638b5720fee5a0a5c62524450cbe16c52aae1dce88c6aee68577e441842e7f
+  languageName: node
+  linkType: hard
+
+"follow-redirects@npm:^1.14.8":
+  version: 1.15.2
+  resolution: "follow-redirects@npm:1.15.2"
+  peerDependenciesMeta:
+    debug:
+      optional: true
+  checksum: da5932b70e63944d38eecaa16954bac4347036f08303c913d166eda74809d8797d38386e3a0eb1d2fe37d2aaff2764cce8e9dbd99459d860cf2cdfa237923b5f
   languageName: node
   linkType: hard
 

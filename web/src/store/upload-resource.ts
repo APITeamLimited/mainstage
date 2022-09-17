@@ -1,9 +1,23 @@
 import axios from 'axios'
 
-const storeUrl =
-  process.env['NODE_ENV'] === 'production'
-    ? `${process.env['GATEWAY_URL']}/api/store`
-    : `http://${process.env['STORE_HOST']}:${process.env['STORE_PORT']}/api/store`
+export const getGlobetestUrl = () => {
+  if (process.env.NODE_ENV === 'development') {
+    const host = process.env['STORE_HOST']
+    const port = process.env['STORE_PORT']
+
+    if (!(host && port)) {
+      throw new Error(
+        `STORE_HOST and STORE_PORT must be set, got ${host} and ${port}`
+      )
+    }
+
+    return `http://${process.env['STORE_HOST']}:${process.env['STORE_PORT']}/api/store`
+  } else {
+    // Get current domain
+    const domain = window.location.hostname
+    return `https://${domain}/api/store`
+  }
+}
 
 type UploadResourceArgs = {
   scopeId: string
@@ -22,7 +36,7 @@ export const uploadResource = async ({
   form.append(resourceName, resource, resourceName)
 
   const response = await axios({
-    url: `${storeUrl}/submit-scoped-resource`,
+    url: `${getGlobetestUrl()}/submit-scoped-resource`,
     method: 'post',
     data: form,
     headers: {

@@ -13,6 +13,7 @@ import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
 import * as map from 'lib0/map'
 import * as mutex from 'lib0/mutex'
+import { MongoClient } from 'mongodb'
 import { Socket } from 'socket.io'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
@@ -29,6 +30,7 @@ import {
 } from '../redis'
 import { getAndSetAPIPublicKey } from '../services'
 
+import { MultiPersitenceProvider } from './multi-persistence-provider'
 import * as syncProtocol from './sync'
 import { createMemberAwareness, handlePostAuth, LastOnlineTime } from './utils'
 import { RedisPersistence } from './y-redis'
@@ -38,6 +40,18 @@ const issuer = checkValue<string>('api.bearer.issuer')
 
 const bannedAwarenessKeys = ['variantTargetId', 'variant', 'team', 'members']
 
+/*const mongoHost = checkValue<string>('entity-engine.mongo.host')
+const mongoPort = checkValue<number>('entity-engine.mongo.port')
+const mongoUsername = checkValue<string>('entity-engine.mongo.userName')
+const mongoPassword = checkValue<string>('entity-engine.mongo.password')
+const mongoDatabase = checkValue<string>('entity-engine.mongo.database')
+
+const mongoUrl = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/`
+
+const mongoClient = new MongoClient(mongoUrl)
+
+mongoClient.connect()*/
+
 const persistenceProvider = new RedisPersistence({
   redisOpts: {
     port: eeRedisPort,
@@ -45,6 +59,7 @@ const persistenceProvider = new RedisPersistence({
     username: eeRedisUsername,
     password: eeRedisPassword,
   },
+  //mongoDb: mongoClient.db(mongoDatabase),
 })
 
 export const handleNewConnection = async (socket: Socket) => {

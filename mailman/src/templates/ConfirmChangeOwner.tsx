@@ -64,17 +64,19 @@ export const ConfirmChangeOwner = (
         You will remain an admin of the team, but will no longer have owner
         rights
       </Alert>
-      <Button
-        variant="contained"
-        color="error"
-        href={changeOwnerLink}
-        sx={{
-          alignSelf: 'center',
-          marginBottom: 2,
-        }}
-      >
-        Transfer Ownership
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="error"
+          href={changeOwnerLink}
+          sx={{
+            alignSelf: 'center',
+            marginBottom: 2,
+          }}
+        >
+          Transfer Ownership
+        </Button>
+      </div>
       <Typography
         variant="body1"
         sx={{

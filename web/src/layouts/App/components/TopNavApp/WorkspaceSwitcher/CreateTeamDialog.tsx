@@ -125,7 +125,6 @@ export const CreateTeamDialog = ({
               onChange={formik.handleChange}
               error={Boolean(formik.touched.slug && formik.errors.slug)}
               helperText={formik.touched.slug && formik.errors.slug}
-              multiline
             />
             <Typography variant="body1">
               Creating a team will not impact your personal account and its

@@ -8,6 +8,7 @@
     "@redwoodjs/api": "2.0.0",
     "@redwoodjs/api-server": "^2.2.0",
     "@redwoodjs/graphql-server": "2.0.0",
+    "@sendgrid/mail": "^7.7.0",
     "@types/nodemailer": "^6.4.5",
     "@types/yargs": "^17.0.12",
     "extract-domain": "^2.4.8",

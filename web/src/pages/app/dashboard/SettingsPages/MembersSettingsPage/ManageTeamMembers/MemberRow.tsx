@@ -110,7 +110,7 @@ export const MemberRow = ({
         showRemoveFromTeam: false,
         showMakeMember: false,
         showMakeAdmin: false,
-        denyReason: 'Only the owner can change the owner',
+        denyReason: "Only the owner can change the owner's role",
       }
     } else if (membership.role === 'ADMIN') {
       if (userRole === 'OWNER') {

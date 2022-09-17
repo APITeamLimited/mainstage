@@ -48,16 +48,18 @@ export const SignupWelcome = (input: MailmanInput<SignupWelcomeData>) => {
       >
         To get started, head over to the dashboard:
       </Typography>
-      <Button
-        variant="contained"
-        color="success"
-        href={dashboardLink}
-        sx={{
-          alignSelf: 'center',
-        }}
-      >
-        Go to Dashboard
-      </Button>
+      <div style={{ textAlign: 'center', width: '100%', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          color="success"
+          href={dashboardLink}
+          sx={{
+            alignSelf: 'center',
+          }}
+        >
+          Go to Dashboard
+        </Button>
+      </div>
     </BaseMessageLayout>
   )
 }
