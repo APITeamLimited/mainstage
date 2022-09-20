@@ -3,20 +3,13 @@ import { useEffect, useState } from 'react'
 import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
 import { ContentEditable } from '@lexical/react/LexicalContentEditable'
+import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin'
 import { useTheme } from '@mui/material'
-import {
-  $createParagraphNode,
-  $getRoot,
-  $createTextNode,
-  EditorState,
-  LexicalNode,
-  ParagraphNode,
-} from 'lexical'
+import { $getRoot, EditorState, LexicalNode, ParagraphNode } from 'lexical'
 
-import { EnvironmentTextFieldProps } from './EnvironmentTextFieldComponent'
-import { $createVariableNode } from './VariableNode'
+import { EnvironmentTextFieldProps } from './EnvironmentTextField'
 import VariablesPlugin from './VariablePlugin'
 
 export const convertToText = (editorState: EditorState): string => {
@@ -26,17 +19,20 @@ export const convertToText = (editorState: EditorState): string => {
       const firstRootChildren = root.getChildren()
 
       // Get children of first child
-      const grandChildren = firstRootChildren[0].getChildren()
-
-      return grandChildren
-        .map((grandChild: LexicalNode) => {
-          if (grandChild.__type === 'text') {
-            return grandChild.__text as string
-          } else if (grandChild.__type === 'variable') {
-            return grandChild.__variable as string
-          } else {
-            throw `Unsupported node type: ${grandChild.__type}`
-          }
+      return firstRootChildren
+        .map((child) => {
+          const grandChildren = child.getChildren()
+          return grandChildren
+            .map((grandChild: LexicalNode) => {
+              if (grandChild.__type === 'text') {
+                return grandChild.getTextContent()
+              } else if (grandChild.__type === 'variable') {
+                return grandChild.__variable as string
+              } else {
+                throw `Unsupported node type: ${grandChild.__type}`
+              }
+            })
+            .join('')
         })
         .join('')
     }
@@ -45,15 +41,15 @@ export const convertToText = (editorState: EditorState): string => {
 }
 
 export const InnerValues = ({
-  placeholder,
-  value = '',
   onChange = () => {},
   namespace,
   contentEditableStyles = {},
-}: EnvironmentTextFieldProps) => {
+}: {
+  onChange: EnvironmentTextFieldProps['onChange']
+  namespace: EnvironmentTextFieldProps['namespace']
+  contentEditableStyles: EnvironmentTextFieldProps['contentEditableStyles']
+}) => {
   const [editor] = useLexicalComposerContext()
-  const theme = useTheme()
-  const [oldValue, setOldValue] = useState('')
 
   useEffect(() => {
     // Delete any line break ndoes
@@ -65,60 +61,6 @@ export const InnerValues = ({
       })
     })
   }, [editor])
-
-  useEffect(() => {
-    editor.update(() => {
-      const existingState = convertToText(editor.getEditorState())
-
-      if (existingState === value) {
-        return
-      }
-
-      if (value === '') {
-        const root = $getRoot()
-        root.clear()
-        const paragraph = $createParagraphNode()
-        paragraph.append($createTextNode(value))
-        root.append(paragraph)
-      }
-
-      if (existingState !== oldValue) {
-        // Required to prevent incorrect buffer being rendered
-        return
-      } else if (existingState !== value) {
-        const root = $getRoot()
-        root.clear()
-        const paragraph = $createParagraphNode()
-
-        // Find substrings that start and end with curly braces
-        const regex = /{(.*?)}/
-        const matches = value.match(regex) || []
-
-        // Split value into an array of strings, divided by matches
-        const values = value.split(regex)?.filter((match) => match !== '')
-
-        let matchesIndex = 0
-
-        values.forEach((subValue) => {
-          // Check if value is the value at matchIndex
-          if (matchesIndex >= matches.length) {
-            paragraph.append($createTextNode(subValue))
-          } else if (`{${subValue}}` === matches[matchesIndex]) {
-            paragraph.append($createVariableNode(`{${subValue}}`))
-            matchesIndex++
-          } else {
-            paragraph.append($createTextNode(subValue))
-          }
-        })
-
-        root.append(paragraph)
-        setOldValue(value)
-      }
-
-      // Must focus
-      //editor.focus()
-    })
-  }, [editor, namespace, oldValue, value])
 
   const handeChange = (editorState: EditorState) => {
     onChange(convertToText(editorState), namespace)
@@ -170,7 +112,8 @@ export const InnerValues = ({
       />
       {/*
       To enable history, need to stop being mixed up between components
-      <HistoryPlugin />*/}
+      */}
+      <HistoryPlugin />
       <VariablesPlugin />
       <ClearEditorPlugin />
       <OnChangePlugin onChange={handeChange} />

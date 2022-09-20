@@ -5,6 +5,8 @@ import * as Y from 'yjs'
 
 import { uploadResource } from 'src/store'
 
+import { getAuth } from './utils'
+
 export const handleRESTImport = async ({
   item,
   scopeId,
@@ -171,31 +173,5 @@ const getBody = async ({
         body: item.body?.text,
       }
     }
-  }
-}
-
-const getAuth = async ({ item }: { item: ImportRequest }) => {
-  if (item.authentication?.type === 'basic') {
-    return {
-      authType: 'basic',
-      username: item.authentication.username,
-      password: item.authentication.password,
-    }
-  } else if (item.authentication?.disabled) {
-    return {
-      authType: 'none',
-    }
-  } else if (item.authentication?.type === 'oauth2') {
-    return {
-      authType: 'oauth2',
-      token: item.authentication.clientSecret,
-      oidcDiscoveryURL: item.authentication.accessTokenUrl,
-      authorizationURL: item.authentication.authorizationUrl,
-      clientID: item.authentication.clientId,
-      scope: item.authentication.scope,
-    }
-  }
-  return {
-    authType: 'inherit',
   }
 }

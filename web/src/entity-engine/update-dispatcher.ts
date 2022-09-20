@@ -1,12 +1,7 @@
 import { Workspace } from '@apiteam/types'
 import * as Y from 'yjs'
 
-import {
-  activeEnvironmentVar,
-  localRESTResponsesVar,
-} from 'src/contexts/reactives'
-
-import { populateOpenDoc } from '../../../entity-engine/src/entities'
+import { activeEnvironmentVar } from 'src/contexts/reactives'
 
 import { PossibleSyncStatus } from './utils'
 
@@ -27,7 +22,6 @@ export const updateDispatcher = ({
 }: UpdateDispatcherArgs) => {
   // If is initial, then we clear the reactive variables
   if (initial) {
-    localRESTResponsesVar([])
     activeEnvironmentVar({})
   }
 

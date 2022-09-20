@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
-import { Environment, RESTAuth, RESTRequest } from '@apiteam/types'
+import { Environment } from '@apiteam/types'
+import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
@@ -8,7 +9,6 @@ import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { restRequestQueueVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 import { useScopes } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
@@ -61,7 +61,6 @@ export const RESTInputPanel = ({
   )
 
   const jobQueue = useReactiveVar(jobQueueVar)
-  const queue = useReactiveVar(restRequestQueueVar)
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -163,7 +162,8 @@ export const RESTInputPanel = ({
 
     singleRESTRequestGenerator({
       request,
-      activeEnvironment: activeEnvironment.data as unknown as Environment,
+      activeEnvironmentYMap,
+      collectionYMap,
       // Normal send is always main scope i.e. workspace
       scopeId,
       jobQueue,

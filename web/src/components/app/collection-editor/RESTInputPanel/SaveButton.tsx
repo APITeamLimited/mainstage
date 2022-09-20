@@ -7,17 +7,19 @@ import { Button, ButtonGroup, MenuItem, Popover, Stack } from '@mui/material'
 type SaveButtonProps = {
   needSave: boolean
   onSave: () => void
-  onSaveAs: () => void
+  onSaveAs?: () => void
 }
 
 export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
   const [showSaveOptionsPopover, setShowSaveOptionsPopover] = useState(false)
   const buttonGroupRef = useRef<HTMLDivElement>(null)
 
-  const handleSaveAsClick = () => {
-    setShowSaveOptionsPopover(false)
-    onSaveAs()
-  }
+  const handleSaveAsClick = onSaveAs
+    ? () => {
+        setShowSaveOptionsPopover(false)
+        onSaveAs()
+      }
+    : undefined
 
   return (
     <>
@@ -35,31 +37,35 @@ export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
         >
           Save
         </Button>
-        <Button
-          onClick={() => setShowSaveOptionsPopover(true)}
+        {onSaveAs && (
+          <Button
+            onClick={() => setShowSaveOptionsPopover(true)}
+            sx={{
+              paddingX: '0px',
+            }}
+          >
+            <KeyboardArrowDownIcon />
+          </Button>
+        )}
+      </ButtonGroup>
+      {onSaveAs && (
+        <Popover
+          anchorEl={buttonGroupRef.current}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          onClose={() => setShowSaveOptionsPopover(false)}
+          open={showSaveOptionsPopover}
           sx={{
-            paddingX: '0px',
+            mt: 1,
           }}
         >
-          <KeyboardArrowDownIcon />
-        </Button>
-      </ButtonGroup>
-      <Popover
-        anchorEl={buttonGroupRef.current}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        onClose={() => setShowSaveOptionsPopover(false)}
-        open={showSaveOptionsPopover}
-        sx={{
-          mt: 1,
-        }}
-      >
-        <Stack>
-          <MenuItem onClick={handleSaveAsClick}>Save As</MenuItem>
-        </Stack>
-      </Popover>
+          <Stack>
+            <MenuItem onClick={handleSaveAsClick}>Save As</MenuItem>
+          </Stack>
+        </Popover>
+      )}
     </>
   )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { RESTAuth } from '@apiteam/types'
-import FolderIcon from '@mui/icons-material/Folder'
+import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import {
   ListItem,
   ListItemIcon,
@@ -9,47 +9,40 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import { v4 as uuid } from 'uuid'
 
-import { duplicateRecursive } from '../CollectionTree/Node/utils'
 import { DescriptionPanel } from '../DescriptionPanel'
+import { KeyValueEditor } from '../KeyValueEditor'
 import { PanelLayout } from '../PanelLayout'
 import { AuthPanel } from '../RESTInputPanel/AuthPanel'
 import { SaveButton } from '../RESTInputPanel/SaveButton'
 
-import { SaveAsDialog } from './SaveAsDialog'
-
-type FolderInputPanelProps = {
-  folderId: string
+type CollectionInputPanelProps = {
   collectionYMap: Y.Map<any>
 }
 
-export const FolderInputPanel = ({
-  folderId,
+export const CollectionInputPanel = ({
   collectionYMap,
-}: FolderInputPanelProps) => {
-  const foldersYMap = collectionYMap.get('folders')
-  const restRequestsYMap = collectionYMap.get('restRequests')
-  const folderYMap = foldersYMap.get(folderId)
-
+}: CollectionInputPanelProps) => {
   const getSetAuth = () => {
-    folderYMap.set('auth', {
+    collectionYMap.set('auth', {
       authType: 'inherit',
     })
 
-    return folderYMap.get('auth')
+    return collectionYMap.get('auth')
   }
 
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    folderYMap.get('description') || ''
+    collectionYMap.get('description') || ''
   )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
-    folderYMap.get('auth') ?? getSetAuth()
+    collectionYMap.get('auth') ?? getSetAuth()
+  )
+  const [unsavedVariables, setUnsavedVariables] = useState(
+    collectionYMap.get('variables')
   )
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [needSave, setNeedSave] = useState(false)
-  const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
   // Update needSave when any of the unsaved fields change
@@ -57,38 +50,32 @@ export const FolderInputPanel = ({
     if (!needSave) {
       setNeedSave(
         JSON.stringify(unsavedDescription) !==
-          JSON.stringify(folderYMap.get('description')) ||
-          JSON.stringify(unsavedAuth) !== JSON.stringify(folderYMap.get('auth'))
+          JSON.stringify(collectionYMap.get('description')) ||
+          JSON.stringify(unsavedAuth) !==
+            JSON.stringify(collectionYMap.get('auth')) ||
+          JSON.stringify(unsavedVariables) !==
+            JSON.stringify(collectionYMap.get('variables'))
       )
     }
-  }, [needSave, folderYMap, unsavedDescription, unsavedAuth])
+  }, [
+    needSave,
+    collectionYMap,
+    unsavedDescription,
+    unsavedAuth,
+    unsavedVariables,
+  ])
 
   const handleSave = () => {
-    folderYMap.set('description', unsavedDescription)
-    folderYMap.set('auth', unsavedAuth)
+    collectionYMap.set('auth', unsavedAuth)
+    collectionYMap.set('variables', unsavedVariables)
+    collectionYMap.set('description', unsavedDescription)
     setNeedSave(false)
-  }
-
-  const handleSaveAs = (newName: string) => {
-    const newId = uuid()
-
-    duplicateRecursive({
-      nodeYMap: folderYMap,
-      foldersYMap,
-      restRequestsYMap,
-      newId,
-    })
-
-    const newFolder = foldersYMap.get(newId)
-    newFolder.set('name', newName)
-    newFolder.set('auth', unsavedAuth)
-    newFolder.set('description', unsavedDescription)
   }
 
   return (
     <>
       <PanelLayout
-        tabNames={['Auth', 'Description']}
+        tabNames={['Variables', 'Auth', 'Description']}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -111,7 +98,7 @@ export const FolderInputPanel = ({
               }}
             >
               <ListItemIcon>
-                <FolderIcon />
+                <FeaturedPlayListIcon />
               </ListItemIcon>
               <ListItemText
                 primary={
@@ -122,7 +109,7 @@ export const FolderInputPanel = ({
                       userSelect: 'none',
                     }}
                   >
-                    {folderYMap.get('name')}
+                    {collectionYMap.get('name')}
                   </Typography>
                 }
                 sx={{
@@ -131,23 +118,28 @@ export const FolderInputPanel = ({
                 }}
               />
             </ListItem>
-            <SaveButton
-              needSave={needSave}
-              onSave={handleSave}
-              onSaveAs={() => setShowSaveAsDialog(true)}
-            />
+            <SaveButton needSave={needSave} onSave={handleSave} />
           </Stack>
         }
       >
         {activeTabIndex === 0 && (
-          <AuthPanel
-            auth={unsavedAuth}
-            setAuth={setUnsavedAuth}
-            namespace={folderYMap.get('id')}
+          <KeyValueEditor
+            items={unsavedVariables}
+            setItems={setUnsavedVariables}
+            namespace={`${collectionYMap.get('id')}}-variables`}
             setActionArea={setActionArea}
           />
         )}
         {activeTabIndex === 1 && (
+          <AuthPanel
+            auth={unsavedAuth}
+            setAuth={setUnsavedAuth}
+            namespace={collectionYMap.get('id')}
+            setActionArea={setActionArea}
+            disableInherit
+          />
+        )}
+        {activeTabIndex === 2 && (
           <DescriptionPanel
             description={unsavedDescription}
             setDescription={setUnsavedDescription}
@@ -155,11 +147,6 @@ export const FolderInputPanel = ({
           />
         )}
       </PanelLayout>
-      <SaveAsDialog
-        open={showSaveAsDialog}
-        onClose={() => setShowSaveAsDialog(false)}
-        onSave={handleSaveAs}
-      />
     </>
   )
 }

@@ -19,12 +19,7 @@ import {
   Chip,
 } from '@mui/material'
 
-import { useWorkspace } from 'src/entity-engine'
-import {
-  useRawBearer,
-  useScopeId,
-  useWorkspaceInfo,
-} from 'src/entity-engine/EntityEngine'
+import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { getImporterNames, importRaw, ImportResult } from 'src/utils/importer'
 import { buildOrderingIndex } from 'src/utils/ordering-index'
 
@@ -96,7 +91,6 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
 
       if (importResult.environment) {
         const { environmentId, environment } = importResult.environment
-        console.log('environmentId', environmentId, environment)
         branch?.get('environments')?.set(environmentId, environment)
       }
     }
@@ -131,6 +125,11 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
       value: importResult.foldersCount.toString(),
     })
 
+    results.push({
+      key: 'Collection Variables',
+      value: importResult.collection.variableCount.toString(),
+    })
+
     if (importResult.environment) {
       results.push({
         key: 'Environment',
@@ -139,7 +138,7 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
 
       results.push({
         key: 'Environment Variables',
-        value: importResult.environment.variablesCount.toString(),
+        value: importResult.environment.variableCount.toString(),
       })
     }
 

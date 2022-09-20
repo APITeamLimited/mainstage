@@ -3,17 +3,18 @@ import * as Y from 'yjs'
 
 import { handleFolderImport } from './folder'
 import { handleRESTImport } from './rest-request'
-import { importToInsomnia } from './utils'
+import { getAuth, importToInsomnia } from './utils'
 
 export type ImportResult = {
   collection: {
     collectionId: string
     collection: Y.Map<any>
+    variableCount: number
   }
   environment: {
     environmentId: string
     environment: Y.Map<any>
-    variablesCount: number
+    variableCount: number
   } | null
   restRequestsCount: number
   foldersCount: number
@@ -73,18 +74,10 @@ export const importRaw = async ({
   collection.set('description', grp1.description)
   collection.set('__typename', 'Collection')
 
-  let environment = null as Y.Map<any> | null
-  let environmentId = null as string | null
-  let variablesCount = 0
+  let collectionVariableCount = 0
+
   if (grp1.variable) {
-    environment = new Y.Map()
-    environmentId = uuid()
-    environment.set('id', environmentId)
-    environment.set('name', grp1.name)
-    environment.set('createdAt', new Date().toISOString())
-    environment.set('updatedAt', null)
-    environment.set('__typename', 'Environment')
-    environment.set(
+    collection.set(
       'variables',
       Object.entries(
         grp1.variable as {
@@ -98,8 +91,10 @@ export const importRaw = async ({
       }))
     )
 
-    variablesCount = Object.keys(grp1.variable).length
+    collectionVariableCount = Object.keys(grp1.variable).length
   }
+
+  collection.set('auth', await getAuth({ item: grp1, disableInherit: true }))
 
   // Remove grp1 from output
   output.splice(output.indexOf(grp1), 1)
@@ -165,15 +160,12 @@ export const importRaw = async ({
   collection.set('folders', folders)
 
   return {
-    collection: { collectionId, collection },
-    environment:
-      environmentId && environment
-        ? {
-            environmentId,
-            environment,
-            variablesCount,
-          }
-        : null,
+    collection: {
+      collectionId,
+      collection,
+      variableCount: collectionVariableCount,
+    },
+    environment: null,
     restRequestsCount,
     foldersCount,
     importerName,

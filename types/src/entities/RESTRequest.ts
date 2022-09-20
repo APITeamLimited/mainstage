@@ -2,7 +2,7 @@ import { KeyValueItem, StoredObject } from '..'
 
 import { BaseEntity } from '.'
 
-export const knownContentTypes = {
+const knownContentTypes = {
   'application/json': 'json',
   //'application/ld+json': 'json',
   //'application/hal+json': 'json',
@@ -12,7 +12,9 @@ export const knownContentTypes = {
   'multipart/form-data': 'multipart',
   'text/html': 'html',
   'text/plain': 'plain',
-}
+} as const
+
+export const getKnownContentTypes = () => Object.keys(knownContentTypes)
 
 export type ValidContentTypes = keyof typeof knownContentTypes | null
 
@@ -71,7 +73,6 @@ export type RESTAuth =
   | RESTAuthBearer
   | RESTAuthOAuth2
   | RESTAuthAPIKey
-//| RESTInheritAuth
 
 export type FormDataKeyValue = {
   id: number

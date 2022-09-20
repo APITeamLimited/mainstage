@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 
+import {
+  getKnownContentTypes,
+  RESTReqBody,
+  ValidContentTypes,
+} from '@apiteam/types/src/entities'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import { Stack, useTheme } from '@mui/material'
 
-import {
-  ValidContentTypes,
-  RESTReqBody,
-  knownContentTypes,
-} from 'src/contexts/reactives'
 import { codeFormatter } from 'src/utils/codeFormatter'
 
 import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
@@ -23,7 +23,7 @@ type BodyPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
 }
 
-const possibleContentTypes = [...Object.keys(knownContentTypes), 'None']
+const possibleContentTypes = [...getKnownContentTypes(), 'None']
 
 const getIndexOfContentType = (contentType: string | null) => {
   const findWith = contentType === null ? 'None' : contentType

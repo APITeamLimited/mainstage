@@ -1,6 +1,8 @@
 import { ImportRequest } from 'insomnia-importers'
 import * as Y from 'yjs'
 
+import { getAuth } from './utils'
+
 export const handleFolderImport = async ({
   item,
   foundIds,
@@ -26,6 +28,7 @@ export const handleFolderImport = async ({
   folder.set('orderingIndex', 0)
 
   folder.set('description', item.description)
+  folder.set('auth', await getAuth({ item }))
 
   return { folderId, folder }
 }

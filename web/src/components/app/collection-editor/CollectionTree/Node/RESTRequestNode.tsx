@@ -92,7 +92,11 @@ export const RESTRequestNode = ({
         minHeight: '48px',
         paddingY: 0,
       }}
-      onClick={handleClick}
+      onClick={(event) => {
+        event.stopPropagation()
+        event.preventDefault()
+        handleClick()
+      }}
     >
       {!renaming && (
         <ListItemIcon

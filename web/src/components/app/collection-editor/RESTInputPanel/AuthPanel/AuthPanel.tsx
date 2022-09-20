@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { RESTAuth } from '@apiteam/types'
 import InputIcon from '@mui/icons-material/Input'
@@ -41,26 +41,12 @@ const authMethodLabels = [
   },
 ]
 
-const getIndexOfAuthMethod = (authMethod: string) => {
-  return (
-    authMethodLabels
-      .map((method) => method.authType)
-      .findIndex((knownContentType) => knownContentType === authMethod) || null
-  )
-}
-
-const getAuthMethodFromIndex = (index: number) => {
-  if (index > authMethodLabels.length) {
-    return undefined
-  }
-  return authMethodLabels[index].authType
-}
-
 type AuthPanelProps = {
   auth: RESTAuth
   setAuth: (auth: RESTAuth) => void
   namespace: string
   setActionArea: (actionArea: React.ReactNode) => void
+  disableInherit?: boolean
 }
 
 export const AuthPanel = ({
@@ -68,9 +54,9 @@ export const AuthPanel = ({
   setActionArea,
   setAuth,
   namespace,
+  disableInherit,
 }: AuthPanelProps) => {
   const theme = useTheme()
-  const [tab, setTab] = useState<number>(0)
   const [unsavedAuths, setUnsavedAuths] = useState<RESTAuth[]>([auth])
 
   useEffect(() => {
@@ -93,8 +79,11 @@ export const AuthPanel = ({
       return [...newUnsavedauths, { ...auth, auth }]
     })
 
-    setTab(index)
     if (newAuthType === 'inherit') {
+      if (disableInherit) {
+        throw new Error('Inherit auth type is disabled')
+      }
+
       setAuth(
         unsavedAuths.find(
           (unsavedAuth) => unsavedAuth.authType === 'inherit'
@@ -157,10 +146,45 @@ export const AuthPanel = ({
     }
   }
 
+  const authLabels = useMemo(() => {
+    const labels = authMethodLabels.map((method) => method.label)
+    if (disableInherit) {
+      return labels.filter((label) => label !== 'Inherit')
+    }
+    return labels
+  }, [disableInherit])
+
+  const authMethods = useMemo(() => {
+    const methods = authMethodLabels.map((method) => method.authType)
+    if (disableInherit) {
+      return methods.filter((method) => method !== 'inherit')
+    }
+    return methods
+  }, [disableInherit])
+
+  const getIndexOfAuthMethod = (authMethod: string) => {
+    return (
+      authMethods.findIndex(
+        (knownContentType) => knownContentType === authMethod
+      ) || null
+    )
+  }
+
+  const getAuthMethodFromIndex = (index: number) => {
+    if (index > authMethods.length) {
+      throw new Error('Index out of bounds for auth methods')
+    }
+    return authMethods[index]
+  }
+
+  if (auth.authType === 'inherit' && disableInherit) {
+    throw new Error('Inherit auth type is disabled')
+  }
+
   return (
     <>
       <SecondaryChips
-        names={authMethodLabels.map((method) => method.label)}
+        names={authLabels}
         value={getIndexOfAuthMethod(auth.authType) || 0}
         onChange={handleChipChange}
       />

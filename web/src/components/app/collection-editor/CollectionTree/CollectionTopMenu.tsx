@@ -1,7 +1,9 @@
 import { useRef, useState } from 'react'
 
+import { useReactiveVar } from '@apollo/client'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
+import SettingsIcon from '@mui/icons-material/Settings'
 import {
   Box,
   Button,
@@ -17,10 +19,8 @@ import {
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
-import {
-  useActiveEnvironment,
-  useActiveEnvironmentYMap,
-} from 'src/contexts/EnvironmentProvider'
+import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { focusedElementVar, updateFocusedElement } from 'src/contexts/reactives'
 
 import { RenameDialog } from '../../dialogs/RenameDialog'
 import { EnvironmentManager } from '../../EnvironmentManager'
@@ -40,6 +40,7 @@ export const CollectionTopMenu = ({
   const [showSettingsPopover, setShowSettingsPopover] = useState(false)
   const [showRenameDialog, setShowRenameDialog] = useState(false)
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
+  const focusedElementDict = useReactiveVar(focusedElementVar)
 
   const collection = useYMap(collectionYMap)
 
@@ -87,23 +88,23 @@ export const CollectionTopMenu = ({
         </MenuItem>
       </Popover>
       <EnvironmentManager
-        projectYMap={projectYMap}
         show={showEnvironmentManager}
         setShowCallback={setShowEnvironmentManager}
       />
-      <Box
+      <MenuItem
+        onClick={() => updateFocusedElement(focusedElementDict, collectionYMap)}
         sx={{
-          margin: 1,
-          paddingLeft: 1,
-          marginBottom: 2,
+          maxWidth: '100%',
+          textTransform: 'none',
+          my: 1,
         }}
       >
         <Stack
-          justifyContent="space-between"
           direction="row"
+          justifyContent="space-between"
           alignItems="center"
           sx={{
-            marginBottom: 1,
+            width: '100%',
           }}
         >
           <Typography
@@ -117,30 +118,31 @@ export const CollectionTopMenu = ({
           >
             {collection.data.name}
           </Typography>
-          <Tooltip title="Collection Settings">
-            <IconButton
-              ref={settingsButtonRef}
-              aria-label="Collection Settings"
-              onClick={() => setShowSettingsPopover(true)}
-            >
-              <MoreVertIcon />
-            </IconButton>
-          </Tooltip>
+          <IconButton
+            ref={settingsButtonRef}
+            aria-label="Collection Settings"
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              setShowSettingsPopover(true)
+            }}
+          >
+            <MoreVertIcon />
+          </IconButton>
         </Stack>
-        <Typography
-          variant="body2"
-          color={theme.palette.text.secondary}
-          sx={{
-            userSelect: 'none',
-          }}
-        >
-          Environment:
-        </Typography>
-        <Box
-          sx={{
-            marginRight: 1,
-          }}
-        >
+      </MenuItem>
+      <Stack sx={{ padding: 2, pt: 0 }} spacing={2}>
+        <Box>
+          <Typography
+            variant="body2"
+            color={theme.palette.text.secondary}
+            sx={{
+              userSelect: 'none',
+            }}
+            gutterBottom
+          >
+            Environment:
+          </Typography>
           <Tooltip title="Switch Environment">
             <Button
               size="small"
@@ -168,7 +170,7 @@ export const CollectionTopMenu = ({
             </Button>
           </Tooltip>
         </Box>
-      </Box>
+      </Stack>
     </>
   )
 }

@@ -97,7 +97,7 @@ export const KeyValueEditor = ({
     const generatedLines: string[] = []
 
     keyValueItems.forEach((item) => {
-      if (item.keyString === '' || item.value === '') {
+      if (item.keyString === '') {
         return
       }
 
@@ -118,7 +118,7 @@ export const KeyValueEditor = ({
       const formattedLine = line.replace(': ', ':').trim()
       const [keyString, value] = formattedLine.split(':')
 
-      if (keyString === '' || value === '') {
+      if (keyString === '') {
         return
       }
 

@@ -1,24 +1,12 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-import { Chip } from '@mui/material'
 import { DecoratorNode, Spread } from 'lexical'
 import {
   DOMConversionMap,
   DOMConversionOutput,
   DOMExportOutput,
-  EditorConfig,
   LexicalNode,
   NodeKey,
   SerializedTextNode,
-  TextNode,
 } from 'lexical'
-import { createPortal } from 'react-dom'
 
 import { VariableChip } from './VariableChip'
 
@@ -46,7 +34,6 @@ function convertVariableElement(
   return null
 }
 
-const variableStyle = 'background-color: rgba(24, 119, 232, 0.2)'
 export class VariableNode extends DecoratorNode<JSX.Element> {
   __variable: string
 

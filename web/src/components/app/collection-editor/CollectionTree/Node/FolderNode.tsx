@@ -14,10 +14,10 @@ import {
   updateFocusedElement,
 } from 'src/contexts/reactives'
 
-import { focusedResponseVar } from '../../RESTResponsePanel'
 import { EditNameInput } from '../EditNameInput'
 
 import { ListCollapsible } from './ListCollapsible'
+import { DropSpaceType } from './Node'
 import { NodeActionButton } from './NodeActionButton'
 import { getNodeIcon } from './utils'
 
@@ -32,7 +32,7 @@ type FolderNodeProps = {
   handleRename: (name: string) => void
   handleDelete: () => void
   handleDuplicate: () => void
-  dropSpace: DropSpace
+  dropSpace: DropSpaceType
   collapsed: boolean
   setCollapsed: (collapsed: boolean) => void
   hovered: boolean
@@ -67,7 +67,6 @@ export const FolderNode = ({
   const theme = useTheme()
 
   const focusedElementDict = useReactiveVar(focusedElementVar)
-  const focusedResponseDict = useReactiveVar(focusedResponseVar)
 
   const isInFocus =
     focusedElementDict[getFocusedElementKey(nodeYMap)]?.get('id') ===
@@ -96,7 +95,9 @@ export const FolderNode = ({
           cursor: 'pointer',
           paddingY: 0,
         }}
-        onClick={() => {
+        onClick={(event) => {
+          event.stopPropagation()
+          event.preventDefault()
           handleClick()
           handleToggle()
         }}

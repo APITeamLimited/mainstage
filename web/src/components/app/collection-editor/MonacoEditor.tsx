@@ -176,6 +176,8 @@ export const MonacoEditor = ({
           fontFamily: theme.typography.fontFamily,
           fontSize: 16,
           fontWeight: theme.typography.fontWeightRegular as string,
+          // Make text easier to read
+          //letterSpacing: 1,
           scrollBeyondLastLine,
           'bracketPairColorization.enabled': true,
           contextmenu: false,

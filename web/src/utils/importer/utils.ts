@@ -1,4 +1,4 @@
-import { importers } from 'insomnia-importers'
+import { importers, ImportRequest } from 'insomnia-importers'
 
 export const importToInsomnia = async (rawText: string) => {
   for (const importer of importers) {
@@ -21,4 +21,51 @@ export const importToInsomnia = async (rawText: string) => {
 
 export const getImporterNames = () => {
   return importers.map((i) => i.name)
+}
+
+export const getAuth = async ({
+  item,
+  disableInherit,
+}: {
+  item: ImportRequest
+  disableInherit?: boolean
+}) => {
+  if (!item.authentication) {
+    return disableInherit
+      ? {
+          authType: 'none',
+        }
+      : {
+          authType: 'inherit',
+        }
+  }
+
+  if (item.authentication?.type === 'basic') {
+    return {
+      authType: 'basic',
+      username: item.authentication.username,
+      password: item.authentication.password,
+    }
+  } else if (item.authentication?.disabled) {
+    return {
+      authType: 'none',
+    }
+  } else if (item.authentication?.type === 'oauth2') {
+    return {
+      authType: 'oauth2',
+      token: item.authentication.clientSecret,
+      oidcDiscoveryURL: item.authentication.accessTokenUrl,
+      authorizationURL: item.authentication.authorizationUrl,
+      clientID: item.authentication.clientId,
+      scope: item.authentication.scope,
+    }
+  }
+
+  return disableInherit
+    ? {
+        authType: 'none',
+      }
+    : {
+        authType: 'inherit',
+      }
 }

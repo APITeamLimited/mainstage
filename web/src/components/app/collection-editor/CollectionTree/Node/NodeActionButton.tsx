@@ -39,6 +39,7 @@ export const NodeActionButton = ({
     >
   ) => {
     event.stopPropagation()
+    event.preventDefault()
     setMenuOpen(!menuOpen)
   }
 

@@ -1,4 +1,4 @@
-#docker build -t mainstage-base:latest .
+docker build -t mainstage-base:latest .
 #./entity-engine/build.sh
 #./globe-test/build.sh
 #./mailman/build.sh

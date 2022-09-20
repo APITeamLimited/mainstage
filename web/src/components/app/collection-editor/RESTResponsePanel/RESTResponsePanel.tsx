@@ -105,6 +105,10 @@ export const RESTResponsePanel = ({
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
   const updateData = async () => {
+    if (!focusedResponse || !workspace) {
+      return
+    }
+
     // Find scope matching workspace guid
     const [variant, variantTargetId] = workspace.guid.split(
       ':'

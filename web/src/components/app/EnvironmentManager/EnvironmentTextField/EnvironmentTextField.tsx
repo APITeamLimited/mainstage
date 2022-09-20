@@ -16,6 +16,7 @@ import { convertToText, InnerValues } from './InnerValues'
 import PlaygroundEditorTheme from './Theme'
 import { $createVariableNode } from './VariableNode'
 import { VariableNode } from './VariableNode'
+import { BRACED_REGEX, getPossibleVariableMatch } from './VariablePlugin'
 
 export type EnvironmentTextFieldProps = {
   placeholder?: string
@@ -45,28 +46,39 @@ const getEditorState = (value: string) => {
     root.clear()
     const paragraph = $createParagraphNode()
 
-    // Find substrings that start and end with curly braces
-    const regex = /{(.*?)}/
-    const matches = value.match(regex) || []
+    // Find all substrings that start and end with double curly braces
+    const matches = getPossibleVariableMatch(value)
 
-    // Split value into an array of strings, divided by matches
-    const values = value.split(regex)?.filter((match) => match !== '')
+    // This is the same code as in the VariablePlugin.tsx file
 
-    let matchesIndex = 0
+    const textNode = $createTextNode(value)
 
-    values.forEach((subValue) => {
-      // Check if value is the value at matchIndex
-      if (matchesIndex >= matches.length) {
-        paragraph.append($createTextNode(subValue))
-      } else if (`{${subValue}}` === matches[matchesIndex]) {
-        paragraph.append($createVariableNode(`{${subValue}}`))
-        matchesIndex++
-      } else {
-        paragraph.append($createTextNode(subValue))
+    paragraph.append(textNode)
+    root.append(paragraph)
+
+    const offsets = [] as number[]
+
+    matches.forEach((match) => {
+      if (!offsets.includes(match.leadOffset)) {
+        offsets.push(match.leadOffset)
+      }
+      if (!offsets.includes(match.leadOffset + match.matchingString.length)) {
+        offsets.push(match.leadOffset + match.matchingString.length)
       }
     })
 
-    root.append(paragraph)
+    const splitNodes = textNode.splitText(...offsets)
+
+    matches.forEach((match) => {
+      const node = splitNodes.find(
+        (node) => node.__text === match.matchingString
+      )
+
+      if (!node) return
+
+      const variableNode = $createVariableNode(match.matchingString)
+      node.replace(variableNode)
+    })
   }
 }
 
@@ -82,7 +94,6 @@ export const EnvironmentTextField = ({
   helperText = '',
 }: EnvironmentTextFieldProps) => {
   const theme = useTheme()
-  const [focused, setFocused] = useState(false)
 
   const initialConfig = {
     namespace,
@@ -98,6 +109,16 @@ export const EnvironmentTextField = ({
     newContentEdibleStyles.borderColor = theme.palette.error.main
     newContentEdibleStyles.borderWidth = '1px'
     newContentEdibleStyles.borderStyle = 'solid'
+  }
+
+  // On copy event, we want to convert the editor state to text
+  const onCopy = (event: {
+    clipboardData: { setData: (arg0: string, arg1: string) => void }
+    preventDefault: () => void
+  }) => {
+    console.log('onCopy')
+    event.clipboardData?.setData('text/plain', value)
+    event.preventDefault()
   }
 
   return (
@@ -131,12 +152,10 @@ export const EnvironmentTextField = ({
           borderColor: 'transparent',
           ...wrapperStyles,
         }}
-        onClick={() => setFocused(true)}
+        onCopy={onCopy}
       >
         <LexicalComposer initialConfig={initialConfig} key={namespace}>
           <InnerValues
-            placeholder={placeholder}
-            value={value}
             onChange={onChange}
             namespace={namespace}
             contentEditableStyles={newContentEdibleStyles}

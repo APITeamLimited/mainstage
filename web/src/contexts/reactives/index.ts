@@ -1,6 +1,4 @@
 export * from './TaggedWorkspaces'
 export * from './UserSettings'
-export * from './locals'
-export * from './RequestManager'
 export * from './ActiveEnvironment'
 export * from './FocusedElement'

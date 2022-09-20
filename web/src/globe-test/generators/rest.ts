@@ -1,6 +1,7 @@
-import { RESTRequest, Environment } from '@apiteam/types'
+import { RESTRequest } from '@apiteam/types'
 import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
+import * as Y from 'yjs'
 
 import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
 import { getFinalRequest } from '../rest'
@@ -11,17 +12,24 @@ Creates a new single rest job and adds it to the queue.
 export const singleRESTRequestGenerator = ({
   request,
   scopeId,
-  activeEnvironment,
+  activeEnvironmentYMap,
   jobQueue,
   requestYMap,
+  collectionYMap,
 }: {
   request: RESTRequest
   scopeId: string
-  activeEnvironment: Environment | null
+  activeEnvironmentYMap: Y.Map<any> | null
   jobQueue: QueuedJob[]
   requestYMap: Y.Map<any>
+  collectionYMap: Y.Map<any>
 }): BaseJob & PendingLocalJob => {
-  const axiosConfig = getFinalRequest(request, activeEnvironment)
+  const axiosConfig = getFinalRequest(
+    request,
+    requestYMap,
+    activeEnvironmentYMap,
+    collectionYMap
+  )
   const sourceName = 'rest-single.js'
 
   const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
@@ -54,7 +62,9 @@ export const singleRESTRequestGenerator = ({
 
   if (!collectionId || !branchId || !projectId) {
     throw new Error(
-      `Invalid request: ${requestYMap.id} ${collectionId} ${branchId} ${projectId} must have a valid parent`
+      `Invalid request: ${requestYMap.get(
+        'id'
+      )} ${collectionId} ${branchId} ${projectId} must have a valid parent`
     )
   }
 

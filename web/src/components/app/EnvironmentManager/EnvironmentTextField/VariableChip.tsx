@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { KeyValueItem } from '@apiteam/types'
+import { ResolvedVariable } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
 import * as Y from 'yjs'
@@ -7,71 +9,47 @@ import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { activeEnvironmentVar } from 'src/contexts/reactives'
+import { useCollection } from 'src/pages/app/CollectionEditorPage'
+import { findVariablesInString } from 'src/utils/findVariables'
 
 type VariableChipProps = {
   variableName: string
 }
 
-type ResolvedVariable =
-  | {
-      sourceName: string
-      sourceTypename: 'Environment'
-      value: string
-    }
-  | null
-  | undefined
-
 export const VariableChip = ({ variableName }: VariableChipProps) => {
-  const [variableNameWithoutCurlyBraces, setVariableNameWithoutCurlyBraces] =
-    useState(variableName.replace(/^\{/, '').replace(/\}$/, ''))
+  const variableNameWithoutCurlyBraces = useMemo(
+    () => variableName.replaceAll(/^\{{/g, '').replaceAll(/\}}$/g, ''),
+    [variableName]
+  )
 
   const [resolvedVariable, setResolvedVariable] =
     useState<ResolvedVariable | null>(null)
 
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
+  useYMap(activeEnvironmentYMap || new Y.Map())
   const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
+  const collection = useCollection()
 
   useEffect(() => {
-    setVariableNameWithoutCurlyBraces(
-      variableName.replace(/^\{/, '').replace(/\}$/, '')
-    )
-  }, [variableName])
-
-  useEffect(() => {
-    const variables = activeEnvironment.data.variables || undefined
-
-    if (!variables) {
-      setResolvedVariable(null)
-      return
-    }
-
-    const foundVariable = variables.find(
-      (variable) =>
-        variable.keyString === variableNameWithoutCurlyBraces &&
-        variable.enabled
+    const foundVariable = findVariablesInString(
+      activeEnvironmentYMap,
+      collection,
+      variableNameWithoutCurlyBraces
     )
 
-    if (foundVariable?.value !== resolvedVariable?.value) {
-      if (!foundVariable?.value) {
-        setResolvedVariable(null)
-        return
+    if (foundVariable) {
+      if (foundVariable?.value !== resolvedVariable?.value) {
+        setResolvedVariable(foundVariable)
       }
-
-      setResolvedVariable({
-        sourceName: activeEnvironment.data.name,
-        sourceTypename: 'Environment',
-        value: foundVariable.value,
-      })
-    } else if (!foundVariable && resolvedVariable) {
+    } else if (!foundVariable) {
       setResolvedVariable(null)
     }
-    // Prevent infinite loop
   }, [
-    activeEnvironment.data,
     resolvedVariable,
     variableNameWithoutCurlyBraces,
     activeEnvironmentDict,
+    activeEnvironmentYMap,
+    collection,
   ])
 
   return (
@@ -84,13 +62,7 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
       placement="top"
     >
       <Chip
-        label={
-          <span>
-            <span>&#123;</span>
-            <span>{variableNameWithoutCurlyBraces}</span>
-            <span>&#125;</span>
-          </span>
-        }
+        label={variableNameWithoutCurlyBraces}
         variant="filled"
         color={
           resolvedVariable === undefined
@@ -116,6 +88,9 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
             cursor: 'pointer',
           },
           transition: 'none',
+
+          // Enable user select
+          userSelect: 'text',
         }}
         size="small"
       />

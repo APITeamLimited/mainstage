@@ -1,11 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
 import { ReactPortal, useEffect, useState } from 'react'
 
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
@@ -21,10 +13,7 @@ import {
   COMMAND_PRIORITY_EDITOR,
 } from 'lexical'
 
-import { VariableNode } from './VariableNode'
-import { $createVariableNode } from './VariableNode'
-
-//const VARIABLES_REGEX = /{(.*?)}/
+import { $createVariableNode, VariableNode } from './VariableNode'
 
 type VariableMatch = {
   leadOffset: number
@@ -37,75 +26,7 @@ type Resolution = {
   range: Range
 }
 
-const PUNCTUATION =
-  '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;'
-const NAME = '\\b[A-Z][^\\s' + PUNCTUATION + ']'
-
-const DocumentVariablesRegex = {
-  NAME,
-  PUNCTUATION,
-}
-
-const CapitalizedNameVariablesRegex = new RegExp(
-  '(^|[^#])((?:' + DocumentVariablesRegex.NAME + '{' + 1 + ',})$)'
-)
-
-const PUNC = DocumentVariablesRegex.PUNCTUATION
-
-const TRIGGERS = ['@', '\\uff20'].join('')
-
-// Chars we expect to see in a mention (non-space, non-punctuation).
-//const VALID_CHARS = '[^' + TRIGGERS + PUNC + '\\s]'
-const VALID_CHARS = '[^' + TRIGGERS + '\\s]'
-
-// Non-standard series of chars. Each series must be preceded and followed by
-// a valid char.
-const VALID_JOINS =
-  '(?:' +
-  '\\.[ |$]|' + // E.g. "r. " in "Mr. Smith"
-  ' |' + // E.g. " " in "Josh Duck"
-  '[' +
-  PUNC +
-  ']|' + // E.g. "-' in "Salier-Hellendag"
-  ')'
-
-const LENGTH_LIMIT = 75
-
-const AtSignVariablesRegex = new RegExp(
-  '(^|\\s|\\()(' +
-    '[' +
-    TRIGGERS +
-    ']' +
-    '((?:' +
-    VALID_CHARS +
-    VALID_JOINS +
-    '){0,' +
-    LENGTH_LIMIT +
-    '})' +
-    ')$'
-)
-
-const BracedRegex = new RegExp(/{(.*?)}/)
-
-// 50 is the longest alias length limit.
-//const ALIAS_LENGTH_LIMIT = 50
-
-// Regex used to match alias.
-/*const AtSignVariablesRegexAliasRegex = new RegExp(
-  '(^|\\s|\\()(' +
-    '[' +
-    TRIGGERS +
-    ']' +
-    '((?:' +
-    VALID_CHARS +
-    '){0,' +
-    ALIAS_LENGTH_LIMIT +
-    '})' +
-    ')$'
-)*/
-
-// At most, 5 suggestions are shown in the popup.
-const SUGGESTION_LIST_LENGTH_LIMIT = 5
+export const BRACED_REGEX = /{{(([^}][^}]?|[^}]}?)*)}}/g
 
 function getTextUpToAnchor(selection: RangeSelection): string | null {
   const anchor = selection.anchor
@@ -135,75 +56,20 @@ function getVariablesTextToSearch(editor: LexicalEditor): string | null {
   return text
 }
 
-// Will need to remove
-function checkForCapitalizedNameVariables(
-  text: string,
-  minMatchLength: number
-): VariableMatch | null {
-  const match = CapitalizedNameVariablesRegex.exec(text)
-
-  if (match !== null) {
-    if (braced) {
-      const maybeLeadingWhitespace = ''
-      const matchingString = match[1]
-      const actualStringLength = matchingString.length + 1
-
-      if (matchingString != null && actualStringLength >= minMatchLength) {
-        return {
-          leadOffset: match.index + maybeLeadingWhitespace.length,
-          matchingString,
-          replaceableString: matchingString,
-        }
-      }
-    } else {
-      // The strategy ignores leading whitespace but we need to know it's
-      // length to add it to the leadOffset
-      const maybeLeadingWhitespace = match[1]
-
-      const matchingString = match[2]
-
-      if (matchingString != null && matchingString.length >= minMatchLength) {
-        return {
-          leadOffset: match.index + maybeLeadingWhitespace.length,
-          matchingString,
-          replaceableString: matchingString,
-        }
-      }
-    }
-  }
-  return null
-}
-
-const braced = true
-
-function checkForAtSignVariables(
-  text: string,
-  minMatchLength: number
-): VariableMatch | null {
-  const match = braced
-    ? BracedRegex.exec(text)
-    : AtSignVariablesRegex.exec(text)
-
-  if (match !== null) {
-    const maybeLeadingWhitespace = ''
-    const matchingString = match[0]
-
-    if (matchingString.length >= minMatchLength) {
-      return {
-        leadOffset: match.index + maybeLeadingWhitespace.length,
-        matchingString,
-        replaceableString: match[0],
-      }
-    }
-  }
-  return null
-}
-
 // Checks input text for @value matches
-function getPossibleVariableMatch(text: string): VariableMatch | null {
+export function getPossibleVariableMatch(text: string): VariableMatch[] {
   // Will need to change this bit to match custom regex
-  const match = checkForAtSignVariables(text, 2)
-  return match === null ? checkForCapitalizedNameVariables(text, 3) : match
+  const matches = Array.from(text.matchAll(BRACED_REGEX))
+
+  const filteredMatches = matches.filter(
+    (match) => match.index !== undefined && match[1].length > 0
+  ) as (RegExpMatchArray & { index: number })[]
+
+  return filteredMatches.map((match) => ({
+    leadOffset: match.index,
+    matchingString: match[0],
+    replaceableString: match[0],
+  }))
 }
 
 function isSelectionOnEntityBoundary(
@@ -245,79 +111,12 @@ function tryToPositionRange(match: VariableMatch, range: Range): boolean {
   return true
 }
 
-function getVariableOffset(
-  documentText: string,
-  entryText: string,
-  offset: number
-): number {
-  let triggerOffset = offset
-  for (let ii = triggerOffset; ii <= entryText.length; ii++) {
-    if (documentText.substr(-ii) === entryText.substr(0, ii)) {
-      triggerOffset = ii
-    }
-  }
-
-  return triggerOffset
-}
-
-function createVariableNode(
-  editor: LexicalEditor,
-  entryText: string,
-  match: VariableMatch
-): void {
-  editor.update(() => {
-    const selection = $getSelection()
-    if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
-      return
-    }
-    const anchor = selection.anchor
-    if (anchor.type !== 'text') {
-      return
-    }
-    const anchorNode = anchor.getNode()
-    // We should not be attempting to extract mentions out of nodes
-    // that are already being used for other core things. This is
-    // especially true for token nodes, which can't be mutated at all.
-    if (!anchorNode.isSimpleText()) {
-      return
-    }
-    const selectionOffset = anchor.offset
-    const textContent = anchorNode.getTextContent().slice(0, selectionOffset)
-    const characterOffset = match.replaceableString.length
-
-    // Given a known offset for the mention match, look backward in the
-    // text to see if there's a longer match to replace.
-    const mentionOffset = getVariableOffset(
-      textContent,
-      entryText,
-      characterOffset
-    )
-    const startOffset = selectionOffset - mentionOffset
-    if (startOffset < 0) {
-      return
-    }
-
-    let nodeToReplace
-    if (startOffset === 0) {
-      ;[nodeToReplace] = anchorNode.splitText(selectionOffset)
-    } else {
-      ;[, nodeToReplace] = anchorNode.splitText(startOffset, selectionOffset)
-    }
-
-    if ($isRangeSelection(selection)) {
-      const variableNode = $createVariableNode(entryText)
-
-      nodeToReplace.replace(variableNode)
-      return true
-    }
-  })
-}
-
 export const INSERT_VARIABLE_COMMAND: LexicalCommand<string> = createCommand()
 
 function useVariables(editor: LexicalEditor): ReactPortal | null {
-  const [resolution, setResolution] = useState<Resolution | null>(null)
+  const [resolutions, setResolutions] = useState<Resolution[]>([])
 
+  // Register plugin
   useEffect(() => {
     if (!editor.hasNodes([VariableNode])) {
       throw new Error('VariablesPlugin: VariableNode not registered on editor')
@@ -345,6 +144,7 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
     )
   }, [editor])
 
+  // Listen for variable matches
   useEffect(() => {
     let activeRange: Range | null = document.createRange()
     let previousText: string | null = null
@@ -361,28 +161,22 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
       if (text === null) {
         return
       }
-      const match = getPossibleVariableMatch(text)
-      if (
-        match !== null &&
-        !isSelectionOnEntityBoundary(editor, match.leadOffset)
-      ) {
-        const isRangePositioned = tryToPositionRange(match, range)
-        if (isRangePositioned !== null) {
-          /*startTransition(() =>
-            setResolution({
+      const matches = getPossibleVariableMatch(text)
+
+      const newResolutions = [] as Resolution[]
+
+      matches.forEach((match) => {
+        if (!isSelectionOnEntityBoundary(editor, match.leadOffset)) {
+          const isRangePositioned = tryToPositionRange(match, range)
+          if (isRangePositioned !== null) {
+            newResolutions.push({
               match,
               range,
             })
-          )*/
-          setResolution({
-            match,
-            range,
-          })
-          return
+          }
         }
-      }
-      //startTransition(() => setResolution(null))
-      setResolution(null)
+      })
+      setResolutions(newResolutions)
     }
 
     const removeUpdateListener = editor.registerUpdateListener(updateListener)
@@ -399,15 +193,10 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
 
   //console.log('useVariables', resolution)
 
-  if (resolution?.match.matchingString) {
-    if (resolution.match.matchingString.length > 2) {
-      createVariableNode(
-        editor,
-        resolution?.match.matchingString,
-        resolution?.match
-      )
-    }
-  }
+  createVariableNodes(
+    editor,
+    resolutions.map((r) => r.match)
+  )
 
   return null /*resolution === null || editor === null
     ? null
@@ -419,6 +208,53 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
         />,
         document.body
       )*/
+}
+
+function createVariableNodes(
+  editor: LexicalEditor,
+  matches: VariableMatch[]
+): void {
+  editor.update(() => {
+    const selection = $getSelection()
+    if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+      return
+    }
+
+    const anchor = selection.anchor
+    if (anchor.type !== 'text') {
+      return
+    }
+    const anchorNode = anchor.getNode()
+
+    // We should not be attempting to extract mentions out of nodes
+    // that are already being used for other core things. This is
+    // especially true for token nodes, which can't be mutated at all.
+    if (!anchorNode.isSimpleText()) return
+
+    const offsets = [] as number[]
+
+    matches.forEach((match) => {
+      if (!offsets.includes(match.leadOffset)) {
+        offsets.push(match.leadOffset)
+      }
+      if (!offsets.includes(match.leadOffset + match.matchingString.length)) {
+        offsets.push(match.leadOffset + match.matchingString.length)
+      }
+    })
+
+    const splitNodes = anchorNode.splitText(...offsets)
+
+    matches.forEach((match) => {
+      const node = splitNodes.find(
+        (node) => node.__text === match.matchingString
+      )
+
+      if (!node) return
+
+      const variableNode = $createVariableNode(match.matchingString)
+      node.replace(variableNode)
+    })
+  })
 }
 
 export default function VariablesPlugin(): ReactPortal | null {

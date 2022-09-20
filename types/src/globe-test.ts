@@ -118,3 +118,9 @@ export type DefaultMetrics = {
   iteration_duration: { contains: 'time' } & TrendMetric
   iterations: { contains: 'default' } & CounterMetric
 }
+
+export type ResolvedVariable = {
+  sourceName: string
+  sourceTypename: 'Environment' | 'Collection'
+  value: string
+} | null
