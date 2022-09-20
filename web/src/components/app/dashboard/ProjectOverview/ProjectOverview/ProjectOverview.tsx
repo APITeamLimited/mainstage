@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import { Branch, Project } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
@@ -6,6 +6,7 @@ import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { ImportDialog } from 'src/components/app/dialogs/ImportDialog'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { userProjectBranchesVar } from 'src/contexts/reactives/UserBranches'
 
@@ -39,6 +40,9 @@ export const ProjectOverview = ({
   )
 }
 
+const BranchContext = createContext<Y.Map<any> | null>(null)
+export const useActiveBranch = () => useContext(BranchContext)
+
 const ProjectOverviewInner = ({
   project,
   projectYMap,
@@ -56,13 +60,10 @@ const ProjectOverviewInner = ({
     findActiveBranch({ branches: branches.data, userProjectBranches, project })
   )
 
-  const [activeYBranch, setActiveYBranch] = useState(
-    branches.get(activeBranch?.id || '')
+  const branchYMap = useMemo<Y.Map<any> | null>(
+    () => projectYMap?.get?.('branches')?.get?.(activeBranch?.id) ?? null,
+    [projectYMap, activeBranch]
   )
-
-  useEffect(() => {
-    setActiveYBranch(branches.get(activeBranch?.id || ''))
-  }, [activeBranch, branches])
 
   //const [sortOption, setSortOption] = useState<SortOption>('Creation Date')
   //const [sortAscending, setSortAscending] = useState(true)
@@ -79,7 +80,7 @@ const ProjectOverviewInner = ({
   }, [branches, userProjectBranches, project, setActiveBranch])
 
   if (!activeBranch) refreshProjects()
-  if (!activeBranch) return <></>
+  if (!activeBranch || !branchYMap) return <></>
 
   //const sortedOverviews = sortOverviewItems(
   //  sortOption,
@@ -88,43 +89,42 @@ const ProjectOverviewInner = ({
   //)
 
   return (
-    <EnvironmentProvider
-      branchYMap={
-        projectYMap?.get?.('branches')?.get?.(activeBranch?.id) || new Y.Map()
-      }
-    >
-      <Stack spacing={2}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          spacing={2}
-        >
-          <Stack direction="row" alignItems="center">
-            <Typography variant="h5">{projectYMap.get('name')}</Typography>
-            <ProjectActionsButton projectYMap={projectYMap} />
+    <BranchContext.Provider value={branchYMap}>
+      <ImportDialog selectedProject={projectYMap} />
+      <EnvironmentProvider branchYMap={branchYMap}>
+        <Stack spacing={2}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={2}
+          >
+            <Stack direction="row" alignItems="center">
+              <Typography variant="h5">{projectYMap.get('name')}</Typography>
+              <ProjectActionsButton projectYMap={projectYMap} />
+            </Stack>
+            <Stack direction="row" alignItems="right" spacing={1}>
+              <BranchSwitcherButton activeBranch={activeBranch} />
+            </Stack>
           </Stack>
-          <Stack direction="row" alignItems="right" spacing={1}>
-            <BranchSwitcherButton activeBranch={activeBranch} />
-          </Stack>
+          <Divider />
+          <Paper
+            elevation={0}
+            sx={{
+              backgroundColor: theme.palette.alternate.dark,
+              padding: 2,
+              paddingBottom: 0,
+            }}
+          >
+            {branchYMap ? (
+              <ResourceProvider
+                projectYMap={projectYMap}
+                activeYBranch={branchYMap}
+              />
+            ) : null}
+          </Paper>
         </Stack>
-        <Divider />
-        <Paper
-          elevation={0}
-          sx={{
-            backgroundColor: theme.palette.alternate.dark,
-            padding: 2,
-            paddingBottom: 0,
-          }}
-        >
-          {activeYBranch ? (
-            <ResourceProvider
-              projectYMap={projectYMap}
-              activeYBranch={activeYBranch}
-            />
-          ) : null}
-        </Paper>
-      </Stack>
-    </EnvironmentProvider>
+      </EnvironmentProvider>
+    </BranchContext.Provider>
   )
 }

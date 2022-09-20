@@ -26,6 +26,7 @@ export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
         variant="contained"
         color="secondary"
         size="small"
+        sx={{ height: 40 }}
       >
         <Button
           disabled={needSave === false}

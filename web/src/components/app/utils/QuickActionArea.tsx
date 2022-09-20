@@ -49,7 +49,7 @@ export const QuickActionArea = ({
         <Box>
           <Switch
             checked={isBulkEditing}
-            onChange={(event, value) => setIsBulkEditing(value)}
+            onChange={(_, value) => setIsBulkEditing(value)}
           />
         </Box>
       </Tooltip>
@@ -63,7 +63,9 @@ export const QuickActionArea = ({
       spacing={1}
       justifyContent="flex-end"
     >
-      {actions}
+      {actions.map((action, index) => (
+        <Box key={index}>{action}</Box>
+      ))}
     </Stack>
   )
 }

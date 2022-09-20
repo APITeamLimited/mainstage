@@ -63,13 +63,12 @@ export interface RESTInheritAuth extends AuthBase {
   authType: 'inherit'
 }
 
-export type RESTAuth = { authActive: boolean } & (
+export type RESTAuth =
   | RESTAuthNone
   | RESTAuthBasic
   | RESTAuthBearer
   | RESTAuthOAuth2
   | RESTAuthAPIKey
-)
 //| RESTInheritAuth
 
 type FormDataKeyValue = {
@@ -143,7 +142,6 @@ export const generateLocalRESTRequest = ({
     params: [],
     headers: [],
     auth: {
-      authActive: false,
       authType: 'none',
     },
     body: {

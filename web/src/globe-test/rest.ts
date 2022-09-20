@@ -65,10 +65,6 @@ const addAuthToRequest = (
 ): AxiosRequestConfig => {
   const { auth } = request
 
-  if (!auth.authActive) {
-    return axiosConfig
-  }
-
   if (auth.authType === 'none') {
     return axiosConfig
   } else if (auth.authType === 'basic') {

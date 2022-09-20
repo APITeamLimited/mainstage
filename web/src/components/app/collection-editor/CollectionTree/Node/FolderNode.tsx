@@ -1,3 +1,4 @@
+import { useReactiveVar } from '@apollo/client'
 import {
   ListItem,
   ListItemIcon,
@@ -7,6 +8,13 @@ import {
 } from '@mui/material'
 import * as Y from 'yjs'
 
+import {
+  focusedElementVar,
+  getFocusedElementKey,
+  updateFocusedElement,
+} from 'src/contexts/reactives'
+
+import { focusedResponseVar } from '../../RESTResponsePanel'
 import { EditNameInput } from '../EditNameInput'
 
 import { ListCollapsible } from './ListCollapsible'
@@ -33,6 +41,7 @@ type FolderNodeProps = {
   handleNewFolder: () => void
   handleNewRESTRequest: () => void
   parentIndex: number
+  collectionYMap: Y.Map<any>
 }
 
 export const FolderNode = ({
@@ -53,8 +62,18 @@ export const FolderNode = ({
   handleNewFolder,
   handleNewRESTRequest,
   parentIndex,
+  collectionYMap,
 }: FolderNodeProps) => {
   const theme = useTheme()
+
+  const focusedElementDict = useReactiveVar(focusedElementVar)
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
+
+  const isInFocus =
+    focusedElementDict[getFocusedElementKey(nodeYMap)]?.get('id') ===
+    nodeYMap.get('id')
+
+  const handleClick = () => updateFocusedElement(focusedElementDict, nodeYMap)
 
   return (
     <>
@@ -72,11 +91,15 @@ export const FolderNode = ({
           )
         }
         sx={{
+          backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
           minHeight: '48px',
           cursor: 'pointer',
           paddingY: 0,
         }}
-        onClick={handleToggle}
+        onClick={() => {
+          handleClick()
+          handleToggle()
+        }}
       >
         {!renaming && (
           <ListItemIcon

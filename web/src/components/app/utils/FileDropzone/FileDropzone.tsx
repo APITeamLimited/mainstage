@@ -2,13 +2,22 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 import { useState } from 'react'
 
-import { Card, Stack, useTheme, Typography, Box, Button } from '@mui/material'
+import {
+  Card,
+  Stack,
+  useTheme,
+  Typography,
+  Box,
+  Button,
+  Chip,
+} from '@mui/material'
 
 type FileDropzoneProps = {
   primaryText: string
   secondaryMessages?: string[]
   accept?: string
   onFiles?: (files: FileList) => void
+  children?: React.ReactNode
 }
 
 export const FileDropzone = ({
@@ -16,6 +25,7 @@ export const FileDropzone = ({
   secondaryMessages = [],
   accept = '*',
   onFiles,
+  children,
 }: FileDropzoneProps) => {
   const theme = useTheme()
 
@@ -51,12 +61,12 @@ export const FileDropzone = ({
       stopDefaults(e)
       setLabelText(primaryText)
       setIsDragOver(false)
-      //onDrop(e)
+      setFiles(e.dataTransfer.files)
+      onFiles?.(e.dataTransfer.files)
     },
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('files', event.target.files)
     if (event.target.files) {
       setFiles(event.target.files)
       onFiles?.(event.target.files)
@@ -109,34 +119,24 @@ export const FileDropzone = ({
             }}
           >
             {files ? (
-              <>
-                <Typography
-                  variant="h6"
-                  color={theme.palette.text.secondary}
-                  gutterBottom
-                >
+              <Stack spacing={1} alignItems="center">
+                <Typography variant="h6" color={theme.palette.text.secondary}>
                   Current File:
                 </Typography>
-                <Typography
-                  variant="body2"
-                  color={theme.palette.text.secondary}
-                  gutterBottom
-                >
-                  {files[0].name}
-                </Typography>
+                <Chip label={files[0].name} variant="outlined" size="small" />
                 <Typography
                   variant="body2"
                   color={theme.palette.text.secondary}
                 >
                   Click here or drag and drop to change
                 </Typography>
-              </>
+              </Stack>
             ) : (
               <>
                 <Typography
                   variant="h6"
                   color={theme.palette.text.secondary}
-                  gutterBottom={secondaryMessages.length > 0}
+                  gutterBottom={secondaryMessages.length > 0 || !!children}
                 >
                   {primaryText}
                 </Typography>
@@ -145,11 +145,14 @@ export const FileDropzone = ({
                     variant="body2"
                     color={theme.palette.text.secondary}
                     key={index}
-                    gutterBottom={index !== secondaryMessages.length - 1}
+                    gutterBottom={
+                      index !== secondaryMessages.length - 1 || !!children
+                    }
                   >
                     {message}
                   </Typography>
                 ))}
+                {children}
               </>
             )}
           </Stack>

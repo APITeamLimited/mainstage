@@ -7,7 +7,7 @@ import {
 } from 'src/contexts/reactives'
 
 type OAuth2AuthFormProps = {
-  auth: RESTAuthOAuth2 & { authActive: boolean }
+  auth: RESTAuthOAuth2
   setAuth: (auth: RESTAuth) => void
   requestId: string
 }

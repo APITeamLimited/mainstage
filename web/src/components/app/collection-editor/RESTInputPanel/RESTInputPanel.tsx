@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Environment, RESTRequest } from '@apiteam/types'
+import { Environment, RESTAuth, RESTRequest } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
@@ -14,15 +14,13 @@ import { useScopes } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
 
-import { CustomTabs } from '../../CustomTabs'
+import { DescriptionPanel } from '../DescriptionPanel'
 import { KeyValueEditor } from '../KeyValueEditor'
 import { PanelLayout } from '../PanelLayout'
 
 import { AuthPanel } from './AuthPanel'
 import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
-import { HeadersPanel } from './HeadersPanel'
-import { ParametersPanel } from './ParametersPanel'
 import { SaveAsDialog } from './SaveAsDialog'
 import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
@@ -40,17 +38,7 @@ export const RESTInputPanel = ({
   const workspace = useWorkspace()
   const scopes = useScopes()
 
-  // Although we are not using these, they ensure ui updates when the ymaps change
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const restRequests = useYMap(restRequestsYMap || new Y.Map())
-
-  const [requestYMap, setRequestYMap] = useState<Y.Map<any>>(
-    restRequests.get(requestId) || new Y.Map()
-  )
-
-  useEffect(() => {
-    setRequestYMap(restRequests.get(requestId) || new Y.Map())
-  }, [requestId, restRequests])
+  const requestYMap = restRequestsYMap.get(requestId)
 
   const [unsavedEndpoint, setUnsavedEndpoint] = useState(
     requestYMap.get('endpoint')
@@ -65,7 +53,13 @@ export const RESTInputPanel = ({
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
     requestYMap.get('method')
   )
-  const [unsavedAuth, setUnsavedAuth] = useState(requestYMap.get('auth'))
+  const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
+    requestYMap.get('auth')
+  )
+  const [unsavedDescription, setUnsavedDescription] = useState<string>(
+    requestYMap.get('description') || ''
+  )
+
   const jobQueue = useReactiveVar(jobQueueVar)
   const queue = useReactiveVar(restRequestQueueVar)
   const [needSave, setNeedSave] = useState(false)
@@ -92,7 +86,9 @@ export const RESTInputPanel = ({
           JSON.stringify(unsavedRequestMethod) !==
             JSON.stringify(requestYMap.get('method')) ||
           JSON.stringify(unsavedAuth) !==
-            JSON.stringify(requestYMap.get('auth'))
+            JSON.stringify(requestYMap.get('auth')) ||
+          JSON.stringify(unsavedDescription) !==
+            JSON.stringify(requestYMap.get('description'))
       )
     }
   }, [
@@ -100,6 +96,7 @@ export const RESTInputPanel = ({
     requestYMap,
     unsavedAuth,
     unsavedBody,
+    unsavedDescription,
     unsavedEndpoint,
     unsavedHeaders,
     unsavedParameters,
@@ -113,6 +110,7 @@ export const RESTInputPanel = ({
     requestYMap.set('body', unsavedBody)
     requestYMap.set('method', unsavedRequestMethod)
     requestYMap.set('auth', unsavedAuth)
+    requestYMap.set('description', unsavedDescription)
     setNeedSave(false)
   }
 
@@ -127,9 +125,8 @@ export const RESTInputPanel = ({
     clone.set('body', unsavedBody)
     clone.set('method', unsavedRequestMethod)
     clone.set('auth', unsavedAuth)
-    const parent = requestYMap.parent
-    if (!parent) throw 'No parent found'
-    parent.set(newId, clone)
+    clone.set('description', unsavedDescription)
+    restRequestsYMap.set(newId, clone)
   }
 
   const handleNormalSend = () => {
@@ -202,7 +199,7 @@ export const RESTInputPanel = ({
             />
           </Stack>
         }
-        tabNames={['Parameters', 'Body', 'Headers', 'Auth']}
+        tabNames={['Parameters', 'Body', 'Headers', 'Auth', 'Description']}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -235,7 +232,14 @@ export const RESTInputPanel = ({
           <AuthPanel
             auth={unsavedAuth}
             setAuth={setUnsavedAuth}
-            requestId={requestId}
+            namespace={requestId}
+            setActionArea={setActionArea}
+          />
+        )}
+        {activeTabIndex === 4 && (
+          <DescriptionPanel
+            description={unsavedDescription}
+            setDescription={setUnsavedDescription}
             setActionArea={setActionArea}
           />
         )}

@@ -150,7 +150,8 @@ export const RESTHistory = ({
     } else {
       // If more than a day, group by day
       const daysAgo =
-        (currentDate.getTime() - response.get('createdAt').getTime()) /
+        (currentDate.getTime() -
+          new Date(response.get('createdAt')).getTime()) /
         1000 /
         60 /
         60 /

@@ -67,6 +67,7 @@ export const RESTRequestNode = ({
       )
 
     if (responses.length > 0) {
+      // This works somehow
       focusedResponseDict[getFocusedElementKey(collectionYMap)] = responses[0]
     }
 
@@ -90,7 +91,6 @@ export const RESTRequestNode = ({
         cursor: 'pointer',
         minHeight: '48px',
         paddingY: 0,
-        zIndex: 0,
       }}
       onClick={handleClick}
     >

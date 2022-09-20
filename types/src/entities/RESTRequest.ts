@@ -20,7 +20,11 @@ type AuthBase = {
   authType: string
 }
 
-interface RESTAuthNone extends AuthBase {
+export interface RESTAuthInherit extends AuthBase {
+  authType: 'inherit'
+}
+
+export interface RESTAuthNone extends AuthBase {
   authType: 'none'
 }
 
@@ -60,23 +64,27 @@ export interface RESTInheritAuth extends AuthBase {
   authType: 'inherit'
 }
 
-export type RESTAuth = { authActive: boolean } & (
+export type RESTAuth =
+  | RESTAuthInherit
   | RESTAuthNone
   | RESTAuthBasic
   | RESTAuthBearer
   | RESTAuthOAuth2
   | RESTAuthAPIKey
-)
 //| RESTInheritAuth
 
-type FormDataKeyValue = {
-  key: string
-  active: boolean
-} & ({ isFile: true; value: Blob[] } | { isFile: false; value: string })
+export type FormDataKeyValue = {
+  id: number
+  keyString: string
+  enabled: boolean
+} & (
+  | { isFile: true; value: StoredObject<string>; fileName: string }
+  | { isFile: false; value: string }
+)
 
-type RESTReqBodyFormData = {
+export type RESTReqBodyFormData = {
   contentType: 'multipart/form-data'
-  body: StoredObject<FormDataKeyValue[]>
+  body: FormDataKeyValue[]
 }
 
 export type RESTReqBody =

@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from 'react'
 
-import { Workspace } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
-import { Paper, useTheme, Box, Container, Divider } from '@mui/material'
+import { Paper, useTheme, Container, Divider } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { CollectionTree } from 'src/components/app/collection-editor/CollectionTree'
+import { FolderInputPanel } from 'src/components/app/collection-editor/FolderInputPanel'
 import { RESTInputPanel } from 'src/components/app/collection-editor/RESTInputPanel'
 import { RESTResponsePanel } from 'src/components/app/collection-editor/RESTResponsePanel'
 import { RightAside } from 'src/components/app/collection-editor/RightAside'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
-import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -49,6 +48,10 @@ export const CollectionEditorPage = ({
     ?.get('collections')
     ?.get(collectionId)
   const collection = useYMap(collectionYMap || new Y.Map())
+
+  //useEffect(() => {
+  //  console.log('collectionYMap', collectionYMap?.toJSON())
+  //}, [collectionYMap])
 
   const viewportHeightReduction = 60.3
 
@@ -141,6 +144,16 @@ export const CollectionEditorPage = ({
                       key={focusedElementDict[
                         getFocusedElementKey(collectionYMap)
                       ]?.get('id')}
+                    />
+                  )}
+                  {focusedElementDict[
+                    getFocusedElementKey(collectionYMap)
+                  ]?.get?.('__typename') === 'Folder' && (
+                    <FolderInputPanel
+                      folderId={focusedElementDict[
+                        getFocusedElementKey(collectionYMap)
+                      ]?.get('id')}
+                      collectionYMap={collectionYMap}
                     />
                   )}
                 </Paper>

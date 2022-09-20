@@ -111,6 +111,7 @@ export const CollectionTopMenu = ({
             sx={{
               whiteSpace: 'nowrap',
               overflow: 'hidden',
+              userSelect: 'none',
             }}
             color={theme.palette.text.primary}
           >
@@ -126,7 +127,13 @@ export const CollectionTopMenu = ({
             </IconButton>
           </Tooltip>
         </Stack>
-        <Typography variant="body2" color={theme.palette.text.secondary}>
+        <Typography
+          variant="body2"
+          color={theme.palette.text.secondary}
+          sx={{
+            userSelect: 'none',
+          }}
+        >
           Environment:
         </Typography>
         <Box

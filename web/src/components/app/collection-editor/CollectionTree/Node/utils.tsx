@@ -115,6 +115,7 @@ type DuplicateRecursiveArgs = {
   newParentId?: string | null
   foldersYMap: Y.Map<any>
   restRequestsYMap: Y.Map<any>
+  newId?: string
 }
 
 export const duplicateRecursive = ({
@@ -122,14 +123,14 @@ export const duplicateRecursive = ({
   foldersYMap,
   restRequestsYMap,
   newParentId = null,
+  newId = uuid(),
 }: DuplicateRecursiveArgs) => {
   // Works in the opposite way of deleteRecursive i.e. duplicateRecursive starts
-  // at the top and works down, passing the new parent as nodeYMap
+  // at the top and works down, passing the new parent as a nodeYMap
 
   if (nodeYMap.get('__typename') === 'Folder') {
     // Create duplicate folder
     const newFolder = nodeYMap.clone()
-    const newId = uuid()
     newFolder.set('id', newId)
     newFolder.set('createdAt', new Date().toISOString())
     newFolder.set('updatedAt', null)

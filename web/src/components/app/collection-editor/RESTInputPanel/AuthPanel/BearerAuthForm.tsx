@@ -1,20 +1,19 @@
-import { Stack, useTheme } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 import { RESTAuth, RESTAuthBearer } from 'src/contexts/reactives'
 
 type BearerAuthFormProps = {
-  auth: RESTAuthBearer & { authActive: boolean }
+  auth: RESTAuthBearer
   setAuth: (auth: RESTAuth) => void
-  requestId: string
+  namespace: string
 }
 
 export const BearerAuthForm = ({
   auth,
   setAuth,
-  requestId,
+  namespace,
 }: BearerAuthFormProps) => {
-  const theme = useTheme()
   return (
     <Stack
       alignItems="flex-start"
@@ -30,7 +29,7 @@ export const BearerAuthForm = ({
       >
         <EnvironmentTextField
           label="Bearer"
-          namespace={`${requestId}.bearer`}
+          namespace={`${namespace}.bearer`}
           onChange={(value) => setAuth({ ...auth, token: value })}
           value={auth.token}
         />

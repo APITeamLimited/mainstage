@@ -20,7 +20,7 @@ type KeyValueResultsTableProps = {
     key: string
     value: string
   }[]
-  setActionArea: (actionArea: React.ReactNode) => void
+  setActionArea?: (actionArea: React.ReactNode) => void
 }
 
 export const KeyValueResultsTable = ({
@@ -51,7 +51,7 @@ export const KeyValueResultsTable = ({
       )
     }
 
-    setActionArea(<QuickActionArea customActions={customActions} />)
+    setActionArea?.(<QuickActionArea customActions={customActions} />)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [values])

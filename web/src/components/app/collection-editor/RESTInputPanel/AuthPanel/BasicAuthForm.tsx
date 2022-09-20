@@ -4,15 +4,15 @@ import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 import { RESTAuth, RESTAuthBasic } from 'src/contexts/reactives'
 
 type BasicAuthFormProps = {
-  auth: RESTAuthBasic & { authActive: boolean }
+  auth: RESTAuthBasic
   setAuth: (auth: RESTAuth) => void
-  requestId: string
+  namespace: string
 }
 
 export const BasicAuthForm = ({
   auth,
   setAuth,
-  requestId,
+  namespace,
 }: BasicAuthFormProps) => {
   return (
     <Stack
@@ -29,7 +29,7 @@ export const BasicAuthForm = ({
       >
         <EnvironmentTextField
           label="Username"
-          namespace={`${requestId}.username`}
+          namespace={`${namespace}.username`}
           onChange={(value) => setAuth({ ...auth, username: value })}
           value={auth.username}
         />
@@ -41,7 +41,7 @@ export const BasicAuthForm = ({
       >
         <EnvironmentTextField
           label="Password"
-          namespace={`${requestId}.password`}
+          namespace={`${namespace}.password`}
           onChange={(value) => setAuth({ ...auth, password: value })}
           value={auth.password}
         />

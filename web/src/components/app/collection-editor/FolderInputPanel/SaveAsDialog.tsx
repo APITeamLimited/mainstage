@@ -38,10 +38,11 @@ export const SaveAsDialog = ({ open, onClose, onSave }: SaveAsDialogProps) => {
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
       <form noValidate onSubmit={formik.handleSubmit}>
-        <DialogTitle>Save As</DialogTitle>
+        <DialogTitle>Save as copy</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Enter a new name for the request.
+            Enter a new name for the copied folder. All requests in the folder
+            will be copied.
           </DialogContentText>
           <TextField
             autoFocus

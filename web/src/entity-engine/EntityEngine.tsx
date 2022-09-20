@@ -3,6 +3,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -73,6 +74,9 @@ export const useScopes = () => useContext(ScopesContext)
 const RawBearerContext = createContext<string | null>(null)
 export const useRawBearer = () => useContext(RawBearerContext)
 
+const ScopeIdContext = createContext<string | null>(null)
+export const useScopeId = () => useContext(ScopeIdContext)
+
 export const RefetchScopesCallbackContext = createContext<
   ((teamId?: string) => Promise<void>) | null
 >(null)
@@ -108,6 +112,12 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const workspaces = useReactiveVar(workspacesVar)
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
+
+  const scopeId = useMemo(() => {
+    if (!activeWorkspace) return null
+    return activeWorkspace.scope.id
+  }, [activeWorkspace])
+
   const [doc, setDoc] = useState<Y.Doc | null>(null)
   const [socketioProvider, setSocketioProvider] =
     useState<SocketIOProvider | null>(null)
@@ -305,8 +315,10 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
                 <RefetchScopesCallbackContext.Provider value={refetchScopes}>
                   <AwarenessContext.Provider value={awareness}>
                     <WorkspaceInfoContext.Provider value={activeWorkspace}>
-                      <ScopeUpdater />
-                      {children}
+                      <ScopeIdContext.Provider value={scopeId}>
+                        <ScopeUpdater />
+                        {children}
+                      </ScopeIdContext.Provider>
                     </WorkspaceInfoContext.Provider>
                   </AwarenessContext.Provider>
                 </RefetchScopesCallbackContext.Provider>

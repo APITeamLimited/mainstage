@@ -60,7 +60,7 @@ export function QuickstartDialog() {
     {
       primary: 'Import',
       secondary:
-        'Quickly get started with an existing API, Postman Collection, or something else',
+        'Quickly get started with an existing API, Collection, or something else',
       icon: ImportExportIcon,
       onClick: () => {
         handleClose()

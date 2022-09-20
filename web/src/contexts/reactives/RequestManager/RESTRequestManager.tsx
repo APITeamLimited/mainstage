@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { Environment, RESTRequest } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import { Environment, RESTRequest } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 
 import { findEnvironmentVariables } from 'src/utils/findVariables'
@@ -69,10 +69,6 @@ const addAuthToRequest = (
   axiosConfig: AxiosRequestConfig
 ): AxiosRequestConfig => {
   const { auth } = request
-
-  if (!auth.authActive) {
-    return axiosConfig
-  }
 
   if (auth.authType === 'none') {
     return axiosConfig

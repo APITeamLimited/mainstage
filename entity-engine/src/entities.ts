@@ -147,7 +147,6 @@ export const createRestRequest = ({
   })
   request.set('auth', {
     authType: 'none',
-    authActive: true,
   })
 
   return { request, id }

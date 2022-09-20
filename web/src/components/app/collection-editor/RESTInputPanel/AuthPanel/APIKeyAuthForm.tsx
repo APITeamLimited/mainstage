@@ -10,15 +10,15 @@ import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 import { RESTAuth, RESTAuthAPIKey } from 'src/contexts/reactives'
 
 type APIKeyAuthFormProps = {
-  auth: RESTAuthAPIKey & { authActive: boolean }
+  auth: RESTAuthAPIKey
   setAuth: (auth: RESTAuth) => void
-  requestId: string
+  namespace: string
 }
 
 export const APIKeyAuthForm = ({
   auth,
   setAuth,
-  requestId,
+  namespace,
 }: APIKeyAuthFormProps) => {
   return (
     <Stack
@@ -35,7 +35,7 @@ export const APIKeyAuthForm = ({
       >
         <EnvironmentTextField
           label="Key"
-          namespace={`${requestId}.apiKey`}
+          namespace={`${namespace}.apiKey`}
           onChange={(value) => setAuth({ ...auth, key: value })}
           value={auth.key}
         />
@@ -47,7 +47,7 @@ export const APIKeyAuthForm = ({
       >
         <EnvironmentTextField
           label="Value"
-          namespace={`${requestId}.apiKeyValue`}
+          namespace={`${namespace}.apiKeyValue`}
           onChange={(value) => setAuth({ ...auth, value })}
           value={auth.value}
         />
@@ -69,11 +69,21 @@ export const APIKeyAuthForm = ({
             value="header"
             control={<Radio />}
             label="Headers"
+            sx={{
+              '& .MuiFormControlLabel-label': {
+                userSelect: 'none',
+              },
+            }}
           />
           <FormControlLabel
             value="query"
             control={<Radio />}
             label="Query Parameters"
+            sx={{
+              '& .MuiFormControlLabel-label': {
+                userSelect: 'none',
+              },
+            }}
           />
         </RadioGroup>
       </div>

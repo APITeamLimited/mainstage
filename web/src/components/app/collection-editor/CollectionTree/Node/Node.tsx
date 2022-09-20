@@ -351,6 +351,7 @@ export const Node = ({
               handleNewFolder={handleNewFolder}
               handleNewRESTRequest={handleNewRESTRequest}
               parentIndex={parentIndex}
+              collectionYMap={collectionYMap}
             />
           )}
           {dropSpace === 'Bottom' &&

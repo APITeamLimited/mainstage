@@ -23,7 +23,6 @@ type MonacoEditorProps = {
   wordWrap?: 'on' | 'off' | 'wordWrapColumn' | 'bounded' | undefined
   namespace: string
   placeholder?: string[]
-  topPlaceholderFudgeFactor?: number
 }
 
 export const MonacoEditor = ({
@@ -36,7 +35,6 @@ export const MonacoEditor = ({
   wordWrap = 'off',
   namespace,
   placeholder,
-  topPlaceholderFudgeFactor,
 }: MonacoEditorProps) => {
   const theme = useTheme()
 
@@ -52,6 +50,8 @@ export const MonacoEditor = ({
     () => namespace.replaceAll(':', ''),
     [namespace]
   )
+
+  const editorRef = useRef<HTMLDivElement | null>(null)
 
   // Need to call synchronously else the cursor position will mess up
   useLayoutEffect(() => {
@@ -109,39 +109,59 @@ export const MonacoEditor = ({
   ])
 
   return monaco ? (
-    <>
+    <Box
+      sx={{
+        height: '100%',
+        width: '100%',
+        maxHeight: '100%',
+        maxWidth: '100%',
+        overflow: 'hidden',
+      }}
+    >
       {value === '' && placeholder && (
         <Stack
           sx={{
-            position: 'absolute',
-            top: topPlaceholderFudgeFactor ?? 95,
-            left: 95,
-            right: 30,
-            display: 'flex',
+            position: 'relative',
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            top: editorRef.current?.clientTop,
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            left: Number(editorRef.current?.clientLeft),
             color: theme.palette.text.secondary,
             pointerEvents: 'none',
             userSelect: 'none',
             zIndex: 1,
+
+            overflow: 'visible',
+            maxHeight: 0,
           }}
         >
-          {placeholder.map((text, index) => (
-            <Box
-              key={index}
-              sx={{
-                height: '22px',
-              }}
-            >
-              <Typography
+          <Box
+            sx={{
+              paddingLeft: '71px',
+              marginTop: '-1px',
+            }}
+          >
+            {placeholder.map((text, index) => (
+              <Box
+                key={index}
                 sx={{
-                  fontSize: 16,
-                  fontFamily: theme.typography.fontFamily,
-                  fontWeight: theme.typography.fontWeightRegular as string,
+                  height: '22px',
                 }}
               >
-                {text}
-              </Typography>
-            </Box>
-          ))}
+                <Typography
+                  sx={{
+                    fontSize: 16,
+                    fontFamily: theme.typography.fontFamily,
+                    fontWeight: theme.typography.fontWeightRegular as string,
+                  }}
+                >
+                  {text}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
         </Stack>
       )}
       <Editor
@@ -166,8 +186,9 @@ export const MonacoEditor = ({
         path={actualNamespace}
         defaultValue={value}
         onChange={(value) => onChange?.(value || '')}
+        ref={editorRef}
       />
-    </>
+    </Box>
   ) : (
     <></>
   )

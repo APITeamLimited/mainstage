@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 
+import { RESTAuth } from '@apiteam/types'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import { Grid, Stack, useTheme, Typography, Chip } from '@mui/material'
 
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
-import { RESTAuth } from 'src/contexts/reactives'
 
 import { APIKeyAuthForm } from './APIKeyAuthForm'
 import { BasicAuthForm } from './BasicAuthForm'
@@ -14,6 +14,10 @@ import { BearerAuthForm } from './BearerAuthForm'
 import { OAuth2AuthForm } from './OAuth2AuthForm'
 
 const authMethodLabels = [
+  {
+    authType: 'inherit',
+    label: 'Inherit',
+  },
   {
     authType: 'none',
     label: 'None',
@@ -55,7 +59,7 @@ const getAuthMethodFromIndex = (index: number) => {
 type AuthPanelProps = {
   auth: RESTAuth
   setAuth: (auth: RESTAuth) => void
-  requestId: string
+  namespace: string
   setActionArea: (actionArea: React.ReactNode) => void
 }
 
@@ -63,7 +67,7 @@ export const AuthPanel = ({
   auth,
   setActionArea,
   setAuth,
-  requestId,
+  namespace,
 }: AuthPanelProps) => {
   const theme = useTheme()
   const [tab, setTab] = useState<number>(0)
@@ -90,12 +94,18 @@ export const AuthPanel = ({
     })
 
     setTab(index)
-
-    if (newAuthType === 'none') {
+    if (newAuthType === 'inherit') {
+      setAuth(
+        unsavedAuths.find(
+          (unsavedAuth) => unsavedAuth.authType === 'inherit'
+        ) || {
+          authType: 'inherit',
+        }
+      )
+    } else if (newAuthType === 'none') {
       setAuth(
         unsavedAuths.find((unsavedAuth) => unsavedAuth.authType === 'none') || {
           authType: 'none',
-          authActive: true,
         }
       )
     } else if (newAuthType === 'basic') {
@@ -104,7 +114,6 @@ export const AuthPanel = ({
           (unsavedAuth) => unsavedAuth.authType === 'basic'
         ) || {
           authType: 'basic',
-          authActive: true,
           username: '',
           password: '',
         }
@@ -115,7 +124,6 @@ export const AuthPanel = ({
           (unsavedAuth) => unsavedAuth.authType === 'bearer'
         ) || {
           authType: 'bearer',
-          authActive: true,
           token: '',
         }
       )
@@ -125,7 +133,6 @@ export const AuthPanel = ({
           (unsavedAuth) => unsavedAuth.authType === 'oauth-2'
         ) || {
           authType: 'oauth-2',
-          authActive: true,
           token: '',
           oidcDiscoveryURL: '',
           authURL: '',
@@ -140,7 +147,6 @@ export const AuthPanel = ({
           (unsavedAuth) => unsavedAuth.authType === 'api-key'
         ) || {
           authType: 'api-key',
-          authActive: true,
           key: '',
           value: '',
           addTo: 'header',
@@ -166,29 +172,24 @@ export const AuthPanel = ({
           overflowX: 'hidden',
         }}
       >
-        {/*auth.authType === 'inherit' && (
-        <Stack
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            height: '100%',
-          }}
-        >
-          <InputIcon
-            sx={{
-              marginBottom: 2,
-              width: 80,
-              height: 80,
-              color: theme.palette.action.disabled,
-            }}
+        {auth.authType === 'inherit' && (
+          <EmptyPanelMessage
+            primaryText="Inherit"
+            secondaryMessages={[
+              'Auth type wil be inherited from parent folder or collection',
+            ]}
+            icon={
+              <InputIcon
+                sx={{
+                  marginBottom: 2,
+                  width: 80,
+                  height: 80,
+                  color: theme.palette.action.disabled,
+                }}
+              />
+            }
           />
-          <Typography variant="h6">Inherit</Typography>
-          <Typography variant="caption" color={theme.palette.text.secondary}>
-            Auth type is inherited from parent folder or collection
-          </Typography>
-        </Stack>
-          )*/}
+        )}
         {auth.authType === 'none' && (
           <EmptyPanelMessage
             primaryText="None"
@@ -216,7 +217,7 @@ export const AuthPanel = ({
             <BasicAuthForm
               auth={auth}
               setAuth={setAuth}
-              requestId={requestId}
+              namespace={namespace}
             />
           </Stack>
         )}
@@ -231,7 +232,7 @@ export const AuthPanel = ({
             <BearerAuthForm
               auth={auth}
               setAuth={setAuth}
-              requestId={requestId}
+              namespace={namespace}
             />
           </Stack>
         )}
@@ -261,7 +262,7 @@ export const AuthPanel = ({
             <APIKeyAuthForm
               auth={auth}
               setAuth={setAuth}
-              requestId={requestId}
+              namespace={namespace}
             />
           </Stack>
         )}

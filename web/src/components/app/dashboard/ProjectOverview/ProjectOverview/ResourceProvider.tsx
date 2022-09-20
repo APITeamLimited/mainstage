@@ -1,6 +1,6 @@
+import { Collection } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Button, Box, useTheme } from '@mui/material'
-import { Collection } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
@@ -13,7 +13,7 @@ import { OverviewType } from '../utils'
 
 type ResourceProviderProps = {
   projectYMap: Y.Map<any>
-  activeYBranch: Y.Doc
+  activeYBranch: Y.Map<any>
 }
 
 export const ResourceProvider = ({

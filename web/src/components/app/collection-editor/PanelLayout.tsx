@@ -1,4 +1,4 @@
-import { Stack, SxProps } from '@mui/material'
+import { Box, Grid, Stack, SxProps } from '@mui/material'
 
 import { CustomTabs } from '../CustomTabs'
 
@@ -37,20 +37,24 @@ export const PanelLayout = ({
     }}
   >
     {aboveTabsArea}
-    <Stack
-      direction="row"
-      spacing={2}
+    <Grid
+      container
       justifyContent="space-between"
       alignItems="top"
+      sx={{
+        maxWidth: '100%',
+      }}
     >
-      <CustomTabs
-        value={activeTabIndex}
-        onChange={setActiveTabIndex}
-        names={tabNames}
-        icons={tabIcons}
-      />
-      {actionArea}
-    </Stack>
+      <Grid item sx={{ maxWidth: '100%' }}>
+        <CustomTabs
+          value={activeTabIndex}
+          onChange={setActiveTabIndex}
+          names={tabNames}
+          icons={tabIcons}
+        />
+      </Grid>
+      <Grid item>{actionArea}</Grid>
+    </Grid>
     <Stack
       spacing={2}
       sx={{
