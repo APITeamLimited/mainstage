@@ -2,7 +2,9 @@ import { useState } from 'react'
 
 import { RESTRequest } from '@apiteam/types'
 import * as Y from 'yjs'
+import { useYMap } from 'zustand-yjs'
 
+import { getFinalRequest } from 'src/globe-test/rest'
 import {
   generateRESTCode,
   RESTCodegenDefinitions,
@@ -17,13 +19,20 @@ import {
 type RESTCodeGeneratorProps = {
   onCloseAside: () => void
   requestYMap: Y.Map<any>
+  activeEnvironmentYMap: Y.Map<any> | null
+  collectionYMap: Y.Map<any>
 }
 
 export const RESTCodeGenerator = ({
   onCloseAside,
   requestYMap,
+  activeEnvironmentYMap,
+  collectionYMap,
 }: RESTCodeGeneratorProps) => {
   const [codeGenerated, setCodeGenerated] = useState<CodeGenerated>(null)
+  useYMap(requestYMap)
+  useYMap(activeEnvironmentYMap ?? new Y.Map())
+  useYMap(collectionYMap)
 
   const handleGenerateCode = (codeGen: CodeGenDefinition | null) => {
     if (!codeGen) {
@@ -46,9 +55,18 @@ export const RESTCodeGenerator = ({
       headers: requestYMap.get('headers'),
       auth: requestYMap.get('auth'),
       body: requestYMap.get('body'),
+      pathVariables: requestYMap.get('pathVariables'),
+      description: requestYMap.get('description'),
     }
 
-    const code = generateRESTCode(codeGen.name, restRequest)
+    const axiosConfig = getFinalRequest(
+      restRequest,
+      requestYMap,
+      activeEnvironmentYMap,
+      collectionYMap
+    )
+
+    const code = generateRESTCode(codeGen.name, axiosConfig)
 
     if (
       codeGenerated?.value === code &&

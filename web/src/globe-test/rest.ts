@@ -22,7 +22,10 @@ export const getFinalRequest = (
     body = stringify(
       request.body.body
         .filter(({ enabled }) => enabled)
-        .map(({ keyString, value }) => ({ [keyString]: value }))
+        .map(({ keyString, value }) => ({
+          [findEnvironmentVariables(activeEnvironment, collection, keyString)]:
+            findEnvironmentVariables(activeEnvironment, collection, value),
+        }))
         .reduce((acc, curr) => ({ ...acc, ...curr }), {})
     )
   } else if (request.body.contentType === 'multipart/form-data') {
@@ -52,7 +55,7 @@ export const getFinalRequest = (
     folders,
     {
       method: request.method,
-      url: request.endpoint,
+      url: substitutePathVariables(request.endpoint, request),
       headers: finalHeaders,
       params: request.params
         .filter(
@@ -209,4 +212,17 @@ const makeEnvironmentAwareRequest = (
       ? findEnvironmentVariables(activeEnvironment, collection, config.data)
       : null,
   }
+}
+
+const substitutePathVariables = (
+  endpoint: string,
+  request: RESTRequest
+): string => {
+  return endpoint.replace(
+    /:([a-zA-Z0-9-_]+)/g,
+    (match, p1) =>
+      request.pathVariables.find(
+        (pathVariable) => pathVariable.keyString === p1
+      )?.value || ''
+  )
 }

@@ -20,7 +20,9 @@ export const importToInsomnia = async (rawText: string) => {
 }
 
 export const getImporterNames = () => {
-  return importers.map((i) => i.name)
+  // Restricted for now as not all work
+  //return importers.map((i) => i.name)
+  return importers.slice(0, 5).map((i) => i.name)
 }
 
 export const getAuth = async ({

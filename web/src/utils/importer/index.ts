@@ -21,6 +21,8 @@ export type ImportResult = {
   importerName: string
 } | null
 
+// TODO: get all types of importers working
+
 export const importRaw = async ({
   rawText,
   scopeId,

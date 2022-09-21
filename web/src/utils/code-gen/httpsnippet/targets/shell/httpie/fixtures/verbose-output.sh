@@ -1,1 +1,0 @@
-http --verbose GET http://mockbin.com/har

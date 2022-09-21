@@ -6,6 +6,7 @@ import CommentIcon from '@mui/icons-material/Comment'
 import { Box, IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
 import * as Y from 'yjs'
 
+import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -31,6 +32,7 @@ export const RightAside = ({
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const [activeRightAside, setActiveRightAside] = useState<AsideType>(null)
+  const activeEnvironmentYMap = useActiveEnvironmentYMap()
 
   const handleButtonClick = (aside: AsideType) => {
     if (activeRightAside !== aside) {
@@ -51,10 +53,8 @@ export const RightAside = ({
         '__typename'
       ) !== 'RESTRequest'
     ) {
-      if (activeRightAside === 'code') {
-        setActiveRightAside(null)
-        setShowRightAside(false)
-      }
+      setActiveRightAside(null)
+      setShowRightAside(false)
     }
   }, [
     activeRightAside,
@@ -137,6 +137,8 @@ export const RightAside = ({
                 focusedElementDict[getFocusedElementKey(collectionYMap)]
               }
               onCloseAside={handleCloseAside}
+              activeEnvironmentYMap={activeEnvironmentYMap}
+              collectionYMap={collectionYMap}
             />
           )}
         {showRightAside &&

@@ -1,5 +1,6 @@
 import { memo } from 'react'
 
+import { KeyValueItem } from '@apiteam/types'
 import {
   Box,
   Table,
@@ -16,7 +17,6 @@ import { HTML5Backend } from 'src/components/dnd/backend-html5'
 import { DndProvider } from 'src/components/dnd/react-dnd'
 
 import { DraggableTableRow } from './DraggableTableRow'
-import { KeyValueItem } from './KeyValueEditor'
 import { SortableNewItemButton } from './SortableNewItemButton'
 
 type SortableEditorProps = {
@@ -24,6 +24,10 @@ type SortableEditorProps = {
   setItems: (newItems: KeyValueItem[]) => void
   namespace: string
   enableEnvironmentVariables?: boolean
+  disableAdd?: boolean
+  disableDelete?: boolean
+  disableKeyEdit?: boolean
+  disableCheckboxes?: boolean
 }
 
 export const SortableEditor = memo(
@@ -32,6 +36,10 @@ export const SortableEditor = memo(
     setItems,
     namespace,
     enableEnvironmentVariables = true,
+    disableAdd,
+    disableDelete,
+    disableKeyEdit,
+    disableCheckboxes,
   }: SortableEditorProps) => {
     const theme = useTheme()
 
@@ -127,11 +135,13 @@ export const SortableEditor = memo(
                         borderColor: theme.palette.divider,
                       }}
                     />
-                    <TableCell
-                      sx={{
-                        borderColor: theme.palette.divider,
-                      }}
-                    />
+                    {!disableCheckboxes && (
+                      <TableCell
+                        sx={{
+                          borderColor: theme.palette.divider,
+                        }}
+                      />
+                    )}
                     <TableCell
                       sx={{
                         borderColor: theme.palette.divider,
@@ -146,11 +156,13 @@ export const SortableEditor = memo(
                     >
                       <Box paddingLeft={2}>Value</Box>
                     </TableCell>
-                    <TableCell
-                      sx={{
-                        borderColor: theme.palette.divider,
-                      }}
-                    />
+                    {!disableDelete && (
+                      <TableCell
+                        sx={{
+                          borderColor: theme.palette.divider,
+                        }}
+                      />
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -169,12 +181,17 @@ export const SortableEditor = memo(
                       onDelete={handleDelete}
                       namespace={namespace}
                       enableEnvironmentVariables={enableEnvironmentVariables}
+                      disableDelete={disableDelete}
+                      disableKeyEdit={disableKeyEdit}
+                      disableCheckboxes={disableCheckboxes}
                     />
                   ))}
                 </TableBody>
               </Table>
             )}
-            <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
+            {!disableAdd && (
+              <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
+            )}
           </TableContainer>
         </DndProvider>
       </Box>

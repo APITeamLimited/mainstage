@@ -1,4 +1,4 @@
-import { BaseEntity } from '.'
+import { BaseEntity, RESTAuth } from '.'
 
 export interface Folder extends BaseEntity {
   __typename: 'Folder'
@@ -6,4 +6,6 @@ export interface Folder extends BaseEntity {
   __parentTypename: 'Collection' | 'Folder'
   name: string
   orderingIndex: number
+  auth: RESTAuth
+  description: string
 }

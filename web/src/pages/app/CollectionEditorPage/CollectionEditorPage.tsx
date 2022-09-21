@@ -80,7 +80,7 @@ export const CollectionEditorPage = ({
       }}
     >
       <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
-        <CollectionContext.Provider value={collection}>
+        <CollectionContext.Provider value={collectionYMap}>
           <GlobeTestProvider />
           <RESTRequestFocusWatcher collectionYMap={collectionYMap} />
           <ReflexContainer orientation="vertical">

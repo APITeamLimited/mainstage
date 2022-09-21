@@ -62,6 +62,10 @@ export const QuickActionArea = ({
       direction="row"
       spacing={1}
       justifyContent="flex-end"
+      sx={{
+        // Prrevent jarring height change when switching between bulk edit and normal mode
+        height: '40px',
+      }}
     >
       {actions.map((action, index) => (
         <Box key={index}>{action}</Box>

@@ -126,6 +126,9 @@ export const CollectionTopMenu = ({
               e.preventDefault()
               setShowSettingsPopover(true)
             }}
+            sx={{
+              marginRight: -1,
+            }}
           >
             <MoreVertIcon />
           </IconButton>

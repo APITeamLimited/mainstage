@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { Environment } from '@apiteam/types'
 import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
@@ -21,6 +20,7 @@ import { PanelLayout } from '../PanelLayout'
 import { AuthPanel } from './AuthPanel'
 import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
+import { ParametersPanel } from './ParametersPanel'
 import { SaveAsDialog } from './SaveAsDialog'
 import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
@@ -49,6 +49,48 @@ export const RESTInputPanel = ({
   const [unsavedParameters, setUnsavedParameters] = useState(
     requestYMap.get('params')
   )
+  const [unsavedPathVariables, setUnsavedPathVariables] = useState(
+    requestYMap.get('pathVariables') || []
+  )
+
+  const [firstSetPathVariables, setFirstSetPathVariables] = useState(false)
+
+  useEffect(() => {
+    // Scan for path variables with colon after the slash
+    const pathVariables: string[] = []
+    const path = unsavedEndpoint.split('?')[0]
+    const pathParts = path.split('/') as string[]
+    pathParts.forEach((part) => {
+      // Ignore empty parts
+      if (part.startsWith(':')) {
+        pathVariables.push(part.substring(1))
+      }
+    })
+
+    // Ignore if already set in pathVariables else set
+    const pathVariablesSet = new Set(
+      pathVariables.filter((pathVariable) => pathVariable !== '')
+    ) as Set<string>
+
+    const newPathVariables = Array.from(pathVariablesSet).map(
+      (pathVariable, index) => ({
+        id: index,
+        keyString: pathVariable,
+        value: '',
+        enabled: true,
+      })
+    )
+
+    if (!firstSetPathVariables) {
+      requestYMap.set('pathVariables', newPathVariables)
+      setFirstSetPathVariables(true)
+    }
+
+    setUnsavedPathVariables(newPathVariables)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unsavedEndpoint])
+
   const [unsavedBody, setUnsavedBody] = useState(requestYMap.get('body'))
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
     requestYMap.get('method')
@@ -66,7 +108,7 @@ export const RESTInputPanel = ({
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
+  useYMap(activeEnvironmentYMap || new Y.Map())
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
@@ -87,7 +129,9 @@ export const RESTInputPanel = ({
           JSON.stringify(unsavedAuth) !==
             JSON.stringify(requestYMap.get('auth')) ||
           JSON.stringify(unsavedDescription) !==
-            JSON.stringify(requestYMap.get('description'))
+            JSON.stringify(requestYMap.get('description')) ||
+          JSON.stringify(unsavedPathVariables) !==
+            JSON.stringify(requestYMap.get('pathVariables'))
       )
     }
   }, [
@@ -99,6 +143,7 @@ export const RESTInputPanel = ({
     unsavedEndpoint,
     unsavedHeaders,
     unsavedParameters,
+    unsavedPathVariables,
     unsavedRequestMethod,
   ])
 
@@ -110,6 +155,7 @@ export const RESTInputPanel = ({
     requestYMap.set('method', unsavedRequestMethod)
     requestYMap.set('auth', unsavedAuth)
     requestYMap.set('description', unsavedDescription)
+    requestYMap.set('pathVariables', unsavedPathVariables)
     setNeedSave(false)
   }
 
@@ -125,6 +171,7 @@ export const RESTInputPanel = ({
     clone.set('method', unsavedRequestMethod)
     clone.set('auth', unsavedAuth)
     clone.set('description', unsavedDescription)
+    clone.set('pathVariables', unsavedPathVariables)
     restRequestsYMap.set(newId, clone)
   }
 
@@ -146,6 +193,8 @@ export const RESTInputPanel = ({
       body: unsavedBody,
       method: unsavedRequestMethod,
       auth: unsavedAuth,
+      pathVariables: unsavedPathVariables,
+      description: unsavedDescription,
     }
 
     // Find scope matching workspace guid
@@ -205,9 +254,11 @@ export const RESTInputPanel = ({
         actionArea={actionArea}
       >
         {activeTabIndex === 0 && (
-          <KeyValueEditor
-            items={unsavedParameters}
-            setItems={setUnsavedParameters}
+          <ParametersPanel
+            queryParameters={unsavedParameters}
+            pathVariables={unsavedPathVariables}
+            setQueryParameters={setUnsavedParameters}
+            setPathVariables={setUnsavedPathVariables}
             namespace={`request:${requestId}:params`}
             setActionArea={setActionArea}
           />

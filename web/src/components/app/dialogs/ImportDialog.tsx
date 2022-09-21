@@ -18,6 +18,7 @@ import {
   Box,
   Chip,
 } from '@mui/material'
+import * as Y from 'yjs'
 
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { getImporterNames, importRaw, ImportResult } from 'src/utils/importer'
@@ -80,10 +81,10 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
       rawBearer,
     })
 
-    setRawText('')
-    setActiveSubtab(0)
-
     if (importResult) {
+      setRawText('')
+      setActiveSubtab(0)
+
       const { collectionId, collection } = importResult.collection
       branch?.get('collections')?.set(collectionId, collection)
 

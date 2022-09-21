@@ -1,7 +1,8 @@
 import { RESTRequest } from '@apiteam/types'
+import { AxiosRequestConfig } from 'axios'
+import HTTPSnippet from 'httpsnippet'
 
 import { buildHarRequest } from './buildHar'
-import { HTTPSnippet } from './httpsnippet'
 
 export const RESTCodegenDefinitions = [
   {
@@ -179,7 +180,7 @@ export type CodegenName = typeof RESTCodegenDefinitions[number]['name']
 
 export const generateRESTCode = (
   codegenName: CodegenName,
-  request: RESTRequest
+  axiosConfig: AxiosRequestConfig
 ) => {
   const codegenInfo = RESTCodegenDefinitions.find((v) => v.name === codegenName)
   if (!codegenInfo) {
@@ -187,7 +188,7 @@ export const generateRESTCode = (
   }
 
   try {
-    const code = new HTTPSnippet({ ...buildHarRequest(request) }).convert(
+    const code = new HTTPSnippet({ ...buildHarRequest(axiosConfig) }).convert(
       codegenInfo.lang,
       codegenInfo.mode,
       {
@@ -199,7 +200,7 @@ export const generateRESTCode = (
 
     return code.toString()
   } catch (e) {
-    //console.error(e)
+    console.error(e)
     return null
   }
 }

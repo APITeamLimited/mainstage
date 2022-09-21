@@ -1,5 +1,6 @@
-import { RESTRequest } from '@apiteam/types'
+import { AxiosRequestConfig } from 'axios'
 import * as Har from 'har-format'
+import { parse } from 'qs'
 
 import { HarRequest } from './httpsnippet'
 // scotch support HAR Spec 1.2
@@ -8,24 +9,6 @@ import { HarRequest } from './httpsnippet'
 type FieldEquals<T, K extends keyof T, Vals extends T[K][]> = {
   // eslint-disable-next-line
   [_x in K]: Vals[number]
-}
-
-const buildHarHeaders = (req: RESTRequest): Har.Header[] => {
-  return req.headers
-    .filter((header) => header.enabled)
-    .map((header) => ({
-      name: header.keyString,
-      value: header.value,
-    }))
-}
-
-const buildHarQueryStrings = (req: RESTRequest): Har.QueryString[] => {
-  return req.params
-    .filter((param) => param.enabled)
-    .map((param) => ({
-      name: param.keyString,
-      value: param.value,
-    }))
 }
 
 const buildHarPostParams = (
@@ -80,41 +63,56 @@ const buildHarPostParams = (
   }
 }
 
-const buildHarPostData = (req: RESTRequest): Har.PostData | undefined => {
-  if (!req.body.contentType) {
-    return {
-      mimeType: '',
-      text: '',
-    }
+const buildHarPostData = (
+  req: AxiosRequestConfig
+): Har.PostData | undefined => {
+  const contentType = req.headers?.['content-type']
+  if (!contentType) return undefined
+
+  if ((req.data ?? '').length === 0) return undefined
+
+  if (contentType === 'multipart/form-data') {
+    throw new Error('FormData is not supported yet')
   }
 
-  if (
-    req.body.contentType === 'application/x-www-form-urlencoded' ||
-    req.body.contentType === 'multipart/form-data'
-  ) {
-    throw new Error('FormData is not supported yet')
+  console.log('req.data', req.data)
+
+  if (contentType === 'application/x-www-form-urlencoded') {
+    const params = Object.entries(parse(req.data as string)).map(
+      ([name, value]) => ({
+        name,
+        value,
+      })
+    )
+
     return {
-      mimeType: req.body.contentType, // By default assume JSON ?
-      params: buildHarPostParams(req as any),
-    }
+      mimeType: contentType,
+      params,
+    } as Har.PostData
   }
 
   return {
-    mimeType: req.body.contentType, // Let's assume by default content type is JSON
-    text: req.body.body,
+    mimeType: contentType.toString(),
+    text: req.data,
   }
 }
 
-export const buildHarRequest = (req: RESTRequest): HarRequest => {
+export const buildHarRequest = (req: AxiosRequestConfig): HarRequest => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
     headersSize: -1, // TODO: It would be cool if we can calculate the header size
     httpVersion: 'HTTP/1.1',
     cookies: [], // APITeam does not have formal support for Cookies as of right now
-    headers: buildHarHeaders(req),
-    method: req.method,
-    queryString: buildHarQueryStrings(req),
-    url: req.endpoint,
+    headers: Object.entries(req.headers ?? {}).map(([name, value]) => ({
+      name,
+      value: value.toString(),
+    })),
+    method: req.method ?? '',
+    queryString: Object.entries(req.params ?? {}).map(([name, value]) => ({
+      name,
+      value: value?.toString(),
+    })),
+    url: req.url ?? '',
     postData: buildHarPostData(req),
   }
 }

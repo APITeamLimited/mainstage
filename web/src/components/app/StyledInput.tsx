@@ -7,6 +7,7 @@ type StyledInputProps = {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void
   sx?: SxProps<Theme>
+  readonly?: boolean
 }
 
 /**
@@ -17,6 +18,7 @@ export const StyledInput = ({
   onChange,
   onChangeValue,
   sx,
+  readonly,
 }: StyledInputProps) => {
   const theme = useTheme()
 
@@ -62,6 +64,7 @@ export const StyledInput = ({
         maxWidth: '100%',
         ...sx,
       }}
+      readOnly={readonly}
     />
   )
 }

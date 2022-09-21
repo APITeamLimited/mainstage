@@ -118,4 +118,6 @@ export interface RESTRequest extends BaseEntity {
   headers: KeyValueItem[]
   auth: RESTAuth
   body: RESTReqBody
+  description: string
+  pathVariables: KeyValueItem[]
 }

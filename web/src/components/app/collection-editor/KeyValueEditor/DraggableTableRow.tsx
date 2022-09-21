@@ -17,6 +17,12 @@ import { useDrag, useDrop } from 'src/components/dnd/react-dnd'
 
 import { StyledInput } from '../../StyledInput'
 
+interface DragRow {
+  index: number
+  id: string
+  type: 'DraggableType'
+}
+
 type DraggableTableRowProps = {
   id: number
   index: number
@@ -30,12 +36,9 @@ type DraggableTableRowProps = {
   onDelete?: (id: number) => void
   namespace: string
   enableEnvironmentVariables?: boolean
-}
-
-interface DragRow {
-  index: number
-  id: string
-  type: 'DraggableType'
+  disableDelete?: boolean
+  disableKeyEdit?: boolean
+  disableCheckboxes?: boolean
 }
 
 export const DraggableTableRow = memo(
@@ -52,6 +55,9 @@ export const DraggableTableRow = memo(
     onDelete,
     namespace,
     enableEnvironmentVariables = true,
+    disableDelete,
+    disableKeyEdit,
+    disableCheckboxes,
   }: DraggableTableRowProps) => {
     const theme = useTheme()
     const ref = useRef<HTMLDivElement>(null)
@@ -149,21 +155,21 @@ export const DraggableTableRow = memo(
             </IconButton>
           </div>
         </TableCell>
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: 0,
-            borderColor: theme.palette.divider,
-          }}
-        >
-          <Checkbox
-            // defaultChecked needed for some reason to make the checkbox work
-            checked={enabled}
-            onChange={(event, value) => onEnabledChange?.(value, index)}
-          />
-        </TableCell>
-
+        {!disableCheckboxes && (
+          <TableCell
+            sx={{
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: 0,
+              borderColor: theme.palette.divider,
+            }}
+          >
+            <Checkbox
+              checked={enabled}
+              onChange={(_, value) => onEnabledChange?.(value, index)}
+            />
+          </TableCell>
+        )}
         <TableCell
           sx={{
             maxWidth: '200px',
@@ -171,9 +177,9 @@ export const DraggableTableRow = memo(
             borderColor: theme.palette.divider,
           }}
         >
-          {enableEnvironmentVariables ? (
+          {enableEnvironmentVariables && !disableKeyEdit ? (
             <EnvironmentTextField
-              placeholder="Advasd Key"
+              placeholder="Add Key"
               value={keyString}
               onChange={(value) => onKeyStringChange?.(value, index)}
               namespace={`${namespace}_${id}_key`}
@@ -182,10 +188,10 @@ export const DraggableTableRow = memo(
             <StyledInput
               value={keyString}
               onChangeValue={(value) => onKeyStringChange?.(value, index)}
+              readonly={disableKeyEdit}
             />
           )}
         </TableCell>
-
         <TableCell
           sx={{
             maxWidth: '200px',
@@ -207,20 +213,22 @@ export const DraggableTableRow = memo(
             />
           )}
         </TableCell>
-        <TableCell
-          sx={{
-            padding: 0,
-            whiteSpace: 'nowrap',
-            width: 0,
-            borderColor: theme.palette.divider,
-          }}
-        >
-          <Tooltip title="Delete">
-            <IconButton color="error" onClick={() => onDelete?.(index)}>
-              <HighlightOffIcon />
-            </IconButton>
-          </Tooltip>
-        </TableCell>
+        {!disableDelete && (
+          <TableCell
+            sx={{
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: 0,
+              borderColor: theme.palette.divider,
+            }}
+          >
+            <Tooltip title="Delete">
+              <IconButton color="error" onClick={() => onDelete?.(index)}>
+                <HighlightOffIcon />
+              </IconButton>
+            </Tooltip>
+          </TableCell>
+        )}
       </TableRow>
     )
   }

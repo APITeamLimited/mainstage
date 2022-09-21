@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { KeyValueItem } from '@apiteam/types'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Box, IconButton, Tooltip } from '@mui/material'
 
@@ -8,19 +9,17 @@ import { QuickActionArea } from '../../utils/QuickActionArea'
 import { BulkEditor } from './BulkEditor'
 import { SortableEditor } from './SortableEditor'
 
-export type KeyValueItem = {
-  id: number
-  keyString: string
-  value: string
-  enabled: boolean
-}
-
 type KeyValueEditorProps = {
   items: KeyValueItem[]
   setItems: (newItems: KeyValueItem[]) => void
   namespace: string
   enableEnvironmentVariables?: boolean
   setActionArea?: (actionArea: React.ReactNode) => void
+  disableAdd?: boolean
+  disableDelete?: boolean
+  disableKeyEdit?: boolean
+  disableCheckboxes?: boolean
+  disableBulkEdit?: boolean
 }
 
 export const KeyValueEditor = ({
@@ -29,6 +28,11 @@ export const KeyValueEditor = ({
   namespace,
   enableEnvironmentVariables,
   setActionArea,
+  disableAdd,
+  disableDelete,
+  disableKeyEdit,
+  disableCheckboxes,
+  disableBulkEdit,
 }: KeyValueEditorProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
   const [bulkContents, setBulkContents] = useState('')
@@ -72,7 +76,7 @@ export const KeyValueEditor = ({
     }
 
     const enableDeleteButton =
-      itemsRef.current.length > 0 || bulkContents !== ''
+      (itemsRef.current.length > 0 || bulkContents !== '') && !disableDelete
 
     setActionArea(
       <QuickActionArea
@@ -85,8 +89,8 @@ export const KeyValueEditor = ({
               }
             : undefined
         }
-        isBulkEditing={isBulkEditing}
-        setIsBulkEditing={setIsBulkEditing}
+        isBulkEditing={!disableBulkEdit ? isBulkEditing : false}
+        setIsBulkEditing={!disableBulkEdit ? setIsBulkEditing : undefined}
         customActions={customActions}
       />
     )
@@ -167,6 +171,10 @@ export const KeyValueEditor = ({
       enableEnvironmentVariables={enableEnvironmentVariables}
       // Not re-rendering when supposed to so use key
       key={bulkContents}
+      disableAdd={disableAdd}
+      disableDelete={disableDelete}
+      disableKeyEdit={disableKeyEdit}
+      disableCheckboxes={disableCheckboxes}
     />
   )
 }
