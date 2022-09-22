@@ -13,6 +13,11 @@ export type KeyValueItem = {
   keyString: string
   value: string
   enabled: boolean
+  isFile?: boolean
+  fileField?: {
+    data: StoredObject<string | ArrayBuffer>
+    filename: string
+  } | null
 }
 
 export type StoredObject<T> = {

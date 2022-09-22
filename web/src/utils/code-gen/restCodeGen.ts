@@ -201,6 +201,6 @@ export const generateRESTCode = (
     return code.toString()
   } catch (e) {
     console.error(e)
-    return null
+    return 'ERROR'
   }
 }

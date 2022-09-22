@@ -2,15 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 
 import {
   getKnownContentTypes,
+  getPrettyContentTypes,
   RESTReqBody,
   ValidContentTypes,
 } from '@apiteam/types/src/entities'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import { Stack, useTheme } from '@mui/material'
 
+import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { codeFormatter } from 'src/utils/codeFormatter'
 
 import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
+import { StoredDropzone } from '../../utils/FileDropzone'
 import { QuickActionArea } from '../../utils/QuickActionArea'
 import { SecondaryChips } from '../../utils/SecondaryChips'
 import { KeyValueEditor } from '../KeyValueEditor'
@@ -23,17 +26,13 @@ type BodyPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
 }
 
-const possibleContentTypes = [...getKnownContentTypes(), 'None']
+const possibleContentTypes = getKnownContentTypes()
+const possiblePrettyTypes = getPrettyContentTypes()
 
-const getIndexOfContentType = (contentType: string | null) => {
-  const findWith = contentType === null ? 'None' : contentType
-
-  return (
-    possibleContentTypes.findIndex(
-      (knownContentType) => knownContentType === findWith
-    ) || null
-  )
-}
+const getIndexOfContentType = (contentType: string | null) =>
+  possibleContentTypes.findIndex(
+    (knownContentType) => knownContentType === contentType
+  ) || null
 
 const getContentTypeFromIndex = (index: number) => {
   if (index > possibleContentTypes.length) {
@@ -63,6 +62,9 @@ export const BodyPanel = ({
   bodyRef.current = body
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
+  const scopeId = useScopeId()
+  const rawBearer = useRawBearer()
+
   const handeChipChange = (index: number) => {
     const contentType = getContentTypeFromIndex(index)
 
@@ -83,9 +85,9 @@ export const BodyPanel = ({
     if (contentType === 'None') {
       setBody(
         unsavedBodies.find(
-          (unsavedBody) => unsavedBody.contentType === null
+          (unsavedBody) => unsavedBody.contentType === 'none'
         ) || {
-          contentType: null,
+          contentType: 'none',
           body: null,
         }
       )
@@ -99,6 +101,15 @@ export const BodyPanel = ({
         ) || {
           contentType: contentType,
           body: [],
+        }
+      )
+    } else if (contentType === 'application/octet-stream') {
+      setBody(
+        unsavedBodies.find(
+          (unsavedBody) => unsavedBody.contentType === contentType
+        ) || {
+          contentType: contentType,
+          body: null,
         }
       )
     } else {
@@ -144,7 +155,7 @@ export const BodyPanel = ({
       throw new Error('bodyRef.current is undefined')
     }
 
-    if (bodyRef.current?.contentType === null) {
+    if (bodyRef.current?.contentType === 'none') {
       return
     }
 
@@ -155,6 +166,14 @@ export const BodyPanel = ({
       setBody({
         contentType: bodyRef.current.contentType,
         body: [],
+      })
+      return
+    }
+
+    if (bodyRef.current?.contentType === 'application/octet-stream') {
+      setBody({
+        contentType: bodyRef.current.contentType,
+        body: null,
       })
       return
     }
@@ -171,6 +190,12 @@ export const BodyPanel = ({
       bodyRef.current?.contentType === 'multipart/form-data' ||
       bodyRef.current?.contentType === 'application/x-www-form-urlencoded'
     ) {
+      return
+    }
+
+    // If body is application/octet-stream, clear the action area
+    if (bodyRef.current?.contentType === 'application/octet-stream') {
+      setActionArea(null)
       return
     }
 
@@ -206,7 +231,7 @@ export const BodyPanel = ({
       }}
     >
       <SecondaryChips
-        names={possibleContentTypes}
+        names={possiblePrettyTypes}
         value={getIndexOfContentType(body.contentType) || 0}
         onChange={handeChipChange}
       />
@@ -242,7 +267,7 @@ export const BodyPanel = ({
           namespace={`request-${requestId}-plain`}
         />
       )}
-      {body.contentType === null && (
+      {body.contentType === 'none' && (
         <EmptyPanelMessage
           primaryText="No body"
           secondaryMessages={[
@@ -266,6 +291,29 @@ export const BodyPanel = ({
           setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
           setActionArea={setActionArea}
           namespace={`${requestId}${body.contentType}`}
+        />
+      )}
+      {body.contentType === 'multipart/form-data' && (
+        <KeyValueEditor
+          items={body.body}
+          setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
+          setActionArea={setActionArea}
+          namespace={`${requestId}${body.contentType}`}
+          enableFileFields
+        />
+      )}
+      {body.contentType === 'application/octet-stream' && (
+        <StoredDropzone
+          file={body.body}
+          setFile={(file) => {
+            // Fix for an error when null wrongfully gets passed to setFile
+            if (file !== null) {
+              setBody({ ...body, body: file })
+            }
+          }}
+          onDelete={() => setBody({ ...body, body: null })}
+          primaryText="Drop file here"
+          secondaryMessages={['Or click to browse']}
         />
       )}
     </Stack>

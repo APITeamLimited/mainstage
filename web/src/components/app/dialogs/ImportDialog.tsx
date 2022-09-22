@@ -228,6 +228,7 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
                       }
                     }
                   }}
+                  onDelete={() => setRawText('')}
                 >
                   <Box width="100%" display="flex" justifyContent="center">
                     <Grid

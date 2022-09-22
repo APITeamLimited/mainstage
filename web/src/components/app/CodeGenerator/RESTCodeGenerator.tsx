@@ -4,6 +4,7 @@ import { RESTRequest } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { getFinalRequest } from 'src/globe-test/rest'
 import {
   generateRESTCode,
@@ -29,14 +30,18 @@ export const RESTCodeGenerator = ({
   activeEnvironmentYMap,
   collectionYMap,
 }: RESTCodeGeneratorProps) => {
-  const [codeGenerated, setCodeGenerated] = useState<CodeGenerated>(null)
+  const [codeGenerated, setCodeGenerated] = useState<
+    CodeGenerated | 'NONE' | 'ERROR'
+  >('NONE')
   useYMap(requestYMap)
   useYMap(activeEnvironmentYMap ?? new Y.Map())
   useYMap(collectionYMap)
+  const scopeId = useScopeId()
+  const rawBearer = useRawBearer()
 
-  const handleGenerateCode = (codeGen: CodeGenDefinition | null) => {
+  const handleGenerateCode = async (codeGen: CodeGenDefinition | null) => {
     if (!codeGen) {
-      setCodeGenerated(null)
+      setCodeGenerated('ERROR')
       return
     }
 
@@ -59,30 +64,42 @@ export const RESTCodeGenerator = ({
       description: requestYMap.get('description'),
     }
 
-    const axiosConfig = getFinalRequest(
+    if (!scopeId) throw new Error('No scopeId found')
+    if (!rawBearer) throw new Error('No rawBearer found')
+
+    const axiosConfig = await getFinalRequest(
       restRequest,
       requestYMap,
       activeEnvironmentYMap,
-      collectionYMap
+      collectionYMap,
+      scopeId,
+      rawBearer
     )
 
-    const code = generateRESTCode(codeGen.name, axiosConfig)
+    const code = generateRESTCode(codeGen.name, axiosConfig) as string | 'ERROR'
+
+    if (code === 'ERROR') {
+      setCodeGenerated('ERROR')
+      return
+    }
+
+    if (code === 'NONE') {
+      setCodeGenerated('NONE')
+      return
+    }
 
     if (
+      typeof codeGenerated === 'object' &&
       codeGenerated?.value === code &&
       codeGenerated?.language === codeGen.lang
     ) {
       return
     }
 
-    setCodeGenerated(
-      code
-        ? {
-            language: codeGen.lang,
-            value: code,
-          }
-        : null
-    )
+    setCodeGenerated({
+      language: codeGen.lang,
+      value: code,
+    })
   }
 
   return (

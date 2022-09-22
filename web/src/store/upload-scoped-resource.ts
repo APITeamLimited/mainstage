@@ -26,7 +26,7 @@ type UploadResourceArgs = {
   resourceName: string
 }
 
-export const uploadResource = async ({
+export const uploadScopedResource = async ({
   scopeId,
   rawBearer,
   resource,
@@ -52,7 +52,7 @@ export const uploadResource = async ({
     throw new Error(response.data)
   }
 
-  const storeReceipt = response.data.filename
+  const storeReceipt = response.data.storeReceipt
 
   if (!storeReceipt) {
     throw new Error('No store receipt')

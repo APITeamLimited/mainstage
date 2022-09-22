@@ -3,7 +3,7 @@ import { parse } from 'querystring'
 import { ImportRequest } from 'insomnia-importers'
 import * as Y from 'yjs'
 
-import { uploadResource } from 'src/store'
+import { uploadScopedResource } from 'src/store'
 
 import { getAuth } from './utils'
 
@@ -122,7 +122,7 @@ const getBody = async ({
           }
 
         if (param.type === 'file') {
-          const storeReceipt = await uploadResource({
+          const storeReceipt = await uploadScopedResource({
             scopeId,
             rawBearer,
             resource: new Blob([param.value]),

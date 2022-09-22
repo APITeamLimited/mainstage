@@ -126,19 +126,19 @@ export const RESTResponsePanel = ({
     const globeTestLogsPromise = retrieveScopedResource({
       scopeId,
       rawBearer,
-      resourceName: focusedResponse.get('globeTestLogs').storeReceipt,
+      storeReceipt: focusedResponse.get('globeTestLogs').storeReceipt,
     })
 
     const responsePromise = retrieveScopedResource({
       scopeId,
       rawBearer,
-      resourceName: focusedResponse.get('response').storeReceipt,
+      storeReceipt: focusedResponse.get('response').storeReceipt,
     })
 
     const metricsPromise = retrieveScopedResource({
       scopeId,
       rawBearer,
-      resourceName: focusedResponse.get('metrics').storeReceipt,
+      storeReceipt: focusedResponse.get('metrics').storeReceipt,
     })
 
     const [globeTestLogsResult, responseResult, metricsResult] =

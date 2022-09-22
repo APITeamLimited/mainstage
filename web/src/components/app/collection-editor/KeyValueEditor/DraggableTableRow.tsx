@@ -1,14 +1,18 @@
 import { useRef, memo } from 'react'
 
+import { StoredObject } from '@apiteam/types/src'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import {
   Checkbox,
   IconButton,
+  MenuItem,
   TableCell,
   TableRow,
+  TextField,
   Tooltip,
   useTheme,
+  Box,
 } from '@mui/material'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
@@ -16,6 +20,7 @@ import { Identifier, XYCoord } from 'src/components/dnd/dnd-core'
 import { useDrag, useDrop } from 'src/components/dnd/react-dnd'
 
 import { StyledInput } from '../../StyledInput'
+import { StoredDropzone, StoredFileType } from '../../utils/FileDropzone'
 
 interface DragRow {
   index: number
@@ -29,16 +34,21 @@ type DraggableTableRowProps = {
   keyString: string
   value: string
   enabled: boolean
+  isFile?: boolean
+  fileField?: StoredFileType | null
+  onIsFileChange?: (isFile: boolean, index: number) => void
   onKeyStringChange?: (keyString: string, id: number) => void
   onValueChange?: (value: string, id: number) => void
   onEnabledChange?: (enabled: boolean, id: number) => void
   onMove: (dragIndex: number, hoverIndex: number) => void
   onDelete?: (id: number) => void
+  onStoredFileChange?: (fileField: StoredFileType | null, index: number) => void
   namespace: string
   enableEnvironmentVariables?: boolean
   disableDelete?: boolean
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
+  enableFileFields?: boolean
 }
 
 export const DraggableTableRow = memo(
@@ -48,16 +58,21 @@ export const DraggableTableRow = memo(
     keyString,
     value,
     enabled,
+    isFile,
     onKeyStringChange,
     onValueChange,
     onEnabledChange,
     onMove,
     onDelete,
+    onIsFileChange,
+    onStoredFileChange,
     namespace,
     enableEnvironmentVariables = true,
     disableDelete,
     disableKeyEdit,
     disableCheckboxes,
+    enableFileFields,
+    fileField,
   }: DraggableTableRowProps) => {
     const theme = useTheme()
     const ref = useRef<HTMLDivElement>(null)
@@ -170,10 +185,40 @@ export const DraggableTableRow = memo(
             />
           </TableCell>
         )}
+        {enableFileFields && (
+          <TableCell
+            sx={{
+              padding: 0,
+              whiteSpace: 'nowrap',
+              width: 0,
+              borderColor: theme.palette.divider,
+            }}
+          >
+            <TextField
+              value={isFile ? 'File' : 'Text'}
+              select
+              size="small"
+              onChange={() => onIsFileChange?.(!isFile, index)}
+              sx={{
+                maxWidth: 80,
+                width: 80,
+                // Disable select padding
+                '& .MuiSelect-select': {
+                  padding: '4px',
+                  position: 'relative',
+                  right: '-4px',
+                },
+              }}
+            >
+              <MenuItem value="Text">Text</MenuItem>
+              <MenuItem value="File">File</MenuItem>
+            </TextField>
+          </TableCell>
+        )}
         <TableCell
           sx={{
             maxWidth: '200px',
-            width: '200px',
+            minWidth: '200px',
             borderColor: theme.palette.divider,
           }}
         >
@@ -195,11 +240,25 @@ export const DraggableTableRow = memo(
         <TableCell
           sx={{
             maxWidth: '200px',
-            width: '200px',
+            minWidth: '200px',
             borderColor: theme.palette.divider,
           }}
         >
-          {enableEnvironmentVariables ? (
+          {isFile && fileField !== undefined ? (
+            <Box
+              sx={{
+                height: '40px',
+              }}
+            >
+              <StoredDropzone
+                file={fileField}
+                setFile={(file) => onStoredFileChange?.(file, index)}
+                onDelete={() => onStoredFileChange?.(null, index)}
+                primaryText="Drag or click to upload"
+                isSmall
+              />
+            </Box>
+          ) : enableEnvironmentVariables ? (
             <EnvironmentTextField
               placeholder="Add Value"
               value={value}

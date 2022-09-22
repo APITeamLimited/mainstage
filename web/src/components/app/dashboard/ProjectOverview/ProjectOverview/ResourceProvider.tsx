@@ -65,7 +65,7 @@ export const ResourceProvider = ({
       }}
     >
       <Typography variant="h6">
-        No project resources have been created yet 😢
+        No project resources have been created yet
       </Typography>
       <Typography variant="caption" color={theme.palette.text.secondary}>
         Add collections, environments and more to get started

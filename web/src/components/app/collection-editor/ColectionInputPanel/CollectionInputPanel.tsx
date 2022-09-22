@@ -25,20 +25,30 @@ export const CollectionInputPanel = ({
 }: CollectionInputPanelProps) => {
   const getSetAuth = () => {
     collectionYMap.set('auth', {
-      authType: 'inherit',
-    })
+      authType: 'none',
+    } as RESTAuth)
 
     return collectionYMap.get('auth')
   }
 
+  const getSetDescription = () => {
+    collectionYMap.set('description', '')
+    return collectionYMap.get('description')
+  }
+
+  const getSetVariables = () => {
+    collectionYMap.set('variables', [])
+    return collectionYMap.get('variables')
+  }
+
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    collectionYMap.get('description') || ''
+    collectionYMap.get('description') ?? getSetDescription()
   )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
     collectionYMap.get('auth') ?? getSetAuth()
   )
   const [unsavedVariables, setUnsavedVariables] = useState(
-    collectionYMap.get('variables')
+    collectionYMap.get('variables') ?? getSetVariables()
   )
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)

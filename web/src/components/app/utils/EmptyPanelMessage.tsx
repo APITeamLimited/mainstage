@@ -22,8 +22,7 @@ export const EmptyPanelMessage = ({
         justifyContent: 'center',
         height: '100%',
         width: '100%',
-        overflowY: 'auto',
-        overflowX: 'hidden',
+        overflow: 'hidden',
       }}
     >
       {icon}

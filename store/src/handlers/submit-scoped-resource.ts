@@ -4,6 +4,7 @@ import { Readable } from 'stream'
 import busboy from 'busboy'
 import { GridFSBucket } from 'mongodb'
 import * as queryString from 'query-string'
+import { v4 as uuid } from 'uuid'
 
 import { corsHeaders } from '../app'
 import { mongoDB } from '../mongo'
@@ -57,28 +58,13 @@ export const submitScopedResource = async (
   let fileFound: string | undefined = undefined
 
   bb.on('file', async (name, file, info) => {
-    const { filename } = info
-
     if (fileFound) {
       res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders })
       res.end(JSON.stringify({ message: 'Multiple files not allowed' }))
       return
     }
+
     fileFound = info.filename
-
-    // Check if filename already exists in the bucket
-    const fileExists = await bucket.find({ filename }).hasNext()
-
-    if (fileExists) {
-      res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders })
-      res.end(
-        JSON.stringify({
-          message: 'File already exists in workspace',
-          detail: `File ${filename} already exists in workspace ${bucketName}`,
-        })
-      )
-      return
-    }
 
     processFile(info, file, bucket, res)
   })
@@ -111,8 +97,13 @@ const processFile = async (
 ) => {
   const { filename, mimeType } = info
 
-  const uploadStream = bucket.openUploadStream(filename, {
+  // Give actual filename a random uuid to avoid collisions,
+  // but keep the original filename in metadata
+  const uploadStream = bucket.openUploadStream(uuid(), {
     contentType: mimeType,
+    metadata: {
+      filename,
+    },
   })
 
   uploadStream.on('error', (error) => {
@@ -131,6 +122,6 @@ const processFile = async (
 
   uploadStream.on('finish', () => {
     res.writeHead(201, { 'Content-Type': 'application/json', ...corsHeaders })
-    res.end(JSON.stringify({ filename }))
+    res.end(JSON.stringify({ storeReceipt: uploadStream.id.toString() }))
   })
 }

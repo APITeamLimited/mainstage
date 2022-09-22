@@ -3,18 +3,21 @@ import { KeyValueItem, StoredObject } from '..'
 import { BaseEntity } from '.'
 
 const knownContentTypes = {
-  'application/json': 'json',
+  'application/json': 'JSON',
   //'application/ld+json': 'json',
   //'application/hal+json': 'json',
   //'application/vnd.api+json': 'json',
-  'application/xml': 'xml',
-  'application/x-www-form-urlencoded': 'multipart',
-  'multipart/form-data': 'multipart',
-  'text/html': 'html',
-  'text/plain': 'plain',
+  'application/xml': 'XML',
+  'application/x-www-form-urlencoded': 'Form URL Encoded',
+  'multipart/form-data': 'Form Data',
+  'text/html': 'HTML',
+  'text/plain': 'Plain',
+  'application/octet-stream': 'File',
+  none: 'None',
 } as const
 
 export const getKnownContentTypes = () => Object.keys(knownContentTypes)
+export const getPrettyContentTypes = () => Object.values(knownContentTypes)
 
 export type ValidContentTypes = keyof typeof knownContentTypes | null
 
@@ -74,36 +77,31 @@ export type RESTAuth =
   | RESTAuthOAuth2
   | RESTAuthAPIKey
 
-export type FormDataKeyValue = {
-  id: number
-  keyString: string
-  enabled: boolean
-} & (
-  | { isFile: true; value: StoredObject<string>; fileName: string }
-  | { isFile: false; value: string }
-)
-
-export type RESTReqBodyFormData = {
-  contentType: 'multipart/form-data'
-  body: FormDataKeyValue[]
-}
-
 export type RESTReqBody =
   | {
       contentType: Exclude<
         ValidContentTypes,
-        'multipart/form-data' | 'application/x-www-form-urlencoded' | null
+        | 'multipart/form-data'
+        | 'application/x-www-form-urlencoded'
+        | 'application/octet-stream'
+        | null
       >
       body: string
     }
-  | RESTReqBodyFormData
   | {
-      contentType: null
+      contentType: 'none'
       body: null
     }
   | {
-      contentType: 'application/x-www-form-urlencoded'
+      contentType: 'application/x-www-form-urlencoded' | 'multipart/form-data'
       body: KeyValueItem[]
+    }
+  | {
+      contentType: 'application/octet-stream'
+      body: {
+        data: StoredObject<string | ArrayBuffer>
+        filename: string
+      } | null
     }
 
 export interface RESTRequest extends BaseEntity {

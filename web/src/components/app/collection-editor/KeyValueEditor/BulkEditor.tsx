@@ -19,5 +19,11 @@ export const BulkEditor = ({
     language="plain"
     namespace={monacoNamespace}
     key={monacoNamespace}
+    placeholder={[
+      'Enter key value pairs here, e.g:',
+      '',
+      'Key:Value',
+      '#DisabledKey:Value',
+    ]}
   />
 )

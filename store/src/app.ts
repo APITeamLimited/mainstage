@@ -14,7 +14,8 @@ const storePort = checkValue<number>('store.port')
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers':
+    'Content-Type, Authorization, Content-Disposition',
   'Access-Control-Max-Age': 2592000, // 30 days
 }
 

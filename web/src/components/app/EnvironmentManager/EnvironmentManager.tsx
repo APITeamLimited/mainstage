@@ -196,7 +196,7 @@ export const EnvironmentManager = ({
         >
           {environmentsYMap.size === 0 ? (
             <EmptyPanelMessage
-              primaryText="Looks like nothings here yet 😢"
+              primaryText="Looks like nothings here yet"
               secondaryMessages={[
                 'Add an environment to use its variables in requests',
               ]}

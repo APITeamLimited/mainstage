@@ -40,8 +40,13 @@ export const FolderInputPanel = ({
     return folderYMap.get('auth')
   }
 
+  const getSetDescription = () => {
+    folderYMap.set('description', '')
+    return folderYMap.get('description')
+  }
+
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    folderYMap.get('description') || ''
+    folderYMap.get('description') ?? getSetDescription()
   )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
     folderYMap.get('auth') ?? getSetAuth()

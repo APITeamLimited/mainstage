@@ -1,17 +1,17 @@
 import axios from 'axios'
 
-import { getGlobetestUrl } from './upload-resource'
+import { getGlobetestUrl } from './upload-scoped-resource'
 
 type RetrieveResourceArgs = {
   scopeId: string
   rawBearer: string
-  resourceName: string
+  storeReceipt: string
 }
 
 export const retrieveScopedResource = async ({
   scopeId,
   rawBearer,
-  resourceName,
+  storeReceipt,
 }: RetrieveResourceArgs) => {
   const response = await axios({
     url: `${getGlobetestUrl()}/retrieve-scoped-resource`,
@@ -22,7 +22,7 @@ export const retrieveScopedResource = async ({
     },
     params: {
       scopeId,
-      filename: resourceName,
+      storeReceipt,
     },
   })
 

@@ -20,6 +20,7 @@ type KeyValueEditorProps = {
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
   disableBulkEdit?: boolean
+  enableFileFields?: boolean
 }
 
 export const KeyValueEditor = ({
@@ -33,6 +34,7 @@ export const KeyValueEditor = ({
   disableKeyEdit,
   disableCheckboxes,
   disableBulkEdit,
+  enableFileFields,
 }: KeyValueEditorProps) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
   const [bulkContents, setBulkContents] = useState('')
@@ -97,26 +99,28 @@ export const KeyValueEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBulkEditing, items, bulkContents])
 
-  const generateBulkContents = (keyValueItems: KeyValueItem[]) => {
+  const generateBulkContents = () => {
     const generatedLines: string[] = []
 
-    keyValueItems.forEach((item) => {
-      if (item.keyString === '') {
-        return
-      }
+    items
+      .filter((kv) => !kv.isFile)
+      .forEach((item) => {
+        if (item.keyString === '') {
+          return
+        }
 
-      if (item.enabled) {
-        generatedLines.push(`${item.keyString}: ${item.value}`)
-      } else {
-        generatedLines.push(`#${item.keyString}: ${item.value}`)
-      }
-    })
+        generatedLines.push(
+          `${item.enabled ? '#' : ''}${item.keyString}:${item.value}`
+        )
+      })
 
     return generatedLines.join('\n')
   }
 
   const generateKeyValueItems = (bulkContent: string) => {
-    const foundItems: KeyValueItem[] = []
+    const foundItems: KeyValueItem[] = items.filter(
+      (kv) => kv.isFile
+    ) as KeyValueItem[]
 
     bulkContent.split('\n').forEach((line, index) => {
       const formattedLine = line.replace(': ', ':').trim()
@@ -141,13 +145,16 @@ export const KeyValueEditor = ({
       } as KeyValueItem)
     })
 
+    // Return sorted by id
     return foundItems
+      .sort((a, b) => a.id - b.id)
+      .map((item, index) => ({ ...item, id: index }))
   }
 
   // Handle bulk editor toggle
   useEffect(() => {
     if (isBulkEditing) {
-      setBulkContents(generateBulkContents(items))
+      setBulkContents(generateBulkContents())
     } else if (bulkContents !== '') {
       setItems(generateKeyValueItems(bulkContents))
       setBulkContents('')
@@ -155,7 +162,7 @@ export const KeyValueEditor = ({
     // Don't add bulkContents, don't want state to update when editing and not
     // TextField is potentially not formatted correctly
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isBulkEditing, setItems])
+  }, [isBulkEditing])
 
   return isBulkEditing ? (
     <BulkEditor
@@ -175,6 +182,7 @@ export const KeyValueEditor = ({
       disableDelete={disableDelete}
       disableKeyEdit={disableKeyEdit}
       disableCheckboxes={disableCheckboxes}
+      enableFileFields={enableFileFields}
     />
   )
 }

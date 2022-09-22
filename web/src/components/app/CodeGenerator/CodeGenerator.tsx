@@ -35,10 +35,13 @@ export type CodeGenDefinition = {
   caption: string
 }
 
-export type CodeGenerated = {
-  language: string
-  value: string
-} | null
+export type CodeGenerated =
+  | {
+      language: string
+      value: string
+    }
+  | 'NONE'
+  | 'ERROR'
 
 export const CodeGenerator = ({
   availableCodeGens = [],
@@ -169,7 +172,7 @@ export const CodeGenerator = ({
                     {activeCodeGen.caption}
                   </span>
                 </Button>
-                {codeGenerated ? (
+                {codeGenerated !== 'NONE' && codeGenerated !== 'ERROR' ? (
                   <Tooltip title="Copy All">
                     <IconButton
                       size="small"
@@ -195,7 +198,7 @@ export const CodeGenerator = ({
                   </IconButton>
                 )}
               </Stack>
-              {codeGenerated ? (
+              {codeGenerated !== 'NONE' && codeGenerated !== 'ERROR' ? (
                 <div
                   style={{
                     height: 'calc(100% - 7.5em)',

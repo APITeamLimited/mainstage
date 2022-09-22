@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
+import { RESTReqBody } from '@apiteam/types/src'
 import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
@@ -9,9 +10,14 @@ import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useWorkspace } from 'src/entity-engine'
-import { useScopes } from 'src/entity-engine/EntityEngine'
+import {
+  useRawBearer,
+  useScopeId,
+  useScopes,
+} from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
+import { retrieveScopedResource } from 'src/store'
 
 import { DescriptionPanel } from '../DescriptionPanel'
 import { KeyValueEditor } from '../KeyValueEditor'
@@ -36,7 +42,8 @@ export const RESTInputPanel = ({
 }: RESTInputPanelProps) => {
   const restRequestsYMap = collectionYMap.get('restRequests')
   const workspace = useWorkspace()
-  const scopes = useScopes()
+  const scopeId = useScopeId()
+  const rawBearer = useRawBearer()
 
   const requestYMap = restRequestsYMap.get(requestId)
 
@@ -91,15 +98,23 @@ export const RESTInputPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedEndpoint])
 
-  const [unsavedBody, setUnsavedBody] = useState(requestYMap.get('body'))
+  const [unsavedBody, setUnsavedBody] = useState<RESTReqBody>(
+    requestYMap.get('body')
+  )
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
     requestYMap.get('method')
   )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
     requestYMap.get('auth')
   )
+
+  const getSetDescription = () => {
+    requestYMap.set('description', '')
+    return requestYMap.get('description')
+  }
+
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    requestYMap.get('description') || ''
+    requestYMap.get('description') ?? getSetDescription()
   )
 
   const jobQueue = useReactiveVar(jobQueueVar)
@@ -122,7 +137,7 @@ export const RESTInputPanel = ({
             JSON.stringify(requestYMap.get('headers')) ||
           JSON.stringify(unsavedParameters) !==
             JSON.stringify(requestYMap.get('params')) ||
-          JSON.stringify(unsavedBody) !==
+          JSON.stringify(stripBodyStoredObjectData(unsavedBody)) !==
             JSON.stringify(requestYMap.get('body')) ||
           JSON.stringify(unsavedRequestMethod) !==
             JSON.stringify(requestYMap.get('method')) ||
@@ -147,11 +162,100 @@ export const RESTInputPanel = ({
     unsavedRequestMethod,
   ])
 
+  const fetchScopedBody = useCallback(async () => {
+    /*if (unsavedBody.contentType === 'multipart/form-data') {
+      setUnsavedBody({
+        ...unsavedBody,
+        ...(await Promise.all(
+          unsavedBody.body.map(async (part) => {
+            if (part.fileField && part.fileField.data.data === null) {
+              if (!scopeId) throw new Error('No scopeId')
+              if (!rawBearer) throw new Error('No rawBearer')
+
+              const { data } = await retrieveScopedResource({
+                scopeId,
+                rawBearer,
+                storeReceipt: part.fileField.data.storeReceipt,
+              })
+
+              return {
+                ...part,
+                fileField: {
+                  ...part.fileField,
+                  data: {
+                    ...part.fileField.data,
+                    data,
+                  },
+                },
+              }
+            } else {
+              return part
+            }
+          })
+        )),
+      })
+    }*/
+  }, [rawBearer, scopeId, unsavedBody])
+
+  useEffect(() => {
+    if (!unsavedBody) return
+
+    // If unsaved body is a stored object and changes, immeditely save
+    if (unsavedBody.contentType === 'application/octet-stream') {
+      requestYMap.set('body', unsavedBody)
+    }
+  }, [requestYMap, unsavedBody])
+
+  const stripBodyStoredObjectData = (
+    unfilteredBody: RESTReqBody
+  ): RESTReqBody => {
+    if (unfilteredBody.contentType === 'application/octet-stream') {
+      if (unfilteredBody.body === null) {
+        return unfilteredBody
+      }
+
+      return {
+        contentType: unfilteredBody.contentType,
+        body: {
+          data: {
+            ...unfilteredBody.body.data,
+            data: null,
+          },
+          filename: unfilteredBody.body.filename,
+        },
+      }
+    }
+
+    if (unfilteredBody.contentType === 'multipart/form-data') {
+      return {
+        contentType: unfilteredBody.contentType,
+        body: unfilteredBody.body.map((part) => {
+          if (part.fileField) {
+            return {
+              ...part,
+              fileField: {
+                ...part.fileField,
+                data: {
+                  ...part.fileField.data,
+                  data: null,
+                },
+              },
+            }
+          } else {
+            return part
+          }
+        }),
+      }
+    }
+
+    return unfilteredBody
+  }
+
   const handleSave = () => {
     requestYMap.set('endpoint', unsavedEndpoint)
     requestYMap.set('headers', unsavedHeaders)
     requestYMap.set('params', unsavedParameters)
-    requestYMap.set('body', unsavedBody)
+    requestYMap.set('body', stripBodyStoredObjectData(unsavedBody))
     requestYMap.set('method', unsavedRequestMethod)
     requestYMap.set('auth', unsavedAuth)
     requestYMap.set('description', unsavedDescription)
@@ -167,7 +271,7 @@ export const RESTInputPanel = ({
     clone.set('endpoint', unsavedEndpoint)
     clone.set('headers', unsavedHeaders)
     clone.set('params', unsavedParameters)
-    clone.set('body', unsavedBody)
+    clone.set('body', stripBodyStoredObjectData(unsavedBody))
     clone.set('method', unsavedRequestMethod)
     clone.set('auth', unsavedAuth)
     clone.set('description', unsavedDescription)
@@ -175,7 +279,7 @@ export const RESTInputPanel = ({
     restRequestsYMap.set(newId, clone)
   }
 
-  const handleNormalSend = () => {
+  const handleNormalSend = async () => {
     const request: RESTRequest = {
       id: requestYMap.get('id'),
       __typename: 'RESTRequest',
@@ -197,17 +301,8 @@ export const RESTInputPanel = ({
       description: unsavedDescription,
     }
 
-    // Find scope matching workspace guid
-    const [variant, variantTargetId] = workspace?.guid.split(
-      ':'
-    ) as Array<string>
-
-    const scopeId = scopes?.find(
-      (scope) =>
-        scope.variant === variant && scope.variantTargetId === variantTargetId
-    )?.id
-
-    if (!scopeId) throw 'No scope found'
+    if (!scopeId) throw new Error('No scopeId')
+    if (!rawBearer) throw new Error('No rawBearer')
 
     singleRESTRequestGenerator({
       request,
@@ -215,6 +310,7 @@ export const RESTInputPanel = ({
       collectionYMap,
       // Normal send is always main scope i.e. workspace
       scopeId,
+      rawBearer,
       jobQueue,
       requestYMap,
     })

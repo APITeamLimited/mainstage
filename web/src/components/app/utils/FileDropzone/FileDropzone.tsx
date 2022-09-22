@@ -1,23 +1,27 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import ClearIcon from '@mui/icons-material/Clear'
 import {
   Card,
   Stack,
   useTheme,
   Typography,
-  Box,
-  Button,
   Chip,
+  Box,
+  IconButton,
 } from '@mui/material'
 
-type FileDropzoneProps = {
+export type FileDropzoneProps = {
   primaryText: string
   secondaryMessages?: string[]
   accept?: string
   onFiles?: (files: FileList) => void
   children?: React.ReactNode
+  overrideFileName?: string | null
+  onDelete: () => void
+  isSmall?: boolean
 }
 
 export const FileDropzone = ({
@@ -26,6 +30,9 @@ export const FileDropzone = ({
   accept = '*',
   onFiles,
   children,
+  overrideFileName,
+  onDelete,
+  isSmall,
 }: FileDropzoneProps) => {
   const theme = useTheme()
 
@@ -62,16 +69,31 @@ export const FileDropzone = ({
       setLabelText(primaryText)
       setIsDragOver(false)
       setFiles(e.dataTransfer.files)
-      onFiles?.(e.dataTransfer.files)
+
+      if (files && files?.length > 0) {
+        onFiles?.(e.dataTransfer.files)
+      }
     },
   }
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
+      if (event.target.files?.length > 0) {
+        onFiles?.(event.target.files)
+      }
+
       setFiles(event.target.files)
-      onFiles?.(event.target.files)
     }
   }
+
+  const displayFileName = useMemo(() => {
+    if (overrideFileName !== undefined) return overrideFileName
+
+    if (files && files.length > 0) {
+      return files[0].name
+    }
+    return null
+  }, [files, overrideFileName])
 
   return (
     <>
@@ -81,6 +103,8 @@ export const FileDropzone = ({
         id="file-upload"
         type="file"
         style={{ display: 'none' }}
+        // Required to prevent wrongful denial if filename already added
+        key={files?.length}
       />
       <label
         htmlFor="file-upload"
@@ -99,7 +123,7 @@ export const FileDropzone = ({
             borderStyle: 'dashed',
             borderWidth: 2,
             backgroundColor: 'transparent',
-            height: '100%',
+            height: 'calc(100% - 4px)',
             // Transition border color on hover
             transition: 'border-color 0.2s ease-in-out',
             pointerEvents: 'none',
@@ -108,53 +132,125 @@ export const FileDropzone = ({
         >
           <Stack
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
               height: '100%',
-              width: '100%',
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              userSelect: 'none',
             }}
           >
-            {files ? (
-              <Stack spacing={1} alignItems="center">
-                <Typography variant="h6" color={theme.palette.text.secondary}>
-                  Current File:
-                </Typography>
-                <Chip label={files[0].name} variant="outlined" size="small" />
-                <Typography
-                  variant="body2"
-                  color={theme.palette.text.secondary}
+            {displayFileName && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  // Align to right
+                  justifyContent: 'flex-end',
+                  width: '100%',
+                }}
+              >
+                <Box
+                  sx={{
+                    margin: '-17px',
+                    position: 'relative',
+                    top: '18px',
+                    left: '-18px',
+                    // Re-enable pointer events on the delete button
+                    pointerEvents: 'auto',
+                  }}
                 >
-                  Click here or drag and drop to change
-                </Typography>
-              </Stack>
-            ) : (
-              <>
-                <Typography
-                  variant="h6"
-                  color={theme.palette.text.secondary}
-                  gutterBottom={secondaryMessages.length > 0 || !!children}
-                >
-                  {primaryText}
-                </Typography>
-                {secondaryMessages.map((message, index) => (
-                  <Typography
-                    variant="body2"
-                    color={theme.palette.text.secondary}
-                    key={index}
-                    gutterBottom={
-                      index !== secondaryMessages.length - 1 || !!children
-                    }
+                  <IconButton
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      event.preventDefault()
+                      onDelete()
+                    }}
+                    size="small"
+                    sx={{
+                      alignSelf: 'flex-end',
+                    }}
                   >
-                    {message}
-                  </Typography>
-                ))}
-                {children}
-              </>
+                    <ClearIcon />
+                  </IconButton>
+                </Box>
+              </Box>
             )}
+            <Stack
+              sx={{
+                display: 'flex',
+                alignItems: isSmall ? 'flex-start' : 'center',
+                justifyContent: 'center',
+                height: '100%',
+                width: '100%',
+                overflow: 'hidden',
+                userSelect: 'none',
+                paddingX: isSmall && displayFileName ? 1 : 0,
+              }}
+            >
+              {displayFileName ? (
+                isSmall ? (
+                  <Chip
+                    label={displayFileName}
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                      maxWidth: '150px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  />
+                ) : (
+                  <Stack spacing={1} alignItems="center">
+                    <Typography
+                      variant="h6"
+                      color={theme.palette.text.secondary}
+                    >
+                      Current File:
+                    </Typography>
+                    <Chip
+                      label={displayFileName}
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        maxWidth: '184px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    />
+                    <Typography
+                      variant="body2"
+                      color={theme.palette.text.secondary}
+                    >
+                      Click here or drag and drop to change
+                    </Typography>
+                  </Stack>
+                )
+              ) : (
+                <>
+                  <Typography
+                    variant={isSmall ? 'body2' : 'h6'}
+                    color={theme.palette.text.secondary}
+                    gutterBottom={secondaryMessages.length > 0 || !!children}
+                    sx={{
+                      alignSelf: 'center',
+                    }}
+                  >
+                    {primaryText}
+                  </Typography>
+                  {!isSmall &&
+                    secondaryMessages.map((message, index) => (
+                      <Typography
+                        variant="body2"
+                        color={theme.palette.text.secondary}
+                        key={index}
+                        gutterBottom={
+                          index !== secondaryMessages.length - 1 || !!children
+                        }
+                      >
+                        {message}
+                      </Typography>
+                    ))}
+                  {children}
+                </>
+              )}
+            </Stack>
           </Stack>
         </Card>
       </label>

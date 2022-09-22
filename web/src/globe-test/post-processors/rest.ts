@@ -13,7 +13,7 @@ import * as Y from 'yjs'
 
 import { updateFocusedRESTResponse } from 'src/components/app/collection-editor/RESTResponsePanel'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
-import { uploadResource } from 'src/store'
+import { uploadScopedResource } from 'src/store'
 
 import { isExecutingRESTRequestVar } from '../execution'
 import {
@@ -47,15 +47,30 @@ export const postProcessRESTRequest = async ({
   jobQueueVar(updateFilterQueue(queueRef.current || [], [newJob]))
 
   // Look for a tagged message with the tag 'RESTResult'
+
+  const taggedMessages = job.messages.filter(
+    (message) => message.messageType === 'TAG'
+  )
+
   const response = (
-    job.messages
-      .filter((message) => message.messageType === 'TAG')
-      .find((message) => (message.message as TagType).tag === 'RESTResult')
-      ?.message as TagType
+    taggedMessages.find(
+      (message) => (message.message as TagType).tag === 'RESTResult'
+    )?.message as TagType
   )?.message as Response | undefined
 
   if (!response) {
     throw new Error('No RESTResult tag found')
+  }
+
+  const globeTestLogsStoreReceipt = taggedMessages.find(
+    (message) =>
+      (message.message as TagType).tag === 'GlobeTestLogsStoreReceipt'
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+  )?.message?.message as string | undefined
+
+  if (!globeTestLogsStoreReceipt) {
+    throw new Error('No GlobeTestLogsStoreReceipt tag found')
   }
 
   const metrics = job.messages
@@ -86,7 +101,7 @@ export const postProcessRESTRequest = async ({
           responseId,
           rawBearer,
           scopeId: newJob.scopeId,
-          jobId: newJob.jobId,
+          globeTestLogsStoreReceipt,
         })
       : await getFailureResult({
           metrics,
@@ -94,7 +109,7 @@ export const postProcessRESTRequest = async ({
           responseId,
           rawBearer,
           scopeId: newJob.scopeId,
-          jobId: newJob.jobId,
+          globeTestLogsStoreReceipt,
         })),
     createdAt: new Date(),
     updatedAt: null,
@@ -110,7 +125,7 @@ type DiscreteArgs = {
   responseId: string
   rawBearer: string
   scopeId: string
-  jobId: string
+  globeTestLogsStoreReceipt: string
 }
 
 const getSuccessResult = async ({
@@ -119,7 +134,7 @@ const getSuccessResult = async ({
   responseId,
   rawBearer,
   scopeId,
-  jobId,
+  globeTestLogsStoreReceipt,
 }: DiscreteArgs): Promise<SuccessDiscreteResult> => {
   const responsePromise = uploadResponse(
     response,
@@ -145,7 +160,7 @@ const getSuccessResult = async ({
     metrics: metricsStored,
     globeTestLogs: {
       __typename: 'StoredObject',
-      storeReceipt: `GlobeTest:${jobId}:messages.json`,
+      storeReceipt: globeTestLogsStoreReceipt,
       data: null,
     },
   }
@@ -157,7 +172,7 @@ const getFailureResult = async ({
   responseId,
   rawBearer,
   scopeId,
-  jobId,
+  globeTestLogsStoreReceipt,
 }: DiscreteArgs): Promise<FailureDiscreteResult> => {
   const responsePromise = uploadResponse(
     response,
@@ -183,7 +198,7 @@ const getFailureResult = async ({
     metrics: metricsStored,
     globeTestLogs: {
       __typename: 'StoredObject',
-      storeReceipt: `GlobeTest:${jobId}:messages.json`,
+      storeReceipt: globeTestLogsStoreReceipt,
       data: null,
     },
   }
@@ -199,7 +214,7 @@ const uploadResponse = async (
     type: 'application/json',
   })
 
-  const storeReceipt = await uploadResource({
+  const storeReceipt = await uploadScopedResource({
     scopeId,
     rawBearer,
     resource: blob,
@@ -223,7 +238,7 @@ const uploadMetrics = async (
     type: 'application/json',
   })
 
-  const storeReceipt = await uploadResource({
+  const storeReceipt = await uploadScopedResource({
     scopeId,
     rawBearer,
     resource: blob,

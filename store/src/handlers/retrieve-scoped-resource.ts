@@ -1,6 +1,6 @@
 import { IncomingMessage, ServerResponse } from 'http'
 
-import { GridFSBucket } from 'mongodb'
+import { GridFSBucket, ObjectId } from 'mongodb'
 import * as queryString from 'query-string'
 
 import { corsHeaders } from '../app'
@@ -19,7 +19,7 @@ export const retrieveScopedResource = async (
 
   const queryParams = queryString.parse(req.url?.split('?')[1] || '')
   const scopeId = queryParams.scopeId?.toString()
-  const filename = queryParams.filename?.toString()
+  const storeReceipt = queryParams.storeReceipt?.toString()
 
   if (!scopeId) {
     res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
@@ -27,9 +27,9 @@ export const retrieveScopedResource = async (
     return
   }
 
-  if (!filename) {
+  if (!storeReceipt) {
     res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
-    res.end(JSON.stringify({ message: 'No filename' }))
+    res.end(JSON.stringify({ message: 'No storeReceipt' }))
     return
   }
 
@@ -45,36 +45,54 @@ export const retrieveScopedResource = async (
 
   const bucket = new GridFSBucket(mongoDB, { bucketName })
 
-  // Check if the resourceId exists in bucket
-  const file = bucket.find({ filename })
+  let storeReceiptObjectId = null as ObjectId | null
 
-  if (!file.hasNext()) {
+  try {
+    storeReceiptObjectId = new ObjectId(storeReceipt)
+  } catch (e) {
+    res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
+    res.end(
+      JSON.stringify({ message: `Invalid storeReceipt: ${storeReceipt}` })
+    )
+    return
+  }
+
+  // Check if the resourceId exists in bucket
+  const file = await bucket.find({ _id: storeReceiptObjectId }).next()
+
+  if (!file) {
     res.writeHead(404, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(
       JSON.stringify({
         message: 'File not found in workspace',
-        detail: `File ${filename} not found in workspace ${bucketName}`,
+        detail: `File with store receipt ${storeReceipt} not found in workspace ${bucketName}`,
       })
     )
     return
   }
 
-  // Get mime type from file
-  //const mimeType = await file.next().then((file) => file.contentType)
+  if (!file.metadata) {
+    res.writeHead(404, { 'Content-Type': 'application/json', ...corsHeaders })
+    res.end(
+      JSON.stringify({
+        message: 'File metadata not found',
+        detail: `File with store receipt ${storeReceipt} has no metadata`,
+      })
+    )
+    return
+  }
 
   res.writeHead(200, {
     'Content-Type': 'application/octet-stream',
+    // Write filename to headers
+    'Content-Disposition': `attachment; filename=${file.metadata.filename}`,
     ...corsHeaders,
   })
 
-  //console.log(
-  //  'loading file' + filename + ' from workspace ' + bucketName + '...'
-  //)
-
   const stream = bucket
-    .openDownloadStreamByName(filename)
+    .openDownloadStream(storeReceiptObjectId)
     .on('error', (err) => {
-      //res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
+      res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders })
       console.log(err)
       res.end()
     })

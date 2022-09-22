@@ -100,6 +100,7 @@ export const RESTRequestNode = ({
     } catch (e) {
       return ''
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [environmentHook, collectionHook, nodeYMap])
 
   return (
@@ -152,6 +153,10 @@ export const RESTRequestNode = ({
                 position: 'relative',
                 top: '-3px',
                 opacity: 0.6,
+                height: '18px',
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
               }}
               fontSize="0.75rem"
               color={theme.palette.text.secondary}

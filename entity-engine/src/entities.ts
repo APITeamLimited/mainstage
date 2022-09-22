@@ -73,6 +73,11 @@ export const createCollection = (name: string) => {
   collection.set('restRequests', new Y.Map())
   collection.set('restResponses', new Y.Map())
   collection.set('__typename', 'Collection')
+  collection.set('description', '')
+  collection.set('auth', {
+    authType: 'none',
+  })
+  collection.set('variables', [])
 
   return { collection, collectionId: id }
 }
@@ -112,6 +117,10 @@ export const createFolder = ({
   folder.set('__typename', 'Folder')
   folder.set('parentId', parentId)
   folder.set('__parentTypename', __parentTypename)
+  folder.set('description', '')
+  folder.set('auth', {
+    authType: 'inherit',
+  })
 
   return { folder, id }
 }
@@ -148,6 +157,7 @@ export const createRestRequest = ({
   request.set('auth', {
     authType: 'none',
   })
+  request.set('description', '')
 
   return { request, id }
 }

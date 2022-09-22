@@ -9,9 +9,10 @@ import { getFinalRequest } from '../rest'
 /*
 Creates a new single rest job and adds it to the queue.
 */
-export const singleRESTRequestGenerator = ({
+export const singleRESTRequestGenerator = async ({
   request,
   scopeId,
+  rawBearer,
   activeEnvironmentYMap,
   jobQueue,
   requestYMap,
@@ -19,16 +20,19 @@ export const singleRESTRequestGenerator = ({
 }: {
   request: RESTRequest
   scopeId: string
+  rawBearer: string
   activeEnvironmentYMap: Y.Map<any> | null
   jobQueue: QueuedJob[]
   requestYMap: Y.Map<any>
   collectionYMap: Y.Map<any>
-}): BaseJob & PendingLocalJob => {
-  const axiosConfig = getFinalRequest(
+}): Promise<BaseJob & PendingLocalJob> => {
+  const axiosConfig = await getFinalRequest(
     request,
     requestYMap,
     activeEnvironmentYMap,
-    collectionYMap
+    collectionYMap,
+    scopeId,
+    rawBearer
   )
   const sourceName = 'rest-single.js'
 
@@ -83,6 +87,9 @@ export const singleRESTRequestGenerator = ({
     collectionId: collectionId,
   }
 
+  console.log('Adding job to queue', job)
+
   jobQueueVar([...jobQueue, job])
+
   return job
 }

@@ -16,6 +16,8 @@ import update from 'immutability-helper'
 import { HTML5Backend } from 'src/components/dnd/backend-html5'
 import { DndProvider } from 'src/components/dnd/react-dnd'
 
+import { StoredFileType } from '../../utils/FileDropzone'
+
 import { DraggableTableRow } from './DraggableTableRow'
 import { SortableNewItemButton } from './SortableNewItemButton'
 
@@ -28,6 +30,7 @@ type SortableEditorProps = {
   disableDelete?: boolean
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
+  enableFileFields?: boolean
 }
 
 export const SortableEditor = memo(
@@ -40,6 +43,7 @@ export const SortableEditor = memo(
     disableDelete,
     disableKeyEdit,
     disableCheckboxes,
+    enableFileFields,
   }: SortableEditorProps) => {
     const theme = useTheme()
 
@@ -84,6 +88,25 @@ export const SortableEditor = memo(
       )
     }
 
+    const handleIsFileChange = (isFile: boolean, index: number) => {
+      const newItem = items[index]
+      newItem.isFile = isFile
+
+      if (isFile && newItem.fileField === undefined) {
+        newItem.fileField = null
+      }
+
+      if (!isFile && newItem.fileField !== undefined) {
+        delete newItem.fileField
+      }
+
+      setItems(
+        update(items, {
+          [index]: { $set: newItem },
+        })
+      )
+    }
+
     const handleDelete = (index: number) => {
       setItems(
         update(items, {
@@ -112,6 +135,19 @@ export const SortableEditor = memo(
       )
     }
 
+    const handleStoredFileChange = async (
+      fileField: StoredFileType | null,
+      index: number
+    ) => {
+      setItems(
+        update(items, {
+          [index]: {
+            fileField: { $set: fileField },
+          },
+        })
+      )
+    }
+
     return (
       <Box
         sx={{
@@ -121,7 +157,12 @@ export const SortableEditor = memo(
         }}
       >
         <DndProvider backend={HTML5Backend}>
-          <TableContainer>
+          <TableContainer
+            sx={{
+              width: '100%',
+              overflowX: 'visible',
+            }}
+          >
             {items.length > 0 && (
               <Table size="small">
                 <TableHead
@@ -136,6 +177,13 @@ export const SortableEditor = memo(
                       }}
                     />
                     {!disableCheckboxes && (
+                      <TableCell
+                        sx={{
+                          borderColor: theme.palette.divider,
+                        }}
+                      />
+                    )}
+                    {enableFileFields && (
                       <TableCell
                         sx={{
                           borderColor: theme.palette.divider,
@@ -174,16 +222,21 @@ export const SortableEditor = memo(
                       keyString={item.keyString}
                       value={item.value}
                       enabled={item.enabled}
+                      isFile={item.isFile}
                       onMove={moveCard}
                       onKeyStringChange={handeKeyStringChange}
                       onValueChange={handleValueChange}
                       onEnabledChange={handleEnabledChange}
                       onDelete={handleDelete}
+                      onIsFileChange={handleIsFileChange}
                       namespace={namespace}
                       enableEnvironmentVariables={enableEnvironmentVariables}
                       disableDelete={disableDelete}
                       disableKeyEdit={disableKeyEdit}
                       disableCheckboxes={disableCheckboxes}
+                      enableFileFields={enableFileFields}
+                      fileField={item.fileField}
+                      onStoredFileChange={handleStoredFileChange}
                     />
                   ))}
                 </TableBody>

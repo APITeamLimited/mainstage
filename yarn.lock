@@ -14759,7 +14759,6 @@ __metadata:
     jsonwebtoken: ^8.5.1
     lib0: ^0.2.51
     lodash: ^4.17.21
-    mongodb: ^4.9.0
     mongoist: ^2.5.5
     mongojs: ^3.1.0
     nodemon: ^2.0.19
@@ -28495,6 +28494,7 @@ __metadata:
     socket.io: ^4.5.1
     ts-node: ^10.9.1
     typescript: ^4.7.4
+    uuid: ^9.0.0
     ws: ^8.8.1
     y-protocols: ^1.0.5
     yjs: ^13.5.40
@@ -30667,6 +30667,15 @@ __metadata:
   bin:
     uuid: ./bin/uuid
   checksum: 1c13950df865c4f506ebfe0a24023571fa80edf2e62364297a537c80af09c618299797bbf2dbac6b1f8ae5ad182ba474b89db61e0e85839683991f7e08795347
+  languageName: node
+  linkType: hard
+
+"uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "uuid@npm:9.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 8867e438990d1d33ac61093e2e4e3477a2148b844e4fa9e3c2360fa4399292429c4b6ec64537eb1659c97b2d10db349c673ad58b50e2824a11e0d3630de3c056
   languageName: node
   linkType: hard
 
