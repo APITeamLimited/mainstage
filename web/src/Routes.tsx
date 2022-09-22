@@ -114,7 +114,7 @@ const Routes = () => {
       <Route path={ROUTES.deleteAccount} page={DeleteAccountPage} name="deleteAccount" />
       <Route path={ROUTES.deleteTeam} page={DeleteTeamPage} name="deleteTeam" />
       <Route path={ROUTES.changeOwner} page={ChangeOwnerPage} name="changeOwner" />
-      <Set wrap={LandingLayoutSplash}>
+      <Set wrap={LandingLayoutSplash} prerender>
         <Route path="/" page={RootPage} name="splash" />
       </Set>
       <Route path={ROUTES.acceptInvitation} page={AcceptInvitationPage} name="acceptInvitation" />

@@ -65,21 +65,25 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
     const rawBody = parseRESTResponseBody(response)
     setRawBody(rawBody)
 
-    if (contentType === 'application/json') {
-      setPrettifiedBody(codeFormatter(rawBody, 'json'))
-      setPrettyBodyName('JSON')
-    } else if (contentType === 'application/xml') {
-      setPrettifiedBody(codeFormatter(rawBody, 'xml'))
-      setPrettyBodyName('XML')
-    } else if (contentType === 'text/html') {
-      setPrettifiedBody(codeFormatter(rawBody, 'html'))
-      setPrettyBodyName('HTML')
-    } else {
-      setActiveTabIndex(1)
-      setPrettifiedBody(null)
+    const performAsync = async () => {
+      if (contentType === 'application/json') {
+        setPrettifiedBody(await codeFormatter(rawBody, 'json'))
+        setPrettyBodyName('JSON')
+      } else if (contentType === 'application/xml') {
+        setPrettifiedBody(await codeFormatter(rawBody, 'xml'))
+        setPrettyBodyName('XML')
+      } else if (contentType === 'text/html') {
+        setPrettifiedBody(await codeFormatter(rawBody, 'html'))
+        setPrettyBodyName('HTML')
+      } else {
+        setActiveTabIndex(1)
+        setPrettifiedBody(null)
+      }
+
+      setCalculatedBody(true)
     }
 
-    setCalculatedBody(true)
+    performAsync()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response])

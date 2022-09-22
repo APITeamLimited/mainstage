@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -17,15 +17,21 @@ export const ScriptPanel = ({
   setActionArea,
   globeTestLogs,
 }: ScriptPanelProps) => {
-  const source = useMemo(() => {
-    const jobInfo = globeTestLogs.find(
-      (globeTestLog) => globeTestLog.messageType === 'JOB_INFO'
-    )
-    if (!jobInfo) throw new Error('No job info found')
-    if (typeof jobInfo.message === 'string') {
-      throw new Error('Job info is string')
+  const [source, setSource] = useState<string | null>(null)
+
+  useEffect(() => {
+    const performAsync = async () => {
+      const jobInfo = globeTestLogs.find(
+        (globeTestLog) => globeTestLog.messageType === 'JOB_INFO'
+      )
+      if (!jobInfo) throw new Error('No job info found')
+      if (typeof jobInfo.message === 'string') {
+        throw new Error('Job info is string')
+      }
+      setSource(await codeFormatter(jobInfo.message.source, 'javascript'))
     }
-    return codeFormatter(jobInfo.message.source, 'javascript')
+
+    performAsync()
   }, [globeTestLogs])
 
   useEffect(() => {
@@ -34,7 +40,9 @@ export const ScriptPanel = ({
     customActions.push(
       <Tooltip title="Copy All" key="Copy All">
         <Box>
-          <IconButton onClick={() => navigator.clipboard.writeText(source)}>
+          <IconButton
+            onClick={() => navigator.clipboard.writeText(source as string)}
+          >
             <ContentCopyIcon />
           </IconButton>
         </Box>
@@ -44,6 +52,8 @@ export const ScriptPanel = ({
     setActionArea(customActions)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source])
+
+  if (source === null) return <></>
 
   return (
     <MonacoEditor

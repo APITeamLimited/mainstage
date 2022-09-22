@@ -1,6 +1,5 @@
 import { useRef, memo } from 'react'
 
-import { StoredObject } from '@apiteam/types/src'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import {

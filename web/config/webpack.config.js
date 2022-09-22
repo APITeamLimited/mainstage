@@ -1,4 +1,6 @@
 const webpack = require('webpack')
+const BundleAnalyzerPlugin =
+  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 
 /** @returns {import('webpack').Configuration} Webpack Configuration */
 module.exports = (config, { mode }) => {
@@ -23,7 +25,8 @@ module.exports = (config, { mode }) => {
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
-    })
+    }),
+    new BundleAnalyzerPlugin()
   )
 
   config.resolve.fallback = {

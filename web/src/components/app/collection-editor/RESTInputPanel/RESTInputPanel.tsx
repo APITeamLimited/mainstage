@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { RESTReqBody } from '@apiteam/types/src'
 import { RESTAuth, RESTRequest } from '@apiteam/types/src'
@@ -10,14 +10,9 @@ import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useWorkspace } from 'src/entity-engine'
-import {
-  useRawBearer,
-  useScopeId,
-  useScopes,
-} from 'src/entity-engine/EntityEngine'
+import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
-import { retrieveScopedResource } from 'src/store'
 
 import { DescriptionPanel } from '../DescriptionPanel'
 import { KeyValueEditor } from '../KeyValueEditor'
@@ -161,41 +156,6 @@ export const RESTInputPanel = ({
     unsavedPathVariables,
     unsavedRequestMethod,
   ])
-
-  const fetchScopedBody = useCallback(async () => {
-    /*if (unsavedBody.contentType === 'multipart/form-data') {
-      setUnsavedBody({
-        ...unsavedBody,
-        ...(await Promise.all(
-          unsavedBody.body.map(async (part) => {
-            if (part.fileField && part.fileField.data.data === null) {
-              if (!scopeId) throw new Error('No scopeId')
-              if (!rawBearer) throw new Error('No rawBearer')
-
-              const { data } = await retrieveScopedResource({
-                scopeId,
-                rawBearer,
-                storeReceipt: part.fileField.data.storeReceipt,
-              })
-
-              return {
-                ...part,
-                fileField: {
-                  ...part.fileField,
-                  data: {
-                    ...part.fileField.data,
-                    data,
-                  },
-                },
-              }
-            } else {
-              return part
-            }
-          })
-        )),
-      })
-    }*/
-  }, [rawBearer, scopeId, unsavedBody])
 
   useEffect(() => {
     if (!unsavedBody) return

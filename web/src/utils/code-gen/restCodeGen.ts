@@ -1,6 +1,6 @@
 import { RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
-import HTTPSnippet from 'httpsnippet'
+import type { Har } from 'har-format'
 
 import { buildHarRequest } from './buildHar'
 
@@ -178,7 +178,7 @@ export const RESTCodegenDefinitions = [
 
 export type CodegenName = typeof RESTCodegenDefinitions[number]['name']
 
-export const generateRESTCode = (
+export const generateRESTCode = async (
   codegenName: CodegenName,
   axiosConfig: AxiosRequestConfig
 ) => {
@@ -187,14 +187,17 @@ export const generateRESTCode = (
     throw `codegenName ${codegenName} not found`
   }
 
+  const HTTPSnippetModule = await import('httpsnippet')
+
+  const HTTPSnippet = HTTPSnippetModule.default
+
   try {
-    const code = new HTTPSnippet({ ...buildHarRequest(axiosConfig) }).convert(
-      codegenInfo.lang,
-      codegenInfo.mode,
-      {
-        indent: '    ',
-      }
-    )
+    // eslint-disable-next-line new-cap
+    const code = new HTTPSnippet({
+      ...buildHarRequest(axiosConfig),
+    }).convert(codegenInfo.lang, codegenInfo.mode, {
+      indent: '    ',
+    })
 
     if (code === false || code === undefined) return null
 

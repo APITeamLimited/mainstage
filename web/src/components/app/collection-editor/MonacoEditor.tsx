@@ -1,11 +1,4 @@
-import {
-  memo,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, forwardRef } from 'react'
 
 import Editor, { useMonaco, Monaco } from '@monaco-editor/react'
 import { useTheme, Box, Typography, Stack } from '@mui/material'
@@ -50,8 +43,6 @@ export const MonacoEditor = ({
     () => namespace.replaceAll(':', ''),
     [namespace]
   )
-
-  const editorRef = useRef<HTMLDivElement | null>(null)
 
   // Need to call synchronously else the cursor position will mess up
   useLayoutEffect(() => {
@@ -124,10 +115,8 @@ export const MonacoEditor = ({
             position: 'relative',
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            top: editorRef.current?.clientTop,
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
-            left: Number(editorRef.current?.clientLeft),
             color: theme.palette.text.secondary,
             pointerEvents: 'none',
             userSelect: 'none',
@@ -188,7 +177,6 @@ export const MonacoEditor = ({
         path={actualNamespace}
         defaultValue={value}
         onChange={(value) => onChange?.(value || '')}
-        ref={editorRef}
       />
     </Box>
   ) : (

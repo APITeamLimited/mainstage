@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
@@ -59,6 +59,16 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
   const [importResult, setImportResult] = useState<ImportResult>(null)
 
   const branch = useActiveBranch()
+
+  const [importerNames, setImporterNames] = useState<string[]>([])
+
+  useEffect(() => {
+    const getImporterNamesAsync = async () => {
+      const names = await getImporterNames()
+      setImporterNames(names)
+    }
+    getImporterNamesAsync()
+  }, [])
 
   const handleClose = () => {
     importDialogStateVar({ isOpen: false, project: null })
@@ -209,7 +219,7 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
                       'Paste raw text here',
                       '',
                       'Supported formats:',
-                      ...getImporterNames().map((name) => ` - ${name}`),
+                      ...importerNames.map((name) => ` - ${name}`),
                     ]}
                   />
                 </Card>
@@ -240,7 +250,7 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
                         m: 0,
                       }}
                     >
-                      {getImporterNames().map((name, index) => (
+                      {importerNames.map((name, index) => (
                         <Chip
                           label={name}
                           variant="outlined"
@@ -271,7 +281,7 @@ export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {
                     No valid import found, valid formats are:
                   </Typography>
                   <Grid container>
-                    {getImporterNames().map((name, index) => (
+                    {importerNames.map((name, index) => (
                       <Grid item xs={6} key={index}>
                         <Typography
                           variant="body2"

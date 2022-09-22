@@ -124,7 +124,7 @@ export const BodyPanel = ({
     }
   }
 
-  const handlePrettyPrint = () => {
+  const handlePrettyPrint = async () => {
     if (bodyRef.current === null) throw new Error('bodyRef.current is null')
     if (!bodyRef.current.contentType) {
       throw new Error('bodyRef.current.contentType is null')
@@ -133,17 +133,17 @@ export const BodyPanel = ({
     if (bodyRef.current.contentType === 'application/json') {
       setBody({
         contentType: bodyRef.current.contentType,
-        body: codeFormatter(bodyRef.current.body, 'json'),
+        body: await codeFormatter(bodyRef.current.body, 'json'),
       })
     } else if (bodyRef.current.contentType === 'application/xml') {
       setBody({
         contentType: bodyRef.current.contentType,
-        body: codeFormatter(bodyRef.current.body, 'xml'),
+        body: await codeFormatter(bodyRef.current.body, 'xml'),
       })
     } else if (bodyRef.current.contentType === 'text/html') {
       setBody({
         contentType: bodyRef.current.contentType,
-        body: codeFormatter(bodyRef.current.body, 'html'),
+        body: await codeFormatter(bodyRef.current.body, 'html'),
       })
     } else {
       throw new Error('Unsupported content type for pretty print')

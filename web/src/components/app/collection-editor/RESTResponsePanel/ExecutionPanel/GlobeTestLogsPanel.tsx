@@ -116,10 +116,14 @@ export const GlobeTestLogsPanel = ({
 
   const [openOptionsMenu, setOpenOptionsMenu] = useState(false)
 
-  const editorValue = useMemo(
-    () => codeFormatter(JSON.stringify(logs), 'json'),
-    [logs]
-  )
+  const [editorValue, setEditorValue] = useState<string | null>(null)
+
+  useEffect(() => {
+    const performAsync = async () => {
+      setEditorValue(await codeFormatter(JSON.stringify(logs), 'json'))
+    }
+    performAsync()
+  }, [logs])
 
   useEffect(() => {
     const customActions = []
@@ -141,6 +145,8 @@ export const GlobeTestLogsPanel = ({
   }, [editorValue])
 
   const optionsButtonRef = useRef<HTMLButtonElement>(null)
+
+  if (editorValue === null) return <></>
 
   return (
     <Stack

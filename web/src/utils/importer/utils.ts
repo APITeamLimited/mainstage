@@ -1,7 +1,14 @@
-import { importers, ImportRequest } from 'insomnia-importers'
+import type { ImportRequest } from 'insomnia-importers'
+
+const loadImporters = async () => {
+  const importers = await import('insomnia-importers')
+  return importers
+}
 
 export const importToInsomnia = async (rawText: string) => {
-  for (const importer of importers) {
+  const importerModule = await loadImporters()
+
+  for (const importer of importerModule.importers) {
     try {
       const output = await importer.convert(rawText)
 
@@ -19,10 +26,11 @@ export const importToInsomnia = async (rawText: string) => {
   return null
 }
 
-export const getImporterNames = () => {
+export const getImporterNames = async (): Promise<string[]> => {
   // Restricted for now as not all work
   //return importers.map((i) => i.name)
-  return importers.slice(0, 5).map((i) => i.name)
+  const importers = await loadImporters()
+  return importers.importers.slice(0, 5).map((i) => i.name)
 }
 
 export const getAuth = async ({

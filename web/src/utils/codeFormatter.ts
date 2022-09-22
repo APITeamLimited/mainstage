@@ -1,14 +1,15 @@
 import htmlFormatter from 'html-prettify'
-import parserBabel from 'prettier/parser-babel'
-import prettier from 'prettier/standalone'
 import xmlFormatter from 'xml-formatter'
 
 type FormatterSupportedLanguage = 'json' | 'xml' | 'html' | 'javascript'
 
-export const codeFormatter = (
+export const codeFormatter = async (
   content: string,
   language: FormatterSupportedLanguage
 ) => {
+  const prettier = await import('prettier/standalone')
+  const parserBabel = await import('prettier/parser-babel')
+
   switch (language) {
     case 'json':
       return prettier?.format(content, {

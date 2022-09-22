@@ -76,7 +76,9 @@ export const RESTCodeGenerator = ({
       rawBearer
     )
 
-    const code = generateRESTCode(codeGen.name, axiosConfig) as string | 'ERROR'
+    const code = (await generateRESTCode(codeGen.name, axiosConfig)) as
+      | string
+      | 'ERROR'
 
     if (code === 'ERROR') {
       setCodeGenerated('ERROR')

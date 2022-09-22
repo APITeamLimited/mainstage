@@ -1,22 +1,15 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { useEffect, useState } from 'react'
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer'
 import { Stack, Typography, useTheme } from '@mui/material'
-import {
-  $createParagraphNode,
-  $getRoot,
-  $createTextNode,
-  createEditor,
-  EditorState,
-} from 'lexical'
+import { $createParagraphNode, $getRoot, $createTextNode } from 'lexical'
 
-import { convertToText, InnerValues } from './InnerValues'
+import { InnerValues } from './InnerValues'
 import PlaygroundEditorTheme from './Theme'
 import { $createVariableNode } from './VariableNode'
 import { VariableNode } from './VariableNode'
-import { BRACED_REGEX, getPossibleVariableMatch } from './VariablePlugin'
+import { getPossibleVariableMatch } from './VariablePlugin'
 
 export type EnvironmentTextFieldProps = {
   placeholder?: string

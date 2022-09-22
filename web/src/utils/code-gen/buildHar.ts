@@ -1,8 +1,7 @@
 import { AxiosRequestConfig } from 'axios'
-import * as Har from 'har-format'
+import type { Har } from 'har-format'
 import { parse } from 'qs'
 
-import { HarRequest } from './httpsnippet'
 // scotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/
 
@@ -97,7 +96,7 @@ const buildHarPostData = (
   }
 }
 
-export const buildHarRequest = (req: AxiosRequestConfig): HarRequest => {
+export const buildHarRequest = (req: AxiosRequestConfig): Har => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
     headersSize: -1, // TODO: It would be cool if we can calculate the header size
