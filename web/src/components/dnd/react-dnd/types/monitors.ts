@@ -1,7 +1,4 @@
-import type {
-  Identifier,
-  Unsubscribe,
-} from 'web/src/components/dnd/dnd-core'
+import type { Identifier, Unsubscribe } from 'web/src/components/dnd/dnd-core'
 
 export interface XYCoord {
   x: number

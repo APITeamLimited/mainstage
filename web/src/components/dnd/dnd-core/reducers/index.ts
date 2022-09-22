@@ -12,25 +12,25 @@ import type { State as StateIdState } from './stateId'
 import { reduce as stateId } from './stateId'
 
 export interface State {
-	dirtyHandlerIds: DirtyHandlerIdsState
-	dragOffset: DragOffsetState
-	refCount: RefCountState
-	dragOperation: DragOperationState
-	stateId: StateIdState
+  dirtyHandlerIds: DirtyHandlerIdsState
+  dragOffset: DragOffsetState
+  refCount: RefCountState
+  dragOperation: DragOperationState
+  stateId: StateIdState
 }
 
 export function reduce(state: State = {} as State, action: Action<any>): State {
-	return {
-		dirtyHandlerIds: dirtyHandlerIds(state.dirtyHandlerIds, {
-			type: action.type,
-			payload: {
-				...action.payload,
-				prevTargetIds: get<string[]>(state, 'dragOperation.targetIds', []),
-			},
-		}),
-		dragOffset: dragOffset(state.dragOffset, action),
-		refCount: refCount(state.refCount, action),
-		dragOperation: dragOperation(state.dragOperation, action),
-		stateId: stateId(state.stateId),
-	}
+  return {
+    dirtyHandlerIds: dirtyHandlerIds(state.dirtyHandlerIds, {
+      type: action.type,
+      payload: {
+        ...action.payload,
+        prevTargetIds: get<string[]>(state, 'dragOperation.targetIds', []),
+      },
+    }),
+    dragOffset: dragOffset(state.dragOffset, action),
+    refCount: refCount(state.refCount, action),
+    dragOperation: dragOperation(state.dragOperation, action),
+    stateId: stateId(state.stateId),
+  }
 }

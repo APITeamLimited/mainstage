@@ -13,17 +13,17 @@ export const ALL: string[] = []
  * @param handlerIds The set of handler ids to check
  */
 export function areDirty(
-	dirtyIds: string[],
-	handlerIds: string[] | undefined,
+  dirtyIds: string[],
+  handlerIds: string[] | undefined
 ): boolean {
-	if (dirtyIds === NONE) {
-		return false
-	}
+  if (dirtyIds === NONE) {
+    return false
+  }
 
-	if (dirtyIds === ALL || typeof handlerIds === 'undefined') {
-		return true
-	}
+  if (dirtyIds === ALL || typeof handlerIds === 'undefined') {
+    return true
+  }
 
-	const commonIds = intersection(handlerIds, dirtyIds)
-	return commonIds.length > 0
+  const commonIds = intersection(handlerIds, dirtyIds)
+  return commonIds.length > 0
 }

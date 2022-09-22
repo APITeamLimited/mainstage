@@ -31,7 +31,10 @@
     "firebase": "^9.9.3",
     "gotrue-js": "^0.9.29",
     "magic-sdk": "9.0.0",
-    "netlify-identity-widget": "1.9.2"
+    "netlify-identity-widget": "1.9.2",
+    "prettier": "^2.7.1",
+    "prettier-eslint": "^15.0.1",
+    "prettier-eslint-cli": "^7.1.0"
   },
   "eslintConfig": {
     "extends": "@redwoodjs/eslint-config",
@@ -51,7 +54,8 @@
     "start-mailman": "cd mailman && yarn start",
     "start-store": "cd store && yarn start",
     "start-web": "yarn rw serve web",
-    "start-api": "cd api && yarn start"
+    "start-api": "cd api && yarn start",
+    "lint": "prettier-eslint --write '**/*.ts'"
   },
   "packageManager": "yarn@3.2.1",
   "dependencies": {

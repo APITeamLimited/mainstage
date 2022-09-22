@@ -8,13 +8,13 @@ import { createPublishDragSource } from './publishDragSource'
 export * from './types'
 
 export function createDragDropActions(
-	manager: DragDropManager,
+  manager: DragDropManager
 ): DragDropActions {
-	return {
-		beginDrag: createBeginDrag(manager),
-		publishDragSource: createPublishDragSource(manager),
-		hover: createHover(manager),
-		drop: createDrop(manager),
-		endDrag: createEndDrag(manager),
-	}
+  return {
+    beginDrag: createBeginDrag(manager),
+    publishDragSource: createPublishDragSource(manager),
+    hover: createHover(manager),
+    drop: createDrop(manager),
+    endDrag: createEndDrag(manager),
+  }
 }

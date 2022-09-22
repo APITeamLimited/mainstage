@@ -1,4 +1,4 @@
 export interface Task {
-	call(): void
+  call(): void
 }
 export type TaskFn = () => void

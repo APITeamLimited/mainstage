@@ -1,13 +1,13 @@
 import type { Identifier } from '../interfaces'
 
 export function matchesType(
-	targetType: Identifier | Identifier[] | null,
-	draggedItemType: Identifier | null,
+  targetType: Identifier | Identifier[] | null,
+  draggedItemType: Identifier | null
 ): boolean {
-	if (draggedItemType === null) {
-		return targetType === null
-	}
-	return Array.isArray(targetType)
-		? (targetType as Identifier[]).some((t) => t === draggedItemType)
-		: targetType === draggedItemType
+  if (draggedItemType === null) {
+    return targetType === null
+  }
+  return Array.isArray(targetType)
+    ? (targetType as Identifier[]).some((t) => t === draggedItemType)
+    : targetType === draggedItemType
 }

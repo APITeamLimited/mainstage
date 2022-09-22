@@ -7,10 +7,10 @@ import type { State } from '../reducers/dragOffset'
  * @param b The second coordinate
  */
 export function add(a: XYCoord, b: XYCoord): XYCoord {
-	return {
-		x: a.x + b.x,
-		y: a.y + b.y,
-	}
+  return {
+    x: a.x + b.x,
+    y: a.y + b.y,
+  }
 }
 
 /**
@@ -19,10 +19,10 @@ export function add(a: XYCoord, b: XYCoord): XYCoord {
  * @param b The second coordinate
  */
 export function subtract(a: XYCoord, b: XYCoord): XYCoord {
-	return {
-		x: a.x - b.x,
-		y: a.y - b.y,
-	}
+  return {
+    x: a.x - b.x,
+    y: a.y - b.y,
+  }
 }
 
 /**
@@ -34,14 +34,14 @@ export function subtract(a: XYCoord, b: XYCoord): XYCoord {
  * @param state The offset state to compute from
  */
 export function getSourceClientOffset(state: State): XYCoord | null {
-	const { clientOffset, initialClientOffset, initialSourceClientOffset } = state
-	if (!clientOffset || !initialClientOffset || !initialSourceClientOffset) {
-		return null
-	}
-	return subtract(
-		add(clientOffset, initialSourceClientOffset),
-		initialClientOffset,
-	)
+  const { clientOffset, initialClientOffset, initialSourceClientOffset } = state
+  if (!clientOffset || !initialClientOffset || !initialSourceClientOffset) {
+    return null
+  }
+  return subtract(
+    add(clientOffset, initialSourceClientOffset),
+    initialClientOffset
+  )
 }
 
 /**
@@ -50,9 +50,9 @@ export function getSourceClientOffset(state: State): XYCoord | null {
  * @param state The offset state to compute from
  */
 export function getDifferenceFromInitialOffset(state: State): XYCoord | null {
-	const { clientOffset, initialClientOffset } = state
-	if (!clientOffset || !initialClientOffset) {
-		return null
-	}
-	return subtract(clientOffset, initialClientOffset)
+  const { clientOffset, initialClientOffset } = state
+  if (!clientOffset || !initialClientOffset) {
+    return null
+  }
+  return subtract(clientOffset, initialClientOffset)
 }

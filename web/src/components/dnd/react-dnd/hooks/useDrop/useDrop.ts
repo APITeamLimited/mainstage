@@ -13,22 +13,22 @@ import { useRegisteredDropTarget } from './useRegisteredDropTarget'
  * @param deps The memoization deps array to use when evaluating spec changes
  */
 export function useDrop<
-	DragObject = unknown,
-	DropResult = unknown,
-	CollectedProps = unknown,
+  DragObject = unknown,
+  DropResult = unknown,
+  CollectedProps = unknown
 >(
-	specArg: FactoryOrInstance<
-		DropTargetHookSpec<DragObject, DropResult, CollectedProps>
-	>,
-	deps?: unknown[],
+  specArg: FactoryOrInstance<
+    DropTargetHookSpec<DragObject, DropResult, CollectedProps>
+  >,
+  deps?: unknown[]
 ): [CollectedProps, ConnectDropTarget] {
-	const spec = useOptionalFactory(specArg, deps)
-	const monitor = useDropTargetMonitor<DragObject, DropResult>()
-	const connector = useDropTargetConnector(spec.options)
-	useRegisteredDropTarget(spec, monitor, connector)
+  const spec = useOptionalFactory(specArg, deps)
+  const monitor = useDropTargetMonitor<DragObject, DropResult>()
+  const connector = useDropTargetConnector(spec.options)
+  useRegisteredDropTarget(spec, monitor, connector)
 
-	return [
-		useCollectedProps(spec.collect, monitor, connector),
-		useConnectDropTarget(connector),
-	]
+  return [
+    useCollectedProps(spec.collect, monitor, connector),
+    useConnectDropTarget(connector),
+  ]
 }

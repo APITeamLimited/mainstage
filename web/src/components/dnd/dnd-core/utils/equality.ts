@@ -9,16 +9,16 @@ export const strictEquality = <T>(a: T, b: T): boolean => a === b
  * @param offsetB
  */
 export function areCoordsEqual(
-	offsetA: XYCoord | null | undefined,
-	offsetB: XYCoord | null | undefined,
+  offsetA: XYCoord | null | undefined,
+  offsetB: XYCoord | null | undefined
 ): boolean {
-	if (!offsetA && !offsetB) {
-		return true
-	} else if (!offsetA || !offsetB) {
-		return false
-	} else {
-		return offsetA.x === offsetB.x && offsetA.y === offsetB.y
-	}
+  if (!offsetA && !offsetB) {
+    return true
+  } else if (!offsetA || !offsetB) {
+    return false
+  } else {
+    return offsetA.x === offsetB.x && offsetA.y === offsetB.y
+  }
 }
 
 /**
@@ -27,17 +27,17 @@ export function areCoordsEqual(
  * @param b The second array of items
  */
 export function areArraysEqual<T>(
-	a: T[],
-	b: T[],
-	isEqual: EqualityCheck<T> = strictEquality,
+  a: T[],
+  b: T[],
+  isEqual: EqualityCheck<T> = strictEquality
 ): boolean {
-	if (a.length !== b.length) {
-		return false
-	}
-	for (let i = 0; i < a.length; ++i) {
-		if (!isEqual(a[i] as T, b[i] as T)) {
-			return false
-		}
-	}
-	return true
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; ++i) {
+    if (!isEqual(a[i] as T, b[i] as T)) {
+      return false
+    }
+  }
+  return true
 }

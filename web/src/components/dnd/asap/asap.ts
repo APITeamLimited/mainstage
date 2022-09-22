@@ -14,5 +14,5 @@ const taskFactory = new TaskFactory(asapQueue.registerPendingError)
  * arguments.
  */
 export function asap(task: TaskFn) {
-	asapQueue.enqueueTask(taskFactory.create(task))
+  asapQueue.enqueueTask(taskFactory.create(task))
 }
