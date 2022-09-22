@@ -1,8 +1,7 @@
 import { Buffer } from 'buffer'
 
-import * as binary from 'lib0/binary.js'
-import * as encoding from 'lib0/encoding.js'
-import { Collection, Db } from 'mongodb'
+import * as binary from 'lib0/binary'
+import * as encoding from 'lib0/encoding'
 import * as Y from 'yjs'
 
 export const PREFERRED_TRIM_SIZE = 400
@@ -14,12 +13,7 @@ export const PREFERRED_TRIM_SIZE = 400
  * @param {number} to lower than (not equal)
  * @return {Promise<void>}
  */
-export const clearUpdatesRange = async (
-  db: Db,
-  docName: string,
-  from: number,
-  to: number
-): Promise<void> =>
+export const clearUpdatesRange = async (db, docName, from, to) =>
   db.del({
     docName,
     clock: {
@@ -36,11 +30,11 @@ export const clearUpdatesRange = async (
  * @return {Promise<number>} returns the clock of the flushed doc
  */
 export const flushDocument = async (
-  db: Db,
-  docName: string,
-  stateAsUpdate: Uint8Array,
-  stateVector: Uint8Array
-): Promise<number> => {
+  db,
+  docName,
+  stateAsUpdate,
+  stateVector
+) => {
   const clock = await storeUpdate(db, docName, stateAsUpdate)
   await writeStateVector(db, docName, stateVector, clock)
   await clearUpdatesRange(db, docName, 0, clock)
@@ -53,10 +47,7 @@ export const flushDocument = async (
  * @param {number} clock must be unique
  * @return {Object} [opts.version, opts.docName, opts.action, opts.clock]
  */
-export const createDocumentUpdateKey = (
-  docName: string,
-  clock: number
-): object => ({
+export const createDocumentUpdateKey = (docName, clock) => ({
   version: 'v1',
   action: 'update',
   docName,
@@ -67,7 +58,7 @@ export const createDocumentUpdateKey = (
  * @param {string} docName
  * @return {Object} [opts.docName, opts.version]
  */
-export const createDocumentStateVectorKey = (docName: string): object => {
+export const createDocumentStateVectorKey = (docName) => {
   return {
     docName: docName,
     version: 'v1_sv',
@@ -83,7 +74,7 @@ export const createDocumentStateVectorKey = (docName: string): object => {
  * @param {any} db
  * @param {Object} values
  */
-export const mongoPut = async (db: Db, values: object) => db.put(values)
+export const mongoPut = async (db, values) => db.put(values)
 
 /**
  * @param {any} db
@@ -91,22 +82,24 @@ export const mongoPut = async (db: Db, values: object) => db.put(values)
  * @param {object} opts
  * @return {Promise<Array<any>>}
  */
-export const getMongoBulkData = (
-  db: Db,
-  query: object,
-  opts: object
-): Promise<Array<any>> => db.readAsCursor(query, opts)
-
-export const flushDB = (db: Db): Promise<any> => db.flush()
+export const getMongoBulkData = (db, query, opts) =>
+  db.readAsCursor(query, opts)
 
 /**
-Get all document updates for a specific document.
-*/
-export const getMongoUpdates = async (
-  db: Db,
-  docName: string,
-  opts: any = {}
-): Promise<Array<object>> =>
+ * @param {any} db
+ * @return {Promise<any>}
+ */
+export const flushDB = (db) => db.flush()
+
+/**
+ * Get all document updates for a specific document.
+ *
+ * @param {any} db
+ * @param {string} docName
+ * @param {any} [opts]
+ * @return {Promise<Array<Object>>}
+ */
+export const getMongoUpdates = async (db, docName, opts = {}) =>
   getMongoBulkData(
     db,
     {
@@ -120,12 +113,11 @@ export const getMongoUpdates = async (
   )
 
 /**
+ * @param {any} db
+ * @param {string} docName
  * @return {Promise<number>} Returns -1 if this document doesn't exist yet
  */
-export const getCurrentUpdateClock = (
-  db: Db,
-  docName: string
-): Promise<number> =>
+export const getCurrentUpdateClock = (db, docName) =>
   getMongoUpdates(db, docName, {
     reverse: true,
     limit: 1,
@@ -143,12 +135,7 @@ export const getCurrentUpdateClock = (
  * @param {Uint8Array} sv state vector
  * @param {number} clock current clock of the document so we can determine when this statevector was created
  */
-export const writeStateVector = async (
-  db: Db,
-  docName: string,
-  sv: Uint8Array,
-  clock: number
-) => {
+export const writeStateVector = async (db, docName, sv, clock) => {
   const encoder = encoding.createEncoder()
   encoding.writeVarUint8Array(encoder, sv)
   await mongoPut(db, {
@@ -158,14 +145,13 @@ export const writeStateVector = async (
   })
 }
 
-/*
-Returns the clock of the stored update
-*/
-export const storeUpdate = async (
-  db: Db,
-  docName: string,
-  update: Uint8Array
-): Promise<number> => {
+/**
+ * @param {any} db
+ * @param {string} docName
+ * @param {Uint8Array} update
+ * @return {Promise<number>} Returns the clock of the stored update
+ */
+export const storeUpdate = async (db, docName, update) => {
   const clock = await getCurrentUpdateClock(db, docName)
   if (clock === -1) {
     const ydoc = new Y.Doc()
@@ -186,9 +172,7 @@ export const storeUpdate = async (
  * @param {Array<Uint8Array>} updates
  * @return {{update:Uint8Array, sv: Uint8Array}}
  */
-export const mergeUpdates = (
-  updates: Array<Uint8Array>
-): { update: Uint8Array; sv: Uint8Array } => {
+export const mergeUpdates = (updates) => {
   const ydoc = new Y.Doc()
   ydoc.transact(() => {
     for (let i = 0; i < updates.length; i++) {
@@ -196,24 +180,4 @@ export const mergeUpdates = (
     }
   })
   return { update: Y.encodeStateAsUpdate(ydoc), sv: Y.encodeStateVector(ydoc) }
-}
-
-const flushDb = async (db: Db) => {
-  await db.dropDatabase()
-  db.cl
-}
-
-const readAsCursor = async (
-  collection: number,
-  db: Db,
-  query: object,
-  opts: {
-    reverse: boolean
-    limit: number
-  }
-) => {
-  let curs = db[collection].findAsCursor(query)
-  if (opts.reverse) curs = curs.sort({ clock: -1 })
-  if (opts.limit) curs = curs.limit(opts.limit)
-  return curs.toArray()
 }

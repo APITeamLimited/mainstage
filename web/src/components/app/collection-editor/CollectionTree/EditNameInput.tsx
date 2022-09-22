@@ -93,6 +93,16 @@ export const EditNameInput = memo(
               size="small"
               sx={{
                 padding: 0,
+                height: '40px',
+                fontSize: '0.925rem',
+                alignItems: 'center',
+                justifyContent: 'center',
+                display: 'flex',
+                // Disable inner padding
+                '& .MuiInputBase-input': {
+                  paddingY: 0,
+                  height: '38px',
+                },
               }}
               onClick={(event) => {
                 event.stopPropagation()
@@ -109,7 +119,15 @@ export const EditNameInput = memo(
             />
           </form>
         ) : (
-          name
+          <span
+            style={{
+              position: 'relative',
+              bottom: '-1px',
+              fontSize: '0.925rem',
+            }}
+          >
+            {name}
+          </span>
         )}
       </div>
     )

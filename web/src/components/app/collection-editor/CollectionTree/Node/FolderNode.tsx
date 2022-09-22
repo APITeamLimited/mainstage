@@ -21,7 +21,7 @@ import { DropSpaceType } from './Node'
 import { NodeActionButton } from './NodeActionButton'
 import { getNodeIcon } from './utils'
 
-export const FOLDER_LOWER_ADDING_HEIGHT = 15
+export const FOLDER_LOWER_ADDING_HEIGHT = 12
 
 type FolderNodeProps = {
   isBeingDragged: boolean
@@ -91,7 +91,7 @@ export const FolderNode = ({
         }
         sx={{
           backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
-          minHeight: '48px',
+          height: '40px',
           cursor: 'pointer',
           paddingY: 0,
         }}

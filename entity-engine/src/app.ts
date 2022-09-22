@@ -36,17 +36,21 @@ io.on('connection', async (socket) => {
   await handleNewConnection(socket)
 })
 
-// Every minute print memory usage and number of connections
-setInterval(() => {
-  console.log(
-    Color(
-      `${new Date().toISOString()} Connections: ${
-        io.engine.clientsCount
-      } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(2)}MB`,
-      '#70c289'
+if (process.env.NODE_ENV === 'development') {
+  // Every minute print memory usage and number of connections
+  setInterval(() => {
+    console.log(
+      Color(
+        `${new Date().toISOString()} Connections: ${
+          io.engine.clientsCount
+        } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
+          2
+        )}MB`,
+        '#70c289'
+      )
     )
-  )
-}, 60000)
+  }, 600)
+}
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {
   console.log(

@@ -58,6 +58,13 @@
       "password": "${ENTITY_ENGINE_REDIS_PASSWORD}",
       "host": "${ENTITY_ENGINE_REDIS_HOST}",
       "port": "${ENTITY_ENGINE_REDIS_PORT}"
+    },
+    "mongo": {
+      "userName": "${ENTITY_ENGINE_MONGO_USER}",
+      "password": "${ENTITY_ENGINE_MONGO_PASSWORD}",
+      "host": "${ENTITY_ENGINE_MONGO_HOST}",
+      "port": "${ENTITY_ENGINE_MONGO_PORT}",
+      "collection": "${ENTITY_ENGINE_MONGO_COLLECTION}"
     }
   },
   "mailman": {

@@ -77,8 +77,8 @@ export const postProcessRESTRequest = async ({
     __typename: 'RESTResponse',
     parentId: newJob.underlyingRequest.id,
     __parentTypename: newJob.underlyingRequest.__typename,
-    name: `${newJob.underlyingRequest.name}-response`,
-    endpoint: newJob.underlyingRequest.endpoint,
+    name: newJob.underlyingRequest.name,
+    endpoint: response.request.url,
     ...(response.error_code === 0
       ? await getSuccessResult({
           metrics,

@@ -87,8 +87,8 @@ export const CollectionEditorPage = ({
             <ReflexElement
               minSize={200}
               maxSize={4000}
-              size={200}
-              flex={2}
+              size={450}
+              flex={1}
               style={{
                 minWidth: '200px',
               }}

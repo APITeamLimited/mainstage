@@ -27,7 +27,7 @@ export const getNodeIcon = (nodeYMap: Y.Map<any>, collapsed: boolean) => {
     nodeYMap.get('__typename') === 'RESTResponse'
   ) {
     return (
-      <Icon>
+      <Icon sx={{ overflow: 'visible' }}>
         <Stack
           sx={{
             height: '100%',
@@ -35,7 +35,15 @@ export const getNodeIcon = (nodeYMap: Y.Map<any>, collapsed: boolean) => {
           justifyContent="center"
           alignItems="center"
         >
-          <Typography fontSize={8}>
+          <Typography
+            fontSize={nodeYMap.get('method').length > 4 ? 6 : 8}
+            sx={{
+              textOverflow: 'ellipsis',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              maxWidth: '24px',
+            }}
+          >
             {nodeYMap.get('method')?.toUpperCase()}
           </Typography>
           <Typography fontSize={8}>REST</Typography>

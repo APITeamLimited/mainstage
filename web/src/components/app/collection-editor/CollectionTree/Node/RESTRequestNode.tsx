@@ -1,12 +1,23 @@
-import { useReactiveVar } from '@apollo/client'
-import { ListItem, ListItemIcon, ListItemText, useTheme } from '@mui/material'
-import * as Y from 'yjs'
+import { useMemo } from 'react'
 
+import { useReactiveVar } from '@apollo/client'
+import {
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Typography,
+  useTheme,
+} from '@mui/material'
+import * as Y from 'yjs'
+import { useYMap } from 'zustand-yjs'
+
+import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
+import { findEnvironmentVariables } from 'src/utils/findVariables'
 
 import { focusedResponseVar } from '../../RESTResponsePanel'
 import { EditNameInput } from '../EditNameInput'
@@ -49,6 +60,9 @@ export const RESTRequestNode = ({
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
+  const activeEnvironmentYMap = useActiveEnvironmentYMap()
+  const environmentHook = useYMap(activeEnvironmentYMap ?? new Y.Map())
+  const collectionHook = useYMap(collectionYMap ?? new Y.Map())
 
   const isInFocus =
     focusedElementDict[getFocusedElementKey(nodeYMap)]?.get('id') ===
@@ -74,6 +88,20 @@ export const RESTRequestNode = ({
     updateFocusedElement(focusedElementDict, nodeYMap)
   }
 
+  const pathname = useMemo(() => {
+    try {
+      return new URL(
+        findEnvironmentVariables(
+          activeEnvironmentYMap,
+          collectionYMap,
+          nodeYMap.get('endpoint')
+        )
+      ).pathname
+    } catch (e) {
+      return ''
+    }
+  }, [environmentHook, collectionHook, nodeYMap])
+
   return (
     <ListItem
       secondaryAction={
@@ -89,7 +117,7 @@ export const RESTRequestNode = ({
       sx={{
         backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
         cursor: 'pointer',
-        minHeight: '48px',
+        height: '40px',
         paddingY: 0,
       }}
       onClick={(event) => {
@@ -116,6 +144,21 @@ export const RESTRequestNode = ({
             singleClickCallback={() => setCollapsed(!collapsed)}
             permitDoubleClickRename={true}
           />
+        }
+        secondary={
+          renaming ? undefined : (
+            <Typography
+              sx={{
+                position: 'relative',
+                top: '-3px',
+                opacity: 0.6,
+              }}
+              fontSize="0.75rem"
+              color={theme.palette.text.secondary}
+            >
+              {pathname}
+            </Typography>
+          )
         }
         sx={{
           whiteSpace: 'nowrap',

@@ -115,6 +115,13 @@ export const handleProviders = ({
           }),
         onStatusChange: (status) => {
           setSocketioSyncStatus(status)
+
+          console.log('socketio status', status)
+
+          if (status === 'disconnected') {
+            // TODO: Come up with a better way to deal with rogue open docs
+            window.location.reload()
+          }
         },
         onAwarenessUpdate: (awareness) => {
           const statesArray = Array.from(awareness.getStates().values()) as (

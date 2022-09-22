@@ -20,7 +20,6 @@ import { DragDetails, useNodeDrag } from './useNodeDrag'
 import { useNodeDrop, UseNodeDropArgs } from './useNodeDrop'
 import {
   deleteRecursive,
-  DROP_SPACE_HEIGHT,
   duplicateRecursive,
   getNewOrderingIndex,
 } from './utils'

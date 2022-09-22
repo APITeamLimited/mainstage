@@ -18,10 +18,10 @@ export const ListCollapsible = ({
   const theme = useTheme()
 
   return (
-    <Collapse in={!collapsed || hovered} timeout={0}>
+    <Collapse in={!collapsed || hovered} timeout={100}>
       <List
         sx={{
-          marginLeft: 2,
+          marginLeft: 1.5,
           paddingTop: 0,
           paddingBottom: 0, //dropSpace === 'Bottom' ? 0 : 1,
         }}

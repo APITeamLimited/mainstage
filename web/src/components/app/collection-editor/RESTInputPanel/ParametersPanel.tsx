@@ -95,6 +95,7 @@ export const ParametersPanel = ({
         style={{
           overflow: 'hidden',
         }}
+        size={150}
       >
         <Stack
           sx={{

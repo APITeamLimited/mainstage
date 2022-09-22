@@ -11,227 +11,33 @@ import { Scope } from '@prisma/client'
 import * as JWT from 'jsonwebtoken'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
-import * as map from 'lib0/map'
 import * as mutex from 'lib0/mutex'
-import { MongoClient } from 'mongodb'
 import { Socket } from 'socket.io'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
-import { checkValue } from '../config'
-import { populateOpenDoc } from '../entities'
-import {
-  coreCacheReadRedis,
-  coreCacheSubscribeRedis,
-  eeRedisHost,
-  eeRedisPassword,
-  eeRedisPort,
-  eeRedisUsername,
-} from '../redis'
-import { getAndSetAPIPublicKey } from '../services'
+import { checkValue } from '../../config'
+import { populateOpenDoc } from '../../entities'
+import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../../redis'
+import { getAndSetAPIPublicKey } from '../../services'
+import * as syncProtocol from '../sync'
+import { createMemberAwareness, LastOnlineTime } from '../utils'
 
-import { MultiPersitenceProvider } from './multi-persistence-provider'
-import * as syncProtocol from './sync'
-import { createMemberAwareness, handlePostAuth, LastOnlineTime } from './utils'
-import { RedisPersistence } from './y-redis'
+import {
+  globalActiveSubscriptions,
+  handleAddSubscription,
+  handleRemoveSubscription,
+  messageAwarenessType,
+  messageSyncType,
+  openDocs,
+} from './connection-provider'
 
 const publicAudience = `${checkValue<string>('api.bearer.audience')}-public`
 const issuer = checkValue<string>('api.bearer.issuer')
 
 const bannedAwarenessKeys = ['variantTargetId', 'variant', 'team', 'members']
 
-/*const mongoHost = checkValue<string>('entity-engine.mongo.host')
-const mongoPort = checkValue<number>('entity-engine.mongo.port')
-const mongoUsername = checkValue<string>('entity-engine.mongo.userName')
-const mongoPassword = checkValue<string>('entity-engine.mongo.password')
-const mongoDatabase = checkValue<string>('entity-engine.mongo.database')
-
-const mongoUrl = `mongodb://${mongoUsername}:${mongoPassword}@${mongoHost}:${mongoPort}/`
-
-const mongoClient = new MongoClient(mongoUrl)
-
-mongoClient.connect()*/
-
-const persistenceProvider = new RedisPersistence({
-  redisOpts: {
-    port: eeRedisPort,
-    host: eeRedisHost,
-    username: eeRedisUsername,
-    password: eeRedisPassword,
-  },
-  //mongoDb: mongoClient.db(mongoDatabase),
-})
-
-export const handleNewConnection = async (socket: Socket) => {
-  const postAuth = await handlePostAuth(socket)
-
-  if (postAuth === null) {
-    console.error('Failed to carry out post-auth')
-    socket.disconnect()
-    return
-  }
-
-  const { scope } = postAuth
-
-  const doc = await getOpenDoc(scope)
-
-  doc.sockets.set(socket, new Set())
-  doc.scopes.set(socket, new Set())
-  const scopeSet = doc.scopes.get(socket)
-
-  if (!scopeSet) {
-    socket.disconnect()
-    doc.sockets.delete(socket)
-    doc.scopes.delete(socket)
-    console.warn('Could not find scope set for socket')
-    return
-  }
-
-  scopeSet.add(scope)
-
-  const serverAwareness = doc.serverAwareness
-
-  if (serverAwareness.variant === 'TEAM') {
-    const member = serverAwareness.members.find(
-      (member) => member.userId === scope.userId
-    )
-
-    if (!member) {
-      socket.disconnect()
-      doc.sockets.delete(socket)
-      doc.scopes.delete(socket)
-      console.warn('Could not find member for socket')
-      return
-    }
-
-    member.lastOnline = new Date()
-
-    const newServerAwareness: ServerAwareness = {
-      ...serverAwareness,
-      members: serverAwareness.members.map((member) => {
-        if (member.userId === scope.userId) {
-          return {
-            ...member,
-            lastOnline: new Date(),
-          }
-        }
-
-        return member
-      }),
-    }
-
-    doc.setAndBroadcastServerAwareness(newServerAwareness)
-
-    const setPromise = coreCacheReadRedis.hSet(
-      `team:${doc.variantTargetId}`,
-      `lastOnlineTime:${scope.userId}`,
-      member.lastOnline.getTime()
-    )
-
-    const publishPromise = coreCacheReadRedis.publish(
-      `team:${doc.variantTargetId}`,
-      JSON.stringify({
-        type: 'LAST_ONLINE_TIME',
-        payload: {
-          userId: scope.userId,
-          lastOnline: member.lastOnline,
-        },
-      } as RedisTeamPublishMessage)
-    )
-
-    await Promise.all([setPromise, publishPromise])
-  }
-
-  socket.on('message', (message: ArrayBuffer) => {
-    doc.messageListener(socket, new Uint8Array(message))
-  })
-
-  socket.on('forceDisconnect', () => doc.closeSocket(socket))
-
-  // On disconnect remove the connection from the doc
-  socket.on('disconnect', () => {
-    doc.closeSocket(socket)
-  })
-
-  {
-    // send sync step 1
-    const encoder = encoding.createEncoder()
-    encoding.writeVarUint(encoder, messageSyncType)
-
-    syncProtocol.writeSyncStep1(encoder, doc)
-    doc.send(socket, encoding.toUint8Array(encoder))
-
-    const awarenessStates = doc.awareness.getStates()
-
-    if (awarenessStates.size > 0) {
-      const encoder = encoding.createEncoder()
-
-      encoding.writeVarUint(encoder, messageAwarenessType)
-      encoding.writeVarUint8Array(
-        encoder,
-        awarenessProtocol.encodeAwarenessUpdate(
-          doc.awareness,
-          Array.from(awarenessStates.keys())
-        )
-      )
-
-      doc.send(socket, encoding.toUint8Array(encoder))
-    }
-  }
-}
-
-export const getOpenDoc = async (scope: Scope): Promise<OpenDoc> => {
-  const docName = `${scope.variant}:${scope.variantTargetId}`
-
-  const openDoc = map.setIfUndefined(openDocs, docName, () => {
-    const doc = new OpenDoc(scope)
-
-    persistenceProvider.bindState(docName, doc)
-
-    openDocs.set(docName, doc)
-    return doc
-  })
-
-  if (openDoc.awareness.getLocalState() === null) {
-    await openDoc.connectAwareness()
-  }
-  return openDoc
-}
-
-const openDocs = new Map<string, OpenDoc>()
-
-const messageSyncType = 0
-const messageAwarenessType = 1
-
-// Subscriptions can exist between open docs so don't close them if open in another doc
-const globalActiveSubscriptions = new Map<string, number>()
-
-const handleAddSubscription = (name: string) => {
-  const count = map.setIfUndefined(globalActiveSubscriptions, name, () => 0)
-  globalActiveSubscriptions.set(name, count + 1)
-}
-
-const handleRemoveSubscription = async (name: string) => {
-  const count = globalActiveSubscriptions.get(name)
-
-  if (!count) return
-
-  if (count === 1) {
-    globalActiveSubscriptions.delete(name)
-
-    const isPattern = name.endsWith('*')
-
-    isPattern
-      ? await coreCacheSubscribeRedis.pUnsubscribe(name)
-      : await coreCacheSubscribeRedis.unsubscribe(name)
-
-    return
-  }
-
-  globalActiveSubscriptions.set(name, count - 1)
-}
-
-class OpenDoc extends Y.Doc {
+export class OpenDoc extends Y.Doc {
   mux: mutex.mutex
   sockets: Map<Socket, Set<number>>
   scopes: Map<Socket, Set<Scope>>
@@ -240,8 +46,12 @@ class OpenDoc extends Y.Doc {
   variantTargetId: string
   lastVerifiedClients: Map<number, number>
   activeSubscriptions: string[]
+  updateCallback: ((docName: string, update: Uint8Array) => void) | undefined
 
-  constructor(scope: Scope) {
+  constructor(
+    scope: Scope,
+    updateCallback: ((docName: string, update: Uint8Array) => void) | undefined
+  ) {
     super()
 
     // TODO: add logic with persistence provider to load state and
@@ -256,6 +66,7 @@ class OpenDoc extends Y.Doc {
     this.awareness.setLocalState(null)
     this.guid = `${scope.variant}:${scope.variantTargetId}`
     this.activeSubscriptions = []
+    this.updateCallback = updateCallback
 
     this.awareness.on(
       'update',
@@ -323,6 +134,8 @@ class OpenDoc extends Y.Doc {
       const message = encoding.toUint8Array(encoder)
 
       this.sockets.forEach((_, socket) => this.send(socket, message))
+
+      this.updateCallback?.(this.guid, update)
     })
 
     this.variant = scope.variant
@@ -362,7 +175,12 @@ class OpenDoc extends Y.Doc {
           this.activeSubscriptions.map(handleRemoveSubscription)
         )
 
-        persistenceProvider.closeDoc(this.guid)
+        // TODO: add redis persistence provider
+
+        //redisPersistence.closeDoc(this.guid)
+
+        // TODO: does mongo need to be closed?
+
         openDocs.delete(this.guid)
         super.destroy()
       }

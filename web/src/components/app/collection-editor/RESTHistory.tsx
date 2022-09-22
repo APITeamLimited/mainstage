@@ -278,7 +278,6 @@ export const RESTHistory = ({
                     <ListItem
                       key={index}
                       sx={{
-                        paddingY: 0.75,
                         cursor: 'pointer',
                         backgroundColor:
                           focusedResponseDict[
@@ -288,6 +287,7 @@ export const RESTHistory = ({
                             : 'inherit',
                         width: '100%',
                         maxWidth: '100%',
+                        height: '40px',
                       }}
                       onClick={() =>
                         updateFocusedRESTResponse(focusedResponseDict, response)
@@ -314,11 +314,27 @@ export const RESTHistory = ({
                         primary={
                           <span
                             style={{
+                              position: 'relative',
+                              bottom: '-1px',
+                              fontSize: '0.925rem',
                               userSelect: 'none',
                             }}
                           >
-                            {response.get('endpoint')}
+                            {response.get('name')}
                           </span>
+                        }
+                        secondary={
+                          <Typography
+                            sx={{
+                              position: 'relative',
+                              top: '-3px',
+                              opacity: 0.6,
+                            }}
+                            fontSize="0.75rem"
+                            color={theme.palette.text.secondary}
+                          >
+                            {new URL(response.get('endpoint')).pathname}
+                          </Typography>
                         }
                         sx={{
                           whiteSpace: 'nowrap',
