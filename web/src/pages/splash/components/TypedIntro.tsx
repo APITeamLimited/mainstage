@@ -12,7 +12,10 @@ const images = [
   {
     light: require('public/img/splash/app-demo-new-light.png'),
     dark: require('public/img/splash/app-demo-new-dark.png'),
-  },
+  } /*
+
+  Think just one iamge looks better
+
   {
     light: require('public/img/splash/integrated-load-testing-light.png'),
     dark: require('public/img/splash/integrated-load-testing-dark.png'),
@@ -20,7 +23,7 @@ const images = [
   {
     light: require('public/img/splash/code-generation-light.png'),
     dark: require('public/img/splash/code-generation-dark.png'),
-  },
+  },*/,
 ]
 
 const TypedIntro = (): JSX.Element => {
@@ -52,7 +55,13 @@ const TypedIntro = (): JSX.Element => {
           alignItems="baseline"
           direction="row"
         >
-          <Box maxWidth={{ xs: 1, sm: '50%' }}>
+          <Box
+            maxWidth={{ xs: 1, sm: '50%' }}
+            sx={{
+              // Overlaps with the preview images
+              zIndex: 1,
+            }}
+          >
             <Typography
               variant="h2"
               color={theme.palette.text.primary}
@@ -126,6 +135,7 @@ const TypedIntro = (): JSX.Element => {
                 right: 0,
                 textAlign: 'right',
                 top: '4rem',
+                zIndex: 0,
               }}
               key={index}
             >

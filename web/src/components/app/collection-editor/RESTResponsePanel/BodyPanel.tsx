@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Tooltip, IconButton, Box } from '@mui/material'
 import { Response } from 'k6/http'
 
 import { codeFormatter } from 'src/utils/codeFormatter'
-import { parseRESTResponseBody } from 'src/utils/parseRESTResponseBody'
+import { parseRESTResponseBody, getBodyContentType } from 'src/utils/rest-utils'
 
 import { SecondaryChips } from '../../utils/SecondaryChips'
 import { MonacoEditor } from '../MonacoEditor'
@@ -22,11 +22,7 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
   const [rawBody, setRawBody] = useState('')
   const [calculatedBody, setCalculatedBody] = useState(false)
 
-  const contentType = response.headers['Content-Type']
-    ? response.headers['Content-Type'].toString().toLowerCase().split(';')[0] ||
-      'text/plain'
-    : 'text/plain'
-
+  const contentType = useMemo(() => getBodyContentType(response), [response])
   const [prettifiedBody, setPrettifiedBody] = useState<string | null>(null)
   const [prettyBodyName, setPrettyBodyName] = useState<string | null>(null)
 
@@ -45,7 +41,10 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           </Box>
         </Tooltip>
       )
-    } else if (activeTabIndex === 1) {
+    } else if (
+      (activeTabIndex === 1 && prettifiedBody) ||
+      (activeTabIndex === 0 && !prettifiedBody)
+    ) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
           <Box>
@@ -105,10 +104,11 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           value={prettifiedBody}
           readOnly
           wordWrap="on"
-          namespace={`${response.id}-0`}
+          namespace={`${response.url}-0`}
         />
       )}
-      {activeTabIndex === 1 && (
+      {((activeTabIndex === 1 && prettifiedBody) ||
+        (activeTabIndex === 0 && !prettifiedBody)) && (
         //<RawViewer rawBody={rawBody} />
         // removed this as competitors are using monaco editor
         <MonacoEditor
@@ -116,10 +116,13 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           value={rawBody}
           readOnly
           wordWrap="on"
-          namespace={`${response.id}-1`}
+          namespace={`${response.url}-1`}
         />
       )}
-      {activeTabIndex === 2 && <HTMLViewer html={rawBody} />}
+      {((activeTabIndex === 2 && prettifiedBody) ||
+        (activeTabIndex === 1 && !prettifiedBody)) && (
+        <HTMLViewer html={rawBody} />
+      )}
     </>
   ) : (
     <></>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { Box, Stack, Button } from '@mui/material'
+import { Box, Stack, Button, useTheme } from '@mui/material'
 import { Container } from '@mui/system'
 
 import { navigate, routes, useLocation } from '@redwoodjs/router'
@@ -16,6 +16,7 @@ type PageEndpoint = {
 export const TopBarDashboard = () => {
   const { pathname } = useLocation()
   const workspaceInfo = useWorkspaceInfo()
+  const theme = useTheme()
 
   const pages = useMemo<PageEndpoint[]>(() => {
     const isLeastAdmin =
@@ -96,8 +97,16 @@ export const TopBarDashboard = () => {
           <Box key={index}>
             <Button
               variant="text"
-              color={currentEndpoint.name === page.name ? 'primary' : 'info'}
+              color="info"
               onClick={() => handleChange(index)}
+              sx={{
+                textTransform: 'none',
+                fontSize: '1rem',
+                color:
+                  currentEndpoint.name === page.name
+                    ? theme.palette.primary.main
+                    : theme.palette.text.secondary,
+              }}
             >
               {page.name}
             </Button>

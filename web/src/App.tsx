@@ -1,3 +1,4 @@
+import { getTheme } from '@apiteam/types/src'
 import { ThemeProvider } from '@mui/material'
 
 import { AuthProvider } from '@redwoodjs/auth'
@@ -12,7 +13,6 @@ import Routes from 'src/Routes'
 
 import './scaffold.css'
 import './index.css'
-import { getTheme } from '@apiteam/types/src'
 
 import { CustomApolloProvider } from './contexts/custom-apollo-provider'
 

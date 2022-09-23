@@ -62,9 +62,6 @@ export const BodyPanel = ({
   bodyRef.current = body
   const [isBulkEditing, setIsBulkEditing] = useState(false)
 
-  const scopeId = useScopeId()
-  const rawBearer = useRawBearer()
-
   const handeChipChange = (index: number) => {
     const contentType = getContentTypeFromIndex(index)
 

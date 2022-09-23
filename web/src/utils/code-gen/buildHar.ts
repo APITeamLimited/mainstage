@@ -74,14 +74,6 @@ const buildHarPostData = (
   activeEnvironmentYMap: Y.Map<any> | null,
   collectionYMap: Y.Map<any>
 ): PostData | undefined => {
-  console.log(
-    'req.data',
-    req.data,
-    'contentType',
-    req.headers?.['content-type'],
-    restRequest.body.contentType
-  )
-
   const contentType = req.headers?.['content-type'] as string | undefined
 
   // Can't build post data if there is no data

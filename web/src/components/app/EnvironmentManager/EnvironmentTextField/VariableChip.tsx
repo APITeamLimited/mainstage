@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { KeyValueItem } from '@apiteam/types'
-import { ResolvedVariable } from '@apiteam/types/src'
+import { ResolvedVariable } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
 import * as Y from 'yjs'

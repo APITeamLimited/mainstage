@@ -1,4 +1,4 @@
-import { KeyValueItem, RESTAuth, RESTRequest } from '@apiteam/types/src'
+import { KeyValueItem, RESTAuth, RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
 import { lookup } from 'mime-types'
 import { stringify } from 'qs'
@@ -14,9 +14,7 @@ export const getFinalRequest = async (
   request: RESTRequest,
   requestYMap: Y.Map<any>,
   activeEnvironment: Y.Map<any> | null,
-  collection: Y.Map<any>,
-  scopeId: string,
-  rawBearer: string
+  collection: Y.Map<any>
 ): Promise<AxiosRequestConfig<any>> => {
   let body = null
   let skipBodyEnvironmentSubstitution = false
@@ -81,7 +79,13 @@ export const getFinalRequest = async (
     folders,
     {
       method: request.method,
-      url: substitutePathVariables(request.endpoint, request),
+      url: ensureValidUrl(
+        findEnvironmentVariables(
+          activeEnvironment,
+          collection,
+          substitutePathVariables(request.endpoint, request)
+        )
+      ),
       headers: finalHeaders,
       params: request.params
         .filter(
@@ -216,11 +220,8 @@ const makeEnvironmentAwareRequest = (
 ): AxiosRequestConfig => {
   return {
     ...config,
-    url: findEnvironmentVariables(
-      activeEnvironment,
-      collection,
-      config.url || ''
-    ),
+
+    // Already checked the url
 
     // Search for environment variables in header keys and values
     headers: Object.entries(config.headers || {}).reduce(
@@ -263,9 +264,27 @@ const substitutePathVariables = (
 ): string => {
   return endpoint.replace(
     /:([a-zA-Z0-9-_]+)/g,
-    (match, p1) =>
-      request.pathVariables.find(
+    (_, p1) =>
+      (request.pathVariables ?? []).find(
         (pathVariable) => pathVariable.keyString === p1
       )?.value || ''
   )
+}
+
+const urlRegex = new RegExp(
+  '^(?!-)[A-Za-z0-9-]+([\\-\\.]{1}[a-z0-9]+)*\\.[A-Za-z]{2,6}$'
+)
+
+const ensureValidUrl = (url: string): string => {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+
+  const formattedUrl = `https://${url}`
+
+  if (!urlRegex.test(url)) {
+    throw `Invalid uurl ${url}`
+  }
+
+  return formattedUrl
 }

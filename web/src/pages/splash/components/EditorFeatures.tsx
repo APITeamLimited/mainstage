@@ -48,7 +48,7 @@ const EditorFeatures = (): JSX.Element => {
                 'Unlimited users as standard',
                 'Easy importing from Postman, Insomnia, or other API testing tools',
                 'Design, debug, test your APIs in real-time',
-                'REST, GraphQL, and Websocket support',
+                //'REST, GraphQL, and Websocket support',
               ].map((item, i) => (
                 <Grid item xs={12} key={i}>
                   <Box

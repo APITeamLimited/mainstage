@@ -118,10 +118,13 @@ export const handleProviders = ({
 
           console.log('socketio status', status)
 
-          if (status === 'disconnected') {
-            // TODO: Come up with a better way to deal with rogue open docs
-            window.location.reload()
-          }
+          // TODO: Causes an infinite loop when first connecting
+          //if (status === 'disconnected') {
+          //  // TODO: Come up with a better way to deal with rogue open docs
+          //  setTimeout(() => {
+          //    window.location.reload()
+          //  }, 1000)
+          //}
         },
         onAwarenessUpdate: (awareness) => {
           const statesArray = Array.from(awareness.getStates().values()) as (

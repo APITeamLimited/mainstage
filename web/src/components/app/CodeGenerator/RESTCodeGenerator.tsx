@@ -79,9 +79,7 @@ export const RESTCodeGenerator = ({
         restRequest,
         requestYMap,
         activeEnvironmentYMap,
-        collectionYMap,
-        scopeId,
-        rawBearer
+        collectionYMap
       )
 
       const code = (await generateRESTCode(

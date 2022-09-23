@@ -156,7 +156,7 @@ const getBody = async ({
     }
   } else if (item.body?.text?.length === 0 || item.body?.text === undefined) {
     return {
-      contentType: null,
+      contentType: 'none',
       body: null,
     }
   } else {

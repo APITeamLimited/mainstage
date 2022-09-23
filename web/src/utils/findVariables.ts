@@ -1,4 +1,4 @@
-import { ResolvedVariable } from '@apiteam/types/src'
+import { ResolvedVariable } from '@apiteam/types'
 import * as Y from 'yjs'
 
 import { KeyValueItem } from 'src/components/app/collection-editor/KeyValueEditor'

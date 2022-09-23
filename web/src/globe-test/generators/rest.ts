@@ -30,9 +30,7 @@ export const singleRESTRequestGenerator = async ({
     request,
     requestYMap,
     activeEnvironmentYMap,
-    collectionYMap,
-    scopeId,
-    rawBearer
+    collectionYMap
   )
   const sourceName = 'rest-single.js'
 

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 
 import { KeyValueItem } from '@apiteam/types'
-import { RESTReqBody } from '@apiteam/types/src'
-import { RESTAuth, RESTRequest } from '@apiteam/types/src'
+import { RESTReqBody } from '@apiteam/types'
+import { RESTAuth, RESTRequest } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
@@ -14,6 +14,7 @@ import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
+import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
 import { DescriptionPanel } from '../DescriptionPanel'
 import { KeyValueEditor } from '../KeyValueEditor'
@@ -26,6 +27,7 @@ import { ParametersPanel } from './ParametersPanel'
 import { SaveAsDialog } from './SaveAsDialog'
 import { SaveButton } from './SaveButton'
 import { SendButton } from './SendButton'
+import { generatePathVariables } from './utils'
 
 type RESTInputPanelProps = {
   requestId: string
@@ -37,13 +39,14 @@ export const RESTInputPanel = ({
   collectionYMap,
 }: RESTInputPanelProps) => {
   const restRequestsYMap = collectionYMap.get('restRequests')
-  const workspace = useWorkspace()
+  useWorkspace()
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
   const requestYMap = restRequestsYMap.get(requestId)
+  useYMap(requestYMap)
 
-  const [unsavedEndpoint, setUnsavedEndpoint] = useState(
+  const [unsavedEndpoint, setUnsavedEndpoint] = useState<string>(
     requestYMap.get('endpoint')
   )
   const [unsavedHeaders, setUnsavedHeaders] = useState(
@@ -52,63 +55,18 @@ export const RESTInputPanel = ({
   const [unsavedParameters, setUnsavedParameters] = useState(
     requestYMap.get('params')
   )
-  const [unsavedPathVariables, setUnsavedPathVariables] = useState(
-    requestYMap.get('pathVariables') || []
-  )
+  const [unsavedPathVariables, setUnsavedPathVariables] = useState<
+    KeyValueItem[]
+  >(requestYMap.get('pathVariables') ?? [])
 
-  const [firstSetPathVariables, setFirstSetPathVariables] = useState(false)
+  console.log('unsavedEndpoint', unsavedEndpoint)
 
   useEffect(() => {
-    if (!requestYMap.get('pathVariables')) return
-
-    // Scan for path variables with colon after the slash
-    const pathVariables: string[] = []
-    const path = unsavedEndpoint.split('?')[0]
-    const pathParts = path.split('/') as string[]
-    pathParts.forEach((part) => {
-      // Ignore empty parts
-      if (part.startsWith(':')) {
-        pathVariables.push(part.substring(1))
-      }
+    generatePathVariables({
+      requestYMap,
+      unsavedEndpoint,
+      setUnsavedPathVariables,
     })
-
-    // Ignore if already set in pathVariables else set
-    const pathVariablesSet = new Set(
-      pathVariables.filter((pathVariable) => pathVariable !== '')
-    ) as Set<string>
-
-    const newPathVariables = Array.from(pathVariablesSet).map(
-      (pathVariable, index) => ({
-        id: index,
-        keyString: pathVariable,
-        value: '',
-        enabled: true,
-      })
-    )
-
-    const existingPathVariables = (requestYMap?.get('pathVariables') ??
-      []) as KeyValueItem[]
-
-    // Ensure newPathVariables are not already in existingPathVariables
-    const finalPathVariables = existingPathVariables
-
-    newPathVariables.forEach((newPathVariable) => {
-      const existingPathVariable = existingPathVariables.find(
-        (existingPathVariable) =>
-          existingPathVariable.keyString === newPathVariable.keyString
-      )
-
-      if (!existingPathVariable) {
-        finalPathVariables.push(newPathVariable)
-      }
-    })
-
-    if (!firstSetPathVariables && existingPathVariables.length === 0) {
-      requestYMap.set('pathVariables', finalPathVariables)
-      setFirstSetPathVariables(true)
-    }
-
-    setUnsavedPathVariables(finalPathVariables)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedEndpoint])
@@ -185,51 +143,6 @@ export const RESTInputPanel = ({
       requestYMap.set('body', unsavedBody)
     }
   }, [requestYMap, unsavedBody])
-
-  const stripBodyStoredObjectData = (
-    unfilteredBody: RESTReqBody
-  ): RESTReqBody => {
-    if (unfilteredBody.contentType === 'application/octet-stream') {
-      if (unfilteredBody.body === null) {
-        return unfilteredBody
-      }
-
-      return {
-        contentType: unfilteredBody.contentType,
-        body: {
-          data: {
-            ...unfilteredBody.body.data,
-            data: null,
-          },
-          filename: unfilteredBody.body.filename,
-        },
-      }
-    }
-
-    if (unfilteredBody.contentType === 'multipart/form-data') {
-      return {
-        contentType: unfilteredBody.contentType,
-        body: unfilteredBody.body.map((part) => {
-          if (part.fileField) {
-            return {
-              ...part,
-              fileField: {
-                ...part.fileField,
-                data: {
-                  ...part.fileField.data,
-                  data: null,
-                },
-              },
-            }
-          } else {
-            return part
-          }
-        }),
-      }
-    }
-
-    return unfilteredBody
-  }
 
   const handleSave = () => {
     requestYMap.set('endpoint', unsavedEndpoint)
