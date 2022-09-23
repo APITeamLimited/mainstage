@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { KeyValueItem } from '@apiteam/types'
 import { RESTReqBody } from '@apiteam/types/src'
 import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
@@ -58,6 +59,8 @@ export const RESTInputPanel = ({
   const [firstSetPathVariables, setFirstSetPathVariables] = useState(false)
 
   useEffect(() => {
+    if (!requestYMap.get('pathVariables')) return
+
     // Scan for path variables with colon after the slash
     const pathVariables: string[] = []
     const path = unsavedEndpoint.split('?')[0]
@@ -83,12 +86,29 @@ export const RESTInputPanel = ({
       })
     )
 
-    if (!firstSetPathVariables) {
-      requestYMap.set('pathVariables', newPathVariables)
+    const existingPathVariables = (requestYMap?.get('pathVariables') ??
+      []) as KeyValueItem[]
+
+    // Ensure newPathVariables are not already in existingPathVariables
+    const finalPathVariables = existingPathVariables
+
+    newPathVariables.forEach((newPathVariable) => {
+      const existingPathVariable = existingPathVariables.find(
+        (existingPathVariable) =>
+          existingPathVariable.keyString === newPathVariable.keyString
+      )
+
+      if (!existingPathVariable) {
+        finalPathVariables.push(newPathVariable)
+      }
+    })
+
+    if (!firstSetPathVariables && existingPathVariables.length === 0) {
+      requestYMap.set('pathVariables', finalPathVariables)
       setFirstSetPathVariables(true)
     }
 
-    setUnsavedPathVariables(newPathVariables)
+    setUnsavedPathVariables(finalPathVariables)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedEndpoint])

@@ -140,6 +140,7 @@ __metadata:
     "@types/draft-js": ^0.11.9
     "@types/httpsnippet": ^1.23.1
     "@types/k6": ^0.37.1
+    "@types/mime-types": ^2.1.1
     "@types/postman-collection": ^3.5.7
     "@types/prettier": ^2.7.0
     "@unlimited-react-components/kernel": ^1.0.2
@@ -168,6 +169,7 @@ __metadata:
     markdown-to-jsx: ^7.1.7
     md5: ^2.3.0
     memoize-one: ^6.0.0
+    mime-types: ^2.1.35
     monaco-editor-webpack-plugin: ^7.0.1
     mui-markdown: ^0.5.5
     oas-validator: ^5.0.8
@@ -8711,6 +8713,13 @@ __metadata:
   dependencies:
     "@types/unist": "*"
   checksum: 375f08b3910505291b2815d9edf55dca63c6c4ec58dd33c866521e68905fd4e8fe83b397e167af2cdd3799b851a7e02817d58610cfb814aee20bf3c52d87be9b
+  languageName: node
+  linkType: hard
+
+"@types/mime-types@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@types/mime-types@npm:2.1.1"
+  checksum: 131b33bfd89481f6a791996db9198c6c5ffccbb310e990d1dd9fab7a2287b5a0fd642bdd959a19281397c86f721498e09956e3892e5db17f93f38e726ca05008
   languageName: node
   linkType: hard
 
@@ -22575,7 +22584,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mime-types@npm:2.1.35, mime-types@npm:^2.1.12, mime-types@npm:^2.1.27, mime-types@npm:^2.1.30, mime-types@npm:^2.1.31, mime-types@npm:~2.1.17, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34, mime-types@npm:~2.1.7":
+"mime-types@npm:2.1.35, mime-types@npm:^2.1.12, mime-types@npm:^2.1.27, mime-types@npm:^2.1.30, mime-types@npm:^2.1.31, mime-types@npm:^2.1.35, mime-types@npm:~2.1.17, mime-types@npm:~2.1.24, mime-types@npm:~2.1.34, mime-types@npm:~2.1.7":
   version: 2.1.35
   resolution: "mime-types@npm:2.1.35"
   dependencies:

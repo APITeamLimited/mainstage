@@ -42,7 +42,7 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
 
   const [showEnvironmentManager, setShowEnvironmentManager] = useState(false)
 
-  const overview = useYMap(overviewYMap)
+  useYMap(overviewYMap)
 
   const handleDuplicate = () => {
     const newItem = overviewYMap.clone()
@@ -52,6 +52,33 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
     newItem.set('createdAt', new Date().toISOString())
     newItem.set('updatedAt', null)
     overviewYMap.parent?.set(newId, newItem)
+
+    // If is a collection, need to change parentIDs
+    if (newItem.get('__typename') === 'Collection') {
+      Array.from(newItem.get('folders').values()).forEach((folder) => {
+        if (folder.get('parentId') === overviewYMap.get('id')) {
+          folder.set('parentId', newId)
+        }
+      })
+
+      Array.from(newItem.get('restRequests').values()).forEach(
+        (restRequest) => {
+          if (restRequest.get('parentId') === overviewYMap.get('id')) {
+            restRequest.set('parentId', newId)
+          }
+        }
+      )
+
+      Array.from(newItem.get('restResponses').values()).forEach(
+        (restResponse) => {
+          if (restResponse.get('parentId') === overviewYMap.get('id')) {
+            restResponse.set('parentId', newId)
+          }
+        }
+      )
+    }
+
+    console.log('Newoverviewitem', newItem)
   }
 
   const handleRename = (newName: string) => {
@@ -226,6 +253,7 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
                       event.stopPropagation()
                       setShowActionsPopover(true)
                     }}
+                    component="span"
                   >
                     <MoreVertIcon />
                   </IconButton>

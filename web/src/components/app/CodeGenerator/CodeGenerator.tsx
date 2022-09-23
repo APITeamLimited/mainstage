@@ -26,6 +26,7 @@ type CodeGeneratorProps = {
   onGenerateCode: (codeGen: CodeGenDefinition | null) => void
   codeGenerated: CodeGenerated
   monacoNamespace: string
+  denyMessage?: string | null
 }
 
 export type CodeGenDefinition = {
@@ -41,7 +42,6 @@ export type CodeGenerated =
       value: string
     }
   | 'NONE'
-  | 'ERROR'
 
 export const CodeGenerator = ({
   availableCodeGens = [],
@@ -49,6 +49,7 @@ export const CodeGenerator = ({
   onGenerateCode,
   codeGenerated,
   monacoNamespace,
+  denyMessage,
 }: CodeGeneratorProps) => {
   const theme = useTheme()
   const [activeCodeGen, setActiveCodeGen] = useState<CodeGenDefinition | null>(
@@ -172,7 +173,7 @@ export const CodeGenerator = ({
                     {activeCodeGen.caption}
                   </span>
                 </Button>
-                {codeGenerated !== 'NONE' && codeGenerated !== 'ERROR' ? (
+                {codeGenerated !== 'NONE' ? (
                   <Tooltip title="Copy All">
                     <IconButton
                       size="small"
@@ -198,7 +199,7 @@ export const CodeGenerator = ({
                   </IconButton>
                 )}
               </Stack>
-              {codeGenerated !== 'NONE' && codeGenerated !== 'ERROR' ? (
+              {codeGenerated !== 'NONE' ? (
                 <div
                   style={{
                     height: 'calc(100% - 7.5em)',
@@ -216,8 +217,8 @@ export const CodeGenerator = ({
                   />
                 </div>
               ) : (
-                <Typography variant="body2" color={theme.palette.error.main}>
-                  Failed to generate code
+                <Typography variant="body2" color={theme.palette.text.primary}>
+                  {denyMessage ?? 'Error generating code'}
                 </Typography>
               )}
             </>

@@ -1,10 +1,16 @@
+import { RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
-import type { Har } from 'har-format'
+import type { Har, PostData } from 'har-format'
+import { lookup } from 'mime-types'
 import { parse } from 'qs'
+import * as Y from 'yjs'
+
+import { findEnvironmentVariables } from '../findVariables'
 
 // scotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/
 
+/*
 type FieldEquals<T, K extends keyof T, Vals extends T[K][]> = {
   // eslint-disable-next-line
   [_x in K]: Vals[number]
@@ -60,21 +66,34 @@ const buildHarPostParams = (
       }
     })
   }
-}
+}*/
 
 const buildHarPostData = (
-  req: AxiosRequestConfig
-): Har.PostData | undefined => {
-  const contentType = req.headers?.['content-type']
+  req: AxiosRequestConfig,
+  restRequest: RESTRequest,
+  activeEnvironmentYMap: Y.Map<any> | null,
+  collectionYMap: Y.Map<any>
+): PostData | undefined => {
+  console.log(
+    'req.data',
+    req.data,
+    'contentType',
+    req.headers?.['content-type'],
+    restRequest.body.contentType
+  )
+
+  const contentType = req.headers?.['content-type'] as string | undefined
+
+  // Can't build post data if there is no data
   if (!contentType) return undefined
 
-  if ((req.data ?? '').length === 0) return undefined
-
-  if (contentType === 'multipart/form-data') {
-    throw new Error('FormData is not supported yet')
+  if (
+    (req.data ?? '').length === 0 &&
+    contentType !== 'multipart/form-data' &&
+    restRequest.body.contentType !== 'application/octet-stream'
+  ) {
+    return undefined
   }
-
-  console.log('req.data', req.data)
 
   if (contentType === 'application/x-www-form-urlencoded') {
     const params = Object.entries(parse(req.data as string)).map(
@@ -87,7 +106,51 @@ const buildHarPostData = (
     return {
       mimeType: contentType,
       params,
-    } as Har.PostData
+    } as PostData
+  }
+
+  if (restRequest.body.contentType === 'multipart/form-data') {
+    return {
+      mimeType: contentType,
+      params: restRequest.body.body
+        .filter((kv) => kv.enabled)
+        .map(({ keyString, value, isFile, fileField }) => {
+          if (isFile) {
+            return {
+              name: findEnvironmentVariables(
+                activeEnvironmentYMap,
+                collectionYMap,
+                keyString
+              ),
+              fileName: fileField?.filename,
+              contentType:
+                lookup(fileField?.filename.split('.').pop() ?? '') ?? undefined,
+              value: '<insert file content here>',
+            }
+          }
+
+          return {
+            name: findEnvironmentVariables(
+              activeEnvironmentYMap,
+              collectionYMap,
+              keyString
+            ),
+            value: findEnvironmentVariables(
+              activeEnvironmentYMap,
+              collectionYMap,
+              value
+            ),
+          }
+        }),
+    } as PostData
+  }
+  console.log('application/octet-stream', restRequest.body.contentType)
+  if (restRequest.body.contentType === 'application/octet-stream') {
+    // Return raw data
+    return {
+      mimeType: contentType,
+      text: '<insert file content here>',
+    }
   }
 
   return {
@@ -96,7 +159,12 @@ const buildHarPostData = (
   }
 }
 
-export const buildHarRequest = (req: AxiosRequestConfig): Har => {
+export const buildHarRequest = (
+  req: AxiosRequestConfig,
+  restRequest: RESTRequest,
+  activeEnvironmentYMap: Y.Map<any> | null,
+  collectionYMap: Y.Map<any>
+): Har => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
     headersSize: -1, // TODO: It would be cool if we can calculate the header size
@@ -112,6 +180,11 @@ export const buildHarRequest = (req: AxiosRequestConfig): Har => {
       value: value?.toString(),
     })),
     url: req.url ?? '',
-    postData: buildHarPostData(req),
+    postData: buildHarPostData(
+      req,
+      restRequest,
+      activeEnvironmentYMap,
+      collectionYMap
+    ),
   }
 }

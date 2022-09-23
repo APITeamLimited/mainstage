@@ -94,6 +94,7 @@ export const SortableEditor = memo(
 
       if (isFile && newItem.fileField === undefined) {
         newItem.fileField = null
+        newItem.value = ''
       }
 
       if (!isFile && newItem.fileField !== undefined) {

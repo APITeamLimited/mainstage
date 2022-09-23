@@ -51,7 +51,7 @@ export const EnvironmentProvider = ({
     Y.Map<any>
   >(new Y.Map())
 
-  const environment = useYMap(activeEnvironmentYMap || new Y.Map())
+  useYMap(activeEnvironmentYMap || new Y.Map())
 
   return (
     <BranchYMapContext.Provider value={branchYMap}>

@@ -1,4 +1,3 @@
-import { invariant } from 'src/components/dnd/invariant'
 import type {
   DragDropManager,
   DragDropMonitor,
@@ -7,6 +6,8 @@ import type {
   Unsubscribe,
   XYCoord,
 } from 'web/src/components/dnd/dnd-core'
+
+import { invariant } from 'src/components/dnd/invariant'
 
 import type { DragSourceMonitor } from '../types/index'
 

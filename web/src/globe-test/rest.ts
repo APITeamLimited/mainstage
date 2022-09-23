@@ -1,5 +1,6 @@
 import { KeyValueItem, RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
+import { lookup } from 'mime-types'
 import { stringify } from 'qs'
 import * as Y from 'yjs'
 
@@ -33,73 +34,15 @@ export const getFinalRequest = async (
         .reduce((acc, curr) => ({ ...acc, ...curr }), {})
     )
   } else if (request.body.contentType === 'multipart/form-data') {
-    // Ensure all data is got
-    const foundData = await Promise.all(
-      request.body.body.map(async (kvItem): Promise<KeyValueItem> => {
-        if (kvItem.isFile && kvItem.fileField?.data.data === null) {
-          const { data } = await retrieveScopedResource({
-            scopeId,
-            rawBearer,
-            storeReceipt: kvItem.fileField?.data.storeReceipt,
-          })
-
-          return {
-            ...kvItem,
-            fileField: {
-              ...kvItem.fileField,
-              data: {
-                ...kvItem.fileField?.data,
-                data,
-              },
-            },
-          }
-        } else {
-          return kvItem
-        }
-      })
-    )
-    console.log('foundData', foundData)
-    const bodyForm = new FormData()
-
-    foundData.forEach(({ keyString, value, isFile, fileField }) => {
-      if (isFile) {
-        if (!fileField?.data.data) throw new Error('File data not found')
-
-        bodyForm.append(
-          findEnvironmentVariables(activeEnvironment, collection, keyString),
-          new Blob([fileField?.data.data]),
-          fileField?.filename
-        )
-      } else {
-        bodyForm.append(
-          findEnvironmentVariables(activeEnvironment, collection, keyString),
-          findEnvironmentVariables(activeEnvironment, collection, value)
-        )
-      }
-    })
-
-    console.log('bodyForm', bodyForm)
-
-    body = bodyForm
-    skipBodyEnvironmentSubstitution = true
+    // TODO: implement this in globetest worker
+    // Skip for now
   } else if (request.body.contentType === 'application/octet-stream') {
     skipBodyEnvironmentSubstitution = true
 
+    // TODO: implement this in globetest worker
+    // Skip for now
+
     // If no body data, refetch
-    if (request.body.body?.data) {
-      if (!request.body.body?.data.data) {
-        const { data } = await retrieveScopedResource({
-          scopeId,
-          rawBearer,
-          storeReceipt: request.body.body.data.storeReceipt,
-        })
-        body = data
-      } else {
-        body = request.body.body.data.data
-      }
-    } else {
-      body = null
-    }
   } else {
     body = request.body.body
   }
@@ -113,7 +56,20 @@ export const getFinalRequest = async (
 
   // if finalHeaders doesn't have a content-type, add one
   if (!finalHeaders['content-type'] && request.body.contentType !== 'none') {
-    finalHeaders['content-type'] = request.body.contentType
+    // A more accurate content type would be to use the mime type of the file
+    if (request.body.contentType === 'application/octet-stream') {
+      const mimeType = lookup(
+        request.body.body?.filename?.split('.')?.pop() ?? ''
+      )
+
+      if (mimeType) {
+        finalHeaders['content-type'] = mimeType
+      } else {
+        finalHeaders['content-type'] = request.body.contentType
+      }
+    } else {
+      finalHeaders['content-type'] = request.body.contentType
+    }
   }
 
   const folders = collection.get('folders') as Y.Map<any>

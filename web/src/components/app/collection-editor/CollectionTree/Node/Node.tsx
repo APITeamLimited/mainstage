@@ -43,16 +43,11 @@ export const Node = ({
   const [renaming, setRenaming] = useState(false)
 
   const foldersYMap = collectionYMap.get('folders')
-
   const restRequestsYMap = collectionYMap.get('restRequests')
 
-  // Although we are not using these, they ensure ui updates when the ymaps change
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const restRequests = useYMap(restRequestsYMap)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const folders = useYMap(foldersYMap)
-
-  const node = useYMap(nodeYMap)
+  useYMap(restRequestsYMap)
+  useYMap(foldersYMap)
+  useYMap(nodeYMap)
 
   const dragDropManager = useDragDropManager()
   const monitor = dragDropManager.getMonitor()
@@ -303,18 +298,18 @@ export const Node = ({
   // If the root element, just return innerContent
   return (
     <div ref={nodeYMapRef}>
-      <div ref={nodeYMap.get('__typename') === 'Collection' ? null : drag}>
-        <div
-          ref={drop}
-          style={{
-            overflow: 'visible',
-            paddingTop:
-              nodeYMap.get('__typename') === 'Collection' ? '0.125rem' : 0,
-          }}
-        >
-          {dropSpace === 'Top' && hovered && <DropSpace />}
-          {isRoot && <div>{innerContent}</div>}
-          {nodeYMap.get('__typename') === 'RESTRequest' && (
+      <div
+        ref={drop}
+        style={{
+          overflow: 'visible',
+          paddingTop:
+            nodeYMap.get('__typename') === 'Collection' ? '0.125rem' : 0,
+        }}
+      >
+        {dropSpace === 'Top' && hovered && <DropSpace />}
+        {isRoot && <div>{innerContent}</div>}
+        {nodeYMap.get('__typename') === 'RESTRequest' && (
+          <div ref={drag}>
             <RESTRequestNode
               isBeingDragged={isBeingDragged}
               nodeYMap={nodeYMap}
@@ -330,8 +325,10 @@ export const Node = ({
               setCollapsed={setCollapsed}
               parentIndex={parentIndex}
             />
-          )}
-          {nodeYMap.get('__typename') === 'Folder' && (
+          </div>
+        )}
+        {nodeYMap.get('__typename') === 'Folder' && (
+          <div ref={drag}>
             <FolderNode
               isBeingDragged={isBeingDragged}
               nodeYMap={nodeYMap}
@@ -352,21 +349,21 @@ export const Node = ({
               parentIndex={parentIndex}
               collectionYMap={collectionYMap}
             />
-          )}
-          {dropSpace === 'Bottom' &&
-            nodeYMap.get('__typename') === 'Collection' &&
-            hovered && <DropSpace />}
-          {nodeYMap.get('__typename') === 'Collection' && (
-            <Box
-              sx={{
-                minHeight: '300px',
-              }}
-            />
-          )}
-          {dropSpace === 'Bottom' &&
-            nodeYMap.get('__typename') !== 'Collection' &&
-            hovered && <DropSpace />}
-        </div>
+          </div>
+        )}
+        {dropSpace === 'Bottom' &&
+          nodeYMap.get('__typename') === 'Collection' &&
+          hovered && <DropSpace />}
+        {nodeYMap.get('__typename') === 'Collection' && (
+          <Box
+            sx={{
+              minHeight: '300px',
+            }}
+          />
+        )}
+        {dropSpace === 'Bottom' &&
+          nodeYMap.get('__typename') !== 'Collection' &&
+          hovered && <DropSpace />}
       </div>
     </div>
   )

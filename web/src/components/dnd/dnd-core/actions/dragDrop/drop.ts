@@ -9,6 +9,7 @@ import type {
   Identifier,
 } from '../../interfaces'
 import { isObject } from '../../utils/js_utils'
+
 import { DROP } from './types'
 
 export function createDrop(manager: DragDropManager) {

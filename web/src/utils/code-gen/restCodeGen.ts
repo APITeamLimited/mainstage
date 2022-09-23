@@ -1,6 +1,6 @@
 import { RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
-import type { Har } from 'har-format'
+import * as Y from 'yjs'
 
 import { buildHarRequest } from './buildHar'
 
@@ -180,7 +180,10 @@ export type CodegenName = typeof RESTCodegenDefinitions[number]['name']
 
 export const generateRESTCode = async (
   codegenName: CodegenName,
-  axiosConfig: AxiosRequestConfig
+  axiosConfig: AxiosRequestConfig,
+  restRequest: RESTRequest,
+  activeEnvironmentYMap: Y.Map<any> | null,
+  collectionYMap: Y.Map<any>
 ) => {
   const codegenInfo = RESTCodegenDefinitions.find((v) => v.name === codegenName)
   if (!codegenInfo) {
@@ -194,7 +197,12 @@ export const generateRESTCode = async (
   try {
     // eslint-disable-next-line new-cap
     const code = new HTTPSnippet({
-      ...buildHarRequest(axiosConfig),
+      ...buildHarRequest(
+        axiosConfig,
+        restRequest,
+        activeEnvironmentYMap,
+        collectionYMap
+      ),
     }).convert(codegenInfo.lang, codegenInfo.mode, {
       indent: '    ',
     })

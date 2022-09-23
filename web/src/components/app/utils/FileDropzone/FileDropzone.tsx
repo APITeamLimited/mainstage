@@ -53,25 +53,25 @@ export const FileDropzone = ({
     onMouseLeave: () => {
       setIsMouseOver(false)
     },
-    onDragEnter: (e: React.DragEvent) => {
-      stopDefaults(e)
+    onDragEnter: (event: React.DragEvent) => {
+      stopDefaults(event)
       setIsDragOver(true)
-      setLabelText(e.dataTransfer.items[0].name)
+      setLabelText(event.dataTransfer.items[0].name)
     },
-    onDragLeave: (e: React.DragEvent) => {
-      stopDefaults(e)
+    onDragLeave: (event: React.DragEvent) => {
+      stopDefaults(event)
       setIsDragOver(false)
       setLabelText(primaryText)
     },
     onDragOver: stopDefaults,
-    onDrop: (e: React.DragEvent<HTMLElement>) => {
-      stopDefaults(e)
+    onDrop: (event: React.DragEvent<HTMLElement>) => {
+      stopDefaults(event)
       setLabelText(primaryText)
       setIsDragOver(false)
-      setFiles(e.dataTransfer.files)
+      setFiles(event.dataTransfer.files)
 
-      if (files && files?.length > 0) {
-        onFiles?.(e.dataTransfer.files)
+      if (event.dataTransfer.files?.length > 0) {
+        onFiles?.(event.dataTransfer.files)
       }
     },
   }

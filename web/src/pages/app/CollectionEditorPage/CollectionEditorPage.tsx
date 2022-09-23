@@ -16,12 +16,13 @@ import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
   getFocusedElementKey,
+  updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
+import { RESTRequestFocusWatcher } from 'src/contexts/state-watchers/RESTRequestFocusWatcher'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
 
 import 'react-reflex/styles.css'
-import { RESTRequestFocusWatcher } from 'src/contexts/state-watchers/RESTRequestFocusWatcher'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -51,13 +52,20 @@ export const CollectionEditorPage = ({
     ?.get(branchId)
     ?.get('collections')
     ?.get(collectionId)
-  const collection = useYMap(collectionYMap || new Y.Map())
-
-  //useEffect(() => {
-  //  console.log('collectionYMap', collectionYMap?.toJSON())
-  //}, [collectionYMap])
+  useYMap(collectionYMap || new Y.Map())
 
   const viewportHeightReduction = 60.3
+
+  // If no focused element, focus on the collection
+  useEffect(() => {
+    if (!collectionYMap) return
+
+    if (
+      focusedElementDict[getFocusedElementKey(collectionYMap)] === undefined
+    ) {
+      updateFocusedElement(focusedElementDict, collectionYMap)
+    }
+  }, [focusedElementDict, collectionYMap])
 
   if (!activeWorkspace) {
     return <Container>Workspace with id {workspaceId} not found</Container>
@@ -234,3 +242,5 @@ export const CollectionEditorPage = ({
     </div>
   )
 }
+
+export default CollectionEditorPage

@@ -1,5 +1,5 @@
-import { makeVar } from '@apollo/client'
 import { Workspace } from '@apiteam/types'
+import { makeVar } from '@apollo/client'
 
 // Used for storing info on available workspaces outside of EntityEngine context
 

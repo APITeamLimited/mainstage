@@ -1,5 +1,6 @@
 import type { Connector } from '../internals/index'
 import type { HandlerManager, MonitorEventEmitter } from '../types/index'
+
 import { useMonitorOutput } from './useMonitorOutput'
 
 export function useCollectedProps<Collected, Monitor extends HandlerManager>(

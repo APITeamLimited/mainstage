@@ -5,6 +5,7 @@ import type {
   DragDropMonitor,
   SentinelAction,
 } from '../../interfaces'
+
 import { END_DRAG } from './types'
 
 export function createEndDrag(manager: DragDropManager) {

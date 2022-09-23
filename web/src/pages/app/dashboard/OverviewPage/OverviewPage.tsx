@@ -98,3 +98,5 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
     </Stack>
   )
 }
+
+export default OverviewPage

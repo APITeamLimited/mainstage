@@ -75,7 +75,12 @@ export const RESTResponsePanel = ({
   const workspace = useWorkspace()
   const isExecutingRESTRequest = useReactiveVar(isExecutingRESTRequestVar)
 
-  const restResponses = useYMap<any>(restResponsesYMap)
+  // When focused element changes, clear isExecutingRESTRequest
+  useEffect(() => {
+    isExecutingRESTRequestVar(false)
+  }, [focusedElementDict])
+
+  useYMap(restResponsesYMap)
   const focusedElement =
     focusedElementDict[getFocusedElementKey(collectionYMap)]
 

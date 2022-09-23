@@ -133,3 +133,5 @@ export const DomainsPage = () => {
     </DashboardPageFrame>
   )
 }
+
+export default DomainsPage

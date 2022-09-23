@@ -6,6 +6,7 @@ const BundleAnalyzerPlugin =
 module.exports = (config, { mode }) => {
   if (mode === 'development') {
     // Add dev plugin
+    config.plugins.push(new BundleAnalyzerPlugin())
   }
 
   // Add custom rules for your project
@@ -25,8 +26,7 @@ module.exports = (config, { mode }) => {
     }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
-    }),
-    new BundleAnalyzerPlugin()
+    })
   )
 
   config.resolve.fallback = {

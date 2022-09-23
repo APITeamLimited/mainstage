@@ -21,7 +21,7 @@ export const CustomTabs = ({
   const theme = useTheme()
 
   const handleTabChange = (
-    event: React.SyntheticEvent<Element, Event>,
+    _: React.SyntheticEvent<Element, Event>,
     newValue: number
   ) => {
     onChange(newValue)
@@ -51,7 +51,7 @@ export const CustomTabs = ({
       >
         {names.map((name, index) => {
           const endIcon =
-            icons?.find((icon) => icon.name === name)?.icon || null
+            icons?.find((icon) => icon.name === name)?.icon ?? undefined
 
           return (
             <Button

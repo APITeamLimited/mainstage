@@ -16,44 +16,24 @@ import { findActiveBranch } from '../utils'
 
 import { ResourceProvider } from './ResourceProvider'
 
+const BranchContext = createContext<Y.Map<any> | null>(null)
+export const useActiveBranch = () => useContext(BranchContext)
+
 type ProjectOverviewProps = {
   projectYMap: Y.Map<any>
   project: Project
 }
 
 export const ProjectOverview = ({
-  projectYMap,
-  project,
-}: ProjectOverviewProps) => {
-  const [refKey, setRefKey] = useState(0)
-
-  // Hack as hooks don't seem to be working at the top level Y.Doc
-  const refreshProjects = () => setRefKey(refKey + 1)
-
-  return (
-    <ProjectOverviewInner
-      refreshProjects={refreshProjects}
-      projectYMap={projectYMap}
-      project={project}
-      key={refKey}
-    />
-  )
-}
-
-const BranchContext = createContext<Y.Map<any> | null>(null)
-export const useActiveBranch = () => useContext(BranchContext)
-
-const ProjectOverviewInner = ({
   project,
   projectYMap,
-  refreshProjects,
 }: ProjectOverviewProps & { refreshProjects: () => void }) => {
   const theme = useTheme()
   const branches = useYMap<Branch, Record<string, Branch>>(
     projectYMap.get('branches')
   )
 
-  const projectHook = useYMap(projectYMap)
+  useYMap(projectYMap)
 
   const userProjectBranches = useReactiveVar(userProjectBranchesVar)
   const [activeBranch, setActiveBranch] = useState(
@@ -79,7 +59,10 @@ const ProjectOverviewInner = ({
     )
   }, [branches, userProjectBranches, project, setActiveBranch])
 
-  if (!activeBranch) refreshProjects()
+  if (!activeBranch) {
+    return <></>
+  }
+
   if (!activeBranch || !branchYMap) return <></>
 
   //const sortedOverviews = sortOverviewItems(

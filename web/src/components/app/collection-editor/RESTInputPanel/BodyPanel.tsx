@@ -38,7 +38,7 @@ const getContentTypeFromIndex = (index: number) => {
   if (index > possibleContentTypes.length) {
     return undefined
   }
-  return possibleContentTypes[index] as ValidContentTypes | 'None'
+  return possibleContentTypes[index] as ValidContentTypes
 }
 
 const prettyPrintTypes = ['application/json', 'application/xml', 'text/html']
@@ -82,7 +82,7 @@ export const BodyPanel = ({
 
     setTab(index)
 
-    if (contentType === 'None') {
+    if (contentType === 'none') {
       setBody(
         unsavedBodies.find(
           (unsavedBody) => unsavedBody.contentType === 'none'
@@ -193,8 +193,11 @@ export const BodyPanel = ({
       return
     }
 
-    // If body is application/octet-stream, clear the action area
-    if (bodyRef.current?.contentType === 'application/octet-stream') {
+    // If body is application/octet-stream or none , clear the action area
+    if (
+      bodyRef.current?.contentType === 'application/octet-stream' ||
+      bodyRef.current?.contentType === 'none'
+    ) {
       setActionArea(null)
       return
     }
