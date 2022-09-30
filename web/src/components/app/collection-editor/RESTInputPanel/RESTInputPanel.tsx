@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { KeyValueItem } from '@apiteam/types'
 import { RESTReqBody } from '@apiteam/types'
 import { RESTAuth, RESTRequest } from '@apiteam/types'
+import { ExecutionScript } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
@@ -59,8 +60,6 @@ export const RESTInputPanel = ({
     KeyValueItem[]
   >(requestYMap.get('pathVariables') ?? [])
 
-  console.log('unsavedEndpoint', unsavedEndpoint)
-
   useEffect(() => {
     generatePathVariables({
       requestYMap,
@@ -89,6 +88,15 @@ export const RESTInputPanel = ({
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
     requestYMap.get('description') ?? getSetDescription()
   )
+
+  const getAndSetExecutionScripts = () => {
+    requestYMap.set('executionScripts', [])
+    return requestYMap.get('executionScripts')
+  }
+
+  const [unsavedExecutionScripts, setUnsavedExecutionScripts] = useState<
+    ExecutionScript[]
+  >(requestYMap.get('executionScripts') ?? getAndSetExecutionScripts())
 
   const jobQueue = useReactiveVar(jobQueueVar)
   const [needSave, setNeedSave] = useState(false)
@@ -119,7 +127,9 @@ export const RESTInputPanel = ({
           JSON.stringify(unsavedDescription) !==
             JSON.stringify(requestYMap.get('description')) ||
           JSON.stringify(unsavedPathVariables) !==
-            JSON.stringify(requestYMap.get('pathVariables'))
+            JSON.stringify(requestYMap.get('pathVariables')) ||
+          JSON.stringify(unsavedExecutionScripts) !==
+            JSON.stringify(requestYMap.get('executionScripts'))
       )
     }
   }, [
@@ -133,6 +143,7 @@ export const RESTInputPanel = ({
     unsavedParameters,
     unsavedPathVariables,
     unsavedRequestMethod,
+    unsavedExecutionScripts,
   ])
 
   useEffect(() => {
@@ -153,6 +164,7 @@ export const RESTInputPanel = ({
     requestYMap.set('auth', unsavedAuth)
     requestYMap.set('description', unsavedDescription)
     requestYMap.set('pathVariables', unsavedPathVariables)
+    requestYMap.set('executionScripts', unsavedExecutionScripts)
     setNeedSave(false)
   }
 
@@ -169,6 +181,7 @@ export const RESTInputPanel = ({
     clone.set('auth', unsavedAuth)
     clone.set('description', unsavedDescription)
     clone.set('pathVariables', unsavedPathVariables)
+    clone.set('executionScripts', unsavedExecutionScripts)
     restRequestsYMap.set(newId, clone)
   }
 
@@ -192,6 +205,7 @@ export const RESTInputPanel = ({
       auth: unsavedAuth,
       pathVariables: unsavedPathVariables,
       description: unsavedDescription,
+      executionScripts: unsavedExecutionScripts,
     }
 
     if (!scopeId) throw new Error('No scopeId')
@@ -237,7 +251,14 @@ export const RESTInputPanel = ({
             />
           </Stack>
         }
-        tabNames={['Parameters', 'Body', 'Headers', 'Auth', 'Description']}
+        tabNames={[
+          'Parameters',
+          'Body',
+          'Headers',
+          'Auth',
+          // 'Scripts',
+          'Description',
+        ]}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -276,6 +297,14 @@ export const RESTInputPanel = ({
             setActionArea={setActionArea}
           />
         )}
+        {/*activeTabIndex === 4 && (
+          <ScriptsPanel
+            executionScripts={unsavedExecutionScripts}
+            setExecutionScripts={setUnsavedExecutionScripts}
+            namespace={`request:${requestId}:scripts`}
+            setActionArea={setActionArea}
+          />
+        )*/}
         {activeTabIndex === 4 && (
           <DescriptionPanel
             description={unsavedDescription}

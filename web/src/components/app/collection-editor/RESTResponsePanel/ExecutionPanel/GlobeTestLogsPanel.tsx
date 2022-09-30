@@ -76,7 +76,9 @@ export const GlobeTestLogsPanel = ({
   )
 
   const logs = useMemo(() => {
-    let sortedAll = globeTestLogs.sort((a, b) => a.time - b.time)
+    let sortedAll = globeTestLogs.sort(
+      (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+    )
 
     // Check if including checkedOrchestratorId if orchestratorId is false,
     // Filter out
@@ -132,7 +134,7 @@ export const GlobeTestLogsPanel = ({
       <Tooltip title="Copy All" key="Copy All">
         <Box>
           <IconButton
-            onClick={() => navigator.clipboard.writeText(editorValue)}
+            onClick={() => navigator.clipboard.writeText(editorValue ?? '')}
           >
             <ContentCopyIcon />
           </IconButton>

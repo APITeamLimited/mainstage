@@ -104,6 +104,17 @@ export const RightAside = ({
             '__typename'
           ) === 'RESTRequest' && (
             <>
+            <Tooltip title="Response History" placement="left">
+            <IconButton
+              size="large"
+              color={
+                activeRightAside === 'restHistory' ? 'primary' : 'inherit'
+              }
+              onClick={() => handleButtonClick('restHistory')}
+            >
+              <CommentIcon />
+            </IconButton>
+          </Tooltip>
               <Tooltip title="Generate Code" placement="left">
                 <IconButton
                   size="large"
@@ -113,20 +124,19 @@ export const RightAside = ({
                   <CodeIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Response History" placement="left">
-                <IconButton
-                  size="large"
-                  color={
-                    activeRightAside === 'restHistory' ? 'primary' : 'inherit'
-                  }
-                  onClick={() => handleButtonClick('restHistory')}
-                >
-                  <CommentIcon />
-                </IconButton>
-              </Tooltip>
             </>
           )}
         </Stack>
+        {showRightAside &&
+          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+            '__typename'
+          ) === 'RESTRequest' &&
+          activeRightAside === 'restHistory' && (
+            <RESTHistory
+              onCloseAside={handleCloseAside}
+              collectionYMap={collectionYMap}
+            />
+          )}
         {showRightAside &&
           focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
             '__typename'
@@ -138,16 +148,6 @@ export const RightAside = ({
               }
               onCloseAside={handleCloseAside}
               activeEnvironmentYMap={activeEnvironmentYMap}
-              collectionYMap={collectionYMap}
-            />
-          )}
-        {showRightAside &&
-          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-            '__typename'
-          ) === 'RESTRequest' &&
-          activeRightAside === 'restHistory' && (
-            <RESTHistory
-              onCloseAside={handleCloseAside}
               collectionYMap={collectionYMap}
             />
           )}

@@ -101,10 +101,14 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
 
   const ownerAdminMemberships = [] as Membership[]
 
+  // Filter out the user who accepted the invitation
   Object.entries(allTeamInfo).forEach(([key, value]) => {
     if (key.startsWith('membership:')) {
       const membership = JSON.parse(value) as Membership
-      if (membership.role === 'OWNER' || membership.role === 'ADMIN') {
+      if (
+        (membership.role === 'OWNER' || membership.role === 'ADMIN') &&
+        membership.userId !== user.id
+      ) {
         ownerAdminMemberships.push(membership)
       }
     }

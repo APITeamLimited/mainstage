@@ -104,6 +104,14 @@ export type RESTReqBody =
       } | null
     }
 
+export type ExecutionScript = {
+  script: string
+  language: 'javascript'
+  name: string
+  builtIn?: boolean
+  description?: string
+}
+
 export interface RESTRequest extends BaseEntity {
   __typename: 'RESTRequest'
   parentId: string
@@ -118,4 +126,5 @@ export interface RESTRequest extends BaseEntity {
   body: RESTReqBody
   description: string
   pathVariables: KeyValueItem[]
+  executionScripts: ExecutionScript[]
 }

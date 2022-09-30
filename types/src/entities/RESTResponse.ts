@@ -2,10 +2,13 @@ import { Response } from 'k6/http'
 
 import { DefaultMetrics, GlobeTestMessage, StoredObject } from '..'
 
-import { RESTRequest } from './RESTRequest'
+export type LoadingResult = {
+  __subtype: 'LoadingResponse'
+  options: Record<string, unknown> | null
+}
 
-export type SuccessDiscreteResult = {
-  type: 'Success'
+export type SuccessSingleResult = {
+  __subtype: 'SuccessSingleResult'
   statusCode: number
   meta: {
     responseSize: number // in bytes
@@ -14,36 +17,15 @@ export type SuccessDiscreteResult = {
   globeTestLogs: StoredObject<GlobeTestMessage[]>
   response: StoredObject<Response>
   metrics: StoredObject<DefaultMetrics>
+  options: Record<string, unknown>
 }
 
-export type FailureDiscreteResult = {
-  type: 'Fail'
-  statusCode: number
-  meta: {
-    responseSize: number // in bytes
-    responseDuration: number // in millis
-  }
+export type FailureResult = {
+  __subtype: 'FailureResult'
   globeTestLogs: StoredObject<GlobeTestMessage[]>
-  response: StoredObject<Response>
-  metrics: StoredObject<DefaultMetrics>
 }
 
-type DiscreteResults =
-  | { type: 'Loading'; request: RESTRequest }
-  | FailureDiscreteResult
-  | {
-      type: 'NetworkFail'
-      error: Error
-
-      request: RESTRequest
-    }
-  | {
-      type: 'ScriptFail'
-      error: Error
-    }
-  | SuccessDiscreteResult
-
-export type RESTResponse = {
+export type RESTResponseBase = {
   id: string
   createdAt: Date
   updatedAt: Date | null
@@ -53,4 +35,7 @@ export type RESTResponse = {
   name: string
   endpoint: string
   method: string
-} & DiscreteResults
+}
+
+export type RESTResponse = RESTResponseBase &
+  (LoadingResult | SuccessSingleResult | FailureResult)

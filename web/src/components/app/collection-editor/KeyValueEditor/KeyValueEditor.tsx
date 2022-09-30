@@ -110,7 +110,7 @@ export const KeyValueEditor = ({
         }
 
         generatedLines.push(
-          `${item.enabled ? '#' : ''}${item.keyString}:${item.value}`
+          `${item.enabled ? '' : '#'}${item.keyString}:${item.value}`
         )
       })
 

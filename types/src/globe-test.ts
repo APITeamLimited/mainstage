@@ -1,3 +1,21 @@
+export type ExecutionParams = {
+  source: string
+  sourceName: string
+  scopeId: string
+  environmentContext:
+    | {
+        key: string
+        value: string
+      }[]
+    | null
+  collectionContext: {
+    variables: {
+      key: string
+      value: string
+    }[]
+  } | null
+}
+
 type ClientType =
   | {
       orchestratorClient: string
@@ -13,9 +31,11 @@ export type StatusType =
   | 'RUNNING'
   | 'FAILED'
   | 'SUCCESS'
+  | 'COMPLETED_SUCCESS'
+  | 'COMPLETED_FAILED'
 
-export type TagType = {
-  tag: string
+export type MarkType = {
+  mark: string
   message: unknown
 }
 
@@ -49,8 +69,12 @@ type MessageCombination =
       message: string
     }
   | {
-      messageType: 'TAG'
-      message: TagType
+      messageType: 'MARK'
+      message: MarkType
+    }
+  | {
+      messageType: 'OPTIONS'
+      message: Record<string, unknown>
     }
   | {
       messageType: 'JOB_INFO'
@@ -66,7 +90,7 @@ type MessageCombination =
 
 export type GlobeTestMessage = {
   jobId: string
-  time: number
+  time: Date
 } & ClientType &
   MessageCombination
 

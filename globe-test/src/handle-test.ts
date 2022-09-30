@@ -1,8 +1,10 @@
-import queryString from 'query-string'
+import { ExecutionParams } from '@apiteam/types'
+import { parse } from 'query-string'
 import { Socket } from 'socket.io'
 import { v4 as uuid } from 'uuid'
 
 import { orchestratorReadRedis, orchestratorSubscribeRedis } from './redis'
+import { validateParams } from './validator'
 
 type BaseMessage = {
   jobId: string
@@ -24,47 +26,25 @@ type OrchestratorMessage = BaseMessage & {
 Creates a new test and streams the result
 */
 export const handleNewTest = async (socket: Socket) => {
-  const params = queryString.parse(socket.request.url?.split('?')[1] || '')
+  let params = null as ExecutionParams | null
 
-  // Ensure no params are arrays
-  if (Array.isArray(params.scopeId)) {
-    throw new Error('scopeId must be a string')
-  }
-
-  if (Array.isArray(params.source)) {
-    throw new Error('source must be a string')
-  }
-
-  if (Array.isArray(params.sourceName)) {
-    throw new Error('sourceName must be a string')
-  }
-
-  if (!params.source) {
-    throw new Error('source is required')
-  }
-
-  if (!params.sourceName) {
-    throw new Error('sourceName is required')
-  }
-
-  if (!params.scopeId) {
-    throw new Error('scopeId is required')
+  try {
+    params = validateParams(parse(socket.request.url?.split('?')[1] || ''))
+  } catch (e: any) {
+    // Close the socket if the params are invalid
+    socket.emit('error', e.message)
+    socket.disconnect()
+    return
   }
 
   const newJob = {
     id: uuid(),
     source: params.source,
     sourceName: params.sourceName,
-    options: JSON.stringify(params.options || {}),
     scopeId: params.scopeId,
     status: 'PENDING',
+    environmentContext: JSON.stringify(params.environmentContext),
   }
-
-  await Promise.all(
-    Object.entries(newJob).map(([key, value]) =>
-      orchestratorReadRedis.hSet(newJob.id, key, value)
-    )
-  )
 
   // Start stream before scheduling to ensure all messages are received
   orchestratorSubscribeRedis.subscribe(
@@ -89,6 +69,14 @@ export const handleNewTest = async (socket: Socket) => {
     }
   )
 
+  await new Promise((resolve) => setTimeout(resolve, 100))
+
+  await Promise.all(
+    Object.entries(newJob).map(([key, value]) =>
+      orchestratorReadRedis.hSet(newJob.id, key, value)
+    )
+  )
+
   // Broadcast the new job
   await orchestratorReadRedis.sAdd('orchestrator:executionHistory', newJob.id)
   await orchestratorReadRedis.publish('orchestrator:execution', newJob.id)
@@ -98,7 +86,7 @@ export const handleNewTest = async (socket: Socket) => {
 Streams a current test
 */
 export const handleCurrentTest = async (socket: Socket) => {
-  const params = queryString.parse(socket.request.url?.split('?')[1] || '')
+  const params = parse(socket.request.url?.split('?')[1] || '')
 
   const id = params['id']
 

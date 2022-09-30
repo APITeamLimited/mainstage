@@ -1,4 +1,10 @@
-import { RESTRequest, GlobeTestMessage, StatusType } from '@apiteam/types'
+import {
+  RESTRequest,
+  GlobeTestMessage,
+  StatusType,
+  ExecutionParams,
+  RESTResponse,
+} from '@apiteam/types/src'
 import { makeVar } from '@apollo/client'
 
 export type BaseJob = {
@@ -15,20 +21,29 @@ export type BaseJob = {
   projectId: string
   branchId: string
   collectionId: string
+  environmentContext: ExecutionParams['environmentContext']
+  createdEntry?: boolean
 }
 
 export type PendingLocalJob = {
+  __subtype: 'PendingLocalJob'
   jobStatus: 'LOCAL_CREATING' | 'LOCAL_SUBMITTING'
 }
 
 export type ExecutingJob = {
+  __subtype: 'ExecutingJob'
   jobStatus: StatusType
   jobId: string
+  jobVariant: RESTResponse['__subtype']
+  targetId: string
 }
 
 export type PostExecutionJob = {
-  jobStatus: 'POST_PROCESSING' | 'COMPLETE'
+  __subtype: 'PostExecutionJob'
+  jobStatus: 'POST_PROCESSING' | 'COMPLETED_SUCCESS' | 'COMPLETED_FAILED'
   jobId: string
+  jobVariant: RESTResponse['__subtype']
+  targetId: string
 }
 
 export type QueuedJob = BaseJob &

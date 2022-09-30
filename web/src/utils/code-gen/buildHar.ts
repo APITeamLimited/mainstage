@@ -5,7 +5,7 @@ import { lookup } from 'mime-types'
 import { parse } from 'qs'
 import * as Y from 'yjs'
 
-import { findEnvironmentVariables } from '../findVariables'
+import { findEnvironmentVariables } from '../environment'
 
 // scotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/

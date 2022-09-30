@@ -193,46 +193,48 @@ export const RESTResponsePanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedResponse])
 
-  if (focusedResponse) {
-    if (
-      focusedResponse.get('type') !== 'Success' &&
-      focusedResponse.get('type') !== 'Fail'
-    ) {
-      throw `Response type: ${focusedResponse.get(
-        'type'
-      )} invalid for RESTResponsePanel`
-    }
-  }
-
   return (
     <>
       {isExecutingRESTRequest && <SendingRequestAnimation />}
       {focusedResponse ? (
-        <PanelLayout
-          aboveTabsArea={
-            <QuickStats
-              statusCode={focusedResponse.get('statusCode')}
-              responseTimeMilliseconds={
-                focusedResponse.get('meta').responseDuration
-              }
-              responseSizeBytes={focusedResponse.get('meta').responseSize}
-            />
-          }
-          // TODO: add request and globe test log tabs
-          tabNames={['Body', 'Headers', 'Cookies', 'Execution', 'Request']}
-          tabIcons={[
-            {
-              name: 'Execution',
-              icon: <GlobeTestIcon />,
-            },
-          ]}
-          activeTabIndex={activeTabIndex}
-          setActiveTabIndex={setActiveTabIndex}
-          actionArea={actionArea}
-          rootPanelStyles={
-            undefined
-            // An idea
-            /*
+        focusedResponse.get('__subtype') !== 'SuccessSingleResult' ? ( //&&
+          //focusedResponse.get('__subtype') !== 'LoadingResponse' &&
+          //focusedResponse.get('__subtype') !== 'FailureResult'
+          <EmptyPanelMessage
+            primaryText="Invalid response type"
+            secondaryMessages={[
+              `Response type: ${focusedResponse.get(
+                '__subtype'
+              )} is not a valid response type`,
+              'Please send a new request to get an updated response',
+            ]}
+          />
+        ) : (
+          <PanelLayout
+            aboveTabsArea={
+              <QuickStats
+                statusCode={focusedResponse.get('statusCode')}
+                responseTimeMilliseconds={
+                  focusedResponse.get('meta').responseDuration
+                }
+                responseSizeBytes={focusedResponse.get('meta').responseSize}
+              />
+            }
+            // TODO: add request and globe test log tabs
+            tabNames={['Body', 'Headers', 'Cookies', 'Execution', 'Request']}
+            tabIcons={[
+              {
+                name: 'Execution',
+                icon: <GlobeTestIcon />,
+              },
+            ]}
+            activeTabIndex={activeTabIndex}
+            setActiveTabIndex={setActiveTabIndex}
+            actionArea={actionArea}
+            rootPanelStyles={
+              undefined
+              // An idea
+              /*
         loaded
           ? {
               opacity: 1,
@@ -242,54 +244,55 @@ export const RESTResponsePanel = ({
               opacity: 0,
               transition: 'opacity 0.25s ease-in-out',
             }*/
-          }
-        >
-          {storedResponse && storedMetrics && storedGlobeTestLogs ? (
-            <>
-              {activeTabIndex === 0 && (
-                <BodyPanel
-                  response={storedResponse}
-                  setActionArea={setActionArea}
-                />
-              )}
-              {activeTabIndex === 1 && (
-                <KeyValueResultsTable
-                  setActionArea={setActionArea}
-                  values={mappedHeaders}
-                />
-              )}
-              {activeTabIndex === 2 && (
-                <CookieTable
-                  // Reduce cookie values to array of ResponseCookie
-                  cookies={mappedCookies}
-                  setActionArea={setActionArea}
-                />
-              )}
-              {activeTabIndex === 3 && (
-                <ExecutionPanel
-                  setActionArea={setActionArea}
-                  globeTestLogs={storedGlobeTestLogs}
-                  metrics={storedMetrics}
-                />
-              )}
-              {activeTabIndex === 4 && (
-                <UnderlyingRequestPanel
-                  setActionArea={setActionArea}
-                  request={storedResponse.request}
-                />
-              )}
-            </>
-          ) : (
-            <Box
-              height="100%"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-            >
-              <Skeleton width={100000} height={100000} />
-            </Box>
-          )}
-        </PanelLayout>
+            }
+          >
+            {storedResponse && storedMetrics && storedGlobeTestLogs ? (
+              <>
+                {activeTabIndex === 0 && (
+                  <BodyPanel
+                    response={storedResponse}
+                    setActionArea={setActionArea}
+                  />
+                )}
+                {activeTabIndex === 1 && (
+                  <KeyValueResultsTable
+                    setActionArea={setActionArea}
+                    values={mappedHeaders}
+                  />
+                )}
+                {activeTabIndex === 2 && (
+                  <CookieTable
+                    // Reduce cookie values to array of ResponseCookie
+                    cookies={mappedCookies}
+                    setActionArea={setActionArea}
+                  />
+                )}
+                {activeTabIndex === 3 && (
+                  <ExecutionPanel
+                    setActionArea={setActionArea}
+                    globeTestLogs={storedGlobeTestLogs}
+                    metrics={storedMetrics}
+                  />
+                )}
+                {activeTabIndex === 4 && (
+                  <UnderlyingRequestPanel
+                    setActionArea={setActionArea}
+                    request={storedResponse.request}
+                  />
+                )}
+              </>
+            ) : (
+              <Box
+                height="100%"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Skeleton width={100000} height={100000} />
+              </Box>
+            )}
+          </PanelLayout>
+        )
       ) : (
         <Stack
           margin={2}

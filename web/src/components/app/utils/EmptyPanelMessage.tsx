@@ -1,14 +1,14 @@
 import { Stack, Typography, useTheme } from '@mui/material'
 
 type EmptyPanelMessageProps = {
-  icon: React.ReactNode
+  icon?: React.ReactNode
   primaryText: string
   children?: React.ReactNode
   secondaryMessages?: string[]
 }
 
 export const EmptyPanelMessage = ({
-  icon,
+  icon = <></>,
   primaryText,
   secondaryMessages = [],
   children,

@@ -8,9 +8,7 @@ import {
   Typography,
   Box,
   useTheme,
-  ListItemText,
   ListItemIcon,
-  ListItem,
   IconButton,
   Tooltip,
 } from '@mui/material'
@@ -19,6 +17,8 @@ import { useYMap } from 'zustand-yjs'
 
 import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
 import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
+
+import { RequestListItem } from '../utils/RequestListItem'
 
 import { getNodeIcon } from './CollectionTree/Node/utils'
 import {
@@ -43,7 +43,9 @@ export const RESTHistory = ({
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const restResponsesYMap = collectionYMap.get('restResponses')
   const restRequestsYMap = collectionYMap.get('restRequests')
-  const restResponses = useYMap(restResponsesYMap)
+
+  useYMap(restResponsesYMap)
+
   const theme = useTheme()
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
 
@@ -275,20 +277,13 @@ export const RESTHistory = ({
                       : theme.palette.error.main
 
                   return (
-                    <ListItem
+                    <RequestListItem
                       key={index}
-                      sx={{
-                        cursor: 'pointer',
-                        backgroundColor:
-                          focusedResponseDict[
-                            getFocusedElementKey(collectionYMap)
-                          ]?.get('id') === response.get('id')
-                            ? theme.palette.alternate.main
-                            : 'inherit',
-                        width: '100%',
-                        maxWidth: '100%',
-                        height: '40px',
-                      }}
+                      isInFocus={
+                        focusedResponseDict[
+                          getFocusedElementKey(collectionYMap)
+                        ]?.get('id') === response.get('id')
+                      }
                       onClick={() =>
                         updateFocusedRESTResponse(focusedResponseDict, response)
                       }
@@ -306,44 +301,17 @@ export const RESTHistory = ({
                           </IconButton>
                         </Tooltip>
                       }
-                    >
-                      <ListItemIcon color={theme.palette.text.secondary}>
-                        {getNodeIcon(response, true)}
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={
-                          <span
-                            style={{
-                              position: 'relative',
-                              bottom: '-1px',
-                              fontSize: '0.925rem',
-                              userSelect: 'none',
-                            }}
-                          >
-                            {response.get('name')}
-                          </span>
-                        }
-                        secondary={
-                          <Typography
-                            sx={{
-                              position: 'relative',
-                              top: '-3px',
-                              opacity: 0.6,
-                            }}
-                            fontSize="0.75rem"
-                            color={theme.palette.text.secondary}
-                          >
-                            {new URL(response.get('endpoint')).pathname}
-                          </Typography>
-                        }
-                        sx={{
-                          whiteSpace: 'nowrap',
-                          marginLeft: -2,
-                          color: statusCodeColor,
-                          overflow: 'hidden',
-                        }}
-                      />
-                    </ListItem>
+                      icon={
+                        <ListItemIcon color={theme.palette.text.secondary}>
+                          {getNodeIcon(response, true)}
+                        </ListItemIcon>
+                      }
+                      listItemTextSx={{
+                        color: statusCodeColor,
+                      }}
+                      primaryText={response.get('name')}
+                      secondaryText={new URL(response.get('endpoint')).pathname}
+                    />
                   )
                 })}
               </Box>

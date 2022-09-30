@@ -1,11 +1,10 @@
-import { KeyValueItem, RESTAuth, RESTRequest } from '@apiteam/types'
+import { KeyValueItem, RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import { lookup } from 'mime-types'
 import { stringify } from 'qs'
 import * as Y from 'yjs'
 
-import { retrieveScopedResource } from 'src/store'
-import { findEnvironmentVariables } from 'src/utils/findVariables'
+import { findEnvironmentVariables } from 'src/utils/environment'
 
 /*
 Gets final axios config for a request, complete with environment variables

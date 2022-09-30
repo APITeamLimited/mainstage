@@ -9,7 +9,7 @@ import TypedIntro from 'src/pages/splash/components/TypedIntro'
 const RootPage = () => (
   <>
     <MetaTags
-      title="APITeam | Free Unlimited Team API Development"
+      title="Free Unlimited Team API Development"
       description="APITeam is an all in one platform for designing, testing and scaling your APIs collaboratively"
     />
     <TypedIntro />

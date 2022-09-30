@@ -10,7 +10,7 @@ import { useYMap } from 'zustand-yjs'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 import { useCollection } from 'src/pages/app/CollectionEditorPage'
-import { findVariablesInString } from 'src/utils/findVariables'
+import { findVariablesInString } from 'src/utils/environment'
 
 type VariableChipProps = {
   variableName: string

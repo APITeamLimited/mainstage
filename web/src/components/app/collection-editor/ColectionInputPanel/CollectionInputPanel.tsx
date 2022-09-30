@@ -138,6 +138,7 @@ export const CollectionInputPanel = ({
             setItems={setUnsavedVariables}
             namespace={`${collectionYMap.get('id')}}-variables`}
             setActionArea={setActionArea}
+            enableEnvironmentVariables={false}
           />
         )}
         {activeTabIndex === 1 && (

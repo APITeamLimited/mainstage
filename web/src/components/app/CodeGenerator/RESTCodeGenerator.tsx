@@ -10,7 +10,7 @@ import {
   generateRESTCode,
   RESTCodegenDefinitions,
 } from 'src/utils/code-gen/restCodeGen'
-import { findEnvironmentVariables } from 'src/utils/findVariables'
+import { findEnvironmentVariables } from 'src/utils/environment'
 
 import {
   CodeGenDefinition,

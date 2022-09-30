@@ -13,6 +13,7 @@ import {
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { checkSlugAvailable } from 'src/validators/slug'
 
 const gatewayUrl = checkValue<string>('gateway.url')
 
@@ -179,15 +180,12 @@ export const handler = async (event, context) => {
         const toCheck = `${name}${i > 0 ? i : ''}`
 
         // Check slug is unique
-        const existingScope = await db.scope.findFirst({
-          where: {
-            slug: toCheck,
-          },
-        })
-
-        if (existingScope) {
-          return getSlug(name, i + 1)
+        try {
+          await checkSlugAvailable(toCheck)
+        } catch (e) {
+          return await getSlug(name, i + 1)
         }
+
         return toCheck
       }
 

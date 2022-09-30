@@ -1,6 +1,6 @@
 import { User } from '@prisma/client'
 
-import { ServiceValidationError, validate, validateWith } from '@redwoodjs/api'
+import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'

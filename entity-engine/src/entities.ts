@@ -151,7 +151,7 @@ export const createRestRequest = ({
   request.set('headers', [])
   request.set('params', [])
   request.set('body', {
-    contentType: null,
+    contentType: 'none',
     body: null,
   })
   request.set('auth', {

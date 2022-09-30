@@ -10,22 +10,10 @@ type EditNameInputProps = {
   name: string
   setNameCallback: (newName: string) => void
   isRenaming: boolean
-  setIsRenamingCallback: (isRenaming: boolean) => void
-  renamingRef: React.RefObject<HTMLDivElement | null>
-  singleClickCallback: () => void
-  permitDoubleClickRename?: boolean
 }
 
 export const EditNameInput = memo(
-  ({
-    name,
-    setNameCallback,
-    isRenaming,
-    setIsRenamingCallback,
-    renamingRef,
-    singleClickCallback,
-    permitDoubleClickRename = false,
-  }: EditNameInputProps) => {
+  ({ name, setNameCallback, isRenaming }: EditNameInputProps) => {
     const formik = useFormik({
       initialValues: {
         name,
@@ -80,9 +68,6 @@ export const EditNameInput = memo(
 
     return (
       <div
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        ref={renamingRef}
         style={{
           zIndex: 2000,
         }}
@@ -124,6 +109,7 @@ export const EditNameInput = memo(
               position: 'relative',
               bottom: '-1px',
               fontSize: '0.925rem',
+              userSelect: 'none',
             }}
           >
             {name}

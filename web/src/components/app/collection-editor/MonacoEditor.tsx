@@ -23,7 +23,7 @@ export const MonacoEditor = ({
   onChange,
   language,
   readOnly = false,
-  enableMinimap = true,
+  enableMinimap = false,
   scrollBeyondLastLine = true,
   wordWrap = 'off',
   namespace,
@@ -99,7 +99,7 @@ export const MonacoEditor = ({
     theme.palette.text.secondary,
   ])
 
-  return monaco ? (
+  return (
     <Box
       sx={{
         height: '100%',
@@ -109,77 +109,80 @@ export const MonacoEditor = ({
         overflow: 'hidden',
       }}
     >
-      {value === '' && placeholder && (
-        <Stack
-          sx={{
-            position: 'relative',
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            color: theme.palette.text.secondary,
-            pointerEvents: 'none',
-            userSelect: 'none',
-            zIndex: 1,
+      {monaco && (
+        <>
+          {value === '' && placeholder && (
+            <Stack
+              sx={{
+                position: 'relative',
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                color: theme.palette.text.secondary,
+                pointerEvents: 'none',
+                userSelect: 'none',
+                zIndex: 1,
 
-            overflow: 'visible',
-            maxHeight: 0,
-          }}
-        >
-          <Box
-            sx={{
-              paddingLeft: '71px',
-              marginTop: '-1px',
-            }}
-          >
-            {placeholder.map((text, index) => (
+                overflow: 'visible',
+                maxHeight: 0,
+              }}
+            >
               <Box
-                key={index}
                 sx={{
-                  height: '22px',
+                  paddingLeft: '71px',
+                  marginTop: '-1px',
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: 16,
-                    fontFamily: theme.typography.fontFamily,
-                    fontWeight: theme.typography.fontWeightRegular as string,
-                  }}
-                >
-                  {text}
-                </Typography>
+                {placeholder.map((text, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      height: '22px',
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        fontSize: 16,
+                        fontFamily: theme.typography.fontFamily,
+                        fontWeight: theme.typography
+                          .fontWeightRegular as string,
+                      }}
+                    >
+                      {text}
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
-            ))}
-          </Box>
-        </Stack>
+            </Stack>
+          )}
+          <Editor
+            height="100%"
+            language={language}
+            theme={'custom-theme'}
+            loading={<></>}
+            options={{
+              minimap: { enabled: enableMinimap },
+              readOnly,
+
+              fontFamily: theme.typography.fontFamily,
+              fontSize: 16,
+              fontWeight: theme.typography.fontWeightRegular as string,
+              // Make text easier to read
+              //letterSpacing: 1,
+              scrollBeyondLastLine,
+              'bracketPairColorization.enabled': true,
+              contextmenu: false,
+              wordWrap,
+
+              // Disable new line sequences
+            }}
+            path={actualNamespace}
+            defaultValue={value}
+            onChange={(value) => onChange?.(value || '')}
+          />
+        </>
       )}
-      <Editor
-        height="100%"
-        language={language}
-        theme={'custom-theme'}
-        loading={<></>}
-        options={{
-          minimap: { enabled: enableMinimap },
-          readOnly,
-
-          fontFamily: theme.typography.fontFamily,
-          fontSize: 16,
-          fontWeight: theme.typography.fontWeightRegular as string,
-          // Make text easier to read
-          //letterSpacing: 1,
-          scrollBeyondLastLine,
-          'bracketPairColorization.enabled': true,
-          contextmenu: false,
-          wordWrap,
-
-          // Disable new line sequences
-        }}
-        path={actualNamespace}
-        defaultValue={value}
-        onChange={(value) => onChange?.(value || '')}
-      />
     </Box>
-  ) : (
-    <></>
   )
 }

@@ -1,7 +1,6 @@
-import { ResolvedVariable } from '@apiteam/types'
+import { ExecutionParams, KeyValueItem, ResolvedVariable } from '@apiteam/types'
 import * as Y from 'yjs'
 
-import { KeyValueItem } from 'src/components/app/collection-editor/KeyValueEditor'
 import {
   BRACED_REGEX,
   getPossibleVariableMatch,
@@ -97,4 +96,39 @@ export const findEnvironmentVariables = (
   })
 
   return result.join('')
+}
+
+export const createEnvironmentContext = ({
+  environment,
+  collection,
+}: {
+  environment: Y.Map<any> | null
+  collection: Y.Map<any> | null
+}): ExecutionParams['environmentContext'] => {
+  const context = [] as ExecutionParams['environmentContext']
+
+  const environmentVariables = (environment?.get('variables') ??
+    []) as KeyValueItem[]
+  const collectionVariables = (collection?.get('variables') ??
+    []) as KeyValueItem[]
+
+  const allVariables = [
+    ...environmentVariables,
+    ...collectionVariables,
+  ] as KeyValueItem[]
+
+  allVariables.forEach((variable) => {
+    if (variable.enabled) {
+      context.push({
+        key: variable.keyString,
+        value: findEnvironmentVariables(
+          environment,
+          collection,
+          variable.value
+        ),
+      })
+    }
+  })
+
+  return context
 }

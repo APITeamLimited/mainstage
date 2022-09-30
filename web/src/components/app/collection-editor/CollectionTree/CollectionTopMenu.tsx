@@ -20,7 +20,11 @@ import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { focusedElementVar, updateFocusedElement } from 'src/contexts/reactives'
+import {
+  focusedElementVar,
+  getFocusedElementKey,
+  updateFocusedElement,
+} from 'src/contexts/reactives'
 
 import { RenameDialog } from '../../dialogs/RenameDialog'
 import { EnvironmentManager } from '../../EnvironmentManager'
@@ -33,7 +37,6 @@ export const CollectionTopMenu = ({
 }: CollectionTopMenuProps) => {
   const theme = useTheme()
   const branchYMap = collectionYMap?.parent?.parent
-  //const branch = useYMap(branchYMap)
   const projectYMap = branchYMap?.parent?.parent
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const [showEnvironmentManager, setShowEnvironmentManager] = useState(false)
@@ -41,6 +44,8 @@ export const CollectionTopMenu = ({
   const [showRenameDialog, setShowRenameDialog] = useState(false)
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const focusedElementDict = useReactiveVar(focusedElementVar)
+
+  const [titleHovered, setTitleHovered] = useState(false)
 
   const collection = useYMap(collectionYMap)
 
@@ -98,6 +103,12 @@ export const CollectionTopMenu = ({
           textTransform: 'none',
           my: 1,
         }}
+        disableRipple
+        selected={
+          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+            'id'
+          ) === collectionYMap.get('id')
+        }
       >
         <Stack
           direction="row"

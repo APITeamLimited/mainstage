@@ -6,6 +6,8 @@ import { Button, Stack } from '@mui/material'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { MetaTags } from '@redwoodjs/web'
+
 import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
 import { createProjectDialogStateVar } from 'src/components/app/dialogs'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
@@ -22,9 +24,7 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const workspaces = useReactiveVar(workspacesVar)
   const projectsYMap = workspaceDoc?.getMap<Project>('projects')
-  const projects = useYMap<Project, Record<string, Project>>(
-    projectsYMap || new Y.Map()
-  )
+  useYMap<Project, Record<string, Project>>(projectsYMap || new Y.Map())
 
   const projectYMaps = Array.from(projectsYMap?.values() || [])
 
@@ -54,48 +54,51 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
   }, [requestedWorkspaceId, activeWorkspaceId, workspaces])
 
   return (
-    <Stack spacing={4}>
-      <Stack direction="row" justifyContent="flex-end" alignItems="top">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() =>
-            createProjectDialogStateVar({
-              isOpen: true,
-            })
-          }
-        >
-          New Project
-        </Button>
-      </Stack>
-      {projectYMaps.length > 0 ? (
-        <>
-          {workspaceDoc
-            ? projectYMaps.map((project, index) => {
-                return (
-                  <ProjectOverview
-                    key={index}
-                    projectYMap={project}
-                    project={{
-                      id: project.get('id'),
-                      __typename: 'Project',
-                      __parentTypename: 'Workspace',
-                      createdAt: new Date(project.get('createdAt')),
-                      updatedAt: project.get('updatedAt')
-                        ? new Date(project.get('updatedAt'))
-                        : null,
-                      name: project.get('name'),
-                      parentId: workspaceDoc.guid,
-                    }}
-                  />
-                )
+    <>
+      <MetaTags title="Overview" />
+      <Stack spacing={4}>
+        <Stack direction="row" justifyContent="flex-end" alignItems="top">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() =>
+              createProjectDialogStateVar({
+                isOpen: true,
               })
-            : null}
-        </>
-      ) : (
-        <NoProjectsCard />
-      )}
-    </Stack>
+            }
+          >
+            New Project
+          </Button>
+        </Stack>
+        {projectYMaps.length > 0 ? (
+          <>
+            {workspaceDoc
+              ? projectYMaps.map((project, index) => {
+                  return (
+                    <ProjectOverview
+                      key={index}
+                      projectYMap={project}
+                      project={{
+                        id: project.get('id'),
+                        __typename: 'Project',
+                        __parentTypename: 'Workspace',
+                        createdAt: new Date(project.get('createdAt')),
+                        updatedAt: project.get('updatedAt')
+                          ? new Date(project.get('updatedAt'))
+                          : null,
+                        name: project.get('name'),
+                        parentId: workspaceDoc.guid,
+                      }}
+                    />
+                  )
+                })
+              : null}
+          </>
+        ) : (
+          <NoProjectsCard />
+        )}
+      </Stack>
+    </>
   )
 }
 

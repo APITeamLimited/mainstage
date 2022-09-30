@@ -3,6 +3,8 @@ import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 
+import { createEnvironmentContext } from 'src/utils/environment'
+
 import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
 import { getFinalRequest } from '../rest'
 
@@ -37,7 +39,23 @@ export const singleRESTRequestGenerator = async ({
   const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
 
   const source = `import http from 'k6/http';
-  import { tag } from 'apiteam';
+  import {sleep} from 'k6';
+  import { mark } from 'apiteam';
+
+  export const options = {
+    vus: 1,
+    iterations: 1,
+    executionMode: 'rest_single',
+    //httpDebug: 'full',
+    //scenarios: {
+    //  contacts: {
+    //    executor: 'constant-vus',
+    //    vus: 2,
+    //    duration: '2s',
+    //    //gracefulRampDown: '3s',
+    //  },
+    //},
+  };
 
   export default function() {
     const req = {
@@ -49,16 +67,19 @@ export const singleRESTRequestGenerator = async ({
       }
     }
 
+
     const res = http.request(...Object.values(req));
 
-    tag("RESTResult", res);
+    if (__ITER == 0) {
+      mark("RESTResult", res);
+    }
+    //mark("RESTResult", res);
   }`
 
-  const collection = requestYMap.parent.parent
-  const branch = collection.parent.parent
+  const branch = collectionYMap.parent.parent
   const project = branch.parent.parent
 
-  const collectionId = collection.get('id')
+  const collectionId = collectionYMap.get('id')
   const branchId = branch.get('id')
   const projectId = project.get('id')
 
@@ -83,9 +104,12 @@ export const singleRESTRequestGenerator = async ({
     projectId: projectId,
     branchId: branchId,
     collectionId: collectionId,
+    environmentContext: createEnvironmentContext({
+      environment: activeEnvironmentYMap,
+      collection: collectionYMap,
+    }),
+    __subtype: 'PendingLocalJob',
   }
-
-  console.log('Adding job to queue', job)
 
   jobQueueVar([...jobQueue, job])
 

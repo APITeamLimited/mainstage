@@ -6,6 +6,7 @@ import { context } from '@redwoodjs/graphql-server'
 import { createMembership, createTeamScope } from 'src/helpers'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { checkSlugAvailable } from 'src/validators/slug'
 
 import { checkOwnerAdmin } from '../validators/check-owner-admin'
 
@@ -82,23 +83,12 @@ export const createTeam = async ({
     where: { id: context.currentUser.id },
   })
 
-  const existingTeamSlugPromise = await db.team.findFirst({
-    where: {
-      slug,
-    },
-  })
+  const existingSlugPromise = await checkSlugAvailable(slug)
 
-  const [user, existingTeamSlug] = await Promise.all([
-    userPromise,
-    existingTeamSlugPromise,
-  ])
+  const [user] = await Promise.all([userPromise, existingSlugPromise])
 
   if (!user) {
     throw new ServiceValidationError('User creating team not found')
-  }
-
-  if (existingTeamSlug) {
-    throw new ServiceValidationError('Slug already taken')
   }
 
   const team = await db.team.create({
@@ -171,6 +161,8 @@ export const updateTeam = async ({
     if (slug === team.slug) {
       throw new ServiceValidationError('Slug must be new')
     }
+
+    await checkSlugAvailable(slug)
   }
 
   if (name) {
@@ -192,20 +184,10 @@ export const updateTeam = async ({
     }
   }
 
-  let updatedTeam: Team | undefined = undefined
-
-  try {
-    updatedTeam = await db.team.update({
-      where: { id: teamId },
-      data: { name, slug, shortBio, updatedAt: new Date() },
-    })
-  } catch (e: any) {
-    if (e.code === 'P2002') {
-      throw new ServiceValidationError(`${e.meta.target[0]} already taken`)
-    } else {
-      throw new Error('An unknown error occurred while updating your team')
-    }
-  }
+  const updatedTeam = await db.team.update({
+    where: { id: teamId },
+    data: { name, slug, shortBio, updatedAt: new Date() },
+  })
 
   // Set in core cache
   const teamPromise = coreCacheReadRedis.hSet(

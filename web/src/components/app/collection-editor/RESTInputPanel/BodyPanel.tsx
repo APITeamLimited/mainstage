@@ -9,7 +9,6 @@ import {
 import InventoryIcon from '@mui/icons-material/Inventory'
 import { Stack, useTheme } from '@mui/material'
 
-import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { codeFormatter } from 'src/utils/codeFormatter'
 
 import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'

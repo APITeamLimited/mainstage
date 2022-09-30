@@ -4,6 +4,7 @@ import { CreateCollectionDialog } from './CreateCollectionDialog'
 import { CreateEnvironmentDialog } from './CreateEnvironmentDialog'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { QuickstartDialog } from './QuickstartDialog'
+import { SnackbarProvider } from './SnackbarProvider'
 
 type DialogsProviderProps = {
   children?: ReactNode
@@ -15,6 +16,7 @@ export const DialogsProvider = ({ children }: DialogsProviderProps) => (
     <CreateProjectDialog />
     <CreateCollectionDialog />
     <CreateEnvironmentDialog />
+    <SnackbarProvider />
     {children}
   </>
 )

@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import * as Y from 'yjs'
 
+import { RequestListItem } from 'src/components/app/utils/RequestListItem'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -27,7 +28,6 @@ type FolderNodeProps = {
   isBeingDragged: boolean
   nodeYMap: Y.Map<any>
   renaming: boolean
-  renamingRef: React.RefObject<HTMLDivElement>
   setRenaming: (renaming: boolean) => void
   handleRename: (name: string) => void
   handleDelete: () => void
@@ -40,15 +40,12 @@ type FolderNodeProps = {
   handleToggle: () => void
   handleNewFolder: () => void
   handleNewRESTRequest: () => void
-  parentIndex: number
-  collectionYMap: Y.Map<any>
 }
 
 export const FolderNode = ({
   isBeingDragged,
   nodeYMap,
   renaming,
-  renamingRef,
   setRenaming,
   handleRename,
   handleDelete,
@@ -61,8 +58,6 @@ export const FolderNode = ({
   handleToggle,
   handleNewFolder,
   handleNewRESTRequest,
-  parentIndex,
-  collectionYMap,
 }: FolderNodeProps) => {
   const theme = useTheme()
 
@@ -76,7 +71,15 @@ export const FolderNode = ({
 
   return (
     <>
-      <ListItem
+      <RequestListItem
+        primaryText={nodeYMap.get('name')}
+        setPrimaryText={handleRename}
+        renaming={renaming}
+        isInFocus={isInFocus}
+        onClick={() => {
+          handleClick()
+          handleToggle()
+        }}
         secondaryAction={
           !renaming && (
             <NodeActionButton
@@ -89,49 +92,22 @@ export const FolderNode = ({
             />
           )
         }
-        sx={{
-          backgroundColor: isInFocus ? theme.palette.alternate.main : 'inherit',
-          height: '40px',
-          cursor: 'pointer',
-          paddingY: 0,
+        icon={
+          !renaming && (
+            <ListItemIcon
+              onClick={handleToggle}
+              color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
+            >
+              {getNodeIcon(nodeYMap, !(!collapsed || hovered))}
+            </ListItemIcon>
+          )
+        }
+        listItemTextSx={{
+          color: isBeingDragged
+            ? theme.palette.text.secondary
+            : theme.palette.text.primary,
         }}
-        onClick={(event) => {
-          event.stopPropagation()
-          event.preventDefault()
-          handleClick()
-          handleToggle()
-        }}
-      >
-        {!renaming && (
-          <ListItemIcon
-            onClick={handleToggle}
-            color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
-          >
-            {getNodeIcon(nodeYMap, !(!collapsed || hovered))}
-          </ListItemIcon>
-        )}
-        <ListItemText
-          primary={
-            <EditNameInput
-              name={nodeYMap.get('name')}
-              setNameCallback={handleRename}
-              isRenaming={renaming}
-              setIsRenamingCallback={setRenaming}
-              renamingRef={renamingRef}
-              singleClickCallback={() => setCollapsed(!collapsed)}
-            />
-          }
-          sx={{
-            whiteSpace: 'nowrap',
-            marginLeft: renaming ? -1 : -2,
-            marginRight: renaming ? -1 : 'auto',
-            overflow: 'hidden',
-            color: isBeingDragged
-              ? theme.palette.text.secondary
-              : theme.palette.text.primary,
-          }}
-        />
-      </ListItem>
+      />
       {nodeYMap.get('__typename') === 'Folder' && (
         <ListCollapsible
           collapsed={collapsed}

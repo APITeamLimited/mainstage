@@ -23,29 +23,28 @@ import {
 
 import { execute } from './execution'
 import { jobQueueVar, QueuedJob, updateFilterQueue } from './lib'
-import { postProcessRESTRequest } from './post-processors'
 
 export const GlobeTestProvider = () => {
   const { isAuthenticated } = useAuth()
   const [rawBearer, setRawBearer] = useState<string | null>(null)
   const [bearerExpiry, setBearerExpiry] = useState<number>(0)
   const environmentsYMap = useEnvironmentsYMap()
-  const allActiveEnvironmentsDict = useReactiveVar(activeEnvironmentVar)
-  const environments = useYMap(environmentsYMap || new Y.Map())
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
   const workspaces = useReactiveVar(workspacesVar)
   const jobQueue = useReactiveVar(jobQueueVar)
   const queueRef = useRef<QueuedJob[] | null>(null)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
-
   const workspace = useWorkspace()
+
+  useReactiveVar(activeEnvironmentVar)
+  useYMap(environmentsYMap || new Y.Map())
+  useYMap(activeEnvironmentYMap || new Y.Map())
 
   // Requried for up to date state in callback
   queueRef.current = jobQueue
 
   // Get bearer token from gql query
-  const { data, error } = useQuery<GetBearerPubkeyScopes>(
+  const { data } = useQuery<GetBearerPubkeyScopes>(
     GET_BEARER_PUBKEY__SCOPES_QUERY,
     {
       skip: bearerExpiry > Date.now() || !isAuthenticated,
@@ -76,38 +75,34 @@ export const GlobeTestProvider = () => {
     }
 
     jobQueue.forEach((job) => {
-      if (job.jobStatus === 'LOCAL_CREATING') {
+      if (
+        job.__subtype === 'PendingLocalJob' &&
+        job.jobStatus === 'LOCAL_CREATING'
+      ) {
         jobQueueVar(
-          updateFilterQueue(jobQueue, [
+          updateFilterQueue(jobQueue ?? [], [
             { ...job, jobStatus: 'LOCAL_SUBMITTING' },
           ])
         )
 
-        const didExecute = execute({ queueRef, job, rawBearer })
+        const didExecute = execute({
+          queueRef,
+          job,
+          rawBearer,
+          workspace: workspace as Y.Doc,
+          focusedResponseDict,
+        })
         if (!didExecute) {
           throw new Error('Failed to execute job')
         }
       }
-    })
-  }, [jobQueue, rawBearer])
 
-  // Scan for finished jobs and process their results
-  useEffect(() => {
-    if (rawBearer === '' || rawBearer === null) {
-      // No bearer token, skipping execution
-      return
-    }
-
-    jobQueue.forEach((job) => {
-      if (job.jobStatus === 'FAILED' || job.jobStatus === 'SUCCESS') {
-        if (!workspace) throw new Error('No workspace')
-        postProcessRESTRequest({
-          queueRef,
-          job,
-          rawBearer,
-          workspace,
-          focusedResponseDict,
-        })
+      if (
+        job.jobStatus === 'COMPLETED_SUCCESS' ||
+        job.jobStatus === 'COMPLETED_FAILED'
+      ) {
+        // Remove completed jobs from queue
+        jobQueueVar(jobQueue.filter((j) => j.localId !== job.localId))
       }
     })
   }, [focusedResponseDict, jobQueue, rawBearer, workspace])

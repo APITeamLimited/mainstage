@@ -53,7 +53,6 @@ export const Node = ({
   const monitor = dragDropManager.getMonitor()
   const [dropSpace, setDropSpace] = useThrottle<DropSpaceType>(null)
   const nodeYMapRef = useRef<HTMLDivElement>(null)
-  const renamingRef = useRef<HTMLDivElement>(null)
   const [dropResult, setDropResult] = useState<{
     parentIndex: number
     dropItem: Folder | RESTRequest
@@ -315,15 +314,11 @@ export const Node = ({
               nodeYMap={nodeYMap}
               collectionYMap={collectionYMap}
               renaming={renaming}
-              renamingRef={renamingRef}
               setRenaming={setRenaming}
               handleRename={handleRename}
               handleDelete={handleDelete}
               handleDuplicate={handleDuplicate}
-              dropSpace={dropSpace}
               collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              parentIndex={parentIndex}
             />
           </div>
         )}
@@ -333,7 +328,6 @@ export const Node = ({
               isBeingDragged={isBeingDragged}
               nodeYMap={nodeYMap}
               renaming={renaming}
-              renamingRef={renamingRef}
               setRenaming={setRenaming}
               handleRename={handleRename}
               handleDelete={handleDelete}
@@ -346,8 +340,6 @@ export const Node = ({
               handleToggle={handleToggle}
               handleNewFolder={handleNewFolder}
               handleNewRESTRequest={handleNewRESTRequest}
-              parentIndex={parentIndex}
-              collectionYMap={collectionYMap}
             />
           </div>
         )}
