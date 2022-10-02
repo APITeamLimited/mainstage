@@ -42,19 +42,21 @@ httpServer.addListener('request', (req, res) => {
   }
 })
 
-// Every minute print memory usage and number of connections
-setInterval(() => {
-  console.log(
-    Color(
-      `${new Date().toISOString()} Memory: ${(
-        process.memoryUsage().heapUsed /
-        1000 /
-        1000
-      ).toFixed(2)}MB`,
-      '#988adb'
+if (process.env.NODE_ENV === 'development') {
+  // Every minute print memory usage and number of connections
+  setInterval(() => {
+    console.log(
+      Color(
+        `${new Date().toISOString()} Memory: ${(
+          process.memoryUsage().heapUsed /
+          1000 /
+          1000
+        ).toFixed(2)}MB`,
+        '#988adb'
+      )
     )
-  )
-}, 60000)
+  }, 60000)
+}
 
 httpServer.listen(storePort, storeHost, () => {
   console.log(

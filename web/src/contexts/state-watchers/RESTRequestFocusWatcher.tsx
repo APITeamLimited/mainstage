@@ -5,15 +5,15 @@ import { useReactiveVar } from '@apollo/client'
 import * as Y from 'yjs'
 
 import {
-  clearFocusedRESTResponse,
-  focusedResponseVar,
-  updateFocusedRESTResponse,
-} from 'src/components/app/collection-editor/RESTResponsePanel'
-import {
   focusedElementVar,
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives'
+import {
+  clearFocusedRESTResponse,
+  focusedResponseVar,
+  updateFocusedRESTResponse,
+} from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
 
 type RESTRequestFocusWatcherProps = {
   collectionYMap: Y.Map<any>

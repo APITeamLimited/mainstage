@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Environment } from '@apiteam/types'
+import { KeyValueItem } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import DeselectIcon from '@mui/icons-material/Deselect'
@@ -15,10 +15,8 @@ import {
   IconButton,
   Stack,
   Tooltip,
-  Typography,
   useTheme,
 } from '@mui/material'
-import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
@@ -34,10 +32,6 @@ import {
 } from 'src/contexts/reactives'
 
 import { createEnvironment } from '../../../../../entity-engine/src/entities'
-import {
-  KeyValueEditor,
-  KeyValueItem,
-} from '../collection-editor/KeyValueEditor'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 import { EmptyPanelMessage } from '../utils/EmptyPanelMessage'
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 
+import { KeyValueItem } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import {
@@ -14,7 +15,6 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import { KeyValueItem } from '@apiteam/types'
 import * as Y from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
@@ -23,8 +23,8 @@ import {
   updateActiveEnvironmentId,
 } from 'src/contexts/reactives'
 
-import { KeyValueEditor } from '../collection-editor/KeyValueEditor'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
+import { KeyValueEditor } from '../KeyValueEditor'
 
 type SingleEnvironmentEditorProps = {
   environmentYMap: Y.Map<any>

@@ -6,6 +6,7 @@ import { Server } from 'socket.io'
 import { checkValue } from './config'
 import { handleAuth } from './services'
 import { handleNewConnection } from './yjs/connection-provider'
+import { createServersideHandlers } from './yjs/serverside'
 
 process.title = 'entity-engine'
 
@@ -14,14 +15,14 @@ const entityEnginePort = checkValue<number>('entity-engine.port')
 
 const httpServer = createServer()
 
-const io = new Server(httpServer, {
+const clientIoServer = new Server(httpServer, {
   cors: {
     origin: '*',
   },
   path: '/api/entity-engine',
 })
 
-io.use(async (socket, next) => {
+clientIoServer.use(async (socket, next) => {
   const didAuthenticate = await handleAuth(socket.request)
   if (didAuthenticate) {
     console.log(new Date(), 'Client authenticated')
@@ -32,9 +33,17 @@ io.use(async (socket, next) => {
   }
 })
 
-io.on('connection', async (socket) => {
-  await handleNewConnection(socket)
+clientIoServer.on(
+  'connection',
+  async (socket) => await handleNewConnection(socket)
+)
+
+clientIoServer.on('disconnect', (socket) => {
+  console.log(new Date(), 'Client disconnected')
 })
+
+// Support intrnal serverside connections
+createServersideHandlers(httpServer)
 
 if (process.env.NODE_ENV === 'development') {
   // Every minute print memory usage and number of connections
@@ -42,7 +51,7 @@ if (process.env.NODE_ENV === 'development') {
     console.log(
       Color(
         `${new Date().toISOString()} Connections: ${
-          io.engine.clientsCount
+          clientIoServer.engine.clientsCount
         } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
           2
         )}MB`,

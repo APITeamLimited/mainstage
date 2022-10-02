@@ -21,6 +21,13 @@ export const baseThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiSkeleton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '4px',
+        },
+      },
+    },
     /*MuiButton: {
       styleOverrides: {
         root: {

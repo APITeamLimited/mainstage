@@ -1,6 +1,5 @@
-import { KeyValueItem, RESTAuth, RESTRequest } from '@apiteam/types/src'
+import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
-import { lookup } from 'mime-types'
 import { stringify } from 'qs'
 import * as Y from 'yjs'
 
@@ -15,6 +14,8 @@ export const getFinalRequest = async (
   activeEnvironment: Y.Map<any> | null,
   collection: Y.Map<any>
 ): Promise<AxiosRequestConfig<any>> => {
+  const lookup = await import('mime-types').then((m) => m.lookup)
+
   let body = null
   let skipBodyEnvironmentSubstitution = false
 

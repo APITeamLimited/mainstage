@@ -15,10 +15,7 @@ import {
   Tooltip,
 } from '@mui/material'
 
-import {
-  MonacoEditor,
-  MonacoSupportedLanguage,
-} from '../collection-editor/MonacoEditor'
+import { MonacoEditor, MonacoSupportedLanguage } from '../MonacoEditor'
 
 type CodeGeneratorProps = {
   availableCodeGens?: CodeGenDefinition[]

@@ -61,7 +61,7 @@ export const singleRESTRequestGenerator = async ({
     const req = {
       method: '${axiosConfig.method}',
       url: '${axiosConfig.url}${queryEncoded.length > 1 ? queryEncoded : ''}',
-      data: ${JSON.stringify(axiosConfig.data)},
+      body: ${JSON.stringify(axiosConfig.data)},
       params: {
         headers: ${JSON.stringify(axiosConfig.headers)},
       }
@@ -74,6 +74,8 @@ export const singleRESTRequestGenerator = async ({
       mark("RESTResult", res);
     }
     //mark("RESTResult", res);
+
+    //sleep(1000)
   }`
 
   const branch = collectionYMap.parent.parent
@@ -106,8 +108,22 @@ export const singleRESTRequestGenerator = async ({
     collectionId: collectionId,
     environmentContext: createEnvironmentContext({
       environment: activeEnvironmentYMap,
+    }),
+    collectionContext: createEnvironmentContext({
       collection: collectionYMap,
     }),
+    restRequest: {
+      method: axiosConfig.method as string,
+      url: `${axiosConfig.url}${
+        queryEncoded.length > 1 ? queryEncoded : ''
+      }` as string,
+      body: axiosConfig.data,
+      params: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        headers: axiosConfig.headers,
+      },
+    },
     __subtype: 'PendingLocalJob',
   }
 

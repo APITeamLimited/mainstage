@@ -5,23 +5,6 @@ import queryString from 'query-string'
 import { orchestratorReadRedis } from './redis'
 
 /*
-Checks that the HttpRequest has the required query parameters.
-*/
-export const checkValidQueryParams = (request: IncomingMessage) => {
-  const params = queryString.parse(request.url?.split('?')[1] || '')
-
-  const requiredParams = ['sourceName', 'source']
-
-  for (const param of requiredParams) {
-    if (!params[param]) {
-      return false
-    }
-  }
-
-  return true
-}
-
-/*
 Checks a running job is in scope
 */
 export const checkJobId = async (request: IncomingMessage) => {

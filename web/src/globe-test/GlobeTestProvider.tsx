@@ -9,7 +9,6 @@ import { useYMap } from 'zustand-yjs'
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
 
-import { focusedResponseVar } from 'src/components/app/collection-editor/RESTResponsePanel'
 import {
   useActiveEnvironmentYMap,
   useEnvironmentsYMap,
@@ -20,6 +19,7 @@ import {
   Bearer,
   GET_BEARER_PUBKEY__SCOPES_QUERY,
 } from 'src/entity-engine/utils'
+import { focusedResponseVar } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
 
 import { execute } from './execution'
 import { jobQueueVar, QueuedJob, updateFilterQueue } from './lib'

@@ -4,14 +4,13 @@ import { Container } from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'
 
-import { TopBarDashboard } from 'src/pages/app/dashboard/TopBarDashboard'
-
 import {
   FooterSplash,
   FOOTER_SPASH_HEIGHT,
 } from '../Landing/components/FooterSplash'
 
 import { AppLayoutBase } from './AppLayoutBase'
+import { TopBarDashboard } from './components/TopBarDashboard'
 import { TopNavApp } from './components/TopNavApp'
 
 type AppUnifiedLayoutProps = {

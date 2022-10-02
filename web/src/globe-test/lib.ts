@@ -21,7 +21,9 @@ export type BaseJob = {
   projectId: string
   branchId: string
   collectionId: string
+  collectionContext: ExecutionParams['collectionContext']
   environmentContext: ExecutionParams['environmentContext']
+  restRequest: ExecutionParams['restRequest']
   createdEntry?: boolean
 }
 

@@ -3,6 +3,8 @@ import { Jwt, JwtPayload } from 'jsonwebtoken'
 
 import { TeamRole } from './team'
 
+import { GlobeTestOptions, RESTRequest } from '.'
+
 export type ClientAwareness = {
   publicBearer?: string
 }
@@ -36,3 +38,38 @@ export type ServerAwareness = {
       variant: 'USER'
     }
 )
+
+export type EntityEngineServersideMessages = {
+  'connection-params': {
+    scopeId: string
+    bearer: string
+    projectId: string
+    testType: 'rest'
+  }
+  'rest-create-response': {
+    branchId: string
+    collectionId: string
+    underlyingRequest: RESTRequest
+    finalRequestEndpoint: string
+  }
+  'rest-add-options': {
+    branchId: string
+    collectionId: string
+    options: GlobeTestOptions
+  }
+  'rest-handle-success-single': {
+    branchId: string
+    collectionId: string
+    responseStatus: number
+    responseSize: number
+    responseDuration: number
+    responseStoreReceipt: string
+    metricsStoreReceipt: string
+    globeTestLogsStoreReceipt: string
+  }
+  'rest-handle-failure': {
+    branchId: string
+    collectionId: string
+    globeTestLogsStoreReceipt: string | null
+  }
+}

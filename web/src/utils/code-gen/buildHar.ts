@@ -1,7 +1,6 @@
 import { RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
 import type { Har, PostData } from 'har-format'
-import { lookup } from 'mime-types'
 import { parse } from 'qs'
 import * as Y from 'yjs'
 
@@ -68,12 +67,14 @@ const buildHarPostParams = (
   }
 }*/
 
-const buildHarPostData = (
+const buildHarPostData = async (
   req: AxiosRequestConfig,
   restRequest: RESTRequest,
   activeEnvironmentYMap: Y.Map<any> | null,
   collectionYMap: Y.Map<any>
-): PostData | undefined => {
+): Promise<PostData | undefined> => {
+  const lookup = await import('mime-types').then((m) => m.lookup)
+
   const contentType = req.headers?.['content-type'] as string | undefined
 
   // Can't build post data if there is no data
@@ -151,12 +152,12 @@ const buildHarPostData = (
   }
 }
 
-export const buildHarRequest = (
+export const buildHarRequest = async (
   req: AxiosRequestConfig,
   restRequest: RESTRequest,
   activeEnvironmentYMap: Y.Map<any> | null,
   collectionYMap: Y.Map<any>
-): Har => {
+): Promise<Har> => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
     headersSize: -1, // TODO: It would be cool if we can calculate the header size
@@ -172,7 +173,7 @@ export const buildHarRequest = (
       value: value?.toString(),
     })),
     url: req.url ?? '',
-    postData: buildHarPostData(
+    postData: await buildHarPostData(
       req,
       restRequest,
       activeEnvironmentYMap,

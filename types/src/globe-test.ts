@@ -1,19 +1,46 @@
+import type { RequestBody, ResponseType, RefinedParams } from 'k6/http'
+import { Options as K6Options } from 'k6/options'
+
+import { RESTRequest } from './entities'
+
+export interface K6RequestConfig<RT extends ResponseType | undefined> {
+  method: string
+  url: string
+  body?: RequestBody | null
+  params?: RefinedParams<RT> | null
+}
+
+/* Parameters that are passed to the globe-test orchestrator */
 export type ExecutionParams = {
+  id: string
   source: string
   sourceName: string
   scopeId: string
-  environmentContext:
-    | {
-        key: string
-        value: string
-      }[]
-    | null
+  environmentContext: {
+    variables: {
+      key: string
+      value: string
+    }[]
+  } | null
   collectionContext: {
     variables: {
       key: string
       value: string
     }[]
   } | null
+  restRequest: K6RequestConfig<undefined> | null
+}
+
+/* Wrapper around the execution params that servers as arguments to the node
+globe-test agent */
+export type WrappedExecutionParams = Omit<ExecutionParams, 'id'> & {
+  bearer: string
+  projectId: string
+  branchId: string
+} & {
+  testType: 'rest'
+  collectionId: string
+  underlyingRequest: RESTRequest
 }
 
 type ClientType =
@@ -74,13 +101,13 @@ type MessageCombination =
     }
   | {
       messageType: 'OPTIONS'
-      message: Record<string, unknown>
+      message: GlobeTestOptions
     }
   | {
       messageType: 'JOB_INFO'
       message: {
         id: string
-        options: Record<string, unknown>
+        options: GlobeTestOptions
         scopeId: string
         source: string
         sourceName: string
@@ -90,7 +117,7 @@ type MessageCombination =
 
 export type GlobeTestMessage = {
   jobId: string
-  time: Date
+  time: string
 } & ClientType &
   MessageCombination
 
@@ -148,3 +175,7 @@ export type ResolvedVariable = {
   sourceTypename: 'Environment' | 'Collection'
   value: string
 } | null
+
+export type GlobeTestOptions = Omit<K6Options, 'noUsageReport' | 'linger'> & {
+  executionMode: 'rest_single' | 'rest_multiple'
+}

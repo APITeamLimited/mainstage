@@ -8,7 +8,7 @@ import {
   useTheme,
 } from '@mui/material'
 
-import { EditNameInput } from '../collection-editor/CollectionTree/EditNameInput'
+import { EditNameInput } from './EditNameInput'
 
 type RequestListItemProps = {
   isInFocus: boolean

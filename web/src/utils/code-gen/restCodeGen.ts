@@ -197,12 +197,12 @@ export const generateRESTCode = async (
   try {
     // eslint-disable-next-line new-cap
     const code = new HTTPSnippet({
-      ...buildHarRequest(
+      ...(await buildHarRequest(
         axiosConfig,
         restRequest,
         activeEnvironmentYMap,
         collectionYMap
-      ),
+      )),
     }).convert(codegenInfo.lang, codegenInfo.mode, {
       indent: '    ',
     })

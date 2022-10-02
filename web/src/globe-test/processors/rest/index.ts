@@ -3,8 +3,8 @@ import { RESTResponseBase, LoadingResult } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
 
-import { updateFocusedRESTResponse } from 'src/components/app/collection-editor/RESTResponsePanel'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
+import { updateFocusedRESTResponse } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
 
 import {
   BaseJob,
@@ -46,7 +46,7 @@ export const ensureRESTResponseExists = ({
     __parentTypename: job.underlyingRequest.__typename,
     name: job.underlyingRequest.name,
     method: job.underlyingRequest.method,
-    endpoint: job.underlyingRequest.endpoint,
+    endpoint: job.restRequest?.url as string,
     __subtype: 'LoadingResponse',
     createdAt: new Date(),
     updatedAt: null,
@@ -74,52 +74,3 @@ export const ensureRESTResponseExists = ({
 
   return updateFilterQueue(currentQueue, [job])
 }
-
-export const addOptionsToRESTJob = ({
-  job,
-  options,
-  workspace,
-  focusedResponseDict,
-  currentQueue,
-}: {
-  job: BaseJob & (ExecutingJob | PostExecutionJob)
-  options: Record<string, any>
-  workspace: Y.Doc
-  focusedResponseDict: FocusedElementDictionary
-  currentQueue: QueuedJob[]
-}): QueuedJob[] => {
-  const { projectId, branchId, collectionId } = job
-
-  const responseYMap = workspace
-    .getMap<any>('projects')
-    ?.get(projectId)
-    ?.get('branches')
-    ?.get(branchId)
-    ?.get('collections')
-    ?.get(collectionId)
-    ?.get('restResponses')
-    .get(job.targetId) as Y.Map<any>
-
-  if (responseYMap === undefined) {
-    const newQueue = ensureRESTResponseExists({
-      job,
-      workspace,
-      focusedResponseDict,
-      currentQueue,
-    })
-
-    return addOptionsToRESTJob({
-      job,
-      options,
-      workspace,
-      focusedResponseDict,
-      currentQueue: newQueue,
-    })
-  }
-
-  responseYMap.set('options', options)
-
-  return currentQueue
-}
-
-export { postProcessRESTRequest } from './post-process'

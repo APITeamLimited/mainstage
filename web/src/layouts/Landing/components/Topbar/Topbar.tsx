@@ -9,7 +9,7 @@ import { alpha, useTheme } from '@mui/material/styles'
 import { Link, Router, routes } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
-import { SignUpOrContinueButton } from 'src/pages/splash/components/SignUpOrContinueButton'
+import { SignUpOrContinueButton } from 'src/pages/RootPage/components/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
 
 import { NavItem } from './components/index'

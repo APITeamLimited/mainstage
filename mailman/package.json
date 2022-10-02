@@ -4,9 +4,9 @@
   "description": "APITeam email generator",
   "dependencies": {
     "@apiteam/types": "*",
-    "@mui/icons-material": "^5.8.4",
-    "@mui/material": "^5.8.6",
-    "@mui/styles": "^5.8.7",
+    "@mui/icons-material": "^5.10.6",
+    "@mui/material": "^5.10.7",
+    "@mui/styles": "^5.10.7",
     "colorterm": "^1.0.0",
     "config": "^3.3.7",
     "css-inliner": "^2.0.0",

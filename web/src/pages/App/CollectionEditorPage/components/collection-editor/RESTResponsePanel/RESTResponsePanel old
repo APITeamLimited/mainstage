@@ -1,0 +1,298 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from 'react'
+
+import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
+import { useReactiveVar } from '@apollo/client'
+import CommentIcon from '@mui/icons-material/Comment'
+import { Skeleton, Stack, Box, useTheme } from '@mui/material'
+import { Response, ResponseCookie } from 'k6/http'
+import * as Y from 'yjs'
+import { useYMap } from 'zustand-yjs'
+
+import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
+import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
+import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
+import {
+  useRawBearer,
+  useScopes,
+  useWorkspace,
+} from 'src/entity-engine/EntityEngine'
+import { isExecutingRESTRequestVar } from 'src/globe-test/execution'
+import { parseMessage } from 'src/globe-test/execution'
+import { retrieveScopedResource } from 'src/store'
+
+import { EmptyPanelMessage } from '../../utils/EmptyPanelMessage'
+import { KeyValueResultsTable } from '../../utils/KeyValueResultsTable'
+import { PanelLayout } from '../PanelLayout'
+
+import { BodyPanel } from './BodyPanel'
+import { CookieTable } from './CookieTable'
+import { ExecutionPanel } from './ExecutionPanel'
+import { QuickStats } from './QuickStats'
+import { UnderlyingRequestPanel } from './UnderlyingRequestPanel'
+
+import { focusedResponseVar } from '.'
+
+type RESTResponsePanelProps = {
+  collectionYMap: Y.Map<any>
+}
+
+export const RESTResponsePanel = ({
+  collectionYMap,
+}: RESTResponsePanelProps) => {
+  const theme = useTheme()
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
+  const focusedElementDict = useReactiveVar(focusedElementVar)
+  const restResponsesYMap = collectionYMap.get('restResponses')
+  const workspace = useWorkspace()
+  const isExecutingRESTRequest = useReactiveVar(isExecutingRESTRequestVar)
+
+  // When focused element changes, clear isExecutingRESTRequest
+  useEffect(() => {
+    isExecutingRESTRequestVar(false)
+  }, [focusedElementDict])
+
+  useYMap(restResponsesYMap)
+  const focusedElement =
+    focusedElementDict[getFocusedElementKey(collectionYMap)]
+
+  const focusedResponse =
+    focusedResponseDict[getFocusedElementKey(collectionYMap)]
+
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
+
+  const [storedResponse, setStoredResponse] = useState<Response | null>(null)
+
+  const [storedGlobeTestLogs, setStoredGlobeTestLogs] = useState<
+    GlobeTestMessage[] | null
+  >(null)
+
+  const [storedMetrics, setStoredMetrics] = useState<DefaultMetrics | null>(
+    null
+  )
+
+  const loaded =
+    storedResponse !== null &&
+    storedGlobeTestLogs !== null &&
+    storedMetrics !== null
+
+  const rawBearer = useRawBearer()
+  const scopes = useScopes()
+
+  const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
+
+  const updateData = async () => {
+    if (!focusedResponse || !workspace) {
+      return
+    }
+
+    // Find scope matching workspace guid
+    const [variant, variantTargetId] = workspace.guid.split(
+      ':'
+    ) as Array<string>
+
+    const scopeId = scopes?.find(
+      (scope) =>
+        scope.variant === variant && scope.variantTargetId === variantTargetId
+    )?.id
+
+    if (!scopeId || !rawBearer) {
+      throw new Error('No scopeId or rawBearer')
+    }
+
+    const globeTestLogsPromise = retrieveScopedResource({
+      scopeId,
+      rawBearer,
+      storeReceipt: focusedResponse.get('globeTestLogs').storeReceipt,
+    })
+
+    const responsePromise = retrieveScopedResource({
+      scopeId,
+      rawBearer,
+      storeReceipt: focusedResponse.get('response').storeReceipt,
+    })
+
+    const metricsPromise = retrieveScopedResource({
+      scopeId,
+      rawBearer,
+      storeReceipt: focusedResponse.get('metrics').storeReceipt,
+    })
+
+    const [globeTestLogsResult, responseResult, metricsResult] =
+      await Promise.all([globeTestLogsPromise, responsePromise, metricsPromise])
+
+    setStoredResponse(responseResult.data)
+    setStoredGlobeTestLogs(
+      globeTestLogsResult.data.map((log: string) => parseMessage(log))
+    )
+    setStoredMetrics(metricsResult.data)
+  }
+
+  const [mappedCookies, setMappedCookies] = useState<ResponseCookie[]>([])
+  const [mappedHeaders, setMappedHeaders] = useState<
+    {
+      key: string
+      value: string
+    }[]
+  >([])
+
+  useEffect(() => {
+    setMappedCookies(Object.values(storedResponse?.cookies || []).flat())
+    setMappedHeaders(
+      Object.entries(storedResponse?.headers || {}).map(([key, value]) => ({
+        key,
+        value,
+      }))
+    )
+  }, [storedResponse])
+
+  useEffect(() => {
+    if (storedResponse) {
+      setStoredResponse(null)
+    }
+    if (storedGlobeTestLogs) {
+      setStoredGlobeTestLogs(null)
+    }
+    if (storedMetrics) {
+      setStoredMetrics(null)
+    }
+
+    if (!workspace) {
+      throw new Error('No workspace YDoc')
+    }
+
+    updateData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedResponse])
+
+  return (
+    <>
+      {isExecutingRESTRequest && <SendingRequestAnimation />}
+      {focusedResponse ? (
+        focusedResponse.get('__subtype') !== 'SuccessSingleResult' ? ( //&&
+          //focusedResponse.get('__subtype') !== 'LoadingResponse' &&
+          //focusedResponse.get('__subtype') !== 'FailureResult'
+          <EmptyPanelMessage
+            primaryText="Invalid response type"
+            secondaryMessages={[
+              `Response type: ${focusedResponse.get(
+                '__subtype'
+              )} is not a valid response type`,
+              'Please send a new request to get an updated response',
+            ]}
+          />
+        ) : (
+          <PanelLayout
+            aboveTabsArea={
+              <QuickStats
+                statusCode={focusedResponse.get('statusCode')}
+                responseTimeMilliseconds={
+                  focusedResponse.get('meta').responseDuration
+                }
+                responseSizeBytes={focusedResponse.get('meta').responseSize}
+              />
+            }
+            // TODO: add request and globe test log tabs
+            tabNames={['Body', 'Headers', 'Cookies', 'Execution', 'Request']}
+            tabIcons={[
+              {
+                name: 'Execution',
+                icon: <GlobeTestIcon />,
+              },
+            ]}
+            activeTabIndex={activeTabIndex}
+            setActiveTabIndex={setActiveTabIndex}
+            actionArea={actionArea}
+            rootPanelStyles={
+              undefined
+              // An idea
+              /*
+        loaded
+          ? {
+              opacity: 1,
+              transition: 'opacity 0.25s ease-in-out',
+            }
+          : {
+              opacity: 0,
+              transition: 'opacity 0.25s ease-in-out',
+            }*/
+            }
+          >
+            {storedResponse && storedMetrics && storedGlobeTestLogs ? (
+              <>
+                {activeTabIndex === 0 && (
+                  <BodyPanel
+                    response={storedResponse}
+                    setActionArea={setActionArea}
+                  />
+                )}
+                {activeTabIndex === 1 && (
+                  <KeyValueResultsTable
+                    setActionArea={setActionArea}
+                    values={mappedHeaders}
+                  />
+                )}
+                {activeTabIndex === 2 && (
+                  <CookieTable
+                    // Reduce cookie values to array of ResponseCookie
+                    cookies={mappedCookies}
+                    setActionArea={setActionArea}
+                  />
+                )}
+                {activeTabIndex === 3 && (
+                  <ExecutionPanel
+                    setActionArea={setActionArea}
+                    globeTestLogs={storedGlobeTestLogs}
+                    metrics={storedMetrics}
+                  />
+                )}
+                {activeTabIndex === 4 && (
+                  <UnderlyingRequestPanel
+                    setActionArea={setActionArea}
+                    request={storedResponse.request}
+                  />
+                )}
+              </>
+            ) : (
+              <Box
+                height="100%"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <Skeleton width={100000} height={100000} />
+              </Box>
+            )}
+          </PanelLayout>
+        )
+      ) : (
+        <Stack
+          margin={2}
+          spacing={2}
+          sx={{
+            height: 'calc(100% - 2em)',
+            maxHeight: 'calc(100% - 2em)',
+            overflow: 'hidden',
+          }}
+        >
+          <EmptyPanelMessage
+            icon={
+              <CommentIcon
+                sx={{
+                  marginBottom: 2,
+                  width: 80,
+                  height: 80,
+                  color: theme.palette.action.disabled,
+                }}
+              />
+            }
+            primaryText="No response yet"
+            secondaryMessages={[
+              'Add a url above and hit send to see the response',
+            ]}
+          />
+        </Stack>
+      )}
+    </>
+  )
+}

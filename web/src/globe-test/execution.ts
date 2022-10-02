@@ -1,10 +1,11 @@
-import { GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage, WrappedExecutionParams } from '@apiteam/types'
 import { makeVar } from '@apollo/client'
-import { io } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import * as Y from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
+import { updateFocusedRESTResponse } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
 
 import {
   BaseJob,
@@ -48,8 +49,6 @@ type ExecuteArgs = {
   focusedResponseDict: FocusedElementDictionary
 }
 
-export const isExecutingRESTRequestVar = makeVar(false)
-
 /*
 Executes a queued job and updates the job queue on streamed messages
 */
@@ -60,44 +59,69 @@ export const execute = ({
   workspace,
   focusedResponseDict,
 }: ExecuteArgs): boolean => {
+  let params: WrappedExecutionParams | null = null
+
+  if (job.restRequest) {
+    params = {
+      bearer: rawBearer,
+      scopeId: job.scopeId,
+      projectId: job.projectId,
+      branchId: job.branchId,
+      testType: 'rest',
+      collectionId: job.collectionId,
+      underlyingRequest: job.underlyingRequest,
+      source: job.source,
+      sourceName: job.sourceName,
+      environmentContext: job.environmentContext,
+      collectionContext: job.collectionContext,
+      restRequest: job.restRequest,
+    }
+  } else {
+    throw new Error('Unknown test type')
+  }
+
   try {
     const socket = io(getUrl(), {
-      query: {
-        scopeId: job.scopeId,
-        bearer: rawBearer,
-        sourceName: job.sourceName,
-        source: job.source,
-        environmentContext: JSON.stringify(job.environmentContext),
-        endpoint: '/new-test',
-      },
+      // JSON stringify objects
+      query: Object.entries(params).reduce(
+        (acc, [key, value]) => {
+          if (typeof value === 'object') {
+            return {
+              ...acc,
+              [key]: JSON.stringify(value),
+            }
+          } else {
+            return {
+              ...acc,
+              [key]: value,
+            }
+          }
+        },
+        {
+          endpoint: '/new-test',
+        }
+      ),
       path: '/api/globe-test',
       reconnection: false,
     })
 
-    isExecutingRESTRequestVar(true)
-
     socket.on('updates', (message) => {
-      const parsedMessage = parseMessage(message)
-      addMessageToJob({
-        job,
-        workspace,
-        focusedResponseDict,
-        queueRef,
-        parsedMessage,
-        rawBearer,
-      })
+      console.log('Received message', message)
 
-      if (parsedMessage.messageType === 'STATUS') {
+      if (message.messageType === 'STATUS') {
         if (
-          parsedMessage.message === 'COMPLETED_SUCCESS' ||
-          parsedMessage.message === 'COMPLETED_FAILED'
+          message.message === 'COMPLETED_SUCCESS' ||
+          message.message === 'COMPLETED_FAILED'
         ) {
           socket.disconnect()
         }
       }
     })
+
+    if (params.testType === 'rest') {
+      handleRESTAutoFocus(focusedResponseDict, workspace, socket, params)
+    }
   } catch (error) {
-    isExecutingRESTRequestVar(false)
     snackErrorMessageVar(
       "Couldn't execute request, an unexpected error occurred"
     )
@@ -107,93 +131,51 @@ export const execute = ({
   return true
 }
 
-const addMessageToJob = async ({
-  job,
-  workspace,
-  focusedResponseDict,
-  queueRef,
-  parsedMessage,
-  rawBearer,
-}: {
-  job: BaseJob & (PendingLocalJob | ExecutingJob | PostExecutionJob)
-  workspace: Y.Doc
-  focusedResponseDict: FocusedElementDictionary
-  queueRef: React.MutableRefObject<QueuedJob[] | null>
-  parsedMessage: GlobeTestMessage
-  rawBearer: string
-}) => {
-  const newJob = job as BaseJob & (ExecutingJob | PostExecutionJob)
-  newJob.messages.push(parsedMessage)
+const handleRESTAutoFocus = (
+  focusedResponseDict: FocusedElementDictionary,
+  workspace: Y.Doc,
+  socket: Socket,
+  params: WrappedExecutionParams
+) => {
+  socket.on(
+    'rest-create-response:success',
+    async ({ responseId }: { responseId: string }) => {
+      console.log("Received 'rest-create-response:success' message", responseId)
 
-  let queueNew = queueRef.current ?? []
+      const tryFindResponse = async (count = 0): Promise<Y.Map<any>> => {
+        const restResponseYMap = workspace
+          .getMap<any>('projects')
+          ?.get(params.projectId)
+          ?.get('branches')
+          ?.get(params.branchId)
+          ?.get('collections')
+          ?.get(params.collectionId)
+          ?.get('restResponses')
+          ?.get(responseId) as Y.Map<any>
 
-  // If jobId not set, set it
-  if (!newJob.jobId) {
-    newJob.jobId = parsedMessage.jobId
-    newJob.__subtype = 'ExecutingJob'
+        if (!restResponseYMap) {
+          if (count >= 10) {
+            throw new Error(
+              `Couldn't find response with id ${responseId} after ${count} tries`
+            )
+          }
 
-    queueNew = ensureRESTResponseExists({
-      job: newJob,
-      workspace,
-      focusedResponseDict,
-      currentQueue: queueRef.current ?? [],
-    })
-  }
+          // Increasing backoff
+          await new Promise((resolve) => setTimeout(resolve, (count + 1) * 100))
+          return tryFindResponse(count + 1)
+        }
 
-  if (parsedMessage.messageType === 'STATUS') {
-    newJob.jobStatus = parsedMessage.message
-    queueNew = updateFilterQueue(queueNew, [newJob])
-
-    if (
-      newJob.jobStatus === 'COMPLETED_SUCCESS' ||
-      newJob.jobStatus === 'COMPLETED_FAILED'
-    ) {
-      if (newJob.jobStatus === 'COMPLETED_FAILED') {
-        // Look for the last ERROR message
-        const errorMessages = newJob.messages.filter(
-          (message) => message.messageType === 'ERROR'
-        )
-
-        const error =
-          errorMessages.length > 0
-            ? errorMessages[errorMessages.length - 1].message.toString()
-            : 'An unknown error occured during execution'
-
-        snackErrorMessageVar(error)
+        return restResponseYMap as Y.Map<any>
       }
 
-      isExecutingRESTRequestVar(false)
+      const restResponseYMap = await tryFindResponse()
 
-      if (!workspace) throw new Error('No workspace')
-
-      queueNew = await postProcessRESTRequest({
-        currentQueue: queueNew,
-        job: newJob,
-        rawBearer,
-        workspace,
-        scopeId: newJob.scopeId,
-        focusedResponseDict,
-      })
+      console.log('REST response YMap', restResponseYMap)
+      updateFocusedRESTResponse(focusedResponseDict, restResponseYMap)
     }
-  }
-
-  if (parsedMessage.messageType === 'OPTIONS') {
-    queueNew = addOptionsToRESTJob({
-      job: newJob,
-      workspace,
-      focusedResponseDict,
-      currentQueue: queueNew,
-      options: parsedMessage.message,
-    })
-  }
-
-  jobQueueVar(queueNew)
+  )
 }
 
-/*
-Parses some json so output in correct type
-*/
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const parseMessage = (message: any) => {
   if (
     message.messageType === 'SUMMARY_METRICS' ||

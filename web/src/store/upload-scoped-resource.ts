@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const getGlobetestUrl = () => {
+export const getStoreUrl = () => {
   if (process.env.NODE_ENV === 'development') {
     const host = process.env['STORE_HOST']
     const port = process.env['STORE_PORT']
@@ -36,7 +36,7 @@ export const uploadScopedResource = async ({
   form.append(resourceName, resource, resourceName)
 
   const response = await axios({
-    url: `${getGlobetestUrl()}/submit-scoped-resource`,
+    url: `${getStoreUrl()}/submit-scoped-resource`,
     method: 'post',
     data: form,
     headers: {

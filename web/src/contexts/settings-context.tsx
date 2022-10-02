@@ -52,24 +52,20 @@ export const restoreSettings = (): Settings | null => {
   return settings
 }
 
-export const storeSettings = (settings: Settings): void => {
-  globalThis.localStorage.setItem('settings', JSON.stringify(settings))
-}
-
 export const SettingsContext = createContext<SettingsContextValue>({
   settings: initialSettings,
   saveSettings: () => {},
 })
 
-export const SettingsProvider: FC<SettingsProviderProps> = (props) => {
-  const { children } = props
+export const SettingsProvider: React.FC = ({ children }: SettingsProviderProps) => {
+  //const browser = useIsBrowser()
   const [settings, setSettings] = useState<Settings>(initialSettings)
 
   // Change browser color scheme based on theme
   useEffect(() => {
     document.documentElement.setAttribute(
       'data-color-scheme',
-      settings.theme || 'light'
+      settings.theme ?? 'light'
     )
   }, [settings])
 
@@ -83,23 +79,28 @@ export const SettingsProvider: FC<SettingsProviderProps> = (props) => {
 
   const saveSettings = (updatedSettings: Settings): void => {
     setSettings(updatedSettings)
-    storeSettings(updatedSettings)
+    globalThis.localStorage.setItem('settings', JSON.stringify(updatedSettings))
   }
 
   return (
-    <BrowserOnly>
-      <SettingsContext.Provider
-        value={{
-          settings,
-          saveSettings,
-        }}
-      >
-        {children}
-      </SettingsContext.Provider>
-    </BrowserOnly>
+    <SettingsContext.Provider
+      value={{
+        settings,
+        saveSettings,
+      }}
+    >
+      {children}
+    </SettingsContext.Provider>
   )
 }
 
+//const SettingsProviderInner = (props: SettingsProviderProps) => {
+//  const [settings, setSettings] = useState<Settings>(initialSettings)
+//  const saveSettings = (updatedSettings: Settings): void => {
+//    setSettings(updatedSettings)
+//    globalThis.localStorage.setItem('settings', JSON.stringify(updatedSettings))
+//  }
+//
 SettingsProvider.propTypes = {
   children: PropTypes.node.isRequired,
 }

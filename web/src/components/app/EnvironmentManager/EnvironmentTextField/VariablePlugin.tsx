@@ -28,7 +28,7 @@ type Resolution = {
 
 export const BRACED_REGEX = /{{(([^}][^}]?|[^}]}?)*)}}/g
 
-function getTextUpToAnchor(selection: RangeSelection): string | null {
+const getTextUpToAnchor = (selection: RangeSelection): string | null => {
   const anchor = selection.anchor
   if (anchor.type !== 'text') {
     return null
@@ -44,8 +44,9 @@ function getTextUpToAnchor(selection: RangeSelection): string | null {
   return anchorNode.getTextContent().slice(0, anchorOffset)
 }
 
-function getVariablesTextToSearch(editor: LexicalEditor): string | null {
+const getVariablesTextToSearch = (editor: LexicalEditor): string | null => {
   let text = null
+
   editor.getEditorState().read(() => {
     const selection = $getSelection()
     if (!$isRangeSelection(selection)) {
@@ -53,6 +54,7 @@ function getVariablesTextToSearch(editor: LexicalEditor): string | null {
     }
     text = getTextUpToAnchor(selection)
   })
+
   return text
 }
 

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import { getGlobetestUrl } from './upload-scoped-resource'
+import { getStoreUrl } from './upload-scoped-resource'
 
 type RetrieveResourceArgs = {
   scopeId: string
@@ -14,7 +14,7 @@ export const retrieveScopedResource = async ({
   storeReceipt,
 }: RetrieveResourceArgs) => {
   const response = await axios({
-    url: `${getGlobetestUrl()}/retrieve-scoped-resource`,
+    url: `${getStoreUrl()}/retrieve-scoped-resource`,
     method: 'get',
     headers: {
       Authorization: `Bearer ${rawBearer}`,

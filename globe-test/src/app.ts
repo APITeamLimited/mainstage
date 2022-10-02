@@ -5,8 +5,8 @@ import queryString from 'query-string'
 import { Server } from 'socket.io'
 
 import { checkValue } from './config'
-import { handleCurrentTest, handleNewTest } from './handle-test'
-import { checkJobId, checkValidQueryParams } from './middleware'
+import { handleCurrentTest, handleNewTest } from './handlers'
+import { checkJobId } from './middleware'
 import { handleAuth } from './services'
 
 process.title = 'globe-test'
@@ -31,12 +31,8 @@ io.use(async (socket, next) => {
     const endpoint = params['endpoint']
 
     if (endpoint === '/new-test') {
-      if (checkValidQueryParams(socket.request)) {
-        console.log(new Date(), 'Client authenticated, /new-test')
-        next()
-      } else {
-        next(new Error('Invalid query parameters'))
-      }
+      console.log('Client connected, /new-test')
+      next()
     } else if (endpoint === 'current-test') {
       if (await checkJobId(socket.request)) {
         console.log(new Date(), 'Client authenticated, /current-test')
@@ -64,16 +60,20 @@ io.use(async (socket, next) => {
 })
 
 // Every minute print memory usage and number of connections
-setInterval(() => {
-  console.log(
-    Color(
-      `${new Date().toISOString()} Connections: ${
-        io.engine.clientsCount
-      } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(2)}MB`,
-      '#54ff71'
+if (process.env.NODE_ENV === 'development') {
+  setInterval(() => {
+    console.log(
+      Color(
+        `${new Date().toISOString()} Connections: ${
+          io.engine.clientsCount
+        } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
+          2
+        )}MB`,
+        '#54ff71'
+      )
     )
-  )
-}, 60000)
+  }, 60000)
+}
 
 httpServer.listen(globeTestPort, globeTestHost, () => {
   console.log(

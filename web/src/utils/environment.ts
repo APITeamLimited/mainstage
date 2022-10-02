@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExecutionParams, KeyValueItem, ResolvedVariable } from '@apiteam/types'
 import * as Y from 'yjs'
 
@@ -99,13 +100,16 @@ export const findEnvironmentVariables = (
 }
 
 export const createEnvironmentContext = ({
-  environment,
-  collection,
+  environment = null,
+  collection = null,
 }: {
-  environment: Y.Map<any> | null
-  collection: Y.Map<any> | null
+  environment?: Y.Map<any> | null
+  collection?: Y.Map<any> | null
 }): ExecutionParams['environmentContext'] => {
-  const context = [] as ExecutionParams['environmentContext']
+  const variables = [] as {
+    key: string
+    value: string
+  }[]
 
   const environmentVariables = (environment?.get('variables') ??
     []) as KeyValueItem[]
@@ -119,7 +123,7 @@ export const createEnvironmentContext = ({
 
   allVariables.forEach((variable) => {
     if (variable.enabled) {
-      context.push({
+      variables.push({
         key: variable.keyString,
         value: findEnvironmentVariables(
           environment,
@@ -130,5 +134,7 @@ export const createEnvironmentContext = ({
     }
   })
 
-  return context
+  return {
+    variables,
+  }
 }

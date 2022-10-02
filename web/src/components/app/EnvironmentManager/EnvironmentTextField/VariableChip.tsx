@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types'
 import { ResolvedVariable } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
@@ -9,7 +8,7 @@ import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { activeEnvironmentVar } from 'src/contexts/reactives'
-import { useCollection } from 'src/pages/app/CollectionEditorPage'
+import { useCollection } from 'src/pages/App/CollectionEditorPage'
 import { findVariablesInString } from 'src/utils/environment'
 
 type VariableChipProps = {

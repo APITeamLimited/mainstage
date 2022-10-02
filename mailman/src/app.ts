@@ -18,15 +18,19 @@ const workerId = uuid()
 const MAX_CONCURRENT_JOBS = 50
 let currentJobCount = 0
 
-// Every minute print memory usage and number of connections
-setInterval(() => {
-  console.log(
-    Color(
-      `Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(2)}MB`,
-      '#4B0082'
+if (process.env.NODE_ENV === 'development') {
+  // Every minute print memory usage and number of connections
+  setInterval(() => {
+    console.log(
+      Color(
+        `Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
+          2
+        )}MB`,
+        '#4B0082'
+      )
     )
-  )
-}, 60000)
+  }, 60000)
+}
 
 // Check if redis is running
 const handleRenderRequests = async () => {
