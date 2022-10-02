@@ -1,20 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
-import { ClearEditorPlugin } from '@lexical/react/LexicalClearEditorPlugin'
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import { ContentEditable } from '@lexical/react/LexicalContentEditable'
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin'
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin'
-import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin'
-import { useTheme } from '@mui/material'
-import { $getRoot, EditorState, LexicalNode, ParagraphNode } from 'lexical'
+import type { EditorState, LexicalNode } from 'lexical'
 
 import { EnvironmentTextFieldProps } from './EnvironmentTextField'
-import VariablesPlugin from './VariablePlugin'
+import type { LexicalAddons, LexicalModule } from './module'
+import { VariableNodeType } from './VariableNode'
+import { VariablesPlugin } from './VariablePlugin'
 
-export const convertToText = (editorState: EditorState): string => {
+const convertToText = (
+  editorState: EditorState,
+  lexical: LexicalModule
+): string => {
   return editorState.read(() => {
-    const root = $getRoot()
+    const root = lexical.$getRoot()
     if (root.getChildrenSize() > 0) {
       const firstRootChildren = root.getChildren()
 
@@ -44,33 +42,39 @@ export const InnerValues = ({
   onChange = () => {},
   namespace,
   contentEditableStyles = {},
+  lexical,
+  lexicalAddons,
+  VariableNodeClass,
 }: {
   onChange: EnvironmentTextFieldProps['onChange']
   namespace: EnvironmentTextFieldProps['namespace']
   contentEditableStyles: EnvironmentTextFieldProps['contentEditableStyles']
+  lexical: LexicalModule
+  lexicalAddons: LexicalAddons
+  VariableNodeClass: VariableNodeType
 }) => {
-  const [editor] = useLexicalComposerContext()
+  const [editor] = lexicalAddons.useLexicalComposerContext()
 
   useEffect(() => {
     // Delete any line break ndoes
-    editor.registerNodeTransform(ParagraphNode, (paragraphNode) => {
+    editor.registerNodeTransform(lexical.ParagraphNode, (paragraphNode) => {
       paragraphNode.getChildren().forEach((childNode) => {
         if (childNode.getType() === 'linebreak') {
           childNode.remove()
         }
       })
     })
-  }, [editor])
+  }, [editor, lexical])
 
   const handeChange = (editorState: EditorState) => {
-    onChange(convertToText(editorState), namespace)
+    onChange(convertToText(editorState, lexical), namespace)
   }
 
   return (
     <>
-      <PlainTextPlugin
+      <lexicalAddons.PlainTextPlugin
         contentEditable={
-          <ContentEditable
+          <lexicalAddons.ContentEditable
             spellCheck={false}
             style={{
               animationDirection: '0.01s',
@@ -113,10 +117,14 @@ export const InnerValues = ({
       {/*
       To enable history, need to stop being mixed up between components
       */}
-      <HistoryPlugin />
-      <VariablesPlugin />
-      <ClearEditorPlugin />
-      <OnChangePlugin onChange={handeChange} />
+      <lexicalAddons.HistoryPlugin />
+      <VariablesPlugin
+        lexical={lexical}
+        lexicalAddons={lexicalAddons}
+        VariableNodeClass={VariableNodeClass}
+      />
+      <lexicalAddons.ClearEditorPlugin />
+      <lexicalAddons.OnChangePlugin onChange={handeChange} />
     </>
   )
 }

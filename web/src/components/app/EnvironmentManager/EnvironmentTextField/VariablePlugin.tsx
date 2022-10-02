@@ -1,19 +1,13 @@
 import { ReactPortal, useEffect, useState } from 'react'
 
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext'
-import {
-  $isRangeSelection,
-  $isTextNode,
-  $getSelection,
-  LexicalEditor,
-  RangeSelection,
-  LexicalCommand,
-  createCommand,
-  $isRootNode,
-  COMMAND_PRIORITY_EDITOR,
-} from 'lexical'
+import type { LexicalCommand, LexicalEditor, RangeSelection } from 'lexical'
 
-import { $createVariableNode, VariableNode } from './VariableNode'
+import type { LexicalAddons, LexicalModule } from './module'
+import {
+  $createVariableNode,
+  VariableNodeClass,
+  VariableNodeType,
+} from './VariableNode'
 
 type VariableMatch = {
   leadOffset: number
@@ -44,12 +38,15 @@ const getTextUpToAnchor = (selection: RangeSelection): string | null => {
   return anchorNode.getTextContent().slice(0, anchorOffset)
 }
 
-const getVariablesTextToSearch = (editor: LexicalEditor): string | null => {
+const getVariablesTextToSearch = (
+  editor: LexicalEditor,
+  lexical: LexicalModule
+): string | null => {
   let text = null
 
   editor.getEditorState().read(() => {
-    const selection = $getSelection()
-    if (!$isRangeSelection(selection)) {
+    const selection = lexical.$getSelection()
+    if (!lexical.$isRangeSelection(selection)) {
       return
     }
     text = getTextUpToAnchor(selection)
@@ -76,18 +73,19 @@ export function getPossibleVariableMatch(text: string): VariableMatch[] {
 
 function isSelectionOnEntityBoundary(
   editor: LexicalEditor,
-  offset: number
+  offset: number,
+  lexical: LexicalModule
 ): boolean {
   if (offset !== 0) {
     return false
   }
   return editor.getEditorState().read(() => {
-    const selection = $getSelection()
-    if ($isRangeSelection(selection)) {
+    const selection = lexical.$getSelection()
+    if (lexical.$isRangeSelection(selection)) {
       const anchor = selection.anchor
       const anchorNode = anchor.getNode()
       const prevSibling = anchorNode.getPreviousSibling()
-      return $isTextNode(prevSibling) && prevSibling.isTextEntity()
+      return lexical.$isTextNode(prevSibling) && prevSibling.isTextEntity()
     }
     return false
   })
@@ -113,27 +111,34 @@ function tryToPositionRange(match: VariableMatch, range: Range): boolean {
   return true
 }
 
-export const INSERT_VARIABLE_COMMAND: LexicalCommand<string> = createCommand()
-
-function useVariables(editor: LexicalEditor): ReactPortal | null {
+const useVariables = (
+  editor: LexicalEditor,
+  lexical: LexicalModule,
+  VariableNodeClass: VariableNodeType
+): ReactPortal | null => {
   const [resolutions, setResolutions] = useState<Resolution[]>([])
 
   // Register plugin
   useEffect(() => {
-    if (!editor.hasNodes([VariableNode])) {
+    if (!lexical) return
+
+    if (!editor.hasNodes([VariableNodeClass])) {
       throw new Error('VariablesPlugin: VariableNode not registered on editor')
     }
+
+    const INSERT_VARIABLE_COMMAND: LexicalCommand<string> =
+      lexical.createCommand()
 
     return editor.registerCommand<string>(
       INSERT_VARIABLE_COMMAND,
       (payload) => {
-        const selection = $getSelection()
+        const selection = lexical.$getSelection()
 
-        if ($isRangeSelection(selection)) {
+        if (lexical.$isRangeSelection(selection)) {
           const name = payload
-          const variableNode = $createVariableNode(name)
+          const variableNode = $createVariableNode(name, VariableNodeClass)
 
-          if ($isRootNode(selection.anchor.getNode())) {
+          if (lexical.$isRootNode(selection.anchor.getNode())) {
             selection.insertParagraph()
           }
 
@@ -142,9 +147,9 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
 
         return true
       },
-      COMMAND_PRIORITY_EDITOR
+      lexical.COMMAND_PRIORITY_EDITOR
     )
-  }, [editor])
+  }, [VariableNodeClass, editor, lexical])
 
   // Listen for variable matches
   useEffect(() => {
@@ -153,7 +158,7 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
 
     const updateListener = () => {
       const range = activeRange
-      const text = getVariablesTextToSearch(editor)
+      const text = getVariablesTextToSearch(editor, lexical)
 
       if (text === previousText || range === null) {
         return
@@ -168,7 +173,7 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
       const newResolutions = [] as Resolution[]
 
       matches.forEach((match) => {
-        if (!isSelectionOnEntityBoundary(editor, match.leadOffset)) {
+        if (!isSelectionOnEntityBoundary(editor, match.leadOffset, lexical)) {
           const isRangePositioned = tryToPositionRange(match, range)
           if (isRangePositioned !== null) {
             newResolutions.push({
@@ -187,7 +192,7 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
       activeRange = null
       removeUpdateListener()
     }
-  }, [editor])
+  }, [editor, lexical])
 
   /*const closeTypeahead = useCallback(() => {
     setResolution(null)
@@ -197,7 +202,9 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
 
   createVariableNodes(
     editor,
-    resolutions.map((r) => r.match)
+    resolutions.map((r) => r.match),
+    lexical,
+    VariableNodeClass
   )
 
   return null /*resolution === null || editor === null
@@ -212,13 +219,15 @@ function useVariables(editor: LexicalEditor): ReactPortal | null {
       )*/
 }
 
-function createVariableNodes(
+const createVariableNodes = (
   editor: LexicalEditor,
-  matches: VariableMatch[]
-): void {
+  matches: VariableMatch[],
+  lexical: LexicalModule,
+  VariableNodeClass: VariableNodeType
+): void => {
   editor.update(() => {
-    const selection = $getSelection()
-    if (!$isRangeSelection(selection) || !selection.isCollapsed()) {
+    const selection = lexical.$getSelection()
+    if (!lexical.$isRangeSelection(selection) || !selection.isCollapsed()) {
       return
     }
 
@@ -253,13 +262,25 @@ function createVariableNodes(
 
       if (!node) return
 
-      const variableNode = $createVariableNode(match.matchingString)
+      const variableNode = $createVariableNode(
+        match.matchingString,
+        VariableNodeClass
+      )
       node.replace(variableNode)
     })
   })
 }
 
-export default function VariablesPlugin(): ReactPortal | null {
-  const [editor] = useLexicalComposerContext()
-  return useVariables(editor)
+export const VariablesPlugin = ({
+  lexical,
+  lexicalAddons,
+  VariableNodeClass,
+}: {
+  lexical: LexicalModule
+  lexicalAddons: LexicalAddons
+  VariableNodeClass: VariableNodeType
+}): ReactPortal | null => {
+  const [editor] = lexicalAddons.useLexicalComposerContext()
+
+  return useVariables(editor, lexical, VariableNodeClass)
 }

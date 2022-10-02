@@ -1,14 +1,23 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import { LexicalComposer } from '@lexical/react/LexicalComposer'
+import { useEffect, useMemo, useState } from 'react'
+
 import { Stack, Typography, useTheme } from '@mui/material'
-import { $createParagraphNode, $getRoot, $createTextNode } from 'lexical'
 
 import { InnerValues } from './InnerValues'
+import {
+  getLexicalAddons,
+  getLexicalModule,
+  LexicalAddons,
+  LexicalModule,
+} from './module'
 import PlaygroundEditorTheme from './Theme'
-import { $createVariableNode } from './VariableNode'
-import { VariableNode } from './VariableNode'
+import {
+  $createVariableNode,
+  VariableNodeClass,
+  VariableNodeType,
+} from './VariableNode'
 import { getPossibleVariableMatch } from './VariablePlugin'
 
 export type EnvironmentTextFieldProps = {
@@ -27,24 +36,28 @@ const onError = (error: Error) => {
   throw error
 }
 
-const getEditorState = (value: string) => {
-  const root = $getRoot()
+const getEditorState = (
+  value: string,
+  lexical: LexicalModule,
+  VariableNodeClass: VariableNodeType
+) => {
+  const root = lexical.$getRoot()
 
   if (value === '') {
     root.clear()
-    const paragraph = $createParagraphNode()
-    paragraph.append($createTextNode(value))
+    const paragraph = lexical.$createParagraphNode()
+    paragraph.append(lexical.$createTextNode(value))
     root.append(paragraph)
   } else {
     root.clear()
-    const paragraph = $createParagraphNode()
+    const paragraph = lexical.$createParagraphNode()
 
     // Find all substrings that start and end with double curly braces
     const matches = getPossibleVariableMatch(value)
 
     // This is the same code as in the VariablePlugin.tsx file
 
-    const textNode = $createTextNode(value)
+    const textNode = lexical.$createTextNode(value)
 
     paragraph.append(textNode)
     root.append(paragraph)
@@ -69,7 +82,10 @@ const getEditorState = (value: string) => {
 
       if (!node) return
 
-      const variableNode = $createVariableNode(match.matchingString)
+      const variableNode = $createVariableNode(
+        match.matchingString,
+        VariableNodeClass
+      )
       node.replace(variableNode)
     })
   }
@@ -86,23 +102,47 @@ export const EnvironmentTextField = ({
   error = false,
   helperText = '',
 }: EnvironmentTextFieldProps) => {
+  const [lexical, setLexical] = useState<LexicalModule | null>(null)
+
+  useEffect(() => {
+    const importModule = async () => {
+      setLexical(await getLexicalModule())
+    }
+    importModule()
+  }, [])
+
+  const [lexicalAddons, setLexicalAddons] = useState<LexicalAddons | null>(null)
+
+  useEffect(() => {
+    const importModule = async () => {
+      setLexicalAddons(await getLexicalAddons())
+    }
+    importModule()
+  }, [])
+
+  const VariableNode = useMemo(() => {
+    if (lexical) {
+      return VariableNodeClass(lexical)
+    }
+    return null
+  }, [lexical])
+
+  const initialConfig = useMemo(() => {
+    if (!VariableNode) return null
+
+    if (lexical) {
+      return {
+        namespace,
+        onError,
+        editorState: () => getEditorState(value, lexical, VariableNode),
+        theme: PlaygroundEditorTheme,
+        nodes: [VariableNode],
+      }
+    }
+    return null
+  }, [VariableNode, lexical, namespace, value])
+
   const theme = useTheme()
-
-  const initialConfig = {
-    namespace,
-    onError,
-    editorState: () => getEditorState(value),
-    theme: PlaygroundEditorTheme,
-    nodes: [VariableNode],
-  }
-
-  const newContentEdibleStyles = contentEditableStyles
-
-  if (error) {
-    newContentEdibleStyles.borderColor = theme.palette.error.main
-    newContentEdibleStyles.borderWidth = '1px'
-    newContentEdibleStyles.borderStyle = 'solid'
-  }
 
   // On copy event, we want to convert the editor state to text
   const onCopy = (event: {
@@ -113,6 +153,18 @@ export const EnvironmentTextField = ({
     event.clipboardData?.setData('text/plain', value)
     event.preventDefault()
   }
+
+  const reactiveStyles = useMemo(() => {
+    const styles = contentEditableStyles
+
+    if (error) {
+      styles.borderColor = theme.palette.error.main
+      styles.borderWidth = '1px'
+      styles.borderStyle = 'solid'
+    }
+
+    return styles
+  }, [contentEditableStyles, error, theme])
 
   return (
     <Stack
@@ -147,14 +199,22 @@ export const EnvironmentTextField = ({
         }}
         onCopy={onCopy}
       >
-        <LexicalComposer initialConfig={initialConfig} key={namespace}>
-          <InnerValues
-            onChange={onChange}
-            namespace={namespace}
-            contentEditableStyles={newContentEdibleStyles}
+        {lexical && initialConfig && lexicalAddons && VariableNode ? (
+          <lexicalAddons.LexicalComposer
+            initialConfig={initialConfig}
             key={namespace}
-          />
-        </LexicalComposer>
+          >
+            <InnerValues
+              onChange={onChange}
+              namespace={namespace}
+              contentEditableStyles={reactiveStyles}
+              key={namespace}
+              lexical={lexical}
+              lexicalAddons={lexicalAddons}
+              VariableNodeClass={VariableNode}
+            />
+          </lexicalAddons.LexicalComposer>
+        ) : null}
       </div>
       {error && helperText && (
         <Typography
