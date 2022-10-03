@@ -29,6 +29,7 @@ export const EndpointBox = ({
   }
 
   const namespace = `${requestId}_endpoint`
+
   return (
     <>
       <RequestMethodButton
@@ -43,6 +44,9 @@ export const EndpointBox = ({
         wrapperStyles={{
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,
+        }}
+        contentEditableStyles={{
+          height: '40px',
         }}
       />
     </>

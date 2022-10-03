@@ -123,7 +123,7 @@ export const FileDropzone = ({
             borderStyle: 'dashed',
             borderWidth: 2,
             backgroundColor: 'transparent',
-            height: 'calc(100% - 4px)',
+            height: 'calc(100% - 0.25rem)',
             // Transition border color on hover
             transition: 'border-color 0.2s ease-in-out',
             pointerEvents: 'none',

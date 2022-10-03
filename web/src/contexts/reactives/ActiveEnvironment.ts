@@ -1,5 +1,5 @@
 import { makeVar } from '@apollo/client'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 type ActiveEnvironmentDictionary = {
   [WorkspaceId_ProjectId_BranchId: string]: string | null
@@ -7,10 +7,10 @@ type ActiveEnvironmentDictionary = {
 
 export const activeEnvironmentVar = makeVar<ActiveEnvironmentDictionary>({})
 
-export const getBranchEnvironmentKey = (branchYMap: Y.Map<any>) => {
+export const getBranchEnvironmentKey = (branchYMap: YMap<any>) => {
   const branchId = branchYMap.get('id')
 
-  const project = branchYMap?.parent?.parent as Y.Map<any>
+  const project = branchYMap?.parent?.parent as YMap<any>
 
   if (!project) {
     throw new Error('getActiveWorkspaceId: collectionYMap is not in a project')
@@ -31,7 +31,7 @@ export const getBranchEnvironmentKey = (branchYMap: Y.Map<any>) => {
 
 export const updateActiveEnvironmentId = (
   activeEnvironmentDict: ActiveEnvironmentDictionary,
-  branchYMap: Y.Map<any>,
+  branchYMap: YMap<any>,
   environmentId: string | null
 ) => {
   const newName = getBranchEnvironmentKey(branchYMap)

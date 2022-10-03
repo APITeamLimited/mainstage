@@ -2,21 +2,22 @@
 import { useEffect } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import {
   focusedElementVar,
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives'
+
 import {
   clearFocusedRESTResponse,
   focusedResponseVar,
   updateFocusedRESTResponse,
-} from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
+} from '../focused-response'
 
 type RESTRequestFocusWatcherProps = {
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const RESTRequestFocusWatcher = ({
@@ -31,7 +32,7 @@ export const RESTRequestFocusWatcher = ({
   useEffect(() => {
     const focusedResponse = focusedResponseDict[
       getFocusedElementKey(collectionYMap)
-    ] as Y.Map<any> | undefined
+    ] as YMap<any> | undefined
 
     if (!focusedResponse) {
       return
@@ -39,7 +40,7 @@ export const RESTRequestFocusWatcher = ({
 
     const restRequest = restRequestsYMap.get(
       focusedResponse.get('parentId')
-    ) as Y.Map<any>
+    ) as YMap<any>
 
     if (!restRequest) {
       throw `restRequest not found for responseId: ${focusedResponse.get(
@@ -55,7 +56,7 @@ export const RESTRequestFocusWatcher = ({
   useEffect(() => {
     const focusedRequest = focusedElementDict[
       getFocusedElementKey(collectionYMap)
-    ] as Y.Map<any> | undefined
+    ] as YMap<any> | undefined
 
     if (!focusedRequest) {
       return
@@ -63,7 +64,7 @@ export const RESTRequestFocusWatcher = ({
 
     const focusedResponse = focusedResponseDict[
       getFocusedElementKey(collectionYMap)
-    ] as Y.Map<any> | undefined
+    ] as YMap<any> | undefined
 
     if (focusedRequest.get('__typename') !== 'RESTRequest' && focusedResponse) {
       clearFocusedRESTResponse(focusedResponseDict, focusedResponse)
@@ -78,14 +79,12 @@ export const RESTRequestFocusWatcher = ({
       return
     }
 
-    const latestResponse = Array.from(
-      restResponsesYMap.values() as Y.Map<any>[]
-    )
+    const latestResponse = Array.from(restResponsesYMap.values() as YMap<any>[])
       .filter(
         (response) => response?.get('parentId') === focusedRequest.get('id')
       )
       .sort((a, b) => b.get('createdAt') - a.get('createdAt'))[0] as
-      | Y.Map<any>
+      | YMap<any>
       | undefined
 
     if (!latestResponse) {

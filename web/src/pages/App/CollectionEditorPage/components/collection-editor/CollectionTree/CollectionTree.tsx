@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { HTML5Backend } from 'src/components/dnd/backend-html5'
 import { DndProvider } from 'src/components/dnd/react-dnd'
@@ -12,7 +12,7 @@ import { NewItemPopover } from './NewItemPopover'
 import { Node } from './Node'
 
 type CollectionTreeProps = {
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {

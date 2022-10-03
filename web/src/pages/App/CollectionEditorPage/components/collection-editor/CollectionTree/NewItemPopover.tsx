@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import FolderIcon from '@mui/icons-material/Folder'
 import {
   Popover,
@@ -6,18 +7,16 @@ import {
   ListItemText,
   ListItemIcon,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
-import {
-  createFolder,
-  createRestRequest,
-} from '../../../../../../../../entity-engine/src/entities'
+import { useYJSModule } from 'src/contexts/imports'
+import { createFolder, createRestRequest } from 'src/entity-engine/creators'
 
 import { getNewOrderingIndex } from './Node/utils'
 
 type NewItemPopoverProps = {
   open?: boolean
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
   anchorEl: null | Element
   onClose?: () => void
 }
@@ -28,20 +27,22 @@ export const NewItemPopover = ({
   anchorEl,
   onClose,
 }: NewItemPopoverProps) => {
+  const Y = useYJSModule()
+
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
 
   const handleCreateNewFolder = () => {
     const folderYMapsThisLevel = Array.from(foldersYMap.values()).filter(
       (folderYMap) => folderYMap.get('parentId') === collectionYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const restRequestYMapsThisLevel = Array.from(
       restRequestsYMap.values()
     ).filter(
       (restRequestYMap) =>
         restRequestYMap.get('parentId') === collectionYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const { folder, id } = createFolder({
       parentId: collectionYMap.get('id'),
@@ -50,6 +51,7 @@ export const NewItemPopover = ({
         folderYMaps: folderYMapsThisLevel,
         restRequestYMaps: restRequestYMapsThisLevel,
       }),
+      Y,
     })
 
     foldersYMap.set(id, folder)
@@ -59,14 +61,14 @@ export const NewItemPopover = ({
   const handleCreateNewRESTRequest = () => {
     const folderYMapsThisLevel = Array.from(foldersYMap.values()).filter(
       (folderYMap) => folderYMap.get('parentId') === collectionYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const restRequestYMapsThisLevel = Array.from(
       restRequestsYMap.values()
     ).filter(
       (restRequestYMap) =>
         restRequestYMap.get('parentId') === collectionYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const { request, id } = createRestRequest({
       parentId: collectionYMap.get('id'),
@@ -75,6 +77,7 @@ export const NewItemPopover = ({
         folderYMaps: folderYMapsThisLevel,
         restRequestYMaps: restRequestYMapsThisLevel,
       }),
+      Y,
     })
 
     restRequestsYMap.set(id, request)

@@ -25,7 +25,7 @@
   border-left-color: rgb(206, 208, 212);
   border-left-width: 4px;
   border-left-style: solid;
-  padding-left: 16px;
+  padding-left: 1rem;
 }
 .PlaygroundEditorTheme__h1 {
   font-size: 24px;
@@ -95,12 +95,12 @@
   background-color: rgb(240, 242, 245);
   font-family: Menlo, Consolas, Monaco, monospace;
   display: block;
-  padding: 8px 8px 8px 52px;
+  padding: 0.5rem 0.5rem 0.5rem 52px;
   line-height: 1.53;
   font-size: 13px;
   margin: 0;
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
   tab-size: 2;
   /* white-space: pre; */
   overflow-x: auto;
@@ -113,7 +113,7 @@
   left: 0;
   top: 0;
   border-right: 1px solid #ccc;
-  padding: 8px;
+  padding: 0.5rem;
   color: #777;
   white-space: pre-wrap;
   text-align: right;
@@ -129,7 +129,7 @@
 }
 .PlaygroundEditorTheme__tableCell {
   border: 1px solid black;
-  padding: 6px 8px;
+  padding: 6px 0.5rem;
   min-width: 75px;
   vertical-align: top;
   text-align: start;
@@ -145,51 +145,51 @@
 .PlaygroundEditorTheme__ol1 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-left: 1rem;
   list-style-position: inside;
 }
 .PlaygroundEditorTheme__ol2 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-left: 1rem;
   list-style-type: upper-alpha;
   list-style-position: inside;
 }
 .PlaygroundEditorTheme__ol3 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-left: 1rem;
   list-style-type: lower-alpha;
   list-style-position: inside;
 }
 .PlaygroundEditorTheme__ol4 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-left: 1rem;
   list-style-type: upper-roman;
   list-style-position: inside;
 }
 .PlaygroundEditorTheme__ol5 {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-left: 1rem;
   list-style-type: lower-roman;
   list-style-position: inside;
 }
 .PlaygroundEditorTheme__ul {
   padding: 0;
   margin: 0;
-  margin-left: 16px;
+  margin-left: 1rem;
   list-style-position: inside;
 }
 .PlaygroundEditorTheme__listItem {
-  margin: 8px 32px;
+  margin: 0.5rem 32px;
 }
 .PlaygroundEditorTheme__listItemChecked,
 .PlaygroundEditorTheme__listItemUnchecked {
   position: relative;
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
   padding-left: 24px;
   padding-right: 24px;
   list-style-type: none;
@@ -201,8 +201,8 @@
 .PlaygroundEditorTheme__listItemUnchecked:before,
 .PlaygroundEditorTheme__listItemChecked:before {
   content: '';
-  width: 16px;
-  height: 16px;
+  width: 1rem;
+  height: 1rem;
   top: 2px;
   left: 0;
   cursor: pointer;

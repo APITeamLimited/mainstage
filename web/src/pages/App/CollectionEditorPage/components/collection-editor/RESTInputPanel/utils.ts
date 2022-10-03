@@ -1,12 +1,12 @@
 import { KeyValueItem } from '@apiteam/types'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 export const generatePathVariables = ({
   requestYMap,
   unsavedEndpoint,
   setUnsavedPathVariables,
 }: {
-  requestYMap: Y.Map<any>
+  requestYMap: YMap<any>
   unsavedEndpoint: string
   setUnsavedPathVariables: (pathVariables: KeyValueItem[]) => void
 }) => {

@@ -23,13 +23,7 @@ export const SaveButton = ({ needSave, onSave, onSaveAs }: SaveButtonProps) => {
 
   return (
     <>
-      <ButtonGroup
-        ref={buttonGroupRef}
-        variant="contained"
-        color="secondary"
-        size="small"
-        sx={{ height: 40 }}
-      >
+      <ButtonGroup ref={buttonGroupRef} variant="contained" color="secondary">
         <Button
           disabled={needSave === false}
           onClick={onSave}

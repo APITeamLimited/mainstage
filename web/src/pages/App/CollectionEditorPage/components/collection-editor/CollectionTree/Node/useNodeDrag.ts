@@ -5,12 +5,12 @@ import {
 } from 'src/components/dnd/react-dnd'
 
 type UseNodeDragArgs = {
-  nodeYMap: Y.Map<any>
+  nodeYMap: YMap<any>
   parentIndex: number
 }
 
 export type DragDetails = {
-  dropItem: Y.Map<any>
+  dropItem: YMap<any>
   parentIndex: number
 }
 

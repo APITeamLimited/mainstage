@@ -1,7 +1,7 @@
 import { RESTRequest } from '@apiteam/types'
 import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { createEnvironmentContext } from 'src/utils/environment'
 
@@ -23,10 +23,10 @@ export const singleRESTRequestGenerator = async ({
   request: RESTRequest
   scopeId: string
   rawBearer: string
-  activeEnvironmentYMap: Y.Map<any> | null
+  activeEnvironmentYMap: YMap<any> | null
   jobQueue: QueuedJob[]
-  requestYMap: Y.Map<any>
-  collectionYMap: Y.Map<any>
+  requestYMap: YMap<any>
+  collectionYMap: YMap<any>
 }): Promise<BaseJob & PendingLocalJob> => {
   const axiosConfig = await getFinalRequest(
     request,

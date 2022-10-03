@@ -1,5 +1,5 @@
 import { Branch, Collection, Project } from '@apiteam/types'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { UserProjectBranch } from 'src/contexts/reactives/UserBranches'
 
@@ -42,7 +42,7 @@ export type SortOption = 'Most Recent' | 'Alphabetical' | 'Creation Date'
 
 export type OverviewType = {
   overviewItem: Collection
-  yMap: Y.Map<any>
+  yMap: YMap<any>
 }
 
 export const sortOverviewItems = (

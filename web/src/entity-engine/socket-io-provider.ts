@@ -8,8 +8,10 @@ import { Observable } from 'lib0/observable'
 import { uuidv4 } from 'lib0/random'
 import * as time from 'lib0/time'
 import { io, protocol, Socket } from 'socket.io-client'
-import * as awarenessProtocol from 'y-protocols/awareness'
-import * as Y from 'yjs'
+import type { Awareness } from 'y-protocols/awareness'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
+
+import { Lib0Module, YJSModule } from 'src/contexts/imports'
 
 import * as syncProtocol from './sync'
 import { GET_PUBLIC_BEARER, PossibleSyncStatus } from './utils'
@@ -40,7 +42,7 @@ const messageSync = 0
 const messageAwareness = 1
 const messageQueryAwareness = 3
 
-const messageHandlers: Array<
+type MessageHandlersType = Array<
   (
     arg0: encoding.Encoder,
     arg1: decoding.Decoder,
@@ -48,91 +50,27 @@ const messageHandlers: Array<
     arg3: boolean,
     arg4: number
   ) => void
-> = []
-
-type MessageHandlersType = typeof messageHandlers
-
-messageHandlers[messageSync] = (
-  encoder,
-  decoder,
-  provider,
-  emitSynced,
-  messageType
-) => {
-  encoding.writeVarUint(encoder, messageSync)
-
-  const syncMessageType = syncProtocol.readSyncMessage(
-    decoder,
-    encoder,
-    provider.doc,
-    provider
-  )
-
-  provider.onSyncMessage?.(provider.doc)
-
-  //console.log('syncMessageType:', syncMessageType)
-
-  if (
-    emitSynced &&
-    syncMessageType === syncProtocol.messageYjsSyncStep2 &&
-    !provider.synced
-  ) {
-    //console.log('Setting as synced')
-    provider.synced = true
-  }
-}
-
-messageHandlers[messageQueryAwareness] = (
-  encoder,
-  decoder,
-  provider,
-  emitSynced,
-  messageType
-) => {
-  //console.log('messageQueryAwareness handler')
-  encoding.writeVarUint(encoder, messageAwareness)
-  encoding.writeVarUint8Array(
-    encoder,
-    awarenessProtocol.encodeAwarenessUpdate(
-      provider.awareness,
-      Array.from(provider.awareness.getStates().keys())
-    )
-  )
-}
-
-messageHandlers[messageAwareness] = (
-  encoder,
-  decoder,
-  provider,
-  emitSynced,
-  messageType
-) => {
-  awarenessProtocol.applyAwarenessUpdate(
-    provider.awareness,
-    decoding.readVarUint8Array(decoder),
-    provider
-  )
-  //console.log('messageAwareness handler')
-  provider.onAwarenessUpdate?.(provider.awareness)
-}
+>
 
 type SocketIOProviderConstructorArgs = {
   scopeId: string
   rawBearer: string
-  doc: Y.Doc
+  doc: YDoc
   options?: {
     connect?: boolean
     // Specify an existing Awareness instance - see https://github.com/yjs/y-protocols
-    awareness?: awarenessProtocol.Awareness
+    awareness?: Awareness
     resyncInterval?: number
     // Specify the maximum amount to wait between reconnects (we use exponential backoff).
     maxBackoffTime?: number
     disableBc?: boolean
-    onAwarenessUpdate?: (awareness: awarenessProtocol.Awareness) => void
+    onAwarenessUpdate?: (awareness: Awareness) => void
     onStatusChange?: ((status: PossibleSyncStatus) => void) | undefined
-    onSyncMessage?: ((newDoc: Y.Doc) => void) | undefined
+    onSyncMessage?: ((newDoc: YDoc) => void) | undefined
   }
   apolloClient: ApolloClient<unknown>
+  Y: YJSModule
+  lib0: Lib0Module
 }
 
 export class SocketIOProvider extends Observable<string> {
@@ -143,8 +81,8 @@ export class SocketIOProvider extends Observable<string> {
   url: string
   scopeId: string
   rawBearer: string
-  doc: Y.Doc
-  awareness: awarenessProtocol.Awareness
+  doc: YDoc
+  awareness: Awareness
   socketConnecting: boolean
   socketConnected: boolean
   disableBc: boolean
@@ -164,11 +102,10 @@ export class SocketIOProvider extends Observable<string> {
   ) => void
   _beforeUnloadHandler: () => void
   _checkInterval
-  onAwarenessUpdate:
-    | ((awareness: awarenessProtocol.Awareness) => void)
-    | undefined
+  onAwarenessUpdate: ((awareness: Awareness) => void) | undefined
   onStatusChange: ((status: PossibleSyncStatus) => void) | undefined
-  onSyncMessage: ((newDoc: Y.Doc) => void) | undefined
+  onSyncMessage: ((newDoc: YDoc) => void) | undefined
+  Y: YJSModule
 
   constructor({
     scopeId,
@@ -176,10 +113,11 @@ export class SocketIOProvider extends Observable<string> {
     doc,
     options,
     apolloClient,
+    Y,
   }: SocketIOProviderConstructorArgs) {
     const {
       connect = true,
-      awareness = new awarenessProtocol.Awareness(doc),
+      awareness = new Y.awarenessProtocol.Awareness(doc),
       resyncInterval = -1,
       maxBackoffTime = 2500,
       disableBc = false,
@@ -202,7 +140,6 @@ export class SocketIOProvider extends Observable<string> {
     this.socketConnecting = false
     this.disableBc = disableBc
     this.socketUnsuccessfulReconnects = 0
-    this.messageHandlers = messageHandlers.slice()
     this._synced = false
     this.socket = null
     this.lastPinged = new Date().getTime()
@@ -215,6 +152,7 @@ export class SocketIOProvider extends Observable<string> {
       async () => this.getAndSetPublicBearer(),
       20000
     )
+    this.Y = Y
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
@@ -229,7 +167,7 @@ export class SocketIOProvider extends Observable<string> {
           encoding.writeVarUint(encoder, messageSync)
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          syncProtocol.writeSyncStep1(encoder, this.doc)
+          syncProtocol.writeSyncStep1(encoder, this.doc, this.Y)
           this.socket.send(encoding.toUint8Array(encoder))
         }
       }, resyncInterval)
@@ -265,14 +203,17 @@ export class SocketIOProvider extends Observable<string> {
         encoding.writeVarUint(encoder, messageAwareness)
         encoding.writeVarUint8Array(
           encoder,
-          awarenessProtocol.encodeAwarenessUpdate(awareness, changedClients)
+          this.Y.awarenessProtocol.encodeAwarenessUpdate(
+            awareness,
+            changedClients
+          )
         )
 
         this.broadcastMessage(encoding.toUint8Array(encoder))
       }
 
     this._beforeUnloadHandler = () => {
-      awarenessProtocol.removeAwarenessStates(
+      this.Y.awarenessProtocol.removeAwarenessStates(
         this.awareness,
         [doc.clientID],
         'window unload'
@@ -303,6 +244,73 @@ export class SocketIOProvider extends Observable<string> {
       }
     }, messageReconnectTimeout / 10)
 
+    this.messageHandlers = []
+
+    this.messageHandlers[messageSync] = (
+      encoder,
+      decoder,
+      provider,
+      emitSynced,
+      messageType
+    ) => {
+      encoding.writeVarUint(encoder, messageSync)
+
+      const syncMessageType = syncProtocol.readSyncMessage(
+        decoder,
+        encoder,
+        provider.doc,
+        provider,
+        Y
+      )
+
+      provider.onSyncMessage?.(provider.doc)
+
+      //console.log('syncMessageType:', syncMessageType)
+
+      if (
+        emitSynced &&
+        syncMessageType === syncProtocol.messageYjsSyncStep2 &&
+        !provider.synced
+      ) {
+        //console.log('Setting as synced')
+        provider.synced = true
+      }
+    }
+
+    this.messageHandlers[messageQueryAwareness] = (
+      encoder,
+      decoder,
+      provider,
+      emitSynced,
+      messageType
+    ) => {
+      //console.log('messageQueryAwareness handler')
+      encoding.writeVarUint(encoder, messageAwareness)
+      encoding.writeVarUint8Array(
+        encoder,
+        this.Y.awarenessProtocol.encodeAwarenessUpdate(
+          provider.awareness,
+          Array.from(provider.awareness.getStates().keys())
+        )
+      )
+    }
+
+    this.messageHandlers[messageAwareness] = (
+      encoder,
+      decoder,
+      provider,
+      emitSynced,
+      messageType
+    ) => {
+      this.Y.awarenessProtocol.applyAwarenessUpdate(
+        provider.awareness,
+        decoding.readVarUint8Array(decoder),
+        provider
+      )
+      //console.log('messageAwareness handler')
+      provider.onAwarenessUpdate?.(provider.awareness)
+    }
+
     if (connect) {
       this.connect()
     }
@@ -315,7 +323,7 @@ export class SocketIOProvider extends Observable<string> {
       encoding.writeVarUint(encoder, messageSync)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      syncProtocol.writeSyncStep1(encoder, this.doc)
+      syncProtocol.writeSyncStep1(encoder, this.doc, this.Y)
       this.socket.send(encoding.toUint8Array(encoder))
     }
   }
@@ -368,7 +376,7 @@ export class SocketIOProvider extends Observable<string> {
           this.socketConnected = false
           this.synced = false
           // update awareness (all users except local left)
-          awarenessProtocol.removeAwarenessStates(
+          this.Y.awarenessProtocol.removeAwarenessStates(
             this.awareness,
             Array.from(this.awareness.getStates().keys()).filter(
               (client) => client !== this.doc.clientID
@@ -412,7 +420,7 @@ export class SocketIOProvider extends Observable<string> {
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        syncProtocol.writeSyncStep1(encoder, this.doc)
+        syncProtocol.writeSyncStep1(encoder, this.doc, this.Y)
         this.socket?.send(encoding.toUint8Array(encoder))
 
         // broadcast local awareness state
@@ -421,7 +429,7 @@ export class SocketIOProvider extends Observable<string> {
           encoding.writeVarUint(encoderAwarenessState, messageAwareness)
           encoding.writeVarUint8Array(
             encoderAwarenessState,
-            awarenessProtocol.encodeAwarenessUpdate(this.awareness, [
+            this.Y.awarenessProtocol.encodeAwarenessUpdate(this.awareness, [
               this.doc.clientID,
             ])
           )

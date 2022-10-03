@@ -9,7 +9,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 
@@ -19,7 +19,7 @@ import { AuthPanel } from '../RESTInputPanel/AuthPanel'
 import { SaveButton } from '../RESTInputPanel/SaveButton'
 
 type CollectionInputPanelProps = {
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const CollectionInputPanel = ({

@@ -1,5 +1,5 @@
 import { ImportRequest } from 'insomnia-importers'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { getAuth } from './utils'
 
@@ -10,6 +10,8 @@ export const handleFolderImport = async ({
   item: ImportRequest
   foundIds: { oldId: string; newId: string }[]
 }) => {
+  const Y = await import('yjs')
+
   const folder = new Y.Map()
   const folderId = foundIds.find((i) => i.oldId === item._id)?.newId
   if (!folderId) throw new Error('folderId not found')

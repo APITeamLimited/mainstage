@@ -13,8 +13,7 @@ import {
 } from '@mui/material'
 import update from 'immutability-helper'
 
-import { HTML5Backend } from 'src/components/dnd/backend-html5'
-import { DndProvider } from 'src/components/dnd/react-dnd'
+import { useDnDModule } from 'src/contexts/imports'
 
 import { StoredFileType } from '../utils/FileDropzone'
 
@@ -45,6 +44,8 @@ export const SortableEditor = memo(
     disableCheckboxes,
     enableFileFields,
   }: SortableEditorProps) => {
+    const { HTML5Backend, DndProvider } = useDnDModule()
+
     const theme = useTheme()
 
     const moveCard = (dragIndex: number, hoverIndex: number) => {

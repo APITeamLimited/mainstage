@@ -1,4 +1,4 @@
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { FOLDER_LOWER_ADDING_HEIGHT } from './FolderNode'
 import { DropSpaceType } from './Node'
@@ -10,11 +10,11 @@ type CalculateDropArgs = {
     x: number
     y: number
   } | null
-  nodeYMap: Y.Map<any>
+  nodeYMap: YMap<any>
   nodeYMapRef: React.RefObject<HTMLDivElement>
   parentIndex: number
-  foldersYMap: Y.Map<any>
-  restRequestsYMap: Y.Map<any>
+  foldersYMap: YMap<any>
+  restRequestsYMap: YMap<any>
   // These will only ever be set null
   setDropResult: (result: null) => void
   setClientOffset: (offset: null) => void
@@ -94,16 +94,16 @@ export const calculateDrop = ({
 
     const droppedYMap = dropResult.dropItem
 
-    let targetYMap: Y.Map<any> | undefined = undefined
+    let targetYMap: YMap<any> | undefined = undefined
 
     if (nodeYMap.get('__typename') === 'Collection') {
       // Get the last top level item in the collection and use that as the node
-      const foldersYMap = nodeYMap.get('folders') as Y.Map<any>
-      const restRequestsYMap = nodeYMap.get('restRequests') as Y.Map<any>
+      const foldersYMap = nodeYMap.get('folders') as YMap<any>
+      const restRequestsYMap = nodeYMap.get('restRequests') as YMap<any>
 
       let lastOrderingIndex = -1
 
-      Array.from(foldersYMap.values() as unknown as Y.Map<any>).forEach(
+      Array.from(foldersYMap.values() as unknown as YMap<any>).forEach(
         (folderYMap) => {
           if (folderYMap.get('__parentTypename') === 'Collection') {
             if (folderYMap.get('orderingIndex') > lastOrderingIndex) {
@@ -114,7 +114,7 @@ export const calculateDrop = ({
         }
       )
 
-      Array.from(restRequestsYMap.values() as unknown as Y.Map<any>).forEach(
+      Array.from(restRequestsYMap.values() as unknown as YMap<any>).forEach(
         (restRequestYMap) => {
           if (restRequestYMap.get('__parentTypename') === 'Collection') {
             if (restRequestYMap.get('orderingIndex') > lastOrderingIndex) {
@@ -186,10 +186,10 @@ const droppingOnSelf = ({
   foldersYMap,
   restRequestsYMap,
 }: {
-  nodeYMap: Y.Map<any>
-  dropItem: Y.Map<any>
-  foldersYMap: Y.Map<any>
-  restRequestsYMap: Y.Map<any>
+  nodeYMap: YMap<any>
+  dropItem: YMap<any>
+  foldersYMap: YMap<any>
+  restRequestsYMap: YMap<any>
 }): boolean => {
   if (nodeYMap.get('__typename') === 'Collection') {
     return false
@@ -212,7 +212,7 @@ const droppingOnSelf = ({
     )
   }
 
-  let parentYMap: undefined | Y.Map<any> = undefined
+  let parentYMap: undefined | YMap<any> = undefined
 
   if (nodeParentType === 'Folder') {
     parentYMap = foldersYMap.get(parentId)

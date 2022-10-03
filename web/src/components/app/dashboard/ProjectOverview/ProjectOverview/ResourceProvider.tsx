@@ -1,9 +1,10 @@
 import { Collection } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Button, Box, useTheme } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 
 import { quickstartDialogStateVar } from '../../../dialogs'
@@ -12,14 +13,16 @@ import { QuickstartButton } from '../QuickstartButton'
 import { OverviewType } from '../utils'
 
 type ResourceProviderProps = {
-  projectYMap: Y.Map<any>
-  activeYBranch: Y.Map<any>
+  projectYMap: YMap<any>
+  activeYBranch: YMap<any>
 }
 
 export const ResourceProvider = ({
   projectYMap,
   activeYBranch,
 }: ResourceProviderProps) => {
+  const Y = useYJSModule()
+
   const theme = useTheme()
   const collections = useYMap<Collection, Record<string, Collection>>(
     activeYBranch.get('collections') || new Y.Map()
@@ -35,7 +38,7 @@ export const ResourceProvider = ({
     Object.entries(collections.data).forEach(([collectionId, collection]) => {
       unsortedOverviews.push({
         overviewItem: collection,
-        yMap: collections.get(collectionId) as Y.Map<any>,
+        yMap: collections.get(collectionId) as YMap<any>,
       })
     })
   }
@@ -45,7 +48,7 @@ export const ResourceProvider = ({
       ([environmentId, environment]) => {
         unsortedOverviews.push({
           overviewItem: { ...environment, __typename: 'Environment' },
-          yMap: environments.get(environmentId) as Y.Map<any>,
+          yMap: environments.get(environmentId) as YMap<any>,
         })
       }
     )

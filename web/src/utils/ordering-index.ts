@@ -1,10 +1,10 @@
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 const SORTABLE_TYPES = ['Collection', 'Folder']
 
 export const buildOrderingIndex = (
-  collectionYMap: Y.Map<any>,
-  nodeYMap: Y.Map<any>
+  collectionYMap: YMap<any>,
+  nodeYMap: YMap<any>
 ) => {
   if (!SORTABLE_TYPES.includes(nodeYMap.get('__typename'))) {
     return
@@ -13,11 +13,11 @@ export const buildOrderingIndex = (
   const nodeId = nodeYMap.get('id')
 
   const restRequests = Array.from(
-    collectionYMap.get('restRequests').values() as Y.Map<any>[]
+    collectionYMap.get('restRequests').values() as YMap<any>[]
   ).filter((request) => request.get('parentId') === nodeId)
 
   const folders = Array.from(
-    collectionYMap.get('folders').values() as Y.Map<any>[]
+    collectionYMap.get('folders').values() as YMap<any>[]
   ).filter((folder) => folder.get('parentId') === nodeId)
 
   const items = [...folders, ...restRequests].map((item, index) => {

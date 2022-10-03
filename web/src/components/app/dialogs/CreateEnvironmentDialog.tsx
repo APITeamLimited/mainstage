@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 
 import { Branch, Project } from '@apiteam/types'
@@ -16,14 +17,15 @@ import {
   Box,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import * as Yup from 'yup'
 import { useYMap } from 'zustand-yjs'
 
+import { useYJSModule } from 'src/contexts/imports'
 import { userProjectBranchesVar } from 'src/contexts/reactives/UserBranches'
 import { useWorkspace } from 'src/entity-engine'
+import { createEnvironment } from 'src/entity-engine/creators'
 
-import { createEnvironment } from '../../../../../entity-engine/src/entities'
 import { findActiveBranch } from '../dashboard/ProjectOverview/utils'
 
 type CreateEnvironmentDialogState = {
@@ -41,6 +43,8 @@ export const createEnvironmentDialogStateVar = makeVar(
 )
 
 export function CreateEnvironmentDialog() {
+  const Y = useYJSModule()
+
   const { isOpen, project } = useReactiveVar(createEnvironmentDialogStateVar)
   const workspace = useWorkspace()
   const projects = useYMap<Project, Record<string, Project>>(
@@ -70,7 +74,7 @@ export function CreateEnvironmentDialog() {
       name: Yup.string().max(25).required('Environments must have a name'),
     }),
     onSubmit: async (values): Promise<void> => {
-      const { environment, environmentId } = createEnvironment(values.name)
+      const { environment, environmentId } = createEnvironment(values.name, Y)
       const projectData = Object.entries(projects.data).find(
         (r, i) => i === values.projectIndex
       )
@@ -81,7 +85,7 @@ export function CreateEnvironmentDialog() {
 
       const branches = (projectYMap as Y.Map<unknown>).get(
         'branches'
-      ) as Y.Map<any>
+      ) as YMap<any>
 
       let branchValues = {} as Record<string, Branch>
 
@@ -108,7 +112,7 @@ export function CreateEnvironmentDialog() {
       const branchYMap = branches.get(activeBranch.id)
       if (!branchYMap) throw new Error('No branch found')
 
-      const environments = (branchYMap as Y.Map<any>).get('environments')
+      const environments = (branchYMap as YMap<any>).get('environments')
       environments.set(environmentId, environment)
       handleClose()
     },

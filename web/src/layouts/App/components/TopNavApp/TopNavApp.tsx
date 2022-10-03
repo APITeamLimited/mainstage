@@ -14,7 +14,14 @@ export const TopNavApp = () => {
   return (
     <TopNavBase
       leftZone={
-        <Stack direction="row" alignItems="center" spacing={2}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={2}
+          sx={{
+            height: '100%',
+          }}
+        >
           <APITeamLogo />
           {/*<SlashDivider />*/}
           <WorkspaceSwitcher />

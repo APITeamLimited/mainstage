@@ -1,3 +1,4 @@
+import { Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   Button,
@@ -12,14 +13,13 @@ import {
   FormLabel,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import { Project } from '@apiteam/types'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import * as Yup from 'yup'
 import { useYMap } from 'zustand-yjs'
 
+import { useYJSModule } from 'src/contexts/imports'
 import { useWorkspace } from 'src/entity-engine'
-
-import { createProject } from '../../../../../entity-engine/src/entities'
+import { createProject } from 'src/entity-engine/creators'
 
 type CreateProjectDialogState = {
   isOpen: boolean
@@ -34,6 +34,8 @@ export const createProjectDialogStateVar = makeVar(
 )
 
 export const CreateProjectDialog = () => {
+  const Y = useYJSModule()
+
   const workspace = useWorkspace()
   const projects = useYMap<Project, Record<string, Project>>(
     workspace?.getMap('projects') || new Y.Map()
@@ -49,7 +51,7 @@ export const CreateProjectDialog = () => {
       name: Yup.string().max(25).required('Projects must have a name'),
     }),
     onSubmit: async (values): Promise<void> => {
-      const newProject = createProject(values.name)
+      const newProject = createProject(values.name, Y)
       projects.set(newProject.id, newProject.project)
       handleClose()
     },

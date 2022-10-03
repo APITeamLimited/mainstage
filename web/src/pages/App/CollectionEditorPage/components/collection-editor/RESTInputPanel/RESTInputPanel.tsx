@@ -7,11 +7,12 @@ import { ExecutionScript } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { useYJSModule } from 'src/contexts/imports'
 import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
@@ -32,13 +33,15 @@ import { generatePathVariables } from './utils'
 
 type RESTInputPanelProps = {
   requestId: string
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const RESTInputPanel = ({
   requestId,
   collectionYMap,
 }: RESTInputPanelProps) => {
+  const Y = useYJSModule()
+
   const restRequestsYMap = collectionYMap.get('restRequests')
   useWorkspace()
   const scopeId = useScopeId()
@@ -232,6 +235,7 @@ export const RESTInputPanel = ({
             sx={{
               width: '100%',
               maxWidth: '100%',
+              height: '2.5rem',
             }}
           >
             <EndpointBox

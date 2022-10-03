@@ -13,12 +13,13 @@ import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useLocation } from '@redwoodjs/router'
 import { useQuery } from '@redwoodjs/web'
 
+import { useLib0Module, useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { handleProviders, HandleUpdateDispatchArgs } from './handle-providers'
@@ -63,7 +64,7 @@ function useStateCallback<T>(
   return [state, setStateCallback]
 }
 
-const DocContext = createContext<Y.Doc | null>(null)
+const DocContext = createContext<YDoc | null>(null)
 export const useWorkspace = () => useContext(DocContext)
 
 const ScopesContext = createContext<GetBearerPubkeyScopes['scopes'] | null>(
@@ -104,6 +105,9 @@ const SyncReadyContext = createContext(initialSyncReadyStatus)
 export const useSyncReady = () => useContext(SyncReadyContext)
 
 export const EntityEngine = ({ children }: EntityEngineProps) => {
+  const lib0 = useLib0Module()
+  const Y = useYJSModule()
+
   const { isAuthenticated } = useAuth()
   const [publicKey, setPublicKey] = useState<string | null>(null)
   const [bearer, setBearer] = useState<Bearer | null>(null)
@@ -118,7 +122,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     return activeWorkspace.scope.id
   }, [activeWorkspace])
 
-  const [doc, setDoc] = useState<Y.Doc | null>(null)
+  const [doc, setDoc] = useState<YDoc | null>(null)
   const [socketioProvider, setSocketioProvider] =
     useState<SocketIOProvider | null>(null)
   const [indexeddbProvider, setIndexeddbProvider] =
@@ -272,6 +276,8 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       handleUpdateDispatch,
       apolloClient,
       setAwareness,
+      Y,
+      lib0,
     })
   }, [
     activeWorkspace,
@@ -287,6 +293,8 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     setSocketioSyncStatus,
     socketioProvider,
     socketioSyncStatus,
+    Y,
+    lib0,
   ])
 
   if (error) {

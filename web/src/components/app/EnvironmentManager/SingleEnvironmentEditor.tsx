@@ -15,7 +15,7 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import {
@@ -27,7 +27,7 @@ import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 import { KeyValueEditor } from '../KeyValueEditor'
 
 type SingleEnvironmentEditorProps = {
-  environmentYMap: Y.Map<any>
+  environmentYMap: YMap<any>
   show: boolean
   setShow: (show: boolean) => void
 }

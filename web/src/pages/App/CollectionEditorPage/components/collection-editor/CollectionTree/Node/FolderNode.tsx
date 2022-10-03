@@ -6,7 +6,7 @@ import {
   useTheme,
   Box,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { RequestListItem } from 'src/components/app/utils/RequestListItem'
 import {
@@ -26,7 +26,7 @@ export const FOLDER_LOWER_ADDING_HEIGHT = 12
 
 type FolderNodeProps = {
   isBeingDragged: boolean
-  nodeYMap: Y.Map<any>
+  nodeYMap: YMap<any>
   renaming: boolean
   setRenaming: (renaming: boolean) => void
   handleRename: (name: string) => void

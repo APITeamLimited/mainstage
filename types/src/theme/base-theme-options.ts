@@ -1,8 +1,56 @@
 import { ThemeOptions } from '@mui/material'
 
 export const baseThemeOptions: ThemeOptions = {
+  spacing: 6,
   typography: {
     //fontFamily: '"Poppins", "sans-serif"',
+    fontFamily: 'Manrope, sans-serif',
+    fontSize: 16,
+    h1: {
+      fontSize: '2.625rem',
+      lineHeight: 3,
+      fontWeight: 500,
+    },
+    h2: {
+      fontSize: `${28 / 16}rem`,
+      lineHeight: 2.265,
+      fontWeight: 500,
+    },
+    h3: {
+      fontSize: '1.5rem',
+      lineHeight: 1.75,
+      fontWeight: 500,
+    },
+    h4: {
+      fontSize: '1.25rem',
+      lineHeight: 1.5,
+      fontWeight: 500,
+    },
+    h5: {
+      fontSize: '1rem',
+      lineHeight: 1.5,
+      fontWeight: 500,
+    },
+    caption: {
+      fontSize: '0.75rem',
+      lineHeight: 1.125,
+      fontWeight: 700,
+    },
+    body1: {
+      fontSize: '0.875rem',
+      lineHeight: 1.3125,
+      fontWeight: 400,
+    },
+    body2: {
+      fontSize: '0.875rem',
+      lineHeight: 1.3125,
+      fontWeight: 200,
+    },
+    button: {
+      fontSize: '0.875rem',
+      lineHeight: 1,
+      fontWeight: 500,
+    },
   },
 
   components: {
@@ -28,17 +76,45 @@ export const baseThemeOptions: ThemeOptions = {
         },
       },
     },
-    /*MuiButton: {
+    MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 14,
+          textTransform: 'none',
+          paddingTop: '0.75rem',
+          paddingBottom: '0.75rem',
+          paddingLeft: '1.5rem',
+          paddingRight: '1.5rem',
+          borderRadius: '0.25rem',
+        },
+        sizeSmall: {
+          height: '2rem',
+        },
+        sizeMedium: {
+          height: '2.5rem',
+        },
+        sizeLarge: {
+          height: '3rem',
         },
       },
     },
-  },
-  // Set default border radius to 20px
-  shape: {
-    borderRadius: 20,
-  */
+    MuiSvgIcon: {
+      styleOverrides: {
+        root: {
+          userSelect: 'none',
+          height: '1.5rem',
+          width: '1.5rem',
+        },
+      },
+    },
+    MuiInputBase: {
+      styleOverrides: {
+        root: {
+          borderRadius: '0.25rem',
+          //height: '2rem',
+          paddingX: '0.5rem',
+          paddingY: '0.75rem',
+        },
+      },
+    },
   },
 }

@@ -68,24 +68,26 @@ export const RequestListItem = ({
           />
         }
         secondary={
-          renaming && secondaryText ? undefined : (
-            <Typography
-              sx={{
-                position: 'relative',
-                top: '-3px',
-                opacity: 0.6,
-                height: '18px',
-                textOverflow: 'ellipsis',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                userSelect: 'none',
-              }}
-              fontSize="0.75rem"
-              color={theme.palette.text.secondary}
-            >
-              {secondaryText}
-            </Typography>
-          )
+          <>
+            {!renaming && secondaryText && (
+              <Typography
+                sx={{
+                  position: 'relative',
+                  top: '-3px',
+                  opacity: 0.6,
+                  height: '18px',
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  userSelect: 'none',
+                }}
+                fontSize="0.75rem"
+                color={theme.palette.text.secondary}
+              >
+                {secondaryText}
+              </Typography>
+            )}
+          </>
         }
         sx={{
           whiteSpace: 'nowrap',

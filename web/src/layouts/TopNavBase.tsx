@@ -50,7 +50,7 @@ export const TopNavBase = ({
       >
         <Box
           sx={{
-            minHeight: '44.3px',
+            height: '100%',
           }}
         >
           {leftZone}

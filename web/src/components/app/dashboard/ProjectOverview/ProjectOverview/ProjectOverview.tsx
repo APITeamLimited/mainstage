@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { Branch, Project } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { ImportDialog } from 'src/components/app/dialogs/ImportDialog'
@@ -16,11 +16,11 @@ import { findActiveBranch } from '../utils'
 
 import { ResourceProvider } from './ResourceProvider'
 
-const BranchContext = createContext<Y.Map<any> | null>(null)
+const BranchContext = createContext<YMap<any> | null>(null)
 export const useActiveBranch = () => useContext(BranchContext)
 
 type ProjectOverviewProps = {
-  projectYMap: Y.Map<any>
+  projectYMap: YMap<any>
   project: Project
 }
 
@@ -40,7 +40,7 @@ export const ProjectOverview = ({
     findActiveBranch({ branches: branches.data, userProjectBranches, project })
   )
 
-  const branchYMap = useMemo<Y.Map<any> | null>(
+  const branchYMap = useMemo<YMap<any> | null>(
     () => projectYMap?.get?.('branches')?.get?.(activeBranch?.id) ?? null,
     [projectYMap, activeBranch]
   )

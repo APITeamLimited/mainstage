@@ -1,17 +1,17 @@
 import { makeVar } from '@apollo/client'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 export type FocusedElementDictionary = {
-  [WorkspaceId_ProjectId_collectionId: string]: Y.Map<any>
+  [WorkspaceId_ProjectId_collectionId: string]: YMap<any>
 }
 
 export const focusedElementVar = makeVar<FocusedElementDictionary>({})
 
-export const getFocusedElementKey = (focusYMap: Y.Map<any>) => {
+export const getFocusedElementKey = (focusYMap: YMap<any>) => {
   const collectionYMap =
     focusYMap.get('__typename') === 'Collection'
       ? focusYMap
-      : (focusYMap.parent?.parent as Y.Map<any>)
+      : (focusYMap.parent?.parent as YMap<any>)
 
   if (!collectionYMap) {
     throw new Error('collectionYMap not found')
@@ -19,7 +19,7 @@ export const getFocusedElementKey = (focusYMap: Y.Map<any>) => {
 
   const collectionId = collectionYMap.get('id')
 
-  const branch = collectionYMap.parent?.parent as Y.Map<any>
+  const branch = collectionYMap.parent?.parent as YMap<any>
 
   if (!branch) {
     throw new Error('updateFilter: collectionYMap is not in a branch')
@@ -27,7 +27,7 @@ export const getFocusedElementKey = (focusYMap: Y.Map<any>) => {
 
   const branchId = branch.get('id')
 
-  const project = branch?.parent?.parent as Y.Map<any>
+  const project = branch?.parent?.parent as YMap<any>
 
   if (!project) {
     throw new Error('updateFilter: collectionYMap is not in a project')
@@ -48,7 +48,7 @@ export const getFocusedElementKey = (focusYMap: Y.Map<any>) => {
 
 export const updateFocusedElement = (
   focusedElementDict: FocusedElementDictionary,
-  focusYMap: Y.Map<any>
+  focusYMap: YMap<any>
 ) => {
   const newName = getFocusedElementKey(focusYMap)
 

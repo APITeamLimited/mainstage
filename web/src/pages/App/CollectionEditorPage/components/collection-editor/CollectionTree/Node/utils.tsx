@@ -9,14 +9,14 @@ import {
   useTheme,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 export const getNewOrderingIndex = ({
   folderYMaps,
   restRequestYMaps,
 }: {
-  folderYMaps: Y.Map<any>[]
-  restRequestYMaps: Y.Map<any>[]
+  folderYMaps: YMap<any>[]
+  restRequestYMaps: YMap<any>[]
 }) =>
   Math.max(
     -1, // We want the first element to be at index 0
@@ -24,7 +24,7 @@ export const getNewOrderingIndex = ({
     ...restRequestYMaps.map((request) => request.get('orderingIndex'))
   ) + 1
 
-export const getNodeIcon = (nodeYMap: Y.Map<any>, collapsed: boolean) => {
+export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
   if (nodeYMap.get('__typename') === 'Folder' && collapsed) {
     return <FolderIcon />
   } else if (nodeYMap.get('__typename') === 'Folder' && !collapsed) {
@@ -90,9 +90,9 @@ export const DropSpace = () => {
 }
 
 type DeleteRecursiveArgs = {
-  nodeYMap: Y.Map<any>
-  foldersYMap: Y.Map<any>
-  restRequestsYMap: Y.Map<any>
+  nodeYMap: YMap<any>
+  foldersYMap: YMap<any>
+  restRequestsYMap: YMap<any>
 }
 
 export const deleteRecursive = ({
@@ -136,10 +136,10 @@ export const deleteRecursive = ({
 }
 
 type DuplicateRecursiveArgs = {
-  nodeYMap: Y.Map<any>
+  nodeYMap: YMap<any>
   newParentId?: string | null
-  foldersYMap: Y.Map<any>
-  restRequestsYMap: Y.Map<any>
+  foldersYMap: YMap<any>
+  restRequestsYMap: YMap<any>
   newId?: string
 }
 

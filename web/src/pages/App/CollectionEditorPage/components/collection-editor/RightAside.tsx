@@ -4,7 +4,7 @@ import { useReactiveVar } from '@apollo/client'
 import CodeIcon from '@mui/icons-material/Code'
 import CommentIcon from '@mui/icons-material/Comment'
 import { Box, IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
@@ -19,7 +19,7 @@ import { RESTHistory } from './RESTHistory'
 type RightAsideProps = {
   setShowRightAside: (showRightAside: boolean) => void
   showRightAside: boolean
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 type AsideType = 'code' | 'restHistory' | null

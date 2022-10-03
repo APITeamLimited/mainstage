@@ -1,26 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GlobeTestMessage, WrappedExecutionParams } from '@apiteam/types'
-import { makeVar } from '@apollo/client'
 import { io, Socket } from 'socket.io-client'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
+import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
-import { updateFocusedRESTResponse } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
 
-import {
-  BaseJob,
-  ExecutingJob,
-  PostExecutionJob,
-  jobQueueVar,
-  PendingLocalJob,
-  QueuedJob,
-  updateFilterQueue,
-} from './lib'
-import {
-  addOptionsToRESTJob,
-  ensureRESTResponseExists,
-  postProcessRESTRequest,
-} from './processors'
+import { BaseJob, PendingLocalJob, QueuedJob } from './lib'
 
 const getUrl = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -45,7 +32,7 @@ type ExecuteArgs = {
   queueRef: React.MutableRefObject<QueuedJob[] | null>
   job: BaseJob & PendingLocalJob
   rawBearer: string
-  workspace: Y.Doc
+  workspace: YDoc
   focusedResponseDict: FocusedElementDictionary
 }
 
@@ -133,7 +120,7 @@ export const execute = ({
 
 const handleRESTAutoFocus = (
   focusedResponseDict: FocusedElementDictionary,
-  workspace: Y.Doc,
+  workspace: YDoc,
   socket: Socket,
   params: WrappedExecutionParams
 ) => {
@@ -142,7 +129,7 @@ const handleRESTAutoFocus = (
     async ({ responseId }: { responseId: string }) => {
       console.log("Received 'rest-create-response:success' message", responseId)
 
-      const tryFindResponse = async (count = 0): Promise<Y.Map<any>> => {
+      const tryFindResponse = async (count = 0): Promise<YMap<any>> => {
         const restResponseYMap = workspace
           .getMap<any>('projects')
           ?.get(params.projectId)
@@ -151,7 +138,7 @@ const handleRESTAutoFocus = (
           ?.get('collections')
           ?.get(params.collectionId)
           ?.get('restResponses')
-          ?.get(responseId) as Y.Map<any>
+          ?.get(responseId) as YMap<any>
 
         if (!restResponseYMap) {
           if (count >= 10) {
@@ -165,7 +152,7 @@ const handleRESTAutoFocus = (
           return tryFindResponse(count + 1)
         }
 
-        return restResponseYMap as Y.Map<any>
+        return restResponseYMap as YMap<any>
       }
 
       const restResponseYMap = await tryFindResponse()

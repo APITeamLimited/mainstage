@@ -3,12 +3,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { ResolvedVariable } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { useCollection } from 'src/contexts/collection'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { useYJSModule } from 'src/contexts/imports'
 import { activeEnvironmentVar } from 'src/contexts/reactives'
-import { useCollection } from 'src/pages/App/CollectionEditorPage'
 import { findVariablesInString } from 'src/utils/environment'
 
 type VariableChipProps = {
@@ -16,6 +17,8 @@ type VariableChipProps = {
 }
 
 export const VariableChip = ({ variableName }: VariableChipProps) => {
+  const Y = useYJSModule()
+
   const variableNameWithoutCurlyBraces = useMemo(
     () => variableName.replaceAll(/^\{{/g, '').replaceAll(/\}}$/g, ''),
     [variableName]

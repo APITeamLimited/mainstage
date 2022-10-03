@@ -1,6 +1,6 @@
 import { RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { buildHarRequest } from './buildHar'
 
@@ -182,8 +182,8 @@ export const generateRESTCode = async (
   codegenName: CodegenName,
   axiosConfig: AxiosRequestConfig,
   restRequest: RESTRequest,
-  activeEnvironmentYMap: Y.Map<any> | null,
-  collectionYMap: Y.Map<any>
+  activeEnvironmentYMap: YMap<any> | null,
+  collectionYMap: YMap<any>
 ) => {
   const codegenInfo = RESTCodegenDefinitions.find((v) => v.name === codegenName)
   if (!codegenInfo) {
@@ -191,7 +191,6 @@ export const generateRESTCode = async (
   }
 
   const HTTPSnippetModule = await import('httpsnippet')
-
   const HTTPSnippet = HTTPSnippetModule.default
 
   try {

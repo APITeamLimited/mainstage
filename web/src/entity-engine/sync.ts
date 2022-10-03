@@ -4,7 +4,9 @@
 
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
+
+import { YJSModule } from 'src/contexts/imports'
 
 /**
  * @typedef {Map<number, number>} StateMap
@@ -43,11 +45,12 @@ export const messageYjsUpdate = 2
  * Create a sync step 1 message based on the state of the current shared document.
  *
  * @param {encoding.Encoder} encoder
- * @param {Y.Doc} doc
+ * @param {YDoc} doc
  */
 export const writeSyncStep1 = (
   encoder: encoding.Encoder,
-  doc: Y.Doc | Map<number, number>
+  doc: YDoc | Map<number, number>,
+  Y: YJSModule
 ) => {
   encoding.writeVarUint(encoder, messageYjsSyncStep1)
   const sv = Y.encodeStateVector(doc)
@@ -56,13 +59,14 @@ export const writeSyncStep1 = (
 
 /**
  * @param {encoding.Encoder} encoder
- * @param {Y.Doc} doc
+ * @param {YDoc} doc
  * @param {Uint8Array} [encodedStateVector]
  */
 export const writeSyncStep2 = (
   encoder: encoding.Encoder,
-  doc: Y.Doc,
-  encodedStateVector: Uint8Array | undefined
+  doc: YDoc,
+  encodedStateVector: Uint8Array | undefined,
+  Y: YJSModule
 ) => {
   encoding.writeVarUint(encoder, messageYjsSyncStep2)
   encoding.writeVarUint8Array(
@@ -76,25 +80,27 @@ export const writeSyncStep2 = (
  *
  * @param {decoding.Decoder} decoder The reply to the received message
  * @param {encoding.Encoder} encoder The received message
- * @param {Y.Doc} doc
+ * @param {YDoc} doc
  */
 export const readSyncStep1 = (
   decoder: decoding.Decoder,
   encoder: any,
-  doc: any
-) => writeSyncStep2(encoder, doc, decoding.readVarUint8Array(decoder))
+  doc: any,
+  Y: YJSModule
+) => writeSyncStep2(encoder, doc, decoding.readVarUint8Array(decoder), Y)
 
 /**
  * Read and apply Structs and then DeleteStore to a y instance.
  *
  * @param {decoding.Decoder} decoder
- * @param {Y.Doc} doc
+ * @param {YDoc} doc
  * @param {any} transactionOrigin
  */
 export const readSyncStep2 = (
   decoder: decoding.Decoder,
-  doc: Y.Doc,
-  transactionOrigin: any
+  doc: YDoc,
+  transactionOrigin: any,
+  Y: YJSModule
 ) => {
   try {
     Y.applyUpdate(doc, decoding.readVarUint8Array(decoder), transactionOrigin)
@@ -117,7 +123,7 @@ export const writeUpdate = (encoder: encoding.Encoder, update: Uint8Array) => {
  * Read and apply Structs and then DeleteStore to a y instance.
  *
  * @param {decoding.Decoder} decoder
- * @param {Y.Doc} doc
+ * @param {YDoc} doc
  * @param {any} transactionOrigin
  */
 export const readUpdate = readSyncStep2
@@ -125,25 +131,26 @@ export const readUpdate = readSyncStep2
 /**
  * @param {decoding.Decoder} decoder A message received from another client
  * @param {encoding.Encoder} encoder The reply message. Will not be sent if empty.
- * @param {Y.Doc} doc
+ * @param {YDoc} doc
  * @param {any} transactionOrigin
  */
 export const readSyncMessage = (
   decoder: decoding.Decoder,
   encoder: any,
   doc: any,
-  transactionOrigin: any
+  transactionOrigin: any,
+  Y: YJSModule
 ) => {
   const messageType = decoding.readVarUint(decoder)
   switch (messageType) {
     case messageYjsSyncStep1:
-      readSyncStep1(decoder, encoder, doc)
+      readSyncStep1(decoder, encoder, doc, Y)
       break
     case messageYjsSyncStep2:
-      readSyncStep2(decoder, doc, transactionOrigin)
+      readSyncStep2(decoder, doc, transactionOrigin, Y)
       break
     case messageYjsUpdate:
-      readUpdate(decoder, doc, transactionOrigin)
+      readUpdate(decoder, doc, transactionOrigin, Y)
       break
     default:
       throw new Error('Unknown message type')

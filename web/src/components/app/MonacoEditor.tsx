@@ -131,7 +131,7 @@ export const MonacoEditor = ({
               <Box
                 sx={{
                   paddingLeft: '71px',
-                  marginTop: '-1px',
+                  marginTop: '0',
                 }}
               >
                 {placeholder.map((text, index) => (

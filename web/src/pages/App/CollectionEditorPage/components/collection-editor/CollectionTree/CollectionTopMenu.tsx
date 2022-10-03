@@ -16,7 +16,7 @@ import {
   MenuItem,
   ListItemText,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
@@ -29,7 +29,7 @@ import {
 import { RenameDialog } from '../../../../../../components/app/dialogs/RenameDialog'
 import { EnvironmentManager } from '../../../../../../components/app/EnvironmentManager'
 type CollectionTopMenuProps = {
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const CollectionTopMenu = ({

@@ -5,11 +5,12 @@ import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Skeleton } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'
 import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
+import { useYJSModule } from 'src/contexts/imports'
 import { getFocusedElementKey } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
@@ -27,12 +28,14 @@ import { UnderlyingRequestPanel } from '../../UnderlyingRequestPanel'
 import { QuickSuccessSingleStats } from './QuickSuccessSingleStats'
 
 type SuccessSingleResultPanelProps = {
-  requestYMap: Y.Map<any>
+  requestYMap: YMap<any>
 }
 
 export const SuccessSingleResultPanel = ({
   requestYMap,
 }: SuccessSingleResultPanelProps) => {
+  const Y = useYJSModule()
+
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
   const workspace = useWorkspace()

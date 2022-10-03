@@ -3,13 +3,14 @@ import { useEffect } from 'react'
 import { Project } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Button, Stack } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { MetaTags } from '@redwoodjs/web'
 
 import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
 import { createProjectDialogStateVar } from 'src/components/app/dialogs'
+import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 
@@ -20,6 +21,8 @@ type OverviewPageProps = {
 }
 
 export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
+  const Y = useYJSModule()
+
   const workspaceDoc = useWorkspace()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const workspaces = useReactiveVar(workspacesVar)

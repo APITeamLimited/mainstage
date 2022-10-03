@@ -15,8 +15,8 @@ import {
 } from '@mui/material'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
-import { Identifier, XYCoord } from 'src/components/dnd/dnd-core'
-import { useDrag, useDrop } from 'src/components/dnd/react-dnd'
+import type { Identifier, XYCoord } from 'src/components/dnd/dnd-core'
+import { useDnDModule } from 'src/contexts/imports'
 
 import { StyledInput } from '../StyledInput'
 import { StoredDropzone, StoredFileType } from '../utils/FileDropzone'
@@ -73,6 +73,8 @@ export const DraggableTableRow = memo(
     enableFileFields,
     fileField,
   }: DraggableTableRowProps) => {
+    const { useDrag, useDrop } = useDnDModule()
+
     const theme = useTheme()
     const ref = useRef<HTMLDivElement>(null)
     const [{ handlerId }, drop] = useDrop<

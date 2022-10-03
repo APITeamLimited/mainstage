@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { BaseJob, jobQueueVar } from 'src/globe-test/lib'
@@ -11,7 +11,7 @@ import { PanelLayout } from '../../PanelLayout'
 import { UnderlyingRequestPanel } from '../UnderlyingRequestPanel'
 
 type LoadingResponsePanelProps = {
-  requestYMap: Y.Map<any>
+  requestYMap: YMap<any>
 }
 
 export const LoadingResponsePanel = ({

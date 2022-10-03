@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { handleFolderImport } from './folder'
 import { handleRESTImport } from './rest-request'
@@ -8,12 +8,12 @@ import { getAuth, importToInsomnia } from './utils'
 export type ImportResult = {
   collection: {
     collectionId: string
-    collection: Y.Map<any>
+    collection: YMap<any>
     variableCount: number
   }
   environment: {
     environmentId: string
-    environment: Y.Map<any>
+    environment: YMap<any>
     variableCount: number
   } | null
   restRequestsCount: number
@@ -32,6 +32,7 @@ export const importRaw = async ({
   scopeId: string
   rawBearer: string
 }): Promise<ImportResult> => {
+  const Y = await import('yjs')
   const importResult = await importToInsomnia(rawText)
 
   if (!importResult) return null
@@ -147,7 +148,7 @@ export const importRaw = async ({
   ).filter((item) => item) as {
     __typename: 'Folder' | 'RestRequest'
     id: string
-    item: Y.Map<any>
+    item: YMap<any>
   }[]
 
   foundItems.forEach(({ __typename, id, item }) => {

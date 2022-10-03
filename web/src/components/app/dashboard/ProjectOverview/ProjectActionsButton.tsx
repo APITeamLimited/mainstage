@@ -9,14 +9,14 @@ import {
   ListItemText,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
 import { RenameDialog } from '../../dialogs/RenameDialog'
 
 type ProjectActionsButtonProps = {
-  projectYMap: Y.Map<any>
+  projectYMap: YMap<any>
 }
 
 export const ProjectActionsButton = ({

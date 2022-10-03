@@ -16,7 +16,7 @@ import {
   ListItemText,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { routes, navigate } from '@redwoodjs/router'
@@ -28,7 +28,7 @@ import { RenameDialog } from '../../dialogs/RenameDialog'
 import { SingleEnvironmentEditor } from '../../EnvironmentManager/SingleEnvironmentEditor'
 
 type OverviewItemProps = {
-  overviewYMap: Y.Map<any>
+  overviewYMap: YMap<any>
 }
 
 export function OverviewItem({ overviewYMap }: OverviewItemProps) {

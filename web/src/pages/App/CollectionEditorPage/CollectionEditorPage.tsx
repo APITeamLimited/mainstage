@@ -1,14 +1,20 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Container, Divider } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { MetaTags } from '@redwoodjs/web'
 
+import {
+  getLexicalAddons,
+  getLexicalModule,
+} from 'src/components/app/EnvironmentManager/EnvironmentTextField/module'
+import { CollectionContext } from 'src/contexts/collection'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
+import { useYJSModule } from 'src/contexts/imports'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -17,14 +23,13 @@ import {
 import { RESTRequestFocusWatcher } from 'src/contexts/state-watchers/RESTRequestFocusWatcher'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
-import { CollectionInputPanel } from 'src/pages/App/CollectionEditorPage/components/collection-editor/ColectionInputPanel/CollectionInputPanel'
+import { CollectionInputPanel } from 'src/pages/App/CollectionEditorPage/components/collection-editor/CollectionInputPanel/CollectionInputPanel'
 import { RightAside } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RightAside'
 
 import 'react-reflex/styles.css'
 import { CollectionTree } from './components/collection-editor/CollectionTree'
 import { FolderInputPanel } from './components/collection-editor/FolderInputPanel'
 import { RESTInputPanel } from './components/collection-editor/RESTInputPanel'
-import { RESTResponsePanel } from './components/collection-editor/RESTResponsePanel'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -33,15 +38,26 @@ type CollectionEditorPageProps = {
   collectionId: string
 }
 
-const CollectionContext = createContext<Y.Map<any> | null>(null)
-export const useCollection = () => useContext(CollectionContext)
-
 export const CollectionEditorPage = ({
   workspaceId,
   projectId,
   branchId,
   collectionId,
 }: CollectionEditorPageProps) => {
+  const Y = useYJSModule()
+
+  // Pre-load dynamic imports
+  useEffect(() => {
+    getLexicalModule()
+    getLexicalAddons()
+    import('mime-types')
+    import('prettier/standalone')
+    import('prettier/parser-babel')
+    import('httpsnippet')
+
+    // Import path polyfill
+  }, [])
+
   const workspace = useWorkspace()
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)

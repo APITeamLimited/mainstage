@@ -2,7 +2,7 @@ import { useReactiveVar } from '@apollo/client'
 import AddCircleOutlineTwoToneIcon from '@mui/icons-material/AddCircleOutlineTwoTone'
 import { Button, Tooltip } from '@mui/material'
 
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 
@@ -10,7 +10,7 @@ import { quickstartDialogStateVar } from '../../dialogs/QuickstartDialog'
 
 type QuickstartButtonProps = {
   minWidth?: number
-  projectYMap: Y.Map<any>
+  projectYMap: YMap<any>
 }
 
 export const QuickstartButton = ({

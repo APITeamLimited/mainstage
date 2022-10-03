@@ -17,7 +17,7 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import {
@@ -25,14 +25,16 @@ import {
   useBranchYMap,
   useEnvironmentsYMap,
 } from 'src/contexts/EnvironmentProvider'
+import { useYJSModule } from 'src/contexts/imports'
 import {
   activeEnvironmentVar,
   getBranchEnvironmentKey,
   updateActiveEnvironmentId,
 } from 'src/contexts/reactives'
+import { createEnvironment } from 'src/entity-engine/creators'
 
-import { createEnvironment } from '../../../../../entity-engine/src/entities'
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
+import { KeyValueEditor } from '../KeyValueEditor'
 import { EmptyPanelMessage } from '../utils/EmptyPanelMessage'
 
 import { CreateEnvironmentDialog } from './CreateEnvironmentDialog'
@@ -46,6 +48,8 @@ export const EnvironmentManager = ({
   show,
   setShowCallback,
 }: EnvironmentManagerProps) => {
+  const Y = useYJSModule()
+
   const theme = useTheme()
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
@@ -90,7 +94,7 @@ export const EnvironmentManager = ({
   const handleEnvironmentCreate = (name: string) => {
     if (!environmentsYMap) throw 'No environmentsYMap'
 
-    const { environment, environmentId } = createEnvironment(name)
+    const { environment, environmentId } = createEnvironment(name, Y)
 
     environmentsYMap.set(environmentId, environment)
 

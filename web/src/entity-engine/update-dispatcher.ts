@@ -1,12 +1,12 @@
 import { Workspace } from '@apiteam/types'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 
 import { PossibleSyncStatus } from './utils'
 
 export type UpdateDispatcherArgs = {
-  doc: Y.Doc
+  doc: YDoc
   activeWorkspace: Workspace
   initial?: boolean
   socketioSyncStatus: PossibleSyncStatus

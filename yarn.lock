@@ -79,7 +79,6 @@ __metadata:
     "@types/yargs": ^17.0.12
     extract-domain: ^2.4.8
     nodemailer: ^6.7.8
-    yjs: ^13.5.41
     yup: ^0.32.11
   languageName: unknown
   linkType: soft
@@ -32633,15 +32632,6 @@ __metadata:
   dependencies:
     lib0: ^0.2.49
   checksum: 8f7035be8fbe4a3adff6e72821cf4959d54b2f6fee17159bcb436782964026ada70b70baa104a3b0e030049692d392042aa35042b16b6ed0ba404ca49cfb834c
-  languageName: node
-  linkType: hard
-
-"yjs@npm:^13.5.41":
-  version: 13.5.41
-  resolution: "yjs@npm:13.5.41"
-  dependencies:
-    lib0: ^0.2.49
-  checksum: 56831df6271ef717b43d3e3bc178095e925196b5528df4894404c99c39bcfa086ae9f9a5375d4546ab91aeaf31a5ae2c73c5392e4b0f4b9e4f3eadb66bb27bc2
   languageName: node
   linkType: hard
 

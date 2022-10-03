@@ -10,7 +10,7 @@ import {
 } from '@mui/material'
 
 type NodeActionButtonProps = {
-  nodeYMap: Y.Map<any>
+  nodeYMap: YMap<any>
   onDelete: () => void
   onRename: () => void
   onDuplicate: () => void

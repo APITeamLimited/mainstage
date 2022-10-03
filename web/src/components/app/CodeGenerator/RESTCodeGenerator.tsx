@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react'
 
 import { RESTRequest } from '@apiteam/types'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { getFinalRequest } from 'src/globe-test/rest'
 import {
   generateRESTCode,
   RESTCodegenDefinitions,
 } from 'src/utils/code-gen/restCodeGen'
-import { findEnvironmentVariables } from 'src/utils/environment'
 
 import {
   CodeGenDefinition,
@@ -20,9 +20,9 @@ import {
 
 type RESTCodeGeneratorProps = {
   onCloseAside: () => void
-  requestYMap: Y.Map<any>
-  activeEnvironmentYMap: Y.Map<any> | null
-  collectionYMap: Y.Map<any>
+  requestYMap: YMap<any>
+  activeEnvironmentYMap: YMap<any> | null
+  collectionYMap: YMap<any>
 }
 
 export const RESTCodeGenerator = ({
@@ -31,6 +31,8 @@ export const RESTCodeGenerator = ({
   activeEnvironmentYMap,
   collectionYMap,
 }: RESTCodeGeneratorProps) => {
+  const Y = useYJSModule()
+
   const [codeGenerated, setCodeGenerated] = useState<CodeGenerated | 'NONE'>(
     'NONE'
   )

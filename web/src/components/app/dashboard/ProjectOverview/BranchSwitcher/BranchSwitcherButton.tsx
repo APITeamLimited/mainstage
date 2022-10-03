@@ -5,7 +5,7 @@ import { useReactiveVar } from '@apollo/client'
 import AltRouteIcon from '@mui/icons-material/AltRoute'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import { Button, Skeleton, Tooltip } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 

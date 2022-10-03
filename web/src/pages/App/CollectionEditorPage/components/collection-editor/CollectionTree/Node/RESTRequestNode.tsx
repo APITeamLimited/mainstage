@@ -8,11 +8,13 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { RequestListItem } from 'src/components/app/utils/RequestListItem'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { focusedResponseVar } from 'src/contexts/focused-response'
+import { useYJSModule } from 'src/contexts/imports'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -20,16 +22,13 @@ import {
 } from 'src/contexts/reactives/FocusedElement'
 import { findEnvironmentVariables } from 'src/utils/environment'
 
-import { focusedResponseVar } from '../../RESTResponsePanel'
-import { EditNameInput } from '../EditNameInput'
-
 import { NodeActionButton } from './NodeActionButton'
 import { getNodeIcon } from './utils'
 
 type RESTRequestNodeProps = {
   isBeingDragged: boolean
-  nodeYMap: Y.Map<any>
-  collectionYMap: Y.Map<any>
+  nodeYMap: YMap<any>
+  collectionYMap: YMap<any>
   renaming: boolean
   setRenaming: (renaming: boolean) => void
   handleRename: (name: string) => void
@@ -49,6 +48,8 @@ export const RESTRequestNode = ({
   handleDuplicate,
   collapsed,
 }: RESTRequestNodeProps) => {
+  const Y = useYJSModule()
+
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
@@ -63,7 +64,7 @@ export const RESTRequestNode = ({
   const handleClick = () => {
     // Set focused response to most recent of this node's responses
     const responses = Array.from(
-      collectionYMap.get('restResponses').values() as Y.Map<any>[]
+      collectionYMap.get('restResponses').values() as YMap<any>[]
     )
       .filter((response) => response.get('parentId') === nodeYMap.get('id'))
       .sort(

@@ -18,7 +18,7 @@ import {
   Box,
   Chip,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { getImporterNames, importRaw, ImportResult } from 'src/utils/importer'
@@ -43,7 +43,7 @@ const intitialImportDialogState: ImportDialogState = {
 export const importDialogStateVar = makeVar(intitialImportDialogState)
 
 type ImportDialogProps = {
-  selectedProject: Y.Map<any>
+  selectedProject: YMap<any>
 }
 
 export const ImportDialog = ({ selectedProject }: ImportDialogProps) => {

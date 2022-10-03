@@ -10,26 +10,25 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
-
-import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
-import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 
 import {
   clearFocusedRESTResponse,
   focusedResponseVar,
-} from '../RESTResponsePanel'
+} from 'src/contexts/focused-response'
+import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
+import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 
 import { RESTHistoryItem } from './RESTHistoryItem'
 
 type GroupedResponses = {
-  [key: string]: Y.Map<any>[]
+  [key: string]: YMap<any>[]
 }
 
 type RESTHistoryProps = {
   onCloseAside: () => void
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const RESTHistory = ({
@@ -55,15 +54,15 @@ export const RESTHistory = ({
   }
 
   const handleDeleteResponse = (responseId: string) => {
-    const restResponse = restResponsesYMap.get(responseId) as Y.Map<any>
+    const restResponse = restResponsesYMap.get(responseId) as YMap<any>
     clearFocusedRESTResponse(focusedElementDict, restResponse)
     deleteRestResponse([restResponse])
   }
 
-  const responsesToDelete: Y.Map<any>[] = []
+  const responsesToDelete: YMap<any>[] = []
 
-  const responses: Y.Map<any>[] = (
-    Array.from(restResponsesYMap.values()) as Y.Map<any>[]
+  const responses: YMap<any>[] = (
+    Array.from(restResponsesYMap.values()) as YMap<any>[]
   ).filter((response) => {
     return (
       response.get('__subtype') === 'SuccessSingleResult' ||
@@ -153,8 +152,8 @@ export const RESTHistory = ({
         overflowY: 'auto',
         width: '100%',
         maxWidth: '100%',
-        height: 'calc(100% - 1em)',
-        maxHeight: 'calc(100% - 1em)',
+        height: 'calc(100% - 1rem)',
+        maxHeight: 'calc(100% - 1rem)',
         paddingTop: 2,
         overflow: 'hidden',
       }}

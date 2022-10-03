@@ -3,7 +3,9 @@ import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import { Awareness } from 'y-protocols/awareness.js'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
+
+import type { Lib0Module, YJSModule } from 'src/contexts/imports'
 
 import { SocketIOProvider } from './socket-io-provider'
 import { UpdateDispatcherArgs } from './update-dispatcher'
@@ -14,8 +16,8 @@ type HandleProvidersArgs = {
   activeWorkspace: Workspace | null
   rawBearer: string | null
   scopes: GetBearerPubkeyScopes['scopes']
-  doc: Y.Doc | null
-  setDoc: (doc: Y.Doc | null) => void
+  doc: YDoc | null
+  setDoc: (doc: YDoc | null) => void
   socketioProvider: SocketIOProvider | null
   setSocketioProvider: (socketioProvider: SocketIOProvider | null) => void
   indexeddbProvider: IndexeddbPersistence | null
@@ -25,6 +27,8 @@ type HandleProvidersArgs = {
   handleUpdateDispatch: (args: HandleUpdateDispatchArgs) => void
   setAwareness: (newAwareness: ServerAwareness) => void
   apolloClient: ApolloClient<unknown>
+  Y: YJSModule
+  lib0: Lib0Module
 }
 
 export const handleProviders = ({
@@ -43,6 +47,8 @@ export const handleProviders = ({
   handleUpdateDispatch,
   setAwareness,
   apolloClient,
+  Y,
+  lib0,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady, indexeddbProviderReady } = ready
 
@@ -90,11 +96,25 @@ export const handleProviders = ({
     socketioProvider = null
   }
 
+  const getNewDoc = (
+    oldDoc: YDoc | null,
+    setDoc: (doc: YDoc) => void,
+    activeGUID: string
+  ) => {
+    if (oldDoc === null || oldDoc.guid !== activeGUID) {
+      const newDoc = new Y.Doc({ guid: activeGUID })
+      setDoc(newDoc)
+      return newDoc
+    }
+
+    return oldDoc
+  }
+
   const newDoc = getNewDoc(doc, setDoc, activeGUID)
 
   // Open the providers if they should be operational
 
-  const newSocketIOInstance = (doc: Y.Doc) => {
+  const newSocketIOInstance = (doc: YDoc, Y: YJSModule) => {
     if (socketioProvider) {
       socketioProvider = null
     }
@@ -104,6 +124,8 @@ export const handleProviders = ({
       rawBearer: rawBearer || '',
       apolloClient,
       doc,
+      Y,
+      lib0,
       options: {
         //onAwarenessUpdate: (awareness) => {
         //  //console.log('awareness bing bing', awareness)
@@ -145,7 +167,7 @@ export const handleProviders = ({
   }
 
   if (socketioProviderReady && (!socketioProvider || guidChanged)) {
-    setSocketioProvider(newSocketIOInstance(newDoc))
+    setSocketioProvider(newSocketIOInstance(newDoc, Y))
     setSocketioSyncStatus('connecting')
   }
 
@@ -165,20 +187,6 @@ export const handleProviders = ({
     activeWorkspace,
     initial: guidChanged,
   })
-}
-
-const getNewDoc = (
-  oldDoc: Y.Doc | null,
-  setDoc: (doc: Y.Doc) => void,
-  activeGUID: string
-) => {
-  if (oldDoc === null || oldDoc.guid !== activeGUID) {
-    const newDoc = new Y.Doc({ guid: activeGUID })
-    setDoc(newDoc)
-    return newDoc
-  }
-
-  return oldDoc
 }
 
 export type HandleUpdateDispatchArgs = Omit<

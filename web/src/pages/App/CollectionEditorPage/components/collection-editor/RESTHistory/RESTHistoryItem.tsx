@@ -3,9 +3,10 @@ import { useMemo } from 'react'
 
 import ClearIcon from '@mui/icons-material/Clear'
 import { useTheme, ListItemIcon, IconButton, Tooltip } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
 import {
   FocusedElementDictionary,
   getFocusedElementKey,
@@ -13,11 +14,10 @@ import {
 
 import { RequestListItem } from '../../../../../../components/app/utils/RequestListItem'
 import { getNodeIcon } from '../CollectionTree/Node/utils'
-import { updateFocusedRESTResponse } from '../RESTResponsePanel'
 
 type RESTHistoryItemProps = {
-  responseYMap: Y.Map<any>
-  collectionYMap: Y.Map<any>
+  responseYMap: YMap<any>
+  collectionYMap: YMap<any>
   focusedResponseDict: FocusedElementDictionary
   handleDeleteResponse: () => void
 }

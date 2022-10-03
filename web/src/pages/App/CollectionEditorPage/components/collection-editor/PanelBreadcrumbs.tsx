@@ -1,11 +1,11 @@
 import { useReactiveVar } from '@apollo/client'
 import { Breadcrumbs, useTheme, Typography } from '@mui/material'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { localFoldersVar, localCollectionsVar } from 'src/contexts/reactives'
 
 type PanelBreadcrumbsProps = {
-  item: Y.Map<any>
+  item: YMap<any>
 }
 
 export const PanelBreadcrumbs = ({ item }: PanelBreadcrumbsProps) => {
@@ -14,7 +14,7 @@ export const PanelBreadcrumbs = ({ item }: PanelBreadcrumbsProps) => {
   const theme = useTheme()
 
   // Function to recursively search parents
-  const getItemChain = (item: Y.Map<any>): JSX.Element[] => {
+  const getItemChain = (item: YMap<any>): JSX.Element[] => {
     if (item.__typename === 'LocalCollection') {
       return [
         <Typography

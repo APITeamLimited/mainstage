@@ -21,7 +21,7 @@ import { SaveAsDialog } from './SaveAsDialog'
 
 type FolderInputPanelProps = {
   folderId: string
-  collectionYMap: Y.Map<any>
+  collectionYMap: YMap<any>
 }
 
 export const FolderInputPanel = ({

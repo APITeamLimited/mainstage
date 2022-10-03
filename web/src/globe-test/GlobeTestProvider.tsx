@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useReactiveVar } from '@apollo/client'
 import jwt_decode from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useAuth } from '@redwoodjs/auth'
@@ -13,18 +13,21 @@ import {
   useActiveEnvironmentYMap,
   useEnvironmentsYMap,
 } from 'src/contexts/EnvironmentProvider'
+import { focusedResponseVar } from 'src/contexts/focused-response'
+import { useYJSModule } from 'src/contexts/imports'
 import { activeEnvironmentVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 import {
   Bearer,
   GET_BEARER_PUBKEY__SCOPES_QUERY,
 } from 'src/entity-engine/utils'
-import { focusedResponseVar } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RESTResponsePanel'
 
 import { execute } from './execution'
 import { jobQueueVar, QueuedJob, updateFilterQueue } from './lib'
 
 export const GlobeTestProvider = () => {
+  const Y = useYJSModule()
+
   const { isAuthenticated } = useAuth()
   const [rawBearer, setRawBearer] = useState<string | null>(null)
   const [bearerExpiry, setBearerExpiry] = useState<number>(0)
@@ -89,7 +92,7 @@ export const GlobeTestProvider = () => {
           queueRef,
           job,
           rawBearer,
-          workspace: workspace as Y.Doc,
+          workspace: workspace as YDoc,
           focusedResponseDict,
         })
         if (!didExecute) {

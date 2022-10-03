@@ -23,7 +23,6 @@ export const SendButton = ({
         disabled={isDisabled}
         variant="contained"
         color="primary"
-        size="small"
       >
         <Button
           style={{

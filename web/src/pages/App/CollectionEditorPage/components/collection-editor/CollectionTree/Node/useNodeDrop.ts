@@ -1,11 +1,11 @@
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { useDrop } from 'src/components/dnd/react-dnd'
 
 import { DragDetails } from './useNodeDrag'
 
 export type UseNodeDropArgs = {
-  nodeYMap: Y.Map<any>
+  nodeYMap: YMap<any>
   handleDrop: (
     dropResult: DragDetails,
     clientOffset: {

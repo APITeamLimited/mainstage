@@ -1,5 +1,5 @@
-export const deleteRestResponse = (responses: Y.Map<any>[]) => {
-  const parent = responses[0].parent as Y.Map<any>
+export const deleteRestResponse = (responses: YMap<any>[]) => {
+  const parent = responses[0].parent as YMap<any>
 
   if (!parent) {
     throw new Error('deleteRestResponse: parent not found')

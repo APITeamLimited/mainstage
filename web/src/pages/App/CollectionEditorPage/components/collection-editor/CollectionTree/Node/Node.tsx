@@ -1,17 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react'
 
 import { Folder, RESTRequest } from '@apiteam/types'
 import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
 import { useDragDropManager } from 'src/components/dnd/react-dnd'
-
-import {
-  createFolder,
-  createRestRequest,
-} from '../../../../../../../../../entity-engine/src/entities'
+import { useYJSModule } from 'src/contexts/imports'
+import { createFolder, createRestRequest } from 'src/entity-engine/creators'
 
 import { calculateDrop } from './calculateDrop'
 import { FolderNode, FOLDER_LOWER_ADDING_HEIGHT } from './FolderNode'
@@ -26,18 +24,20 @@ import {
 import { DropSpace } from './utils'
 
 export type NodeProps = {
-  collectionYMap: Y.Map<any>
-  nodeYMap: Y.Map<any>
+  collectionYMap: YMap<any>
+  nodeYMap: YMap<any>
   parentIndex: number
 }
 
 export type DropSpaceType = 'Top' | 'Bottom' | 'Inner' | null
 
-export const Node = ({
-  collectionYMap,
-  nodeYMap = new Y.Map(),
-  parentIndex,
-}: NodeProps) => {
+export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
+  const Y = useYJSModule()
+
+  if (!nodeYMap) {
+    nodeYMap = new Y.Map()
+  }
+
   const isRoot = nodeYMap?.get('__typename') === 'Collection'
   const [collapsed, setCollapsed] = useState(isRoot ? false : true)
   const [renaming, setRenaming] = useState(false)
@@ -181,14 +181,14 @@ export const Node = ({
 
     const folderYMapsThisLevel = Array.from(foldersYMap.values()).filter(
       (folderYMap) => folderYMap.get('parentId') === nodeYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const restRequestYMapsThisLevel = Array.from(
       restRequestsYMap.values()
     ).filter(
       (restRequestYMap) =>
         restRequestYMap.get('parentId') === nodeYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const { folder, id } = createFolder({
       parentId: nodeYMap.get('id'),
@@ -197,6 +197,7 @@ export const Node = ({
         folderYMaps: folderYMapsThisLevel,
         restRequestYMaps: restRequestYMapsThisLevel,
       }),
+      Y,
     })
 
     foldersYMap.set(id, folder)
@@ -209,14 +210,14 @@ export const Node = ({
 
     const folderYMapsThisLevel = Array.from(foldersYMap.values())?.filter(
       (folderYMap) => folderYMap.get('parentId') === nodeYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const restRequestYMapsThisLevel = Array.from(
       restRequestsYMap.values()
     ).filter(
       (restRequestYMap) =>
         restRequestYMap.get('parentId') === nodeYMap.get('id')
-    ) as Y.Map<any>[]
+    ) as YMap<any>[]
 
     const { request, id } = createRestRequest({
       parentId: nodeYMap.get('id'),
@@ -225,6 +226,7 @@ export const Node = ({
         folderYMaps: folderYMapsThisLevel,
         restRequestYMaps: restRequestYMapsThisLevel,
       }),
+      Y,
     })
 
     restRequestsYMap.set(id, request)
@@ -242,8 +244,8 @@ export const Node = ({
   const getNodeChildren = ({
     nodeYMap,
   }: {
-    nodeYMap: Y.Map<any>
-  }): Y.Map<any>[] => {
+    nodeYMap: YMap<any>
+  }): YMap<any>[] => {
     const unsortedFolders = Array.from(foldersYMap.values())?.filter(
       (folder) => folder.get('parentId') === nodeYMap.get('id')
     )
@@ -255,7 +257,7 @@ export const Node = ({
     const mergedItems = [
       ...unsortedFolders,
       ...unsortedRESTRequests,
-    ] as Y.Map<any>[]
+    ] as YMap<any>[]
 
     // Sort mergedItems by orderingIndex
     return mergedItems.sort((a, b) => {

@@ -1,30 +1,31 @@
 import { createContext, useEffect, useState, useContext } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import * as Y from 'yjs'
+import type { Map as YMap } from 'yjs'
 import { useYMap } from 'zustand-yjs'
 
+import { useYJSModule } from './imports'
 import { activeEnvironmentVar, getBranchEnvironmentKey } from './reactives'
 
 // Doesn't appear to work so commenting out for now
 //const ActiveEnvironmentContext = createContext({})
 //export const useActiveEnvironment = () => useContext(ActiveEnvironmentContext)
 
-const ActiveEnvironmentYMapContext = createContext(new Y.Map<any>())
+const ActiveEnvironmentYMapContext = createContext<YMap<any> | null>(null)
 export const useActiveEnvironmentYMap = () =>
   useContext(ActiveEnvironmentYMapContext)
 
 const EnvironmentsContext = createContext({})
 export const useEnvironments = () => useContext(EnvironmentsContext)
 
-const EnvironmentsYMapContext = createContext(new Y.Map<any>())
+const EnvironmentsYMapContext = createContext<YMap<any>>(null)
 export const useEnvironmentsYMap = () => useContext(EnvironmentsYMapContext)
 
-const BranchYMapContext = createContext<Y.Map<any>>(new Y.Map())
+const BranchYMapContext = createContext<YMap<any>>(null)
 export const useBranchYMap = () => useContext(BranchYMapContext)
 
 type EnvironmentProviderProps = {
-  branchYMap: Y.Map<any>
+  branchYMap: YMap<any>
   children?: React.ReactNode
 }
 
@@ -32,6 +33,7 @@ export const EnvironmentProvider = ({
   branchYMap,
   children,
 }: EnvironmentProviderProps) => {
+  const Y = useYJSModule()
   const environmentsYMap = branchYMap?.get('environments')
   const allActiveEnvironmentsDict = useReactiveVar(activeEnvironmentVar)
 
@@ -47,9 +49,9 @@ export const EnvironmentProvider = ({
     setActiveEnvironmentYMap(activeEnvironmentYMap)
   }, [allActiveEnvironmentsDict, branchYMap, environmentsYMap])
 
-  const [activeEnvironmentYMap, setActiveEnvironmentYMap] = useState<
-    Y.Map<any>
-  >(new Y.Map())
+  const [activeEnvironmentYMap, setActiveEnvironmentYMap] = useState<YMap<any>>(
+    new Y.Map()
+  )
 
   useYMap(activeEnvironmentYMap || new Y.Map())
 

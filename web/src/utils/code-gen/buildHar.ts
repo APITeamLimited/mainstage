@@ -2,7 +2,7 @@ import { RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
 import type { Har, PostData } from 'har-format'
 import { parse } from 'qs'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { findEnvironmentVariables } from '../environment'
 
@@ -70,8 +70,8 @@ const buildHarPostParams = (
 const buildHarPostData = async (
   req: AxiosRequestConfig,
   restRequest: RESTRequest,
-  activeEnvironmentYMap: Y.Map<any> | null,
-  collectionYMap: Y.Map<any>
+  activeEnvironmentYMap: YMap<any> | null,
+  collectionYMap: YMap<any>
 ): Promise<PostData | undefined> => {
   const lookup = await import('mime-types').then((m) => m.lookup)
 
@@ -155,8 +155,8 @@ const buildHarPostData = async (
 export const buildHarRequest = async (
   req: AxiosRequestConfig,
   restRequest: RESTRequest,
-  activeEnvironmentYMap: Y.Map<any> | null,
-  collectionYMap: Y.Map<any>
+  activeEnvironmentYMap: YMap<any> | null,
+  collectionYMap: YMap<any>
 ): Promise<Har> => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size

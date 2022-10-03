@@ -1,7 +1,7 @@
 import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import { stringify } from 'qs'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { findEnvironmentVariables } from 'src/utils/environment'
 
@@ -10,9 +10,9 @@ Gets final axios config for a request, complete with environment variables
 */
 export const getFinalRequest = async (
   request: RESTRequest,
-  requestYMap: Y.Map<any>,
-  activeEnvironment: Y.Map<any> | null,
-  collection: Y.Map<any>
+  requestYMap: YMap<any>,
+  activeEnvironment: YMap<any> | null,
+  collection: YMap<any>
 ): Promise<AxiosRequestConfig<any>> => {
   const lookup = await import('mime-types').then((m) => m.lookup)
 
@@ -70,7 +70,7 @@ export const getFinalRequest = async (
     }
   }
 
-  const folders = collection.get('folders') as Y.Map<any>
+  const folders = collection.get('folders') as YMap<any>
 
   const withAuthRequest = addAuthToRequest(
     activeEnvironment,
@@ -123,10 +123,10 @@ export const getFinalRequest = async (
 }
 
 const addAuthToRequest = (
-  activeEnvironment: Y.Map<any> | null,
-  collection: Y.Map<any>,
-  currentNode: Y.Map<any>,
-  folders: Y.Map<any>,
+  activeEnvironment: YMap<any> | null,
+  collection: YMap<any>,
+  currentNode: YMap<any>,
+  folders: YMap<any>,
   axiosConfig: AxiosRequestConfig
 ): AxiosRequestConfig => {
   const auth = currentNode.get('auth') as RESTAuth
@@ -136,7 +136,7 @@ const addAuthToRequest = (
       throw 'Inherit auth type not allowed on collection'
     }
 
-    const parentFolder = (Array.from(folders.values()) as Y.Map<any>[]).find(
+    const parentFolder = (Array.from(folders.values()) as YMap<any>[]).find(
       (folder) => folder.get('id') === currentNode.get('parentId')
     )
 
@@ -213,8 +213,8 @@ const addAuthToRequest = (
 }
 
 const makeEnvironmentAwareRequest = (
-  activeEnvironment: Y.Map<any> | null,
-  collection: Y.Map<any>,
+  activeEnvironment: YMap<any> | null,
+  collection: YMap<any>,
   config: AxiosRequestConfig,
   skipBody: boolean
 ): AxiosRequestConfig => {

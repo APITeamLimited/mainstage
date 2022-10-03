@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ExecutionParams, KeyValueItem, ResolvedVariable } from '@apiteam/types'
-import * as Y from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import {
   BRACED_REGEX,
@@ -8,8 +8,8 @@ import {
 } from 'src/components/app/EnvironmentManager/EnvironmentTextField/VariablePlugin'
 
 export const findVariablesInString = (
-  environment: Y.Map<any> | null,
-  collection: Y.Map<any> | null,
+  environment: YMap<any> | null,
+  collection: YMap<any> | null,
   subString: string
 ): ResolvedVariable => {
   for (const variable of (environment?.get('variables') ??
@@ -38,8 +38,8 @@ export const findVariablesInString = (
 }
 
 export const findEnvironmentVariablesKeyValueItem = (
-  environment: Y.Map<any> | null,
-  collection: Y.Map<any> | null,
+  environment: YMap<any> | null,
+  collection: YMap<any> | null,
   item: KeyValueItem
 ) => ({
   key: findEnvironmentVariables(environment, collection, item.keyString),
@@ -50,8 +50,8 @@ export const findEnvironmentVariablesKeyValueItem = (
  * Finds environment variables in a given KeyValueItem
  */
 export const findEnvironmentVariables = (
-  environment: Y.Map<any> | null,
-  collection: Y.Map<any> | null,
+  environment: YMap<any> | null,
+  collection: YMap<any> | null,
   target: string
 ) => {
   // Find substrings that start and end with curly braces and get their index
@@ -103,8 +103,8 @@ export const createEnvironmentContext = ({
   environment = null,
   collection = null,
 }: {
-  environment?: Y.Map<any> | null
-  collection?: Y.Map<any> | null
+  environment?: YMap<any> | null
+  collection?: YMap<any> | null
 }): ExecutionParams['environmentContext'] => {
   const variables = [] as {
     key: string

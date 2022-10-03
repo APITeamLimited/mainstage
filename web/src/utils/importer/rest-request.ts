@@ -1,7 +1,6 @@
 import { parse } from 'querystring'
 
 import { ImportRequest } from 'insomnia-importers'
-import * as Y from 'yjs'
 
 import { uploadScopedResource } from 'src/store'
 
@@ -20,6 +19,8 @@ export const handleRESTImport = async ({
   foundIds: { oldId: string; newId: string }[]
   itemIndex: number
 }) => {
+  const Y = await import('yjs')
+
   const request = new Y.Map()
   const requestId = foundIds.find((i) => i.oldId === item._id)?.newId
   if (!requestId)
