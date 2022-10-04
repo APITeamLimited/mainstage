@@ -28,7 +28,7 @@ type BodyPanelProps = {
 const possibleContentTypes = getKnownContentTypes()
 const possiblePrettyTypes = getPrettyContentTypes()
 
-const getIndexOfContentType = (contentType: string | null) =>
+export const getIndexOfContentType = (contentType: string | null) =>
   possibleContentTypes.findIndex(
     (knownContentType) => knownContentType === contentType
   ) || null

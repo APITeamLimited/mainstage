@@ -1,6 +1,12 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, forwardRef } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  createContext,
+  useState,
+  useContext,
+} from 'react'
 
-import Editor, { useMonaco, Monaco } from '@monaco-editor/react'
 import { useTheme, Box, Typography, Stack } from '@mui/material'
 
 export type MonacoSupportedLanguage = 'json' | 'xml' | 'html' | 'plain'
@@ -18,7 +24,36 @@ type MonacoEditorProps = {
   placeholder?: string[]
 }
 
-export const MonacoEditor = ({
+const importMonacoModule = async () => await import('@monaco-editor/react')
+export type MonacoModule = Awaited<ReturnType<typeof importMonacoModule>>
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const MonacoEditorContext = createContext<MonacoModule>(null)
+export const useMonacoModule = () => useContext(MonacoEditorContext)
+
+export const MonacoEditor = (props: MonacoEditorProps) => {
+  const [monacoModule, setMonacoModule] = useState<MonacoModule | null>(null)
+
+  useEffect(() => {
+    const importModule = async () => {
+      setMonacoModule(await importMonacoModule())
+    }
+    importModule()
+  }, [])
+
+  if (!monacoModule) {
+    return <></>
+  }
+
+  return (
+    <MonacoEditorContext.Provider value={monacoModule}>
+      <MonacoEditorInner {...props} />
+    </MonacoEditorContext.Provider>
+  )
+}
+
+const MonacoEditorInner = ({
   value,
   onChange,
   language,
@@ -29,6 +64,8 @@ export const MonacoEditor = ({
   namespace,
   placeholder,
 }: MonacoEditorProps) => {
+  const editor = useMonacoModule()
+
   const theme = useTheme()
 
   const isDark = useMemo(
@@ -36,7 +73,7 @@ export const MonacoEditor = ({
     [theme.palette.mode]
   )
 
-  const monaco = useMonaco()
+  const monaco = editor.useMonaco()
 
   // Some namespace characters can't be used as a uri
   const actualNamespace = useMemo(
@@ -156,7 +193,7 @@ export const MonacoEditor = ({
               </Box>
             </Stack>
           )}
-          <Editor
+          <editor.default
             height="100%"
             language={language}
             theme={'custom-theme'}

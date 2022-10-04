@@ -1,25 +1,22 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage } from '@apiteam/types'
 import { Box, Skeleton } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
 import type { Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
-import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'
 import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import { useYJSModule } from 'src/contexts/imports'
-import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { parseMessage } from 'src/globe-test/execution'
+import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../../PanelLayout'
-import { BodyPanel } from '../../BodyPanel'
-import { CookieTable } from '../../CookieTable'
 import { ExecutionPanel } from '../../ExecutionPanel'
-import { UnderlyingRequestPanel } from '../../UnderlyingRequestPanel'
+import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
+import { FocusedResponsePanel } from '../../FocusedResponsePanel/FocusedResponsePanel'
 
 import { QuickSuccessSingleStats } from './QuickSuccessSingleStats'
 
@@ -169,7 +166,7 @@ export const SuccessSingleResultPanel = ({
 
   return (
     <PanelLayout
-      tabNames={['Body', 'Headers', 'Cookies', 'Execution', 'Request']}
+      tabNames={['Response', 'Execution', 'Request']}
       tabIcons={[
         {
           name: 'Execution',
@@ -200,30 +197,16 @@ export const SuccessSingleResultPanel = ({
     >
       {activeTabIndex === 0 &&
         (storedResponse ? (
-          <BodyPanel response={storedResponse} setActionArea={setActionArea} />
+          <FocusedResponsePanel
+            storedResponse={storedResponse}
+            mappedHeaders={mappedHeaders}
+            setActionArea={setActionArea}
+            cookies={mappedCookies}
+          />
         ) : (
           <Skeleton />
         ))}
       {activeTabIndex === 1 &&
-        (mappedHeaders ? (
-          <KeyValueResultsTable
-            setActionArea={setActionArea}
-            values={mappedHeaders}
-          />
-        ) : (
-          <Skeleton />
-        ))}
-      {activeTabIndex === 2 &&
-        (mappedCookies ? (
-          <CookieTable
-            // Reduce cookie values to array of ResponseCookie
-            cookies={mappedCookies}
-            setActionArea={setActionArea}
-          />
-        ) : (
-          <Skeleton />
-        ))}
-      {activeTabIndex === 3 &&
         (storedGlobeTestLogs && storedMetrics !== null ? (
           <ExecutionPanel
             setActionArea={setActionArea}
@@ -233,12 +216,12 @@ export const SuccessSingleResultPanel = ({
         ) : (
           <Skeleton />
         ))}
-      {activeTabIndex === 4 &&
+      {activeTabIndex === 2 &&
         (storedResponse ? (
-          <UnderlyingRequestPanel
+          <FocusedRequestPanel
             setActionArea={setActionArea}
-            request={storedResponse.request}
-            focusedResponse={focusedResponse}
+            request={focusedResponse.get('underlyingRequest')}
+            finalEndpoint={focusedResponse.get('endpoint')}
           />
         ) : (
           <Skeleton />

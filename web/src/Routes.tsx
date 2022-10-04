@@ -88,10 +88,10 @@ export const brandedRoutes = [
 const Routes = () => {
   return (
     <Router>
-      <Set prerender wrap={LandingLayoutSplash}>
+      <Set wrap={LandingLayoutSplash}>
         <Route path="/" page={RootPage} name="splash" />
       </Set>
-      <Set prerender wrap={LandingLayoutContained}>
+      <Set wrap={LandingLayoutContained}>
         <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
         <Route path="/platform/pricing" page={PricingPage} name="pricing" />
         <Route path="/company/about" page={AboutPage} name="about" />

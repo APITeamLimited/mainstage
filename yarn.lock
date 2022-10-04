@@ -147,6 +147,7 @@ __metadata:
     "@types/httpsnippet": ^1.23.1
     "@types/k6": ^0.37.1
     "@types/mime-types": ^2.1.1
+    "@types/object-hash": ^2.2.1
     "@types/postman-collection": ^3.5.7
     "@types/prettier": ^2.7.0
     "@unlimited-react-components/kernel": ^1.0.2
@@ -180,6 +181,7 @@ __metadata:
     monaco-editor-webpack-plugin: ^7.0.1
     mui-markdown: ^0.5.5
     oas-validator: ^5.0.8
+    object-hash: ^3.0.0
     postman-collection: ^4.1.5
     prettier: ^2.7.1
     prism-react-renderer: ^1.3.5
@@ -9274,6 +9276,13 @@ __metadata:
   version: 4.1.4
   resolution: "@types/npmlog@npm:4.1.4"
   checksum: 5670c38db51f2c4a5da05657920d7597bf9da00615920b42a001fde9011f05ab1e8ec8cbc671abb47915028e3e0ace5c3d981c23684c202a00bf518f16ece01d
+  languageName: node
+  linkType: hard
+
+"@types/object-hash@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "@types/object-hash@npm:2.2.1"
+  checksum: be2b0bdbe2a0a4b59a4bb4a2c0d83fadc7993aa61d58a096147999c300beed1fe0c9327bf3c2935877e24b78cf4d2bfc108f4b6f3b5fd7842eecdfe67727bd07
   languageName: node
   linkType: hard
 
@@ -23838,6 +23847,13 @@ __metadata:
     define-property: ^0.2.5
     kind-of: ^3.0.3
   checksum: 79314b05e9d626159a04f1d913f4c4aba9eae8848511cf5f4c8e3b04bb3cc313b65f60357f86462c959a14c2d58380fedf89b6b32ecec237c452a5ef3900a293
+  languageName: node
+  linkType: hard
+
+"object-hash@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "object-hash@npm:3.0.0"
+  checksum: a06844537107b960c1c8b96cd2ac8592a265186bfa0f6ccafe0d34eabdb526f6fa81da1f37c43df7ed13b12a4ae3457a16071603bcd39d8beddb5f08c37b0f47
   languageName: node
   linkType: hard
 

@@ -36,6 +36,10 @@ export const TopNavBase = ({
         backgroundImage: disableTop
           ? undefined
           : 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
+        height: '50px',
+        width: '100%',
+        alignItems: 'center',
+        display: 'flex',
       }}
       elevation={disableTop ? 0 : 8}
     >
@@ -44,6 +48,7 @@ export const TopNavBase = ({
         alignItems="center"
         justifyContent="space-between"
         sx={{
+          width: '100%',
           paddingY: 1,
           paddingX: 2,
         }}

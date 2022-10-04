@@ -1,6 +1,6 @@
 import { Response } from 'k6/http'
 
-import { DefaultMetrics, GlobeTestMessage, StoredObject } from '..'
+import { DefaultMetrics, GlobeTestMessage, RESTRequest, StoredObject } from '..'
 
 export type LoadingResult = {
   __subtype: 'LoadingResponse'
@@ -32,9 +32,13 @@ export type RESTResponseBase = {
   __typename: 'RESTResponse'
   parentId: string
   __parentTypename: 'RESTRequest'
+  // Keep name, endpoint, and method for backwards compatibility
   name: string
   endpoint: string
   method: string
+  underlyingRequest: RESTRequest
+  source: string
+  sourceName: string
 }
 
 export type RESTResponse = RESTResponseBase &

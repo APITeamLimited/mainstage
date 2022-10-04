@@ -1,6 +1,5 @@
-import { routes } from '@redwoodjs/router'
+import { Box } from '@mui/material'
 
-import { TopNavLink } from 'src/components/utils/TopNavLink'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 type TopNavProps = {

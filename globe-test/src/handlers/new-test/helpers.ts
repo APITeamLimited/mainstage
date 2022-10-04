@@ -45,6 +45,8 @@ export const restCreateResponse = async ({
     collectionId: params.collectionId,
     underlyingRequest: params.underlyingRequest,
     finalRequestEndpoint: params.restRequest.url,
+    source: params.source,
+    sourceName: params.sourceName,
   }
 
   entityEngineSocket.emit('rest-create-response', eeParams)

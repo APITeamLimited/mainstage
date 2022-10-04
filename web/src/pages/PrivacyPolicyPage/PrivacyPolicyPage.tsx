@@ -1,15 +1,16 @@
 import { Stack } from '@mui/material'
-import MuiMarkdown from 'mui-markdown'
 
 import { Headline } from 'src/pages/RootPage/components/Headline'
 
-import tosMarkdown from './privacy-policy.md'
+import { Markdown } from '../../components/utils/Markdown'
+
+import privacyPolicy from './privacy-policy.md'
 
 const PrivacyPolicyPage = () => {
   return (
     <Stack spacing={2}>
       <Headline headline="Privacy Policy" />
-      <MuiMarkdown>{tosMarkdown}</MuiMarkdown>
+      <Markdown>{privacyPolicy}</Markdown>
     </Stack>
   )
 }

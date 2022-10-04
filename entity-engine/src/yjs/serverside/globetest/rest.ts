@@ -53,6 +53,9 @@ export const restCreateResponse = async (
     createdAt: new Date(),
     updatedAt: null,
     options: null,
+    underlyingRequest,
+    source: data.source,
+    sourceName: data.sourceName,
   }
 
   const responseYMap = new Y.Map()

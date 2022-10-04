@@ -19,7 +19,7 @@ const knownContentTypes = {
 export const getKnownContentTypes = () => Object.keys(knownContentTypes)
 export const getPrettyContentTypes = () => Object.values(knownContentTypes)
 
-export type ValidContentTypes = keyof typeof knownContentTypes | null
+export type ValidContentTypes = keyof typeof knownContentTypes
 
 type AuthBase = {
   authType: string
@@ -84,7 +84,6 @@ export type RESTReqBody =
         | 'multipart/form-data'
         | 'application/x-www-form-urlencoded'
         | 'application/octet-stream'
-        | null
       >
       body: string
     }

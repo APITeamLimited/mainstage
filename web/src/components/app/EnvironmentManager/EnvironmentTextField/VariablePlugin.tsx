@@ -3,11 +3,7 @@ import { ReactPortal, useEffect, useState } from 'react'
 import type { LexicalCommand, LexicalEditor, RangeSelection } from 'lexical'
 
 import type { LexicalAddons, LexicalModule } from './module'
-import {
-  $createVariableNode,
-  VariableNodeClass,
-  VariableNodeType,
-} from './VariableNode'
+import { $createVariableNode, VariableNodeType } from './VariableNode'
 
 type VariableMatch = {
   leadOffset: number

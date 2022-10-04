@@ -3,13 +3,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { ResolvedVariable } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useCollection } from 'src/contexts/collection'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule } from 'src/contexts/imports'
 import { activeEnvironmentVar } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 import { findVariablesInString } from 'src/utils/environment'
 
 type VariableChipProps = {

@@ -1,9 +1,9 @@
 import { createContext, useEffect, useState } from 'react'
-import type { FC, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 
 import PropTypes from 'prop-types'
 
-import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
+import { useIsBrowser } from '@redwoodjs/prerender/browserUtils'
 
 export interface Settings {
   direction?: 'ltr' | 'rtl'
@@ -57,8 +57,31 @@ export const SettingsContext = createContext<SettingsContextValue>({
   saveSettings: () => {},
 })
 
-export const SettingsProvider: React.FC = ({ children }: SettingsProviderProps) => {
-  //const browser = useIsBrowser()
+export const SettingsProvider: React.FC = ({
+  children,
+}: SettingsProviderProps) => {
+  const browser = useIsBrowser()
+
+  // Just return initial settings if not in browser
+  if (!browser) {
+    return (
+      <SettingsContext.Provider
+        value={{
+          settings: initialSettings,
+          saveSettings: () => {},
+        }}
+      >
+        {children}
+      </SettingsContext.Provider>
+    )
+  }
+
+  return <SettingsProviderInner>{children}</SettingsProviderInner>
+}
+
+const SettingsProviderInner: React.FC = ({
+  children,
+}: SettingsProviderProps) => {
   const [settings, setSettings] = useState<Settings>(initialSettings)
 
   // Change browser color scheme based on theme
@@ -94,13 +117,6 @@ export const SettingsProvider: React.FC = ({ children }: SettingsProviderProps) 
   )
 }
 
-//const SettingsProviderInner = (props: SettingsProviderProps) => {
-//  const [settings, setSettings] = useState<Settings>(initialSettings)
-//  const saveSettings = (updatedSettings: Settings): void => {
-//    setSettings(updatedSettings)
-//    globalThis.localStorage.setItem('settings', JSON.stringify(updatedSettings))
-//  }
-//
 SettingsProvider.propTypes = {
   children: PropTypes.node.isRequired,
 }

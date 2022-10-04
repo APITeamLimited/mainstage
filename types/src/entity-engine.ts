@@ -51,6 +51,8 @@ export type EntityEngineServersideMessages = {
     collectionId: string
     underlyingRequest: RESTRequest
     finalRequestEndpoint: string
+    source: string
+    sourceName: string
   }
   'rest-add-options': {
     branchId: string
