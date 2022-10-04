@@ -215,7 +215,6 @@ __metadata:
     yjs: ^13.5.40
     yup: ^0.32.11
     zustand: ^4.0.0
-    zustand-yjs: ^0.0.14
   languageName: unknown
   linkType: soft
 
@@ -9359,7 +9358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:17.0.17, @types/react-dom@npm:<18.0.0, @types/react-dom@npm:^17.0.9":
+"@types/react-dom@npm:17.0.17, @types/react-dom@npm:<18.0.0":
   version: 17.0.17
   resolution: "@types/react-dom@npm:17.0.17"
   dependencies:
@@ -9427,7 +9426,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^17, @types/react@npm:^17.0.30":
+"@types/react@npm:^17":
   version: 17.0.47
   resolution: "@types/react@npm:17.0.47"
   dependencies:
@@ -32705,20 +32704,6 @@ __metadata:
     compress-commons: ^4.1.0
     readable-stream: ^3.6.0
   checksum: ed9eb9387953576c43bdf7678705e8b0ff4e9149cf92b39fa845ddd5413b08daf68655b1ee8311e2dd7c88ddeb95908a785e8e48473016b2595870b0adf588d4
-  languageName: node
-  linkType: hard
-
-"zustand-yjs@npm:^0.0.14":
-  version: 0.0.14
-  resolution: "zustand-yjs@npm:0.0.14"
-  dependencies:
-    "@types/react": ^17.0.30
-    "@types/react-dom": ^17.0.9
-  peerDependencies:
-    y-protocols: ">=1.0.5"
-    yjs: ">=13.0.0"
-    zustand: ">=3.5.13"
-  checksum: cb2b5fb068f278e161b4e883f45592cb632c77a83e069b85edf6356db710354bffabb7c13695c586e76406ab681e3a44a800f1c89f144c5afc690834243b224c
   languageName: node
   linkType: hard
 

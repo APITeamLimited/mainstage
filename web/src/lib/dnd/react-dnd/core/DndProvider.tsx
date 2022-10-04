@@ -1,11 +1,8 @@
 import type { FC, ReactNode } from 'react'
 import { memo, useEffect } from 'react'
 
-import type {
-  BackendFactory,
-  DragDropManager,
-} from 'src/components/dnd/dnd-core'
-import { createDragDropManager } from 'src/components/dnd/dnd-core'
+import type { BackendFactory, DragDropManager } from 'src/lib/dnd/dnd-core'
+import { createDragDropManager } from 'src/lib/dnd/dnd-core'
 
 import { DndContext } from './DndContext'
 

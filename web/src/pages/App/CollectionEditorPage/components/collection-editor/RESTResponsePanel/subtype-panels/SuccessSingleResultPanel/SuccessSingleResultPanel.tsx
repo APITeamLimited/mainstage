@@ -2,23 +2,19 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
-import { useReactiveVar } from '@apollo/client'
 import { Box, Skeleton } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import type { Map as YMap } from 'yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'
 import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import { useYJSModule } from 'src/contexts/imports'
-import { getFocusedElementKey } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { parseMessage } from 'src/globe-test/execution'
-import { useCollection } from 'src/pages/App/CollectionEditorPage'
 import { retrieveScopedResource } from 'src/store'
 
-import { focusedResponseVar } from '../..'
 import { PanelLayout } from '../../../PanelLayout'
 import { BodyPanel } from '../../BodyPanel'
 import { CookieTable } from '../../CookieTable'
@@ -28,42 +24,35 @@ import { UnderlyingRequestPanel } from '../../UnderlyingRequestPanel'
 import { QuickSuccessSingleStats } from './QuickSuccessSingleStats'
 
 type SuccessSingleResultPanelProps = {
-  requestYMap: YMap<any>
+  focusedResponse: YMap<any>
 }
 
+type MetricsList = (GlobeTestMessage & {
+  orchestratorId: string
+} & {
+  messageType: 'METRICS'
+  message: Record<string, unknown>
+})[]
+
 export const SuccessSingleResultPanel = ({
-  requestYMap,
+  focusedResponse,
 }: SuccessSingleResultPanelProps) => {
   const Y = useYJSModule()
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
-  const workspace = useWorkspace()
-  const focusedResponseDict = useReactiveVar(focusedResponseVar)
-  const collectionYMap = useCollection()
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const collectionHook = useYMap(collectionYMap ?? new Y.Map())
-  useYMap(requestYMap ?? new Y.Map())
+  const focusedResponseHook = useYMap(focusedResponse ?? new Y.Map())
 
-  const focusedResponse = useMemo(
-    () =>
-      focusedResponseDict[getFocusedElementKey(collectionYMap ?? new Y.Map())],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseDict, collectionHook]
-  )
+  const [fetching, setFetching] = useState(false)
 
   const [storedResponse, setStoredResponse] = useState<Response | null>(null)
-
   const [storedGlobeTestLogs, setStoredGlobeTestLogs] = useState<
     GlobeTestMessage[] | null
   >(null)
-
-  const [storedMetrics, setStoredMetrics] = useState<DefaultMetrics | null>(
-    null
-  )
-
+  const [storedMetrics, setStoredMetrics] = useState<MetricsList[] | null>(null)
   const [mappedCookies, setMappedCookies] = useState<ResponseCookie[]>([])
   const [mappedHeaders, setMappedHeaders] = useState<
     {
@@ -72,11 +61,15 @@ export const SuccessSingleResultPanel = ({
     }[]
   >([])
 
-  const updateData = async () => {
-    if (!focusedResponse || !workspace) {
-      return
-    }
-
+  const updateData = async ({
+    globeTestLogsStoreReceipt,
+    metricsStoreReceipt,
+    responseStoreReceipt,
+  }: {
+    globeTestLogsStoreReceipt: string
+    metricsStoreReceipt: string
+    responseStoreReceipt: string
+  }) => {
     if (!scopeId || !rawBearer) {
       throw new Error('No scopeId or rawBearer')
     }
@@ -84,19 +77,19 @@ export const SuccessSingleResultPanel = ({
     const globeTestLogsPromise = retrieveScopedResource({
       scopeId,
       rawBearer,
-      storeReceipt: focusedResponse.get('globeTestLogs').storeReceipt,
+      storeReceipt: globeTestLogsStoreReceipt,
     })
 
     const responsePromise = retrieveScopedResource({
       scopeId,
       rawBearer,
-      storeReceipt: focusedResponse.get('response').storeReceipt,
+      storeReceipt: responseStoreReceipt,
     })
 
     const metricsPromise = retrieveScopedResource({
       scopeId,
       rawBearer,
-      storeReceipt: focusedResponse.get('metrics').storeReceipt,
+      storeReceipt: metricsStoreReceipt,
     })
 
     const [globeTestLogsResult, responseResult, metricsResult] =
@@ -106,23 +99,15 @@ export const SuccessSingleResultPanel = ({
     setStoredGlobeTestLogs(
       globeTestLogsResult.data.map((log: string) => parseMessage(log))
     )
-    setStoredMetrics(metricsResult.data)
+
+    setStoredMetrics(metricsResult.data ?? [])
 
     setMappedCookies(
       Object.values(
         (responseResult.data.request as Response | null)?.cookies ?? []
       ).flat()
     )
-    console.log(
-      'responseREs',
-      responseResult,
-      Object.entries((responseResult.data as Response | null)?.headers ?? {})
-        .map(([key, value]) => ({
-          key,
-          value,
-        }))
-        .flat()
-    )
+
     setMappedHeaders(
       Object.entries((responseResult.data as Response | null)?.headers ?? {})
         .map(([key, value]) => ({
@@ -134,23 +119,53 @@ export const SuccessSingleResultPanel = ({
   }
 
   useEffect(() => {
-    if (storedResponse) {
+    if (fetching) {
+      return
+    }
+
+    const globeTestLogsStoreReceipt =
+      focusedResponse?.get('globeTestLogs')?.storeReceipt
+    const responseStoreReceipt = focusedResponse?.get('response')?.storeReceipt
+    const metricsStoreReceipt = focusedResponse?.get('metrics')?.storeReceipt
+
+    if (
+      globeTestLogsStoreReceipt &&
+      responseStoreReceipt &&
+      metricsStoreReceipt
+    ) {
       setStoredResponse(null)
-    }
-    if (storedGlobeTestLogs) {
       setStoredGlobeTestLogs(null)
-    }
-    if (storedMetrics) {
       setStoredMetrics(null)
-    }
+      setFetching(true)
 
-    if (!workspace) {
-      throw new Error('No workspace YDoc')
+      updateData({
+        globeTestLogsStoreReceipt,
+        responseStoreReceipt,
+        metricsStoreReceipt,
+      })
     }
-
-    updateData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedResponse])
+  }, [focusedResponseHook])
+
+  const singleStats = useMemo(
+    () => {
+      const statusCode = focusedResponse.get('statusCode')
+      const responseDuration = focusedResponse?.get('meta')?.responseDuration
+      const responseSize = focusedResponse?.get('meta')?.responseSize
+
+      if (!statusCode || !responseDuration || !responseSize) {
+        return null
+      }
+
+      return {
+        statusCode,
+        responseDuration,
+        responseSize,
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
 
   return (
     <PanelLayout
@@ -165,60 +180,69 @@ export const SuccessSingleResultPanel = ({
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
       aboveTabsArea={
-        <QuickSuccessSingleStats
-          statusCode={focusedResponse.get('statusCode')}
-          responseTimeMilliseconds={
-            focusedResponse.get('meta').responseDuration
-          }
-          responseSizeBytes={focusedResponse.get('meta').responseSize}
-        />
+        <Box
+          sx={{
+            maxHeight: '18.38px',
+            minHeight: '18.38px',
+          }}
+        >
+          {singleStats ? (
+            <QuickSuccessSingleStats
+              statusCode={singleStats.statusCode}
+              responseTimeMilliseconds={singleStats.responseDuration}
+              responseSizeBytes={singleStats.responseSize}
+            />
+          ) : (
+            <Skeleton />
+          )}
+        </Box>
       }
     >
-      {storedResponse && storedMetrics && storedGlobeTestLogs ? (
-        <>
-          {activeTabIndex === 0 && (
-            <BodyPanel
-              response={storedResponse}
-              setActionArea={setActionArea}
-            />
-          )}
-          {activeTabIndex === 1 && (
-            <KeyValueResultsTable
-              setActionArea={setActionArea}
-              values={mappedHeaders}
-            />
-          )}
-          {activeTabIndex === 2 && (
-            <CookieTable
-              // Reduce cookie values to array of ResponseCookie
-              cookies={mappedCookies}
-              setActionArea={setActionArea}
-            />
-          )}
-          {activeTabIndex === 3 && (
-            <ExecutionPanel
-              setActionArea={setActionArea}
-              globeTestLogs={storedGlobeTestLogs}
-              metrics={storedMetrics}
-            />
-          )}
-          {activeTabIndex === 4 && (
-            <UnderlyingRequestPanel
-              setActionArea={setActionArea}
-              request={storedResponse.request}
-            />
-          )}
-        </>
-      ) : (
-        <Box
-          height="100%"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Skeleton width={100000} height={100000} />
-        </Box>
-      )}
+      {activeTabIndex === 0 &&
+        (storedResponse ? (
+          <BodyPanel response={storedResponse} setActionArea={setActionArea} />
+        ) : (
+          <Skeleton />
+        ))}
+      {activeTabIndex === 1 &&
+        (mappedHeaders ? (
+          <KeyValueResultsTable
+            setActionArea={setActionArea}
+            values={mappedHeaders}
+          />
+        ) : (
+          <Skeleton />
+        ))}
+      {activeTabIndex === 2 &&
+        (mappedCookies ? (
+          <CookieTable
+            // Reduce cookie values to array of ResponseCookie
+            cookies={mappedCookies}
+            setActionArea={setActionArea}
+          />
+        ) : (
+          <Skeleton />
+        ))}
+      {activeTabIndex === 3 &&
+        (storedGlobeTestLogs && storedMetrics !== null ? (
+          <ExecutionPanel
+            setActionArea={setActionArea}
+            globeTestLogs={storedGlobeTestLogs}
+            metrics={storedMetrics}
+          />
+        ) : (
+          <Skeleton />
+        ))}
+      {activeTabIndex === 4 &&
+        (storedResponse ? (
+          <UnderlyingRequestPanel
+            setActionArea={setActionArea}
+            request={storedResponse.request}
+            focusedResponse={focusedResponse}
+          />
+        ) : (
+          <Skeleton />
+        ))}
     </PanelLayout>
   )
 }

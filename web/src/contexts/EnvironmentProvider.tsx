@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useEffect, useState, useContext } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import type { Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from './imports'
 import { activeEnvironmentVar, getBranchEnvironmentKey } from './reactives'

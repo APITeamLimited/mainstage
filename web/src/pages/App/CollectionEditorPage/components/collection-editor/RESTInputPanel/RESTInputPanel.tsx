@@ -8,7 +8,7 @@ import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'

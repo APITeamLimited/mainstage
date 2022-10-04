@@ -1,4 +1,4 @@
-import { invariant } from 'src/components/dnd/invariant'
+import { invariant } from 'src/lib/dnd/invariant'
 
 import type { DragSource, DropTarget, Identifier } from './interfaces'
 

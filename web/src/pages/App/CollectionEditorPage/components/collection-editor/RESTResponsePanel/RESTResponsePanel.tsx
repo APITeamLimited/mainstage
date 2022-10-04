@@ -5,10 +5,11 @@ import { useReactiveVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
 import { useTheme } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
 import { focusedResponseVar } from 'src/contexts/focused-response'
+import { useYJSModule } from 'src/contexts/imports'
 import { getFocusedElementKey } from 'src/contexts/reactives'
 
 import { EmptyPanelMessage } from '../../../../../../components/app/utils/EmptyPanelMessage'
@@ -24,6 +25,8 @@ type RESTResponsePanelProps = {
 export const RESTResponsePanel = ({
   collectionYMap,
 }: RESTResponsePanelProps) => {
+  const Y = useYJSModule()
+
   const theme = useTheme()
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
   const collectionHook = useYMap(collectionYMap)
@@ -34,11 +37,14 @@ export const RESTResponsePanel = ({
     [focusedResponseDict, collectionHook]
   )
 
+  const responseHook = useYMap(focusedResponse ?? new Y.Map())
+
   const isExecutingRESTRequest = useMemo(() => {
     if (!focusedResponse) return false
     if (focusedResponse.get('__subtype') === 'LoadingResponse') return true
     return false
-  }, [focusedResponse])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [responseHook])
 
   return (
     <>
@@ -61,11 +67,11 @@ export const RESTResponsePanel = ({
           ]}
         />
       ) : focusedResponse.get('__subtype') === 'LoadingResponse' ? (
-        <LoadingResponsePanel requestYMap={focusedResponse} />
+        <LoadingResponsePanel focusedResponse={focusedResponse} />
       ) : focusedResponse.get('__subtype') === 'SuccessSingleResult' ? (
-        <SuccessSingleResultPanel />
+        <SuccessSingleResultPanel focusedResponse={focusedResponse} />
       ) : focusedResponse.get('__subtype') === 'FailureResult' ? (
-        <FailureResultPanel />
+        <FailureResultPanel focusedResponse={focusedResponse} />
       ) : (
         <EmptyPanelMessage
           primaryText="Invalid response type"

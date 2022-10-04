@@ -2,7 +2,7 @@ import {
   DragSourceMonitor,
   DragPreviewImage,
   useDrag,
-} from 'src/components/dnd/react-dnd'
+} from 'src/lib/dnd/react-dnd'
 
 type UseNodeDragArgs = {
   nodeYMap: YMap<any>

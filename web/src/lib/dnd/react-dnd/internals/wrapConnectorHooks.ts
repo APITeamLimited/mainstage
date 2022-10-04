@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 import { cloneElement, isValidElement } from 'react'
 
-import { invariant } from 'src/components/dnd/invariant'
+import { invariant } from 'src/lib/dnd/invariant'
 
 function throwIfCompositeComponentElement(element: ReactElement<any>) {
   // Custom components can no longer be wrapped directly in React DnD 2.0

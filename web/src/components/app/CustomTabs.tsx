@@ -37,7 +37,7 @@ export const CustomTabs = ({
           style: {
             backgroundColor: theme.palette.primary.main,
             //top: '30px',
-            top: '2.25rem',
+            top: '2.5rem',
           },
         }}
         style={{
@@ -60,7 +60,7 @@ export const CustomTabs = ({
                 color:
                   value === index ? undefined : theme.palette.text.secondary,
                 textTransform: 'none',
-                padding: '0.75rem',
+                padding: '0.5rem',
               }}
               onClick={() => onChange(index)}
               key={index}

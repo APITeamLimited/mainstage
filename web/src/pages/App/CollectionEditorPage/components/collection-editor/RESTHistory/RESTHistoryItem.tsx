@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import ClearIcon from '@mui/icons-material/Clear'
 import { useTheme, ListItemIcon, IconButton, Tooltip } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
 import {

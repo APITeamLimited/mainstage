@@ -1,9 +1,7 @@
-import React from 'react'
-
-import Button from '@mui/material/Button'
-import { alpha, useTheme } from '@mui/material/styles'
+import { alpha, useTheme, Button } from '@mui/material'
 
 import { useSettings } from 'src/hooks/use-settings'
+
 export const ThemeModeToggler = (): JSX.Element => {
   const theme = useTheme()
   const mode = theme.palette.mode
@@ -25,6 +23,7 @@ export const ThemeModeToggler = (): JSX.Element => {
         minWidth: 'auto',
         padding: 0.5,
         borderColor: alpha(theme.palette.divider, 0.2),
+        height: '1.75rem',
       }}
     >
       {mode === 'light' ? (

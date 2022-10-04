@@ -20,6 +20,7 @@ export const SortableNewItemButton = ({
         sx={{
           marginTop: 2,
         }}
+        size="small"
       >
         New Key/Value Pair
       </Button>

@@ -5,11 +5,11 @@ import { Folder, RESTRequest } from '@apiteam/types'
 import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
-import { useDragDropManager } from 'src/components/dnd/react-dnd'
 import { useYJSModule } from 'src/contexts/imports'
 import { createFolder, createRestRequest } from 'src/entity-engine/creators'
+import { useDragDropManager } from 'src/lib/dnd/react-dnd'
 
 import { calculateDrop } from './calculateDrop'
 import { FolderNode, FOLDER_LOWER_ADDING_HEIGHT } from './FolderNode'

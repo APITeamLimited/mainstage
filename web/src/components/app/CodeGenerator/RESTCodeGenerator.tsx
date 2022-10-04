@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { RESTRequest } from '@apiteam/types'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'

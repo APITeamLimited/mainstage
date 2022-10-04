@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 
-import type { Identifier } from 'web/src/components/dnd/dnd-core'
-
-import { invariant } from 'src/components/dnd/invariant'
+import { Identifier } from 'src/lib/dnd/dnd-core'
+import { invariant } from 'src/lib/dnd/invariant'
 
 import type { DragSourceHookSpec } from '../types'
 

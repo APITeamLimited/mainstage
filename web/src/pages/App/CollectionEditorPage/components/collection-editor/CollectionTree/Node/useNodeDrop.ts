@@ -1,6 +1,6 @@
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
-import { useDrop } from 'src/components/dnd/react-dnd'
+import { useDrop } from 'src/lib/dnd/react-dnd'
 
 import { DragDetails } from './useNodeDrag'
 

@@ -1,8 +1,7 @@
 import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types'
 import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import { IndexeddbPersistence } from 'y-indexeddb'
-import { Awareness } from 'y-protocols/awareness.js'
+import type { IndexeddbPersistence } from 'y-indexeddb'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import type { Lib0Module, YJSModule } from 'src/contexts/imports'
@@ -172,7 +171,10 @@ export const handleProviders = ({
   }
 
   if (indexeddbProviderReady && (!indexeddbProvider || guidChanged)) {
-    const newIndexeddbProvider = new IndexeddbPersistence(activeGUID, newDoc)
+    const newIndexeddbProvider = new Y.indexeddb.IndexeddbPersistence(
+      activeGUID,
+      newDoc
+    )
 
     newIndexeddbProvider.on('synced', () => {
       setIndexeddbSyncStatus('connected')

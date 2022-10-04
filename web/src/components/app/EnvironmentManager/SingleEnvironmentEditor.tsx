@@ -16,7 +16,7 @@ import {
   useTheme,
 } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import {
   activeEnvironmentVar,

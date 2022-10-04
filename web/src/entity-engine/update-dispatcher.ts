@@ -1,5 +1,5 @@
 import { Workspace } from '@apiteam/types'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Doc as YDoc } from 'yjs'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 

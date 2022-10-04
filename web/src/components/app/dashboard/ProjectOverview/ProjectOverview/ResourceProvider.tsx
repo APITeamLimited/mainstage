@@ -2,7 +2,7 @@ import { Collection } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Button, Box, useTheme } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
-const importDnDModule = async () => await import('src/components/dnd')
+const importDnDModule = async () => await import('src/lib/dnd')
 export type DnDModule = Awaited<ReturnType<typeof importDnDModule>>
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

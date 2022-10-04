@@ -1,0 +1,42 @@
+import { useMemo } from 'react'
+
+import type { Array as YArray } from 'yjs'
+
+import useYObserve from './useYObserve'
+import useYStore from './useYStore'
+type ArrayFunctions<T> = Pick<
+  YArray<T>,
+  'forEach' | 'map' | 'slice' | 'get' | 'delete' | 'unshift' | 'push' | 'insert'
+>
+type ArrayWrapper<T> = { data: T[] } & ArrayFunctions<T>
+
+const useYArray = <T>(yArray: YArray<T>): ArrayWrapper<T> => {
+  useYObserve<YArray<T>>(yArray, () => yArray.toArray())
+  const dataSet = useYStore((state) => state.data)
+
+  const data = useMemo(() => {
+    const match = dataSet.find(([type]) => type === yArray)
+    if (!match) return []
+    return match[1] as T[]
+  }, [yArray, dataSet])
+  const noBinding = (funcKey: keyof YArray<T>) => () => {
+    throw new Error(`Y.Array#${funcKey.toString()} is not implemented`)
+  }
+
+  return {
+    forEach: yArray.forEach
+      ? yArray.forEach.bind(yArray)
+      : noBinding('forEach'),
+    map: yArray.map ? yArray.map.bind(yArray) : noBinding('map'),
+    slice: yArray.slice ? yArray.slice.bind(yArray) : noBinding('slice'),
+    get: yArray.get ? yArray.get.bind(yArray) : noBinding('get'),
+    delete: yArray.delete ? yArray.delete.bind(yArray) : noBinding('delete'),
+    unshift: yArray.unshift
+      ? yArray.unshift.bind(yArray)
+      : noBinding('unshift'),
+    push: yArray.push ? yArray.push.bind(yArray) : noBinding('push'),
+    insert: yArray.insert ? yArray.insert.bind(yArray) : noBinding('insert'),
+    data,
+  }
+}
+export default useYArray

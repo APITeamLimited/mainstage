@@ -7,7 +7,7 @@ import CommentIcon from '@mui/icons-material/Comment'
 import { Skeleton, Stack, Box, useTheme } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
 import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'

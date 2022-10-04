@@ -15,8 +15,8 @@ import {
 } from '@mui/material'
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
-import type { Identifier, XYCoord } from 'src/components/dnd/dnd-core'
 import { useDnDModule } from 'src/contexts/imports'
+import type { Identifier, XYCoord } from 'src/lib/dnd/dnd-core'
 
 import { StyledInput } from '../StyledInput'
 import { StoredDropzone, StoredFileType } from '../utils/FileDropzone'
@@ -248,7 +248,7 @@ export const DraggableTableRow = memo(
           {isFile && fileField !== undefined ? (
             <Box
               sx={{
-                height: '40px',
+                height: '2rem',
               }}
             >
               <StoredDropzone

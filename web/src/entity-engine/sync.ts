@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @module sync-protocol
  */
 
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Doc as YDoc } from 'yjs'
 
 import { YJSModule } from 'src/contexts/imports'
 

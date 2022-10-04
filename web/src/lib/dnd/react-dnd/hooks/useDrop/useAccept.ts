@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import type { Identifier } from 'web/src/components/dnd/dnd-core'
 
-import { invariant } from 'src/components/dnd/invariant'
+import { invariant } from 'src/lib/dnd/invariant'
 
 import type { DropTargetHookSpec } from '../types'
 

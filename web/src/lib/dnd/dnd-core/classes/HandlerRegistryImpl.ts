@@ -1,7 +1,7 @@
 import type { Store } from 'redux'
 
-import { asap } from 'src/components/dnd/asap'
-import { invariant } from 'src/components/dnd/invariant'
+import { asap } from 'src/lib/dnd/asap'
+import { invariant } from 'src/lib/dnd/invariant'
 
 import {
   addSource,

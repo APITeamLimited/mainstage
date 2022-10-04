@@ -15,7 +15,7 @@ import {
 import { useFormik } from 'formik'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 import * as Yup from 'yup'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useWorkspace } from 'src/entity-engine'

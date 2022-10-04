@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { routes, navigate } from '@redwoodjs/router'
 

@@ -93,8 +93,6 @@ export const execute = ({
     })
 
     socket.on('updates', (message) => {
-      console.log('Received message', message)
-
       if (message.messageType === 'STATUS') {
         if (
           message.message === 'COMPLETED_SUCCESS' ||
@@ -127,8 +125,6 @@ const handleRESTAutoFocus = (
   socket.on(
     'rest-create-response:success',
     async ({ responseId }: { responseId: string }) => {
-      console.log("Received 'rest-create-response:success' message", responseId)
-
       const tryFindResponse = async (count = 0): Promise<YMap<any>> => {
         const restResponseYMap = workspace
           .getMap<any>('projects')
@@ -157,7 +153,6 @@ const handleRESTAutoFocus = (
 
       const restResponseYMap = await tryFindResponse()
 
-      console.log('REST response YMap', restResponseYMap)
       updateFocusedRESTResponse(focusedResponseDict, restResponseYMap)
     }
   )

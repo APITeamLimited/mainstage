@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
 
@@ -11,7 +11,7 @@ import { ScriptPanel } from './ScriptPanel'
 type ExecutionPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   globeTestLogs: GlobeTestMessage[]
-  metrics: DefaultMetrics
+  metrics?: DefaultMetrics
 }
 
 export const ExecutionPanel = ({
@@ -21,10 +21,18 @@ export const ExecutionPanel = ({
 }: ExecutionPanelProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
+  const tabNames = useMemo(() => {
+    const tabNames = ['Script', 'Logs']
+    if (metrics !== undefined) {
+      tabNames.push('Metrics')
+    }
+    return tabNames
+  }, [metrics])
+
   return (
     <>
       <SecondaryChips
-        names={['Script', 'Logs', 'Metrics']}
+        names={tabNames}
         value={activeTabIndex}
         onChange={setActiveTabIndex}
       />
@@ -40,7 +48,7 @@ export const ExecutionPanel = ({
           globeTestLogs={globeTestLogs}
         />
       )}
-      {activeTabIndex === 2 && (
+      {activeTabIndex === 2 && metrics !== undefined && (
         <MetricsPanel setActionArea={setActionArea} metrics={metrics} />
       )}
     </>

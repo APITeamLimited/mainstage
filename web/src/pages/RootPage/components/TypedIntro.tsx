@@ -63,19 +63,20 @@ const TypedIntro = (): JSX.Element => {
             }}
           >
             <Typography
-              variant="h2"
+              variant="h1"
               color={theme.palette.text.primary}
               gutterBottom
               sx={{
                 fontWeight: 700,
+                lineHeight: 1.2,
               }}
             >
               Build APIs
-              <br />{' '}
+              <br />
               <Typography
-                color={'primary'}
-                component={'span'}
-                variant={'inherit'}
+                color="primary"
+                component="span"
+                variant="inherit"
                 sx={{
                   background: `linear-gradient(180deg, transparent 82%, ${alpha(
                     theme.palette.secondary.main,

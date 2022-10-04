@@ -2,15 +2,18 @@ import { createContext, useContext, useEffect, useState } from 'react'
 
 const importYJSModule = async () => {
   const yjsPromise = import('yjs')
+  const indexeddbPromise = import('y-indexeddb')
   const awarenessProtocolPromise = import('y-protocols/awareness')
 
-  const [yjs, awarenessProtocol] = await Promise.all([
+  const [yjs, indexeddb, awarenessProtocol] = await Promise.all([
     yjsPromise,
+    indexeddbPromise,
     awarenessProtocolPromise,
   ])
 
   return {
     ...yjs,
+    indexeddb,
     awarenessProtocol,
   }
 }

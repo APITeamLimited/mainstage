@@ -70,10 +70,10 @@ export const baseThemeOptions: ThemeOptions = {
       },
     },
     MuiSkeleton: {
-      styleOverrides: {
-        root: {
-          borderRadius: '4px',
-        },
+      defaultProps: {
+        animation: 'wave',
+        variant: 'rounded',
+        height: '100%',
       },
     },
     MuiButton: {
@@ -113,6 +113,7 @@ export const baseThemeOptions: ThemeOptions = {
           //height: '2rem',
           paddingX: '0.5rem',
           paddingY: '0.75rem',
+          minHeight: '2rem',
         },
       },
     },

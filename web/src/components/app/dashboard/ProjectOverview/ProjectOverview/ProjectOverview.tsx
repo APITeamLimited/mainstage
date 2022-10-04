@@ -4,7 +4,7 @@ import { Branch, Project } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { ImportDialog } from 'src/components/app/dialogs/ImportDialog'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'

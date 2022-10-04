@@ -69,7 +69,7 @@ export const RequestListItem = ({
         }
         secondary={
           <>
-            {!renaming && secondaryText && (
+            {!renaming && (
               <Typography
                 sx={{
                   position: 'relative',

@@ -4,7 +4,7 @@ import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Container, Divider } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { MetaTags } from '@redwoodjs/web'
 
@@ -30,6 +30,7 @@ import 'react-reflex/styles.css'
 import { CollectionTree } from './components/collection-editor/CollectionTree'
 import { FolderInputPanel } from './components/collection-editor/FolderInputPanel'
 import { RESTInputPanel } from './components/collection-editor/RESTInputPanel'
+import { RESTResponsePanel } from './components/collection-editor/RESTResponsePanel'
 
 type CollectionEditorPageProps = {
   workspaceId: string
@@ -54,8 +55,6 @@ export const CollectionEditorPage = ({
     import('prettier/standalone')
     import('prettier/parser-babel')
     import('httpsnippet')
-
-    // Import path polyfill
   }, [])
 
   const workspace = useWorkspace()
@@ -72,7 +71,7 @@ export const CollectionEditorPage = ({
     ?.get(collectionId)
   useYMap(collectionYMap || new Y.Map())
 
-  const viewportHeightReduction = 60.3
+  const viewportHeightReduction = 52
 
   // If no focused element, focus on the collection
   useEffect(() => {
@@ -225,7 +224,7 @@ export const CollectionEditorPage = ({
                         {focusedElementDict[
                           getFocusedElementKey(collectionYMap)
                         ]?.get('__typename') === 'RESTRequest' && (
-                          <></> //<RESTResponsePanel collectionYMap={collectionYMap} />
+                          <RESTResponsePanel collectionYMap={collectionYMap} />
                         )}
                       </Paper>
                     </div>

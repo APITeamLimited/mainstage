@@ -4,7 +4,7 @@ import { useReactiveVar } from '@apollo/client'
 import jwt_decode from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'zustand-yjs'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
