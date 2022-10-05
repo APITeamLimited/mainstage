@@ -37,7 +37,7 @@ export const GlobeTestLogsPanel = ({
     )
 
     if (!anyOrchestratorMessage) {
-      throw new Error('No orchestrator message found')
+      return null
     }
 
     return anyOrchestratorMessage.orchestratorId as string
@@ -160,21 +160,25 @@ export const GlobeTestLogsPanel = ({
       }}
     >
       <Stack direction="row" spacing={2} alignItems="center">
-        <Button
-          variant="outlined"
-          onClick={() => setOpenOptionsMenu(!openOptionsMenu)}
-          endIcon={
-            openOptionsMenu ? (
-              <KeyboardArrowDownIcon />
-            ) : (
-              <KeyboardArrowUpIcon />
-            )
-          }
-          ref={optionsButtonRef}
-          size="small"
-        >
-          Filter Options
-        </Button>
+        {(orchestratorId ||
+          workerIds.length > 0 ||
+          Object.keys(messageTypeShown).length > 0) && (
+          <Button
+            variant="outlined"
+            onClick={() => setOpenOptionsMenu(!openOptionsMenu)}
+            endIcon={
+              openOptionsMenu ? (
+                <KeyboardArrowDownIcon />
+              ) : (
+                <KeyboardArrowUpIcon />
+              )
+            }
+            ref={optionsButtonRef}
+            size="small"
+          >
+            Filter Options
+          </Button>
+        )}
         <Typography variant="body1" fontWeight="bold">
           {logs.length}/{globeTestLogs.length} messages
         </Typography>
@@ -194,37 +198,39 @@ export const GlobeTestLogsPanel = ({
         <Stack
           sx={{
             py: 1,
-            paddingLeft: 2,
+            paddingX: 2,
             backgroundColor: theme.palette.background.paper,
           }}
           spacing={1}
         >
-          <Box>
-            <Typography
-              color={theme.palette.text.secondary}
-              fontSize="0.8rem"
-              gutterBottom
-            >
-              Orchestrator
-            </Typography>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={checkedOrchestratorId}
-                  onChange={(e) => setCheckedOrchestratorId(e.target.checked)}
-                />
-              }
-              label={
-                <span
-                  style={{
-                    userSelect: 'none',
-                  }}
-                >
-                  {orchestratorId}
-                </span>
-              }
-            />
-          </Box>
+          {orchestratorId !== null && (
+            <Box>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize="0.8rem"
+                gutterBottom
+              >
+                Orchestrator
+              </Typography>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={checkedOrchestratorId}
+                    onChange={(e) => setCheckedOrchestratorId(e.target.checked)}
+                  />
+                }
+                label={
+                  <span
+                    style={{
+                      userSelect: 'none',
+                    }}
+                  >
+                    {orchestratorId}
+                  </span>
+                }
+              />
+            </Box>
+          )}
           <Box>
             <Typography
               color={theme.palette.text.secondary}

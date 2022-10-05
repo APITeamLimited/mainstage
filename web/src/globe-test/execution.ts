@@ -9,7 +9,7 @@ import { FocusedElementDictionary } from 'src/contexts/reactives'
 
 import { BaseJob, PendingLocalJob, QueuedJob } from './lib'
 
-const getUrl = () => {
+export const getUrl = () => {
   if (process.env.NODE_ENV === 'development') {
     const host = process.env['GLOBE_TEST_HOST']
     const port = process.env['GLOBE_TEST_PORT']

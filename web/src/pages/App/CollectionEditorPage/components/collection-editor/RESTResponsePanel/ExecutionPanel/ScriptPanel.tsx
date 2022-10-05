@@ -9,30 +9,10 @@ import { codeFormatter } from 'src/utils/codeFormatter'
 
 type ScriptPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
-  globeTestLogs: GlobeTestMessage[]
+  source: string
 }
 
-export const ScriptPanel = ({
-  setActionArea,
-  globeTestLogs,
-}: ScriptPanelProps) => {
-  const [source, setSource] = useState<string | null>(null)
-
-  useEffect(() => {
-    const performAsync = async () => {
-      const jobInfo = globeTestLogs.find(
-        (globeTestLog) => globeTestLog.messageType === 'JOB_INFO'
-      )
-      if (!jobInfo) throw new Error('No job info found')
-      if (typeof jobInfo.message === 'string') {
-        throw new Error('Job info is string')
-      }
-      setSource(await codeFormatter(jobInfo.message.source, 'javascript'))
-    }
-
-    performAsync()
-  }, [globeTestLogs])
-
+export const ScriptPanel = ({ setActionArea, source }: ScriptPanelProps) => {
   useEffect(() => {
     const customActions = []
 

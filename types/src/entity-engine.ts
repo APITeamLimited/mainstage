@@ -53,6 +53,7 @@ export type EntityEngineServersideMessages = {
     finalRequestEndpoint: string
     source: string
     sourceName: string
+    jobId: string
   }
   'rest-add-options': {
     branchId: string

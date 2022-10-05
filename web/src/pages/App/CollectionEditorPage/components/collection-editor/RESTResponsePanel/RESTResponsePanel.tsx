@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
 import { useTheme } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
 import { focusedResponseVar } from 'src/contexts/focused-response'
 import { useYJSModule } from 'src/contexts/imports'
 import { getFocusedElementKey } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { EmptyPanelMessage } from '../../../../../../components/app/utils/EmptyPanelMessage'
 
@@ -39,16 +39,16 @@ export const RESTResponsePanel = ({
 
   const responseHook = useYMap(focusedResponse ?? new Y.Map())
 
-  const isExecutingRESTRequest = useMemo(() => {
-    if (!focusedResponse) return false
-    if (focusedResponse.get('__subtype') === 'LoadingResponse') return true
-    return false
+  const focusedResponseId = useMemo(() => {
+    if (!focusedResponse) {
+      return null
+    }
+    return focusedResponse.get('id') as string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [responseHook])
 
   return (
     <>
-      {isExecutingRESTRequest && <SendingRequestAnimation />}
       {!focusedResponse ? (
         <EmptyPanelMessage
           icon={
@@ -67,11 +67,20 @@ export const RESTResponsePanel = ({
           ]}
         />
       ) : focusedResponse.get('__subtype') === 'LoadingResponse' ? (
-        <LoadingResponsePanel focusedResponse={focusedResponse} />
+        <LoadingResponsePanel
+          focusedResponse={focusedResponse}
+          key={focusedResponseId}
+        />
       ) : focusedResponse.get('__subtype') === 'SuccessSingleResult' ? (
-        <SuccessSingleResultPanel focusedResponse={focusedResponse} />
+        <SuccessSingleResultPanel
+          focusedResponse={focusedResponse}
+          key={focusedResponseId}
+        />
       ) : focusedResponse.get('__subtype') === 'FailureResult' ? (
-        <FailureResultPanel focusedResponse={focusedResponse} />
+        <FailureResultPanel
+          focusedResponse={focusedResponse}
+          key={focusedResponseId}
+        />
       ) : (
         <EmptyPanelMessage
           primaryText="Invalid response type"

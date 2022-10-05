@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 
 import { RESTRequest } from '@apiteam/types'
-import { getPrettyContentTypes } from '@apiteam/types/src'
+import { getPrettyContentTypes, knownContentTypes } from '@apiteam/types/src'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import { useTheme, Typography, Stack } from '@mui/material'
@@ -39,10 +39,7 @@ export const FocusedRequestBodyPanel = ({
       return 'None'
     }
 
-    const index = getIndexOfContentType(body.contentType)
-    if (index == null) throw new Error('Invalid content type')
-
-    return getPrettyContentTypes()[index]
+    return knownContentTypes[body.contentType]
   }, [body])
 
   useEffect(() => {
@@ -152,9 +149,8 @@ export const FocusedRequestBodyPanel = ({
           <EmptyPanelMessage
             primaryText="File"
             secondaryMessages={[
-              `File sent with this request: ${
-                body.body?.filename ?? 'Unknown file'
-              }`,
+              'File sent with this request:',
+              body.body?.filename ?? 'Unknown file',
             ]}
             icon={
               <InsertDriveFileIcon

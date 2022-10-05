@@ -7,6 +7,7 @@ import { io } from 'socket.io-client'
 import type { Socket as EntityEngineSocket } from 'socket.io-client'
 
 import { checkValue } from '../../config'
+import { coreCacheReadRedis } from '../../redis'
 
 import { TestRunningState, runningTestStates } from '.'
 
@@ -41,7 +42,7 @@ export const getEntityEngineSocket = async (
   })
 
   // Disconnection is handled from entity engine side
-  entityEngineSocket.on('rest-create-response:success', (data) => {
+  entityEngineSocket.on('rest-create-response:success', async (data) => {
     clientSocket.emit('rest-create-response:success', data)
 
     runningTestStates.set(clientSocket, {
@@ -49,6 +50,14 @@ export const getEntityEngineSocket = async (
       testType: 'rest',
       responseId: data.responseId as string,
       responseExistence: 'created',
+    })
+
+    // Create and delete a temporary id to enable streaming of tests by jobId
+
+    await coreCacheReadRedis.set(`jobScopeId:${data.jobId}`, scopeId)
+
+    entityEngineSocket.on('disconnect', async () => {
+      await coreCacheReadRedis.del(`jobScopeId:${data.jobId}`)
     })
   })
 

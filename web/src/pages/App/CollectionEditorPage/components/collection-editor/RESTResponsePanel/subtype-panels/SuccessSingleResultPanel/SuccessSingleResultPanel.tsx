@@ -115,34 +115,58 @@ export const SuccessSingleResultPanel = ({
     )
   }
 
+  const globeTestLogsStoreReceipt = useMemo(
+    () =>
+      focusedResponse?.get('globeTestLogs')?.storeReceipt as string | undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
+  const metricsStoreReceipt = useMemo(
+    () => focusedResponse?.get('metrics')?.storeReceipt as string | undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
+  const responseStoreReceipt = useMemo(
+    () => focusedResponse?.get('response')?.storeReceipt as string | undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
   useEffect(() => {
     if (fetching) {
       return
     }
 
-    const globeTestLogsStoreReceipt =
-      focusedResponse?.get('globeTestLogs')?.storeReceipt
-    const responseStoreReceipt = focusedResponse?.get('response')?.storeReceipt
-    const metricsStoreReceipt = focusedResponse?.get('metrics')?.storeReceipt
-
     if (
-      globeTestLogsStoreReceipt &&
-      responseStoreReceipt &&
-      metricsStoreReceipt
+      !focusedResponse ||
+      !globeTestLogsStoreReceipt ||
+      !responseStoreReceipt ||
+      !metricsStoreReceipt
     ) {
-      setStoredResponse(null)
-      setStoredGlobeTestLogs(null)
-      setStoredMetrics(null)
-      setFetching(true)
-
-      updateData({
-        globeTestLogsStoreReceipt,
-        responseStoreReceipt,
-        metricsStoreReceipt,
-      })
+      return
     }
+
+    console.log('go')
+
+    setFetching(true)
+
+    updateData({
+      globeTestLogsStoreReceipt,
+      responseStoreReceipt,
+      metricsStoreReceipt,
+    })
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedResponseHook])
+  }, [
+    focusedResponseHook,
+    globeTestLogsStoreReceipt,
+    responseStoreReceipt,
+    metricsStoreReceipt,
+  ])
+
+  console.log('storedResponse', storedResponse, fetching)
 
   const singleStats = useMemo(
     () => {
@@ -161,7 +185,7 @@ export const SuccessSingleResultPanel = ({
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
+    [focusedResponseHook, fetching]
   )
 
   return (
@@ -212,6 +236,7 @@ export const SuccessSingleResultPanel = ({
             setActionArea={setActionArea}
             globeTestLogs={storedGlobeTestLogs}
             metrics={storedMetrics}
+            source={focusedResponse?.get('source')}
           />
         ) : (
           <Skeleton />

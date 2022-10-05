@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { RESTRequest } from '@apiteam/types'
+import { Alert, Stack } from '@mui/material'
 
 import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
@@ -38,12 +39,15 @@ export const FocusedRequestPanel = ({
   )
 
   return (
-    <>
+    <Stack sx={{ height: '100%' }} spacing={2}>
       <SecondaryChips
         names={['Body', 'Headers', 'Info']}
         value={activeTabIndex}
         onChange={setActiveTabIndex}
       />
+      <Alert severity="info">
+        The final request may have been modified by the execution script
+      </Alert>
       {activeTabIndex === 0 && (
         <FocusedRequestBodyPanel
           body={request.body}
@@ -60,6 +64,6 @@ export const FocusedRequestPanel = ({
           values={infoValues}
         />
       )}
-    </>
+    </Stack>
   )
 }

@@ -10,7 +10,11 @@ import { Socket } from 'socket.io'
 import type { Socket as EntityEngineSocket } from 'socket.io-client'
 import { v4 as uuid } from 'uuid'
 
-import { orchestratorReadRedis, orchestratorSubscribeRedis } from '../../redis'
+import {
+  coreCacheReadRedis,
+  orchestratorReadRedis,
+  orchestratorSubscribeRedis,
+} from '../../redis'
 import { validateParams } from '../../validator'
 
 import {
@@ -102,8 +106,6 @@ export const handleNewTest = async (socket: Socket) => {
       handleMessage(messageObject, socket, params as WrappedExecutionParams)
     }
   )
-
-  //await new Promise((resolve) => setTimeout(resolve, 100))
 
   await Promise.all(
     Object.entries(executionParams).map(([key, value]) => {

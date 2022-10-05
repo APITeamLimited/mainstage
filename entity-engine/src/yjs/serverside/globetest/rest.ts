@@ -15,6 +15,8 @@ export const restCreateResponse = async (
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
+  console.log('restCreateResponse', data)
+
   const globeTestStateCurrent = globeTestState.get(socket)
   if (!globeTestStateCurrent) {
     socket.emit('error', 'Failed to find globeTestStateCurrent')
@@ -56,6 +58,7 @@ export const restCreateResponse = async (
     underlyingRequest,
     source: data.source,
     sourceName: data.sourceName,
+    jobId: data.jobId,
   }
 
   const responseYMap = new Y.Map()
@@ -77,6 +80,7 @@ export const restCreateResponse = async (
 
   socket.emit('rest-create-response:success', {
     responseId: restResponse.id,
+    jobId: data.jobId,
   })
 }
 

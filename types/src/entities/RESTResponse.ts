@@ -39,6 +39,7 @@ export type RESTResponseBase = {
   underlyingRequest: RESTRequest
   source: string
   sourceName: string
+  jobId: string
 }
 
 export type RESTResponse = RESTResponseBase &

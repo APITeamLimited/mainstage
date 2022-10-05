@@ -1,24 +1,66 @@
 import { GlobeTestMessage } from '@apiteam/types'
+import { Scope } from '@prisma/client'
 import { parse } from 'query-string'
 import { Socket } from 'socket.io'
 
-import { orchestratorReadRedis, orchestratorSubscribeRedis } from '../redis'
+import {
+  coreCacheReadRedis,
+  orchestratorReadRedis,
+  orchestratorSubscribeRedis,
+} from '../redis'
 
 // Streams an ongoing test
 export const handleCurrentTest = async (socket: Socket) => {
   const params = parse(socket.request.url?.split('?')[1] || '')
 
-  const id = params['id']
+  const jobId = params.jobId
 
-  if (typeof id !== 'string') {
+  if (typeof params.jobId !== 'string') {
     socket.emit('error', 'Invalid jobId')
     socket.disconnect()
     return
   }
 
-  const pastMessages = Object.entries(
-    await orchestratorReadRedis.hGetAll(`${id}:updates`)
-  ).map(([, value]) => JSON.parse(value) as GlobeTestMessage)
+  // Get job
+  const scopeId = await coreCacheReadRedis.get(`jobScopeId:${jobId}`)
+
+  if (!scopeId) {
+    socket.emit('error', 'Invalid jobId')
+    socket.disconnect()
+    return
+  }
+
+  const jobScopePromis = coreCacheReadRedis.get(`scope__id:${scopeId}`)
+  const userScopePromise = coreCacheReadRedis.get(
+    `scope__id:${params['scopeId']}`
+  )
+
+  const [jobScopeRaw, userScopeRaw] = await Promise.all([
+    jobScopePromis,
+    userScopePromise,
+  ])
+
+  if (!jobScopeRaw || !userScopeRaw) {
+    socket.emit('error', 'Invalid jobId')
+    socket.disconnect()
+    return
+  }
+
+  const jobScope = JSON.parse(jobScopeRaw) as Scope
+  const userScope = JSON.parse(userScopeRaw) as Scope
+
+  if (jobScope.variantTargetId !== userScope.variantTargetId) {
+    socket.emit('error', 'Invalid jobId')
+    socket.disconnect()
+    return
+  }
+
+  // Client now authorized to receive updates on this job
+  console.log(new Date(), 'Client authenticated, /current-test')
+
+  const pastMessages = (
+    await orchestratorReadRedis.sMembers(`${jobId}:updates`)
+  ).map((value) => JSON.parse(value) as GlobeTestMessage)
 
   // Send past messages
   pastMessages.forEach((message) => socket.emit('updates', message))
@@ -37,8 +79,8 @@ export const handleCurrentTest = async (socket: Socket) => {
 
   // Stream updates
   orchestratorSubscribeRedis.subscribe(
-    `orchestrator:executionUpdates:${id}`,
-    (channel, message) => {
+    `orchestrator:executionUpdates:${jobId}`,
+    (message) => {
       const messageObject = JSON.parse(message) as GlobeTestMessage
 
       if (messageObject.messageType === 'STATUS') {

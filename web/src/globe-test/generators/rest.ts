@@ -75,7 +75,7 @@ export const singleRESTRequestGenerator = async ({
     }
     //mark("RESTResult", res);
 
-    //sleep(1000)
+    sleep(1)
   }`
 
   const branch = collectionYMap.parent.parent

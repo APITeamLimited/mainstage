@@ -6,7 +6,6 @@ import { Server } from 'socket.io'
 
 import { checkValue } from './config'
 import { handleCurrentTest, handleNewTest } from './handlers'
-import { checkJobId } from './middleware'
 import { handleAuth } from './services'
 
 process.title = 'globe-test'
@@ -27,20 +26,7 @@ const io = new Server(httpServer, {
 io.use(async (socket, next) => {
   const didAuthenticate = await handleAuth(socket.request)
   if (didAuthenticate) {
-    const params = queryString.parse(socket.request.url?.split('?')[1] || '')
-    const endpoint = params['endpoint']
-
-    if (endpoint === '/new-test') {
-      console.log('Client connected, /new-test')
-      next()
-    } else if (endpoint === 'current-test') {
-      if (await checkJobId(socket.request)) {
-        console.log(new Date(), 'Client authenticated, /current-test')
-        next()
-      } else {
-        next(new Error('Invalid jobId'))
-      }
-    }
+    next()
   } else {
     console.log(new Date(), 'Client failed to authenticate')
     next(new Error('Authentication error'))
@@ -51,10 +37,24 @@ io.use(async (socket, next) => {
 
   // Already checked query params, just execute
   if (endpoint === '/new-test') {
-    await handleNewTest(socket)
-  } else if (endpoint === 'current-test') {
-    await handleCurrentTest(socket)
+    console.log('Client connected, /new-test')
+    try {
+      await handleNewTest(socket)
+    } catch (error) {
+      console.log(error)
+      socket.emit('error', 'An unexpected error occurred')
+      socket.disconnect()
+    }
+  } else if (endpoint === '/current-test') {
+    try {
+      await handleCurrentTest(socket)
+    } catch (error) {
+      console.log(error)
+      socket.emit('error', 'An unexpected error occurred')
+      socket.disconnect()
+    }
   } else {
+    socket.emit('error', 'Invalid endpoint')
     socket.disconnect()
   }
 })

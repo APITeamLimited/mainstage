@@ -11,13 +11,15 @@ import { ScriptPanel } from './ScriptPanel'
 type ExecutionPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   globeTestLogs: GlobeTestMessage[]
-  metrics?: DefaultMetrics
+  metrics?: GlobeTestMessage[]
+  source: string
 }
 
 export const ExecutionPanel = ({
   setActionArea,
   globeTestLogs,
   metrics,
+  source,
 }: ExecutionPanelProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
@@ -37,10 +39,7 @@ export const ExecutionPanel = ({
         onChange={setActiveTabIndex}
       />
       {activeTabIndex === 0 && (
-        <ScriptPanel
-          setActionArea={setActionArea}
-          globeTestLogs={globeTestLogs}
-        />
+        <ScriptPanel setActionArea={setActionArea} source={source} />
       )}
       {activeTabIndex === 1 && (
         <GlobeTestLogsPanel

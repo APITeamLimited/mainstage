@@ -1,3 +1,4 @@
+import ErrorIcon from '@mui/icons-material/Error'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import {
@@ -48,6 +49,8 @@ export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
         >
           {nodeYMap.get('__subtype') === 'LoadingResponse' ? (
             <CircularProgress size={20} />
+          ) : nodeYMap.get('__subtype') === 'FailureResult' ? (
+            <ErrorIcon sx={{ color: 'error.main' }} />
           ) : (
             <>
               <Typography

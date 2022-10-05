@@ -4,15 +4,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { GlobeTestMessage } from '@apiteam/types'
 import { Alert, Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { parseMessage } from 'src/globe-test/execution'
+import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../PanelLayout'
 import { ExecutionPanel } from '../ExecutionPanel'
+import { FocusedRequestPanel } from '../FocusedRequestPanel/FocusedRequestPanel'
 
 type FailureResultPanelProps = {
   focusedResponse: YMap<any>
@@ -94,7 +95,7 @@ export const FailureResultPanel = ({
 
   return (
     <PanelLayout
-      tabNames={['Execution']}
+      tabNames={['Execution', 'Request']}
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
@@ -105,10 +106,18 @@ export const FailureResultPanel = ({
           <ExecutionPanel
             setActionArea={setActionArea}
             globeTestLogs={storedGlobeTestLogs}
+            source={focusedResponse.get('source')}
           />
         ) : (
           <Skeleton />
         ))}
+      {activeTabIndex === 1 && (
+        <FocusedRequestPanel
+          request={focusedResponse.get('underlyingRequest')}
+          finalEndpoint={focusedResponse.get('endpoint')}
+          setActionArea={setActionArea}
+        />
+      )}
     </PanelLayout>
   )
 }

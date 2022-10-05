@@ -2,7 +2,7 @@ import { KeyValueItem, StoredObject } from '..'
 
 import { BaseEntity } from '.'
 
-const knownContentTypes = {
+export const knownContentTypes = {
   'application/json': 'JSON',
   //'application/ld+json': 'json',
   //'application/hal+json': 'json',
