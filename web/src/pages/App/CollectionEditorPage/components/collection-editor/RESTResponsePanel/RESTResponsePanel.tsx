@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import CommentIcon from '@mui/icons-material/Comment'
@@ -36,6 +36,10 @@ export const RESTResponsePanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [focusedResponseDict, collectionHook]
   )
+
+  useEffect(() => {
+    return () => console.log('unmounting RESTResponsePanel')
+  }, [])
 
   const responseHook = useYMap(focusedResponse ?? new Y.Map())
 

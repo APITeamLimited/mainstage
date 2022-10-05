@@ -48,7 +48,10 @@ export const ExecutionPanel = ({
         />
       )}
       {activeTabIndex === 2 && metrics !== undefined && (
-        <MetricsPanel setActionArea={setActionArea} metrics={metrics} />
+        <GlobeTestLogsPanel
+          setActionArea={setActionArea}
+          globeTestLogs={metrics}
+        />
       )}
     </>
   )

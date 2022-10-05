@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { Map as YMap } from 'yjs'
 
@@ -20,6 +20,10 @@ export const LoadingResponsePanel = ({
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
   useYMap(focusedResponse)
+
+  useEffect(() => {
+    return () => console.log('unmounting LoadingResponsePanel')
+  }, [])
 
   return (
     <>

@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types'
+import { makeVar, useReactiveVar } from '@apollo/client'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
@@ -9,6 +11,10 @@ import { streamExistingTest } from 'src/globe-test/existing-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { ExecutionPanel } from './ExecutionPanel'
+
+// Use reactive var to ensure only one socket is created in the whole app at
+// once
+const existingTestSocketVar = makeVar<Socket | null>(null)
 
 type LiveExecutionPanelProps = {
   focusedResponse: YMap<any>
@@ -19,12 +25,21 @@ export const LiveExecutionPanel = ({
   focusedResponse,
   setActionArea,
 }: LiveExecutionPanelProps) => {
+  const existingTestSocket = useReactiveVar(existingTestSocketVar)
+
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
   const responseHook = useYMap(focusedResponse)
-  const globeTestLogs = useRef<GlobeTestMessage[]>([])
-  const metrics = useRef<GlobeTestMessage[]>([])
+
+  const [metrics, setMetrics] = useState<GlobeTestMessage[]>([])
+  const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
+
+  const globeTestLogsRef = useRef<GlobeTestMessage[]>([])
+  const metricsRef = useRef<GlobeTestMessage[]>([])
+
+  globeTestLogsRef.current = globeTestLogs
+  metricsRef.current = metrics
 
   const [testSocket, setTestSocket] = useState<Socket | null>(null)
   const [oldJobId, setOldJobId] = useState<string | null>(null)
@@ -44,10 +59,16 @@ export const LiveExecutionPanel = ({
       return
     }
 
+    // Disconnect any rouge old sockets
+
+    if (existingTestSocket) {
+      existingTestSocket.disconnect()
+    }
+
     if (testSocket) {
       testSocket.disconnect()
-      globeTestLogs.current = []
-      metrics.current = []
+      setGlobeTestLogs([])
+      setMetrics([])
     }
 
     const newSocket = streamExistingTest({
@@ -56,29 +77,28 @@ export const LiveExecutionPanel = ({
       rawBearer,
       onMessage: (message) => {
         if (message.messageType === 'METRICS') {
-          metrics.current.push(message)
+          setMetrics([...metricsRef.current, message])
         } else {
-          globeTestLogs.current.push(message)
+          setGlobeTestLogs([...globeTestLogsRef.current, message])
         }
       },
     })
 
     setTestSocket(newSocket)
     setOldJobId(jobId)
+    existingTestSocketVar(newSocket)
 
-    return () => {
-      console.log('Disconnecting socket')
-      newSocket.disconnect()
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])
+
+  console.log('globeTestLogs', globeTestLogs)
 
   return (
     <ExecutionPanel
       source={focusedResponse.get('source') as string}
       setActionArea={setActionArea}
-      globeTestLogs={globeTestLogs.current}
-      metrics={metrics.current}
+      globeTestLogs={globeTestLogs}
+      metrics={metrics}
     />
   )
 }

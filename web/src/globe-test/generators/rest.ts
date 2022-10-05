@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RESTRequest } from '@apiteam/types'
 import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 import { createEnvironmentContext } from 'src/utils/environment'
 
@@ -75,7 +76,7 @@ export const singleRESTRequestGenerator = async ({
     }
     //mark("RESTResult", res);
 
-    sleep(1)
+    sleep(5);
   }`
 
   const branch = collectionYMap.parent.parent
