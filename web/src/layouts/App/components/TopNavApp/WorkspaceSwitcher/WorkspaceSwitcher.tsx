@@ -62,7 +62,7 @@ export const WorkspaceSwitcher = () => {
   }
 
   return (
-    <>
+    <Box>
       <ButtonBase onClick={() => navigate(routes.dashboard())} disableRipple>
         <Stack
           direction="row"
@@ -127,13 +127,7 @@ export const WorkspaceSwitcher = () => {
           </Box>
         </Stack>
       </ButtonBase>
-      <Tooltip
-        title="Switch Workspace"
-        sx={{
-          position: 'relative',
-          left: '-1rem',
-        }}
-      >
+      <Tooltip title="Switch Workspace">
         <IconButton onClick={handleOpenPopover}>
           <UnfoldMoreIcon />
         </IconButton>
@@ -143,6 +137,6 @@ export const WorkspaceSwitcher = () => {
         onClose={handleClosePopover}
         open={openPopover}
       />
-    </>
+    </Box>
   )
 }

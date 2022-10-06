@@ -4,7 +4,11 @@ import { Container } from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'
 
-import { DnDModuleProvider } from 'src/contexts/imports'
+import {
+  DnDModuleProvider,
+  Lib0ModuleProvider,
+  HashSumModuleProvider,
+} from 'src/contexts/imports'
 import { YJSModuleProvider } from 'src/contexts/imports'
 
 import {
@@ -38,37 +42,41 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   }, [onDashboard, pathname])
 
   return (
-    <YJSModuleProvider>
-      <DnDModuleProvider>
-        <AppLayoutBase
-          topNav={<TopNavApp />}
-          appBar={onDashboard ? <TopBarDashboard /> : undefined}
-          footer={
-            onDashboard
-              ? {
-                  element: <FooterSplash />,
-                  height: {
-                    xs: FOOTER_SPASH_HEIGHT.xs,
-                    md: FOOTER_SPASH_HEIGHT.md,
-                  },
-                }
-              : undefined
-          }
-        >
-          {onDashboard ? (
-            <Container
-              sx={{
-                paddingY: 6,
-                minHeight: '94vh',
-              }}
+    <Lib0ModuleProvider>
+      <HashSumModuleProvider>
+        <YJSModuleProvider>
+          <DnDModuleProvider>
+            <AppLayoutBase
+              topNav={<TopNavApp />}
+              appBar={onDashboard ? <TopBarDashboard /> : undefined}
+              footer={
+                onDashboard
+                  ? {
+                      element: <FooterSplash />,
+                      height: {
+                        xs: FOOTER_SPASH_HEIGHT.xs,
+                        md: FOOTER_SPASH_HEIGHT.md,
+                      },
+                    }
+                  : undefined
+              }
             >
-              {children}
-            </Container>
-          ) : (
-            children
-          )}
-        </AppLayoutBase>
-      </DnDModuleProvider>
-    </YJSModuleProvider>
+              {onDashboard ? (
+                <Container
+                  sx={{
+                    paddingY: 6,
+                    minHeight: '94vh',
+                  }}
+                >
+                  {children}
+                </Container>
+              ) : (
+                children
+              )}
+            </AppLayoutBase>
+          </DnDModuleProvider>
+        </YJSModuleProvider>
+      </HashSumModuleProvider>
+    </Lib0ModuleProvider>
   )
 }

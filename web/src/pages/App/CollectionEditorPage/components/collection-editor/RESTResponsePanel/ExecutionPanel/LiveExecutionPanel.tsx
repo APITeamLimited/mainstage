@@ -7,6 +7,7 @@ import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
+import { parseMessage } from 'src/globe-test/execution'
 import { streamExistingTest } from 'src/globe-test/existing-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
@@ -77,9 +78,9 @@ export const LiveExecutionPanel = ({
       rawBearer,
       onMessage: (message) => {
         if (message.messageType === 'METRICS') {
-          setMetrics([...metricsRef.current, message])
+          setMetrics([...metricsRef.current, parseMessage(message)])
         } else {
-          setGlobeTestLogs([...globeTestLogsRef.current, message])
+          setGlobeTestLogs([...globeTestLogsRef.current, parseMessage(message)])
         }
       },
     })
@@ -91,14 +92,13 @@ export const LiveExecutionPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])
 
-  console.log('globeTestLogs', globeTestLogs)
-
   return (
     <ExecutionPanel
-      source={focusedResponse.get('source') as string}
       setActionArea={setActionArea}
       globeTestLogs={globeTestLogs}
       metrics={metrics}
+      source={focusedResponse.get('source') as string}
+      sourceName={focusedResponse.get('sourceName') as string}
     />
   )
 }

@@ -17,14 +17,14 @@ import {
   Box,
 } from '@mui/material'
 import { useFormik } from 'formik'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 import * as Yup from 'yup'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { userProjectBranchesVar } from 'src/contexts/reactives/UserBranches'
 import { useWorkspace } from 'src/entity-engine'
 import { createEnvironment } from 'src/entity-engine/creators'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { findActiveBranch } from '../dashboard/ProjectOverview/utils'
 

@@ -64,7 +64,6 @@ export const CustomTabs = ({
               }}
               onClick={() => onChange(index)}
               key={index}
-              //size="small"
               endIcon={endIcon}
             >
               {name}

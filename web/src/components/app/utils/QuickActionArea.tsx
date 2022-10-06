@@ -64,7 +64,7 @@ export const QuickActionArea = ({
       justifyContent="flex-end"
       sx={{
         // Prrevent jarring height change when switching between bulk edit and normal mode
-        height: '40px',
+        height: '2.125rem',
       }}
     >
       {actions.map((action, index) => (

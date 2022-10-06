@@ -97,7 +97,7 @@ export const SuccessSingleResultPanel = ({
       globeTestLogsResult.data.map((log: string) => parseMessage(log))
     )
 
-    setStoredMetrics(metricsResult.data ?? [])
+    setStoredMetrics(metricsResult.data.map((log: string) => parseMessage(log)))
 
     setMappedCookies(
       Object.values(
@@ -165,8 +165,6 @@ export const SuccessSingleResultPanel = ({
     responseStoreReceipt,
     metricsStoreReceipt,
   ])
-
-  console.log('storedResponse', storedResponse, fetching)
 
   const singleStats = useMemo(
     () => {
@@ -237,6 +235,7 @@ export const SuccessSingleResultPanel = ({
             globeTestLogs={storedGlobeTestLogs}
             metrics={storedMetrics}
             source={focusedResponse?.get('source')}
+            sourceName={focusedResponse?.get('sourceName')}
           />
         ) : (
           <Skeleton />

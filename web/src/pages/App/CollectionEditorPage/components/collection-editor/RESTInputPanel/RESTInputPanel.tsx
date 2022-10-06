@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
 import { KeyValueItem } from '@apiteam/types'
@@ -7,16 +8,16 @@ import { ExecutionScript } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { useYJSModule } from 'src/contexts/imports'
+import { useYJSModule, useHashSumModule } from 'src/contexts/imports'
 import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
+import { useYMap } from 'src/lib/zustand-yjs'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
 import { DescriptionPanel } from '../DescriptionPanel'
@@ -28,6 +29,7 @@ import { EndpointBox } from './EndpointBox'
 import { ParametersPanel } from './ParametersPanel'
 import { SaveAsDialog } from './SaveAsDialog'
 import { SaveButton } from './SaveButton'
+import { ScriptsPanel } from './ScriptsPanel'
 import { SendButton } from './SendButton'
 import { generatePathVariables } from './utils'
 
@@ -41,6 +43,7 @@ export const RESTInputPanel = ({
   collectionYMap,
 }: RESTInputPanelProps) => {
   const Y = useYJSModule()
+  const { default: hash } = useHashSumModule()
 
   const restRequestsYMap = collectionYMap.get('restRequests')
   useWorkspace()
@@ -59,16 +62,29 @@ export const RESTInputPanel = ({
   const [unsavedParameters, setUnsavedParameters] = useState(
     requestYMap.get('params')
   )
-  const [unsavedPathVariables, setUnsavedPathVariables] = useState<
-    KeyValueItem[]
-  >(requestYMap.get('pathVariables') ?? [])
 
-  useEffect(() => {
-    generatePathVariables({
+  const getAndSetPathVariables = () => {
+    const pathVariables = generatePathVariables({
       requestYMap,
       unsavedEndpoint,
-      setUnsavedPathVariables,
     })
+    requestYMap.set('pathVariables', pathVariables)
+    return requestYMap.get('pathVariables')
+  }
+
+  const [unsavedPathVariables, setUnsavedPathVariables] = useState<
+    KeyValueItem[]
+  >(requestYMap.get('pathVariables') ?? getAndSetPathVariables())
+
+  useEffect(() => {
+    const generatedPathVariables = generatePathVariables({
+      requestYMap,
+      unsavedEndpoint,
+    })
+
+    if (hash(unsavedPathVariables) !== hash(generatedPathVariables)) {
+      setUnsavedPathVariables(generatedPathVariables)
+    }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedEndpoint])
@@ -102,39 +118,35 @@ export const RESTInputPanel = ({
   >(requestYMap.get('executionScripts') ?? getAndSetExecutionScripts())
 
   const jobQueue = useReactiveVar(jobQueueVar)
+
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
-  const [activeTabIndex, setActiveTabIndex] = useState(0)
 
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   useYMap(activeEnvironmentYMap || new Y.Map())
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  const [mountTime] = useState(Date.now())
+
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
-    if (!needSave) {
+    if (!needSave && Date.now() - mountTime > 100) {
+      console.log('need save')
       setNeedSave(
-        JSON.stringify(unsavedEndpoint) !==
-          JSON.stringify(requestYMap.get('endpoint')) ||
-          JSON.stringify(unsavedHeaders) !==
-            JSON.stringify(requestYMap.get('headers')) ||
-          JSON.stringify(unsavedParameters) !==
-            JSON.stringify(requestYMap.get('params')) ||
-          JSON.stringify(stripBodyStoredObjectData(unsavedBody)) !==
-            JSON.stringify(requestYMap.get('body')) ||
-          JSON.stringify(unsavedRequestMethod) !==
-            JSON.stringify(requestYMap.get('method')) ||
-          JSON.stringify(unsavedAuth) !==
-            JSON.stringify(requestYMap.get('auth')) ||
-          JSON.stringify(unsavedDescription) !==
-            JSON.stringify(requestYMap.get('description')) ||
-          JSON.stringify(unsavedPathVariables) !==
-            JSON.stringify(requestYMap.get('pathVariables')) ||
-          JSON.stringify(unsavedExecutionScripts) !==
-            JSON.stringify(requestYMap.get('executionScripts'))
+        hash(unsavedEndpoint) !== hash(requestYMap.get('endpoint')) ||
+          hash(unsavedHeaders) !== hash(requestYMap.get('headers')) ||
+          hash(unsavedParameters) !== hash(requestYMap.get('params')) ||
+          hash(stripBodyStoredObjectData(unsavedBody)) !==
+            hash(requestYMap.get('body')) ||
+          hash(unsavedRequestMethod) !== hash(requestYMap.get('method')) ||
+          hash(unsavedAuth) !== hash(requestYMap.get('auth')) ||
+          hash(unsavedDescription) !== hash(requestYMap.get('description')) ||
+          hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables'))
       )
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     needSave,
     requestYMap,
@@ -146,8 +158,15 @@ export const RESTInputPanel = ({
     unsavedParameters,
     unsavedPathVariables,
     unsavedRequestMethod,
-    unsavedExecutionScripts,
   ])
+
+  // Hack as scripts editor doesn't seem to trigger the need for a save automatically
+  useEffect(() => {
+    if (!needSave && Date.now() - mountTime > 100) {
+      setNeedSave(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unsavedExecutionScripts])
 
   useEffect(() => {
     if (!unsavedBody) return
@@ -260,7 +279,7 @@ export const RESTInputPanel = ({
           'Body',
           'Headers',
           'Auth',
-          // 'Scripts',
+          'Scripts',
           'Description',
         ]}
         activeTabIndex={activeTabIndex}
@@ -301,15 +320,15 @@ export const RESTInputPanel = ({
             setActionArea={setActionArea}
           />
         )}
-        {/*activeTabIndex === 4 && (
+        {activeTabIndex === 4 && (
           <ScriptsPanel
             executionScripts={unsavedExecutionScripts}
             setExecutionScripts={setUnsavedExecutionScripts}
             namespace={`request:${requestId}:scripts`}
             setActionArea={setActionArea}
           />
-        )*/}
-        {activeTabIndex === 4 && (
+        )}
+        {activeTabIndex === 5 && (
           <DescriptionPanel
             description={unsavedDescription}
             setDescription={setUnsavedDescription}

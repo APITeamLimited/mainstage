@@ -39,7 +39,16 @@ export const QuickSuccessSingleStats = ({
 
   return (
     <Stack spacing={2} direction="row">
-      <Typography variant="body2" color={statusCodeColor} fontWeight={600}>
+      <Typography
+        variant="body2"
+        color={statusCodeColor}
+        fontWeight={600}
+        sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <span
           style={{
             userSelect: 'none',
@@ -55,7 +64,16 @@ export const QuickSuccessSingleStats = ({
           {statusCode} {reasonPhrase}
         </span>
       </Typography>
-      <Typography variant="body2" color={statusCodeColor} fontWeight={600}>
+      <Typography
+        variant="body2"
+        color={statusCodeColor}
+        fontWeight={600}
+        sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <span
           style={{
             userSelect: 'none',
@@ -71,7 +89,16 @@ export const QuickSuccessSingleStats = ({
           {responseTime}
         </span>
       </Typography>
-      <Typography variant="body2" color={statusCodeColor} fontWeight={600}>
+      <Typography
+        variant="body2"
+        color={statusCodeColor}
+        fontWeight={600}
+        sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <span
           style={{
             userSelect: 'none',

@@ -168,6 +168,7 @@ const MonacoEditorInner = ({
               <Box
                 sx={{
                   paddingLeft: '71px',
+                  paddingRight: '10px',
                   marginTop: '0',
                 }}
               >

@@ -1,18 +1,21 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { Box, IconButton, Tooltip } from '@mui/material'
+import { Box, IconButton, Tooltip, Stack, Typography } from '@mui/material'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
-import { codeFormatter } from 'src/utils/codeFormatter'
 
 type ScriptPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   source: string
+  sourceName: string
 }
 
-export const ScriptPanel = ({ setActionArea, source }: ScriptPanelProps) => {
+export const ScriptPanel = ({
+  setActionArea,
+  source,
+  sourceName,
+}: ScriptPanelProps) => {
   useEffect(() => {
     const customActions = []
 
@@ -32,15 +35,24 @@ export const ScriptPanel = ({ setActionArea, source }: ScriptPanelProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source])
 
-  if (source === null) return <></>
-
   return (
-    <MonacoEditor
-      language="javascript"
-      value={source}
-      readOnly={true}
-      scrollBeyondLastLine={false}
-      namespace="executionScript"
-    />
+    <Stack spacing={2} sx={{ height: '100%' }}>
+      <Typography
+        variant="body1"
+        fontWeight="bold"
+        sx={{
+          userSelect: 'none',
+        }}
+      >
+        Script Name: {sourceName}
+      </Typography>
+      <MonacoEditor
+        language="javascript"
+        value={source}
+        readOnly={true}
+        scrollBeyondLastLine={false}
+        namespace="executionScript"
+      />
+    </Stack>
   )
 }

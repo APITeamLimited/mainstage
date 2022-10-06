@@ -144,16 +144,17 @@ __metadata:
     "@redwoodjs/web": ^3.0.3
     "@types/dotenv-webpack": ^7.0.3
     "@types/draft-js": ^0.11.9
+    "@types/hash-sum": ^1.0.0
     "@types/httpsnippet": ^1.23.1
     "@types/k6": ^0.37.1
     "@types/mime-types": ^2.1.1
-    "@types/object-hash": ^2.2.1
     "@types/postman-collection": ^3.5.7
     "@types/prettier": ^2.7.0
     "@unlimited-react-components/kernel": ^1.0.2
     "@xml-tools/parser": ^1.0.11
     add: ^2.0.6
     ajv: ^8.11.0
+    apexcharts: ^3.35.5
     apollo3-cache-persist: ^0.14.1
     axios: ^0.27.2
     buffer: ^6.0.3
@@ -163,6 +164,7 @@ __metadata:
     draft-js-single-line-plugin: ^2.0.5
     form-data: ^4.0.0
     formik: ^2.2.9
+    hash-sum: ^2.0.0
     html-prettify: ^1.0.7
     http-status-codes: ^2.2.0
     https-proxy-agent: ^5.0.1
@@ -181,7 +183,6 @@ __metadata:
     monaco-editor-webpack-plugin: ^7.0.1
     mui-markdown: ^0.5.5
     oas-validator: ^5.0.8
-    object-hash: ^3.0.0
     postman-collection: ^4.1.5
     prettier: ^2.7.1
     prism-react-renderer: ^1.3.5
@@ -190,11 +191,12 @@ __metadata:
     ra-data-graphql: ^4.3.0
     raw-loader: ^4.0.2
     rc-marked-input: ^0.2.0
-    react: ^18.2.0
+    react: 17.0.2
     react-admin: ^4.4.0
+    react-apexcharts: ^1.4.0
     react-content-loader: ^6.2.0
     react-contenteditable: ^3.3.6
-    react-dom: ^18.2.0
+    react-dom: 17.0.2
     react-drag-drop-files: ^2.3.7
     react-flip-toolkit: ^7.0.14
     react-hook-form: ^7.33.1
@@ -8952,6 +8954,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/hash-sum@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@types/hash-sum@npm:1.0.0"
+  checksum: a60700c454eef8f248da89825b20747619619f91dc9f66949292e9ec8901e09198a987754693d7a8f0378999817e852160e7aacc90dc4798a6690baf72938a42
+  languageName: node
+  linkType: hard
+
 "@types/hast@npm:^2.0.0":
   version: 2.3.4
   resolution: "@types/hast@npm:2.3.4"
@@ -9276,13 +9285,6 @@ __metadata:
   version: 4.1.4
   resolution: "@types/npmlog@npm:4.1.4"
   checksum: 5670c38db51f2c4a5da05657920d7597bf9da00615920b42a001fde9011f05ab1e8ec8cbc671abb47915028e3e0ace5c3d981c23684c202a00bf518f16ece01d
-  languageName: node
-  linkType: hard
-
-"@types/object-hash@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "@types/object-hash@npm:2.2.1"
-  checksum: be2b0bdbe2a0a4b59a4bb4a2c0d83fadc7993aa61d58a096147999c300beed1fe0c9327bf3c2935877e24b78cf4d2bfc108f4b6f3b5fd7842eecdfe67727bd07
   languageName: node
   linkType: hard
 
@@ -10800,6 +10802,20 @@ __metadata:
     normalize-path: ^3.0.0
     picomatch: ^2.0.4
   checksum: 900645535aee46ed7958f4f5b5e38abcbf474b5230406e913de15fc9a1310f0d5322775deb609688efe31010fa57831e55d36040b19826c22ce61d537e9b9759
+  languageName: node
+  linkType: hard
+
+"apexcharts@npm:^3.35.5":
+  version: 3.35.5
+  resolution: "apexcharts@npm:3.35.5"
+  dependencies:
+    svg.draggable.js: ^2.2.2
+    svg.easing.js: ^2.0.0
+    svg.filter.js: ^2.0.2
+    svg.pathmorphing.js: ^0.1.3
+    svg.resize.js: ^1.4.3
+    svg.select.js: ^3.0.1
+  checksum: bdb1b65be4031f2f00453c3b58ae53c1bb5499e78708ed367d970e46ee5311e088a9537d296fa1268fae2984928302f243dfb43a0f0a30bdd12e1d26e6657d01
   languageName: node
   linkType: hard
 
@@ -18437,6 +18453,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hash-sum@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "hash-sum@npm:2.0.0"
+  checksum: 45dee9cf318d7a9b0ba5f766d35bfa14eb9483f9b878b1f980f097a87c2a490219774d42962c0c5c9bf53b1cca51724307bc35a0781218236da3d33715b4962d
+  languageName: node
+  linkType: hard
+
 "hash.js@npm:1.1.7, hash.js@npm:^1.0.0, hash.js@npm:^1.0.3, hash.js@npm:^1.1.7":
   version: 1.1.7
   resolution: "hash.js@npm:1.1.7"
@@ -23850,13 +23873,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "object-hash@npm:3.0.0"
-  checksum: a06844537107b960c1c8b96cd2ac8592a265186bfa0f6ccafe0d34eabdb526f6fa81da1f37c43df7ed13b12a4ae3457a16071603bcd39d8beddb5f08c37b0f47
-  languageName: node
-  linkType: hard
-
 "object-inspect@npm:^1.12.0, object-inspect@npm:^1.9.0":
   version: 1.12.2
   resolution: "object-inspect@npm:1.12.2"
@@ -26312,6 +26328,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-apexcharts@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "react-apexcharts@npm:1.4.0"
+  dependencies:
+    prop-types: ^15.5.7
+  peerDependencies:
+    apexcharts: ^3.18.0
+    react: ">=0.13"
+  checksum: 42157e1ec24376d81646fc185b3ff3ea97c94bbd71c8da308129e75d303f75b7453fa81e074424564db5edfce5900b3dd288a6117babaa7c4af7c127a3c78ff6
+  languageName: node
+  linkType: hard
+
 "react-content-loader@npm:^6.2.0":
   version: 6.2.0
   resolution: "react-content-loader@npm:6.2.0"
@@ -26372,18 +26400,6 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 51abbcb72450fe527ebf978c3bc989ba266630faaa53f47a2fae5392369729e8de62b2e4683598cbe651ea7873cd34ec7d5127e2f50bf4bfe6bd0c3ad9bddcb0
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react-dom@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    scheduler: ^0.23.0
-  peerDependencies:
-    react: ^18.2.0
-  checksum: 66dfc5f93e13d0674e78ef41f92ed21dfb80f9c4ac4ac25a4b51046d41d4d2186abc915b897f69d3d0ebbffe6184e7c5876f2af26bfa956f179225d921be713a
   languageName: node
   linkType: hard
 
@@ -26750,15 +26766,6 @@ __metadata:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
   checksum: 07ae8959acf1596f0550685102fd6097d461a54a4fd46a50f88a0cd7daaa97fdd6415de1dcb4bfe0da6aa43221a6746ce380410fa848acc60f8ac41f6649c148
-  languageName: node
-  linkType: hard
-
-"react@npm:^18.2.0":
-  version: 18.2.0
-  resolution: "react@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: b562d9b569b0cb315e44b48099f7712283d93df36b19a39a67c254c6686479d3980b7f013dc931f4a5a3ae7645eae6386b4aa5eea933baa54ecd0f9acb0902b8
   languageName: node
   linkType: hard
 
@@ -27854,15 +27861,6 @@ __metadata:
     loose-envify: ^1.1.0
     object-assign: ^4.1.1
   checksum: b0982e4b0f34f4ffa4f2f486161c0fd9ce9b88680b045dccbf250eb1aa4fd27413570645455187a83535e2370f5c667a251045547765408492bd883cbe95fcdb
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.23.0":
-  version: 0.23.0
-  resolution: "scheduler@npm:0.23.0"
-  dependencies:
-    loose-envify: ^1.1.0
-  checksum: b777f7ca0115e6d93e126ac490dbd82642d14983b3079f58f35519d992fa46260be7d6e6cede433a92db70306310c6f5f06e144f0e40c484199e09c1f7be53dd
   languageName: node
   linkType: hard
 
@@ -29574,6 +29572,77 @@ __metadata:
     traverse: 0.6.6
     xml2js: 0.4.17
   checksum: 4c5b9717f892824fd567d0fe06b82898324fe0cdb02894f7e61160e1eb67c3b3e6f72557a91824c22e49d3c3318d5777b245197864c3a4c7c0e870767ec15bcd
+  languageName: node
+  linkType: hard
+
+"svg.draggable.js@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "svg.draggable.js@npm:2.2.2"
+  dependencies:
+    svg.js: ^2.0.1
+  checksum: b21be608254cb10b56de2867883b11053caab477ffc0b5bc9aab7ae640293413c5ad68bd29c6eeed62e41f424576eb5e8b2ebc50056d7b05a060720446a34556
+  languageName: node
+  linkType: hard
+
+"svg.easing.js@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "svg.easing.js@npm:2.0.0"
+  dependencies:
+    svg.js: ">=2.3.x"
+  checksum: 5c8b656d0c2956326e03e65448bd77e014b6acbe5fd50aa64ba983b40614145e66b4f27790698f4ef3e64d56498038ff5190ab5829772e823c64d5d70d8c953d
+  languageName: node
+  linkType: hard
+
+"svg.filter.js@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "svg.filter.js@npm:2.0.2"
+  dependencies:
+    svg.js: ^2.2.5
+  checksum: c2b88f05bd2bd8cbf0b4378d8dc41567702242a92d548664893a6239ab887cc2a7cb1da016990bc099982bdb03460fa5dd05ce70cc0d8bd8f3052abf2764949c
+  languageName: node
+  linkType: hard
+
+"svg.js@npm:>=2.3.x, svg.js@npm:^2.0.1, svg.js@npm:^2.2.5, svg.js@npm:^2.4.0, svg.js@npm:^2.6.5":
+  version: 2.7.1
+  resolution: "svg.js@npm:2.7.1"
+  checksum: b50eecb4effdf9ad6be4ddbfd0fcf4e44bd1f6318b2dbbffe3fe639cbe556c9ac8253345f6c6e3734ba84b35472b975e359fb689c9795efb11be6cbba9d7bcfd
+  languageName: node
+  linkType: hard
+
+"svg.pathmorphing.js@npm:^0.1.3":
+  version: 0.1.3
+  resolution: "svg.pathmorphing.js@npm:0.1.3"
+  dependencies:
+    svg.js: ^2.4.0
+  checksum: 68e7f70fc900365bdb2fdc8aeb4b3fd8e7ac753a58e4cd43f935723991ab778af91a314c94343e64d77a5374638b880ebba3e286e6be3c8debcdec220bba39ab
+  languageName: node
+  linkType: hard
+
+"svg.resize.js@npm:^1.4.3":
+  version: 1.4.3
+  resolution: "svg.resize.js@npm:1.4.3"
+  dependencies:
+    svg.js: ^2.6.5
+    svg.select.js: ^2.1.2
+  checksum: 0ebdb3dd2e93cc14831e9e017c45d435ba0fdf26cd877411d2da7390a18035dd3754ffd5e1a18e50098da9ea5bb72dad49ba8f4993249bf29847efed72b0440a
+  languageName: node
+  linkType: hard
+
+"svg.select.js@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "svg.select.js@npm:2.1.2"
+  dependencies:
+    svg.js: ^2.2.5
+  checksum: 6e7dfcca97ed85b5ba0018c192dbb0d08cee9943d532749f4323ca1bde0d6c797e028f0305c8da48385b41812254d6ef237f7dabd8a4c4d3a1a13e35af8e5db2
+  languageName: node
+  linkType: hard
+
+"svg.select.js@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "svg.select.js@npm:3.0.1"
+  dependencies:
+    svg.js: ^2.6.5
+  checksum: c629447aa77dccdc5091adef8d2ce146d6b75c0c0ece383e6dfc14911a7faca6177a091a554f4450c4e4d80c36e18b5fd8b2b15f9f85beec3a95a67c5e87c33f
   languageName: node
   linkType: hard
 

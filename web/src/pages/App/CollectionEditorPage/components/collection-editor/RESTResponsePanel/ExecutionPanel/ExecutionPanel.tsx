@@ -1,11 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import { DefaultMetrics, GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage } from '@apiteam/types'
 
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
 
 import { GlobeTestLogsPanel } from './GlobeTestLogsPanel'
-import { MetricsPanel } from './MetricsPanel'
 import { ScriptPanel } from './ScriptPanel'
 
 type ExecutionPanelProps = {
@@ -13,6 +12,7 @@ type ExecutionPanelProps = {
   globeTestLogs: GlobeTestMessage[]
   metrics?: GlobeTestMessage[]
   source: string
+  sourceName: string
 }
 
 export const ExecutionPanel = ({
@@ -20,6 +20,7 @@ export const ExecutionPanel = ({
   globeTestLogs,
   metrics,
   source,
+  sourceName,
 }: ExecutionPanelProps) => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
@@ -27,9 +28,16 @@ export const ExecutionPanel = ({
     const tabNames = ['Script', 'Logs']
     if (metrics !== undefined) {
       tabNames.push('Metrics')
+      tabNames.push('Metrics (Logs)')
     }
     return tabNames
   }, [metrics])
+
+  useEffect(() => {
+    if (!metrics && activeTabIndex > 1) {
+      setActiveTabIndex(0)
+    }
+  }, [metrics, activeTabIndex])
 
   return (
     <>
@@ -39,7 +47,11 @@ export const ExecutionPanel = ({
         onChange={setActiveTabIndex}
       />
       {activeTabIndex === 0 && (
-        <ScriptPanel setActionArea={setActionArea} source={source} />
+        <ScriptPanel
+          setActionArea={setActionArea}
+          source={source}
+          sourceName={sourceName}
+        />
       )}
       {activeTabIndex === 1 && (
         <GlobeTestLogsPanel
@@ -47,10 +59,11 @@ export const ExecutionPanel = ({
           globeTestLogs={globeTestLogs}
         />
       )}
-      {activeTabIndex === 2 && metrics !== undefined && (
+      {activeTabIndex === 3 && metrics !== undefined && (
         <GlobeTestLogsPanel
           setActionArea={setActionArea}
           globeTestLogs={metrics}
+          disableFilterOptions
         />
       )}
     </>

@@ -40,5 +40,9 @@ module.exports = (config, { mode }) => {
     buffer: require.resolve('buffer'),
   }
 
+  // Override redwood react dom with root react dom
+  // Drastically reduces bundle size and prevents 2 versions of react-dom
+  config.resolve.alias['react-dom'] = require.resolve('react-dom')
+
   return config
 }

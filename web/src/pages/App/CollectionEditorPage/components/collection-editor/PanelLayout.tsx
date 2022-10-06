@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, SxProps } from '@mui/material'
+import { Grid, Stack, SxProps } from '@mui/material'
 
 import { CustomTabs } from '../../../../../components/app/CustomTabs'
 

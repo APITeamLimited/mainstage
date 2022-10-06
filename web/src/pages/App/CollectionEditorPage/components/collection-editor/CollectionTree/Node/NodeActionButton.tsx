@@ -92,6 +92,7 @@ export const NodeActionButton = ({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         onClick={handleIconClick}
+        size="medium"
       >
         <MoreVertIcon />
       </IconButton>

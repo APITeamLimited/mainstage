@@ -107,6 +107,7 @@ export const FailureResultPanel = ({
             setActionArea={setActionArea}
             globeTestLogs={storedGlobeTestLogs}
             source={focusedResponse.get('source')}
+            sourceName={focusedResponse.get('sourceName')}
           />
         ) : (
           <Skeleton />

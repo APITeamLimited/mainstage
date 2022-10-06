@@ -3,16 +3,16 @@ import { useMemo } from 'react'
 
 import ClearIcon from '@mui/icons-material/Clear'
 import { useTheme, ListItemIcon, IconButton, Tooltip } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
+import { RequestListItem } from 'src/components/app/utils/RequestListItem'
 import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
 import {
   FocusedElementDictionary,
   getFocusedElementKey,
 } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 
-import { RequestListItem } from '../../../../../../components/app/utils/RequestListItem'
 import { getNodeIcon } from '../CollectionTree/Node/utils'
 
 type RESTHistoryItemProps = {
@@ -79,6 +79,7 @@ export const RESTHistoryItem = ({
               event.preventDefault()
               handleDeleteResponse()
             }}
+            size="medium"
           >
             <ClearIcon />
           </IconButton>

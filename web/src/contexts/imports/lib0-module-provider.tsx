@@ -15,7 +15,7 @@ export const Lib0ModuleProvider = ({
 }: {
   children?: React.ReactNode
 }) => {
-  const [dndModule, setLib0Module] = useState<Lib0Module | null>(null)
+  const [lib0Module, setLib0Module] = useState<Lib0Module | null>(null)
 
   useEffect(() => {
     const importModule = async () => {
@@ -24,10 +24,10 @@ export const Lib0ModuleProvider = ({
     importModule()
   }, [])
 
-  if (!dndModule) return <></>
+  if (!lib0Module) return <></>
 
   return (
-    <Lib0ModuleContext.Provider value={dndModule}>
+    <Lib0ModuleContext.Provider value={lib0Module}>
       {children}
     </Lib0ModuleContext.Provider>
   )

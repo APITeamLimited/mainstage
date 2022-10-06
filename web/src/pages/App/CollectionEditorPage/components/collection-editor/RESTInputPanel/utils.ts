@@ -1,19 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { KeyValueItem } from '@apiteam/types'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 export const generatePathVariables = ({
   requestYMap,
   unsavedEndpoint,
-  setUnsavedPathVariables,
 }: {
   requestYMap: YMap<any>
   unsavedEndpoint: string
-  setUnsavedPathVariables: (pathVariables: KeyValueItem[]) => void
 }) => {
   const path = unsavedEndpoint.split('?')[0]
   const pathParts = path.split('/') as string[]
 
-  if (pathParts.length === 1) return
+  if (pathParts.length === 1) return [] as KeyValueItem[]
 
   // Scan for path variables with colon after the slash
   const pathVariables: string[] = []
@@ -25,7 +24,7 @@ export const generatePathVariables = ({
     }
   })
 
-  if (pathVariables.length === 0) return
+  if (pathVariables.length === 0) [] as KeyValueItem[]
 
   // Ignore if already set in pathVariables else set
   const pathVariablesSet = new Set(
@@ -77,6 +76,5 @@ export const generatePathVariables = ({
     }
   })
 
-  requestYMap.set('pathVariables', finalPathVariables)
-  setUnsavedPathVariables(finalPathVariables)
+  return finalPathVariables
 }

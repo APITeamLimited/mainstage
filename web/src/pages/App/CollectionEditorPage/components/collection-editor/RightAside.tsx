@@ -112,7 +112,7 @@ export const RightAside = ({
                   }
                   onClick={() => handleButtonClick('restHistory')}
                 >
-                  <CommentIcon />
+                  <CommentIcon fontSize="medium" />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Generate Code" placement="left">
@@ -121,7 +121,7 @@ export const RightAside = ({
                   color={activeRightAside === 'code' ? 'primary' : 'inherit'}
                   onClick={() => handleButtonClick('code')}
                 >
-                  <CodeIcon />
+                  <CodeIcon fontSize="medium" />
                 </IconButton>
               </Tooltip>
             </>

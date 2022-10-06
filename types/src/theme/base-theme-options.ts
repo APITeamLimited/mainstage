@@ -101,9 +101,12 @@ export const baseThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           userSelect: 'none',
-          height: '1.5rem',
-          width: '1.5rem',
+          //height: '1.5rem',
+          //width: '1.5rem',
         },
+      },
+      defaultProps: {
+        fontSize: 'small',
       },
     },
     MuiInputBase: {
@@ -115,6 +118,21 @@ export const baseThemeOptions: ThemeOptions = {
           paddingY: '0.75rem',
           minHeight: '2rem',
         },
+      },
+    },
+    MuiIconButton: {
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiSwitch: {
+      defaultProps: {
+        size: 'small',
+      },
+    },
+    MuiCheckbox: {
+      defaultProps: {
+        size: 'small',
       },
     },
   },

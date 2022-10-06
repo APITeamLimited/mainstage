@@ -2,17 +2,15 @@
 import { useEffect, useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import CommentIcon from '@mui/icons-material/Comment'
+import SendIcon from '@mui/icons-material/Send'
 import { useTheme } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
-import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { focusedResponseVar } from 'src/contexts/focused-response'
 import { useYJSModule } from 'src/contexts/imports'
 import { getFocusedElementKey } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
-
-import { EmptyPanelMessage } from '../../../../../../components/app/utils/EmptyPanelMessage'
 
 import { FailureResultPanel } from './subtype-panels/FailureResultPanel'
 import { LoadingResponsePanel } from './subtype-panels/LoadingResponsePanel'
@@ -56,7 +54,7 @@ export const RESTResponsePanel = ({
       {!focusedResponse ? (
         <EmptyPanelMessage
           icon={
-            <CommentIcon
+            <SendIcon
               sx={{
                 marginBottom: 2,
                 width: 80,

@@ -23,15 +23,20 @@ import { codeFormatter } from 'src/utils/codeFormatter'
 type GlobeTestLogsPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   globeTestLogs: GlobeTestMessage[]
+  disableFilterOptions?: boolean
 }
 
 export const GlobeTestLogsPanel = ({
   setActionArea,
-  globeTestLogs,
+  globeTestLogs,disableFilterOptions
 }: GlobeTestLogsPanelProps) => {
   const theme = useTheme()
 
   const orchestratorId = useMemo(() => {
+    if (disableFilterOptions) {
+      return null
+    }
+
     const anyOrchestratorMessage = globeTestLogs.find(
       (log) => log.orchestratorId !== undefined
     )
@@ -44,6 +49,10 @@ export const GlobeTestLogsPanel = ({
   }, [globeTestLogs])
 
   const workerIds = useMemo(() => {
+    if (disableFilterOptions) {
+      return []
+    }
+
     const workerIds: string[] = []
     for (const globeTestLog of globeTestLogs) {
       // Check if workerId is in log
@@ -160,9 +169,9 @@ export const GlobeTestLogsPanel = ({
       }}
     >
       <Stack direction="row" spacing={2} alignItems="center">
-        {(orchestratorId ||
+        {((orchestratorId ||
           workerIds.length > 0 ||
-          Object.keys(messageTypeShown).length > 0) && (
+          Object.keys(messageTypeShown).length > 0) && !disableFilterOptions) && (
           <Button
             variant="outlined"
             onClick={() => setOpenOptionsMenu(!openOptionsMenu)}
