@@ -51,14 +51,12 @@ export const RESTHistoryItem = ({
     [responseHook, theme]
   )
 
-  const pathname = useMemo(() => {
-    try {
-      return new URL(responseYMap.get('endpoint')).pathname
-    } catch (error) {
-      return ''
-    }
+  const sourceName = useMemo(
+    () => responseYMap.get('sourceName'),
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [responseHook])
+    [responseHook]
+  )
 
   return (
     <RequestListItem
@@ -94,7 +92,7 @@ export const RESTHistoryItem = ({
         color: statusCodeColor,
       }}
       primaryText={responseYMap.get('name')}
-      secondaryText={pathname}
+      secondaryText={sourceName}
     />
   )
 }

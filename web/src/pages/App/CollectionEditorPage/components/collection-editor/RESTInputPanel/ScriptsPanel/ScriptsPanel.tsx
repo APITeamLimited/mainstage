@@ -26,6 +26,7 @@ type ScriptsPanelProps = {
   setExecutionScripts: (executionScripts: ExecutionScript[]) => void
   setActionArea: (actionArea: React.ReactNode) => void
   namespace: string
+  onExecute: (executionScript: ExecutionScript) => void
 }
 
 export const ScriptsPanel = ({
@@ -33,6 +34,7 @@ export const ScriptsPanel = ({
   setExecutionScripts,
   setActionArea,
   namespace,
+  onExecute,
 }: ScriptsPanelProps) => {
   const theme = useTheme()
 
@@ -71,14 +73,31 @@ export const ScriptsPanel = ({
   }
 
   useEffect(() => {
+    const onDeleteCallback = scripts[activeScriptIndex].builtIn
+      ? undefined
+      : handleBodyDelete
+    const prettyPrintCallback = scripts[activeScriptIndex].builtIn
+      ? undefined
+      : handlePrettyPrint
+
+    const executeButton = (
+      <Button
+        onClick={() => onExecute(scripts[activeScriptIndex])}
+        size="small"
+        variant="outlined"
+        sx={{
+          marginRight: onDeleteCallback || prettyPrintCallback ? 1 : 0,
+        }}
+      >
+        Execute
+      </Button>
+    )
+
     setActionArea(
       <QuickActionArea
-        onDeleteCallback={
-          scripts[activeScriptIndex].builtIn ? undefined : handleBodyDelete
-        }
-        prettyPrintCallback={
-          scripts[activeScriptIndex].builtIn ? undefined : handlePrettyPrint
-        }
+        onDeleteCallback={onDeleteCallback}
+        prettyPrintCallback={prettyPrintCallback}
+        customActions={[executeButton]}
       />
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,7 +158,7 @@ export const ScriptsPanel = ({
             newExecutionScripts[activeScriptIndex].script = script
             handleSetExecutionScripts(newExecutionScripts)
           }}
-          language="javascript"
+          language={scripts[activeScriptIndex].language}
           namespace={`${namespace}-${activeScriptIndex}`}
           placeholder={[
             'Start typing to create your new script',

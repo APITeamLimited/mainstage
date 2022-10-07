@@ -93,7 +93,7 @@ export function QuickstartDialog() {
                 sx={{
                   overflow: 'hidden',
                 }}
-                secondaryTypographyProps={{ style: { whiteSpace: 'normal' } }}
+                secondaryTypographyProps={{ sx: { whiteSpace: 'normal' } }}
               />
             </MenuItem>
           </Grid>

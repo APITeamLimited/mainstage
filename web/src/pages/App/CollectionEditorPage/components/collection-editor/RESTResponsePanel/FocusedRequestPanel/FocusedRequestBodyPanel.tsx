@@ -77,8 +77,14 @@ export const FocusedRequestBodyPanel = ({
         height: '100%',
       }}
     >
-      <Typography variant="body2" color={theme.palette.text.secondary}>
-        Content Type: {prettyName}
+      <Typography
+        variant="body1"
+        fontWeight="bold"
+        sx={{
+          userSelect: 'none',
+        }}
+      >
+        Body Type: {prettyName}
       </Typography>
       {prettyName === 'None' && (
         <EmptyPanelMessage

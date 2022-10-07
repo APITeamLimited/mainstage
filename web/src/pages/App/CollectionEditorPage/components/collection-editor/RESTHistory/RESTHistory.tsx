@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { useEffect, useMemo } from 'react'
+
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import {
@@ -9,16 +11,18 @@ import {
   useTheme,
   IconButton,
   Tooltip,
+  Button,
 } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import {
   clearFocusedRESTResponse,
   focusedResponseVar,
 } from 'src/contexts/focused-response'
+import { useYJSModule } from 'src/contexts/imports'
 import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
 import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { RESTHistoryItem } from './RESTHistoryItem'
 
@@ -35,23 +39,121 @@ export const RESTHistory = ({
   onCloseAside,
   collectionYMap,
 }: RESTHistoryProps) => {
-  const focusedElementDict = useReactiveVar(focusedElementVar)
-  const restResponsesYMap = collectionYMap.get('restResponses')
-
-  useYMap(restResponsesYMap)
-
+  const Y = useYJSModule()
   const theme = useTheme()
+
+  const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
 
-  if (
-    focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-      '__typename'
-    ) !== 'RESTRequest'
-  ) {
-    throw `focusedElementDict.__typename: '${focusedElementDict[
-      getFocusedElementKey(collectionYMap)
-    ]?.get('__typename')}' invalid for RESTHistory`
-  }
+  const collectionHook = useYMap(collectionYMap)
+
+  const restResponsesYMap = (collectionYMap.get('restResponses') ??
+    new Y.Map()) as YMap<any>
+  const responsesHook = useYMap(restResponsesYMap)
+
+  useEffect(() => {
+    if (
+      focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
+        '__typename'
+      ) !== 'RESTRequest'
+    ) {
+      throw `focusedElementDict.__typename: '${focusedElementDict[
+        getFocusedElementKey(collectionYMap)
+      ]?.get('__typename')}' invalid for RESTHistory`
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedElementDict, collectionHook])
+
+  const groupedResponses = useMemo(() => {
+    const responsesToDelete: YMap<any>[] = []
+
+    const responses: YMap<any>[] = (
+      Array.from(restResponsesYMap.values()) as YMap<any>[]
+    ).filter((response) => {
+      return (
+        response.get('__subtype') === 'SuccessSingleResult' ||
+        response.get('__subtype') === 'FailureResult' ||
+        response.get('__subtype') === 'LoadingResponse'
+      )
+    })
+
+    // Sort most recent first
+    responses.sort((a, b) => {
+      const aDate = new Date(a.get('createdAt'))
+      const bDate = new Date(b.get('createdAt'))
+      return bDate.getTime() - aDate.getTime()
+    })
+
+    if (responses.length > 100) {
+      responsesToDelete.push(...responses.slice(100))
+    }
+
+    if (responsesToDelete.length > 0) {
+      deleteRestResponse(responsesToDelete)
+    }
+
+    // Ensure responses not in responsesToDelete by id
+    const responsesChecked = responses.filter(
+      (response) =>
+        !responsesToDelete.some(
+          (responseToDelete) =>
+            response.get('id') === responseToDelete.get('id')
+        )
+    )
+
+    // Group requests by time, less than a day group by hour, more than a day group by day
+    const groupedResponsesNew: GroupedResponses = {}
+    const currentDate = new Date()
+
+    responsesChecked.forEach((response) => {
+      // If less than a day, group by hour
+      if (
+        currentDate.getTime() - new Date(response.get('createdAt')).getTime() <
+        1000 * 60 * 60 * 24
+      ) {
+        const hoursAgo =
+          (currentDate.getTime() -
+            new Date(response.get('createdAt')).getTime()) /
+          1000 /
+          60 /
+          60
+
+        let timeLabel = ''
+
+        if (hoursAgo < 1) {
+          timeLabel = 'Less than an hour ago'
+        } else {
+          timeLabel = `${Math.round(hoursAgo)} hours ago`
+        }
+
+        if (!groupedResponsesNew[timeLabel]) {
+          groupedResponsesNew[timeLabel] = []
+        }
+
+        groupedResponsesNew[timeLabel].push(response)
+      } else {
+        // If more than a day, group by day
+        const daysAgo =
+          (currentDate.getTime() -
+            new Date(response.get('createdAt')).getTime()) /
+          1000 /
+          60 /
+          60 /
+          24
+
+        const timeLabel = `${Math.round(daysAgo)} days ago`
+
+        if (!groupedResponsesNew[timeLabel]) {
+          groupedResponsesNew[timeLabel] = []
+        }
+
+        groupedResponsesNew[timeLabel].push(response)
+      }
+    })
+
+    return groupedResponsesNew
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [responsesHook, collectionHook])
 
   const handleDeleteResponse = (responseId: string) => {
     const restResponse = restResponsesYMap.get(responseId) as YMap<any>
@@ -59,91 +161,12 @@ export const RESTHistory = ({
     deleteRestResponse([restResponse])
   }
 
-  const responsesToDelete: YMap<any>[] = []
-
-  const responses: YMap<any>[] = (
-    Array.from(restResponsesYMap.values()) as YMap<any>[]
-  ).filter((response) => {
-    return (
-      response.get('__subtype') === 'SuccessSingleResult' ||
-      response.get('__subtype') === 'FailureResult' ||
-      response.get('__subtype') === 'LoadingResponse'
+  const handleDeleteAllResponses = () => {
+    clearFocusedRESTResponse(focusedElementDict, collectionYMap)
+    Array.from(restResponsesYMap.keys()).forEach((responseId) =>
+      restResponsesYMap.delete(responseId)
     )
-  })
-
-  // Sort most recent first
-  responses.sort((a, b) => {
-    const aDate = new Date(a.get('createdAt'))
-    const bDate = new Date(b.get('createdAt'))
-    return bDate.getTime() - aDate.getTime()
-  })
-
-  if (responses.length > 100) {
-    responsesToDelete.push(...responses.slice(100))
   }
-
-  if (responsesToDelete.length > 0) {
-    deleteRestResponse(responsesToDelete)
-  }
-
-  // Ensure responses not in responsesToDelete by id
-  const responsesChecked = responses.filter(
-    (response) =>
-      !responsesToDelete.some(
-        (responseToDelete) => response.get('id') === responseToDelete.get('id')
-      )
-  )
-
-  // Group requests by time, less than a day group by hour, more than a day group by day
-
-  const grouptedResonses: GroupedResponses = {}
-  const currentDate = new Date()
-
-  responsesChecked.forEach((response) => {
-    // If less than a day, group by hour
-    if (
-      currentDate.getTime() - new Date(response.get('createdAt')).getTime() <
-      1000 * 60 * 60 * 24
-    ) {
-      const hoursAgo =
-        (currentDate.getTime() -
-          new Date(response.get('createdAt')).getTime()) /
-        1000 /
-        60 /
-        60
-
-      let timeLabel = ''
-
-      if (hoursAgo < 1) {
-        timeLabel = 'Less than an hour ago'
-      } else {
-        timeLabel = `${Math.round(hoursAgo)} hours ago`
-      }
-
-      if (!grouptedResonses[timeLabel]) {
-        grouptedResonses[timeLabel] = []
-      }
-
-      grouptedResonses[timeLabel].push(response)
-    } else {
-      // If more than a day, group by day
-      const daysAgo =
-        (currentDate.getTime() -
-          new Date(response.get('createdAt')).getTime()) /
-        1000 /
-        60 /
-        60 /
-        24
-
-      const timeLabel = `${Math.round(daysAgo)} days ago`
-
-      if (!grouptedResonses[timeLabel]) {
-        grouptedResonses[timeLabel] = []
-      }
-
-      grouptedResonses[timeLabel].push(response)
-    }
-  })
 
   return (
     <Stack
@@ -166,14 +189,14 @@ export const RESTHistory = ({
           marginX: 2,
         }}
       >
-        <Typography variant="h6">
-          <span
-            style={{
-              userSelect: 'none',
-            }}
-          >
-            Response History
-          </span>
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          sx={{
+            userSelect: 'none',
+          }}
+        >
+          Response History
         </Typography>
         <Tooltip title="Close">
           <IconButton
@@ -186,6 +209,27 @@ export const RESTHistory = ({
           </IconButton>
         </Tooltip>
       </Stack>
+      {Object.keys(groupedResponses).length > 0 && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{
+            paddingX: 2,
+          }}
+        >
+          <Button
+            size="small"
+            onClick={handleDeleteAllResponses}
+            variant="outlined"
+            sx={{
+              width: '100%',
+            }}
+          >
+            Delete All
+          </Button>
+        </Stack>
+      )}
       <Box
         sx={{
           maxHeight: '100%',
@@ -193,7 +237,7 @@ export const RESTHistory = ({
           overflowY: 'auto',
         }}
       >
-        {responses.length === 0 ? (
+        {Object.values(groupedResponses).length === 0 ? (
           <Typography
             sx={{
               overflow: 'hidden',
@@ -213,9 +257,9 @@ export const RESTHistory = ({
           </Typography>
         ) : (
           <>
-            {Object.keys(grouptedResonses).map((timeLabel, index) => (
+            {Object.keys(groupedResponses).map((timeLabel) => (
               <Box
-                key={index}
+                key={timeLabel}
                 sx={{
                   marginBottom: 2,
                 }}
@@ -236,7 +280,7 @@ export const RESTHistory = ({
                     {timeLabel}:
                   </span>
                 </Typography>
-                {grouptedResonses[timeLabel].map((response) => {
+                {groupedResponses[timeLabel].map((response) => {
                   // Need to get litteral value of response id for re-rendering
                   // to work properly
                   const id = response.get('id')
@@ -247,9 +291,7 @@ export const RESTHistory = ({
                       responseYMap={response}
                       collectionYMap={collectionYMap}
                       focusedResponseDict={focusedResponseDict}
-                      handleDeleteResponse={() =>
-                        handleDeleteResponse(response.get('id'))
-                      }
+                      handleDeleteResponse={() => handleDeleteResponse(id)}
                     />
                   )
                 })}

@@ -119,14 +119,14 @@ export const CodeGenerator = ({
             justifyContent="space-between"
             alignItems="center"
           >
-            <Typography variant="h6">
-              <span
-                style={{
-                  userSelect: 'none',
-                }}
-              >
-                Code Generator
-              </span>
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              sx={{
+                userSelect: 'none',
+              }}
+            >
+              Code Generator
             </Typography>
             <Tooltip title="Close">
               <IconButton

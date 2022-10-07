@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Container, Divider } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
+import type { Map as YMap } from 'yjs'
 
 import { MetaTags } from '@redwoodjs/web'
 
@@ -42,21 +44,26 @@ export const CollectionEditorPage = ({
 }: CollectionEditorPageProps) => {
   const Y = useYJSModule()
 
-  const workspace = useWorkspace()
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const [showRightAside, setShowRightAside] = useState(false)
   const activeWorkspace = useWorkspace()
-  const collectionYMap = workspace
-    ?.get('projects')
-    ?.get(projectId)
-    ?.get('branches')
-    ?.get(branchId)
-    ?.get('collections')
-    ?.get(collectionId)
+
+  const branchYMap = (
+    (
+      (activeWorkspace?.get('projects') as YMap<any> | undefined)?.get(
+        projectId
+      ) as YMap<any> | undefined
+    )?.get('branches') as YMap<any> | undefined
+  )?.get(branchId) as YMap<any> | undefined
+
+  const collectionYMap = (
+    branchYMap?.get('collections') as YMap<any> | undefined
+  )?.get(collectionId) as YMap<any> | undefined
+
   useYMap(collectionYMap || new Y.Map())
 
-  const viewportHeightReduction = 52
+  const viewportHeightReduction = 50
 
   // If no focused element, focus on the collection
   useEffect(() => {
@@ -95,7 +102,7 @@ export const CollectionEditorPage = ({
           overflow: 'hidden',
         }}
       >
-        <EnvironmentProvider branchYMap={collectionYMap.parent.parent}>
+        <EnvironmentProvider branchYMap={branchYMap}>
           <CollectionContext.Provider value={collectionYMap}>
             <GlobeTestProvider />
             <RESTRequestFocusWatcher collectionYMap={collectionYMap} />

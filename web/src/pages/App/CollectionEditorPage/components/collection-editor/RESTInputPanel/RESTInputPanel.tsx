@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { KeyValueItem } from '@apiteam/types'
 import { RESTReqBody } from '@apiteam/types'
@@ -18,6 +18,7 @@ import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { BUILTIN_REST_SCRIPTS } from 'src/utils/rest-scripts'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
 import { DescriptionPanel } from '../DescriptionPanel'
@@ -33,6 +34,13 @@ import { ScriptsPanel } from './ScriptsPanel'
 import { SendButton } from './SendButton'
 import { generatePathVariables } from './utils'
 
+const defaultExecutionScript = BUILTIN_REST_SCRIPTS.find(
+  (script) => script.name === 'rest-single.js'
+)
+if (!defaultExecutionScript) {
+  throw new Error('Default rest execution script not found')
+}
+
 type RESTInputPanelProps = {
   requestId: string
   collectionYMap: YMap<any>
@@ -46,6 +54,7 @@ export const RESTInputPanel = ({
   const { default: hash } = useHashSumModule()
 
   const restRequestsYMap = collectionYMap.get('restRequests')
+
   useWorkspace()
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
@@ -207,7 +216,7 @@ export const RESTInputPanel = ({
     restRequestsYMap.set(newId, clone)
   }
 
-  const handleNormalSend = async () => {
+  const handleSend = async (executionScript: ExecutionScript) => {
     const request: RESTRequest = {
       id: requestYMap.get('id'),
       __typename: 'RESTRequest',
@@ -239,11 +248,16 @@ export const RESTInputPanel = ({
       collectionYMap,
       // Normal send is always main scope i.e. workspace
       scopeId,
-      rawBearer,
       jobQueue,
       requestYMap,
+      executionScript,
     })
   }
+
+  const sendScripts = useMemo(
+    () => [...BUILTIN_REST_SCRIPTS, ...unsavedExecutionScripts],
+    [unsavedExecutionScripts]
+  )
 
   return (
     <>
@@ -265,7 +279,11 @@ export const RESTInputPanel = ({
               requestId={requestId}
             />
             <Box marginLeft={2} />
-            <SendButton onNormalSend={handleNormalSend} />
+            <SendButton
+              onSend={handleSend}
+              executionScripts={sendScripts}
+              defaultExecutionScript={defaultExecutionScript}
+            />
             <Box marginLeft={2} />
             <SaveButton
               needSave={needSave}
@@ -326,6 +344,7 @@ export const RESTInputPanel = ({
             setExecutionScripts={setUnsavedExecutionScripts}
             namespace={`request:${requestId}:scripts`}
             setActionArea={setActionArea}
+            onExecute={handleSend}
           />
         )}
         {activeTabIndex === 5 && (

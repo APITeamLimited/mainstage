@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import SendIcon from '@mui/icons-material/Send'
@@ -7,7 +7,10 @@ import { useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
-import { focusedResponseVar } from 'src/contexts/focused-response'
+import {
+  clearFocusedRESTResponse,
+  focusedResponseVar,
+} from 'src/contexts/focused-response'
 import { useYJSModule } from 'src/contexts/imports'
 import { getFocusedElementKey } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
@@ -35,10 +38,6 @@ export const RESTResponsePanel = ({
     [focusedResponseDict, collectionHook]
   )
 
-  useEffect(() => {
-    return () => console.log('unmounting RESTResponsePanel')
-  }, [])
-
   const responseHook = useYMap(focusedResponse ?? new Y.Map())
 
   const focusedResponseId = useMemo(() => {
@@ -51,7 +50,7 @@ export const RESTResponsePanel = ({
 
   return (
     <>
-      {!focusedResponse ? (
+      {!focusedResponse || focusedResponse.get('__subtype') === undefined ? (
         <EmptyPanelMessage
           icon={
             <SendIcon

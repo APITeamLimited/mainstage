@@ -7,26 +7,31 @@ export const baseThemeOptions: ThemeOptions = {
     fontFamily: 'Manrope, sans-serif',
     fontSize: 16,
     h1: {
-      fontSize: '2.625rem',
+      fontSize: '3.5rem',
       lineHeight: 3,
       fontWeight: 500,
     },
     h2: {
-      fontSize: `${28 / 16}rem`,
+      fontSize: '2.625rem',
       lineHeight: 2.265,
       fontWeight: 500,
     },
     h3: {
-      fontSize: '1.5rem',
+      fontSize: `${28 / 16}rem`,
       lineHeight: 1.75,
       fontWeight: 500,
     },
     h4: {
-      fontSize: '1.25rem',
+      fontSize: '1.5rem',
       lineHeight: 1.5,
       fontWeight: 500,
     },
     h5: {
+      fontSize: '1.25rem',
+      lineHeight: 1.5,
+      fontWeight: 500,
+    },
+    h6: {
       fontSize: '1rem',
       lineHeight: 1.5,
       fontWeight: 500,

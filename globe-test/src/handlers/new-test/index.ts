@@ -10,11 +10,7 @@ import { Socket } from 'socket.io'
 import type { Socket as EntityEngineSocket } from 'socket.io-client'
 import { v4 as uuid } from 'uuid'
 
-import {
-  coreCacheReadRedis,
-  orchestratorReadRedis,
-  orchestratorSubscribeRedis,
-} from '../../redis'
+import { orchestratorReadRedis, orchestratorSubscribeRedis } from '../../redis'
 import { validateParams } from '../../validator'
 
 import {
@@ -86,13 +82,9 @@ export const handleNewTest = async (socket: Socket) => {
     sourceName: params.sourceName,
     scopeId: params.scopeId,
     status: 'PENDING',
-    environmentContext: params.environmentContext
-      ? JSON.stringify(params.environmentContext)
-      : null,
-    collectionContext: params.collectionContext
-      ? JSON.stringify(params.collectionContext)
-      : null,
-    restRequest: params.restRequest ? JSON.stringify(params.restRequest) : null,
+    environmentContext: params.environmentContext,
+    collectionContext: params.collectionContext,
+    restRequest: params.restRequest,
   } as ExecutionParams
 
   // Start stream before scheduling to ensure all messages are received
@@ -107,18 +99,10 @@ export const handleNewTest = async (socket: Socket) => {
     }
   )
 
-  await Promise.all(
-    Object.entries(executionParams).map(([key, value]) => {
-      if (typeof value === 'string') {
-        orchestratorReadRedis.hSet(executionParams.id, key, value)
-      } else if (value !== null) {
-        orchestratorReadRedis.hSet(
-          executionParams.id,
-          key,
-          JSON.stringify(value)
-        )
-      }
-    })
+  await orchestratorReadRedis.hSet(
+    executionParams.id,
+    'job',
+    JSON.stringify(executionParams)
   )
 
   // Broadcast the new job

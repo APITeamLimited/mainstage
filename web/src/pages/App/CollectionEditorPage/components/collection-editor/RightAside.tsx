@@ -1,18 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import CodeIcon from '@mui/icons-material/Code'
 import CommentIcon from '@mui/icons-material/Comment'
-import { Box, IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import { IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
+import type { Map as YMap } from 'yjs'
 
+import { RESTCodeGenerator } from 'src/components/app/CodeGenerator/RESTCodeGenerator'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
   getFocusedElementKey,
 } from 'src/contexts/reactives/FocusedElement'
-
-import { RESTCodeGenerator } from '../../../../../components/app/CodeGenerator/RESTCodeGenerator'
 
 import { RESTHistory } from './RESTHistory'
 
@@ -112,7 +112,7 @@ export const RightAside = ({
                   }
                   onClick={() => handleButtonClick('restHistory')}
                 >
-                  <CommentIcon fontSize="medium" />
+                  <CommentIcon />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Generate Code" placement="left">
@@ -121,7 +121,7 @@ export const RightAside = ({
                   color={activeRightAside === 'code' ? 'primary' : 'inherit'}
                   onClick={() => handleButtonClick('code')}
                 >
-                  <CodeIcon fontSize="medium" />
+                  <CodeIcon />
                 </IconButton>
               </Tooltip>
             </>

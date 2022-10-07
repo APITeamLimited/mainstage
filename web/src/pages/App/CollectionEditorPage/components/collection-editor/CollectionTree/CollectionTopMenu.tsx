@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import SettingsIcon from '@mui/icons-material/Settings'
 import {
   Box,
   Button,
@@ -16,8 +16,7 @@ import {
   MenuItem,
   ListItemText,
 } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
@@ -25,6 +24,7 @@ import {
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { RenameDialog } from '../../../../../../components/app/dialogs/RenameDialog'
 import { EnvironmentManager } from '../../../../../../components/app/EnvironmentManager'
@@ -44,8 +44,6 @@ export const CollectionTopMenu = ({
   const [showRenameDialog, setShowRenameDialog] = useState(false)
   const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const focusedElementDict = useReactiveVar(focusedElementVar)
-
-  const [titleHovered, setTitleHovered] = useState(false)
 
   const collection = useYMap(collectionYMap)
 
@@ -101,7 +99,7 @@ export const CollectionTopMenu = ({
         sx={{
           maxWidth: '100%',
           textTransform: 'none',
-          my: 1,
+          py: 2,
         }}
         disableRipple
         selected={
@@ -119,7 +117,7 @@ export const CollectionTopMenu = ({
           }}
         >
           <Typography
-            variant="h6"
+            variant="h5"
             sx={{
               whiteSpace: 'nowrap',
               overflow: 'hidden',
@@ -145,7 +143,7 @@ export const CollectionTopMenu = ({
           </IconButton>
         </Stack>
       </MenuItem>
-      <Stack sx={{ padding: 2, pt: 0 }} spacing={2}>
+      <Stack sx={{ padding: 2 }} spacing={2}>
         <Box>
           <Typography
             variant="body2"

@@ -92,12 +92,16 @@ export const SuccessSingleResultPanel = ({
     const [globeTestLogsResult, responseResult, metricsResult] =
       await Promise.all([globeTestLogsPromise, responsePromise, metricsPromise])
 
+    console.log('globeTestLogsResult', globeTestLogsResult)
+
     setStoredResponse(responseResult.data)
     setStoredGlobeTestLogs(
-      globeTestLogsResult.data.map((log: string) => parseMessage(log))
+      (globeTestLogsResult.data ?? []).map((log: string) => parseMessage(log))
     )
 
-    setStoredMetrics(metricsResult.data.map((log: string) => parseMessage(log)))
+    setStoredMetrics(
+      (metricsResult.data ?? []).map((log: string) => parseMessage(log))
+    )
 
     setMappedCookies(
       Object.values(

@@ -28,7 +28,8 @@ type GlobeTestLogsPanelProps = {
 
 export const GlobeTestLogsPanel = ({
   setActionArea,
-  globeTestLogs,disableFilterOptions
+  globeTestLogs,
+  disableFilterOptions,
 }: GlobeTestLogsPanelProps) => {
   const theme = useTheme()
 
@@ -169,25 +170,26 @@ export const GlobeTestLogsPanel = ({
       }}
     >
       <Stack direction="row" spacing={2} alignItems="center">
-        {((orchestratorId ||
+        {(orchestratorId ||
           workerIds.length > 0 ||
-          Object.keys(messageTypeShown).length > 0) && !disableFilterOptions) && (
-          <Button
-            variant="outlined"
-            onClick={() => setOpenOptionsMenu(!openOptionsMenu)}
-            endIcon={
-              openOptionsMenu ? (
-                <KeyboardArrowDownIcon />
-              ) : (
-                <KeyboardArrowUpIcon />
-              )
-            }
-            ref={optionsButtonRef}
-            size="small"
-          >
-            Filter Options
-          </Button>
-        )}
+          Object.keys(messageTypeShown).length > 0) &&
+          !disableFilterOptions && (
+            <Button
+              variant="outlined"
+              onClick={() => setOpenOptionsMenu(!openOptionsMenu)}
+              endIcon={
+                openOptionsMenu ? (
+                  <KeyboardArrowDownIcon />
+                ) : (
+                  <KeyboardArrowUpIcon />
+                )
+              }
+              ref={optionsButtonRef}
+              size="small"
+            >
+              Filter Messages
+            </Button>
+          )}
         <Typography variant="body1" fontWeight="bold">
           {logs.length}/{globeTestLogs.length} messages
         </Typography>

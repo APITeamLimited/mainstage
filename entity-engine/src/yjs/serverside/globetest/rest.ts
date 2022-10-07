@@ -186,6 +186,7 @@ export const restHandleFailure = async (
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
+  console.log('restHandleFailure', data)
   const globeTestStateCurrent = globeTestState.get(socket)
   if (!globeTestStateCurrent) {
     socket.emit('error', 'Failed to find globeTestStateCurrent')

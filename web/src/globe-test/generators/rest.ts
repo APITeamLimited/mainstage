@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RESTRequest } from '@apiteam/types'
+import { ExecutionScript, RESTRequest } from '@apiteam/types'
 import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
@@ -15,76 +15,26 @@ Creates a new single rest job and adds it to the queue.
 export const singleRESTRequestGenerator = async ({
   request,
   scopeId,
-  rawBearer,
   activeEnvironmentYMap,
   jobQueue,
   requestYMap,
   collectionYMap,
+  executionScript,
 }: {
   request: RESTRequest
   scopeId: string
-  rawBearer: string
   activeEnvironmentYMap: YMap<any> | null
   jobQueue: QueuedJob[]
   requestYMap: YMap<any>
   collectionYMap: YMap<any>
+  executionScript: ExecutionScript
 }): Promise<BaseJob & PendingLocalJob> => {
-  const axiosConfig = await getFinalRequest(
-    request,
-    requestYMap,
-    activeEnvironmentYMap,
-    collectionYMap
-  )
-  const sourceName = 'rest-single.js'
-
-  const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
-
-  const source = `import http from 'k6/http';
-  import {sleep} from 'k6';
-  import { mark } from 'apiteam';
-
-  export const options = {
-    vus: 1,
-    iterations: 1,
-    executionMode: 'rest_single',
-    //httpDebug: 'full',
-    //scenarios: {
-    //  contacts: {
-    //    executor: 'constant-vus',
-    //    vus: 2,
-    //    duration: '2s',
-    //    //gracefulRampDown: '3s',
-    //  },
-    //},
-  };
-
-  export default function() {
-    const req = {
-      method: '${axiosConfig.method}',
-      url: '${axiosConfig.url}${queryEncoded.length > 1 ? queryEncoded : ''}',
-      body: ${JSON.stringify(axiosConfig.data)},
-      params: {
-        headers: ${JSON.stringify(axiosConfig.headers)},
-      }
-    }
-
-
-    const res = http.request(...Object.values(req));
-
-    if (__ITER == 0) {
-      mark("RESTResult", res);
-    }
-    //mark("RESTResult", res);
-
-    sleep(5);
-  }`
-
-  const branch = collectionYMap.parent.parent
-  const project = branch.parent.parent
+  const branch = collectionYMap.parent?.parent as YMap<any> | undefined
+  const project = branch?.parent?.parent as YMap<any> | undefined
 
   const collectionId = collectionYMap.get('id')
-  const branchId = branch.get('id')
-  const projectId = project.get('id')
+  const branchId = branch?.get('id') as string | undefined
+  const projectId = project?.get('id') as string | undefined
 
   if (!collectionId || !branchId || !projectId) {
     throw new Error(
@@ -94,14 +44,23 @@ export const singleRESTRequestGenerator = async ({
     )
   }
 
+  const axiosConfig = await getFinalRequest(
+    request,
+    requestYMap,
+    activeEnvironmentYMap,
+    collectionYMap
+  )
+
+  const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
+
   const job: BaseJob & PendingLocalJob = {
     localId: uuid(),
     agent: 'GlobeTest',
     underlyingRequest: request,
     createdAt: new Date(),
     jobStatus: 'LOCAL_CREATING',
-    source,
-    sourceName,
+    source: executionScript.script,
+    sourceName: executionScript.name,
     scopeId,
     messages: [],
     projectId: projectId,
@@ -120,9 +79,13 @@ export const singleRESTRequestGenerator = async ({
       }` as string,
       body: axiosConfig.data,
       params: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        headers: axiosConfig.headers,
+        headers: Object.entries(axiosConfig.headers ?? {}).reduce(
+          (acc, [key, value]) => ({
+            ...acc,
+            [key]: value.toString(),
+          }),
+          {}
+        ),
       },
     },
     __subtype: 'PendingLocalJob',

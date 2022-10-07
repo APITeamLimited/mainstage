@@ -98,7 +98,7 @@ export const execute = ({
           message.message === 'COMPLETED_SUCCESS' ||
           message.message === 'COMPLETED_FAILED'
         ) {
-          socket.disconnect()
+          setTimeout(() => socket.disconnect(), 1000)
         }
       }
     })

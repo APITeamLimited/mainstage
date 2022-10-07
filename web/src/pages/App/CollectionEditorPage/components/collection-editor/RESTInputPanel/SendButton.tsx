@@ -1,20 +1,41 @@
 import { useState, useRef } from 'react'
 
+import type { ExecutionScript } from '@apiteam/types'
+import CodeIcon from '@mui/icons-material/Code'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
-import { Button, ButtonGroup, Popover, Stack } from '@mui/material'
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  MenuItem,
+  Popover,
+  Stack,
+} from '@mui/material'
 
 type SendButtonProps = {
-  onNormalSend?: () => void
+  onSend?: (executionScript: ExecutionScript) => void
+  executionScripts: ExecutionScript[]
+  defaultExecutionScript: ExecutionScript
 }
 
 export const SendButton = ({
-  onNormalSend = () => undefined,
+  onSend,
+  executionScripts,
+  defaultExecutionScript,
 }: SendButtonProps) => {
-  const [showSendOptionsPopover, setShowSendOptionsPopover] = useState(false)
+  const [showScriptsPopover, setShowScriptsPopover] = useState(false)
   const buttonGroupRef = useRef<HTMLDivElement>(null)
 
   // TODO: implement this
   const isDisabled = false
+
+  const handleSend = (executionScript: ExecutionScript) => {
+    setShowScriptsPopover(false)
+    onSend?.(executionScript)
+  }
 
   return (
     <>
@@ -28,12 +49,12 @@ export const SendButton = ({
           style={{
             borderRight: 'none',
           }}
-          onClick={onNormalSend}
+          onClick={() => handleSend(defaultExecutionScript)}
         >
           Send
         </Button>
         <Button
-          onClick={() => setShowSendOptionsPopover(true)}
+          onClick={() => setShowScriptsPopover(true)}
           sx={{
             paddingX: '0px',
           }}
@@ -45,15 +66,40 @@ export const SendButton = ({
         anchorEl={buttonGroupRef.current}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'center',
+          horizontal: 'left',
         }}
-        onClose={() => setShowSendOptionsPopover(false)}
-        open={showSendOptionsPopover}
+        onClose={() => setShowScriptsPopover(false)}
+        open={showScriptsPopover}
         sx={{
           mt: 1,
         }}
       >
-        <Stack></Stack>
+        <Stack>
+          {executionScripts.map((executionScript, index) => (
+            <MenuItem
+              key={index}
+              onClick={() => handleSend(executionScript)}
+              sx={{
+                width: '20rem',
+              }}
+            >
+              <ListItemIcon>
+                <CodeIcon />
+              </ListItemIcon>
+              <ListItemText
+                primary={executionScript.name}
+                secondary={executionScript.description}
+                secondaryTypographyProps={{ sx: { whiteSpace: 'normal' } }}
+                sx={{
+                  minHeight: '2rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              />
+            </MenuItem>
+          ))}
+        </Stack>
       </Popover>
     </>
   )
