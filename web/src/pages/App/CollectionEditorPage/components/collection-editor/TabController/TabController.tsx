@@ -8,6 +8,7 @@ import type { Map as YMap } from 'yjs'
 
 import { useCollection } from 'src/contexts/collection'
 import {
+  clearFocusedRESTResponse,
   focusedResponseVar,
   updateFocusedRESTResponse,
 } from 'src/contexts/focused-response'
@@ -75,6 +76,17 @@ export const TabController = () => {
         )
         setActiveTabIndex(focusedElementIndex)
 
+        const focusedRestResponse =
+          focusedResponseDict[getFocusedElementKey(collectionYMap)]
+
+        // If focused response does not belong to the focused element, clear it
+        if (
+          focusedRestResponse &&
+          focusedRestResponse.get('parentId') !== focusedId
+        ) {
+          clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        }
+
         return
       }
 
@@ -114,31 +126,28 @@ export const TabController = () => {
       }
 
       if (focusedElement.get('__typename') === 'RESTRequest') {
-        const focusedRestResponse = focusedResponseDict[
+        const focusedRestResponseRaw = focusedResponseDict[
           getFocusedElementKey(collectionYMap)
         ] as YMap<any> | undefined
 
-        console.log(
-          'focused',
-          focusedRestResponse,
-          determineNewRestTab({
-            restResponses,
-            focusedElement,
-            focusedRestResponse,
-            collectionYMap,
-          })
-        )
+        const isCorrectResponse =
+          focusedRestResponseRaw?.get('parentId') === focusedElement.get('id')
 
-        setOpenTabs([
-          ...openTabs,
-          determineNewRestTab({
-            restResponses,
-            focusedElement,
-            focusedRestResponse,
-            collectionYMap,
-          }),
-        ])
+        const newTab = determineNewRestTab({
+          restResponses,
+          focusedElement,
+          focusedRestResponse: isCorrectResponse
+            ? focusedRestResponseRaw
+            : undefined,
+          collectionYMap,
+        })
+
+        setOpenTabs([...openTabs, newTab])
         setActiveTabIndex(openTabs.length)
+
+        if (!newTab.bottomYMap) {
+          clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        }
 
         return
       }
@@ -219,6 +228,7 @@ export const TabController = () => {
         if (bottomYMap.get('id') !== focusedResponse?.get('id')) {
           if (bottomYMap.get('__typename') === 'RESTResponse') {
             updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+            return
           }
         }
       }

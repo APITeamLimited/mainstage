@@ -20,6 +20,7 @@ export const determineNewRestTab = ({
   const bottomYMap = determineRestResponse({
     restResponses,
     focusedRestResponse,
+    focusedElement,
   })
 
   const newOpenTab: OpenTab = {
@@ -40,9 +41,11 @@ export const determineNewRestTab = ({
 const determineRestResponse = ({
   focusedRestResponse,
   restResponses,
+  focusedElement,
 }: {
   focusedRestResponse: YMap<any> | undefined
   restResponses: YMap<any>[]
+  focusedElement: YMap<any>
 }): YMap<any> | null => {
   // If there is a focused rest response, and it is in the list of rest responses
   // for the focused rest request, then set the bottomYMap to the focused rest response
@@ -51,15 +54,17 @@ const determineRestResponse = ({
   }
 
   // Else find the most recent rest response
-  return restResponses.reduce((mostRecent, restRequest) => {
-    if (
-      !mostRecent ||
-      new Date(restRequest.get('createdAt')) >
-        new Date(mostRecent.get('createdAt'))
-    ) {
-      return restRequest
-    }
+  return restResponses
+    .filter((response) => response.get('parentId') === focusedElement.get('id'))
+    .reduce((mostRecent, restRequest) => {
+      if (
+        !mostRecent ||
+        new Date(restRequest.get('createdAt')) >
+          new Date(mostRecent.get('createdAt'))
+      ) {
+        return restRequest
+      }
 
-    return mostRecent
-  }, null as YMap<any> | null)
+      return mostRecent
+    }, null as YMap<any> | null)
 }
