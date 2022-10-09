@@ -1,18 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo } from 'react'
+import { useEffect } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
 import SendIcon from '@mui/icons-material/Send'
 import { useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
-import {
-  clearFocusedRESTResponse,
-  focusedResponseVar,
-} from 'src/contexts/focused-response'
 import { useYJSModule } from 'src/contexts/imports'
-import { getFocusedElementKey } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { FailureResultPanel } from './subtype-panels/FailureResultPanel'
@@ -20,37 +14,22 @@ import { LoadingResponsePanel } from './subtype-panels/LoadingResponsePanel'
 import { SuccessSingleResultPanel } from './subtype-panels/SuccessSingleResultPanel'
 
 type RESTResponsePanelProps = {
-  collectionYMap: YMap<any>
+  responseYMap: YMap<any> | undefined
 }
 
-export const RESTResponsePanel = ({
-  collectionYMap,
-}: RESTResponsePanelProps) => {
+export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
   const Y = useYJSModule()
-
   const theme = useTheme()
-  const focusedResponseDict = useReactiveVar(focusedResponseVar)
-  const collectionHook = useYMap(collectionYMap)
 
-  const focusedResponse = useMemo(
-    () => focusedResponseDict[getFocusedElementKey(collectionYMap)],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseDict, collectionHook]
-  )
+  useYMap(responseYMap ?? new Y.Map())
 
-  const responseHook = useYMap(focusedResponse ?? new Y.Map())
-
-  const focusedResponseId = useMemo(() => {
-    if (!focusedResponse) {
-      return null
-    }
-    return focusedResponse.get('id') as string
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [responseHook])
+  useEffect(() => {
+    return () => console.log('unmounting')
+  }, [])
 
   return (
     <>
-      {!focusedResponse || focusedResponse.get('__subtype') === undefined ? (
+      {!responseYMap || responseYMap.get('__subtype') === undefined ? (
         <EmptyPanelMessage
           icon={
             <SendIcon
@@ -67,26 +46,17 @@ export const RESTResponsePanel = ({
             'Add a url above and hit send to see the response',
           ]}
         />
-      ) : focusedResponse.get('__subtype') === 'LoadingResponse' ? (
-        <LoadingResponsePanel
-          focusedResponse={focusedResponse}
-          key={focusedResponseId}
-        />
-      ) : focusedResponse.get('__subtype') === 'SuccessSingleResult' ? (
-        <SuccessSingleResultPanel
-          focusedResponse={focusedResponse}
-          key={focusedResponseId}
-        />
-      ) : focusedResponse.get('__subtype') === 'FailureResult' ? (
-        <FailureResultPanel
-          focusedResponse={focusedResponse}
-          key={focusedResponseId}
-        />
+      ) : responseYMap.get('__subtype') === 'LoadingResponse' ? (
+        <LoadingResponsePanel focusedResponse={responseYMap} />
+      ) : responseYMap.get('__subtype') === 'SuccessSingleResult' ? (
+        <SuccessSingleResultPanel focusedResponse={responseYMap} />
+      ) : responseYMap.get('__subtype') === 'FailureResult' ? (
+        <FailureResultPanel focusedResponse={responseYMap} />
       ) : (
         <EmptyPanelMessage
           primaryText="Invalid response type"
           secondaryMessages={[
-            `Response type: ${focusedResponse.get(
+            `Response type: ${responseYMap.get(
               '__subtype'
             )} is not a valid response type`,
             'Please send a new request to get an updated response',

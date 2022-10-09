@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Box, IconButton, Tooltip, Stack, Typography } from '@mui/material'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
+import { useHashSumModule } from 'src/contexts/imports'
 
 type ScriptPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
@@ -16,6 +17,8 @@ export const ScriptPanel = ({
   source,
   sourceName,
 }: ScriptPanelProps) => {
+  const { default: hash } = useHashSumModule()
+
   useEffect(() => {
     const customActions = []
 
@@ -35,6 +38,9 @@ export const ScriptPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const [namespace] = useState(Math.random().toString(36).substring(8))
+
   return (
     <Stack spacing={2} sx={{ height: '100%' }}>
       <Typography
@@ -51,7 +57,7 @@ export const ScriptPanel = ({
         value={source}
         readOnly={true}
         scrollBeyondLastLine={false}
-        namespace="executionScript"
+        namespace={namespace}
       />
     </Stack>
   )

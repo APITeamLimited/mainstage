@@ -22,6 +22,8 @@ export const APITeamLogo = () => {
       <Typography
         fontSize={22}
         fontWeight={1000}
+        // The old theme's font, think this might look better for the logo
+        fontFamily="Roboto"
         color={theme.palette.text.primary}
       >
         <span

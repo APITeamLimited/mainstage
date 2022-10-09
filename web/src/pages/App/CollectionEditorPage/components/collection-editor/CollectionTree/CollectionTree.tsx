@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState } from 'react'
 
 import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 import { HTML5Backend } from 'src/lib/dnd/backend-html5'
 import { DndProvider } from 'src/lib/dnd/react-dnd'

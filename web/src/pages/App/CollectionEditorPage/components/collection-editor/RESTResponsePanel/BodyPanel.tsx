@@ -1,14 +1,16 @@
 import { useState, useEffect, useMemo } from 'react'
 
+import { useReactiveVar } from '@apollo/client'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Tooltip, IconButton, Box } from '@mui/material'
 import { Response } from 'k6/http'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
+import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
+import { focusedResponseVar } from 'src/contexts/focused-response'
+import { useHashSumModule } from 'src/contexts/imports'
 import { codeFormatter } from 'src/utils/codeFormatter'
 import { parseRESTResponseBody, getBodyContentType } from 'src/utils/rest-utils'
-
-import { SecondaryChips } from '../../../../../../components/app/utils/SecondaryChips'
 
 import { HTMLViewer } from './HTMLViewer'
 
@@ -18,6 +20,8 @@ type BodyPanelProps = {
 }
 
 export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
+  const { default: hash } = useHashSumModule()
+
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [rawBody, setRawBody] = useState('')
   const [calculatedBody, setCalculatedBody] = useState(false)
@@ -25,6 +29,14 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
   const contentType = useMemo(() => getBodyContentType(response), [response])
   const [prettifiedBody, setPrettifiedBody] = useState<string | null>(null)
   const [prettyBodyName, setPrettyBodyName] = useState<string | null>(null)
+
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
+
+  const focusedResponseHash = useMemo(
+    () => hash(focusedResponseDict),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseDict]
+  )
 
   useEffect(() => {
     const customActions = []
@@ -105,6 +117,7 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           readOnly
           wordWrap="on"
           namespace={`${response.url}-0`}
+          key={focusedResponseHash}
         />
       )}
       {((activeTabIndex === 1 && prettifiedBody) ||
@@ -117,6 +130,7 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           readOnly
           wordWrap="on"
           namespace={`${response.url}-1`}
+          key={focusedResponseHash}
         />
       )}
       {((activeTabIndex === 2 && prettifiedBody) ||

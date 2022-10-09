@@ -140,5 +140,12 @@ export const baseThemeOptions: ThemeOptions = {
         size: 'small',
       },
     },
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          transition: 'none',
+        },
+      },
+    },
   },
 }

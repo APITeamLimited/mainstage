@@ -42,12 +42,12 @@ if (!defaultExecutionScript) {
 }
 
 type RESTInputPanelProps = {
-  requestId: string
+  requestYMap: YMap<any>
   collectionYMap: YMap<any>
 }
 
 export const RESTInputPanel = ({
-  requestId,
+  requestYMap,
   collectionYMap,
 }: RESTInputPanelProps) => {
   const Y = useYJSModule()
@@ -59,8 +59,10 @@ export const RESTInputPanel = ({
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const requestYMap = restRequestsYMap.get(requestId)
-  useYMap(requestYMap)
+  const requestHook = useYMap(requestYMap)
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const requestId = useMemo(() => requestYMap.get('id'), [requestHook])
 
   const [unsavedEndpoint, setUnsavedEndpoint] = useState<string>(
     requestYMap.get('endpoint')
@@ -142,7 +144,6 @@ export const RESTInputPanel = ({
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 100) {
-      console.log('need save')
       setNeedSave(
         hash(unsavedEndpoint) !== hash(requestYMap.get('endpoint')) ||
           hash(unsavedHeaders) !== hash(requestYMap.get('headers')) ||

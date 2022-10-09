@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types'
+import { useReactiveVar } from '@apollo/client'
 
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
+import { focusedResponseVar } from 'src/contexts/focused-response'
+import { useHashSumModule } from 'src/contexts/imports'
 
 import { GlobeTestLogsPanel } from './GlobeTestLogsPanel'
 import { ScriptPanel } from './ScriptPanel'
@@ -22,6 +25,8 @@ export const ExecutionPanel = ({
   source,
   sourceName,
 }: ExecutionPanelProps) => {
+  const { default: hash } = useHashSumModule()
+
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
   const tabNames = useMemo(() => {
@@ -39,6 +44,14 @@ export const ExecutionPanel = ({
     }
   }, [metrics, activeTabIndex])
 
+  const focusedResponseDict = useReactiveVar(focusedResponseVar)
+
+  const focusedResponseHash = useMemo(
+    () => hash(focusedResponseDict),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseDict]
+  )
+
   return (
     <>
       <SecondaryChips
@@ -51,12 +64,14 @@ export const ExecutionPanel = ({
           setActionArea={setActionArea}
           source={source}
           sourceName={sourceName}
+          key={focusedResponseHash}
         />
       )}
       {activeTabIndex === 1 && (
         <GlobeTestLogsPanel
           setActionArea={setActionArea}
           globeTestLogs={globeTestLogs}
+          key={focusedResponseHash}
         />
       )}
       {activeTabIndex === 3 && metrics !== undefined && (
@@ -64,6 +79,7 @@ export const ExecutionPanel = ({
           setActionArea={setActionArea}
           globeTestLogs={metrics}
           disableFilterOptions
+          key={focusedResponseHash}
         />
       )}
     </>
