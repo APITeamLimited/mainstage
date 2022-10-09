@@ -16,7 +16,6 @@ import {
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
-import { RESTRequestFocusWatcher } from 'src/contexts/state-watchers/RESTRequestFocusWatcher'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
 import { useYMap } from 'src/lib/zustand-yjs'
@@ -100,7 +99,6 @@ export const CollectionEditorPage = ({
         <EnvironmentProvider branchYMap={branchYMap}>
           <CollectionContext.Provider value={collectionYMap}>
             <GlobeTestProvider />
-            <RESTRequestFocusWatcher collectionYMap={collectionYMap} />
             <ReflexContainer orientation="vertical">
               <ReflexElement
                 minSize={200}
@@ -130,7 +128,7 @@ export const CollectionEditorPage = ({
                 }}
               />
               <ReflexElement flex={1} minSize={400}>
-                <TabController enabled={true} />
+                <TabController />
               </ReflexElement>
             </ReflexContainer>
           </CollectionContext.Provider>

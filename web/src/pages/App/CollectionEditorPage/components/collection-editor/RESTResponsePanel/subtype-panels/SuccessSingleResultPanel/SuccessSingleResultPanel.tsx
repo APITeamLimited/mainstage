@@ -92,8 +92,6 @@ export const SuccessSingleResultPanel = ({
     const [globeTestLogsResult, responseResult, metricsResult] =
       await Promise.all([globeTestLogsPromise, responsePromise, metricsPromise])
 
-    console.log('globeTestLogsResult', globeTestLogsResult)
-
     setStoredResponse(responseResult.data)
     setStoredGlobeTestLogs(
       (globeTestLogsResult.data ?? []).map((log: string) => parseMessage(log))
@@ -151,8 +149,6 @@ export const SuccessSingleResultPanel = ({
     ) {
       return
     }
-
-    console.log('go')
 
     setFetching(true)
 

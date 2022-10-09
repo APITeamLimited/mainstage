@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { makeVar } from '@apollo/client'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 export type FocusedElementDictionary = {
   [WorkspaceId_ProjectId_collectionId: string]: YMap<any>

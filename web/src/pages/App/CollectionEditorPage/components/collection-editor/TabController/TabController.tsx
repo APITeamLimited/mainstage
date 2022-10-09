@@ -21,10 +21,12 @@ import { RightAside } from 'src/pages/App/CollectionEditorPage/components/collec
 
 import 'react-reflex/styles.css'
 import { viewportHeightReduction } from '../../../CollectionEditorPage'
+import { CollectionInputPanel } from '../CollectionInputPanel'
+import { FolderInputPanel } from '../FolderInputPanel'
+import { RESTResponsePanel } from '../RESTResponsePanel'
 
 import { TabPanel, tabPanelHeight } from './TabPanel'
-import { getTabsDisabledView } from './tabs-disabled-view'
-import { getTabsEnabledView } from './tabs-enabled-view'
+import { determineNewRestTab } from './utils'
 
 export type OpenTab = {
   topYMap: YMap<any>
@@ -33,118 +35,209 @@ export type OpenTab = {
   bottomNode: React.ReactNode | null
 }
 
-type TabControllerProps = {
-  enabled: boolean
-}
-
-export const TabController = ({ enabled }: TabControllerProps) => {
+export const TabController = () => {
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
   const collectionYMap = useCollection() as YMap<any>
   useYMap(collectionYMap)
+
+  const restResponsesYMap = collectionYMap.get('restResponses') as YMap<any>
+  const restResponsesHook = useYMap(restResponsesYMap)
+
+  const restResponses = useMemo(
+    () => Array.from(restResponsesYMap.values()) as YMap<any>[],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [restResponsesHook]
+  )
 
   const [showRightAside, setShowRightAside] = useState(false)
 
   const [openTabs, setOpenTabs] = useState<OpenTab[]>([])
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
+  // Ensure tab changes in response to the focused element
   useEffect(() => {
-    console.log('activeTabIndex: ', activeTabIndex)
-  }, [activeTabIndex])
+    const focusedElement =
+      focusedElementDict[getFocusedElementKey(collectionYMap)]
 
-  useEffect(() => {
-    if (enabled) {
-      getTabsEnabledView({
-        existingTabs: openTabs,
-        focusedElementDict,
-        focusedResponseDict,
-        collectionYMap,
-        activeTabIndex,
-        setOpenTabs,
-        setActiveTabIndex,
-      })
-    } else {
-      getTabsDisabledView({
-        focusedElementDict,
-        focusedResponseDict,
-        collectionYMap,
-        setOpenTabs,
-        setActiveTabIndex,
-      })
-    }
+    if (focusedElement) {
+      const focusedId = focusedElement.get('id')
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, activeTabIndex, focusedElementDict, focusedResponseDict])
-
-  // Set focused element when tab is changed, broadcasts the tab controller state
-  // to unrelated components
-  useEffect(() => {
-    if (!enabled) return
-
-    const topYMap = openTabs[activeTabIndex]?.topYMap
-
-    if (!topYMap) return
-
-    // Check to make sure not already focused on the element
-    const oldFocusedElementId = focusedElementDict[
-      getFocusedElementKey(collectionYMap)
-    ]?.get('id') as string | undefined
-
-    const newFocusedElementId = openTabs[activeTabIndex]?.topYMap.get('id') as
-      | string
-      | undefined
-
-    const oldFocusedResponseId = focusedResponseDict[
-      getFocusedElementKey(collectionYMap)
-    ]?.get('id') as string | undefined
-
-    const newFocusedResponseId = openTabs[activeTabIndex]?.bottomYMap?.get(
-      'id'
-    ) as string | undefined
-
-    /*if (oldFocusedElementId !== newFocusedElementId) {
-      console.log(
-        'Setting focused element from',
-        focusedElementDict[getFocusedElementKey(collectionYMap)]?.get('name'),
-        'to',
-        topYMap.get('name')
+      // Set the tab to the focused element
+      const focusedElementIndex = openTabs.findIndex(
+        (tab) => tab.topYMap.get('id') === focusedId
       )
 
-      updateFocusedElement(focusedElementDict, topYMap)
-    }*/
+      if (focusedElementIndex !== -1) {
+        console.log(
+          "Setting active tab to focused element's tab",
+          focusedElementIndex
+        )
+        setActiveTabIndex(focusedElementIndex)
 
-    /*if (oldFocusedResponseId !== newFocusedResponseId) {
-      const bottomYMap = openTabs[activeTabIndex].bottomYMap
+        return
+      }
+
+      if (focusedElement.get('__typename') === 'Collection') {
+        setOpenTabs([
+          ...openTabs,
+          {
+            topYMap: focusedElement,
+            topNode: <CollectionInputPanel collectionYMap={focusedElement} />,
+            bottomYMap: null,
+            bottomNode: null,
+          },
+        ])
+        setActiveTabIndex(openTabs.length)
+
+        return
+      }
+
+      if (focusedElement.get('__typename') === 'Folder') {
+        setOpenTabs([
+          ...openTabs,
+          {
+            topYMap: focusedElement,
+            topNode: (
+              <FolderInputPanel
+                folderId={focusedElement.get('id')}
+                collectionYMap={collectionYMap}
+              />
+            ),
+            bottomYMap: null,
+            bottomNode: null,
+          },
+        ])
+        setActiveTabIndex(openTabs.length)
+
+        return
+      }
+
+      if (focusedElement.get('__typename') === 'RESTRequest') {
+        const focusedRestResponse = focusedResponseDict[
+          getFocusedElementKey(collectionYMap)
+        ] as YMap<any> | undefined
+
+        console.log(
+          'focused',
+          focusedRestResponse,
+          determineNewRestTab({
+            restResponses,
+            focusedElement,
+            focusedRestResponse,
+            collectionYMap,
+          })
+        )
+
+        setOpenTabs([
+          ...openTabs,
+          determineNewRestTab({
+            restResponses,
+            focusedElement,
+            focusedRestResponse,
+            collectionYMap,
+          }),
+        ])
+        setActiveTabIndex(openTabs.length)
+
+        return
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedElementDict])
+
+  // Ensure tab changes in response to focused response
+  useEffect(() => {
+    const focusedResponse =
+      focusedResponseDict[getFocusedElementKey(collectionYMap)]
+
+    if (focusedResponse) {
+      // Set the tab to the focused element
+      const focusedResponseIndex = openTabs.findIndex(
+        (tab) => tab.bottomYMap?.get('id') === focusedResponse.get('id')
+      )
+
+      if (focusedResponseIndex !== -1) {
+        setActiveTabIndex(focusedResponseIndex)
+        return
+      }
+
+      // See if parent request is already open
+      const parentId = focusedResponse.get('parentId')
+      const parentRequestIndex = openTabs.findIndex(
+        (tab) => tab.topYMap.get('id') === parentId
+      )
+
+      if (parentRequestIndex !== -1) {
+        const newTabs = [...openTabs]
+        newTabs[parentRequestIndex].bottomYMap = focusedResponse
+        newTabs[parentRequestIndex].bottomNode = (
+          <RESTResponsePanel responseYMap={focusedResponse} />
+        )
+        setOpenTabs(newTabs)
+        setActiveTabIndex(parentRequestIndex)
+        return
+      }
+
+      // Create a new tab for the focused response
+      setOpenTabs([
+        ...openTabs,
+        determineNewRestTab({
+          restResponses,
+          focusedElement: collectionYMap.get('restRequests').get(parentId),
+          focusedRestResponse: focusedResponse,
+          collectionYMap,
+        }),
+      ])
+
+      setActiveTabIndex(openTabs.length)
+
+      return
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedResponseDict])
+
+  // Ensure focused element changes when the tab changes
+  useEffect(() => {
+    const topYMap = openTabs[activeTabIndex]?.topYMap
+    const focusedElement =
+      focusedElementDict[getFocusedElementKey(collectionYMap)]
+
+    if (
+      topYMap &&
+      focusedElement &&
+      topYMap.get('id') !== focusedElement.get('id')
+    ) {
+      updateFocusedElement(focusedElementDict, topYMap)
+
+      const bottomYMap = openTabs[activeTabIndex]?.bottomYMap
 
       if (bottomYMap) {
-        console.log(
-          'Updating focused response to: ',
-          bottomYMap.get('name'),
-          bottomYMap.get('__subtype')
-        )
-        updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+        const focusedResponse =
+          focusedResponseDict[getFocusedElementKey(collectionYMap)]
+
+        if (bottomYMap.get('id') !== focusedResponse?.get('id')) {
+          if (bottomYMap.get('__typename') === 'RESTResponse') {
+            updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+          }
+        }
       }
-    }*/
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTabIndex])
 
   return (
     <>
-      {enabled && (
-        <>
-          <TabPanel
-            openTabs={openTabs}
-            activeTabIndex={activeTabIndex}
-            setActiveTabIndex={setActiveTabIndex}
-          />
-        </>
-      )}
+      <TabPanel
+        openTabs={openTabs}
+        activeTabIndex={activeTabIndex}
+        setActiveTabIndex={setActiveTabIndex}
+      />
       <ReflexContainer
         orientation="vertical"
         style={{
-          height: `calc(100vh - ${
-            viewportHeightReduction + (enabled ? tabPanelHeight : 0)
-          }px)`,
+          height: `calc(100vh - ${viewportHeightReduction + tabPanelHeight}px)`,
         }}
       >
         <ReflexElement
