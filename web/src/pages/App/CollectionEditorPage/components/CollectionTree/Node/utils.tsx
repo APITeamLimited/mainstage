@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import DeleteIcon from '@mui/icons-material/Delete'
 import ErrorIcon from '@mui/icons-material/Error'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -28,7 +29,9 @@ export const getNewOrderingIndex = ({
   ) + 1
 
 export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
-  if (nodeYMap.get('__typename') === 'Collection') {
+  if (nodeYMap?.get('__typename') === undefined) {
+    return <DeleteIcon sx={{ color: 'error.main' }} />
+  } else if (nodeYMap.get('__typename') === 'Collection') {
     return <FeaturedPlayListIcon />
   } else if (nodeYMap.get('__typename') === 'Folder' && collapsed) {
     return <FolderIcon />

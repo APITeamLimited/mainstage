@@ -23,3 +23,5 @@ api/types/graphql.d.ts
 !.yarn/versions
 config/
 tsconfig.tsbuildinfo
+desktop/dist
+desktop/Webapp*

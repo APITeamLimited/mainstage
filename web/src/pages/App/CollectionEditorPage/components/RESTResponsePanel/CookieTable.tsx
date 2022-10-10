@@ -16,8 +16,8 @@ import {
 } from '@mui/material'
 import { ResponseCookie } from 'k6/http'
 
-import { EmptyPanelMessage } from '../../../../../../components/app/utils/EmptyPanelMessage'
-import { QuickActionArea } from '../../../../../../components/app/utils/QuickActionArea'
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
 
 type CookieTableProps = {
   cookies: ResponseCookie[]

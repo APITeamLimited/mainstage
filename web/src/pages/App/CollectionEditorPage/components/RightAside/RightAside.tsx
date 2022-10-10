@@ -1,19 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import CodeIcon from '@mui/icons-material/Code'
 import CommentIcon from '@mui/icons-material/Comment'
+import InfoIcon from '@mui/icons-material/Info'
 import { IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
+import { useYJSModule } from 'src/contexts/imports'
 import {
   focusedElementVar,
   getFocusedElementKey,
 } from 'src/contexts/reactives/FocusedElement'
-import { RESTCodeGenerator } from 'src/pages/App/CollectionEditorPage/components/collection-editor/CodeGenerator/RESTCodeGenerator'
+import { useYMap } from 'src/lib/zustand-yjs'
 
+import { AboutAside, getPrettyInfoTitle } from './AboutAside'
+import { RESTCodeGenerator } from './CodeGenerator/RESTCodeGenerator'
 import { RESTHistory } from './RESTHistory'
 
 type RightAsideProps = {
@@ -22,21 +26,32 @@ type RightAsideProps = {
   collectionYMap: YMap<any>
 }
 
-type AsideType = 'code' | 'restHistory' | null
+type AsideType = 'code' | 'restHistory' | null | 'info'
 
 export const RightAside = ({
   setShowRightAside,
   collectionYMap,
   showRightAside,
 }: RightAsideProps) => {
+  const Y = useYJSModule()
+
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const [activeRightAside, setActiveRightAside] = useState<AsideType>(null)
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
 
+  const collectionHook = useYMap(collectionYMap)
+
+  const focusedElement = useMemo(
+    () => focusedElementDict[getFocusedElementKey(collectionYMap)],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedElementDict, collectionHook]
+  ) as YMap<any> | undefined
+
   const handleButtonClick = (aside: AsideType) => {
     if (activeRightAside !== aside) {
       setActiveRightAside(aside)
+      setShowRightAside(true)
 
       if (!showRightAside) {
         setShowRightAside(true)
@@ -48,18 +63,20 @@ export const RightAside = ({
   }
 
   useEffect(() => {
+    const focusedTypename = focusedElement?.get('__typename')
+
     if (
-      focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-        '__typename'
-      ) !== 'RESTRequest'
+      focusedTypename !== 'Collection' &&
+      focusedTypename !== 'Folder' &&
+      focusedTypename !== 'RESTRequest'
     ) {
       setActiveRightAside(null)
       setShowRightAside(false)
     }
   }, [
     activeRightAside,
-    collectionYMap,
-    focusedElementDict,
+    collectionHook,
+    focusedElement,
     setActiveRightAside,
     setShowRightAside,
   ])
@@ -68,6 +85,11 @@ export const RightAside = ({
     setActiveRightAside(null)
     setShowRightAside(false)
   }
+
+  const prettyInfoName = useMemo(
+    () => (focusedElement ? getPrettyInfoTitle(focusedElement) : undefined),
+    [focusedElement]
+  )
 
   return (
     <Paper
@@ -100,9 +122,7 @@ export const RightAside = ({
             paddingY: 1,
           }}
         >
-          {focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-            '__typename'
-          ) === 'RESTRequest' && (
+          {focusedElement?.get('__typename') === 'RESTRequest' && (
             <>
               <Tooltip title="Response History" placement="left">
                 <IconButton
@@ -126,11 +146,20 @@ export const RightAside = ({
               </Tooltip>
             </>
           )}
+          {prettyInfoName && (
+            <Tooltip title={prettyInfoName} placement="left">
+              <IconButton
+                size="large"
+                color={activeRightAside === 'info' ? 'primary' : 'inherit'}
+                onClick={() => handleButtonClick('info')}
+              >
+                <InfoIcon />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
         {showRightAside &&
-          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-            '__typename'
-          ) === 'RESTRequest' &&
+          focusedElement?.get('__typename') === 'RESTRequest' &&
           activeRightAside === 'restHistory' && (
             <RESTHistory
               onCloseAside={handleCloseAside}
@@ -138,19 +167,21 @@ export const RightAside = ({
             />
           )}
         {showRightAside &&
-          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-            '__typename'
-          ) === 'RESTRequest' &&
+          focusedElement?.get('__typename') === 'RESTRequest' &&
           activeRightAside === 'code' && (
             <RESTCodeGenerator
-              requestYMap={
-                focusedElementDict[getFocusedElementKey(collectionYMap)]
-              }
+              requestYMap={focusedElement}
               onCloseAside={handleCloseAside}
               activeEnvironmentYMap={activeEnvironmentYMap}
               collectionYMap={collectionYMap}
             />
           )}
+        {focusedElement && showRightAside && activeRightAside === 'info' && (
+          <AboutAside
+            onCloseAside={handleCloseAside}
+            itemYMap={focusedElement}
+          />
+        )}
       </Stack>
     </Paper>
   )

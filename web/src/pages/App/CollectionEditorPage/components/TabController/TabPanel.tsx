@@ -65,20 +65,16 @@ export const TabPanel = ({
           }}
         >
           <DndProvider backend={HTML5Backend}>
-            {openTabs.map((openTab, index) => {
-              const key = (openTab.topYMap as YMap<any>).get('id')
-
-              return (
-                <Tab
-                  key={key}
-                  openTab={openTab}
-                  isActive={activeTabIndex === index}
-                  setActive={() => setActiveTabIndex(index)}
-                  deleteTab={() => deleteTab(index)}
-                  onMove={handleMove}
-                />
-              )
-            })}
+            {openTabs.map((openTab, index) => (
+              <Tab
+                key={openTab.tabId}
+                openTab={openTab}
+                isActive={activeTabIndex === index}
+                setActive={() => setActiveTabIndex(index)}
+                deleteTab={() => deleteTab(index)}
+                onMove={handleMove}
+              />
+            ))}
             <Box
               sx={{
                 flexGrow: 1,

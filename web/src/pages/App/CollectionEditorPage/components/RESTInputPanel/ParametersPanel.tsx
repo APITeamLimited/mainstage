@@ -37,7 +37,6 @@ export const ParametersPanel = ({
   return (
     <ReflexContainer
       orientation="horizontal"
-      windowResizeAware
       style={{
         height: '100%',
       }}

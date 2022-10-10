@@ -13,6 +13,7 @@ import {
 import type { Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { DescriptionPanel } from '../DescriptionPanel'
 import { PanelLayout } from '../PanelLayout'
@@ -28,6 +29,8 @@ export const CollectionInputPanel = ({
   collectionYMap,
   setObservedNeedsSave,
 }: CollectionInputPanelProps) => {
+  useYMap(collectionYMap)
+
   const getSetAuth = () => {
     collectionYMap.set('auth', {
       authType: 'none',

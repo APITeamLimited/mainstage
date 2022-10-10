@@ -13,10 +13,10 @@ import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
 import { codeFormatter } from 'src/utils/codeFormatter'
 
-import { EmptyPanelMessage } from '../../../../../../components/app/utils/EmptyPanelMessage'
-import { StoredDropzone } from '../../../../../../components/app/utils/FileDropzone'
-import { QuickActionArea } from '../../../../../../components/app/utils/QuickActionArea'
-import { SecondaryChips } from '../../../../../../components/app/utils/SecondaryChips'
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
+import { StoredDropzone } from 'src/components/app/utils/FileDropzone'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
+import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
 
 type BodyPanelProps = {
   requestId: string

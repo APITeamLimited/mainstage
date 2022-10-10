@@ -1,6 +1,6 @@
 import { Grid, Stack, SxProps } from '@mui/material'
 
-import { CustomTabs } from '../../../../../components/app/CustomTabs'
+import { CustomTabs } from 'src/components/app/CustomTabs'
 
 type PanelLayoutProps = {
   children?: React.ReactNode

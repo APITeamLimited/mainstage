@@ -13,7 +13,7 @@ import {
 } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { getNodeIcon } from '../CollectionTree/Node/utils'
+import { getNodeIcon } from '../../CollectionTree/Node/utils'
 
 type RESTHistoryItemProps = {
   responseYMap: YMap<any>

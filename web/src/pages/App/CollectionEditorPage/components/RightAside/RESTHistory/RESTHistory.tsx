@@ -3,16 +3,7 @@
 import { useEffect, useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import CloseIcon from '@mui/icons-material/Close'
-import {
-  Stack,
-  Typography,
-  Box,
-  useTheme,
-  IconButton,
-  Tooltip,
-  Button,
-} from '@mui/material'
+import { Stack, Typography, Box, useTheme, Button } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import {
@@ -23,6 +14,8 @@ import { useYJSModule } from 'src/contexts/imports'
 import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
 import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 import { useYMap } from 'src/lib/zustand-yjs'
+
+import { RightAsideLayout } from '../RightAsideLayout'
 
 import { RESTHistoryItem } from './RESTHistoryItem'
 
@@ -169,134 +162,44 @@ export const RESTHistory = ({
   }
 
   return (
-    <Stack
-      spacing={2}
-      sx={{
-        overflowY: 'auto',
-        width: '100%',
-        maxWidth: '100%',
-        height: 'calc(100% - 1rem)',
-        maxHeight: 'calc(100% - 1rem)',
-        paddingTop: 2,
-        overflow: 'hidden',
-      }}
-    >
+    <RightAsideLayout title="Response History" onCloseAside={onCloseAside}>
       <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
+        spacing={2}
         sx={{
-          marginX: 2,
-        }}
-      >
-        <Typography
-          variant="h6"
-          fontWeight="bold"
-          sx={{
-            userSelect: 'none',
-          }}
-        >
-          Response History
-        </Typography>
-        <Tooltip title="Close">
-          <IconButton
-            onClick={onCloseAside}
-            sx={{
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </Tooltip>
-      </Stack>
-      {Object.keys(groupedResponses).length > 0 && (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{
-            paddingX: 2,
-          }}
-        >
-          <Button
-            size="small"
-            onClick={handleDeleteAllResponses}
-            variant="outlined"
-            sx={{
-              width: '100%',
-            }}
-          >
-            Delete All
-          </Button>
-        </Stack>
-      )}
-      <Box
-        sx={{
+          height: '100%',
           maxHeight: '100%',
-          paddingBottom: 2,
-          overflowY: 'auto',
+          overflow: 'hidden',
         }}
       >
-        {Object.values(groupedResponses).length === 0 ? (
-          <Typography
+        {Object.keys(groupedResponses).length > 0 && (
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
             sx={{
-              overflow: 'hidden',
-              color: theme.palette.text.secondary,
               paddingX: 2,
             }}
-            fontSize="small"
           >
-            <span
-              style={{
-                userSelect: 'none',
+            <Button
+              size="small"
+              onClick={handleDeleteAllResponses}
+              variant="outlined"
+              sx={{
+                width: '100%',
               }}
             >
-              No history yet, when this request is sent its response history
-              will be shown here
-            </span>
-          </Typography>
-        ) : (
-          <>
-            {Object.keys(groupedResponses).map((timeLabel) => (
-              <Box
-                key={timeLabel}
-                sx={{
-                  marginBottom: 2,
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: theme.palette.text.secondary,
-                    marginX: 2,
-                    marginBottom: 1,
-                  }}
-                >
-                  <span
-                    style={{
-                      userSelect: 'none',
-                    }}
-                  >
-                    {timeLabel}:
-                  </span>
-                </Typography>
-                {groupedResponses[timeLabel].map((response) => {
-                  // Need to get litteral value of response id for re-rendering
-                  // to work properly
-                  const id = response.get('id')
-
-                  return (
-                    <RESTHistoryItem
-                      key={id}
-                      responseYMap={response}
-                      collectionYMap={collectionYMap}
-                      focusedResponseDict={focusedResponseDict}
-                      handleDeleteResponse={() => handleDeleteResponse(id)}
-                    />
-                  )
-                })}
-              </Box>
-            ))}
+              Delete All
+            </Button>
+          </Stack>
+        )}
+        <Box
+          sx={{
+            maxHeight: '100%',
+            paddingBottom: 2,
+            overflowY: 'auto',
+          }}
+        >
+          {Object.values(groupedResponses).length === 0 ? (
             <Typography
               sx={{
                 overflow: 'hidden',
@@ -310,12 +213,72 @@ export const RESTHistory = ({
                   userSelect: 'none',
                 }}
               >
-                Responses more than 100 deep are deleted automatically
+                No history yet, when this request is sent its response history
+                will be shown here
               </span>
             </Typography>
-          </>
-        )}
-      </Box>
-    </Stack>
+          ) : (
+            <>
+              {Object.keys(groupedResponses).map((timeLabel) => (
+                <Box
+                  key={timeLabel}
+                  sx={{
+                    marginBottom: 2,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      marginX: 2,
+                      marginBottom: 1,
+                    }}
+                  >
+                    <span
+                      style={{
+                        userSelect: 'none',
+                      }}
+                    >
+                      {timeLabel}:
+                    </span>
+                  </Typography>
+                  {groupedResponses[timeLabel].map((response) => {
+                    // Need to get litteral value of response id for re-rendering
+                    // to work properly
+                    const id = response.get('id')
+
+                    return (
+                      <RESTHistoryItem
+                        key={id}
+                        responseYMap={response}
+                        collectionYMap={collectionYMap}
+                        focusedResponseDict={focusedResponseDict}
+                        handleDeleteResponse={() => handleDeleteResponse(id)}
+                      />
+                    )
+                  })}
+                </Box>
+              ))}
+              <Typography
+                sx={{
+                  overflow: 'hidden',
+                  color: theme.palette.text.secondary,
+                  paddingX: 2,
+                }}
+                fontSize="small"
+              >
+                <span
+                  style={{
+                    userSelect: 'none',
+                  }}
+                >
+                  Responses more than 100 deep are deleted automatically
+                </span>
+              </Typography>
+            </>
+          )}
+        </Box>
+      </Stack>
+    </RightAsideLayout>
   )
 }

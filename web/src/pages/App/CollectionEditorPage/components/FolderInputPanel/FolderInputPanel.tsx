@@ -14,6 +14,8 @@ import {
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { useYMap } from 'src/lib/zustand-yjs'
+
 import { duplicateRecursive } from '../CollectionTree/Node/utils'
 import { DescriptionPanel } from '../DescriptionPanel'
 import { PanelLayout } from '../PanelLayout'
@@ -36,6 +38,7 @@ export const FolderInputPanel = ({
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
   const folderYMap = foldersYMap.get(folderId)
+  useYMap(folderYMap)
 
   const getSetAuth = () => {
     folderYMap.set('auth', {

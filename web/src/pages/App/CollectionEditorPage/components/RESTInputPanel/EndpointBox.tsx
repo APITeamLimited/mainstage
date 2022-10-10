@@ -1,4 +1,4 @@
-import { EnvironmentTextField } from '../../../../../../components/app/EnvironmentManager/EnvironmentTextField'
+import { EnvironmentTextField } from 'src/components/app/EnvironmentManager/EnvironmentTextField'
 
 import { RequestMethodButton } from './RequestMethodButton'
 

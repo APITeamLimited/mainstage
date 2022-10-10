@@ -26,8 +26,8 @@ import {
 } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { RenameDialog } from '../../../../../../components/app/dialogs/RenameDialog'
-import { EnvironmentManager } from '../../../../../../components/app/EnvironmentManager'
+import { RenameDialog } from 'src/components/app/dialogs/RenameDialog'
+import { EnvironmentManager } from 'src/components/app/EnvironmentManager'
 type CollectionTopMenuProps = {
   collectionYMap: YMap<any>
 }

@@ -23,13 +23,13 @@ import {
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { RightAside } from 'src/pages/App/CollectionEditorPage/components/collection-editor/RightAside'
 
 import 'react-reflex/styles.css'
 import { viewportHeightReduction } from '../../../CollectionEditorPage'
 import { CollectionInputPanel } from '../CollectionInputPanel'
 import { FolderInputPanel } from '../FolderInputPanel'
 import { RESTResponsePanel } from '../RESTResponsePanel'
+import { RightAside } from '../RightAside'
 
 import { TabPanel, tabPanelHeight } from './TabPanel'
 import { determineNewRestTab } from './utils'
@@ -51,7 +51,7 @@ export const TabController = () => {
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
   const collectionYMap = useCollection() as YMap<any>
-  useYMap(collectionYMap)
+  const collectionHook = useYMap(collectionYMap)
 
   const restResponsesYMap = collectionYMap.get('restResponses') as YMap<any>
   const restResponsesHook = useYMap(restResponsesYMap)
@@ -94,7 +94,7 @@ export const TabController = () => {
 
       // Set the tab to the focused element
       const focusedElementIndex = openTabsRef.current.findIndex(
-        (tab) => tab.topYMap.get('id') === focusedId
+        (tab) => tab.topYMap?.get('id') === focusedId
       )
 
       if (focusedElementIndex !== -1) {
@@ -202,6 +202,7 @@ export const TabController = () => {
         return
       }
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedElementDict])
 
@@ -224,7 +225,7 @@ export const TabController = () => {
       // See if parent request is already open
       const parentId = focusedResponse.get('parentId')
       const parentRequestIndex = openTabsRef.current.findIndex(
-        (tab) => tab.topYMap.get('id') === parentId
+        (tab) => tab.topYMap?.get('id') === parentId
       )
 
       if (parentRequestIndex !== -1) {
@@ -330,7 +331,13 @@ export const TabController = () => {
 
     // If was active tab, set active tab to the next tab
     if (index === 0) {
-      updateFocusedElement(focusedElementDict, newTabs[0]?.topYMap)
+      const topYMap = newTabs[0]?.topYMap
+
+      if (topYMap) {
+        updateFocusedElement(focusedElementDict, topYMap)
+      } else {
+        clearFocusedElement(focusedElementDict, collectionYMap)
+      }
 
       const bottomYMap = newTabs[0]?.bottomYMap
 
@@ -404,7 +411,13 @@ export const TabController = () => {
     const topYMap = openTabsRef.current[activeTabRef.current]?.topYMap
     if (!topYMap) return false
 
-    if (topYMap.get('__typename') === 'RESTRequest') {
+    const topYMapTypename = topYMap.get('__typename')
+
+    if (
+      topYMapTypename === 'Collection' ||
+      topYMapTypename === 'Folder' ||
+      topYMapTypename === 'RESTRequest'
+    ) {
       return true
     }
 
@@ -418,6 +431,23 @@ export const TabController = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showAsidePanel])
+
+  const [hasSetInitalFocus, setHasSetInitalFocus] = useState(false)
+
+  // If no focused element on first load, focus on the collection
+  useEffect(() => {
+    if (hasSetInitalFocus) return
+    if (!collectionYMap) return
+
+    if (
+      focusedElementDict[getFocusedElementKey(collectionYMap)] === undefined
+    ) {
+      updateFocusedElement(focusedElementDict, collectionYMap)
+      setHasSetInitalFocus(true)
+      console.log('set inital focus')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedElementDict, collectionHook])
 
   return (
     <>
@@ -442,13 +472,13 @@ export const TabController = () => {
         description={
           queryDeleteDialogTab?.type === 'unsaved'
             ? `This ${
-                queryDeleteDialogTab?.tab.topYMap.get('__typename') ===
+                queryDeleteDialogTab?.tab.topYMap?.get('__typename') ===
                 'RESTRequest'
                   ? 'request'
-                  : queryDeleteDialogTab?.tab.topYMap.get('__typename') ===
+                  : queryDeleteDialogTab?.tab.topYMap?.get('__typename') ===
                     'Folder'
                   ? 'folder'
-                  : queryDeleteDialogTab?.tab.topYMap.get('__typename') ===
+                  : queryDeleteDialogTab?.tab.topYMap?.get('__typename') ===
                     'Collection'
                   ? 'collection'
                   : 'item'
@@ -485,8 +515,6 @@ export const TabController = () => {
             openTabs
               .sort((a, b) => a.orderingIndex - b.orderingIndex)
               .map((tab, index) => {
-                const key = tab.topYMap.get('id')
-
                 const showBottomPanel = tab.bottomNode !== null
 
                 return (
@@ -498,7 +526,7 @@ export const TabController = () => {
                       height: 'calc(100% + 2px)',
                       display: index === activeTabIndex ? 'flex' : 'none',
                     }}
-                    key={key}
+                    key={tab.tabId}
                   >
                     <ReflexElement
                       style={{

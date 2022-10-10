@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
 
-import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Container } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import type { Map as YMap } from 'yjs'
@@ -11,18 +9,14 @@ import { MetaTags } from '@redwoodjs/web'
 import { CollectionContext } from 'src/contexts/collection'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule } from 'src/contexts/imports'
-import {
-  focusedElementVar,
-  getFocusedElementKey,
-  updateFocusedElement,
-} from 'src/contexts/reactives/FocusedElement'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import 'react-reflex/styles.css'
-import { CollectionTree } from './components/collection-editor/CollectionTree'
-import { TabController } from './components/collection-editor/TabController'
+import { CollectionTree } from './components/CollectionTree'
+import { FocusGuard } from './components/ContextGuard'
+import { TabController } from './components/TabController'
 
 export const viewportHeightReduction = 50
 
@@ -42,7 +36,6 @@ export const CollectionEditorPage = ({
   const Y = useYJSModule()
 
   const theme = useTheme()
-  const focusedElementDict = useReactiveVar(focusedElementVar)
   const activeWorkspace = useWorkspace()
 
   const branchYMap = (
@@ -58,22 +51,6 @@ export const CollectionEditorPage = ({
   )?.get(collectionId) as YMap<any> | undefined
 
   useYMap(collectionYMap || new Y.Map())
-
-  const [hasSetInitalFocus, setHasSetInitalFocus] = useState(false)
-
-  // If no focused element, focus on the collection
-  useEffect(() => {
-    if (hasSetInitalFocus) return
-    if (!collectionYMap) return
-
-    if (
-      focusedElementDict[getFocusedElementKey(collectionYMap)] === undefined
-    ) {
-      updateFocusedElement(focusedElementDict, collectionYMap)
-      setHasSetInitalFocus(true)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedElementDict, collectionYMap])
 
   if (!activeWorkspace) {
     return <Container>Workspace with id {workspaceId} not found</Container>
@@ -136,6 +113,7 @@ export const CollectionEditorPage = ({
                 <TabController />
               </ReflexElement>
             </ReflexContainer>
+            s
           </CollectionContext.Provider>
         </EnvironmentProvider>
       </div>
