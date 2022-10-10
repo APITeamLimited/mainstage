@@ -206,7 +206,7 @@ __metadata:
     react-reflex: ^4.0.9
     react-typed: ^1.2.0
     sass-loader: ^13.0.2
-    simplebar-react: ^2.4.1
+    simplebar-react: ^2.4.3
     socket.io-client: ^4.5.1
     stripe: ^9.11.0
     swagger2openapi: ^7.0.8
@@ -28362,22 +28362,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"simplebar-react@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "simplebar-react@npm:2.4.1"
+"simplebar-react@npm:^2.4.3":
+  version: 2.4.3
+  resolution: "simplebar-react@npm:2.4.3"
   dependencies:
     prop-types: ^15.6.1
-    simplebar: ^5.3.8
+    simplebar: ^5.3.9
   peerDependencies:
     react: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0 || ^17.0 || ^18.0.0
     react-dom: ^0.14.9 || ^15.3.0 || ^16.0.0-rc || ^16.0 || ^17.0 || ^18.0.0
-  checksum: 0aa81697f4f97daa0dd30de8f772b2e11e23c7ac4ce2294299b7d803366660bab9798bff0edf78e1b4f1cd4f418617ce52fb2edc3bbafcc4d69e18fe4399e5d7
+  checksum: 4875c83e0493e54166692a47cc1efba6ebb49a841d72fa2dda93cd4ed85e32e73ca5735a98a9b23203ab9b5ee7ba867140537690e0fc96b30eb4e4c9147e99dd
   languageName: node
   linkType: hard
 
-"simplebar@npm:^5.3.8":
-  version: 5.3.8
-  resolution: "simplebar@npm:5.3.8"
+"simplebar@npm:^5.3.9":
+  version: 5.3.9
+  resolution: "simplebar@npm:5.3.9"
   dependencies:
     "@juggle/resize-observer": ^3.3.1
     can-use-dom: ^0.1.0
@@ -28385,7 +28385,7 @@ __metadata:
     lodash.debounce: ^4.0.8
     lodash.memoize: ^4.1.2
     lodash.throttle: ^4.1.1
-  checksum: ccd9deee995ae27ebcacf708d25fe7d3e4ea0cf0207f88507ad33f78b6d0e6d727e0699aae50de1179dbf08a0aa3e1a93b11bade8201d7b3c5e73e552d091de3
+  checksum: 6a12b64a1ff4abde88fb74bea76a47755f1f31e63bb3f151a7d640e801847dbde4f0c8ccaf0b0504f1bd45ecc77cc91c12c066e8f7f282ab1ff68ec5bf7006bf
   languageName: node
   linkType: hard
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Paper, useTheme, Container } from '@mui/material'
@@ -59,15 +59,20 @@ export const CollectionEditorPage = ({
 
   useYMap(collectionYMap || new Y.Map())
 
+  const [hasSetInitalFocus, setHasSetInitalFocus] = useState(false)
+
   // If no focused element, focus on the collection
   useEffect(() => {
+    if (hasSetInitalFocus) return
     if (!collectionYMap) return
 
     if (
       focusedElementDict[getFocusedElementKey(collectionYMap)] === undefined
     ) {
       updateFocusedElement(focusedElementDict, collectionYMap)
+      setHasSetInitalFocus(true)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedElementDict, collectionYMap])
 
   if (!activeWorkspace) {

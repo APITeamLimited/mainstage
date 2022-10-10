@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useState } from 'react'
 
 import { RESTAuth } from '@apiteam/types'
@@ -10,6 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
+import type { Map as YMap } from 'yjs'
 
 import { duplicateRecursive } from '../CollectionTree/Node/utils'
 import { DescriptionPanel } from '../DescriptionPanel'
@@ -22,11 +25,13 @@ import { SaveAsDialog } from './SaveAsDialog'
 type FolderInputPanelProps = {
   folderId: string
   collectionYMap: YMap<any>
+  setObservedNeedsSave: (needsSave: boolean) => void
 }
 
 export const FolderInputPanel = ({
   folderId,
   collectionYMap,
+  setObservedNeedsSave,
 }: FolderInputPanelProps) => {
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
@@ -60,18 +65,24 @@ export const FolderInputPanel = ({
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     if (!needSave) {
-      setNeedSave(
+      const needsSave =
         JSON.stringify(unsavedDescription) !==
           JSON.stringify(folderYMap.get('description')) ||
-          JSON.stringify(unsavedAuth) !== JSON.stringify(folderYMap.get('auth'))
-      )
+        JSON.stringify(unsavedAuth) !== JSON.stringify(folderYMap.get('auth'))
+
+      if (needsSave) {
+        setNeedSave(true)
+        setObservedNeedsSave(true)
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [needSave, folderYMap, unsavedDescription, unsavedAuth])
 
   const handleSave = () => {
     folderYMap.set('description', unsavedDescription)
     folderYMap.set('auth', unsavedAuth)
     setNeedSave(false)
+    setObservedNeedsSave(false)
   }
 
   const handleSaveAs = (newName: string) => {

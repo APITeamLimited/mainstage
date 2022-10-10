@@ -1,8 +1,8 @@
-import {
-  DragSourceMonitor,
-  DragPreviewImage,
-  useDrag,
-} from 'src/lib/dnd/react-dnd'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Map as YMap } from 'yjs'
+
+import { useDrag } from 'src/lib/dnd/react-dnd'
+import type { DragSourceMonitor } from 'src/lib/dnd/react-dnd'
 
 type UseNodeDragArgs = {
   nodeYMap: YMap<any>

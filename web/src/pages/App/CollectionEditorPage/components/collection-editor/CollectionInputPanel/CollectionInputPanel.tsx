@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
 import { RESTAuth } from '@apiteam/types'
@@ -9,7 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 
@@ -20,10 +21,12 @@ import { SaveButton } from '../RESTInputPanel/SaveButton'
 
 type CollectionInputPanelProps = {
   collectionYMap: YMap<any>
+  setObservedNeedsSave: (needsSave: boolean) => void
 }
 
 export const CollectionInputPanel = ({
   collectionYMap,
+  setObservedNeedsSave,
 }: CollectionInputPanelProps) => {
   const getSetAuth = () => {
     collectionYMap.set('auth', {
@@ -60,15 +63,20 @@ export const CollectionInputPanel = ({
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     if (!needSave) {
-      setNeedSave(
+      const needsSave =
         JSON.stringify(unsavedDescription) !==
           JSON.stringify(collectionYMap.get('description')) ||
-          JSON.stringify(unsavedAuth) !==
-            JSON.stringify(collectionYMap.get('auth')) ||
-          JSON.stringify(unsavedVariables) !==
-            JSON.stringify(collectionYMap.get('variables'))
-      )
+        JSON.stringify(unsavedAuth) !==
+          JSON.stringify(collectionYMap.get('auth')) ||
+        JSON.stringify(unsavedVariables) !==
+          JSON.stringify(collectionYMap.get('variables'))
+
+      if (needsSave) {
+        setNeedSave(true)
+        setObservedNeedsSave(true)
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     needSave,
     collectionYMap,
@@ -82,6 +90,7 @@ export const CollectionInputPanel = ({
     collectionYMap.set('variables', unsavedVariables)
     collectionYMap.set('description', unsavedDescription)
     setNeedSave(false)
+    setObservedNeedsSave(false)
   }
 
   return (

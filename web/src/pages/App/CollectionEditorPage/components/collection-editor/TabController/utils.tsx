@@ -11,11 +11,17 @@ export const determineNewRestTab = ({
   focusedElement,
   focusedRestResponse,
   collectionYMap,
+  setObservedNeedsSave,
+  orderingIndex,
+  tabId,
 }: {
   restResponses: YMap<any>[]
   focusedElement: YMap<any>
   focusedRestResponse: YMap<any> | undefined
   collectionYMap: YMap<any>
+  setObservedNeedsSave: (needsSave: boolean) => void
+  orderingIndex: number
+  tabId: string
 }) => {
   const bottomYMap = determineRestResponse({
     restResponses,
@@ -29,10 +35,13 @@ export const determineNewRestTab = ({
       <RESTInputPanel
         requestYMap={focusedElement}
         collectionYMap={collectionYMap}
+        setObservedNeedsSave={setObservedNeedsSave}
       />
     ),
     bottomYMap,
     bottomNode: <RESTResponsePanel responseYMap={bottomYMap ?? undefined} />,
+    orderingIndex,
+    tabId,
   }
 
   return newOpenTab

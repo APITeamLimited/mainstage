@@ -58,3 +58,15 @@ export const updateFocusedElement = (
     [newName]: focusYMap,
   })
 }
+
+export const clearFocusedElement = (
+  focusedElementDict: FocusedElementDictionary,
+  originalFocusYMap: YMap<any>
+) => {
+  const newName = getFocusedElementKey(originalFocusYMap)
+
+  const newFocusedElementDict = { ...focusedElementDict }
+  delete newFocusedElementDict[newName]
+
+  focusedElementVar(newFocusedElementDict)
+}

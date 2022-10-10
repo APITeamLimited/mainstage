@@ -156,6 +156,7 @@ export const DraggableTableRow = memo(
           zIndex: isDragging ? 1 : 0,
           opacity: isDragging ? 0.5 : 1,
         }}
+        ref={drag}
       >
         <TableCell
           sx={{

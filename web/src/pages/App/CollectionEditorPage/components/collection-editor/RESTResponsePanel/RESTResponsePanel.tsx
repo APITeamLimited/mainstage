@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect } from 'react'
-
 import SendIcon from '@mui/icons-material/Send'
 import { useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
@@ -22,10 +20,6 @@ export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
   const theme = useTheme()
 
   useYMap(responseYMap ?? new Y.Map())
-
-  useEffect(() => {
-    return () => console.log('unmounting')
-  }, [])
 
   return (
     <>

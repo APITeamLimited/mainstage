@@ -44,11 +44,13 @@ if (!defaultExecutionScript) {
 type RESTInputPanelProps = {
   requestYMap: YMap<any>
   collectionYMap: YMap<any>
+  setObservedNeedsSave: (needsSave: boolean) => void
 }
 
 export const RESTInputPanel = ({
   requestYMap,
   collectionYMap,
+  setObservedNeedsSave,
 }: RESTInputPanelProps) => {
   const Y = useYJSModule()
   const { default: hash } = useHashSumModule()
@@ -144,17 +146,21 @@ export const RESTInputPanel = ({
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 100) {
-      setNeedSave(
+      const needsSave =
         hash(unsavedEndpoint) !== hash(requestYMap.get('endpoint')) ||
-          hash(unsavedHeaders) !== hash(requestYMap.get('headers')) ||
-          hash(unsavedParameters) !== hash(requestYMap.get('params')) ||
-          hash(stripBodyStoredObjectData(unsavedBody)) !==
-            hash(requestYMap.get('body')) ||
-          hash(unsavedRequestMethod) !== hash(requestYMap.get('method')) ||
-          hash(unsavedAuth) !== hash(requestYMap.get('auth')) ||
-          hash(unsavedDescription) !== hash(requestYMap.get('description')) ||
-          hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables'))
-      )
+        hash(unsavedHeaders) !== hash(requestYMap.get('headers')) ||
+        hash(unsavedParameters) !== hash(requestYMap.get('params')) ||
+        hash(stripBodyStoredObjectData(unsavedBody)) !==
+          hash(requestYMap.get('body')) ||
+        hash(unsavedRequestMethod) !== hash(requestYMap.get('method')) ||
+        hash(unsavedAuth) !== hash(requestYMap.get('auth')) ||
+        hash(unsavedDescription) !== hash(requestYMap.get('description')) ||
+        hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables'))
+
+      if (needsSave) {
+        setNeedSave(true)
+        setObservedNeedsSave(true)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -174,6 +180,7 @@ export const RESTInputPanel = ({
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 100) {
       setNeedSave(true)
+      setObservedNeedsSave(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedExecutionScripts])
@@ -198,6 +205,7 @@ export const RESTInputPanel = ({
     requestYMap.set('pathVariables', unsavedPathVariables)
     requestYMap.set('executionScripts', unsavedExecutionScripts)
     setNeedSave(false)
+    setObservedNeedsSave(false)
   }
 
   const handleSaveAs = (newName: string) => {

@@ -1,4 +1,5 @@
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { Map as YMap } from 'yjs'
 
 import { useDrop } from 'src/lib/dnd/react-dnd'
 
@@ -19,7 +20,7 @@ export const useNodeDrop = ({ nodeYMap, handleDrop }: UseNodeDropArgs) =>
   useDrop(
     () => ({
       accept: ['Folder', 'RESTRequest'],
-      drop: (nodeYMap, monitor) => {
+      drop: (_, monitor) => {
         handleDrop(monitor.getItem(), monitor.getClientOffset())
       },
       collect: (monitor) => {

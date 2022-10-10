@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Paper, Divider } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
+import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
 import { useCollection } from 'src/contexts/collection'
@@ -13,6 +14,7 @@ import {
   updateFocusedRESTResponse,
 } from 'src/contexts/focused-response'
 import {
+  clearFocusedElement,
   focusedElementVar,
   getFocusedElementKey,
   updateFocusedElement,
@@ -34,6 +36,9 @@ export type OpenTab = {
   topNode: React.ReactNode
   bottomYMap: YMap<any> | null
   bottomNode: React.ReactNode | null
+  orderingIndex: number
+  needsSave?: boolean
+  tabId: string
 }
 
 export const TabController = () => {
@@ -56,6 +61,19 @@ export const TabController = () => {
   const [openTabs, setOpenTabs] = useState<OpenTab[]>([])
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
+  const openTabsRef = useRef(openTabs)
+  openTabsRef.current = openTabs
+
+  const handleSetNeedsSave = (needsSave: boolean, tabId: string) => {
+    const newOpenTabs = [...openTabsRef.current]
+    const currentTabIndex = newOpenTabs.findIndex((tab) => tab.tabId === tabId)
+
+    if (currentTabIndex !== -1) {
+      newOpenTabs[currentTabIndex].needsSave = needsSave
+      setOpenTabs(newOpenTabs)
+    }
+  }
+
   // Ensure tab changes in response to the focused element
   useEffect(() => {
     const focusedElement =
@@ -65,15 +83,11 @@ export const TabController = () => {
       const focusedId = focusedElement.get('id')
 
       // Set the tab to the focused element
-      const focusedElementIndex = openTabs.findIndex(
+      const focusedElementIndex = openTabsRef.current.findIndex(
         (tab) => tab.topYMap.get('id') === focusedId
       )
 
       if (focusedElementIndex !== -1) {
-        console.log(
-          "Setting active tab to focused element's tab",
-          focusedElementIndex
-        )
         setActiveTabIndex(focusedElementIndex)
 
         const focusedRestResponse =
@@ -91,36 +105,54 @@ export const TabController = () => {
       }
 
       if (focusedElement.get('__typename') === 'Collection') {
+        const tabId = uuid()
+
         setOpenTabs([
-          ...openTabs,
+          ...openTabsRef.current,
           {
             topYMap: focusedElement,
-            topNode: <CollectionInputPanel collectionYMap={focusedElement} />,
+            topNode: (
+              <CollectionInputPanel
+                collectionYMap={focusedElement}
+                setObservedNeedsSave={(needsSave) =>
+                  handleSetNeedsSave(needsSave, tabId)
+                }
+              />
+            ),
             bottomYMap: null,
             bottomNode: null,
+            orderingIndex: openTabsRef.current.length,
+            tabId,
           },
         ])
-        setActiveTabIndex(openTabs.length)
+        setActiveTabIndex(openTabsRef.current.length)
 
         return
       }
 
       if (focusedElement.get('__typename') === 'Folder') {
+        const tabId = uuid()
+
         setOpenTabs([
-          ...openTabs,
+          ...openTabsRef.current,
           {
             topYMap: focusedElement,
             topNode: (
               <FolderInputPanel
                 folderId={focusedElement.get('id')}
                 collectionYMap={collectionYMap}
+                setObservedNeedsSave={(needsSave) =>
+                  handleSetNeedsSave(needsSave, tabId)
+                }
               />
             ),
             bottomYMap: null,
             bottomNode: null,
+            orderingIndex: openTabsRef.current.length,
+            tabId,
           },
         ])
-        setActiveTabIndex(openTabs.length)
+        setActiveTabIndex(openTabsRef.current.length)
 
         return
       }
@@ -133,6 +165,8 @@ export const TabController = () => {
         const isCorrectResponse =
           focusedRestResponseRaw?.get('parentId') === focusedElement.get('id')
 
+        const tabId = uuid()
+
         const newTab = determineNewRestTab({
           restResponses,
           focusedElement,
@@ -140,10 +174,14 @@ export const TabController = () => {
             ? focusedRestResponseRaw
             : undefined,
           collectionYMap,
+          setObservedNeedsSave: (needsSave: boolean) =>
+            handleSetNeedsSave(needsSave, tabId),
+          orderingIndex: openTabsRef.current.length,
+          tabId,
         })
 
-        setOpenTabs([...openTabs, newTab])
-        setActiveTabIndex(openTabs.length)
+        setOpenTabs([...openTabsRef.current, newTab])
+        setActiveTabIndex(openTabsRef.current.length)
 
         if (!newTab.bottomYMap) {
           clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
@@ -162,7 +200,7 @@ export const TabController = () => {
 
     if (focusedResponse) {
       // Set the tab to the focused element
-      const focusedResponseIndex = openTabs.findIndex(
+      const focusedResponseIndex = openTabsRef.current.findIndex(
         (tab) => tab.bottomYMap?.get('id') === focusedResponse.get('id')
       )
 
@@ -173,12 +211,12 @@ export const TabController = () => {
 
       // See if parent request is already open
       const parentId = focusedResponse.get('parentId')
-      const parentRequestIndex = openTabs.findIndex(
+      const parentRequestIndex = openTabsRef.current.findIndex(
         (tab) => tab.topYMap.get('id') === parentId
       )
 
       if (parentRequestIndex !== -1) {
-        const newTabs = [...openTabs]
+        const newTabs = [...openTabsRef.current]
         newTabs[parentRequestIndex].bottomYMap = focusedResponse
         newTabs[parentRequestIndex].bottomNode = (
           <RESTResponsePanel responseYMap={focusedResponse} />
@@ -189,17 +227,24 @@ export const TabController = () => {
       }
 
       // Create a new tab for the focused response
+
+      const tabId = uuid()
+
       setOpenTabs([
-        ...openTabs,
+        ...openTabsRef.current,
         determineNewRestTab({
           restResponses,
           focusedElement: collectionYMap.get('restRequests').get(parentId),
           focusedRestResponse: focusedResponse,
           collectionYMap,
+          setObservedNeedsSave: (needsSave: boolean) =>
+            handleSetNeedsSave(needsSave, tabId),
+          orderingIndex: openTabsRef.current.length,
+          tabId,
         }),
       ])
 
-      setActiveTabIndex(openTabs.length)
+      setActiveTabIndex(openTabsRef.current.length)
 
       return
     }
@@ -219,7 +264,7 @@ export const TabController = () => {
     ) {
       updateFocusedElement(focusedElementDict, topYMap)
 
-      const bottomYMap = openTabs[activeTabIndex]?.bottomYMap
+      const bottomYMap = openTabsRef.current[activeTabIndex]?.bottomYMap
 
       if (bottomYMap) {
         const focusedResponse =
@@ -232,10 +277,73 @@ export const TabController = () => {
           }
         }
       }
+    } else if (openTabsRef.current.length === 0) {
+      clearFocusedElement(focusedElementDict, collectionYMap)
+      clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTabIndex])
+
+  const handleTabDelete = (index: number) => {
+    const newTabs = [...openTabsRef.current]
+    newTabs.splice(index, 1)
+    setOpenTabs(newTabs)
+
+    // If was active tab, set active tab to the next tab
+    if (index === activeTabIndex) {
+      setActiveTabIndex(index - 1)
+    } else if (index < activeTabIndex) {
+      setActiveTabIndex(activeTabIndex - 1)
+    }
+  }
+
+  const handleTabMove = (dragIndex: number, hoverIndex: number) => {
+    // Find tab with orderingIndex === dragIndex
+    const dragTab = openTabsRef.current.find(
+      (tab) => tab.orderingIndex === dragIndex
+    )
+
+    if (!dragTab) {
+      return
+    }
+
+    // Find tab with orderingIndex === hoverIndex
+    const hoverTab = openTabsRef.current.find(
+      (tab) => tab.orderingIndex === hoverIndex
+    )
+
+    if (!hoverTab) {
+      return
+    }
+
+    // Swap orderingIndex
+    const newDragTab = {
+      ...dragTab,
+      orderingIndex: hoverIndex,
+    }
+
+    const newHoverTab = {
+      ...hoverTab,
+      orderingIndex: dragIndex,
+    }
+
+    // Update tabs
+    const newTabs = [...openTabsRef.current]
+    newTabs[dragIndex] = newHoverTab
+    newTabs[hoverIndex] = newDragTab
+
+    // Set active tab to the one that of the dragged tab
+    const draggedTabId = dragTab.tabId
+    const newActiveTabIndex = newTabs.findIndex(
+      (tab) => tab.tabId === draggedTabId
+    )
+
+    if (newActiveTabIndex !== -1) {
+      setOpenTabs(newTabs)
+      setActiveTabIndex(newActiveTabIndex)
+    }
+  }
 
   return (
     <>
@@ -243,6 +351,8 @@ export const TabController = () => {
         openTabs={openTabs}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
+        deleteTab={handleTabDelete}
+        handleMove={handleTabMove}
       />
       <ReflexContainer
         orientation="vertical"
@@ -258,72 +368,78 @@ export const TabController = () => {
             height: '100%',
           }}
         >
-          {openTabs.map((tab, index) => {
-            const key = tab.topYMap.get('id')
+          {
+            // Sort the tabs by their ordering index
 
-            const showBottomPanel = tab.bottomNode !== null
+            openTabs
+              .sort((a, b) => a.orderingIndex - b.orderingIndex)
+              .map((tab, index) => {
+                const key = tab.topYMap.get('id')
 
-            return (
-              <ReflexContainer
-                orientation="horizontal"
-                style={{
-                  // Hack to get rid of white space at top of page
-                  marginTop: -1,
-                  height: 'calc(100% + 2px)',
-                  display: index === activeTabIndex ? 'flex' : 'none',
-                }}
-                key={key}
-              >
-                <ReflexElement
-                  style={{
-                    minWidth: '200px',
-                    overflow: 'hidden',
-                    height: '100%',
-                    minHeight: showBottomPanel ? undefined : '100%',
-                  }}
-                >
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      // Set height to inputPanelHeightRefs height
-                      height: '100%',
-                      borderRadius: 0,
-                      overflow: 'visible',
-                    }}
-                  >
-                    {tab.topNode}
-                  </Paper>
-                </ReflexElement>
-                {showBottomPanel && (
-                  <ReflexSplitter
+                const showBottomPanel = tab.bottomNode !== null
+
+                return (
+                  <ReflexContainer
+                    orientation="horizontal"
                     style={{
-                      height: 8,
-                      border: 'none',
-                      backgroundColor: 'transparent',
+                      // Hack to get rid of white space at top of page
+                      marginTop: -1,
+                      height: 'calc(100% + 2px)',
+                      display: index === activeTabIndex ? 'flex' : 'none',
                     }}
-                  />
-                )}
-                {/* This needs a seperate node to be able to resize properly */}
-                <ReflexElement
-                  style={{
-                    minWidth: '200px',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      borderRadius: 0,
-                      height: '100%',
-                      overflow: 'hidden',
-                    }}
+                    key={key}
                   >
-                    {tab.bottomNode}
-                  </Paper>
-                </ReflexElement>
-              </ReflexContainer>
-            )
-          })}
+                    <ReflexElement
+                      style={{
+                        minWidth: '200px',
+                        overflow: 'hidden',
+                        height: '100%',
+                        minHeight: showBottomPanel ? undefined : '100%',
+                      }}
+                    >
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          // Set height to inputPanelHeightRefs height
+                          height: '100%',
+                          borderRadius: 0,
+                          overflow: 'visible',
+                        }}
+                      >
+                        {tab.topNode}
+                      </Paper>
+                    </ReflexElement>
+                    {showBottomPanel && (
+                      <ReflexSplitter
+                        style={{
+                          height: 8,
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                        }}
+                      />
+                    )}
+                    {/* This needs a seperate node to be able to resize properly */}
+                    <ReflexElement
+                      style={{
+                        minWidth: '200px',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          borderRadius: 0,
+                          height: '100%',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {tab.bottomNode}
+                      </Paper>
+                    </ReflexElement>
+                  </ReflexContainer>
+                )
+              })
+          }
         </ReflexElement>
         {showRightAside && (
           <ReflexSplitter

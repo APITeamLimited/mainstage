@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ErrorIcon from '@mui/icons-material/Error'
+import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 import {
@@ -27,7 +28,9 @@ export const getNewOrderingIndex = ({
   ) + 1
 
 export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
-  if (nodeYMap.get('__typename') === 'Folder' && collapsed) {
+  if (nodeYMap.get('__typename') === 'Collection') {
+    return <FeaturedPlayListIcon />
+  } else if (nodeYMap.get('__typename') === 'Folder' && collapsed) {
     return <FolderIcon />
   } else if (nodeYMap.get('__typename') === 'Folder' && !collapsed) {
     return <FolderOpenIcon />

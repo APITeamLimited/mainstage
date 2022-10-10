@@ -85,7 +85,7 @@
     "react-reflex": "^4.0.9",
     "react-typed": "^1.2.0",
     "sass-loader": "^13.0.2",
-    "simplebar-react": "^2.4.1",
+    "simplebar-react": "^2.4.3",
     "socket.io-client": "^4.5.1",
     "stripe": "^9.11.0",
     "swagger2openapi": "^7.0.8",
