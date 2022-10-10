@@ -64,6 +64,9 @@ export const TabController = () => {
   const openTabsRef = useRef(openTabs)
   openTabsRef.current = openTabs
 
+  const activeTabRef = useRef(activeTabIndex)
+  activeTabRef.current = activeTabIndex
+
   const handleSetNeedsSave = (needsSave: boolean, tabId: string) => {
     const newOpenTabs = [...openTabsRef.current]
     const currentTabIndex = newOpenTabs.findIndex((tab) => tab.tabId === tabId)
@@ -333,10 +336,12 @@ export const TabController = () => {
     newTabs[dragIndex] = newHoverTab
     newTabs[hoverIndex] = newDragTab
 
-    // Set active tab to the one that of the dragged tab
-    const draggedTabId = dragTab.tabId
+    // Find old active tab
+    const oldActiveTab = openTabsRef.current[activeTabRef.current]
+
+    // Find new active tab
     const newActiveTabIndex = newTabs.findIndex(
-      (tab) => tab.tabId === draggedTabId
+      (tab) => tab.tabId === oldActiveTab.tabId
     )
 
     if (newActiveTabIndex !== -1) {
