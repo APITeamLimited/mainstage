@@ -116,19 +116,30 @@ export const Tab = ({
   }
 
   const topYMapHook = useYMap(openTab.topYMap)
-  const unifiedHook = useYMap(openTab.bottomYMap ?? openTab.topYMap)
+  const unifiedHook = useYMap(
+    openTab?.bottomYMap !== null &&
+      openTab.bottomYMap?.get('__typename') !== undefined
+      ? openTab?.bottomYMap
+      : openTab.topYMap
+  )
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const tabName = useMemo(
     () =>
-      openTab.topYMap.get('__typename') !== undefined
+      openTab.topYMap?.get('__typename') !== undefined
         ? openTab.topYMap.get('name')
         : 'Deleted',
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [topYMapHook]
   )
   const nodeYMapIcon = useMemo(
-    () => getNodeIcon(openTab.bottomYMap ?? openTab.topYMap, true),
+    () =>
+      getNodeIcon(
+        openTab.bottomYMap?.get('__typename') !== undefined
+          ? openTab.bottomYMap
+          : openTab.topYMap,
+        true
+      ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [unifiedHook]
   )

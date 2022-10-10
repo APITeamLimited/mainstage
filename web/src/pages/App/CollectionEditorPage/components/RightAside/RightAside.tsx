@@ -33,8 +33,6 @@ export const RightAside = ({
   collectionYMap,
   showRightAside,
 }: RightAsideProps) => {
-  const Y = useYJSModule()
-
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const [activeRightAside, setActiveRightAside] = useState<AsideType>(null)

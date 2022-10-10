@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Box, IconButton, Tooltip, Stack, Typography } from '@mui/material'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
-import { useHashSumModule } from 'src/contexts/imports'
 
 type ScriptPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
@@ -17,8 +16,6 @@ export const ScriptPanel = ({
   source,
   sourceName,
 }: ScriptPanelProps) => {
-  const { default: hash } = useHashSumModule()
-
   useEffect(() => {
     const customActions = []
 

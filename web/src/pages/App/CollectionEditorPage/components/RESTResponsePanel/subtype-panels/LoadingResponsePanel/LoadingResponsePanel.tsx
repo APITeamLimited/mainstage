@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { Map as YMap } from 'yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
+import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { PanelLayout } from '../../../PanelLayout'
@@ -26,6 +27,12 @@ export const LoadingResponsePanel = ({
       <SendingRequestAnimation />
       <PanelLayout
         tabNames={['Execution', 'Request']}
+        tabIcons={[
+          {
+            name: 'Execution',
+            icon: <GlobeTestIcon />,
+          },
+        ]}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}

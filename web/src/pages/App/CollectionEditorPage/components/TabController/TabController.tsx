@@ -8,6 +8,7 @@ import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { QueryDeleteDialog } from 'src/components/app/dialogs/QueryDeleteDialog'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { useCollection } from 'src/contexts/collection'
@@ -27,6 +28,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import 'react-reflex/styles.css'
 import { viewportHeightReduction } from '../../../CollectionEditorPage'
 import { CollectionInputPanel } from '../CollectionInputPanel'
+import { DeletedPanel } from '../DeletedPanel'
 import { FolderInputPanel } from '../FolderInputPanel'
 import { RESTResponsePanel } from '../RESTResponsePanel'
 import { RightAside } from '../RightAside'
@@ -55,6 +57,12 @@ export const TabController = () => {
 
   const restResponsesYMap = collectionYMap.get('restResponses') as YMap<any>
   const restResponsesHook = useYMap(restResponsesYMap)
+
+  const restRequestsYMap = collectionYMap.get('restRequests') as YMap<any>
+  useYMap(restRequestsYMap)
+
+  const foldersYMap = collectionYMap.get('folders') as YMap<any>
+  useYMap(foldersYMap)
 
   const restResponses = useMemo(
     () => Array.from(restResponsesYMap.values()) as YMap<any>[],
@@ -90,6 +98,13 @@ export const TabController = () => {
       focusedElementDict[getFocusedElementKey(collectionYMap)]
 
     if (focusedElement) {
+      if (focusedElement?.get('__typename') === undefined) {
+        // Clear the focused element if it's not a valid element
+        clearFocusedElement(focusedElementDict, collectionYMap)
+        clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        return
+      }
+
       const focusedId = focusedElement.get('id')
 
       // Set the tab to the focused element
@@ -212,6 +227,13 @@ export const TabController = () => {
       focusedResponseDict[getFocusedElementKey(collectionYMap)]
 
     if (focusedResponse) {
+      if (focusedResponse.get('__typename') === undefined) {
+        // Clear the focused element if it's not a valid element
+        clearFocusedElement(focusedElementDict, collectionYMap)
+        clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        return
+      }
+
       // Set the tab to the focused element
       const focusedResponseIndex = openTabsRef.current.findIndex(
         (tab) => tab.bottomYMap?.get('id') === focusedResponse.get('id')
@@ -243,11 +265,19 @@ export const TabController = () => {
 
       const tabId = uuid()
 
+      const parentElement = collectionYMap.get('restRequests')?.get(parentId)
+
+      if (!parentElement) {
+        clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        snackErrorMessageVar('Could not find parent request for that response')
+        return
+      }
+
       setOpenTabs([
         ...openTabsRef.current,
         determineNewRestTab({
           restResponses,
-          focusedElement: collectionYMap.get('restRequests').get(parentId),
+          focusedElement: parentElement,
           focusedRestResponse: focusedResponse,
           collectionYMap,
           setObservedNeedsSave: (needsSave: boolean) =>
@@ -293,6 +323,14 @@ export const TabController = () => {
     } else if (openTabsRef.current.length === 0) {
       clearFocusedElement(focusedElementDict, collectionYMap)
       clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+    } else if (!focusedElement) {
+      updateFocusedElement(focusedElementDict, topYMap)
+
+      const bottomYMap = openTabsRef.current[activeTabIndex]?.bottomYMap
+
+      if (bottomYMap && bottomYMap.get('__typename') === 'RESTResponse') {
+        updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -408,7 +446,7 @@ export const TabController = () => {
   } | null>(null)
 
   const showAsidePanel = useMemo(() => {
-    const topYMap = openTabsRef.current[activeTabRef.current]?.topYMap
+    const topYMap = openTabs[activeTabIndex]?.topYMap
     if (!topYMap) return false
 
     const topYMapTypename = topYMap.get('__typename')
@@ -423,7 +461,7 @@ export const TabController = () => {
 
     return false
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openTabs, activeTabIndex])
+  }, [openTabs, activeTabIndex, focusedElementDict])
 
   useEffect(() => {
     if (!showAsidePanel && showRightAside) {
@@ -444,10 +482,12 @@ export const TabController = () => {
     ) {
       updateFocusedElement(focusedElementDict, collectionYMap)
       setHasSetInitalFocus(true)
-      console.log('set inital focus')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedElementDict, collectionHook])
+
+  const tabDeleted =
+    openTabs[activeTabIndex]?.topYMap?.get('__typename') === undefined
 
   return (
     <>
@@ -515,7 +555,8 @@ export const TabController = () => {
             openTabs
               .sort((a, b) => a.orderingIndex - b.orderingIndex)
               .map((tab, index) => {
-                const showBottomPanel = tab.bottomNode !== null
+                const isDeleted = tab.topYMap?.get('__typename') === undefined
+                const showBottomPanel = tab.bottomNode !== null && !isDeleted
 
                 return (
                   <ReflexContainer
@@ -545,7 +586,11 @@ export const TabController = () => {
                           overflow: 'visible',
                         }}
                       >
-                        {tab.topNode}
+                        {isDeleted ? (
+                          <DeletedPanel key={`${tab.tabId}-disabled`} />
+                        ) : (
+                          tab.topNode
+                        )}
                       </Paper>
                     </ReflexElement>
                     {showBottomPanel && (
@@ -600,7 +645,7 @@ export const TabController = () => {
             </Stack>
           )}
         </ReflexElement>
-        {showAsidePanel && showRightAside && (
+        {!tabDeleted && showAsidePanel && showRightAside && (
           <ReflexSplitter
             style={{
               width: 8,
@@ -609,10 +654,10 @@ export const TabController = () => {
             }}
           />
         )}
-        {showAsidePanel && !showRightAside && (
+        {!tabDeleted && showAsidePanel && !showRightAside && (
           <Divider orientation="vertical" />
         )}
-        {showAsidePanel && (
+        {!tabDeleted && showAsidePanel && (
           <ReflexElement
             flex={showRightAside ? 1 : 0}
             style={{

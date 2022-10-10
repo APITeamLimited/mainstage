@@ -136,6 +136,8 @@ export const ScriptsPanel = ({
     setActiveScriptIndex(newExecutionScripts.length - 1)
   }
 
+  const [sourceKey] = useState(() => Math.random().toString())
+
   return (
     <>
       <CreateScriptDialog
@@ -159,7 +161,7 @@ export const ScriptsPanel = ({
             handleSetExecutionScripts(newExecutionScripts)
           }}
           language={scripts[activeScriptIndex].language}
-          namespace={`${namespace}-${activeScriptIndex}`}
+          namespace={`${namespace}${sourceKey}${scripts[activeScriptIndex].name}-${activeScriptIndex}`}
           placeholder={[
             'Start typing to create your new script',
             '',

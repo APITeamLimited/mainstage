@@ -45,17 +45,25 @@ type RESTInputPanelProps = {
   requestYMap: YMap<any>
   collectionYMap: YMap<any>
   setObservedNeedsSave: (needsSave: boolean) => void
+  tabId: string
 }
 
 export const RESTInputPanel = ({
   requestYMap,
   collectionYMap,
+  tabId,
   setObservedNeedsSave,
 }: RESTInputPanelProps) => {
   const Y = useYJSModule()
   const { default: hash } = useHashSumModule()
 
-  const restRequestsYMap = collectionYMap.get('restRequests')
+  const collectionHook = useYMap(collectionYMap)
+
+  const restRequestsYMap = useMemo(
+    () => collectionYMap.get('restRequests'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [collectionHook]
+  )
 
   useWorkspace()
   const scopeId = useScopeId()
@@ -130,6 +138,10 @@ export const RESTInputPanel = ({
     ExecutionScript[]
   >(requestYMap.get('executionScripts') ?? getAndSetExecutionScripts())
 
+  useEffect(() => {
+    console.log('executionScripts', unsavedExecutionScripts)
+  }, [])
+
   const jobQueue = useReactiveVar(jobQueueVar)
 
   const [needSave, setNeedSave] = useState(false)
@@ -193,6 +205,14 @@ export const RESTInputPanel = ({
       requestYMap.set('body', unsavedBody)
     }
   }, [requestYMap, unsavedBody])
+
+  useEffect(() => {
+    console.log(
+      "RESTInputPanel's useEffect",
+      requestYMap?.get?.('executionScripts')[0]?.script,
+      requestYMap?.get('method')
+    )
+  }, [requestHook])
 
   const handleSave = () => {
     requestYMap.set('endpoint', unsavedEndpoint)
@@ -351,7 +371,7 @@ export const RESTInputPanel = ({
           <ScriptsPanel
             executionScripts={unsavedExecutionScripts}
             setExecutionScripts={setUnsavedExecutionScripts}
-            namespace={`request:${requestId}:scripts`}
+            namespace={tabId}
             setActionArea={setActionArea}
             onExecute={handleSend}
           />
