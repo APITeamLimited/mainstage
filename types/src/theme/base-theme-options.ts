@@ -3,8 +3,9 @@ import { ThemeOptions } from '@mui/material'
 export const baseThemeOptions: ThemeOptions = {
   spacing: 6,
   typography: {
-    //fontFamily: '"Poppins", "sans-serif"',
-    fontFamily: 'Manrope, sans-serif',
+    // Old theme uses poppins
+    fontFamily: '"Poppins", "sans-serif"',
+    //fontFamily: 'Manrope, sans-serif',
     fontSize: 16,
     h1: {
       fontSize: '3.5rem',

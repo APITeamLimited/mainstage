@@ -42,6 +42,7 @@ export const determineNewRestTab = ({
     bottomNode: <RESTResponsePanel responseYMap={bottomYMap ?? undefined} />,
     orderingIndex,
     tabId,
+    lastSaveCheckpoint: Date.now(),
   }
 
   return newOpenTab

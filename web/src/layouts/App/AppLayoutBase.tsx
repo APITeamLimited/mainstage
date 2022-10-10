@@ -1,14 +1,8 @@
-import { useEffect } from 'react'
-
 import { useTheme, useScrollTrigger, Stack, Box } from '@mui/material'
 
 import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
-import {
-  getLexicalAddons,
-  getLexicalModule,
-} from 'src/components/app/EnvironmentManager/EnvironmentTextField/module'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
 import { useSyncReady } from 'src/entity-engine/EntityEngine'
@@ -43,18 +37,6 @@ export const AppLayoutBase = ({
   },
 }: AppLayoutProps) => {
   const theme = useTheme()
-
-  // Pre-load dynamic imports
-  useEffect(() => {
-    getLexicalModule()
-    getLexicalAddons()
-    import('mime-types')
-    import('prettier/standalone')
-    import('prettier/parser-babel')
-    import('httpsnippet')
-    import('react-apexcharts')
-    import('hash-sum')
-  }, [])
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,

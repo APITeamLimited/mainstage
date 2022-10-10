@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Divider, Stack, useTheme } from '@mui/material'
-import SimpleBar from 'simplebar-react'
+import { Box, Stack, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { useSimplebarReactModule } from 'src/contexts/imports'
 import { HTML5Backend } from 'src/lib/dnd/backend-html5'
 import { DndProvider } from 'src/lib/dnd/react-dnd'
 
 import { Tab } from './Tab'
 import type { OpenTab } from './TabController'
+
 import 'simplebar-react/dist/simplebar.min.css'
+
 export const tabPanelHeight = 42
 
 type TabPanelProps = {
@@ -26,6 +28,8 @@ export const TabPanel = ({
   deleteTab,
   handleMove,
 }: TabPanelProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const theme = useTheme()
 
   return (
@@ -64,19 +68,6 @@ export const TabPanel = ({
             {openTabs.map((openTab, index) => {
               const key = (openTab.topYMap as YMap<any>).get('id')
 
-              /*return (
-            <Typography
-              key={key}
-              component="div"
-              sx={{
-                paddingRight: '18px',
-              }}
-              fontWeight={index === activeTabIndex ? 'bold' : 'normal'}
-              onClick={() => setActiveTabIndex(index)}
-            >
-              {openTab.topYMap.get('name')}
-            </Typography>
-          )*/
               return (
                 <Tab
                   key={key}

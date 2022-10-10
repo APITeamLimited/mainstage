@@ -18,7 +18,6 @@ import {
   useTheme,
 } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import {
   useActiveEnvironmentYMap,
@@ -32,6 +31,7 @@ import {
   updateActiveEnvironmentId,
 } from 'src/contexts/reactives'
 import { createEnvironment } from 'src/entity-engine/creators'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 import { KeyValueEditor } from '../KeyValueEditor'

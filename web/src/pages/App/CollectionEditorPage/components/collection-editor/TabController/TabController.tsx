@@ -2,11 +2,14 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Paper, Divider } from '@mui/material'
+import LayersClearIcon from '@mui/icons-material/LayersClear'
+import { Paper, Divider, useTheme, Stack } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { QueryDeleteDialog } from 'src/components/app/dialogs/QueryDeleteDialog'
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { useCollection } from 'src/contexts/collection'
 import {
   clearFocusedRESTResponse,
@@ -39,9 +42,12 @@ export type OpenTab = {
   orderingIndex: number
   needsSave?: boolean
   tabId: string
+  lastSaveCheckpoint: number
 }
 
 export const TabController = () => {
+  const theme = useTheme()
+
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
   const collectionYMap = useCollection() as YMap<any>
@@ -73,6 +79,7 @@ export const TabController = () => {
 
     if (currentTabIndex !== -1) {
       newOpenTabs[currentTabIndex].needsSave = needsSave
+      newOpenTabs[currentTabIndex].lastSaveCheckpoint = Date.now()
       setOpenTabs(newOpenTabs)
     }
   }
@@ -126,6 +133,7 @@ export const TabController = () => {
             bottomNode: null,
             orderingIndex: openTabsRef.current.length,
             tabId,
+            lastSaveCheckpoint: Date.now(),
           },
         ])
         setActiveTabIndex(openTabsRef.current.length)
@@ -153,6 +161,7 @@ export const TabController = () => {
             bottomNode: null,
             orderingIndex: openTabsRef.current.length,
             tabId,
+            lastSaveCheckpoint: Date.now(),
           },
         ])
         setActiveTabIndex(openTabsRef.current.length)
@@ -288,16 +297,52 @@ export const TabController = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTabIndex])
 
-  const handleTabDelete = (index: number) => {
+  const handleTabDelete = (index: number, force = false) => {
+    const deletedTab = openTabsRef.current[index]
+
+    // Check if tab needs to be saved
+    if (!force && deletedTab.needsSave) {
+      setQueryDeleteDialogTab({
+        tab: deletedTab,
+        type: 'unsaved',
+      })
+      return
+    }
+
     const newTabs = [...openTabsRef.current]
     newTabs.splice(index, 1)
+
+    // If any tabs have an ordering index greater than the deleted tab, decrement it
+    newTabs.forEach((tab) => {
+      if (tab.orderingIndex > deletedTab.orderingIndex) {
+        tab.orderingIndex--
+      }
+    })
+
     setOpenTabs(newTabs)
 
+    // If no tabs left, clear focused element
+    if (newTabs.length === 0) {
+      clearFocusedElement(focusedElementDict, collectionYMap)
+      clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+      return
+    }
+
     // If was active tab, set active tab to the next tab
-    if (index === activeTabIndex) {
+    if (index === 0) {
+      updateFocusedElement(focusedElementDict, newTabs[0]?.topYMap)
+
+      const bottomYMap = newTabs[0]?.bottomYMap
+
+      if (bottomYMap) {
+        if (bottomYMap.get('__typename') === 'RESTResponse') {
+          updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+        }
+      }
+    } else if (index === activeTabRef.current) {
       setActiveTabIndex(index - 1)
-    } else if (index < activeTabIndex) {
-      setActiveTabIndex(activeTabIndex - 1)
+    } else if (index < activeTabRef.current) {
+      setActiveTabIndex(activeTabRef.current - 1)
     }
   }
 
@@ -350,19 +395,82 @@ export const TabController = () => {
     }
   }
 
+  const [queryDeleteDialogTab, setQueryDeleteDialogTab] = useState<{
+    tab: OpenTab
+    type: 'unsaved'
+  } | null>(null)
+
+  const showAsidePanel = useMemo(() => {
+    const topYMap = openTabsRef.current[activeTabRef.current]?.topYMap
+    if (!topYMap) return false
+
+    if (topYMap.get('__typename') === 'RESTRequest') {
+      return true
+    }
+
+    return false
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openTabs, activeTabIndex])
+
+  useEffect(() => {
+    if (!showAsidePanel && showRightAside) {
+      setShowRightAside(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAsidePanel])
+
   return (
     <>
-      <TabPanel
-        openTabs={openTabs}
-        activeTabIndex={activeTabIndex}
-        setActiveTabIndex={setActiveTabIndex}
-        deleteTab={handleTabDelete}
-        handleMove={handleTabMove}
+      <QueryDeleteDialog
+        show={queryDeleteDialogTab !== null}
+        onDelete={() => {
+          // Find tab index
+          const tabIndex = openTabsRef.current.findIndex(
+            (tab) => tab.tabId === queryDeleteDialogTab?.tab.tabId
+          )
+
+          if (tabIndex !== -1) {
+            handleTabDelete(tabIndex, true)
+          }
+        }}
+        onClose={() => setQueryDeleteDialogTab(null)}
+        title={
+          queryDeleteDialogTab?.type === 'unsaved'
+            ? 'Unsaved Changes'
+            : 'Close Tab'
+        }
+        description={
+          queryDeleteDialogTab?.type === 'unsaved'
+            ? `This ${
+                queryDeleteDialogTab?.tab.topYMap.get('__typename') ===
+                'RESTRequest'
+                  ? 'request'
+                  : queryDeleteDialogTab?.tab.topYMap.get('__typename') ===
+                    'Folder'
+                  ? 'folder'
+                  : queryDeleteDialogTab?.tab.topYMap.get('__typename') ===
+                    'Collection'
+                  ? 'collection'
+                  : 'item'
+              } has unsaved changes. Are you sure you want to close it?`
+            : 'Are you sure you want to close this tab?'
+        }
       />
+      {openTabs.length > 0 && (
+        <TabPanel
+          openTabs={openTabs}
+          activeTabIndex={activeTabIndex}
+          setActiveTabIndex={setActiveTabIndex}
+          deleteTab={handleTabDelete}
+          handleMove={handleTabMove}
+        />
+      )}
       <ReflexContainer
         orientation="vertical"
         style={{
-          height: `calc(100vh - ${viewportHeightReduction + tabPanelHeight}px)`,
+          height: `calc(100vh - ${
+            viewportHeightReduction + (openTabs.length > 0 ? tabPanelHeight : 0)
+          }px)`,
         }}
       >
         <ReflexElement
@@ -373,9 +481,7 @@ export const TabController = () => {
             height: '100%',
           }}
         >
-          {
-            // Sort the tabs by their ordering index
-
+          {openTabs.length > 0 ? (
             openTabs
               .sort((a, b) => a.orderingIndex - b.orderingIndex)
               .map((tab, index) => {
@@ -444,9 +550,29 @@ export const TabController = () => {
                   </ReflexContainer>
                 )
               })
-          }
+          ) : (
+            <Stack direction="row" sx={{ height: '100%' }}>
+              <Divider orientation="vertical" />
+              <EmptyPanelMessage
+                primaryText="No tabs open"
+                secondaryMessages={[
+                  'Select a request, folder, or collection to get started',
+                ]}
+                icon={
+                  <LayersClearIcon
+                    sx={{
+                      marginBottom: 2,
+                      width: 80,
+                      height: 80,
+                      color: theme.palette.action.disabled,
+                    }}
+                  />
+                }
+              />
+            </Stack>
+          )}
         </ReflexElement>
-        {showRightAside && (
+        {showAsidePanel && showRightAside && (
           <ReflexSplitter
             style={{
               width: 8,
@@ -455,25 +581,29 @@ export const TabController = () => {
             }}
           />
         )}
-        {!showRightAside && <Divider orientation="vertical" />}
-        <ReflexElement
-          flex={showRightAside ? 1 : 0}
-          style={{
-            minWidth: showRightAside ? '300px' : '50px',
-            maxWidth: showRightAside ? '1000px' : '50px',
-            overflow: 'hidden',
-          }}
-          minSize={showRightAside ? 300 : 50}
-          maxSize={showRightAside ? 1000 : 50}
-          size={showRightAside ? 500 : 50}
-          propagateDimensions={true}
-        >
-          <RightAside
-            setShowRightAside={setShowRightAside}
-            showRightAside={showRightAside}
-            collectionYMap={collectionYMap}
-          />
-        </ReflexElement>
+        {showAsidePanel && !showRightAside && (
+          <Divider orientation="vertical" />
+        )}
+        {showAsidePanel && (
+          <ReflexElement
+            flex={showRightAside ? 1 : 0}
+            style={{
+              minWidth: showRightAside ? '300px' : '50px',
+              maxWidth: showRightAside ? '1000px' : '50px',
+              overflow: 'hidden',
+            }}
+            minSize={showRightAside ? 300 : 50}
+            maxSize={showRightAside ? 1000 : 50}
+            size={showRightAside ? 500 : 50}
+            propagateDimensions={true}
+          >
+            <RightAside
+              setShowRightAside={setShowRightAside}
+              showRightAside={showRightAside}
+              collectionYMap={collectionYMap}
+            />
+          </ReflexElement>
+        )}
       </ReflexContainer>
     </>
   )

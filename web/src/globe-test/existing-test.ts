@@ -25,11 +25,8 @@ export const streamExistingTest = ({
     reconnection: true,
   })
 
-  console.log('streamExistingTest', socket)
-
   socket.on('updates', (data) => {
     if (data.jobId) {
-      console.log('streamExistingTest', jobId, data)
       onMessage(data)
     }
   })
