@@ -7,7 +7,6 @@ import {
   useTheme,
   Divider,
   useMediaQuery,
-  Theme,
 } from '@mui/material'
 
 import { Link } from '@redwoodjs/router'

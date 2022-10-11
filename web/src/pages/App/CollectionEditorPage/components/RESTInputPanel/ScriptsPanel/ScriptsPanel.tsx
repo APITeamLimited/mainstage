@@ -47,6 +47,9 @@ export const ScriptsPanel = ({
   const valueRef = useRef<string>(scripts[activeScriptIndex].script)
   valueRef.current = scripts[activeScriptIndex].script
 
+  const scriptsRef = useRef<ExecutionScript[]>(executionScripts)
+  scriptsRef.current = executionScripts
+
   const handleBodyDelete = () => {
     // Set active executtion script to empty string
     const newScripts = [...scripts]
@@ -156,7 +159,7 @@ export const ScriptsPanel = ({
         <MonacoEditor
           value={scripts[activeScriptIndex].script}
           onChange={(script) => {
-            const newExecutionScripts = [...scripts]
+            const newExecutionScripts = [...scriptsRef.current]
             newExecutionScripts[activeScriptIndex].script = script
             handleSetExecutionScripts(newExecutionScripts)
           }}

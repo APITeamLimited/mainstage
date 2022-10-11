@@ -103,45 +103,59 @@ type DeleteRecursiveArgs = {
   nodeYMap: YMap<any>
   foldersYMap: YMap<any>
   restRequestsYMap: YMap<any>
+  restResponsesYMap: YMap<any>
 }
 
 export const deleteRecursive = ({
   nodeYMap,
   foldersYMap,
   restRequestsYMap,
+  restResponsesYMap,
 }: DeleteRecursiveArgs) => {
+  const nodeId = nodeYMap.get('id')
   if (nodeYMap.get('__typename') === 'Folder') {
-    foldersYMap.delete(nodeYMap.get('id'))
+    foldersYMap.delete(nodeId)
 
-    // Loop through restRequests and delete any that are in this folder
-
-    Array.from(foldersYMap.values())?.filter((restRequest) => {
-      if (restRequest.get('parentId') === nodeYMap.get('id')) {
-        restRequestsYMap.delete(restRequest.get('id'))
-      }
-    })
-
-    // Recurse on children
-    const nestedFolders = Array.from(foldersYMap.values())?.filter(
-      (folder) => folder.get('parentId') === nodeYMap.get('id')
-    )
-
-    nestedFolders.reduce(
-      (acc, folder) =>
+    Array.from(foldersYMap.values())?.forEach((folder) => {
+      if (folder.get('parentId') === nodeId) {
         deleteRecursive({
           nodeYMap: folder,
           foldersYMap,
           restRequestsYMap,
-        }),
-      {
-        foldersYMap,
-        restRequestsYMap,
+          restResponsesYMap,
+        })
       }
-    )
+    })
+
+    Array.from(restRequestsYMap.values())?.forEach((restRequest) => {
+      if (restRequest.get('parentId') === nodeId) {
+        deleteRecursive({
+          nodeYMap: restRequest,
+          foldersYMap,
+          restRequestsYMap,
+          restResponsesYMap,
+        })
+      }
+    })
   } else if (nodeYMap.get('__typename') === 'RESTRequest') {
     restRequestsYMap.delete(nodeYMap.get('id'))
+
+    Array.from(restResponsesYMap.values())?.forEach((restResponse) => {
+      if (restResponse.get('parentId') === nodeId) {
+        deleteRecursive({
+          nodeYMap: restResponse,
+          foldersYMap,
+          restRequestsYMap,
+          restResponsesYMap,
+        })
+      }
+    })
+  } else if (nodeYMap.get('__typename') === 'RESTResponse') {
+    restResponsesYMap.delete(nodeId)
   } else {
-    throw `deleteRecursive: Unknown item type: ${nodeYMap.get('__typename')}`
+    console.warn(
+      `deleteRecursive: Unknown item type: ${nodeYMap.get('__typename')}`
+    )
   }
 }
 

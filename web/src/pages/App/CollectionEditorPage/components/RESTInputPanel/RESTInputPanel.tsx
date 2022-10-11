@@ -65,7 +65,6 @@ export const RESTInputPanel = ({
     [collectionHook]
   )
 
-  useWorkspace()
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
@@ -138,10 +137,6 @@ export const RESTInputPanel = ({
     ExecutionScript[]
   >(requestYMap.get('executionScripts') ?? getAndSetExecutionScripts())
 
-  useEffect(() => {
-    console.log('executionScripts', unsavedExecutionScripts)
-  }, [])
-
   const jobQueue = useReactiveVar(jobQueueVar)
 
   const [needSave, setNeedSave] = useState(false)
@@ -167,7 +162,9 @@ export const RESTInputPanel = ({
         hash(unsavedRequestMethod) !== hash(requestYMap.get('method')) ||
         hash(unsavedAuth) !== hash(requestYMap.get('auth')) ||
         hash(unsavedDescription) !== hash(requestYMap.get('description')) ||
-        hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables'))
+        hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables')) ||
+        hash(unsavedExecutionScripts) !==
+          hash(requestYMap.get('executionScripts'))
 
       if (needsSave) {
         setNeedSave(true)
@@ -186,16 +183,8 @@ export const RESTInputPanel = ({
     unsavedParameters,
     unsavedPathVariables,
     unsavedRequestMethod,
+    unsavedExecutionScripts,
   ])
-
-  // Hack as scripts editor doesn't seem to trigger the need for a save automatically
-  useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 100) {
-      setNeedSave(true)
-      setObservedNeedsSave(true)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unsavedExecutionScripts])
 
   useEffect(() => {
     if (!unsavedBody) return
@@ -205,14 +194,6 @@ export const RESTInputPanel = ({
       requestYMap.set('body', unsavedBody)
     }
   }, [requestYMap, unsavedBody])
-
-  useEffect(() => {
-    console.log(
-      "RESTInputPanel's useEffect",
-      requestYMap?.get?.('executionScripts')[0]?.script,
-      requestYMap?.get('method')
-    )
-  }, [requestHook])
 
   const handleSave = () => {
     requestYMap.set('endpoint', unsavedEndpoint)
@@ -287,6 +268,8 @@ export const RESTInputPanel = ({
     () => [...BUILTIN_REST_SCRIPTS, ...unsavedExecutionScripts],
     [unsavedExecutionScripts]
   )
+
+  const spawnId = useMemo(() => uuid(), [])
 
   return (
     <>
@@ -371,7 +354,7 @@ export const RESTInputPanel = ({
           <ScriptsPanel
             executionScripts={unsavedExecutionScripts}
             setExecutionScripts={setUnsavedExecutionScripts}
-            namespace={tabId}
+            namespace={spawnId}
             setActionArea={setActionArea}
             onExecute={handleSend}
           />

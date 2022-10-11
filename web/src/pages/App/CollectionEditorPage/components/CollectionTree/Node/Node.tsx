@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react'
 
-import { Folder, RESTRequest } from '@apiteam/types'
 import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { createFolder, createRestRequest } from 'src/entity-engine/creators'
 import { useDragDropManager } from 'src/lib/dnd/react-dnd'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { calculateDrop } from './calculateDrop'
 import { FolderNode, FOLDER_LOWER_ADDING_HEIGHT } from './FolderNode'
@@ -44,6 +43,7 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
 
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
+  const restResponsesYMap = collectionYMap.get('restResponses')
 
   useYMap(restRequestsYMap)
   useYMap(foldersYMap)
@@ -53,10 +53,7 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
   const monitor = dragDropManager.getMonitor()
   const [dropSpace, setDropSpace] = useThrottle<DropSpaceType>(null)
   const nodeYMapRef = useRef<HTMLDivElement>(null)
-  const [dropResult, setDropResult] = useState<{
-    parentIndex: number
-    dropItem: Folder | RESTRequest
-  } | null>(null)
+  const [dropResult, setDropResult] = useState<DragDetails | null>(null)
   const [clientOffset, setClientOffset] = useState<{
     x: number
     y: number
@@ -171,6 +168,7 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
       nodeYMap,
       foldersYMap,
       restRequestsYMap,
+      restResponsesYMap,
     })
   }
 
@@ -179,16 +177,18 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
       throw 'Cannot create a new folder inside a REST request'
     }
 
-    const folderYMapsThisLevel = Array.from(foldersYMap.values()).filter(
+    const folderYMapsThisLevel = (
+      Array.from(foldersYMap.values()) as YMap<any>[]
+    ).filter(
       (folderYMap) => folderYMap.get('parentId') === nodeYMap.get('id')
     ) as YMap<any>[]
 
-    const restRequestYMapsThisLevel = Array.from(
-      restRequestsYMap.values()
+    const restRequestYMapsThisLevel = (
+      Array.from(restRequestsYMap.values()) as YMap<any>[]
     ).filter(
       (restRequestYMap) =>
         restRequestYMap.get('parentId') === nodeYMap.get('id')
-    ) as YMap<any>[]
+    )
 
     const { folder, id } = createFolder({
       parentId: nodeYMap.get('id'),
@@ -208,16 +208,18 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
       throw 'Cannot create a new REST request inside a REST request'
     }
 
-    const folderYMapsThisLevel = Array.from(foldersYMap.values())?.filter(
+    const folderYMapsThisLevel = (
+      Array.from(foldersYMap.values() ?? []) as YMap<any>[]
+    ).filter(
       (folderYMap) => folderYMap.get('parentId') === nodeYMap.get('id')
     ) as YMap<any>[]
 
-    const restRequestYMapsThisLevel = Array.from(
-      restRequestsYMap.values()
+    const restRequestYMapsThisLevel = (
+      Array.from(restRequestsYMap.values()) as YMap<any>[]
     ).filter(
       (restRequestYMap) =>
         restRequestYMap.get('parentId') === nodeYMap.get('id')
-    ) as YMap<any>[]
+    )
 
     const { request, id } = createRestRequest({
       parentId: nodeYMap.get('id'),
@@ -246,11 +248,13 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
   }: {
     nodeYMap: YMap<any>
   }): YMap<any>[] => {
-    const unsortedFolders = Array.from(foldersYMap.values())?.filter(
-      (folder) => folder.get('parentId') === nodeYMap.get('id')
-    )
+    const unsortedFolders = (
+      Array.from(foldersYMap.values() ?? []) as YMap<any>[]
+    ).filter((folder) => folder.get('parentId') === nodeYMap.get('id'))
 
-    const unsortedRESTRequests = Array.from(restRequestsYMap.values())?.filter(
+    const unsortedRESTRequests = (
+      Array.from(restRequestsYMap.values() ?? []) as YMap<any>[]
+    ).filter(
       (restRequest) => restRequest.get('parentId') === nodeYMap.get('id')
     )
 
