@@ -89,7 +89,7 @@ export const CollectionInputPanel = ({
 
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 100) {
+    if (!needSave && Date.now() - mountTime > 400) {
       const needsSave =
         hash(unsavedDescription) !== hash(collectionYMap.get('description')) ||
         hash(unsavedAuth) !== hash(collectionYMap.get('auth'))
@@ -108,7 +108,7 @@ export const CollectionInputPanel = ({
   ])
 
   useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 100) {
+    if (!needSave && Date.now() - mountTime > 400) {
       setNeedSave(true)
       setObservedNeedsSave(true, () => saveCallbackRef.current())
     }

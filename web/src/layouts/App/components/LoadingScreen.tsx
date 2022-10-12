@@ -29,35 +29,24 @@ export const LoadingScreen = ({ show, children }: LoadingScreenProps) => {
       ;[copy[i], copy[j]] = [copy[j], copy[i]]
     }
     return copy
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const [messageIndex, setMessageIndex] = useState(0)
 
-  const [textInterval, setTextInterval] = useState<number | null>(null)
-
   useEffect(() => {
-    if (!show) {
-      if (textInterval) {
-        window.clearInterval(textInterval as number)
-        setTextInterval(null)
-      }
-      return
-    }
-
-    if (!textInterval) {
-      const interval = window.setInterval(() => {
-        setMessageIndex((messageIndex + 1) % loadingMessagesRandomOrder.length)
-      }, 3000)
-      setTextInterval(interval)
-    }
+    const interval = setInterval(() => {
+      setMessageIndex((messageIndex + 1) % loadingMessagesRandomOrder.length)
+    }, 3000)
 
     return () => {
-      if (textInterval) {
-        clearInterval(textInterval)
+      if (interval) {
+        clearInterval(interval)
       }
     }
+    // Show handled in loadingMessagesRandomOrder dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageIndex, show, textInterval])
+  }, [messageIndex])
 
   return (
     <>
@@ -76,7 +65,14 @@ export const LoadingScreen = ({ show, children }: LoadingScreenProps) => {
             userSelect: 'none',
           }}
         >
-          <Stack spacing={4} alignItems="center">
+          <Stack
+            spacing={4}
+            alignItems="center"
+            sx={{
+              // Looks better slightly higher up on the screen
+              paddingBottom: '200px',
+            }}
+          >
             <Typography
               fontSize={80}
               fontWeight={1000}

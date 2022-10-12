@@ -65,6 +65,14 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('react-apexcharts'),
         import('hash-sum'),
         import('simplebar-react'),
+
+        // Import pages too so app is snappy
+        import('src/pages/App/CollectionEditorPage'),
+        import('src/pages/App/Dashboard/OverviewPage'),
+        import('src/pages/App/Dashboard/DomainsPage'),
+        import('src/pages/App/Dashboard/SettingsPages/GeneralSettingsPage'),
+        import('src/pages/App/Dashboard/SettingsPages/MembersSettingsPage'),
+        import('src/pages/App/Dashboard/SettingsPages/DangerZoneSettingsPage'),
       ])
       setLoadedImports(true)
     }
