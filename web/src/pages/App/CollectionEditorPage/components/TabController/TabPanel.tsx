@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Box, Stack, useTheme } from '@mui/material'
-import type { Map as YMap } from 'yjs'
 
 import { useSimplebarReactModule } from 'src/contexts/imports'
 import { HTML5Backend } from 'src/lib/dnd/backend-html5'

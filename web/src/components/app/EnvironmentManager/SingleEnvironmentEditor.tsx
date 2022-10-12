@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   KeyValueItem,
+  kvExporter,
   kvLegacyImporter,
   LocalValueKV,
 } from '@apiteam/types/src'
@@ -42,41 +43,56 @@ export const SingleEnvironmentEditor = ({
   show,
   setShow,
 }: SingleEnvironmentEditorProps) => {
-  const environment = useYMap(environmentYMap)
   const theme = useTheme()
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
-  const [keyValues, setKeyValues] = useState([] as KeyValueItem<LocalValueKV>[])
+
+  const environmentHook = useYMap(environmentYMap)
+  const environmentId = useMemo(
+    () => environmentYMap.get('id'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [environmentHook]
+  )
+  const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
+
+  const [unsavedKeyValues, setUnsavedKeyValues] = useState(
+    kvLegacyImporter<LocalValueKV>('variables', environmentYMap, 'localvalue')
+  )
+
   const [needSave, setNeedSave] = useState(false)
-  const activeEnvironmentVarData = useReactiveVar(activeEnvironmentVar)
 
   useEffect(() => {
-    if (environment.data.variables) {
-      setKeyValues(environment.data.variables)
+    if (!needSave) {
+      setUnsavedKeyValues(
+        kvLegacyImporter('variables', environmentYMap, 'localvalue')
+      )
     }
-  }, [environment.data])
-
-  useEffect(() => {
-    setKeyValues(kvLegacyImporter('variables', environmentYMap, 'localvalue'))
-  }, [environmentYMap])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     setNeedSave(
-      JSON.stringify(keyValues) !==
+      JSON.stringify(unsavedKeyValues) !==
         JSON.stringify(environmentYMap?.get('variables') || [])
     )
-  }, [environmentYMap, keyValues])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [environmentHook, unsavedKeyValues])
 
   const handleEnvironmentSave = (
     newKeyValues: KeyValueItem<LocalValueKV>[]
   ) => {
     if (!environmentYMap) throw 'No active environment'
-    environmentYMap.set('variables', newKeyValues)
+    environmentYMap.set(
+      'variables',
+      kvExporter<LocalValueKV>(
+        newKeyValues,
+        'localvalue',
+        environmentYMap.doc?.guid as string
+      )
+    )
     environmentYMap.set('updatedAt', new Date().toISOString())
 
     setNeedSave(false)
   }
-  const environmentId = environment.data.id
-
   const handleEnvironmentDelete = () => {
     if (!environmentYMap) throw 'No active environment'
     const environmentsYMap = environmentYMap.parent as YMap<any> | undefined
@@ -86,8 +102,24 @@ export const SingleEnvironmentEditor = ({
     if (!branchYMap) throw 'No branchYMap'
 
     environmentsYMap.delete(environmentId)
-    updateActiveEnvironmentId(activeEnvironmentVarData, branchYMap, null)
+    updateActiveEnvironmentId(activeEnvironmentDict, branchYMap, null)
   }
+
+  // Reset the variables when the dialog is closed
+  const handleClose = () => {
+    setUnsavedKeyValues([])
+    setShow(false)
+  }
+
+  // Load the variables again when the dialog is opened
+  useEffect(() => {
+    if (show) {
+      setUnsavedKeyValues(
+        kvLegacyImporter('variables', environmentYMap, 'localvalue')
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show])
 
   return (
     <>
@@ -98,12 +130,7 @@ export const SingleEnvironmentEditor = ({
         title="Delete Environment"
         description="Are you sure you want to delete this environment?"
       />
-      <Dialog
-        open={show}
-        onClose={() => setShow(false)}
-        fullWidth
-        maxWidth="lg"
-      >
+      <Dialog open={show} onClose={handleClose} fullWidth maxWidth="lg">
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -123,9 +150,9 @@ export const SingleEnvironmentEditor = ({
           >
             <Tooltip title="Close">
               <IconButton
-                onClick={() => setShow(false)}
+                onClick={handleClose}
                 sx={{
-                  color: (theme) => theme.palette.grey[500],
+                  color: theme.palette.grey[500],
                 }}
               >
                 <CloseIcon />
@@ -149,8 +176,8 @@ export const SingleEnvironmentEditor = ({
             alignItems="flex-end"
           >
             <KeyValueEditor<LocalValueKV>
-              items={keyValues}
-              setItems={setKeyValues}
+              items={unsavedKeyValues}
+              setItems={setUnsavedKeyValues}
               namespace={`env-${environmentId}`}
               enableEnvironmentVariables={false}
               variant="localvalue"
@@ -162,7 +189,7 @@ export const SingleEnvironmentEditor = ({
                 variant="contained"
                 color="success"
                 disabled={!needSave}
-                onClick={() => handleEnvironmentSave(keyValues)}
+                onClick={() => handleEnvironmentSave(unsavedKeyValues)}
               >
                 Save
               </Button>

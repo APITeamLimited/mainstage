@@ -158,6 +158,12 @@ export const Tab = ({
 
   drag(drop(ref))
 
+  const tabDeleted = useMemo(
+    () => openTab.topYMap?.get('__typename') === undefined,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [topYMapHook]
+  )
+
   return (
     <Box
       ref={ref}
@@ -211,7 +217,7 @@ export const Tab = ({
                 justifyContent: 'center',
               }}
             >
-              {showNeedSave ? (
+              {showNeedSave && !tabDeleted ? (
                 // Circle
                 <Box
                   sx={{

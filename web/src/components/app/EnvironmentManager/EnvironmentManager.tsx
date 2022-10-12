@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   KeyValueItem,
+  kvExporter,
   kvLegacyImporter,
   LocalValueKV,
 } from '@apiteam/types/src'
@@ -54,14 +55,16 @@ export const EnvironmentManager = ({
   const Y = useYJSModule()
 
   const theme = useTheme()
+
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const activeEnvironmentHook = useYMap(activeEnvironmentYMap ?? new Y.Map())
+  const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
 
   const environmentsYMap = useEnvironmentsYMap()
   useYMap(environmentsYMap ?? new Y.Map())
 
   const branchYMap = useBranchYMap()
-  const activeEnvironmentVarData = useReactiveVar(activeEnvironmentVar)
+  const branchHook = useYMap(branchYMap ?? new Y.Map())
 
   const [keyValues, setKeyValues] = useState([] as KeyValueItem<LocalValueKV>[])
   const [needSave, setNeedSave] = useState(false)
@@ -70,22 +73,35 @@ export const EnvironmentManager = ({
     useState(false)
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
+  const activeEnvironmentId = useMemo(
+    () => activeEnvironmentDict[getBranchEnvironmentKey(branchYMap)] ?? null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeEnvironmentDict, branchHook]
+  )
+
   useEffect(() => {
-    if (!activeEnvironmentYMap) return
+    if (!activeEnvironmentYMap) {
+      setKeyValues([])
+      return
+    }
     setKeyValues(
       kvLegacyImporter('variables', activeEnvironmentYMap, 'localvalue')
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironmentHook])
-
-  const activeEnvironmentId =
-    activeEnvironmentVarData[getBranchEnvironmentKey(branchYMap)] || null
+  }, [activeEnvironmentId, show])
 
   const handleEnvironmentSave = (
     newKeyValues: KeyValueItem<LocalValueKV>[]
   ) => {
     if (!activeEnvironmentYMap) throw 'No active environment'
-    activeEnvironmentYMap.set('variables', newKeyValues)
+    activeEnvironmentYMap.set(
+      'variables',
+      kvExporter<LocalValueKV>(
+        newKeyValues,
+        'localvalue',
+        activeEnvironmentYMap.doc?.guid as string
+      )
+    )
     activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
 
     setNeedSave(false)
@@ -96,7 +112,8 @@ export const EnvironmentManager = ({
       JSON.stringify(keyValues) !==
         JSON.stringify(activeEnvironmentYMap?.get('variables') || [])
     )
-  }, [activeEnvironmentYMap, keyValues])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeEnvironmentHook, keyValues])
 
   const handleEnvironmentCreate = (name: string) => {
     if (!environmentsYMap) throw 'No environmentsYMap'
@@ -109,7 +126,7 @@ export const EnvironmentManager = ({
 
     if (isFirstEnvironment) {
       updateActiveEnvironmentId(
-        activeEnvironmentVarData,
+        activeEnvironmentDict,
         branchYMap,
         environmentId
       )
@@ -122,7 +139,7 @@ export const EnvironmentManager = ({
 
     environmentsYMap?.delete(activeEnvironmentYMap.get('id'))
 
-    updateActiveEnvironmentId(activeEnvironmentVarData, branchYMap, null)
+    updateActiveEnvironmentId(activeEnvironmentDict, branchYMap, null)
   }
 
   return (
@@ -167,7 +184,7 @@ export const EnvironmentManager = ({
                 <IconButton
                   onClick={() =>
                     updateActiveEnvironmentId(
-                      activeEnvironmentVarData,
+                      activeEnvironmentDict,
                       branchYMap,
                       null
                     )
@@ -248,7 +265,7 @@ export const EnvironmentManager = ({
                       key={index}
                       variant={
                         environment.get('id') ===
-                        activeEnvironmentVarData[
+                        activeEnvironmentDict[
                           getBranchEnvironmentKey(branchYMap)
                         ]
                           ? 'contained'
@@ -256,7 +273,7 @@ export const EnvironmentManager = ({
                       }
                       onClick={() => {
                         updateActiveEnvironmentId(
-                          activeEnvironmentVarData,
+                          activeEnvironmentDict,
                           branchYMap,
                           environment.get('id')
                         )

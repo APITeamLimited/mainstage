@@ -9,7 +9,7 @@ import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
-import { QueryDeleteDialog } from 'src/components/app/dialogs/QueryDeleteDialog'
+import { QuerySaveDialog } from 'src/components/app/dialogs/QuerySaveDialog'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { useCollection } from 'src/contexts/collection'
 import {
@@ -43,6 +43,7 @@ export type OpenTab = {
   bottomNode: React.ReactNode | null
   orderingIndex: number
   needsSave?: boolean
+  saveCallback?: () => void
   tabId: string
   lastSaveCheckpoint: number
 }
@@ -78,15 +79,20 @@ export const TabController = () => {
   const openTabsRef = useRef(openTabs)
   openTabsRef.current = openTabs
 
-  const activeTabRef = useRef(activeTabIndex)
-  activeTabRef.current = activeTabIndex
+  const activeTabIndexRef = useRef(activeTabIndex)
+  activeTabIndexRef.current = activeTabIndex
 
-  const handleSetNeedsSave = (needsSave: boolean, tabId: string) => {
+  const handleSetNeedsSave = (
+    needsSave: boolean,
+    tabId: string,
+    saveCallback?: () => void
+  ) => {
     const newOpenTabs = [...openTabsRef.current]
     const currentTabIndex = newOpenTabs.findIndex((tab) => tab.tabId === tabId)
 
     if (currentTabIndex !== -1) {
       newOpenTabs[currentTabIndex].needsSave = needsSave
+      newOpenTabs[currentTabIndex].saveCallback = saveCallback
       newOpenTabs[currentTabIndex].lastSaveCheckpoint = Date.now()
       setOpenTabs(newOpenTabs)
     }
@@ -139,8 +145,8 @@ export const TabController = () => {
             topNode: (
               <CollectionInputPanel
                 collectionYMap={focusedElement}
-                setObservedNeedsSave={(needsSave) =>
-                  handleSetNeedsSave(needsSave, tabId)
+                setObservedNeedsSave={(needsSave, saveCallback) =>
+                  handleSetNeedsSave(needsSave, tabId, saveCallback)
                 }
               />
             ),
@@ -167,8 +173,8 @@ export const TabController = () => {
               <FolderInputPanel
                 folderId={focusedElement.get('id')}
                 collectionYMap={collectionYMap}
-                setObservedNeedsSave={(needsSave) =>
-                  handleSetNeedsSave(needsSave, tabId)
+                setObservedNeedsSave={(needsSave, saveCallback) =>
+                  handleSetNeedsSave(needsSave, tabId, saveCallback)
                 }
               />
             ),
@@ -201,8 +207,10 @@ export const TabController = () => {
             ? focusedRestResponseRaw
             : undefined,
           collectionYMap,
-          setObservedNeedsSave: (needsSave: boolean) =>
-            handleSetNeedsSave(needsSave, tabId),
+          setObservedNeedsSave: (
+            needsSave: boolean,
+            saveCallback?: () => void
+          ) => handleSetNeedsSave(needsSave, tabId, saveCallback),
           orderingIndex: openTabsRef.current.length,
           tabId,
         })
@@ -280,8 +288,10 @@ export const TabController = () => {
           focusedElement: parentElement,
           focusedRestResponse: focusedResponse,
           collectionYMap,
-          setObservedNeedsSave: (needsSave: boolean) =>
-            handleSetNeedsSave(needsSave, tabId),
+          setObservedNeedsSave: (
+            needsSave: boolean,
+            saveCallback?: () => void
+          ) => handleSetNeedsSave(needsSave, tabId, saveCallback),
           orderingIndex: openTabsRef.current.length,
           tabId,
         }),
@@ -339,11 +349,19 @@ export const TabController = () => {
   const handleTabDelete = (index: number, force = false) => {
     const deletedTab = openTabsRef.current[index]
 
+    const alreadyDeletedItem =
+      deletedTab.topYMap?.get('__typename') === undefined
+
     // Check if tab needs to be saved
-    if (!force && deletedTab.needsSave) {
-      setQueryDeleteDialogTab({
+    if (!force && deletedTab.needsSave && !alreadyDeletedItem) {
+      if (!deletedTab.saveCallback) {
+        throw new Error('Tab needs to be saved but no save callback found')
+      }
+
+      setQuerySaveDialogTab({
         tab: deletedTab,
         type: 'unsaved',
+        saveCallback: deletedTab.saveCallback,
       })
       return
     }
@@ -384,10 +402,10 @@ export const TabController = () => {
           updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
         }
       }
-    } else if (index === activeTabRef.current) {
+    } else if (index === activeTabIndexRef.current) {
       setActiveTabIndex(index - 1)
-    } else if (index < activeTabRef.current) {
-      setActiveTabIndex(activeTabRef.current - 1)
+    } else if (index < activeTabIndexRef.current) {
+      setActiveTabIndex(activeTabIndexRef.current - 1)
     }
   }
 
@@ -427,7 +445,7 @@ export const TabController = () => {
     newTabs[hoverIndex] = newDragTab
 
     // Find old active tab
-    const oldActiveTab = openTabsRef.current[activeTabRef.current]
+    const oldActiveTab = openTabsRef.current[activeTabIndexRef.current]
 
     // Find new active tab
     const newActiveTabIndex = newTabs.findIndex(
@@ -440,9 +458,10 @@ export const TabController = () => {
     }
   }
 
-  const [queryDeleteDialogTab, setQueryDeleteDialogTab] = useState<{
+  const [querySaveDialogTab, setQuerySaveDialogTab] = useState<{
     tab: OpenTab
     type: 'unsaved'
+    saveCallback: () => void
   } | null>(null)
 
   const showAsidePanel = useMemo(() => {
@@ -486,44 +505,52 @@ export const TabController = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedElementDict, collectionHook])
 
+  // This is hard to memoize because it depends on the focused element, state doesn't update
+  // Correctly as depends on current topYMap, keep it outside of a hook
   const tabDeleted =
     openTabs[activeTabIndex]?.topYMap?.get('__typename') === undefined
 
+  const handleCloseTab = () => {
+    const tabIndex = openTabsRef.current.findIndex(
+      (tab) => tab.tabId === querySaveDialogTab?.tab.tabId
+    )
+
+    if (tabIndex !== -1) {
+      handleTabDelete(tabIndex, true)
+    } else {
+      snackErrorMessageVar('Could not find tab to delete')
+    }
+  }
+
   return (
     <>
-      <QueryDeleteDialog
-        show={queryDeleteDialogTab !== null}
-        onDelete={() => {
-          // Find tab index
-          const tabIndex = openTabsRef.current.findIndex(
-            (tab) => tab.tabId === queryDeleteDialogTab?.tab.tabId
-          )
-
-          if (tabIndex !== -1) {
-            handleTabDelete(tabIndex, true)
+      <QuerySaveDialog
+        show={querySaveDialogTab !== null}
+        onDelete={handleCloseTab}
+        saveCallback={() => {
+          if (!querySaveDialogTab?.saveCallback) {
+            snackErrorMessageVar('Failed to save tab')
+            return
           }
+          querySaveDialogTab.saveCallback()
+          handleCloseTab()
         }}
-        onClose={() => setQueryDeleteDialogTab(null)}
-        title={
-          queryDeleteDialogTab?.type === 'unsaved'
-            ? 'Unsaved Changes'
-            : 'Close Tab'
-        }
+        onClose={() => setQuerySaveDialogTab(null)}
         description={
-          queryDeleteDialogTab?.type === 'unsaved'
-            ? `This ${
-                queryDeleteDialogTab?.tab.topYMap?.get('__typename') ===
+          querySaveDialogTab?.type === 'unsaved'
+            ? `Are you sure you want to close this ${
+                querySaveDialogTab?.tab.topYMap?.get('__typename') ===
                 'RESTRequest'
                   ? 'request'
-                  : queryDeleteDialogTab?.tab.topYMap?.get('__typename') ===
+                  : querySaveDialogTab?.tab.topYMap?.get('__typename') ===
                     'Folder'
                   ? 'folder'
-                  : queryDeleteDialogTab?.tab.topYMap?.get('__typename') ===
+                  : querySaveDialogTab?.tab.topYMap?.get('__typename') ===
                     'Collection'
                   ? 'collection'
                   : 'item'
-              } has unsaved changes. Are you sure you want to close it?`
-            : 'Are you sure you want to close this tab?'
+              } without saving? Any unsaved changes will be lost.`
+            : undefined
         }
       />
       {openTabs.length > 0 && (

@@ -90,7 +90,7 @@ export const ChangePersonalSlugCard = ({
             <Typography variant="h6">Personal Slug</Typography>
             <Typography variant="body2">
               This is your personal slug, it your unique identifier and personal
-              subdomain on the APIPersonal platform
+              subdomain on the APITeam platform
             </Typography>
             <TextField
               fullWidth

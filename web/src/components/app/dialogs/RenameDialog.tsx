@@ -62,12 +62,15 @@ export const RenameDialog = ({
               variant="outlined"
               size="small"
               fullWidth
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
             />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onClose} color="secondary">
+            Cancel
+          </Button>
           <Button type="submit">Rename</Button>
         </DialogActions>
       </form>

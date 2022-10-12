@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { kvLegacyImporter, LocalValueKV, RESTAuth } from '@apiteam/types/src'
+import {
+  kvExporter,
+  kvLegacyImporter,
+  LocalValueKV,
+  RESTAuth,
+} from '@apiteam/types/src'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import {
   ListItem,
@@ -22,14 +27,14 @@ import { SaveButton } from '../RESTInputPanel/SaveButton'
 
 type CollectionInputPanelProps = {
   collectionYMap: YMap<any>
-  setObservedNeedsSave: (needsSave: boolean) => void
+  setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
 }
 
 export const CollectionInputPanel = ({
   collectionYMap,
   setObservedNeedsSave,
 }: CollectionInputPanelProps) => {
-  useYMap(collectionYMap)
+  const collectionHook = useYMap(collectionYMap)
 
   const getSetAuth = () => {
     collectionYMap.set('auth', {
@@ -51,12 +56,31 @@ export const CollectionInputPanel = ({
     collectionYMap.get('auth') ?? getSetAuth()
   )
   const [unsavedVariables, setUnsavedVariables] = useState(
-    kvLegacyImporter('variables', collectionYMap, 'localvalue')
+    kvLegacyImporter<LocalValueKV>('variables', collectionYMap, 'localvalue')
   )
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [needSave, setNeedSave] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
+
+  const handleSave = () => {
+    collectionYMap.set('auth', unsavedAuth)
+    collectionYMap.set(
+      'variables',
+      kvExporter<LocalValueKV>(
+        unsavedVariables,
+        'localvalue',
+        collectionYMap.doc?.guid as string
+      )
+    )
+    collectionYMap.set('description', unsavedDescription)
+    collectionYMap.set('updatedAt', new Date().toISOString())
+    setNeedSave(false)
+    setObservedNeedsSave(false)
+  }
+
+  const saveCallbackRef = useRef<() => void>(handleSave)
+  saveCallbackRef.current = handleSave
 
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
@@ -71,25 +95,17 @@ export const CollectionInputPanel = ({
 
       if (needsSave) {
         setNeedSave(true)
-        setObservedNeedsSave(true)
+        setObservedNeedsSave(true, () => saveCallbackRef.current())
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     needSave,
-    collectionYMap,
+    collectionHook,
     unsavedDescription,
     unsavedAuth,
     unsavedVariables,
   ])
-
-  const handleSave = () => {
-    collectionYMap.set('auth', unsavedAuth)
-    collectionYMap.set('variables', unsavedVariables)
-    collectionYMap.set('description', unsavedDescription)
-    setNeedSave(false)
-    setObservedNeedsSave(false)
-  }
 
   return (
     <>

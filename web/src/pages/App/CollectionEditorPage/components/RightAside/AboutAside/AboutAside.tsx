@@ -76,7 +76,7 @@ export const AboutAside = ({ itemYMap, onCloseAside }: AboutAsideProps) => {
             fontWeight: 'bold',
           }}
         >
-          Updated At:
+          Last Updated At:
         </span>{' '}
         {itemYMap.get('updatedAt')
           ? new Date(itemYMap.get('updatedAt')).toLocaleString()
@@ -131,7 +131,7 @@ export const AboutAside = ({ itemYMap, onCloseAside }: AboutAsideProps) => {
                 fontWeight: 'bold',
               }}
             >
-              Updated At:
+              Last Updated At:
             </span>{' '}
             {focusedResponseYMap.get('updatedAt')
               ? new Date(focusedResponseYMap.get('updatedAt')).toLocaleString()

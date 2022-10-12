@@ -7,21 +7,23 @@ import {
   DialogTitle,
 } from '@mui/material'
 
-type QueryDeleteDialogProps = {
+type QuerySaveDialogProps = {
   show: boolean
   onClose: () => void
+  saveCallback: () => void
   onDelete: () => void
   title?: string
   description?: string
 }
 
-export const QueryDeleteDialog = ({
+export const QuerySaveDialog = ({
   show,
   onClose,
+  saveCallback,
   onDelete,
-  title = 'Confirm Delete',
-  description = 'Are you sure you want to delete this?',
-}: QueryDeleteDialogProps) => (
+  title = 'Unsaved Changes',
+  description = 'Are you sure you want to close without saving? Any unsaved changes will be lost.',
+}: QuerySaveDialogProps) => (
   <Dialog
     open={show}
     onClose={onClose}
@@ -43,11 +45,20 @@ export const QueryDeleteDialog = ({
           onClose()
           onDelete()
         }}
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus
         color="error"
       >
-        Delete
+        Discard Changes
+      </Button>
+      <Button
+        onClick={() => {
+          onClose()
+          saveCallback()
+        }}
+        // eslint-disable-next-line jsx-a11y/no-autofocus
+        autoFocus
+        color="primary"
+      >
+        Save and Close
       </Button>
     </DialogActions>
   </Dialog>

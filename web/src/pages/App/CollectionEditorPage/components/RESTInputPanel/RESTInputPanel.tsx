@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { DefaultKV, KeyValueItem, kvLegacyImporter } from '@apiteam/types/src'
 import { RESTReqBody } from '@apiteam/types/src'
@@ -43,7 +43,7 @@ if (!defaultExecutionScript) {
 type RESTInputPanelProps = {
   requestYMap: YMap<any>
   collectionYMap: YMap<any>
-  setObservedNeedsSave: (needsSave: boolean) => void
+  setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
   tabId: string
 }
 
@@ -144,6 +144,28 @@ export const RESTInputPanel = ({
 
   const [mountTime] = useState(Date.now())
 
+  const handleSave = () => {
+    requestYMap.set('endpoint', unsavedEndpoint)
+    // As headers and params are not localvalues don't need to use kvExporter
+    requestYMap.set('headers', unsavedHeaders)
+    requestYMap.set('params', unsavedParameters)
+    requestYMap.set('body', stripBodyStoredObjectData(unsavedBody))
+    requestYMap.set('method', unsavedRequestMethod)
+    requestYMap.set('auth', unsavedAuth)
+    requestYMap.set('description', unsavedDescription)
+    requestYMap.set('pathVariables', unsavedPathVariables)
+    requestYMap.set(
+      'executionScripts',
+      unsavedExecutionScripts.filter((s) => !s.builtIn)
+    )
+    requestYMap.set('updatedAt', new Date().toISOString())
+    setNeedSave(false)
+    setObservedNeedsSave(false)
+  }
+
+  const saveCallbackRef = useRef<() => void>(handleSave)
+  saveCallbackRef.current = handleSave
+
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 100) {
@@ -160,13 +182,13 @@ export const RESTInputPanel = ({
 
       if (needsSave) {
         setNeedSave(true)
-        setObservedNeedsSave(true)
+        setObservedNeedsSave(true, () => saveCallbackRef.current())
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     needSave,
-    requestYMap,
+    requestHook,
     unsavedAuth,
     unsavedBody,
     unsavedDescription,
@@ -195,29 +217,13 @@ export const RESTInputPanel = ({
     }
   }, [requestYMap, unsavedBody])
 
-  const handleSave = () => {
-    requestYMap.set('endpoint', unsavedEndpoint)
-    requestYMap.set('headers', unsavedHeaders)
-    requestYMap.set('params', unsavedParameters)
-    requestYMap.set('body', stripBodyStoredObjectData(unsavedBody))
-    requestYMap.set('method', unsavedRequestMethod)
-    requestYMap.set('auth', unsavedAuth)
-    requestYMap.set('description', unsavedDescription)
-    requestYMap.set('pathVariables', unsavedPathVariables)
-    requestYMap.set(
-      'executionScripts',
-      unsavedExecutionScripts.filter((s) => !s.builtIn)
-    )
-    setNeedSave(false)
-    setObservedNeedsSave(false)
-  }
-
   const handleSaveAs = (newName: string) => {
     const newId = uuid()
     const clone = requestYMap.clone()
     clone.set('id', newId)
     clone.set('name', newName)
     clone.set('endpoint', unsavedEndpoint)
+    // As headers and params are not localvalues don't need to use kvExporter
     clone.set('headers', unsavedHeaders)
     clone.set('params', unsavedParameters)
     clone.set('body', stripBodyStoredObjectData(unsavedBody))

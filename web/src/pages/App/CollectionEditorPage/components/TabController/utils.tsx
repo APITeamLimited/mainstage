@@ -19,7 +19,7 @@ export const determineNewRestTab = ({
   focusedElement: YMap<any>
   focusedRestResponse: YMap<any> | undefined
   collectionYMap: YMap<any>
-  setObservedNeedsSave: (needsSave: boolean) => void
+  setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
   orderingIndex: number
   tabId: string
 }) => {

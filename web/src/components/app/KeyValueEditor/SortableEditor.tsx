@@ -1,6 +1,12 @@
 import { useRef } from 'react'
 
-import { KeyValueItem, KVVariantTypes } from '@apiteam/types/src'
+import {
+  DefaultKV,
+  FileFieldKV,
+  KeyValueItem,
+  KVVariantTypes,
+  LocalValueKV,
+} from '@apiteam/types/src'
 import HelpIcon from '@mui/icons-material/Help'
 import {
   Box,
@@ -15,6 +21,7 @@ import {
   useTheme,
 } from '@mui/material'
 import update from 'immutability-helper'
+import { v4 as uuid } from 'uuid'
 
 import { useDnDModule } from 'src/contexts/imports'
 
@@ -80,7 +87,7 @@ export const SortableEditor = <T extends KVVariantTypes>({
     let newItem: KeyValueItem<T> | null = null
 
     if (variant === 'filefield') {
-      newItem = {
+      const filefield: KeyValueItem<FileFieldKV> = {
         id: largestOldId + 1,
         keyString: '',
         enabled: true,
@@ -88,23 +95,34 @@ export const SortableEditor = <T extends KVVariantTypes>({
         fileEnabled: false,
         value: '',
       }
+      newItem = filefield as unknown as KeyValueItem<T>
     } else if (variant === 'localvalue') {
-      newItem = {
+      const localValue: KeyValueItem<LocalValueKV> = {
         id: largestOldId + 1,
         keyString: '',
         enabled: true,
         variant: 'localvalue',
         value: '',
-        localValue: '',
+        localValue: {
+          __typename: 'LocalObject',
+          localId: uuid(),
+          data: null,
+        },
       }
-    } else {
-      newItem = {
+
+      newItem = localValue as unknown as KeyValueItem<T>
+    } else if (variant === 'default') {
+      const defaultValue: KeyValueItem<DefaultKV> = {
         id: largestOldId + 1,
         keyString: '',
         enabled: true,
         variant: 'default',
         value: '',
       }
+
+      newItem = defaultValue as unknown as KeyValueItem<T>
+    } else {
+      throw new Error(`Unknown variant ${variant}`)
     }
 
     setItems(

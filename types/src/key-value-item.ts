@@ -45,7 +45,7 @@ export const validateKeyValueItem = <T extends KVVariantTypes>(
 ): {
   item: KeyValueItem<T>
   changed: boolean
-} => {
+} | null => {
   const itemVariant = item?.variant
 
   if (variant === 'filefield') {
@@ -62,7 +62,8 @@ export const validateKeyValueItem = <T extends KVVariantTypes>(
       }
       return { item: newItem as unknown as KeyValueItem<T>, changed: true }
     } else {
-      throw new Error(`Invalid itemVariant: ${itemVariant}`)
+      console.error(`Invalid itemVariant: ${itemVariant}`)
+      return null
     }
   } else if (variant === 'localvalue') {
     if (itemVariant === 'localvalue') {
@@ -82,8 +83,8 @@ export const validateKeyValueItem = <T extends KVVariantTypes>(
       }
       return { item: newItem as unknown as KeyValueItem<T>, changed: true }
     } else {
-      console.log('Item', item)
-      throw new Error(`Invalid itemVariant: ${itemVariant}`)
+      console.error(`Invalid itemVariant: ${itemVariant}`)
+      return null
     }
   } else if (variant === 'default') {
     if (itemVariant === 'default') {
@@ -98,11 +99,13 @@ export const validateKeyValueItem = <T extends KVVariantTypes>(
       }
       return { item: newItem as unknown as KeyValueItem<T>, changed: true }
     } else {
-      throw new Error(`Invalid itemVariant: ${itemVariant}`)
+      console.error(`Invalid itemVariant: ${itemVariant}`)
+      return null
     }
   }
 
-  throw new Error(`Invalid validator variant: ${variant}`)
+  console.error(`Invalid validator variant: ${variant}`)
+  return null
 }
 
 export const kvLegacyImporter = <T extends KVVariantTypes>(
@@ -127,7 +130,10 @@ export const kvLegacyImporter = <T extends KVVariantTypes>(
     let beenFormatted = false
 
     data.forEach((rawItem) => {
-      const { item, changed } = validateKeyValueItem<T>(rawItem, variant)
+      const validateResult = validateKeyValueItem<T>(rawItem, variant)
+      if (!validateResult) return
+
+      const { item, changed } = validateResult
 
       if (changed) {
         beenFormatted = true
@@ -140,8 +146,84 @@ export const kvLegacyImporter = <T extends KVVariantTypes>(
       parentYMap.set(getterKey, validatedData)
     }
 
+    if (variant === 'localvalue') {
+      const workspaceId = parentYMap.doc?.guid
+
+      if (workspaceId === undefined) {
+        throw new Error('WorkspaceId is undefined')
+      }
+
+      return (validatedData as unknown as KeyValueItem<LocalValueKV>[]).map(
+        (item) =>
+          ({
+            ...item,
+            localValue: getLocalObject(item.localValue, workspaceId),
+          } as KeyValueItem<LocalValueKV>)
+      ) as unknown as KeyValueItem<T>[]
+    }
+
     return validatedData
   }
 
   throw new Error(`Invalid data type for ${getterKey}`)
+}
+
+/** Retrieves a local object if it exists */
+export const getLocalObject = <T>(
+  localObject: LocalObject<T>,
+  workspaceId: string
+): LocalObject<T> => {
+  const item = localStorage.getItem(
+    `LocalObject:${workspaceId}-${localObject.localId}`
+  )
+
+  if (
+    item === null ||
+    item === undefined ||
+    item === 'undefined' ||
+    item === 'null'
+  ) {
+    return localObject
+  }
+
+  return {
+    ...localObject,
+    data: JSON.parse(item),
+  }
+}
+
+export const kvExporter = <T extends KVVariantTypes>(
+  items: KeyValueItem<T>[],
+  variant: T['variant'],
+  workspaceId: string
+): KeyValueItem<T>[] => {
+  if (variant === 'localvalue') {
+    return (items as unknown as KeyValueItem<LocalValueKV>[]).map((item) => ({
+      ...item,
+      localValue: setAndCleanLocalObject(item.localValue, workspaceId),
+    })) as unknown as KeyValueItem<T>[]
+  }
+
+  return items
+}
+
+/** Stores an updated LocalObject in localStorage and cleans the data for storage
+in the entity engine */
+export const setAndCleanLocalObject = <T>(
+  localObject: LocalObject<T>,
+  workspaceId: string
+): LocalObject<T> => {
+  if (localObject.data === null) {
+    localStorage.removeItem(`LocalObject:${workspaceId}-${localObject.localId}`)
+  } else {
+    localStorage.setItem(
+      `LocalObject:${workspaceId}-${localObject.localId}`,
+      JSON.stringify(localObject.data)
+    )
+  }
+
+  return {
+    ...localObject,
+    data: null,
+  }
 }

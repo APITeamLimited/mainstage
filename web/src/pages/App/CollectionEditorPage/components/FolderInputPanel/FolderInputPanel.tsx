@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { RESTAuth } from '@apiteam/types/src'
 import FolderIcon from '@mui/icons-material/Folder'
@@ -27,7 +27,7 @@ import { SaveAsDialog } from './SaveAsDialog'
 type FolderInputPanelProps = {
   folderId: string
   collectionYMap: YMap<any>
-  setObservedNeedsSave: (needsSave: boolean) => void
+  setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
 }
 
 export const FolderInputPanel = ({
@@ -38,7 +38,7 @@ export const FolderInputPanel = ({
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
   const folderYMap = foldersYMap.get(folderId)
-  useYMap(folderYMap)
+  const folderHook = useYMap(folderYMap)
 
   const getSetAuth = () => {
     folderYMap.set('auth', {
@@ -65,6 +65,17 @@ export const FolderInputPanel = ({
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  const handleSave = () => {
+    folderYMap.set('description', unsavedDescription)
+    folderYMap.set('auth', unsavedAuth)
+    folderYMap.set('updatedAt', new Date().toISOString())
+    setNeedSave(false)
+    setObservedNeedsSave(false)
+  }
+
+  const saveCallbackRef = useRef<() => void>(handleSave)
+  saveCallbackRef.current = handleSave
+
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
     if (!needSave) {
@@ -75,18 +86,11 @@ export const FolderInputPanel = ({
 
       if (needsSave) {
         setNeedSave(true)
-        setObservedNeedsSave(true)
+        setObservedNeedsSave(true, () => saveCallbackRef.current())
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [needSave, folderYMap, unsavedDescription, unsavedAuth])
-
-  const handleSave = () => {
-    folderYMap.set('description', unsavedDescription)
-    folderYMap.set('auth', unsavedAuth)
-    setNeedSave(false)
-    setObservedNeedsSave(false)
-  }
+  }, [needSave, folderHook, unsavedDescription, unsavedAuth])
 
   const handleSaveAs = (newName: string) => {
     const newId = uuid()

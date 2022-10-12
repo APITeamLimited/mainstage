@@ -303,14 +303,30 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
           {enableEnvironmentVariables ? (
             <EnvironmentTextField
               placeholder="Add Local Value"
-              value={item.localValue}
-              onChange={(localValue) => setItem({ ...item, localValue })}
+              value={item.localValue.data || ''}
+              onChange={(localValue) =>
+                setItem({
+                  ...item,
+                  localValue: {
+                    ...item.localValue,
+                    data: localValue,
+                  },
+                })
+              }
               namespace={`${namespace}_${item.id}_key`}
             />
           ) : (
             <StyledInput
-              value={item.localValue}
-              onChangeValue={(localValue) => setItem({ ...item, localValue })}
+              value={item.localValue.data || ''}
+              onChangeValue={(localValue) =>
+                setItem({
+                  ...item,
+                  localValue: {
+                    ...item.localValue,
+                    data: localValue,
+                  },
+                })
+              }
               readonly={disableKeyEdit}
             />
           )}
