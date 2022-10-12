@@ -2,7 +2,7 @@ import { ValidAdmin } from '../ReactAdmin'
 
 import { UserList } from './UserList'
 import { UserShow } from './UserShow'
-
+/*
 export const USER_ADMIN_GET_LIST_QUERY = gql`
   query AdminUserGetList($page: Int, $perPage: Int) {
     adminUserGetList(page: $page, perPage: $perPage) {
@@ -117,3 +117,4 @@ export const UserAdmin: ValidAdmin = {
     show: UserShow,
   },
 }
+*/

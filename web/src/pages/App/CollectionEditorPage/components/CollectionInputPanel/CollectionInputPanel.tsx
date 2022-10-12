@@ -85,33 +85,35 @@ export const CollectionInputPanel = ({
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
 
+  const [mountTime] = useState(Date.now())
+
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
-    if (!needSave) {
+    if (!needSave && Date.now() - mountTime > 100) {
       const needsSave =
         hash(unsavedDescription) !== hash(collectionYMap.get('description')) ||
-        hash(unsavedAuth) !== hash(collectionYMap.get('auth')) ||
-        hash(
-          kvExporter<LocalValueKV>(
-            unsavedVariables,
-            'localvalue',
-            collectionYMap.doc?.guid as string
-          )
-        ) !== hash(collectionYMap.get('variables'))
+        hash(unsavedAuth) !== hash(collectionYMap.get('auth'))
 
       if (needsSave) {
         setNeedSave(true)
         setObservedNeedsSave(true, () => saveCallbackRef.current())
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, prettier/prettier
   }, [
     needSave,
     collectionHook,
     unsavedDescription,
     unsavedAuth,
-    unsavedVariables,
   ])
+
+  useEffect(() => {
+    if (!needSave && Date.now() - mountTime > 100) {
+      setNeedSave(true)
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unsavedVariables])
 
   return (
     <>

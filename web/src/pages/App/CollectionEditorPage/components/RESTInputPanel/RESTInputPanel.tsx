@@ -167,7 +167,7 @@ export const RESTInputPanel = ({
 
   // Update needSave when any of the unsaved fields change
   useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 100) {
+    if (!needSave && Date.now() - mountTime > 400) {
       const needsSave =
         hash(unsavedEndpoint) !== hash(requestYMap.get('endpoint')) ||
         hash(unsavedHeaders) !== hash(requestYMap.get('headers')) ||
@@ -200,7 +200,7 @@ export const RESTInputPanel = ({
 
   // TODO: Hack for now till script saving fixed, ensures save icon shown at correct time
   useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 100) {
+    if (!needSave && Date.now() - mountTime > 400) {
       setNeedSave(true)
       setObservedNeedsSave(true, () => saveCallbackRef.current())
     }
@@ -292,6 +292,7 @@ export const RESTInputPanel = ({
               maxWidth: '100%',
               height: '2.5rem',
             }}
+            alignItems="center"
           >
             <EndpointBox
               unsavedEndpoint={unsavedEndpoint}

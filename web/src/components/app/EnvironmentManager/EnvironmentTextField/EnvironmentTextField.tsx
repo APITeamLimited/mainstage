@@ -30,6 +30,7 @@ export type EnvironmentTextFieldProps = {
   label?: string
   error?: boolean
   helperText?: string | false
+  innerRightArea?: React.ReactNode
 }
 
 const onError = (error: Error) => {
@@ -101,6 +102,7 @@ export const EnvironmentTextField = ({
   label = '',
   error = false,
   helperText = '',
+  innerRightArea,
 }: EnvironmentTextFieldProps) => {
   const [lexical, setLexical] = useState<LexicalModule | null>(null)
 
@@ -185,18 +187,22 @@ export const EnvironmentTextField = ({
           </span>
         </Typography>
       )}
-      <div
+      <Stack
+        direction="row"
         style={{
           overflow: 'hidden',
           maxWidth: '100%',
           height: '100%',
           borderRadius: theme.shape.borderRadius,
-          paddingLeft: '0.5rem',
-          paddingRight: '0.5rem',
+          paddingLeft: '1rem',
+          paddingRight: '1rem',
           backgroundColor: theme.palette.alternate.dark,
           borderColor: 'transparent',
           ...wrapperStyles,
         }}
+        justifyContent="space-between"
+        alignItems="center"
+        spacing={2}
         onCopy={onCopy}
       >
         {lexical && initialConfig && lexicalAddons && VariableNode ? (
@@ -215,7 +221,8 @@ export const EnvironmentTextField = ({
             />
           </lexicalAddons.LexicalComposer>
         ) : null}
-      </div>
+        {innerRightArea ?? null}
+      </Stack>
       {error && helperText && (
         <Typography
           sx={{

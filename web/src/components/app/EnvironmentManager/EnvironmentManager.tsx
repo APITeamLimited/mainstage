@@ -70,6 +70,7 @@ export const EnvironmentManager = ({
   const [unsavedKeyValues, setUnsavedKeyValues] = useState(
     [] as KeyValueItem<LocalValueKV>[]
   )
+
   const [needSave, setNeedSave] = useState(false)
 
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
@@ -110,8 +111,13 @@ export const EnvironmentManager = ({
     setNeedSave(false)
   }
 
+  const [mountTime, setMountTime] = useState(Date.now())
+
+  // Keep in case of remote updates
   useEffect(() => {
-    setNeedSave(
+    if (needSave || Date.now() - mountTime < 400) return
+
+    const newNeedSave =
       hash(
         kvExporter<LocalValueKV>(
           unsavedKeyValues,
@@ -119,9 +125,31 @@ export const EnvironmentManager = ({
           activeEnvironmentYMap?.doc?.guid as string
         )
       ) !== hash(activeEnvironmentYMap?.get('variables') || [])
-    )
+
+    if (newNeedSave) {
+      setNeedSave(true)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironmentHook, unsavedKeyValues])
+  }, [activeEnvironmentHook])
+
+  useEffect(() => {
+    if (!needSave && Date.now() - mountTime > 400) {
+      setNeedSave(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unsavedKeyValues])
+
+  // Load the variables again when the dialog is opened
+  useEffect(() => {
+    if (show) {
+      setMountTime(Date.now())
+      setNeedSave(false)
+      setUnsavedKeyValues(
+        kvLegacyImporter('variables', activeEnvironmentYMap, 'localvalue')
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show])
 
   const handleEnvironmentCreate = (name: string) => {
     if (!environmentsYMap) throw 'No environmentsYMap'

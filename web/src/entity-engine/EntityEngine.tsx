@@ -13,7 +13,7 @@ import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { IndexeddbPersistence } from 'y-indexeddb'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Doc as YDoc } from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useLocation } from '@redwoodjs/router'

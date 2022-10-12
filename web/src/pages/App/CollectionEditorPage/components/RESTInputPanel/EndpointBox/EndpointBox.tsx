@@ -1,6 +1,8 @@
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager/EnvironmentTextField'
 
-import { RequestMethodButton } from './RequestMethodButton'
+import { RequestMethodButton } from '../RequestMethodButton'
+
+import { IsVerifiedDomainBadge } from './IsVerifiedDomainBadge'
 
 type EndpointBoxProps = {
   unsavedEndpoint: string
@@ -48,6 +50,7 @@ export const EndpointBox = ({
         contentEditableStyles={{
           height: '40px',
         }}
+        innerRightArea={<IsVerifiedDomainBadge endpoint={unsavedEndpoint} />}
       />
     </>
   )

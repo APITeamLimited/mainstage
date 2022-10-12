@@ -103,6 +103,7 @@ export const InnerValues = ({
               overflow: 'hidden',
               whiteSpace: 'nowrap',
               textOverflow: 'hidden',
+              width: '100%',
               maxWidth: '100%',
               ...contentEditableStyles,
             }}

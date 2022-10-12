@@ -9,13 +9,13 @@ import { MetaTags } from '@redwoodjs/web'
 import { CollectionContext } from 'src/contexts/collection'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule } from 'src/contexts/imports'
+import { VerifiedDomainsProvider } from 'src/contexts/verified-domains-provider'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import 'react-reflex/styles.css'
 import { CollectionTree } from './components/CollectionTree'
-import { FocusGuard } from './components/ContextGuard'
 import { TabController } from './components/TabController'
 
 export const viewportHeightReduction = 50
@@ -80,40 +80,41 @@ export const CollectionEditorPage = ({
       >
         <EnvironmentProvider branchYMap={branchYMap}>
           <CollectionContext.Provider value={collectionYMap}>
-            <GlobeTestProvider />
-            <ReflexContainer orientation="vertical">
-              <ReflexElement
-                minSize={200}
-                maxSize={600}
-                size={450}
-                flex={1}
-                style={{
-                  minWidth: '200px',
-                }}
-              >
-                <Paper
-                  sx={{
-                    height: '100%',
-                    width: '100%',
-                    borderRadius: 0,
+            <VerifiedDomainsProvider>
+              <GlobeTestProvider />
+              <ReflexContainer orientation="vertical">
+                <ReflexElement
+                  minSize={200}
+                  maxSize={600}
+                  size={450}
+                  flex={1}
+                  style={{
+                    minWidth: '200px',
                   }}
-                  elevation={10}
                 >
-                  <CollectionTree collectionYMap={collectionYMap} />
-                </Paper>
-              </ReflexElement>
-              <ReflexSplitter
-                style={{
-                  width: 8,
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                }}
-              />
-              <ReflexElement flex={1} minSize={400}>
-                <TabController />
-              </ReflexElement>
-            </ReflexContainer>
-            s
+                  <Paper
+                    sx={{
+                      height: '100%',
+                      width: '100%',
+                      borderRadius: 0,
+                    }}
+                    elevation={10}
+                  >
+                    <CollectionTree collectionYMap={collectionYMap} />
+                  </Paper>
+                </ReflexElement>
+                <ReflexSplitter
+                  style={{
+                    width: 8,
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+                <ReflexElement flex={1} minSize={400}>
+                  <TabController />
+                </ReflexElement>
+              </ReflexContainer>
+            </VerifiedDomainsProvider>
           </CollectionContext.Provider>
         </EnvironmentProvider>
       </div>

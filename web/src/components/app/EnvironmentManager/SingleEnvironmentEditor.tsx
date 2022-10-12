@@ -72,18 +72,33 @@ export const SingleEnvironmentEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  const [mountTime, setMountTime] = useState(Date.now())
+
+  // Keep in case of remote updates
   useEffect(() => {
-    setNeedSave(
+    if (needSave || Date.now() - mountTime < 400) return
+
+    const newNeedSave =
       hash(
         kvExporter<LocalValueKV>(
           unsavedKeyValues,
           'localvalue',
-          environmentYMap.doc?.guid as string
+          environmentYMap?.doc?.guid as string
         )
       ) !== hash(environmentYMap?.get('variables') || [])
-    )
+
+    if (newNeedSave) {
+      setNeedSave(true)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environmentHook, unsavedKeyValues])
+  }, [environmentHook])
+
+  useEffect(() => {
+    if (!needSave && Date.now() - mountTime > 400) {
+      setNeedSave(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unsavedKeyValues])
 
   const handleEnvironmentSave = (
     newKeyValues: KeyValueItem<LocalValueKV>[]
@@ -122,6 +137,8 @@ export const SingleEnvironmentEditor = ({
   // Load the variables again when the dialog is opened
   useEffect(() => {
     if (show) {
+      setMountTime(Date.now())
+      setNeedSave(false)
       setUnsavedKeyValues(
         kvLegacyImporter('variables', environmentYMap, 'localvalue')
       )

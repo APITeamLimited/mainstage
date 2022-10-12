@@ -9,7 +9,6 @@ import { IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { useYJSModule } from 'src/contexts/imports'
 import {
   focusedElementVar,
   getFocusedElementKey,
@@ -63,6 +62,12 @@ export const RightAside = ({
   useEffect(() => {
     const focusedTypename = focusedElement?.get('__typename')
 
+    if (focusedTypename === undefined) {
+      setActiveRightAside(null)
+      setShowRightAside(false)
+      return
+    }
+
     if (
       focusedTypename !== 'Collection' &&
       focusedTypename !== 'Folder' &&
@@ -71,12 +76,21 @@ export const RightAside = ({
       setActiveRightAside(null)
       setShowRightAside(false)
     }
+
+    if (
+      (focusedTypename === 'Collection' || focusedTypename === 'Folder') &&
+      (activeRightAside === 'code' || activeRightAside === 'restHistory')
+    ) {
+      if (showRightAside) {
+        setActiveRightAside(null)
+        setShowRightAside(false)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, prettier/prettier
   }, [
     activeRightAside,
     collectionHook,
     focusedElement,
-    setActiveRightAside,
-    setShowRightAside,
   ])
 
   const handleCloseAside = () => {

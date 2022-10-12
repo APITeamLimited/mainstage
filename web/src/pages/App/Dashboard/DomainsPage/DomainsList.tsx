@@ -1,21 +1,11 @@
 import { useMemo, useState } from 'react'
 
-import {
-  Card,
-  Stack,
-  Typography,
-  Divider,
-  Snackbar,
-  Alert,
-  Button,
-} from '@mui/material'
+import { Snackbar, Alert } from '@mui/material'
 import { VerifiedDomains } from 'types/graphql'
 
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { DomainCollapsibleRow } from './DomainCollapsibleRow'
-
-import { VERIFIED_DOMAINS_CARD_HEIGHT } from '.'
 
 type DomainsListProps = {
   verifiedDomains: VerifiedDomains['verifiedDomains']

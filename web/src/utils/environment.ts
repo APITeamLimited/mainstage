@@ -55,7 +55,7 @@ export const findEnvironmentVariables = (
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext'],
   target: string
-) => {
+): string => {
   // Find substrings that start and end with curly braces and get their index
   const matches = getPossibleVariableMatch(target)
 
