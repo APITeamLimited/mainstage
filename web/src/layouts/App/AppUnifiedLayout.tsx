@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { useReactiveVar } from '@apollo/client'
 import { Container } from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'
@@ -15,6 +16,7 @@ import {
   SimplebarReactModuleProvider,
 } from 'src/contexts/imports'
 import { YJSModuleProvider } from 'src/contexts/imports'
+import { entityEngineStatusVar } from 'src/entity-engine/EntityEngine'
 
 import {
   FooterSplash,
@@ -22,6 +24,7 @@ import {
 } from '../Landing/components/FooterSplash'
 
 import { AppLayoutBase } from './AppLayoutBase'
+import { LoadingScreen } from './components/LoadingScreen'
 import { TopBarDashboard } from './components/TopBarDashboard'
 import { TopNavApp } from './components/TopNavApp'
 
@@ -34,17 +37,38 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
 
   const [onDashboard, setOnDashboard] = useState(false)
 
+  const [loadedImports, setLoadedImports] = useState(false)
+  const entityEngineStatus = useReactiveVar(entityEngineStatusVar)
+
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loaded = loadedImports && entityEngineStatus === 'connected'
+
+    if (loaded) {
+      setInterval(() => {
+        setIsLoading(false)
+      }, 1000)
+    }
+  }, [loadedImports, entityEngineStatus])
+
   // Pre-load dynamic imports
   useEffect(() => {
-    getLexicalModule()
-    getLexicalAddons()
-    import('mime-types')
-    import('prettier/standalone')
-    import('prettier/parser-babel')
-    import('httpsnippet')
-    import('react-apexcharts')
-    import('hash-sum')
-    import('simplebar-react')
+    const load = async () => {
+      await Promise.all([
+        getLexicalModule(),
+        getLexicalAddons(),
+        import('mime-types'),
+        import('prettier/standalone'),
+        import('prettier/parser-babel'),
+        import('httpsnippet'),
+        import('react-apexcharts'),
+        import('hash-sum'),
+        import('simplebar-react'),
+      ])
+      setLoadedImports(true)
+    }
+    load()
   }, [])
 
   useEffect(() => {
@@ -60,43 +84,45 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   }, [onDashboard, pathname])
 
   return (
-    <Lib0ModuleProvider>
-      <HashSumModuleProvider>
-        <SimplebarReactModuleProvider>
-          <YJSModuleProvider>
-            <DnDModuleProvider>
-              <AppLayoutBase
-                topNav={<TopNavApp />}
-                appBar={onDashboard ? <TopBarDashboard /> : undefined}
-                footer={
-                  onDashboard
-                    ? {
-                        element: <FooterSplash />,
-                        height: {
-                          xs: FOOTER_SPASH_HEIGHT.xs,
-                          md: FOOTER_SPASH_HEIGHT.md,
-                        },
-                      }
-                    : undefined
-                }
-              >
-                {onDashboard ? (
-                  <Container
-                    sx={{
-                      paddingY: 6,
-                      minHeight: '94vh',
-                    }}
-                  >
-                    {children}
-                  </Container>
-                ) : (
-                  children
-                )}
-              </AppLayoutBase>
-            </DnDModuleProvider>
-          </YJSModuleProvider>
-        </SimplebarReactModuleProvider>
-      </HashSumModuleProvider>
-    </Lib0ModuleProvider>
+    <LoadingScreen show={isLoading}>
+      <Lib0ModuleProvider>
+        <HashSumModuleProvider>
+          <SimplebarReactModuleProvider>
+            <YJSModuleProvider>
+              <DnDModuleProvider>
+                <AppLayoutBase
+                  topNav={<TopNavApp />}
+                  appBar={onDashboard ? <TopBarDashboard /> : undefined}
+                  footer={
+                    onDashboard
+                      ? {
+                          element: <FooterSplash />,
+                          height: {
+                            xs: FOOTER_SPASH_HEIGHT.xs,
+                            md: FOOTER_SPASH_HEIGHT.md,
+                          },
+                        }
+                      : undefined
+                  }
+                >
+                  {onDashboard ? (
+                    <Container
+                      sx={{
+                        paddingY: 6,
+                        minHeight: '94vh',
+                      }}
+                    >
+                      {children}
+                    </Container>
+                  ) : (
+                    children
+                  )}
+                </AppLayoutBase>
+              </DnDModuleProvider>
+            </YJSModuleProvider>
+          </SimplebarReactModuleProvider>
+        </HashSumModuleProvider>
+      </Lib0ModuleProvider>
+    </LoadingScreen>
   )
 }

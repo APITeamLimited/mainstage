@@ -59,7 +59,6 @@ export const CustomTabs = ({
                 marginRight: index === names.length - 1 ? 0 : 2,
                 color:
                   value === index ? undefined : theme.palette.text.secondary,
-                textTransform: 'none',
                 padding: '0.5rem',
               }}
               onClick={() => onChange(index)}

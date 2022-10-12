@@ -11,6 +11,7 @@ import {
 import { ServerAwareness, Workspace } from '@apiteam/types/src'
 import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
+import { makeVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import { IndexeddbPersistence } from 'y-indexeddb'
 import type { Doc as YDoc } from 'yjs'
@@ -63,6 +64,8 @@ function useStateCallback<T>(
 
   return [state, setStateCallback]
 }
+
+export const entityEngineStatusVar = makeVar<PossibleSyncStatus>('disabled')
 
 const DocContext = createContext<YDoc | null>(null)
 export const useWorkspace = () => useContext(DocContext)
@@ -153,6 +156,10 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   const { pathname } = useLocation()
   const [inApp, setInApp] = useState(pathname.startsWith('/app/'))
+
+  useEffect(() => {
+    entityEngineStatusVar(socketioSyncStatus)
+  }, [socketioSyncStatus])
 
   useEffect(() => {
     // Check if pathname starts with '/app/'

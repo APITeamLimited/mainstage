@@ -7,8 +7,8 @@ import { useQuery } from '@redwoodjs/web'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 const AppVerifiedDomainsContext = createContext<
-  AppVerifiedDomains['verifiedDomains'] | null
->(null)
+  AppVerifiedDomains['verifiedDomains']
+>([])
 export const useVerifiedDomains = () => useContext(AppVerifiedDomainsContext)
 
 const APP_VERIFIED_DOMAINS_QUERY = gql`
@@ -45,7 +45,10 @@ export const VerifiedDomainsProvider = ({
   })
 
   const verifiedDomains = useMemo(
-    () => verifiedDomainsData?.verifiedDomains ?? [],
+    () =>
+      (verifiedDomainsData?.verifiedDomains ?? []).filter(
+        (domain) => domain.verified
+      ),
     [verifiedDomainsData]
   )
 

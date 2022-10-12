@@ -41,6 +41,7 @@
     "draft-js": "^0.11.7",
     "draft-js-plugins-editor": "^3.0.0",
     "draft-js-single-line-plugin": "^2.0.5",
+    "extract-domain": "^2.4.8",
     "form-data": "^4.0.0",
     "formik": "^2.2.9",
     "hash-sum": "^2.0.0",
@@ -83,6 +84,7 @@
     "react-lazy-load-image-component": "^1.5.5",
     "react-monaco-editor": "^0.50.1",
     "react-reflex": "^4.0.9",
+    "react-text-transition": "^3.0.2",
     "react-typed": "^1.2.0",
     "sass-loader": "^13.0.2",
     "simplebar-react": "^2.4.3",
@@ -102,6 +104,7 @@
   "devDependencies": {
     "@types/dotenv-webpack": "^7.0.3",
     "@types/draft-js": "^0.11.9",
+    "@types/extract-domain": "^2.3.1",
     "@types/hash-sum": "^1.0.0",
     "@types/httpsnippet": "^1.23.1",
     "@types/k6": "^0.37.1",

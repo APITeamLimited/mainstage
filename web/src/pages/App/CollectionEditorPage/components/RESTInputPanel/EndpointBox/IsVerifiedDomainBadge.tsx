@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import CancelIcon from '@mui/icons-material/Cancel'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { Box, CircularProgress, Tooltip, useTheme } from '@mui/material'
+import extractDomain from 'extract-domain'
 
 import { useCollection } from 'src/contexts/collection'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
@@ -16,8 +17,6 @@ type IsVerifiedDomainBadge = {
   endpoint: string
 }
 
-const spinnerTimeoutMs = 0
-
 export const IsVerifiedDomainBadge = ({ endpoint }: IsVerifiedDomainBadge) => {
   const theme = useTheme()
 
@@ -25,12 +24,9 @@ export const IsVerifiedDomainBadge = ({ endpoint }: IsVerifiedDomainBadge) => {
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
 
   const verifiedDomains = useVerifiedDomains()
-
-  const [lastUpdatedTime, setLastUpdatedTime] = useState<number>(0)
-
   const [isVerified, setIsVerified] = useState<'yes' | 'no' | 'loading'>('no')
 
-  const handleUpdate = () => {
+  useEffect(() => {
     const collectionContext = collectionYMap
       ? createEnvironmentContext(
           collectionYMap,
@@ -45,43 +41,37 @@ export const IsVerifiedDomainBadge = ({ endpoint }: IsVerifiedDomainBadge) => {
         )
       : null
 
-    const evironmnetAwareEndpoint = findEnvironmentVariables(
+    let environmentAwareEndpoint = findEnvironmentVariables(
       environmentContext,
       collectionContext,
       endpoint
     )
 
-    try {
-      const url = new URL(evironmnetAwareEndpoint)
+    // Check if starts with http:// or https://
+    if (
+      !environmentAwareEndpoint.startsWith('http://') &&
+      !environmentAwareEndpoint.startsWith('https://')
+    ) {
+      environmentAwareEndpoint = `https://${environmentAwareEndpoint}`
+    }
 
-      const verifiedDomain = verifiedDomains?.find(
-        (domain) => domain.domain === url.hostname
+    try {
+      const url = new URL(environmentAwareEndpoint)
+      const extractedDomain = extractDomain(url.hostname)
+
+      const verifiedSubdomain = verifiedDomains.find(
+        (verifiedDomain) => verifiedDomain.domain === extractedDomain
       )
 
-      setIsVerified(verifiedDomain?.verified ? 'yes' : 'no')
+      if (verifiedSubdomain) {
+        setIsVerified('yes')
+        return
+      }
+      setIsVerified('no')
     } catch (error) {
       setIsVerified('no')
     }
 
-    setLastUpdatedTime(Date.now())
-  }
-
-  const handleUpdateRef = useRef(handleUpdate)
-
-  useEffect(() => {
-    // Only run update at a maximum every spinnerTimeoutMs seconds
-    const timeNow = Date.now()
-
-    if (timeNow - lastUpdatedTime < spinnerTimeoutMs) {
-      // Set timeout to run update again
-      const waitTime = spinnerTimeoutMs - (timeNow - lastUpdatedTime)
-
-      setIsVerified('loading')
-      setTimeout(() => handleUpdateRef.current(), waitTime)
-    } else {
-      // Run update
-      handleUpdateRef.current()
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endpoint, verifiedDomains])
 
@@ -97,11 +87,11 @@ export const IsVerifiedDomainBadge = ({ endpoint }: IsVerifiedDomainBadge) => {
       }}
     >
       {isVerified === 'yes' ? (
-        <Tooltip title="Verified domain - load test limits will be increased">
+        <Tooltip title="Verified domain - load testing limits will be increased">
           <CheckCircleIcon sx={{ color: theme.palette.success.main }} />
         </Tooltip>
       ) : isVerified === 'no' ? (
-        <Tooltip title="Unverified domain - load test limits will be applied">
+        <Tooltip title="Unverified domain - load testing limits will be applied">
           <CancelIcon sx={{ color: theme.palette.error.main }} />
         </Tooltip>
       ) : (

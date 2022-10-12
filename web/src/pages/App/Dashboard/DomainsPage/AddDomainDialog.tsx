@@ -227,9 +227,11 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
             </Stepper>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>
-              {activeStep === 0 ? 'Cancel' : "I'll do this later"}
-            </Button>
+            {activeStep <= 1 && (
+              <Button onClick={handleClose}>
+                {activeStep === 0 ? 'Cancel' : "I'll do this later"}
+              </Button>
+            )}
             {activeStep === 0 && (
               <Button
                 variant="contained"
