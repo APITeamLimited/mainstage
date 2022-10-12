@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
@@ -16,7 +16,7 @@ import {
 } from '@mui/material'
 
 import { useAuth } from '@redwoodjs/auth'
-import { navigate, routes } from '@redwoodjs/router'
+import { navigate, routes, useLocation } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceSwitcher/CreateTeamDialog'
@@ -30,16 +30,29 @@ interface AccountPopoverProps {
   currentUser: CurrentUser | null
 }
 
-export const DropdownPopover = (props: AccountPopoverProps) => {
-  const { anchorEl, onClose, open, currentUser } = props
+export const DropdownPopover = ({
+  anchorEl,
+  onClose,
+  open,
+  currentUser,
+}: AccountPopoverProps) => {
   const { logOut } = useAuth()
+  const { pathname } = useLocation()
   const workspaces = useReactiveVar(workspacesVar)
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const theme = useTheme()
 
-  const fullName = currentUser
-    ? `${props.currentUser?.firstName} ${props.currentUser?.lastName}`
-    : 'Anonymous'
+  const inApp = useMemo(() => {
+    return pathname.includes('/app')
+  }, [pathname])
+
+  const fullName = useMemo(
+    () =>
+      currentUser
+        ? `${currentUser?.firstName} ${currentUser?.lastName}`
+        : 'Anonymous',
+    [currentUser]
+  )
 
   const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false)
 
@@ -143,25 +156,29 @@ export const DropdownPopover = (props: AccountPopoverProps) => {
               <>
                 <MenuItem onClick={handleNavigateDashboard}>Dashboard</MenuItem>
                 <Divider />
-                <MenuItem onClick={() => setOpenCreateTeamDialog(true)}>
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{
-                      overflow: 'hidden',
-                      width: '100%',
-                    }}
-                    justifyContent="space-between"
-                    alignItems="center"
-                  >
-                    <Typography>New Team</Typography>
-                    <AddIcon fontSize="small" />
-                  </Stack>
-                </MenuItem>
-                <MenuItem onClick={handleNavigatePersonalSettings}>
-                  Personal Settings
-                </MenuItem>
-                <Divider />
+                {inApp && (
+                  <>
+                    <MenuItem onClick={() => setOpenCreateTeamDialog(true)}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{
+                          overflow: 'hidden',
+                          width: '100%',
+                        }}
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Typography>New Team</Typography>
+                        <AddIcon fontSize="small" />
+                      </Stack>
+                    </MenuItem>
+                    <MenuItem onClick={handleNavigatePersonalSettings}>
+                      Personal Settings
+                    </MenuItem>
+                    <Divider />
+                  </>
+                )}
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </>
             ) : (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { RESTRequest } from '@apiteam/types'
+import { RESTRequest } from '@apiteam/types/src'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { useYMap } from 'src/lib/zustand-yjs'
 

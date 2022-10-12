@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { RESTRequest } from '@apiteam/types'
+import { RESTRequest } from '@apiteam/types/src'
 import { Alert, Stack } from '@mui/material'
 
 import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'

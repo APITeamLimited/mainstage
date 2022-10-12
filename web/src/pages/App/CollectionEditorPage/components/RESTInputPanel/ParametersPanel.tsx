@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types'
+import { DefaultKV, KeyValueItem } from '@apiteam/types/src'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
@@ -8,10 +8,10 @@ import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 
 type ParametersPanelProps = {
   namespace: string
-  queryParameters: KeyValueItem[]
-  pathVariables: KeyValueItem[]
-  setQueryParameters: (newItems: KeyValueItem[]) => void
-  setPathVariables: (newItems: KeyValueItem[]) => void
+  queryParameters: KeyValueItem<DefaultKV>[]
+  pathVariables: KeyValueItem<DefaultKV>[]
+  setQueryParameters: (newItems: KeyValueItem<DefaultKV>[]) => void
+  setPathVariables: (newItems: KeyValueItem<DefaultKV>[]) => void
   setActionArea?: (actionArea: React.ReactNode) => void
 }
 
@@ -74,11 +74,12 @@ export const ParametersPanel = ({
               {queryParametersActionArea}
             </Box>
           </Stack>
-          <KeyValueEditor
+          <KeyValueEditor<DefaultKV>
             items={queryParameters}
             setItems={setQueryParameters}
             namespace={`${namespace}:query-parameters`}
             setActionArea={setQueryParametersActionArea}
+            variant="default"
           />
         </Stack>
       </ReflexElement>
@@ -125,7 +126,7 @@ export const ParametersPanel = ({
             </Box>
           </Stack>
           {pathVariables.length > 0 ? (
-            <KeyValueEditor
+            <KeyValueEditor<DefaultKV>
               items={pathVariables}
               setItems={setPathVariables}
               namespace={`${namespace}:path-variables`}
@@ -135,6 +136,7 @@ export const ParametersPanel = ({
               disableKeyEdit
               disableCheckboxes
               disableBulkEdit
+              variant="default"
             />
           ) : (
             <Typography

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
-import { RESTAuth } from '@apiteam/types'
+import { kvLegacyImporter, LocalValueKV, RESTAuth } from '@apiteam/types/src'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import {
   ListItem,
@@ -44,11 +44,6 @@ export const CollectionInputPanel = ({
     return collectionYMap.get('description')
   }
 
-  const getSetVariables = () => {
-    collectionYMap.set('variables', [])
-    return collectionYMap.get('variables')
-  }
-
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
     collectionYMap.get('description') ?? getSetDescription()
   )
@@ -56,7 +51,7 @@ export const CollectionInputPanel = ({
     collectionYMap.get('auth') ?? getSetAuth()
   )
   const [unsavedVariables, setUnsavedVariables] = useState(
-    collectionYMap.get('variables') ?? getSetVariables()
+    kvLegacyImporter('variables', collectionYMap, 'localvalue')
   )
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -147,12 +142,14 @@ export const CollectionInputPanel = ({
         }
       >
         {activeTabIndex === 0 && (
-          <KeyValueEditor
+          <KeyValueEditor<LocalValueKV>
             items={unsavedVariables}
             setItems={setUnsavedVariables}
             namespace={`${collectionYMap.get('id')}}-variables`}
             setActionArea={setActionArea}
             enableEnvironmentVariables={false}
+            variant="localvalue"
+            disableBulkEdit
           />
         )}
         {activeTabIndex === 1 && (

@@ -1,4 +1,4 @@
-import { ROUTES } from '@apiteam/types/dist/routes'
+import { ROUTES } from '@apiteam/types/src/routes'
 
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 

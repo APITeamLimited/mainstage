@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { KeyValueItem } from '@apiteam/types'
+import { KeyValueItem } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
 export const generatePathVariables = ({

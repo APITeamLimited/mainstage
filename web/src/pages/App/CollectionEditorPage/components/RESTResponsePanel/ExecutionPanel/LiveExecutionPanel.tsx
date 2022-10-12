@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage } from '@apiteam/types/src'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'

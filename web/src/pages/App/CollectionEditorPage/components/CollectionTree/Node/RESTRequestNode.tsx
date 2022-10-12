@@ -1,15 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import {
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-  useTheme,
-} from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import { ListItemIcon, useTheme } from '@mui/material'
+import type { Map as YMap } from 'yjs'
 
 import { RequestListItem } from 'src/components/app/utils/RequestListItem'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
@@ -20,6 +14,7 @@ import {
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
+import { useYMap } from 'src/lib/zustand-yjs'
 import { findEnvironmentVariables } from 'src/utils/environment'
 
 import { NodeActionButton } from './NodeActionButton'

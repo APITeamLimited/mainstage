@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { ResolvedVariable } from '@apiteam/types'
+import { ResolvedVariable } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
 

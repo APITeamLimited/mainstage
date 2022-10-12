@@ -1,5 +1,6 @@
-import { useRef, memo } from 'react'
+import { useRef } from 'react'
 
+import { FileFieldKV, KeyValueItem, KVVariantTypes } from '@apiteam/types/src'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import {
@@ -16,148 +17,180 @@ import {
 
 import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
 import { useDnDModule } from 'src/contexts/imports'
-import type { Identifier, XYCoord } from 'src/lib/dnd/dnd-core'
+import type { XYCoord } from 'src/lib/dnd/dnd-core'
 
 import { StyledInput } from '../StyledInput'
-import { StoredDropzone, StoredFileType } from '../utils/FileDropzone'
+import { StoredDropzone } from '../utils/FileDropzone'
 
 interface DragRow {
   index: number
-  id: string
+  id: number
   type: 'DraggableType'
 }
 
-type DraggableTableRowProps = {
-  id: number
+type DraggableTableRowProps<T extends KVVariantTypes> = {
   index: number
-  keyString: string
-  value: string
-  enabled: boolean
-  isFile?: boolean
-  fileField?: StoredFileType | null
-  onIsFileChange?: (isFile: boolean, index: number) => void
-  onKeyStringChange?: (keyString: string, id: number) => void
-  onValueChange?: (value: string, id: number) => void
-  onEnabledChange?: (enabled: boolean, id: number) => void
-  onMove: (dragIndex: number, hoverIndex: number) => void
-  onDelete?: (id: number) => void
-  onStoredFileChange?: (fileField: StoredFileType | null, index: number) => void
+  item: KeyValueItem<T>
   namespace: string
   enableEnvironmentVariables?: boolean
   disableDelete?: boolean
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
-  enableFileFields?: boolean
+  variant: T['variant']
+  onMove: (dragIndex: number, hoverIndex: number) => void
+  setItem: (newItem: KeyValueItem<T>) => void
+  onDelete: () => void
 }
 
-export const DraggableTableRow = memo(
-  ({
-    id,
-    index,
-    keyString,
-    value,
-    enabled,
-    isFile,
-    onKeyStringChange,
-    onValueChange,
-    onEnabledChange,
-    onMove,
-    onDelete,
-    onIsFileChange,
-    onStoredFileChange,
-    namespace,
-    enableEnvironmentVariables = true,
-    disableDelete,
-    disableKeyEdit,
-    disableCheckboxes,
-    enableFileFields,
-    fileField,
-  }: DraggableTableRowProps) => {
-    const { useDrag, useDrop } = useDnDModule()
+export const DraggableTableRow = <T extends KVVariantTypes>({
+  index,
+  item,
+  namespace,
+  enableEnvironmentVariables = true,
+  disableDelete,
+  disableKeyEdit,
+  disableCheckboxes,
+  variant,
+  setItem,
+  onMove,
+  onDelete,
+}: DraggableTableRowProps<T>) => {
+  const { useDrag, useDrop } = useDnDModule()
 
-    const theme = useTheme()
-    const ref = useRef<HTMLDivElement>(null)
-    const [{ handlerId }, drop] = useDrop<
-      DragRow,
-      void,
-      { handlerId: Identifier | null }
-    >({
-      accept: 'DraggableType',
-      collect(monitor) {
-        return {
-          handlerId: monitor.getHandlerId(),
-        }
-      },
-      hover(item: DragRow, monitor) {
-        if (!ref.current) {
-          return
-        }
-        const dragIndex = item.index
-        const hoverIndex = index
+  const theme = useTheme()
+  const ref = useRef(null)
 
-        // Don't replace items with themselves
-        if (dragIndex === hoverIndex) {
-          return
-        }
+  const [, drop] = useDrop<DragRow>({
+    accept: 'DraggableType',
+    hover(item: DragRow, monitor) {
+      if (!ref.current) {
+        return
+      }
+      const dragIndex = item.index
+      const hoverIndex = index
 
-        // Determine rectangle on screen
-        const hoverBoundingRect = ref.current?.getBoundingClientRect()
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return
+      }
 
-        // Get vertical middle
-        const hoverMiddleY =
-          (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+      // Determine rectangle on screen
+      const hoverBoundingRect = (
+        ref.current as HTMLDivElement
+      ).getBoundingClientRect()
 
-        // Determine mouse position
-        const clientOffset = monitor.getClientOffset()
+      // Get vertical middle
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
 
-        // Get pixels to the top
-        const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset()
 
-        // Only perform the move when the mouse has crossed half of the items height
-        // When dragging downwards, only move when the cursor is below 50%
-        // When dragging upwards, only move wheborder the cursor is above 50%
+      // Get pixels to the top
+      const hoverClientY = (clientOffset as XYCoord).y - hoverBoundingRect.top
 
-        // Dragging downwards
-        if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-          return
-        }
+      // Only perform the move when the mouse has crossed half of the items height
+      // When dragging downwards, only move when the cursor is below 50%
+      // When dragging upwards, only move wheborder the cursor is above 50%
 
-        // Dragging upwards
-        if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-          return
-        }
+      // Dragging downwards
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return
+      }
 
-        // Time to actually perform the action
-        onMove(dragIndex, hoverIndex)
+      // Dragging upwards
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return
+      }
 
-        // Note: we're mutating the monitor item here!
-        // Generally it's better to avoid mutations,
-        // but it's good here for the sake of performance
-        // to avoid expensive index searches.
-        item.index = hoverIndex
-      },
-    })
+      // Time to actually perform the action
+      onMove(dragIndex, hoverIndex)
 
-    const [{ isDragging }, drag] = useDrag({
+      // Note: we're mutating the monitor item here!
+      // Generally it's better to avoid mutations,
+      // but it's good here for the sake of performance
+      // to avoid expensive index searches.
+      item.index = hoverIndex
+    },
+  })
+
+  const [{ isBeingDragged }, drag] = useDrag<
+    DragRow,
+    unknown,
+    {
+      isBeingDragged: boolean
+    }
+  >({
+    type: 'DraggableType',
+    item: {
+      index,
+      id: item.id,
       type: 'DraggableType',
-      item: () => {
-        return { id, index }
-      },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
-    })
+    },
+    collect: (monitor) => ({
+      isBeingDragged: monitor.isDragging(),
+    }),
+  })
 
-    drag(drop(ref))
+  const handleIsFileChange = (fileEnabled: boolean) => {
+    if (variant !== 'filefield') {
+      throw new Error('Cannot change fileEnabled on non-filefield variant')
+    }
 
-    return (
-      <TableRow
-        style={{
-          zIndex: isDragging ? 1 : 0,
-          opacity: isDragging ? 0.5 : 1,
+    let newItem: KeyValueItem<FileFieldKV> | null = null
+
+    if (fileEnabled) {
+      newItem = {
+        id: item.id,
+        keyString: item.keyString,
+        enabled: item.enabled,
+        variant: 'filefield',
+        fileEnabled: true,
+        fileField: null,
+      }
+    } else {
+      newItem = {
+        id: item.id,
+        keyString: item.keyString,
+        enabled: item.enabled,
+        variant: 'filefield',
+        fileEnabled: false,
+        value: '',
+      }
+    }
+
+    // Already asserted variant is filefield so cast
+    setItem(newItem as unknown as KeyValueItem<T>)
+  }
+
+  drag(drop(ref))
+
+  return (
+    <TableRow
+      style={{
+        opacity: isBeingDragged ? 0 : 1,
+      }}
+      ref={ref}
+    >
+      <TableCell
+        sx={{
+          padding: 0,
+          whiteSpace: 'nowrap',
+          width: 0,
+          borderColor: theme.palette.divider,
         }}
-        ref={drag}
       >
+        <div
+          style={{
+            userSelect: 'auto',
+          }}
+        >
+          <IconButton>
+            <DragHandleIcon />
+          </IconButton>
+        </div>
+      </TableCell>
+      {!disableCheckboxes && (
         <TableCell
           sx={{
             padding: 0,
@@ -166,57 +199,100 @@ export const DraggableTableRow = memo(
             borderColor: theme.palette.divider,
           }}
         >
-          <div ref={ref} data-handler-id={handlerId}>
-            <IconButton>
-              <DragHandleIcon />
-            </IconButton>
-          </div>
+          <Checkbox
+            checked={item.enabled}
+            onChange={(_, value) => setItem({ ...item, enabled: value })}
+          />
         </TableCell>
-        {!disableCheckboxes && (
-          <TableCell
+      )}
+      {item.variant === 'filefield' && (
+        <TableCell
+          sx={{
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: 0,
+            borderColor: theme.palette.divider,
+          }}
+        >
+          <TextField
+            value={item.fileEnabled ? 'File' : 'Text'}
+            select
+            size="small"
+            onChange={() => handleIsFileChange(!item.fileEnabled)}
             sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: 0,
-              borderColor: theme.palette.divider,
+              maxWidth: 80,
+              width: 80,
+              // Disable select padding
+              '& .MuiSelect-select': {
+                padding: '4px',
+                position: 'relative',
+                right: '-4px',
+              },
             }}
           >
-            <Checkbox
-              checked={enabled}
-              onChange={(_, value) => onEnabledChange?.(value, index)}
+            <MenuItem value="Text">Text</MenuItem>
+            <MenuItem value="File">File</MenuItem>
+          </TextField>
+        </TableCell>
+      )}
+      <TableCell
+        sx={{
+          maxWidth: '200px',
+          minWidth: '200px',
+          borderColor: theme.palette.divider,
+        }}
+      >
+        {enableEnvironmentVariables && !disableKeyEdit ? (
+          <EnvironmentTextField
+            placeholder="Add Key"
+            value={item.keyString}
+            onChange={(value) => setItem({ ...item, keyString: value })}
+            namespace={`${namespace}_${item.id}_key`}
+          />
+        ) : (
+          <StyledInput
+            value={item.keyString}
+            onChangeValue={(value) => setItem({ ...item, keyString: value })}
+            readonly={disableKeyEdit}
+          />
+        )}
+      </TableCell>
+      <TableCell
+        sx={{
+          maxWidth: '200px',
+          minWidth: '200px',
+          borderColor: theme.palette.divider,
+        }}
+      >
+        {item.variant === 'filefield' && item.fileEnabled ? (
+          <Box
+            sx={{
+              height: '2rem',
+            }}
+          >
+            <StoredDropzone
+              file={item.fileField}
+              setFile={(file) => setItem({ ...item, fileField: file })}
+              onDelete={() => setItem({ ...item, fileField: null })}
+              primaryText="Drag or click to upload"
+              isSmall
             />
-          </TableCell>
+          </Box>
+        ) : enableEnvironmentVariables ? (
+          <EnvironmentTextField
+            placeholder="Add Value"
+            value={item.value}
+            onChange={(value) => setItem({ ...item, value })}
+            namespace={`${namespace}_${item.id}_value`}
+          />
+        ) : (
+          <StyledInput
+            value={item.value}
+            onChangeValue={(value) => setItem({ ...item, value })}
+          />
         )}
-        {enableFileFields && (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: 0,
-              borderColor: theme.palette.divider,
-            }}
-          >
-            <TextField
-              value={isFile ? 'File' : 'Text'}
-              select
-              size="small"
-              onChange={() => onIsFileChange?.(!isFile, index)}
-              sx={{
-                maxWidth: 80,
-                width: 80,
-                // Disable select padding
-                '& .MuiSelect-select': {
-                  padding: '4px',
-                  position: 'relative',
-                  right: '-4px',
-                },
-              }}
-            >
-              <MenuItem value="Text">Text</MenuItem>
-              <MenuItem value="File">File</MenuItem>
-            </TextField>
-          </TableCell>
-        )}
+      </TableCell>
+      {variant === 'localvalue' && item.variant === 'localvalue' && (
         <TableCell
           sx={{
             maxWidth: '200px',
@@ -224,73 +300,38 @@ export const DraggableTableRow = memo(
             borderColor: theme.palette.divider,
           }}
         >
-          {enableEnvironmentVariables && !disableKeyEdit ? (
+          {enableEnvironmentVariables ? (
             <EnvironmentTextField
-              placeholder="Add Key"
-              value={keyString}
-              onChange={(value) => onKeyStringChange?.(value, index)}
-              namespace={`${namespace}_${id}_key`}
+              placeholder="Add Local Value"
+              value={item.localValue}
+              onChange={(localValue) => setItem({ ...item, localValue })}
+              namespace={`${namespace}_${item.id}_key`}
             />
           ) : (
             <StyledInput
-              value={keyString}
-              onChangeValue={(value) => onKeyStringChange?.(value, index)}
+              value={item.localValue}
+              onChangeValue={(localValue) => setItem({ ...item, localValue })}
               readonly={disableKeyEdit}
             />
           )}
         </TableCell>
+      )}
+      {!disableDelete && (
         <TableCell
           sx={{
-            maxWidth: '200px',
-            minWidth: '200px',
+            padding: 0,
+            whiteSpace: 'nowrap',
+            width: 0,
             borderColor: theme.palette.divider,
           }}
         >
-          {isFile && fileField !== undefined ? (
-            <Box
-              sx={{
-                height: '2rem',
-              }}
-            >
-              <StoredDropzone
-                file={fileField}
-                setFile={(file) => onStoredFileChange?.(file, index)}
-                onDelete={() => onStoredFileChange?.(null, index)}
-                primaryText="Drag or click to upload"
-                isSmall
-              />
-            </Box>
-          ) : enableEnvironmentVariables ? (
-            <EnvironmentTextField
-              placeholder="Add Value"
-              value={value}
-              onChange={(value) => onValueChange?.(value, index)}
-              namespace={`${namespace}_${id}_value`}
-            />
-          ) : (
-            <StyledInput
-              value={value}
-              onChangeValue={(value) => onValueChange?.(value, index)}
-            />
-          )}
+          <Tooltip title="Delete">
+            <IconButton color="error" onClick={onDelete}>
+              <HighlightOffIcon />
+            </IconButton>
+          </Tooltip>
         </TableCell>
-        {!disableDelete && (
-          <TableCell
-            sx={{
-              padding: 0,
-              whiteSpace: 'nowrap',
-              width: 0,
-              borderColor: theme.palette.divider,
-            }}
-          >
-            <Tooltip title="Delete">
-              <IconButton color="error" onClick={() => onDelete?.(index)}>
-                <HighlightOffIcon />
-              </IconButton>
-            </Tooltip>
-          </TableCell>
-        )}
-      </TableRow>
-    )
-  }
-)
+      )}
+    </TableRow>
+  )
+}

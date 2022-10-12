@@ -329,25 +329,23 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
           </div>
         )}
         {nodeYMap.get('__typename') === 'Folder' && (
-          <div ref={drag}>
-            <FolderNode
-              isBeingDragged={isBeingDragged}
-              nodeYMap={nodeYMap}
-              renaming={renaming}
-              setRenaming={setRenaming}
-              handleRename={handleRename}
-              handleDelete={handleDelete}
-              handleDuplicate={handleDuplicate}
-              dropSpace={dropSpace}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              hovered={hovered}
-              innerContent={innerContent}
-              handleToggle={handleToggle}
-              handleNewFolder={handleNewFolder}
-              handleNewRESTRequest={handleNewRESTRequest}
-            />
-          </div>
+          <FolderNode
+            isBeingDragged={isBeingDragged}
+            nodeYMap={nodeYMap}
+            renaming={renaming}
+            setRenaming={setRenaming}
+            handleRename={handleRename}
+            handleDelete={handleDelete}
+            handleDuplicate={handleDuplicate}
+            dropSpace={dropSpace}
+            collapsed={collapsed}
+            hovered={hovered}
+            innerContent={innerContent}
+            handleToggle={handleToggle}
+            handleNewFolder={handleNewFolder}
+            handleNewRESTRequest={handleNewRESTRequest}
+            dragRef={drag}
+          />
         )}
         {dropSpace === 'Bottom' &&
           nodeYMap.get('__typename') === 'Collection' &&

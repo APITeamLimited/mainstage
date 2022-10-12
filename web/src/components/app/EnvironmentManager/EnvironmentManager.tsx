@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types'
+import {
+  KeyValueItem,
+  kvLegacyImporter,
+  LocalValueKV,
+} from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import DeselectIcon from '@mui/icons-material/Deselect'
@@ -17,7 +21,6 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import {
   useActiveEnvironmentYMap,
@@ -52,31 +55,35 @@ export const EnvironmentManager = ({
 
   const theme = useTheme()
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  const activeEnvironment = useYMap(activeEnvironmentYMap || new Y.Map())
+  const activeEnvironmentHook = useYMap(activeEnvironmentYMap ?? new Y.Map())
+
   const environmentsYMap = useEnvironmentsYMap()
+  useYMap(environmentsYMap ?? new Y.Map())
+
   const branchYMap = useBranchYMap()
   const activeEnvironmentVarData = useReactiveVar(activeEnvironmentVar)
+
+  const [keyValues, setKeyValues] = useState([] as KeyValueItem<LocalValueKV>[])
+  const [needSave, setNeedSave] = useState(false)
+
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
     useState(false)
-  const [keyValues, setKeyValues] = useState([] as KeyValueItem[])
-  const [needSave, setNeedSave] = useState(false)
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
-  // Both of these seem to be needed to refresh the environment list
   useEffect(() => {
-    if (activeEnvironment.data.variables) {
-      setKeyValues(activeEnvironment.data.variables)
-    }
-  }, [activeEnvironment.data])
-
-  useEffect(() => {
-    setKeyValues(activeEnvironmentYMap?.get('variables') || [])
-  }, [activeEnvironmentYMap])
+    if (!activeEnvironmentYMap) return
+    setKeyValues(
+      kvLegacyImporter('variables', activeEnvironmentYMap, 'localvalue')
+    )
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeEnvironmentHook])
 
   const activeEnvironmentId =
     activeEnvironmentVarData[getBranchEnvironmentKey(branchYMap)] || null
 
-  const handleEnvironmentSave = (newKeyValues: KeyValueItem[]) => {
+  const handleEnvironmentSave = (
+    newKeyValues: KeyValueItem<LocalValueKV>[]
+  ) => {
     if (!activeEnvironmentYMap) throw 'No active environment'
     activeEnvironmentYMap.set('variables', newKeyValues)
     activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
@@ -284,11 +291,13 @@ export const EnvironmentManager = ({
               >
                 {activeEnvironmentId ? (
                   <>
-                    <KeyValueEditor
+                    <KeyValueEditor<LocalValueKV>
                       items={keyValues}
                       setItems={setKeyValues}
                       namespace={`env${activeEnvironmentId}`}
                       enableEnvironmentVariables={false}
+                      disableBulkEdit
+                      variant="localvalue"
                     />
                     <Box sx={{ marginTop: 2 }} />
                     <Stack spacing={2} direction="row">

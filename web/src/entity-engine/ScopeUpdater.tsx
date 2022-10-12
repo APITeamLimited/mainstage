@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Workspace } from '@apiteam/types'
+import { Workspace } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'

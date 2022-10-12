@@ -90,7 +90,7 @@ export const DropSpace = () => {
         height: '0.25rem',
         backgroundColor: theme.palette.primary.light,
         // Prevent drop space from taking up space
-        marginY: -0.25,
+        marginY: '-0.125rem',
         position: 'relative',
         overflow: 'visible',
         zIndex: 1,

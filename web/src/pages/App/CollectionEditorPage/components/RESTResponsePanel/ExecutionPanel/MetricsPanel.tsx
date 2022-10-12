@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { CounterMetric, DefaultMetrics } from '@apiteam/types'
+import { CounterMetric, DefaultMetrics } from '@apiteam/types/src'
 import { Stack, Typography } from '@mui/material'
 
 type MetricsPanelProps = {

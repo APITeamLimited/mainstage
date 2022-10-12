@@ -62,7 +62,7 @@ export const StoredDropzone = ({
             data: {
               __typename: 'StoredObject',
               storeReceipt: await getStoreReceipt(reader.result, file.name),
-              data: reader.result,
+              data: null,
             },
             filename: file.name,
           })

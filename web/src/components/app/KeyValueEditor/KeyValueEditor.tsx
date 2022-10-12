@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types'
+import { DefaultKV, KeyValueItem, KVVariantTypes } from '@apiteam/types/src'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Box, IconButton, Tooltip } from '@mui/material'
 
@@ -9,9 +9,9 @@ import { QuickActionArea } from '../utils/QuickActionArea'
 import { BulkEditor } from './BulkEditor'
 import { SortableEditor } from './SortableEditor'
 
-type KeyValueEditorProps = {
-  items: KeyValueItem[]
-  setItems: (newItems: KeyValueItem[]) => void
+type KeyValueEditorProps<T extends KVVariantTypes> = {
+  items: KeyValueItem<T>[]
+  setItems: (newItems: KeyValueItem<T>[]) => void
   namespace: string
   enableEnvironmentVariables?: boolean
   setActionArea?: (actionArea: React.ReactNode) => void
@@ -20,10 +20,10 @@ type KeyValueEditorProps = {
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
   disableBulkEdit?: boolean
-  enableFileFields?: boolean
+  variant: T['variant']
 }
 
-export const KeyValueEditor = ({
+export const KeyValueEditor = <T extends KVVariantTypes>({
   items,
   setItems,
   namespace,
@@ -34,13 +34,67 @@ export const KeyValueEditor = ({
   disableKeyEdit,
   disableCheckboxes,
   disableBulkEdit,
-  enableFileFields,
-}: KeyValueEditorProps) => {
+  variant,
+}: KeyValueEditorProps<T>) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
   const [bulkContents, setBulkContents] = useState('')
 
-  const itemsRef = useRef<KeyValueItem[]>(items)
+  useEffect(() => {
+    if (variant === 'localvalue' && !disableBulkEdit) {
+      throw new Error(
+        'Bulk editing is not supported for localvalue variant key values'
+      )
+    } else if (variant === 'filefield' && !disableBulkEdit) {
+      throw new Error(
+        'Bulk editing is not supported for filefield variant key values'
+      )
+    }
+  }, [variant, disableBulkEdit])
+
+  const itemsRef = useRef<KeyValueItem<T>[]>(items)
   itemsRef.current = items
+
+  const generateClipboardContents = () => {
+    let clipboardText = ''
+
+    if (variant === 'filefield') {
+      clipboardText = `Name\tValue\n${itemsRef.current
+        .map((item) => {
+          if (item.variant !== 'filefield') {
+            return ''
+          }
+
+          if (item.fileEnabled) {
+            return `${item.keyString}\t${item.fileField?.filename || ''}`
+          } else {
+            return `${item.keyString}\t${item.value}`
+          }
+        })
+        .join('\n')}`
+    } else if (variant === 'localvalue') {
+      clipboardText = `Name\tValue\tLocal Value\n${itemsRef.current
+        .map((item) => {
+          if (item.variant !== 'localvalue') {
+            return ''
+          }
+
+          return `${item.keyString}\t${item.value}\t${item.localValue}`
+        })
+        .join('\n')}`
+    } else if (variant === 'default') {
+      clipboardText = `Name\tValue\n${itemsRef.current
+        .map((item) => {
+          if (item.variant !== 'default') {
+            return ''
+          }
+
+          return `${item.keyString}\t${item.value}`
+        })
+        .join('\n')}`
+    }
+
+    return clipboardText
+  }
 
   useEffect(() => {
     if (!setActionArea) {
@@ -55,6 +109,7 @@ export const KeyValueEditor = ({
     const customActions = []
 
     const enableCopy = itemsRef.current.length > 0
+
     if (enableCopy) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
@@ -63,11 +118,7 @@ export const KeyValueEditor = ({
               onClick={() =>
                 isBulkEditing
                   ? navigator.clipboard.writeText(bulkContents)
-                  : navigator.clipboard.writeText(
-                      `Name\tValue\n${itemsRef.current
-                        .map(({ keyString, value }) => `${keyString}\t${value}`)
-                        .join('\n')}`
-                    )
+                  : navigator.clipboard.writeText(generateClipboardContents())
               }
             >
               <ContentCopyIcon />
@@ -87,7 +138,6 @@ export const KeyValueEditor = ({
             ? () => {
                 setItems([])
                 setBulkContents('')
-                console.log('delete')
               }
             : undefined
         }
@@ -100,27 +150,35 @@ export const KeyValueEditor = ({
   }, [isBulkEditing, items, bulkContents])
 
   const generateBulkContents = () => {
+    if (variant === 'filefield' || variant === 'localvalue') {
+      throw new Error(
+        'Bulk editing is not supported for filefield or localvalue variant key values'
+      )
+    }
+
     const generatedLines: string[] = []
 
-    items
-      .filter((kv) => !kv.isFile)
-      .forEach((item) => {
-        if (item.keyString === '') {
-          return
-        }
+    ;(items as unknown as KeyValueItem<DefaultKV>[]).forEach((item) => {
+      if (item.keyString === '') {
+        return
+      }
 
-        generatedLines.push(
-          `${item.enabled ? '' : '#'}${item.keyString}:${item.value}`
-        )
-      })
+      generatedLines.push(
+        `${item.enabled ? '' : '#'}${item.keyString}:${item.value}`
+      )
+    })
 
     return generatedLines.join('\n')
   }
 
   const generateKeyValueItems = (bulkContent: string) => {
-    const foundItems: KeyValueItem[] = items.filter(
-      (kv) => kv.isFile
-    ) as KeyValueItem[]
+    if (variant === 'filefield' || variant === 'localvalue') {
+      throw new Error(
+        'Bulk editing is not supported for filefield or localvalue variant key values'
+      )
+    }
+
+    const foundItems: KeyValueItem<DefaultKV>[] = []
 
     bulkContent.split('\n').forEach((line, index) => {
       const formattedLine = line.replace(': ', ':').trim()
@@ -137,18 +195,25 @@ export const KeyValueEditor = ({
         ? keyString.substring(1)
         : keyString
 
-      foundItems.push({
+      const newItem: KeyValueItem<DefaultKV> = {
         id: index,
+        variant: 'default',
         keyString: keyStringWithoutHash?.trim(),
         value: value?.trim(),
         enabled: !notEnabled,
-      } as KeyValueItem)
+      }
+
+      foundItems.push(newItem)
     })
 
     // Return sorted by id
+    // Will throw error if wrong variant so cast as T
     return foundItems
       .sort((a, b) => a.id - b.id)
-      .map((item, index) => ({ ...item, id: index }))
+      .map((item, index) => ({
+        ...item,
+        id: index,
+      })) as unknown as KeyValueItem<T>[]
   }
 
   // Handle bulk editor toggle
@@ -171,7 +236,7 @@ export const KeyValueEditor = ({
       monacoNamespace={namespace}
     />
   ) : (
-    <SortableEditor
+    <SortableEditor<T>
       items={items}
       setItems={setItems}
       namespace={namespace}
@@ -182,7 +247,7 @@ export const KeyValueEditor = ({
       disableDelete={disableDelete}
       disableKeyEdit={disableKeyEdit}
       disableCheckboxes={disableCheckboxes}
-      enableFileFields={enableFileFields}
+      variant={variant}
     />
   )
 }

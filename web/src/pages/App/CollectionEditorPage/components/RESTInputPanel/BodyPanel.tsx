@@ -11,12 +11,11 @@ import { Stack, useTheme } from '@mui/material'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
-import { codeFormatter } from 'src/utils/codeFormatter'
-
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { StoredDropzone } from 'src/components/app/utils/FileDropzone'
 import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
+import { codeFormatter } from 'src/utils/codeFormatter'
 
 type BodyPanelProps = {
   requestId: string
@@ -298,7 +297,7 @@ export const BodyPanel = ({
           setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
           setActionArea={setActionArea}
           namespace={`${requestId}${body.contentType}`}
-          enableFileFields
+          variant="filefield"
         />
       )}
       {body.contentType === 'application/octet-stream' && (

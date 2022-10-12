@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GlobeTestMessage, WrappedExecutionParams } from '@apiteam/types'
+import { GlobeTestMessage, WrappedExecutionParams } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

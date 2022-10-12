@@ -5,7 +5,7 @@ export interface Collection extends BaseEntity {
   parentId: string
   __parentTypename: 'Project'
   name: string
-  orderingIndex: number // Placeholder, but necessary for ordering
+  orderingIndex: number
   auth: RESTAuth
   description: string
 }

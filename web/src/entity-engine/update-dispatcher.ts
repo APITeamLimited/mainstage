@@ -1,4 +1,4 @@
-import { Workspace } from '@apiteam/types'
+import { Workspace } from '@apiteam/types/src'
 import type { Doc as YDoc } from 'yjs'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'

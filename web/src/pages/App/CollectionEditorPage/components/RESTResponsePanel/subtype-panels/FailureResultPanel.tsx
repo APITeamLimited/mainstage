@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage } from '@apiteam/types/src'
 import { Alert, Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 

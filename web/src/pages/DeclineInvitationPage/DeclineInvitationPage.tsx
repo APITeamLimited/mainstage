@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { InvitationDecodedToken } from '@apiteam/types'
+import { InvitationDecodedToken } from '@apiteam/types/src'
 import { useMutation } from '@apollo/client'
 import {
   Box,

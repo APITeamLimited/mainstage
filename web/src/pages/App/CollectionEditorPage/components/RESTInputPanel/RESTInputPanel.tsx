@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types'
-import { RESTReqBody } from '@apiteam/types'
-import { RESTAuth, RESTRequest } from '@apiteam/types'
+import { DefaultKV, KeyValueItem, kvLegacyImporter } from '@apiteam/types/src'
+import { RESTReqBody } from '@apiteam/types/src'
+import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { ExecutionScript } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
@@ -13,7 +13,6 @@ import type { Map as YMap } from 'yjs'
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule, useHashSumModule } from 'src/contexts/imports'
-import { useWorkspace } from 'src/entity-engine'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
@@ -76,25 +75,16 @@ export const RESTInputPanel = ({
   const [unsavedEndpoint, setUnsavedEndpoint] = useState<string>(
     requestYMap.get('endpoint')
   )
-  const [unsavedHeaders, setUnsavedHeaders] = useState(
-    requestYMap.get('headers')
-  )
-  const [unsavedParameters, setUnsavedParameters] = useState(
-    requestYMap.get('params')
-  )
-
-  const getAndSetPathVariables = () => {
-    const pathVariables = generatePathVariables({
-      requestYMap,
-      unsavedEndpoint,
-    })
-    requestYMap.set('pathVariables', pathVariables)
-    return requestYMap.get('pathVariables')
-  }
+  const [unsavedHeaders, setUnsavedHeaders] = useState<
+    KeyValueItem<DefaultKV>[]
+  >(kvLegacyImporter('headers', requestYMap, 'default'))
+  const [unsavedParameters, setUnsavedParameters] = useState<
+    KeyValueItem<DefaultKV>[]
+  >(kvLegacyImporter('params', requestYMap, 'default'))
 
   const [unsavedPathVariables, setUnsavedPathVariables] = useState<
-    KeyValueItem[]
-  >(requestYMap.get('pathVariables') ?? getAndSetPathVariables())
+    KeyValueItem<DefaultKV>[]
+  >(kvLegacyImporter('pathVariables', requestYMap, 'default'))
 
   useEffect(() => {
     const generatedPathVariables = generatePathVariables({
@@ -130,12 +120,16 @@ export const RESTInputPanel = ({
 
   const getAndSetExecutionScripts = () => {
     requestYMap.set('executionScripts', [])
-    return requestYMap.get('executionScripts')
+    return [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
   }
 
   const [unsavedExecutionScripts, setUnsavedExecutionScripts] = useState<
     ExecutionScript[]
-  >(requestYMap.get('executionScripts') ?? getAndSetExecutionScripts())
+  >(
+    requestYMap.get('executionScripts')
+      ? [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
+      : getAndSetExecutionScripts()
+  )
 
   const jobQueue = useReactiveVar(jobQueueVar)
 
@@ -162,9 +156,7 @@ export const RESTInputPanel = ({
         hash(unsavedRequestMethod) !== hash(requestYMap.get('method')) ||
         hash(unsavedAuth) !== hash(requestYMap.get('auth')) ||
         hash(unsavedDescription) !== hash(requestYMap.get('description')) ||
-        hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables')) ||
-        hash(unsavedExecutionScripts) !==
-          hash(requestYMap.get('executionScripts'))
+        hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables'))
 
       if (needsSave) {
         setNeedSave(true)
@@ -183,8 +175,16 @@ export const RESTInputPanel = ({
     unsavedParameters,
     unsavedPathVariables,
     unsavedRequestMethod,
-    unsavedExecutionScripts,
   ])
+
+  // TODO: Hack for now till script saving fixed, ensures save icon shown at correct time
+  useEffect(() => {
+    if (!needSave && Date.now() - mountTime > 100) {
+      setNeedSave(true)
+      setObservedNeedsSave(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unsavedExecutionScripts])
 
   useEffect(() => {
     if (!unsavedBody) return
@@ -204,7 +204,10 @@ export const RESTInputPanel = ({
     requestYMap.set('auth', unsavedAuth)
     requestYMap.set('description', unsavedDescription)
     requestYMap.set('pathVariables', unsavedPathVariables)
-    requestYMap.set('executionScripts', unsavedExecutionScripts)
+    requestYMap.set(
+      'executionScripts',
+      unsavedExecutionScripts.filter((s) => !s.builtIn)
+    )
     setNeedSave(false)
     setObservedNeedsSave(false)
   }
@@ -222,7 +225,10 @@ export const RESTInputPanel = ({
     clone.set('auth', unsavedAuth)
     clone.set('description', unsavedDescription)
     clone.set('pathVariables', unsavedPathVariables)
-    clone.set('executionScripts', unsavedExecutionScripts)
+    clone.set(
+      'executionScripts',
+      unsavedExecutionScripts.filter((s) => !s.builtIn)
+    )
     restRequestsYMap.set(newId, clone)
   }
 
@@ -264,11 +270,6 @@ export const RESTInputPanel = ({
     })
   }
 
-  const sendScripts = useMemo(
-    () => [...BUILTIN_REST_SCRIPTS, ...unsavedExecutionScripts],
-    [unsavedExecutionScripts]
-  )
-
   const spawnId = useMemo(() => uuid(), [])
 
   return (
@@ -293,7 +294,7 @@ export const RESTInputPanel = ({
             <Box marginLeft={2} />
             <SendButton
               onSend={handleSend}
-              executionScripts={sendScripts}
+              executionScripts={unsavedExecutionScripts}
               defaultExecutionScript={defaultExecutionScript}
             />
             <Box marginLeft={2} />
@@ -335,11 +336,12 @@ export const RESTInputPanel = ({
           />
         )}
         {activeTabIndex === 2 && (
-          <KeyValueEditor
+          <KeyValueEditor<DefaultKV>
             items={unsavedHeaders}
             setItems={setUnsavedHeaders}
             namespace={`request:${requestId}:headers`}
             setActionArea={setActionArea}
+            variant="default"
           />
         )}
         {activeTabIndex === 3 && (

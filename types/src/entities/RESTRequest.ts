@@ -1,4 +1,4 @@
-import { KeyValueItem, StoredObject } from '..'
+import { KeyValueItem, DefaultKV, FileFieldKV, StoredObject } from '..'
 
 import { BaseEntity } from '.'
 
@@ -92,8 +92,12 @@ export type RESTReqBody =
       body: null
     }
   | {
-      contentType: 'application/x-www-form-urlencoded' | 'multipart/form-data'
-      body: KeyValueItem[]
+      contentType: 'application/x-www-form-urlencoded'
+      body: KeyValueItem<DefaultKV>[]
+    }
+  | {
+      contentType: 'multipart/form-data'
+      body: KeyValueItem<FileFieldKV>[]
     }
   | {
       contentType: 'application/octet-stream'
@@ -119,11 +123,11 @@ export interface RESTRequest extends BaseEntity {
   orderingIndex: number
   method: string
   endpoint: string
-  params: KeyValueItem[]
-  headers: KeyValueItem[]
+  params: KeyValueItem<DefaultKV>[]
+  headers: KeyValueItem<DefaultKV>[]
   auth: RESTAuth
   body: RESTReqBody
   description: string
-  pathVariables: KeyValueItem[]
+  pathVariables: KeyValueItem<DefaultKV>[]
   executionScripts: ExecutionScript[]
 }

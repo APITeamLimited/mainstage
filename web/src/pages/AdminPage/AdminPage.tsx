@@ -1,5 +1,5 @@
-import { AdminGuard } from '../../components/admin/AdminGuard'
-import { ReactAdmin } from '../../components/admin/ReactAdmin'
+import { AdminGuard } from './components/AdminGuard'
+import { ReactAdmin } from './components/ReactAdmin'
 
 const AdminPage = () => {
   return (

@@ -1,4 +1,4 @@
-import { Collection } from '@apiteam/types'
+import { Collection } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Button, Box, useTheme } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'

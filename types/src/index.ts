@@ -7,21 +7,5 @@ export * from './team'
 export * from './redis'
 export * from './routes'
 export * from './theme'
-
-export type KeyValueItem = {
-  id: number
-  keyString: string
-  value: string
-  enabled: boolean
-  isFile?: boolean
-  fileField?: {
-    data: StoredObject<string | ArrayBuffer>
-    filename: string
-  } | null
-}
-
-export type StoredObject<T> = {
-  __typename: 'StoredObject'
-  storeReceipt: string
-  data: T | null
-}
+export * from './key-value-item'
+export * from './external-entities'

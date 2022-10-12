@@ -1,4 +1,4 @@
-import { RESTRequest } from '@apiteam/types'
+import { RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

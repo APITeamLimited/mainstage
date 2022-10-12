@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types'
+import {
+  KeyValueItem,
+  kvLegacyImporter,
+  LocalValueKV,
+} from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import {
@@ -15,13 +20,13 @@ import {
   Tooltip,
   useTheme,
 } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import {
   activeEnvironmentVar,
   updateActiveEnvironmentId,
 } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 import { KeyValueEditor } from '../KeyValueEditor'
@@ -40,7 +45,7 @@ export const SingleEnvironmentEditor = ({
   const environment = useYMap(environmentYMap)
   const theme = useTheme()
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
-  const [keyValues, setKeyValues] = useState([] as KeyValueItem[])
+  const [keyValues, setKeyValues] = useState([] as KeyValueItem<LocalValueKV>[])
   const [needSave, setNeedSave] = useState(false)
   const activeEnvironmentVarData = useReactiveVar(activeEnvironmentVar)
 
@@ -51,7 +56,7 @@ export const SingleEnvironmentEditor = ({
   }, [environment.data])
 
   useEffect(() => {
-    setKeyValues(environmentYMap?.get('variables') || [])
+    setKeyValues(kvLegacyImporter('variables', environmentYMap, 'localvalue'))
   }, [environmentYMap])
 
   useEffect(() => {
@@ -61,7 +66,9 @@ export const SingleEnvironmentEditor = ({
     )
   }, [environmentYMap, keyValues])
 
-  const handleEnvironmentSave = (newKeyValues: KeyValueItem[]) => {
+  const handleEnvironmentSave = (
+    newKeyValues: KeyValueItem<LocalValueKV>[]
+  ) => {
     if (!environmentYMap) throw 'No active environment'
     environmentYMap.set('variables', newKeyValues)
     environmentYMap.set('updatedAt', new Date().toISOString())
@@ -72,14 +79,13 @@ export const SingleEnvironmentEditor = ({
 
   const handleEnvironmentDelete = () => {
     if (!environmentYMap) throw 'No active environment'
-    const environmentsYMap = environmentYMap.parent
+    const environmentsYMap = environmentYMap.parent as YMap<any> | undefined
     if (!environmentsYMap) throw 'No environmentsYMap'
 
-    const branchYMap = environmentsYMap.parent
+    const branchYMap = environmentsYMap.parent as YMap<any> | undefined
     if (!branchYMap) throw 'No branchYMap'
 
-    environmentsYMap?.delete(environmentId)
-
+    environmentsYMap.delete(environmentId)
     updateActiveEnvironmentId(activeEnvironmentVarData, branchYMap, null)
   }
 
@@ -142,11 +148,13 @@ export const SingleEnvironmentEditor = ({
             justifyContent="space-between"
             alignItems="flex-end"
           >
-            <KeyValueEditor
+            <KeyValueEditor<LocalValueKV>
               items={keyValues}
               setItems={setKeyValues}
               namespace={`env-${environmentId}`}
               enableEnvironmentVariables={false}
+              variant="localvalue"
+              disableBulkEdit
             />
             <Box sx={{ marginTop: 2 }} />
             <Stack spacing={2} direction="row">

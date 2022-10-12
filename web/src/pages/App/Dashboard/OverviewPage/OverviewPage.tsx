@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
 
-import { Project } from '@apiteam/types'
+import { Project } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Button, Stack } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { MetaTags } from '@redwoodjs/web'
 
@@ -13,6 +12,7 @@ import { createProjectDialogStateVar } from 'src/components/app/dialogs'
 import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { NoProjectsCard } from './NoProjectsCard'
 
@@ -33,12 +33,11 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
 
   useEffect(() => {
     const handleSwitch = async (tries = 0) => {
-      if (tries > 10) {
+      if (tries > 100) {
         throw new Error('Could not switch workspace')
       }
 
-      //
-      await new Promise((resolve) => setTimeout(resolve, 200))
+      await new Promise((resolve) => setTimeout(resolve, tries * 10))
 
       if (requestedWorkspaceId !== activeWorkspaceId) {
         // Ensure that the workspace is loaded

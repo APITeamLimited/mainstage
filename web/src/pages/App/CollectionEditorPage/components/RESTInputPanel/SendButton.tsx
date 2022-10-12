@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 
-import type { ExecutionScript } from '@apiteam/types'
+import type { ExecutionScript } from '@apiteam/types/src'
 import CodeIcon from '@mui/icons-material/Code'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import {

@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react'
 
-import { ServerAwareness, Workspace } from '@apiteam/types'
+import { ServerAwareness, Workspace } from '@apiteam/types/src'
 import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'

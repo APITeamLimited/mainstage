@@ -1,7 +1,7 @@
 {
   "name": "@apiteam/types",
   "version": "0.0.0",
-  "description": "APITeam Shared datatypes",
+  "description": "APITeam shared datatypes",
   "scripts": {
     "install": "rm -rf ./dist && tsc -p tsconfig.json",
     "build": "rm -rf ./dist && tsc -p tsconfig.json"

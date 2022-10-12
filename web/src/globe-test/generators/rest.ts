@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecutionScript, RESTRequest } from '@apiteam/types'
+import { ExecutionScript, RESTRequest } from '@apiteam/types/src'
 import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'

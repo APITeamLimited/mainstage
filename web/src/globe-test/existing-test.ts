@@ -1,4 +1,4 @@
-import { GlobeTestMessage } from '@apiteam/types'
+import { GlobeTestMessage } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 
 import { getUrl } from './execution'

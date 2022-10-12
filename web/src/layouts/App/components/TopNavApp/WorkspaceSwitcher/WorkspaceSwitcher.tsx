@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-import { Workspace } from '@apiteam/types'
+import { Workspace } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import {

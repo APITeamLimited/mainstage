@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Workspace } from '@apiteam/types'
+import { Workspace } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import CheckIcon from '@mui/icons-material/Check'

@@ -1,4 +1,4 @@
-import { MemberAwareness } from '@apiteam/types'
+import { MemberAwareness } from '@apiteam/types/src'
 import {
   Avatar,
   Chip,

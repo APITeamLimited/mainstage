@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { RESTAuth } from '@apiteam/types'
+import { RESTAuth } from '@apiteam/types/src'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import { Grid, Stack, useTheme, Typography, Chip } from '@mui/material'

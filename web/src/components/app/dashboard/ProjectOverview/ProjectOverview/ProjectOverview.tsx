@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
-import { Branch, Project } from '@apiteam/types'
+import { Branch, Project } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { RESTAuth } from '@apiteam/types'
+import { RESTAuth } from '@apiteam/types/src'
 import FolderIcon from '@mui/icons-material/Folder'
 import {
   ListItem,

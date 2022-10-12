@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecutionParams, KeyValueItem, ResolvedVariable } from '@apiteam/types'
+import { ExecutionParams, KeyValueItem, ResolvedVariable } from '@apiteam/types/src'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import {

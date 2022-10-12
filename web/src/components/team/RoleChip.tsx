@@ -1,4 +1,4 @@
-import { TeamRole } from '@apiteam/types'
+import { TeamRole } from '@apiteam/types/src'
 import { Chip, useTheme } from '@mui/material'
 
 type RoleChipProps = {

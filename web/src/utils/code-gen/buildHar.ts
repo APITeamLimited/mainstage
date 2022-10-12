@@ -1,4 +1,4 @@
-import { RESTRequest } from '@apiteam/types'
+import { RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import type { Har, PostData } from 'har-format'
 import { parse } from 'qs'

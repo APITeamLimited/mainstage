@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { TeamRole } from '@apiteam/types'
+import { TeamRole } from '@apiteam/types/src'
 import {
   Box,
   useTheme,

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Workspace } from '@apiteam/types'
+import { Workspace } from '@apiteam/types/src'
 import { Box, Divider, Stack } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'

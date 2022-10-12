@@ -7,11 +7,7 @@ import { Admin, Resource } from 'react-admin'
 import { admins, DataProviderInstance, ValidAdmin } from './data-provider'
 import { AdminLayout } from './Layout/AdminLayout'
 
-type DataProviderProps = {
-  children?: React.ReactNode
-}
-
-export const ReactAdmin = ({ children }: DataProviderProps) => {
+export const ReactAdmin = () => {
   const apollo = useApolloClient() as ApolloClient<unknown>
   const [dataProvider] = useState<DataProviderInstance>(
     new DataProviderInstance(apollo)

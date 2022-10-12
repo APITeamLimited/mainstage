@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import ClearIcon from '@mui/icons-material/Clear'
 import {
@@ -72,6 +72,9 @@ export const FileDropzone = ({
 
       if (event.dataTransfer.files?.length > 0) {
         onFiles?.(event.dataTransfer.files)
+
+        // Clear the input value so that the same file can be uploaded again
+        event.dataTransfer.clearData()
       }
     },
   }
@@ -80,6 +83,9 @@ export const FileDropzone = ({
     if (event.target.files) {
       if (event.target.files?.length > 0) {
         onFiles?.(event.target.files)
+
+        // Clear the input so that the same file can be uploaded again
+        event.target.files = null
       }
 
       setFiles(event.target.files)
@@ -144,30 +150,57 @@ export const FileDropzone = ({
                   width: '100%',
                 }}
               >
-                <Box
-                  sx={{
-                    margin: '-17px',
-                    position: 'relative',
-                    top: '18px',
-                    left: '-18px',
-                    // Re-enable pointer events on the delete button
-                    pointerEvents: 'auto',
-                  }}
-                >
-                  <IconButton
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      event.preventDefault()
-                      onDelete()
-                    }}
-                    size="small"
+                {isSmall ? (
+                  <Box
                     sx={{
-                      alignSelf: 'flex-end',
+                      margin: '-20px',
+                      position: 'relative',
+                      top: '18px',
+                      left: '-18px',
+                      // Re-enable pointer events on the delete button
+                      pointerEvents: 'auto',
                     }}
                   >
-                    <ClearIcon />
-                  </IconButton>
-                </Box>
+                    <IconButton
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        event.preventDefault()
+                        onDelete()
+                      }}
+                      size="small"
+                      sx={{
+                        alignSelf: 'flex-end',
+                      }}
+                    >
+                      <ClearIcon />
+                    </IconButton>{' '}
+                  </Box>
+                ) : (
+                  <Box
+                    sx={{
+                      margin: '-17px',
+                      position: 'relative',
+                      top: '18px',
+                      left: '-18px',
+                      // Re-enable pointer events on the delete button
+                      pointerEvents: 'auto',
+                    }}
+                  >
+                    <IconButton
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        event.preventDefault()
+                        onDelete()
+                      }}
+                      size="small"
+                      sx={{
+                        alignSelf: 'flex-end',
+                      }}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </Box>
+                )}
               </Box>
             )}
             <Stack

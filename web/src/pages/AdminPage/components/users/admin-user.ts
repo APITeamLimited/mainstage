@@ -65,7 +65,7 @@ export const ADMIN_USER_GET_MANY_QUERY = gql`
   }
 `
 
-/*export const ADMIN_USER_GET_MANY_REFERENCE_QUERY = gql`
+export const ADMIN_USER_GET_MANY_REFERENCE_QUERY = gql`
   query AdminUserGetManyReference(
     $target: ID!
     $id: [ID!]!
@@ -117,4 +117,3 @@ export const UserAdmin: ValidAdmin = {
     show: UserShow,
   },
 }
-*/

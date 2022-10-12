@@ -1,4 +1,4 @@
-import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types'
+import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types/src'
 import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import type { IndexeddbPersistence } from 'y-indexeddb'
