@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Container } from '@mui/material'
@@ -65,8 +65,14 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('react-apexcharts'),
         import('hash-sum'),
         import('simplebar-react'),
+        import('@monaco-editor/react'),
+        new Promise((resolve) =>
+          import('@monaco-editor/loader').then((module) => {
+            module.default.init().then(resolve)
+          })
+        ),
 
-        // Import pages too so app is snappy
+        // Import pages so app is snappy
         import('src/pages/App/CollectionEditorPage'),
         import('src/pages/App/Dashboard/OverviewPage'),
         import('src/pages/App/Dashboard/DomainsPage'),
@@ -74,6 +80,7 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('src/pages/App/Dashboard/SettingsPages/MembersSettingsPage'),
         import('src/pages/App/Dashboard/SettingsPages/DangerZoneSettingsPage'),
       ])
+
       setLoadedImports(true)
     }
     load()

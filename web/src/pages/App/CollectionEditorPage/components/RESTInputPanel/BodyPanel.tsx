@@ -289,6 +289,7 @@ export const BodyPanel = ({
           setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
           setActionArea={setActionArea}
           namespace={`${requestId}${body.contentType}`}
+          variant="default"
         />
       )}
       {body.contentType === 'multipart/form-data' && (
@@ -298,6 +299,7 @@ export const BodyPanel = ({
           setActionArea={setActionArea}
           namespace={`${requestId}${body.contentType}`}
           variant="filefield"
+          disableBulkEdit
         />
       )}
       {body.contentType === 'application/octet-stream' && (
