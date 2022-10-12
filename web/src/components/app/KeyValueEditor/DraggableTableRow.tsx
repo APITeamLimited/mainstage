@@ -36,7 +36,7 @@ type DraggableTableRowProps<T extends KVVariantTypes> = {
   disableDelete?: boolean
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
-  variant: T['variant']
+  variant: KeyValueItem<T>['variant']
   onMove: (dragIndex: number, hoverIndex: number) => void
   setItem: (newItem: KeyValueItem<T>) => void
   onDelete: () => void

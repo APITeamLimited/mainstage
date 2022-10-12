@@ -9,7 +9,10 @@ import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule } from 'src/contexts/imports'
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { findVariablesInString } from 'src/utils/environment'
+import {
+  createEnvironmentContext,
+  findVariablesInString,
+} from 'src/utils/environment'
 
 type VariableChipProps = {
   variableName: string
@@ -27,14 +30,36 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
     useState<ResolvedVariable | null>(null)
 
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  useYMap(activeEnvironmentYMap || new Y.Map())
+  const activeEnvironmentHook = useYMap(activeEnvironmentYMap ?? new Y.Map())
   const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
   const collection = useCollection()
+  const collectionHook = useYMap(collection ?? new Y.Map())
+
+  const environmentContext = useMemo(
+    () =>
+      activeEnvironmentYMap
+        ? createEnvironmentContext(
+            activeEnvironmentYMap,
+            activeEnvironmentYMap.doc?.guid as string
+          )
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeEnvironmentDict, activeEnvironmentHook, collectionHook]
+  )
+
+  const collectionContext = useMemo(
+    () =>
+      collection
+        ? createEnvironmentContext(collection, collection.doc?.guid as string)
+        : null,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [collectionHook]
+  )
 
   useEffect(() => {
     const foundVariable = findVariablesInString(
-      activeEnvironmentYMap,
-      collection,
+      environmentContext,
+      collectionContext,
       variableNameWithoutCurlyBraces
     )
 
@@ -45,19 +70,19 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
     } else if (!foundVariable) {
       setResolvedVariable(null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     resolvedVariable,
     variableNameWithoutCurlyBraces,
-    activeEnvironmentDict,
-    activeEnvironmentYMap,
-    collection,
+    environmentContext,
+    collectionContext,
   ])
 
   return (
     <Tooltip
       title={
         resolvedVariable
-          ? `'${variableNameWithoutCurlyBraces}'='${resolvedVariable.value}'`
+          ? `'${variableNameWithoutCurlyBraces}'='${resolvedVariable.value}' from ${resolvedVariable.sourceTypename} '${resolvedVariable.sourceName}'`
           : `Variable '${variableNameWithoutCurlyBraces}' not found`
       }
       placement="top"

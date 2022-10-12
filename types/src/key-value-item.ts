@@ -41,7 +41,7 @@ export type KeyValueItem<T extends KVVariantTypes> = {
 export const validateKeyValueItem = <T extends KVVariantTypes>(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   item: any,
-  variant: T['variant']
+  variant: KeyValueItem<T>['variant']
 ): {
   item: KeyValueItem<T>
   changed: boolean
@@ -111,7 +111,7 @@ export const validateKeyValueItem = <T extends KVVariantTypes>(
 export const kvLegacyImporter = <T extends KVVariantTypes>(
   getterKey: string,
   parentYMap: YMap<any>,
-  variant: T['variant']
+  variant: KeyValueItem<T>['variant']
 ): KeyValueItem<T>[] => {
   const data = parentYMap.get(getterKey)
 
@@ -194,7 +194,7 @@ export const getLocalObject = <T>(
 
 export const kvExporter = <T extends KVVariantTypes>(
   items: KeyValueItem<T>[],
-  variant: T['variant'],
+  variant: KeyValueItem<T>['variant'],
   workspaceId: string
 ): KeyValueItem<T>[] => {
   if (variant === 'localvalue') {

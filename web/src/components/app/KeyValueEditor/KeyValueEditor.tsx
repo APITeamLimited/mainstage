@@ -20,7 +20,7 @@ type KeyValueEditorProps<T extends KVVariantTypes> = {
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
   disableBulkEdit?: boolean
-  variant: T['variant']
+  variant: KeyValueItem<T>['variant']
 }
 
 export const KeyValueEditor = <T extends KVVariantTypes>({

@@ -10,6 +10,7 @@ import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule, useHashSumModule } from 'src/contexts/imports'
@@ -44,13 +45,11 @@ type RESTInputPanelProps = {
   requestYMap: YMap<any>
   collectionYMap: YMap<any>
   setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
-  tabId: string
 }
 
 export const RESTInputPanel = ({
   requestYMap,
   collectionYMap,
-  tabId,
   setObservedNeedsSave,
 }: RESTInputPanelProps) => {
   const Y = useYJSModule()
@@ -203,7 +202,7 @@ export const RESTInputPanel = ({
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 100) {
       setNeedSave(true)
-      setObservedNeedsSave(true)
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedExecutionScripts])
@@ -264,16 +263,20 @@ export const RESTInputPanel = ({
     if (!scopeId) throw new Error('No scopeId')
     if (!rawBearer) throw new Error('No rawBearer')
 
-    singleRESTRequestGenerator({
-      request,
-      activeEnvironmentYMap,
-      collectionYMap,
-      // Normal send is always main scope i.e. workspace
-      scopeId,
-      jobQueue,
-      requestYMap,
-      executionScript,
-    })
+    try {
+      await singleRESTRequestGenerator({
+        request,
+        activeEnvironmentYMap,
+        collectionYMap,
+        // Normal send is always main scope i.e. workspace
+        scopeId,
+        jobQueue,
+        requestYMap,
+        executionScript,
+      })
+    } catch (e) {
+      snackErrorMessageVar(e as string)
+    }
   }
 
   const spawnId = useMemo(() => uuid(), [])

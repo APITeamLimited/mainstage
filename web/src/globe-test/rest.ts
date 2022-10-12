@@ -1,7 +1,8 @@
-import { RESTAuth, RESTRequest } from '@apiteam/types/src'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ExecutionParams, RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import { stringify } from 'qs'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 import { findEnvironmentVariables } from 'src/utils/environment'
 
@@ -11,10 +12,14 @@ Gets final axios config for a request, complete with environment variables
 export const getFinalRequest = async (
   request: RESTRequest,
   requestYMap: YMap<any>,
-  activeEnvironment: YMap<any> | null,
-  collection: YMap<any>
+  collectionYMap: YMap<any>,
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext']
 ): Promise<AxiosRequestConfig<any>> => {
   const lookup = await import('mime-types').then((m) => m.lookup)
+
+  const workspaceId = collectionYMap.doc?.guid as string | undefined
+  if (!workspaceId) throw new Error('WorkspaceId not found')
 
   let body = null
   let skipBodyEnvironmentSubstitution = false
@@ -26,8 +31,15 @@ export const getFinalRequest = async (
       request.body.body
         .filter(({ enabled }) => enabled)
         .map(({ keyString, value }) => ({
-          [findEnvironmentVariables(activeEnvironment, collection, keyString)]:
-            findEnvironmentVariables(activeEnvironment, collection, value),
+          [findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            keyString
+          )]: findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            value
+          ),
         }))
         .reduce((acc, curr) => ({ ...acc, ...curr }), {})
     )
@@ -70,19 +82,20 @@ export const getFinalRequest = async (
     }
   }
 
-  const folders = collection.get('folders') as YMap<any>
+  const folders = collectionYMap.get('folders') as YMap<any>
 
   const withAuthRequest = addAuthToRequest(
-    activeEnvironment,
-    collection,
+    environmentContext,
+    collectionContext,
+    collectionYMap,
     requestYMap,
     folders,
     {
       method: request.method,
       url: ensureValidUrl(
         findEnvironmentVariables(
-          activeEnvironment,
-          collection,
+          environmentContext,
+          collectionContext,
           substitutePathVariables(request.endpoint, request)
         )
       ),
@@ -109,22 +122,27 @@ export const getFinalRequest = async (
 
     return {
       ...acc,
-      [findEnvironmentVariables(activeEnvironment, collection, key)]:
-        findEnvironmentVariables(activeEnvironment, collection, String(value)),
+      [findEnvironmentVariables(environmentContext, collectionContext, key)]:
+        findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          String(value)
+        ),
     }
   }, {})
 
   return makeEnvironmentAwareRequest(
-    activeEnvironment,
-    collection,
+    environmentContext,
+    collectionContext,
     withAuthRequest,
     skipBodyEnvironmentSubstitution
   )
 }
 
 const addAuthToRequest = (
-  activeEnvironment: YMap<any> | null,
-  collection: YMap<any>,
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
+  collectionYMap: YMap<any>,
   currentNode: YMap<any>,
   folders: YMap<any>,
   axiosConfig: AxiosRequestConfig
@@ -133,7 +151,7 @@ const addAuthToRequest = (
 
   if (auth.authType === 'inherit') {
     if (currentNode.get('__typename') === 'Collection') {
-      throw 'Inherit auth type not allowed on collection'
+      throw 'Inherit auth type not allowed on collectionYMap'
     }
 
     const parentFolder = (Array.from(folders.values()) as YMap<any>[]).find(
@@ -142,19 +160,21 @@ const addAuthToRequest = (
 
     if (parentFolder) {
       return addAuthToRequest(
-        activeEnvironment,
-        collection,
+        environmentContext,
+        collectionContext,
+        collectionYMap,
         parentFolder,
         folders,
         axiosConfig
       )
     }
 
-    if (collection.get('id') === currentNode.get('parentId')) {
+    if (collectionYMap.get('id') === currentNode.get('parentId')) {
       return addAuthToRequest(
-        activeEnvironment,
-        collection,
-        collection,
+        environmentContext,
+        collectionContext,
+        collectionYMap,
+        collectionYMap,
         folders,
         axiosConfig
       )
@@ -177,8 +197,8 @@ const addAuthToRequest = (
       headers: {
         ...axiosConfig.headers,
         Authorization: `Bearer ${findEnvironmentVariables(
-          activeEnvironment,
-          collection,
+          environmentContext,
+          collectionContext,
           auth.token
         )}`,
       },
@@ -189,8 +209,15 @@ const addAuthToRequest = (
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
-          [findEnvironmentVariables(activeEnvironment, collection, auth.key)]:
-            findEnvironmentVariables(activeEnvironment, collection, auth.value),
+          [findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            auth.key
+          )]: findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            auth.value
+          ),
         },
       }
     } else if (auth.addTo === 'query') {
@@ -198,8 +225,15 @@ const addAuthToRequest = (
         ...axiosConfig,
         params: {
           ...axiosConfig.params,
-          [findEnvironmentVariables(activeEnvironment, collection, auth.key)]:
-            findEnvironmentVariables(activeEnvironment, collection, auth.value),
+          [findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            auth.key
+          )]: findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            auth.value
+          ),
         },
       }
     } else {
@@ -213,8 +247,8 @@ const addAuthToRequest = (
 }
 
 const makeEnvironmentAwareRequest = (
-  activeEnvironment: YMap<any> | null,
-  collection: YMap<any>,
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
   config: AxiosRequestConfig,
   skipBody: boolean
 ): AxiosRequestConfig => {
@@ -227,10 +261,10 @@ const makeEnvironmentAwareRequest = (
     headers: Object.entries(config.headers || {}).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [findEnvironmentVariables(activeEnvironment, collection, key)]:
+        [findEnvironmentVariables(environmentContext, collectionContext, key)]:
           findEnvironmentVariables(
-            activeEnvironment,
-            collection,
+            environmentContext,
+            collectionContext,
             String(value)
           ),
       }),
@@ -241,10 +275,10 @@ const makeEnvironmentAwareRequest = (
     params: Object.entries(config.params || {}).reduce(
       (acc, [key, value]) => ({
         ...acc,
-        [findEnvironmentVariables(activeEnvironment, collection, key)]:
+        [findEnvironmentVariables(environmentContext, collectionContext, key)]:
           findEnvironmentVariables(
-            activeEnvironment,
-            collection,
+            environmentContext,
+            collectionContext,
             String(value)
           ),
       }),
@@ -253,7 +287,11 @@ const makeEnvironmentAwareRequest = (
 
     data:
       config.data && !skipBody
-        ? findEnvironmentVariables(activeEnvironment, collection, config.data)
+        ? findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            config.data
+          )
         : null,
   }
 }
@@ -283,7 +321,7 @@ const ensureValidUrl = (url: string): string => {
   const formattedUrl = `https://${url}`
 
   if (!urlRegex.test(url)) {
-    throw `Invalid uurl ${url}`
+    throw `Invalid url ${url}`
   }
 
   return formattedUrl

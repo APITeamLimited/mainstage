@@ -10,8 +10,6 @@ import { MonacoEditor } from 'src/components/app/MonacoEditor'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'
 
-import { getIndexOfContentType } from '../../RESTInputPanel/BodyPanel'
-
 type FocusedRequestBodyPanelProps = {
   body: RESTRequest['body']
   setActionArea: (actionArea: React.ReactNode) => void

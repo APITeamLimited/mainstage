@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { makeVar } from '@apollo/client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

@@ -14,6 +14,7 @@ import {
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { useHashSumModule } from 'src/contexts/imports'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { duplicateRecursive } from '../CollectionTree/Node/utils'
@@ -35,6 +36,8 @@ export const FolderInputPanel = ({
   collectionYMap,
   setObservedNeedsSave,
 }: FolderInputPanelProps) => {
+  const { default: hash } = useHashSumModule()
+
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
   const folderYMap = foldersYMap.get(folderId)
@@ -80,9 +83,8 @@ export const FolderInputPanel = ({
   useEffect(() => {
     if (!needSave) {
       const needsSave =
-        JSON.stringify(unsavedDescription) !==
-          JSON.stringify(folderYMap.get('description')) ||
-        JSON.stringify(unsavedAuth) !== JSON.stringify(folderYMap.get('auth'))
+        hash(unsavedDescription) !== hash(folderYMap.get('description')) ||
+        hash(unsavedAuth) !== hash(folderYMap.get('auth'))
 
       if (needsSave) {
         setNeedSave(true)

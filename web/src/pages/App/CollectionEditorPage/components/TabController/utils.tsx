@@ -36,7 +36,6 @@ export const determineNewRestTab = ({
         requestYMap={focusedElement}
         collectionYMap={collectionYMap}
         setObservedNeedsSave={setObservedNeedsSave}
-        tabId={tabId}
       />
     ),
     bottomYMap,

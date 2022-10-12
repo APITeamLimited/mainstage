@@ -23,6 +23,7 @@ import {
 } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { useHashSumModule } from 'src/contexts/imports'
 import {
   activeEnvironmentVar,
   updateActiveEnvironmentId,
@@ -43,6 +44,8 @@ export const SingleEnvironmentEditor = ({
   show,
   setShow,
 }: SingleEnvironmentEditorProps) => {
+  const { default: hash } = useHashSumModule()
+
   const theme = useTheme()
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
@@ -71,8 +74,13 @@ export const SingleEnvironmentEditor = ({
 
   useEffect(() => {
     setNeedSave(
-      JSON.stringify(unsavedKeyValues) !==
-        JSON.stringify(environmentYMap?.get('variables') || [])
+      hash(
+        kvExporter<LocalValueKV>(
+          unsavedKeyValues,
+          'localvalue',
+          environmentYMap.doc?.guid as string
+        )
+      ) !== hash(environmentYMap?.get('variables') || [])
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [environmentHook, unsavedKeyValues])

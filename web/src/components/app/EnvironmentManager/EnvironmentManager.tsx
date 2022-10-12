@@ -28,7 +28,7 @@ import {
   useBranchYMap,
   useEnvironmentsYMap,
 } from 'src/contexts/EnvironmentProvider'
-import { useYJSModule } from 'src/contexts/imports'
+import { useHashSumModule, useYJSModule } from 'src/contexts/imports'
 import {
   activeEnvironmentVar,
   getBranchEnvironmentKey,
@@ -53,6 +53,7 @@ export const EnvironmentManager = ({
   setShowCallback,
 }: EnvironmentManagerProps) => {
   const Y = useYJSModule()
+  const { default: hash } = useHashSumModule()
 
   const theme = useTheme()
 
@@ -66,7 +67,9 @@ export const EnvironmentManager = ({
   const branchYMap = useBranchYMap()
   const branchHook = useYMap(branchYMap ?? new Y.Map())
 
-  const [keyValues, setKeyValues] = useState([] as KeyValueItem<LocalValueKV>[])
+  const [unsavedKeyValues, setUnsavedKeyValues] = useState(
+    [] as KeyValueItem<LocalValueKV>[]
+  )
   const [needSave, setNeedSave] = useState(false)
 
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
@@ -81,10 +84,10 @@ export const EnvironmentManager = ({
 
   useEffect(() => {
     if (!activeEnvironmentYMap) {
-      setKeyValues([])
+      setUnsavedKeyValues([])
       return
     }
-    setKeyValues(
+    setUnsavedKeyValues(
       kvLegacyImporter('variables', activeEnvironmentYMap, 'localvalue')
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -109,11 +112,16 @@ export const EnvironmentManager = ({
 
   useEffect(() => {
     setNeedSave(
-      JSON.stringify(keyValues) !==
-        JSON.stringify(activeEnvironmentYMap?.get('variables') || [])
+      hash(
+        kvExporter<LocalValueKV>(
+          unsavedKeyValues,
+          'localvalue',
+          activeEnvironmentYMap?.doc?.guid as string
+        )
+      ) !== hash(activeEnvironmentYMap?.get('variables') || [])
     )
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironmentHook, keyValues])
+  }, [activeEnvironmentHook, unsavedKeyValues])
 
   const handleEnvironmentCreate = (name: string) => {
     if (!environmentsYMap) throw 'No environmentsYMap'
@@ -309,8 +317,8 @@ export const EnvironmentManager = ({
                 {activeEnvironmentId ? (
                   <>
                     <KeyValueEditor<LocalValueKV>
-                      items={keyValues}
-                      setItems={setKeyValues}
+                      items={unsavedKeyValues}
+                      setItems={setUnsavedKeyValues}
                       namespace={`env${activeEnvironmentId}`}
                       enableEnvironmentVariables={false}
                       disableBulkEdit
@@ -322,7 +330,7 @@ export const EnvironmentManager = ({
                         variant="contained"
                         color="success"
                         disabled={!needSave}
-                        onClick={() => handleEnvironmentSave(keyValues)}
+                        onClick={() => handleEnvironmentSave(unsavedKeyValues)}
                       >
                         Save
                       </Button>

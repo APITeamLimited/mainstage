@@ -37,7 +37,7 @@ type SortableEditorProps<T extends KVVariantTypes> = {
   disableDelete?: boolean
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
-  variant: T['variant']
+  variant: KeyValueItem<T>['variant']
 }
 
 export const SortableEditor = <T extends KVVariantTypes>({

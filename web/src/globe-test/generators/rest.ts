@@ -31,10 +31,10 @@ export const singleRESTRequestGenerator = async ({
 }): Promise<BaseJob & PendingLocalJob> => {
   const branch = collectionYMap.parent?.parent as YMap<any> | undefined
   const project = branch?.parent?.parent as YMap<any> | undefined
-
   const collectionId = collectionYMap.get('id')
   const branchId = branch?.get('id') as string | undefined
   const projectId = project?.get('id') as string | undefined
+  const workspaceId = collectionYMap.doc?.guid as string | undefined
 
   if (!collectionId || !branchId || !projectId) {
     throw new Error(
@@ -44,11 +44,22 @@ export const singleRESTRequestGenerator = async ({
     )
   }
 
+  if (!workspaceId) throw new Error('WorkspaceId not found')
+
+  const environmentContext = activeEnvironmentYMap
+    ? createEnvironmentContext(activeEnvironmentYMap, workspaceId)
+    : null
+
+  const collectionContext = collectionYMap
+    ? createEnvironmentContext(collectionYMap, workspaceId)
+    : null
+
   const axiosConfig = await getFinalRequest(
     request,
     requestYMap,
-    activeEnvironmentYMap,
-    collectionYMap
+    collectionYMap,
+    environmentContext,
+    collectionContext
   )
 
   const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
@@ -66,12 +77,8 @@ export const singleRESTRequestGenerator = async ({
     projectId: projectId,
     branchId: branchId,
     collectionId: collectionId,
-    environmentContext: createEnvironmentContext({
-      environment: activeEnvironmentYMap,
-    }),
-    collectionContext: createEnvironmentContext({
-      collection: collectionYMap,
-    }),
+    environmentContext,
+    collectionContext,
     restRequest: {
       method: axiosConfig.method as string,
       url: `${axiosConfig.url}${

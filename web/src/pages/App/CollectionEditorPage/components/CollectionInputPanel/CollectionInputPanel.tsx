@@ -18,6 +18,7 @@ import {
 import type { Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
+import { useHashSumModule } from 'src/contexts/imports'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { DescriptionPanel } from '../DescriptionPanel'
@@ -34,6 +35,8 @@ export const CollectionInputPanel = ({
   collectionYMap,
   setObservedNeedsSave,
 }: CollectionInputPanelProps) => {
+  const { default: hash } = useHashSumModule()
+
   const collectionHook = useYMap(collectionYMap)
 
   const getSetAuth = () => {
@@ -86,12 +89,15 @@ export const CollectionInputPanel = ({
   useEffect(() => {
     if (!needSave) {
       const needsSave =
-        JSON.stringify(unsavedDescription) !==
-          JSON.stringify(collectionYMap.get('description')) ||
-        JSON.stringify(unsavedAuth) !==
-          JSON.stringify(collectionYMap.get('auth')) ||
-        JSON.stringify(unsavedVariables) !==
-          JSON.stringify(collectionYMap.get('variables'))
+        hash(unsavedDescription) !== hash(collectionYMap.get('description')) ||
+        hash(unsavedAuth) !== hash(collectionYMap.get('auth')) ||
+        hash(
+          kvExporter<LocalValueKV>(
+            unsavedVariables,
+            'localvalue',
+            collectionYMap.doc?.guid as string
+          )
+        ) !== hash(collectionYMap.get('variables'))
 
       if (needsSave) {
         setNeedSave(true)

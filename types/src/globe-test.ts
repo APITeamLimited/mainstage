@@ -10,6 +10,11 @@ export interface K6RequestConfig<RT extends ResponseType | undefined> {
   params?: RefinedParams<RT> | null
 }
 
+export type FinalVariable = {
+  key: string
+  value: string
+}
+
 /* Parameters that are passed to the globe-test orchestrator */
 export type ExecutionParams = {
   id: string
@@ -17,16 +22,12 @@ export type ExecutionParams = {
   sourceName: string
   scopeId: string
   environmentContext: {
-    variables: {
-      key: string
-      value: string
-    }[]
+    variables: FinalVariable[]
+    name: string
   } | null
   collectionContext: {
-    variables: {
-      key: string
-      value: string
-    }[]
+    variables: FinalVariable[]
+    name: string
   } | null
   restRequest: K6RequestConfig<undefined> | null
 }

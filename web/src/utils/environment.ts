@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecutionParams, KeyValueItem, ResolvedVariable } from '@apiteam/types/src'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import {
+  ExecutionParams,
+  FileFieldKV,
+  FinalVariable,
+  getLocalObject,
+  KeyValueItem,
+  KVVariantTypes,
+  LocalValueKV,
+  ResolvedVariable,
+} from '@apiteam/types/src'
+import type { Map as YMap } from 'yjs'
 
 import {
   BRACED_REGEX,
@@ -8,28 +17,30 @@ import {
 } from 'src/components/app/EnvironmentManager/EnvironmentTextField/VariablePlugin'
 
 export const findVariablesInString = (
-  environment: YMap<any> | null,
-  collection: YMap<any> | null,
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
   subString: string
 ): ResolvedVariable => {
-  for (const variable of (environment?.get('variables') ??
-    []) as KeyValueItem[]) {
-    if (variable.keyString === subString && variable.enabled) {
-      return {
-        sourceName: environment?.get('name'),
-        sourceTypename: 'Environment',
-        value: variable.value,
+  if (environmentContext) {
+    for (const variable of environmentContext.variables) {
+      if (variable.key === subString) {
+        return {
+          sourceName: environmentContext.name,
+          sourceTypename: 'Environment',
+          value: variable.value,
+        }
       }
     }
   }
 
-  for (const variable of (collection?.get('variables') ??
-    []) as KeyValueItem[]) {
-    if (variable.keyString === subString && variable.enabled) {
-      return {
-        sourceName: collection?.get('name'),
-        sourceTypename: 'Collection',
-        value: variable.value,
+  if (collectionContext) {
+    for (const variable of collectionContext.variables) {
+      if (variable.key === subString) {
+        return {
+          sourceName: collectionContext.name,
+          sourceTypename: 'Collection',
+          value: variable.value,
+        }
       }
     }
   }
@@ -37,21 +48,12 @@ export const findVariablesInString = (
   return null
 }
 
-export const findEnvironmentVariablesKeyValueItem = (
-  environment: YMap<any> | null,
-  collection: YMap<any> | null,
-  item: KeyValueItem
-) => ({
-  key: findEnvironmentVariables(environment, collection, item.keyString),
-  value: findEnvironmentVariables(environment, collection, item.value),
-})
-
 /**
  * Finds environment variables in a given KeyValueItem
  */
 export const findEnvironmentVariables = (
-  environment: YMap<any> | null,
-  collection: YMap<any> | null,
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
   target: string
 ) => {
   // Find substrings that start and end with curly braces and get their index
@@ -89,7 +91,8 @@ export const findEnvironmentVariables = (
       const variable = subString.substring(2, subString.length - 2)
 
       result.push(
-        findVariablesInString(environment, collection, variable)?.value ?? ''
+        findVariablesInString(environmentContext, collectionContext, variable)
+          ?.value ?? ''
       )
     } else {
       result.push(subString)
@@ -99,42 +102,126 @@ export const findEnvironmentVariables = (
   return result.join('')
 }
 
-export const createEnvironmentContext = ({
-  environment = null,
-  collection = null,
-}: {
-  environment?: YMap<any> | null
-  collection?: YMap<any> | null
-}): ExecutionParams['environmentContext'] => {
+export const findEnvironmentVariablesKeyValueItem = <T extends KVVariantTypes>(
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
+  item: KeyValueItem<T>,
+  variant: KeyValueItem<T>['variant'],
+  workspaceId: string
+) => {
+  if (variant === 'filefield') {
+    if ((item as KeyValueItem<FileFieldKV>).fileEnabled) {
+      return item
+    } else {
+      return {
+        key: findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          item.keyString
+        ),
+        value: findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          (item as KeyValueItem<FileFieldKV>).value ?? ''
+        ),
+      }
+    }
+  } else if (variant === 'localvalue') {
+    const localItem = {
+      ...item,
+      localValue: getLocalObject(
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        item.localValue,
+        workspaceId
+      ),
+    } as KeyValueItem<LocalValueKV>
+
+    const validLocalValue =
+      typeof localItem.localValue?.data === 'string' &&
+      localItem.localValue?.data.length > 0
+
+    const usedValue = validLocalValue
+      ? (localItem.localValue?.data as string)
+      : localItem.value ?? ''
+
+    return {
+      key: findEnvironmentVariables(
+        environmentContext,
+        collectionContext,
+        localItem.keyString
+      ),
+      value: findEnvironmentVariables(
+        environmentContext,
+        collectionContext,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        usedValue
+      ),
+    }
+  } else if (variant === 'default') {
+    return {
+      key: findEnvironmentVariables(
+        environmentContext,
+        collectionContext,
+        item.keyString
+      ),
+      value: findEnvironmentVariables(
+        environmentContext,
+        collectionContext,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        item.value ?? ''
+      ),
+    }
+  } else {
+    throw new Error(`Unknown key value variant ${variant}`)
+  }
+}
+
+export const createEnvironmentContext = (
+  environmentOrCollection: YMap<any>,
+  workspaceId: string
+): {
+  name: string
+  variables: FinalVariable[]
+} => {
+  const rawVariables = (
+    (environmentOrCollection?.get('variables') ??
+      []) as KeyValueItem<LocalValueKV>[]
+  )
+    .map((variable) => ({
+      ...variable,
+      localValue: getLocalObject(variable.localValue, workspaceId),
+    }))
+    .filter((variable) => variable.enabled)
+
   const variables = [] as {
     key: string
     value: string
   }[]
 
-  const environmentVariables = (environment?.get('variables') ??
-    []) as KeyValueItem[]
-  const collectionVariables = (collection?.get('variables') ??
-    []) as KeyValueItem[]
+  rawVariables.forEach((variable) => {
+    const validLocalValue =
+      typeof variable.localValue?.data === 'string' &&
+      variable.localValue?.data.length > 0
 
-  const allVariables = [
-    ...environmentVariables,
-    ...collectionVariables,
-  ] as KeyValueItem[]
+    const usedValue = validLocalValue
+      ? (variable.localValue?.data as string)
+      : variable.value ?? ''
 
-  allVariables.forEach((variable) => {
-    if (variable.enabled) {
-      variables.push({
-        key: variable.keyString,
-        value: findEnvironmentVariables(
-          environment,
-          collection,
-          variable.value
-        ),
-      })
-    }
+    // Variables cannot have variables themselves, so we don't need to check for them
+
+    variables.push({
+      key: variable.keyString,
+      value: usedValue,
+    })
   })
 
   return {
+    name: environmentOrCollection?.get('name') ?? '',
     variables,
   }
 }
