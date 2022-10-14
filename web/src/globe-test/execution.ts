@@ -48,7 +48,11 @@ export const execute = ({
 }: ExecuteArgs): boolean => {
   let params: WrappedExecutionParams | null = null
 
-  if (job.restRequest) {
+  if (
+    job.finalRequest &&
+    job.underlyingRequest &&
+    job.underlyingRequest.__typename === 'RESTRequest'
+  ) {
     params = {
       bearer: rawBearer,
       scopeId: job.scopeId,
@@ -61,7 +65,7 @@ export const execute = ({
       sourceName: job.sourceName,
       environmentContext: job.environmentContext,
       collectionContext: job.collectionContext,
-      restRequest: job.restRequest,
+      finalRequest: job.finalRequest,
     }
   } else {
     throw new Error('Unknown test type')
@@ -96,7 +100,7 @@ export const execute = ({
       if (message.messageType === 'STATUS') {
         if (
           message.message === 'COMPLETED_SUCCESS' ||
-          message.message === 'COMPLETED_FAILED'
+          message.message === 'COMPLETED_FAILURE'
         ) {
           setTimeout(() => socket.disconnect(), 1000)
         }
@@ -162,13 +166,20 @@ export const parseMessage = (message: any) => {
   if (
     message.messageType === 'SUMMARY_METRICS' ||
     message.messageType === 'METRICS' ||
-    message.messageType === 'MARK' ||
     message.messageType === 'JOB_INFO' ||
     message.messageType === 'CONSOLE' ||
     message.messageType === 'OPTIONS'
   ) {
     message.message = JSON.parse(message.message)
     message.time = new Date(message.time)
+
+    if (message.messageType === 'CONSOLE') {
+      try {
+        message.message.msg = JSON.parse(message.message.msg)
+      } catch (error) {
+        // Do nothing
+      }
+    }
   }
 
   if (message.workerId === '' && message.orchestratorId !== '') {
@@ -176,6 +187,10 @@ export const parseMessage = (message: any) => {
   }
 
   if (message.orchestratorId === '' && message.workerId !== '') {
+    delete message.orchestratorId
+  }
+
+  if (message.workerId && message.orchestratorId) {
     delete message.orchestratorId
   }
 

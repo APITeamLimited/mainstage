@@ -11,6 +11,7 @@ import {
 } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
+import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import {
   BRACED_REGEX,
   getPossibleVariableMatch,
@@ -21,17 +22,7 @@ export const findVariablesInString = (
   collectionContext: ExecutionParams['collectionContext'],
   subString: string
 ): ResolvedVariable => {
-  if (environmentContext) {
-    for (const variable of environmentContext.variables) {
-      if (variable.key === subString) {
-        return {
-          sourceName: environmentContext.name,
-          sourceTypename: 'Environment',
-          value: variable.value,
-        }
-      }
-    }
-  }
+  // Check collection context first
 
   if (collectionContext) {
     for (const variable of collectionContext.variables) {
@@ -39,6 +30,18 @@ export const findVariablesInString = (
         return {
           sourceName: collectionContext.name,
           sourceTypename: 'Collection',
+          value: variable.value,
+        }
+      }
+    }
+  }
+
+  if (environmentContext) {
+    for (const variable of environmentContext.variables) {
+      if (variable.key === subString) {
+        return {
+          sourceName: environmentContext.name,
+          sourceTypename: 'Environment',
           value: variable.value,
         }
       }
@@ -212,13 +215,19 @@ export const createEnvironmentContext = (
       ? (variable.localValue?.data as string)
       : variable.value ?? ''
 
-    // Variables cannot have variables themselves, so we don't need to check for them
-
-    variables.push({
-      key: variable.keyString,
-      value: usedValue,
-    })
+    // Variables can't contains variables themselves, so we don't need to check for them
+    if (usedValue.length > 0) {
+      variables.push({
+        key: variable.keyString,
+        value: usedValue,
+      })
+    }
   })
+
+  if (!environmentOrCollection?.get('name')) {
+    snackErrorMessageVar("Couldn't find environment or collection name")
+    throw new Error("Couldn't find environment or collection name")
+  }
 
   return {
     name: environmentOrCollection?.get('name') ?? '',

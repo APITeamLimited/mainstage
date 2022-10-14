@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecutionScript, RESTRequest } from '@apiteam/types/src'
+import {
+  ExecutionParams,
+  ExecutionScript,
+  RESTRequest,
+} from '@apiteam/types/src'
 import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
-
-import { createEnvironmentContext } from 'src/utils/environment'
 
 import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
 import { getFinalRequest } from '../rest'
@@ -15,19 +17,21 @@ Creates a new single rest job and adds it to the queue.
 export const singleRESTRequestGenerator = async ({
   request,
   scopeId,
-  activeEnvironmentYMap,
   jobQueue,
   requestYMap,
   collectionYMap,
   executionScript,
+  environmentContext,
+  collectionContext,
 }: {
   request: RESTRequest
   scopeId: string
-  activeEnvironmentYMap: YMap<any> | null
   jobQueue: QueuedJob[]
   requestYMap: YMap<any>
   collectionYMap: YMap<any>
   executionScript: ExecutionScript
+  environmentContext: ExecutionParams['environmentContext']
+  collectionContext: ExecutionParams['collectionContext']
 }): Promise<BaseJob & PendingLocalJob> => {
   const branch = collectionYMap.parent?.parent as YMap<any> | undefined
   const project = branch?.parent?.parent as YMap<any> | undefined
@@ -46,14 +50,6 @@ export const singleRESTRequestGenerator = async ({
 
   if (!workspaceId) throw new Error('WorkspaceId not found')
 
-  const environmentContext = activeEnvironmentYMap
-    ? createEnvironmentContext(activeEnvironmentYMap, workspaceId)
-    : null
-
-  const collectionContext = collectionYMap
-    ? createEnvironmentContext(collectionYMap, workspaceId)
-    : null
-
   const axiosConfig = await getFinalRequest(
     request,
     requestYMap,
@@ -65,9 +61,9 @@ export const singleRESTRequestGenerator = async ({
   const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
 
   const job: BaseJob & PendingLocalJob = {
+    __subtype: 'PendingLocalJob',
     localId: uuid(),
     agent: 'GlobeTest',
-    underlyingRequest: request,
     createdAt: new Date(),
     jobStatus: 'LOCAL_CREATING',
     source: executionScript.script,
@@ -79,7 +75,7 @@ export const singleRESTRequestGenerator = async ({
     collectionId: collectionId,
     environmentContext,
     collectionContext,
-    restRequest: {
+    finalRequest: {
       method: axiosConfig.method as string,
       url: `${axiosConfig.url}${
         queryEncoded.length > 1 ? queryEncoded : ''
@@ -95,7 +91,7 @@ export const singleRESTRequestGenerator = async ({
         ),
       },
     },
-    __subtype: 'PendingLocalJob',
+    underlyingRequest: request,
   }
 
   jobQueueVar([...jobQueue, job])

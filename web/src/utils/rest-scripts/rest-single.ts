@@ -10,14 +10,14 @@ import { mark } from 'apiteam';
 import { finalRequest } from 'apiteam/context';
 
 export const options = {
-    executionMode: 'rest_single',
+    executionMode: 'http_single',
 };
 
 export default function() {
     const res = http.request(...Object.values(finalRequest));
 
     // Create a marker to see the response in the Collection Editor
-    mark("RESTResult", res);
+    mark("MarkedResponse", res);
 }
 `,
 }

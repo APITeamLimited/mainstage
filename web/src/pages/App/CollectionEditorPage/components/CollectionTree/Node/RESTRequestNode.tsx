@@ -14,6 +14,10 @@ import {
   getFocusedElementKey,
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
+import {
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { findEnvironmentVariables } from 'src/utils/environment'
 
@@ -56,6 +60,9 @@ export const RESTRequestNode = ({
     focusedElementDict[getFocusedElementKey(nodeYMap)]?.get('id') ===
     nodeYMap.get('id')
 
+  const environmentContext = useEnvironmentVariables()
+  const collectionContext = useCollectionVariables()
+
   const handleClick = () => {
     // Set focused response to most recent of this node's responses
     const responses = Array.from(
@@ -80,8 +87,8 @@ export const RESTRequestNode = ({
     try {
       return new URL(
         findEnvironmentVariables(
-          activeEnvironmentYMap,
-          collectionYMap,
+          environmentContext,
+          collectionContext,
           nodeYMap.get('endpoint')
         )
       ).pathname

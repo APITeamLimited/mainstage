@@ -21,8 +21,8 @@ export const restCreateResponse = async ({
   params: WrappedExecutionParams
   jobId: string
 }) => {
-  if (!params.restRequest) {
-    socket.emit('error', 'Missing restRequest parameter')
+  if (!params.finalRequest) {
+    socket.emit('error', 'Missing finalRequest parameter')
     socket.disconnect()
     return
   }
@@ -44,7 +44,7 @@ export const restCreateResponse = async ({
     branchId: params.branchId,
     collectionId: params.collectionId,
     underlyingRequest: params.underlyingRequest,
-    finalRequestEndpoint: params.restRequest.url,
+    finalRequestEndpoint: params.finalRequest.url,
     source: params.source,
     sourceName: params.sourceName,
     jobId,
@@ -62,8 +62,8 @@ export const restAddOptions = async ({
   params: WrappedExecutionParams
   options: GlobeTestOptions
 }) => {
-  if (!params.restRequest) {
-    socket.emit('error', 'Missing restRequest parameter')
+  if (!params.finalRequest) {
+    socket.emit('error', 'Missing finalRequest parameter')
     socket.disconnect()
     return
   }
@@ -116,7 +116,7 @@ export const restHandleSuccessSingle = async ({
     rawBearer: params.bearer,
     // eslint-disable-next-line new-cap
     resource: Buffer.from(JSON.stringify(response)),
-    resourceName: `RESTResponse:${responseId}:response.json`,
+    resourceName: `Response:${responseId}:response.json`,
   })
 
   const eeParams: EntityEngineServersideMessages['rest-handle-success-single'] =

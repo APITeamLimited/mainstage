@@ -4,13 +4,18 @@ import {
   ExecutionParams,
   GlobeTestOptions,
 } from '@apiteam/types'
+import type { Scope } from '@prisma/client'
 import { Response } from 'k6/http'
 import { parse } from 'query-string'
 import { Socket } from 'socket.io'
 import type { Socket as EntityEngineSocket } from 'socket.io-client'
 import { v4 as uuid } from 'uuid'
 
-import { orchestratorReadRedis, orchestratorSubscribeRedis } from '../../redis'
+import {
+  coreCacheReadRedis,
+  orchestratorReadRedis,
+  orchestratorSubscribeRedis,
+} from '../../redis'
 import { validateParams } from '../../validator'
 
 import {
@@ -69,22 +74,38 @@ export const handleNewTest = async (socket: Socket) => {
   })
 
   // Calling this first here seems to prevent the race condition
-  await getEntityEngineSocket(
-    socket,
-    params.scopeId,
-    params.bearer,
-    params.projectId
-  )
+  const [scopeRaw] = await Promise.all([
+    coreCacheReadRedis.get(`scope__id:${params.scopeId}`),
+    getEntityEngineSocket(
+      socket,
+      params.scopeId,
+      params.bearer,
+      params.projectId
+    ),
+  ])
+
+  if (!scopeRaw) {
+    socket.emit('error', 'Scope unexpectedly not found')
+    socket.disconnect()
+    console.error('Scope unexpectedly not found')
+    return
+  }
+
+  const fullScope = JSON.parse(scopeRaw) as Scope
 
   const executionParams = {
     id: uuid(),
     source: params.source,
     sourceName: params.sourceName,
-    scopeId: params.scopeId,
     status: 'PENDING',
     environmentContext: params.environmentContext,
     collectionContext: params.collectionContext,
-    restRequest: params.restRequest,
+    finalRequest: params.finalRequest,
+    underlyingRequest: params.underlyingRequest,
+    scope: {
+      variant: fullScope.variant,
+      variantTargetId: fullScope.variantTargetId,
+    },
   } as ExecutionParams
 
   // Start stream before scheduling to ensure all messages are received
@@ -129,7 +150,7 @@ const handleMessage = async (
     }
 
     if (message.messageType === 'MARK') {
-      if (message.message.mark === 'RESTResult') {
+      if (message.message.mark === 'MarkedResponse') {
         const testState = runningTestStates.get(socket)
         if (!testState) throw new Error('Test state not found')
 
@@ -160,7 +181,7 @@ const handleMessage = async (
     if (message.messageType === 'STATUS') {
       if (
         message.message === 'COMPLETED_SUCCESS' ||
-        message.message === 'COMPLETED_FAILED'
+        message.message === 'COMPLETED_FAILURE'
       ) {
         const runningState = runningTestStates.get(socket) as TestRunningState
 
@@ -168,7 +189,7 @@ const handleMessage = async (
 
         if (runningState.testType === 'undetermined') {
           wasSuccessful = false
-        } else if (message.message === 'COMPLETED_FAILED') {
+        } else if (message.message === 'COMPLETED_FAILURE') {
           wasSuccessful = false
         } else if (message.message === 'COMPLETED_SUCCESS') {
           if (
@@ -186,7 +207,7 @@ const handleMessage = async (
         if (wasSuccessful) {
           if (
             (runningState.options as GlobeTestOptions).executionMode ===
-              'rest_single' &&
+              'http_single' &&
             runningState.testType === 'rest'
           ) {
             await restHandleSuccessSingle({

@@ -14,6 +14,10 @@ import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import { useYJSModule, useHashSumModule } from 'src/contexts/imports'
+import {
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { singleRESTRequestGenerator } from 'src/globe-test'
 import { jobQueueVar } from 'src/globe-test/lib'
@@ -137,7 +141,8 @@ export const RESTInputPanel = ({
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  useYMap(activeEnvironmentYMap || new Y.Map())
+
+  useYMap(activeEnvironmentYMap ?? new Y.Map())
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
@@ -237,6 +242,9 @@ export const RESTInputPanel = ({
     restRequestsYMap.set(newId, clone)
   }
 
+  const environmentContext = useEnvironmentVariables()
+  const collectionContext = useCollectionVariables()
+
   const handleSend = async (executionScript: ExecutionScript) => {
     const request: RESTRequest = {
       id: requestYMap.get('id'),
@@ -266,7 +274,8 @@ export const RESTInputPanel = ({
     try {
       await singleRESTRequestGenerator({
         request,
-        activeEnvironmentYMap,
+        environmentContext,
+        collectionContext,
         collectionYMap,
         // Normal send is always main scope i.e. workspace
         scopeId,
@@ -278,6 +287,9 @@ export const RESTInputPanel = ({
       snackErrorMessageVar(e as string)
     }
   }
+
+  const handleSendRef = useRef<typeof handleSend>(handleSend)
+  handleSendRef.current = handleSend
 
   const spawnId = useMemo(() => uuid(), [])
 
@@ -368,7 +380,7 @@ export const RESTInputPanel = ({
             setExecutionScripts={setUnsavedExecutionScripts}
             namespace={spawnId}
             setActionArea={setActionArea}
-            onExecute={handleSend}
+            onExecuteRef={handleSendRef}
           />
         )}
         {activeTabIndex === 5 && (

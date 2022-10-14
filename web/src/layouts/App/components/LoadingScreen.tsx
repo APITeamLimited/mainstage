@@ -4,13 +4,13 @@ import { useTheme, Box, Typography, Stack, LinearProgress } from '@mui/material'
 import TextTransition, { presets } from 'react-text-transition'
 
 const loadingMessages = [
-  'Polishing post requests',
+  'Polishing POST requests',
   'Checking for bugs',
   'Warming up the API',
   'Plumbing websockets',
   'Sketching graphql schemas',
   'Organising metrics',
-  'Serving up some docs',
+  'Deriving execution plans',
   'Reticulating splines',
 ]
 

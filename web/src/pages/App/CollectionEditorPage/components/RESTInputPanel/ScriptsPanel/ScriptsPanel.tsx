@@ -25,7 +25,9 @@ type ScriptsPanelProps = {
   setExecutionScripts: (executionScripts: ExecutionScript[]) => void
   setActionArea: (actionArea: React.ReactNode) => void
   namespace: string
-  onExecute: (executionScript: ExecutionScript) => void
+  onExecuteRef: React.MutableRefObject<
+    (executionScript: ExecutionScript) => void
+  >
 }
 
 export const ScriptsPanel = ({
@@ -33,7 +35,7 @@ export const ScriptsPanel = ({
   setExecutionScripts,
   setActionArea,
   namespace,
-  onExecute,
+  onExecuteRef,
 }: ScriptsPanelProps) => {
   const theme = useTheme()
 
@@ -84,7 +86,9 @@ export const ScriptsPanel = ({
     const executeButton = (
       <Button
         onClick={() =>
-          onExecute(executionScriptsRef.current[activeScriptIndexRef.current])
+          onExecuteRef.current(
+            executionScriptsRef.current[activeScriptIndexRef.current]
+          )
         }
         size="small"
         variant="outlined"

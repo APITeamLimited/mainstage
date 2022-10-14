@@ -45,4 +45,6 @@ export const checkOwnerAdmin = async ({
       'You need to be an owner or admin to access this resource.'
     )
   }
+
+  return currentUserMembership.role
 }

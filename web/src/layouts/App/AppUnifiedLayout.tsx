@@ -66,11 +66,12 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('hash-sum'),
         import('simplebar-react'),
         import('@monaco-editor/react'),
-        new Promise((resolve) =>
+
+        new Promise((resolve) => {
           import('@monaco-editor/loader').then((module) => {
             module.default.init().then(resolve)
           })
-        ),
+        }),
 
         // Import pages so app is snappy
         import('src/pages/App/CollectionEditorPage'),

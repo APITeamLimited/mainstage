@@ -102,7 +102,7 @@ export const GlobeTestProvider = () => {
 
       if (
         job.jobStatus === 'COMPLETED_SUCCESS' ||
-        job.jobStatus === 'COMPLETED_FAILED'
+        job.jobStatus === 'COMPLETED_FAILURE'
       ) {
         // Remove completed jobs from queue
         jobQueueVar(jobQueue.filter((j) => j.localId !== job.localId))

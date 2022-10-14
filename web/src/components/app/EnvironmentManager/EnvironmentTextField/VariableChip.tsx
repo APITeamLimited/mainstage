@@ -1,26 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { ResolvedVariable } from '@apiteam/types/src'
-import { useReactiveVar } from '@apollo/client'
 import { Chip, Tooltip } from '@mui/material'
 
-import { useCollection } from 'src/contexts/collection'
-import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { useYJSModule } from 'src/contexts/imports'
-import { activeEnvironmentVar } from 'src/contexts/reactives'
-import { useYMap } from 'src/lib/zustand-yjs'
 import {
-  createEnvironmentContext,
-  findVariablesInString,
-} from 'src/utils/environment'
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
+import { findVariablesInString } from 'src/utils/environment'
 
 type VariableChipProps = {
   variableName: string
 }
 
 export const VariableChip = ({ variableName }: VariableChipProps) => {
-  const Y = useYJSModule()
-
   const variableNameWithoutCurlyBraces = useMemo(
     () => variableName.replaceAll(/^\{{/g, '').replaceAll(/\}}$/g, ''),
     [variableName]
@@ -29,32 +22,8 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
   const [resolvedVariable, setResolvedVariable] =
     useState<ResolvedVariable | null>(null)
 
-  const activeEnvironmentYMap = useActiveEnvironmentYMap()
-  const activeEnvironmentHook = useYMap(activeEnvironmentYMap ?? new Y.Map())
-  const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
-  const collection = useCollection()
-  const collectionHook = useYMap(collection ?? new Y.Map())
-
-  const environmentContext = useMemo(
-    () =>
-      activeEnvironmentYMap
-        ? createEnvironmentContext(
-            activeEnvironmentYMap,
-            activeEnvironmentYMap.doc?.guid as string
-          )
-        : null,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [activeEnvironmentDict, activeEnvironmentHook, collectionHook]
-  )
-
-  const collectionContext = useMemo(
-    () =>
-      collection
-        ? createEnvironmentContext(collection, collection.doc?.guid as string)
-        : null,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [collectionHook]
-  )
+  const environmentContext = useEnvironmentVariables()
+  const collectionContext = useCollectionVariables()
 
   useEffect(() => {
     const foundVariable = findVariablesInString(

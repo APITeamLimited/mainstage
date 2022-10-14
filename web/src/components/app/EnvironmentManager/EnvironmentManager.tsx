@@ -83,34 +83,6 @@ export const EnvironmentManager = ({
     [activeEnvironmentDict, branchHook]
   )
 
-  useEffect(() => {
-    if (!activeEnvironmentYMap) {
-      setUnsavedKeyValues([])
-      return
-    }
-    setUnsavedKeyValues(
-      kvLegacyImporter('variables', activeEnvironmentYMap, 'localvalue')
-    )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironmentId, show])
-
-  const handleEnvironmentSave = (
-    newKeyValues: KeyValueItem<LocalValueKV>[]
-  ) => {
-    if (!activeEnvironmentYMap) throw 'No active environment'
-    activeEnvironmentYMap.set(
-      'variables',
-      kvExporter<LocalValueKV>(
-        newKeyValues,
-        'localvalue',
-        activeEnvironmentYMap.doc?.guid as string
-      )
-    )
-    activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
-
-    setNeedSave(false)
-  }
-
   const [mountTime, setMountTime] = useState(Date.now())
 
   // Keep in case of remote updates
@@ -139,9 +111,14 @@ export const EnvironmentManager = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedKeyValues])
 
-  // Load the variables again when the dialog is opened
+  // Load the variables again when the dialog is opened or active environment changes
   useEffect(() => {
-    if (show) {
+    if (!activeEnvironmentId) {
+      setUnsavedKeyValues([])
+      return
+    }
+
+    if (show && activeEnvironmentId && activeEnvironmentYMap) {
       setMountTime(Date.now())
       setNeedSave(false)
       setUnsavedKeyValues(
@@ -149,16 +126,33 @@ export const EnvironmentManager = ({
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show])
+  }, [show, activeEnvironmentId, activeEnvironmentYMap])
+
+  const handleEnvironmentSave = (
+    newKeyValues: KeyValueItem<LocalValueKV>[]
+  ) => {
+    if (!activeEnvironmentYMap) throw 'No active environment'
+    activeEnvironmentYMap.set(
+      'variables',
+      kvExporter<LocalValueKV>(
+        newKeyValues,
+        'localvalue',
+        activeEnvironmentYMap.doc?.guid as string
+      )
+    )
+    activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
+
+    setNeedSave(false)
+  }
 
   const handleEnvironmentCreate = (name: string) => {
     if (!environmentsYMap) throw 'No environmentsYMap'
 
+    const isFirstEnvironment = environmentsYMap.size === 0
+
     const { environment, environmentId } = createEnvironment(name, Y)
 
     environmentsYMap.set(environmentId, environment)
-
-    const isFirstEnvironment = environmentsYMap.size === 0
 
     if (isFirstEnvironment) {
       updateActiveEnvironmentId(

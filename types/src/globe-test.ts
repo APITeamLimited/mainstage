@@ -20,7 +20,6 @@ export type ExecutionParams = {
   id: string
   source: string
   sourceName: string
-  scopeId: string
   environmentContext: {
     variables: FinalVariable[]
     name: string
@@ -29,13 +28,19 @@ export type ExecutionParams = {
     variables: FinalVariable[]
     name: string
   } | null
-  restRequest: K6RequestConfig<undefined> | null
+  finalRequest: K6RequestConfig<undefined> | null
+  underlyingRequest: RESTRequest | null
+  scope: {
+    variant: 'USER' | 'TEAM'
+    variantTargetId: string
+  }
 }
 
 /* Wrapper around the execution params that servers as arguments to the node
 globe-test agent */
-export type WrappedExecutionParams = Omit<ExecutionParams, 'id'> & {
+export type WrappedExecutionParams = Omit<ExecutionParams, 'id' | 'scope'> & {
   bearer: string
+  scopeId: string
   projectId: string
   branchId: string
 } & {
@@ -57,10 +62,10 @@ export type StatusType =
   | 'ASSIGNED'
   | 'LOADING'
   | 'RUNNING'
-  | 'FAILED'
+  | 'FAILURE'
   | 'SUCCESS'
   | 'COMPLETED_SUCCESS'
-  | 'COMPLETED_FAILED'
+  | 'COMPLETED_FAILURE'
 
 export type MarkType = {
   mark: string
@@ -178,5 +183,5 @@ export type ResolvedVariable = {
 } | null
 
 export type GlobeTestOptions = Omit<K6Options, 'noUsageReport' | 'linger'> & {
-  executionMode: 'rest_single' | 'rest_multiple'
+  executionMode: 'http_single' | 'http_multiple'
 }

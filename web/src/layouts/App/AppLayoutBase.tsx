@@ -1,7 +1,5 @@
 import { useTheme, useScrollTrigger, Stack, Box } from '@mui/material'
 
-import { BrowserOnly } from '@redwoodjs/prerender/browserUtils'
-
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'

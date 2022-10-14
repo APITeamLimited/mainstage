@@ -11,8 +11,6 @@ export type BaseJob = {
   // Don't trust end client to create UUIDs so these are clientside only
   localId: string
   createdAt: Date
-  // TODO: add future requests eg REST here
-  underlyingRequest: RESTRequest
   agent: 'Browser' | 'GlobeTest'
   scopeId: string
   source: string
@@ -23,7 +21,8 @@ export type BaseJob = {
   collectionId: string
   collectionContext: ExecutionParams['collectionContext']
   environmentContext: ExecutionParams['environmentContext']
-  restRequest: ExecutionParams['restRequest']
+  finalRequest: ExecutionParams['finalRequest']
+  underlyingRequest: ExecutionParams['underlyingRequest']
   createdEntry?: boolean
 }
 
@@ -42,7 +41,7 @@ export type ExecutingJob = {
 
 export type PostExecutionJob = {
   __subtype: 'PostExecutionJob'
-  jobStatus: 'POST_PROCESSING' | 'COMPLETED_SUCCESS' | 'COMPLETED_FAILED'
+  jobStatus: 'POST_PROCESSING' | 'COMPLETED_SUCCESS' | 'COMPLETED_FAILURE'
   jobId: string
   jobVariant: RESTResponse['__subtype']
   targetId: string

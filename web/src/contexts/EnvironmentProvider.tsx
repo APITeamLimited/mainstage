@@ -17,9 +17,6 @@ const ActiveEnvironmentYMapContext = createContext<YMap<any> | null>(null)
 export const useActiveEnvironmentYMap = () =>
   useContext(ActiveEnvironmentYMapContext)
 
-const EnvironmentsContext = createContext({})
-export const useEnvironments = () => useContext(EnvironmentsContext)
-
 const EnvironmentsYMapContext = createContext<YMap<any>>(null)
 export const useEnvironmentsYMap = () => useContext(EnvironmentsYMapContext)
 
@@ -39,7 +36,7 @@ export const EnvironmentProvider = ({
   const environmentsYMap = branchYMap?.get('environments')
   const allActiveEnvironmentsDict = useReactiveVar(activeEnvironmentVar)
 
-  const environments = useYMap(environmentsYMap || new Y.Map())
+  const environmentsHook = useYMap(environmentsYMap || new Y.Map())
 
   useEffect(() => {
     // Set activeEnvironmentYMap based on activeEnvironmentId
@@ -48,8 +45,10 @@ export const EnvironmentProvider = ({
     const activeEnvironmentYMap = activeEnvironmentId
       ? environmentsYMap?.get(activeEnvironmentId)
       : null
+
     setActiveEnvironmentYMap(activeEnvironmentYMap)
-  }, [allActiveEnvironmentsDict, branchYMap, environmentsYMap])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allActiveEnvironmentsDict, environmentsHook])
 
   const [activeEnvironmentYMap, setActiveEnvironmentYMap] = useState<YMap<any>>(
     new Y.Map()
@@ -60,11 +59,9 @@ export const EnvironmentProvider = ({
   return (
     <BranchYMapContext.Provider value={branchYMap}>
       <ActiveEnvironmentYMapContext.Provider value={activeEnvironmentYMap}>
-        <EnvironmentsContext.Provider value={environments}>
-          <EnvironmentsYMapContext.Provider value={environmentsYMap}>
-            {children}
-          </EnvironmentsYMapContext.Provider>
-        </EnvironmentsContext.Provider>
+        <EnvironmentsYMapContext.Provider value={environmentsYMap}>
+          {children}
+        </EnvironmentsYMapContext.Provider>
       </ActiveEnvironmentYMapContext.Provider>
     </BranchYMapContext.Provider>
   )

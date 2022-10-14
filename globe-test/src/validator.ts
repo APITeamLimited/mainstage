@@ -18,7 +18,7 @@ const schema = {
     sourceName: { type: 'string' },
     scopeId: { type: 'string' },
     environmentContext: {
-      type: 'object',
+      type: ['object', 'null'],
       //properties: {
       //  variables: {
       //    type: 'array',
@@ -37,7 +37,7 @@ const schema = {
       //additionalProperties: false,
     },
     collectionContext: {
-      type: 'object',
+      type: ['object', 'null'],
       //properties: {
       //  variables: {
       //    type: 'array',
@@ -55,7 +55,7 @@ const schema = {
       //required: ['variables'],
       //additionalProperties: false,
     },
-    restRequest: {
+    finalRequest: {
       type: 'object',
       //properties: {
       //  method: { type: 'string' },
@@ -77,12 +77,12 @@ const schema = {
     'source',
     'sourceName',
     'scopeId',
-    'environmentContext',
-    'collectionContext',
-    'restRequest',
+    'finalRequest',
     'testType',
     'collectionId',
     'underlyingRequest',
+    'collectionContext',
+    'environmentContext',
   ],
 }
 
@@ -109,17 +109,18 @@ export const validateParams = (
     {
       environmentContext: {},
       collectionContext: {},
-      restRequest: null,
+      finalRequest: null,
     }
   ) as unknown
 
   if (!validate(parsedParams)) {
+    console.log('parsedParams', validate.errors)
     throw new Error('Invalid params')
   }
 
-  const restRequest = (
-    params.restRequest ? JSON.parse(params.restRequest as string) : null
-  ) as WrappedExecutionParams['restRequest'] | null
+  const finalRequest = (
+    params.finalRequest ? JSON.parse(params.finalRequest as string) : null
+  ) as WrappedExecutionParams['finalRequest'] | null
 
   // Sufficiently checked for strings so we can cast
   const baseParams = {
@@ -127,13 +128,13 @@ export const validateParams = (
     source: params.source as string,
     sourceName: params.sourceName as string,
     scopeId: params.scopeId as string,
-    environmentContext: JSON.parse(params.environmentContext as string) as {
-      variables: { key: string; value: string }[]
-    } | null,
-    collectionContext: JSON.parse(params.collectionContext as string) as {
-      variables: { key: string; value: string }[]
-    } | null,
-    restRequest,
+    environmentContext: JSON.parse(
+      params.environmentContext as string
+    ) as ExecutionParams['environmentContext'],
+    collectionContext: JSON.parse(
+      params.collectionContext as string
+    ) as ExecutionParams['collectionContext'],
+    finalRequest,
     bearer: params.bearer as string,
     projectId: params.projectId as string,
     branchId: params.branchId as string,

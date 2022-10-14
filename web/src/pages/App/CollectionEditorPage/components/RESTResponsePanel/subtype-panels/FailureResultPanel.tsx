@@ -87,8 +87,18 @@ export const FailureResultPanel = ({
       .filter((message) => message.messageType === 'ERROR')
       .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
 
-    if (sortedErrors.length === 0) {
+    if (
+      sortedErrors.length === 0 ||
+      typeof sortedErrors[0].message !== 'string'
+    ) {
       return 'Request failed to execute, please examine the logs for more info.'
+    }
+
+    if (sortedErrors[0].message.length > 200) {
+      return `${sortedErrors[0].message.slice(
+        0,
+        200
+      )}... Message truncated, please examine the logs for more info.`
     }
 
     return sortedErrors[0].message as string

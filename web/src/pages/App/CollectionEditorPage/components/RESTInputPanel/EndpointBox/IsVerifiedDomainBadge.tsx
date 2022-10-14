@@ -1,46 +1,33 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 
 import CancelIcon from '@mui/icons-material/Cancel'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { Box, CircularProgress, Tooltip, useTheme } from '@mui/material'
 import extractDomain from 'extract-domain'
 
-import { useCollection } from 'src/contexts/collection'
-import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
-import { useVerifiedDomains } from 'src/contexts/verified-domains-provider'
 import {
-  createEnvironmentContext,
-  findEnvironmentVariables,
-} from 'src/utils/environment'
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
+import { useVerifiedDomains } from 'src/contexts/verified-domains-provider'
+import { findEnvironmentVariables } from 'src/utils/environment'
 
-type IsVerifiedDomainBadge = {
+type IsVerifiedDomainBadgeProps = {
   endpoint: string
 }
 
-export const IsVerifiedDomainBadge = ({ endpoint }: IsVerifiedDomainBadge) => {
+export const IsVerifiedDomainBadge = ({
+  endpoint,
+}: IsVerifiedDomainBadgeProps) => {
   const theme = useTheme()
-
-  const collectionYMap = useCollection()
-  const activeEnvironmentYMap = useActiveEnvironmentYMap()
 
   const verifiedDomains = useVerifiedDomains()
   const [isVerified, setIsVerified] = useState<'yes' | 'no' | 'loading'>('no')
 
+  const collectionContext = useCollectionVariables()
+  const environmentContext = useEnvironmentVariables()
+
   useEffect(() => {
-    const collectionContext = collectionYMap
-      ? createEnvironmentContext(
-          collectionYMap,
-          collectionYMap.doc?.guid as string
-        )
-      : null
-
-    const environmentContext = activeEnvironmentYMap
-      ? createEnvironmentContext(
-          activeEnvironmentYMap,
-          activeEnvironmentYMap.doc?.guid as string
-        )
-      : null
-
     let environmentAwareEndpoint = findEnvironmentVariables(
       environmentContext,
       collectionContext,

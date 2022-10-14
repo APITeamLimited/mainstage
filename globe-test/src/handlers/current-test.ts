@@ -86,7 +86,7 @@ export const handleCurrentTest = async (socket: Socket) => {
       if (messageObject.messageType === 'STATUS') {
         if (
           messageObject.message === 'COMPLETED_SUCCESS' ||
-          messageObject.message === 'COMPLETED_FAILED'
+          messageObject.message === 'COMPLETED_FAILURE'
         ) {
           // In case of linering client, force disconnect after 1 second
           setTimeout(() => {
