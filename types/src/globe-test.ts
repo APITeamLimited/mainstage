@@ -1,3 +1,4 @@
+import type { VerifiedDomain } from '@prisma/client'
 import type { RequestBody, ResponseType, RefinedParams } from 'k6/http'
 import { Options as K6Options } from 'k6/options'
 
@@ -34,11 +35,15 @@ export type ExecutionParams = {
     variant: 'USER' | 'TEAM'
     variantTargetId: string
   }
+  verifiedDomains: VerifiedDomain[]
 }
 
-/* Wrapper around the execution params that servers as arguments to the node
+/* Wrapper around the execution params that servers as user arguments to the
 globe-test agent */
-export type WrappedExecutionParams = Omit<ExecutionParams, 'id' | 'scope'> & {
+export type WrappedExecutionParams = Omit<
+  ExecutionParams,
+  'id' | 'scope' | 'verifiedDomains'
+> & {
   bearer: string
   scopeId: string
   projectId: string
@@ -119,6 +124,14 @@ type MessageCombination =
         sourceName: string
         status: StatusType
       }
+    }
+  | {
+      messageType: 'COLLECTION_VARIABLES'
+      message: Record<string, string>
+    }
+  | {
+      messageType: 'ENVIRONMENT_VARIABLES'
+      message: Record<string, string>
     }
 
 export type GlobeTestMessage = {

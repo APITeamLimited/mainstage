@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
 
 import { RESTRequest } from '@apiteam/types/src'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
+import {
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { getFinalRequest } from 'src/globe-test/rest'
+import { useYMap } from 'src/lib/zustand-yjs'
 import {
   generateRESTCode,
   RESTCodegenDefinitions,
@@ -45,6 +49,9 @@ export const RESTCodeGenerator = ({
   useYMap(activeEnvironmentYMap ?? new Y.Map())
   useYMap(collectionYMap)
 
+  const collectionContext = useCollectionVariables()
+  const environmentContext = useEnvironmentVariables()
+
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
@@ -72,6 +79,7 @@ export const RESTCodeGenerator = ({
         body: requestYMap.get('body'),
         pathVariables: requestYMap.get('pathVariables'),
         description: requestYMap.get('description'),
+        executionScripts: requestYMap.get('executionScripts'),
       }
 
       if (!scopeId) throw new Error('No scopeId found')
@@ -80,16 +88,17 @@ export const RESTCodeGenerator = ({
       const axiosConfig = await getFinalRequest(
         restRequest,
         requestYMap,
-        activeEnvironmentYMap,
-        collectionYMap
+        collectionYMap,
+        environmentContext,
+        collectionContext
       )
 
       const code = (await generateRESTCode(
         codeGen.name,
         axiosConfig,
         restRequest,
-        activeEnvironmentYMap,
-        collectionYMap
+        environmentContext,
+        collectionContext
       )) as string | 'NONE'
 
       if (code === 'NONE') {

@@ -38,9 +38,9 @@ import { ScriptsPanel } from './ScriptsPanel'
 import { SendButton } from './SendButton'
 import { generatePathVariables } from './utils'
 
-const defaultExecutionScript = BUILTIN_REST_SCRIPTS.find(
-  (script) => script.name === 'rest-single.js'
-)
+const defaultExecutionScript =
+  BUILTIN_REST_SCRIPTS.find((script) => script.name === 'request-single.js') ??
+  BUILTIN_REST_SCRIPTS[0]
 if (!defaultExecutionScript) {
   throw new Error('Default rest execution script not found')
 }
@@ -145,6 +145,30 @@ export const RESTInputPanel = ({
   useYMap(activeEnvironmentYMap ?? new Y.Map())
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
+
+  // If doesn't need save, update fields automatically
+  /*useEffect(() => {
+    if (!needSave) {
+      setUnsavedEndpoint(requestYMap.get('endpoint'))
+      setUnsavedHeaders(kvLegacyImporter('headers', requestYMap, 'default'))
+      setUnsavedParameters(kvLegacyImporter('params', requestYMap, 'default'))
+      setUnsavedPathVariables(
+        kvLegacyImporter('pathVariables', requestYMap, 'default')
+      )
+      setUnsavedBody(requestYMap.get('body'))
+      setUnsavedRequestMethod(requestYMap.get('method'))
+      setUnsavedAuth(requestYMap.get('auth'))
+      setUnsavedDescription(
+        requestYMap.get('description') ?? getSetDescription()
+      )
+      setUnsavedExecutionScripts(
+        requestYMap.get('executionScripts')
+          ? [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
+          : getAndSetExecutionScripts()
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestHook])*/
 
   const [mountTime] = useState(Date.now())
 

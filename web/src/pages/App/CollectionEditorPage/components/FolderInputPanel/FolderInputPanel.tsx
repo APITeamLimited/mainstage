@@ -68,6 +68,19 @@ export const FolderInputPanel = ({
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  // If doesn't need save, update fields automatically
+  /*useEffect(() => {
+    if (!needSave) {
+      setUnsavedDescription(
+        folderYMap.get('description') ?? getSetDescription()
+      )
+      setUnsavedAuth(folderYMap.get('auth') ?? getSetAuth())
+      setNeedSave(false)
+      setObservedNeedsSave(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderHook])*/
+
   const handleSave = () => {
     folderYMap.set('description', unsavedDescription)
     folderYMap.set('auth', unsavedAuth)

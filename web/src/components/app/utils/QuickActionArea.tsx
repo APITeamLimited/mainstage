@@ -33,7 +33,7 @@ export const QuickActionArea = ({
 
   if (onDeleteCallback !== undefined) {
     actions.push(
-      <Tooltip title="Delete All">
+      <Tooltip title="Clear All">
         <Box>
           <IconButton onClick={onDeleteCallback}>
             <DeleteSweepIcon />

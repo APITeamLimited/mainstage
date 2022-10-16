@@ -1,5 +1,5 @@
 import { ExecutionScript } from '@apiteam/types/src'
 
-import { restSingle } from './rest-single'
+import { requestSingle } from './request-single'
 
-export const BUILTIN_REST_SCRIPTS = [restSingle] as ExecutionScript[]
+export const BUILTIN_REST_SCRIPTS = [requestSingle] as ExecutionScript[]

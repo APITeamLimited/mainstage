@@ -66,6 +66,22 @@ export const CollectionInputPanel = ({
   const [needSave, setNeedSave] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  // If doesn't need save, update fields automatically
+  /*useEffect(() => {
+    if (!needSave) {
+      setUnsavedDescription(collectionYMap.get('description') ?? '')
+      setUnsavedAuth(collectionYMap.get('auth') ?? getSetAuth())
+      setUnsavedVariables(
+        kvLegacyImporter<LocalValueKV>(
+          'variables',
+          collectionYMap,
+          'localvalue'
+        )
+      )
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collectionHook])*/
+
   const handleSave = () => {
     collectionYMap.set('auth', unsavedAuth)
     collectionYMap.set(

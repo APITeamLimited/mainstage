@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer'
 
 import { EntityEngineServersideMessages } from '@apiteam/types'
+import type { VerifiedDomain } from '@prisma/client'
 import { Response } from 'k6/http'
 import { Socket } from 'socket.io'
 import { io } from 'socket.io-client'
@@ -82,4 +83,27 @@ export const estimateRESTResponseSize = (response: Response): number => {
   ${response.body?.toString()}`
 
   return Buffer.byteLength(dummyResponse, 'utf8')
+}
+
+export const getVerifiedDomains = async (
+  variant: string,
+  variantTargetId: string
+) => {
+  const verifiedDomainIds = (
+    await coreCacheReadRedis.sMembers(
+      `verifiedDomain__variant:${variant}__variantTargetId:${variantTargetId}`
+    )
+  ).map((id) => `verifiedDomain__id:${id}`)
+
+  const verifiedDomains = (
+    verifiedDomainIds.length > 0
+      ? await coreCacheReadRedis.mGet(verifiedDomainIds)
+      : []
+  )
+    .filter((verifiedDomain) => verifiedDomain !== null)
+    .map((verifiedDomain) =>
+      JSON.parse(verifiedDomain as string)
+    ) as VerifiedDomain[]
+
+  return verifiedDomains
 }

@@ -1,4 +1,4 @@
-import { RESTRequest } from '@apiteam/types/src'
+import { ExecutionParams, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
@@ -182,8 +182,8 @@ export const generateRESTCode = async (
   codegenName: CodegenName,
   axiosConfig: AxiosRequestConfig,
   restRequest: RESTRequest,
-  activeEnvironmentYMap: YMap<any> | null,
-  collectionYMap: YMap<any>
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext']
 ) => {
   const codegenInfo = RESTCodegenDefinitions.find((v) => v.name === codegenName)
   if (!codegenInfo) {
@@ -199,8 +199,8 @@ export const generateRESTCode = async (
       ...(await buildHarRequest(
         axiosConfig,
         restRequest,
-        activeEnvironmentYMap,
-        collectionYMap
+        environmentContext,
+        collectionContext
       )),
     }).convert(codegenInfo.lang, codegenInfo.mode, {
       indent: '    ',

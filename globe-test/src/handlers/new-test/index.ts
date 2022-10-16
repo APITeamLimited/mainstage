@@ -24,7 +24,7 @@ import {
   restHandleFailure,
   restHandleSuccessSingle,
 } from './helpers'
-import { getEntityEngineSocket } from './utils'
+import { getEntityEngineSocket, getVerifiedDomains } from './utils'
 // Store state of running tests
 export const runningTestStates = new Map<Socket, TestRunningState>()
 
@@ -74,14 +74,14 @@ export const handleNewTest = async (socket: Socket) => {
   })
 
   // Calling this first here seems to prevent the race condition
-  const [scopeRaw] = await Promise.all([
-    coreCacheReadRedis.get(`scope__id:${params.scopeId}`),
+  const [_, scopeRaw] = await Promise.all([
     getEntityEngineSocket(
       socket,
       params.scopeId,
       params.bearer,
       params.projectId
     ),
+    coreCacheReadRedis.get(`scope__id:${params.scopeId}`),
   ])
 
   if (!scopeRaw) {
@@ -92,6 +92,11 @@ export const handleNewTest = async (socket: Socket) => {
   }
 
   const fullScope = JSON.parse(scopeRaw) as Scope
+
+  const verifiedDomains = await getVerifiedDomains(
+    fullScope.variant,
+    fullScope.variantTargetId
+  )
 
   const executionParams = {
     id: uuid(),
@@ -106,6 +111,7 @@ export const handleNewTest = async (socket: Socket) => {
       variant: fullScope.variant,
       variantTargetId: fullScope.variantTargetId,
     },
+    verifiedDomains,
   } as ExecutionParams
 
   // Start stream before scheduling to ensure all messages are received

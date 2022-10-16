@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import jwt_decode from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Doc as YDoc } from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
 import { useQuery } from '@redwoodjs/web'
@@ -14,19 +13,25 @@ import {
   useEnvironmentsYMap,
 } from 'src/contexts/EnvironmentProvider'
 import { focusedResponseVar } from 'src/contexts/focused-response'
-import { useYJSModule } from 'src/contexts/imports'
+import { useHashSumModule, useYJSModule } from 'src/contexts/imports'
 import { activeEnvironmentVar, workspacesVar } from 'src/contexts/reactives'
+import {
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
 import { useWorkspace } from 'src/entity-engine'
 import {
   Bearer,
   GET_BEARER_PUBKEY__SCOPES_QUERY,
 } from 'src/entity-engine/utils'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { execute } from './execution'
-import { jobQueueVar, QueuedJob, updateFilterQueue } from './lib'
+import { jobQueueVar, updateFilterQueue } from './lib'
 
 export const GlobeTestProvider = () => {
   const Y = useYJSModule()
+  const hashSumModule = useHashSumModule()
 
   const { isAuthenticated } = useAuth()
   const [rawBearer, setRawBearer] = useState<string | null>(null)
@@ -35,7 +40,6 @@ export const GlobeTestProvider = () => {
   const activeEnvironmentYMap = useActiveEnvironmentYMap()
   const workspaces = useReactiveVar(workspacesVar)
   const jobQueue = useReactiveVar(jobQueueVar)
-  const queueRef = useRef<QueuedJob[] | null>(null)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
   const workspace = useWorkspace()
 
@@ -43,8 +47,8 @@ export const GlobeTestProvider = () => {
   useYMap(environmentsYMap || new Y.Map())
   useYMap(activeEnvironmentYMap || new Y.Map())
 
-  // Requried for up to date state in callback
-  queueRef.current = jobQueue
+  const collectionContext = useCollectionVariables()
+  const environmentContext = useEnvironmentVariables()
 
   // Get bearer token from gql query
   const { data } = useQuery<GetBearerPubkeyScopes>(
@@ -89,11 +93,14 @@ export const GlobeTestProvider = () => {
         )
 
         const didExecute = execute({
-          queueRef,
           job,
           rawBearer,
           workspace: workspace as YDoc,
           focusedResponseDict,
+          environmentContext,
+          collectionContext,
+          hashSumModule,
+          activeEnvironmentYMap,
         })
         if (!didExecute) {
           throw new Error('Failed to execute job')
@@ -108,7 +115,15 @@ export const GlobeTestProvider = () => {
         jobQueueVar(jobQueue.filter((j) => j.localId !== job.localId))
       }
     })
-  }, [focusedResponseDict, jobQueue, rawBearer, workspace])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    collectionContext,
+    environmentContext,
+    focusedResponseDict,
+    jobQueue,
+    rawBearer,
+    workspace,
+  ])
 
   return <></>
 }

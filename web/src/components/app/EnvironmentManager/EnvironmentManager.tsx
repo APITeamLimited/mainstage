@@ -85,24 +85,19 @@ export const EnvironmentManager = ({
 
   const [mountTime, setMountTime] = useState(Date.now())
 
-  // Keep in case of remote updates
-  useEffect(() => {
-    if (needSave || Date.now() - mountTime < 400) return
-
-    const newNeedSave =
-      hash(
-        kvExporter<LocalValueKV>(
-          unsavedKeyValues,
-          'localvalue',
-          activeEnvironmentYMap?.doc?.guid as string
+  // If doesn't need save, update fields automatically
+  /*useEffect(() => {
+    if (!needSave && activeEnvironmentYMap) {
+      setUnsavedKeyValues(
+        kvLegacyImporter<LocalValueKV>(
+          'variables',
+          activeEnvironmentYMap,
+          'localvalue'
         )
-      ) !== hash(activeEnvironmentYMap?.get('variables') || [])
-
-    if (newNeedSave) {
-      setNeedSave(true)
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironmentHook])
+  }, [activeEnvironmentHook])*/
 
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 400) {

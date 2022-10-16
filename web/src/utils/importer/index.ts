@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { KeyValueItem, LocalValueKV } from '@apiteam/types/src'
 import { v4 as uuid } from 'uuid'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 import { handleFolderImport } from './folder'
 import { handleRESTImport } from './rest-request'
@@ -80,18 +82,29 @@ export const importRaw = async ({
   let collectionVariableCount = 0
 
   if (grp1.variable) {
+    // Don't need to bother trying to set local values as none exist yet
     collection.set(
       'variables',
       Object.entries(
         grp1.variable as {
           [key: string]: string
         }
-      ).map(([key, value], index) => ({
-        id: index,
-        keyString: key,
-        value: value,
-        enabled: true,
-      }))
+      ).map(([key, value], index) => {
+        const newVariable: KeyValueItem<LocalValueKV> = {
+          id: index,
+          keyString: key,
+          value: value,
+          enabled: true,
+          variant: 'localvalue',
+          localValue: {
+            __typename: 'LocalObject',
+            localId: uuid(),
+            data: null,
+          },
+        }
+
+        return newVariable
+      })
     )
 
     collectionVariableCount = Object.keys(grp1.variable).length

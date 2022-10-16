@@ -1,4 +1,4 @@
-import { RESTRequest } from '@apiteam/types/src'
+import { ExecutionParams, RESTRequest } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import type { Har, PostData } from 'har-format'
 import { parse } from 'qs'
@@ -70,8 +70,8 @@ const buildHarPostParams = (
 const buildHarPostData = async (
   req: AxiosRequestConfig,
   restRequest: RESTRequest,
-  activeEnvironmentYMap: YMap<any> | null,
-  collectionYMap: YMap<any>
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext']
 ): Promise<PostData | undefined> => {
   const lookup = await import('mime-types').then((m) => m.lookup)
 
@@ -111,8 +111,8 @@ const buildHarPostData = async (
           if (isFile) {
             return {
               name: findEnvironmentVariables(
-                activeEnvironmentYMap,
-                collectionYMap,
+                environmentContext,
+                collectionContext,
                 keyString
               ),
               fileName: fileField?.filename,
@@ -124,13 +124,13 @@ const buildHarPostData = async (
 
           return {
             name: findEnvironmentVariables(
-              activeEnvironmentYMap,
-              collectionYMap,
+              environmentContext,
+              collectionContext,
               keyString
             ),
             value: findEnvironmentVariables(
-              activeEnvironmentYMap,
-              collectionYMap,
+              environmentContext,
+              collectionContext,
               value
             ),
           }
@@ -155,8 +155,8 @@ const buildHarPostData = async (
 export const buildHarRequest = async (
   req: AxiosRequestConfig,
   restRequest: RESTRequest,
-  activeEnvironmentYMap: YMap<any> | null,
-  collectionYMap: YMap<any>
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext']
 ): Promise<Har> => {
   return {
     bodySize: -1, // TODO: It would be cool if we can calculate the body size
@@ -176,8 +176,8 @@ export const buildHarRequest = async (
     postData: await buildHarPostData(
       req,
       restRequest,
-      activeEnvironmentYMap,
-      collectionYMap
+      environmentContext,
+      collectionContext
     ),
   }
 }

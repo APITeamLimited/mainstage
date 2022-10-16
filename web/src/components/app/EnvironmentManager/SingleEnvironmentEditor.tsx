@@ -23,7 +23,6 @@ import {
 } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
-import { useHashSumModule } from 'src/contexts/imports'
 import {
   activeEnvironmentVar,
   updateActiveEnvironmentId,
@@ -44,8 +43,6 @@ export const SingleEnvironmentEditor = ({
   show,
   setShow,
 }: SingleEnvironmentEditorProps) => {
-  const { default: hash } = useHashSumModule()
-
   const theme = useTheme()
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
@@ -63,35 +60,17 @@ export const SingleEnvironmentEditor = ({
 
   const [needSave, setNeedSave] = useState(false)
 
-  useEffect(() => {
+  // If doesn't need save, update fields automatically
+  /*useEffect(() => {
     if (!needSave) {
       setUnsavedKeyValues(
         kvLegacyImporter('variables', environmentYMap, 'localvalue')
       )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [environmentHook])*/
 
   const [mountTime, setMountTime] = useState(Date.now())
-
-  // Keep in case of remote updates
-  useEffect(() => {
-    if (needSave || Date.now() - mountTime < 400) return
-
-    const newNeedSave =
-      hash(
-        kvExporter<LocalValueKV>(
-          unsavedKeyValues,
-          'localvalue',
-          environmentYMap?.doc?.guid as string
-        )
-      ) !== hash(environmentYMap?.get('variables') || [])
-
-    if (newNeedSave) {
-      setNeedSave(true)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environmentHook])
 
   useEffect(() => {
     if (!needSave && Date.now() - mountTime > 400) {

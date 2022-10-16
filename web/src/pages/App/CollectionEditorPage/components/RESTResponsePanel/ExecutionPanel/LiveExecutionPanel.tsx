@@ -78,9 +78,9 @@ export const LiveExecutionPanel = ({
       rawBearer,
       onMessage: (message) => {
         if (message.messageType === 'METRICS') {
-          setMetrics([...metricsRef.current, parseMessage(message)])
+          setMetrics([...metricsRef.current, message])
         } else {
-          setGlobeTestLogs([...globeTestLogsRef.current, parseMessage(message)])
+          setGlobeTestLogs([...globeTestLogsRef.current, message])
         }
       },
     })

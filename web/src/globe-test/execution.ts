@@ -1,13 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GlobeTestMessage, WrappedExecutionParams } from '@apiteam/types/src'
+import {
+  ExecutionParams,
+  GlobeTestMessage,
+  kvExporter,
+  kvLegacyImporter,
+  LocalValueKV,
+  WrappedExecutionParams,
+} from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
+import { HashSumModule } from 'src/contexts/imports'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
 
-import { BaseJob, PendingLocalJob, QueuedJob } from './lib'
+import type { BaseJob, PendingLocalJob } from './lib'
 
 export const getUrl = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -28,24 +36,28 @@ export const getUrl = () => {
   }
 }
 
-type ExecuteArgs = {
-  queueRef: React.MutableRefObject<QueuedJob[] | null>
-  job: BaseJob & PendingLocalJob
-  rawBearer: string
-  workspace: YDoc
-  focusedResponseDict: FocusedElementDictionary
-}
-
 /*
 Executes a queued job and updates the job queue on streamed messages
 */
 export const execute = ({
-  queueRef,
   job,
   rawBearer,
   workspace,
   focusedResponseDict,
-}: ExecuteArgs): boolean => {
+  environmentContext,
+  collectionContext,
+  hashSumModule,
+  activeEnvironmentYMap,
+}: {
+  job: BaseJob & PendingLocalJob
+  rawBearer: string
+  workspace: YDoc
+  focusedResponseDict: FocusedElementDictionary
+  environmentContext: ExecutionParams['environmentContext']
+  collectionContext: ExecutionParams['collectionContext']
+  hashSumModule: HashSumModule
+  activeEnvironmentYMap: YMap<any> | null
+}): boolean => {
   let params: WrappedExecutionParams | null = null
 
   if (
@@ -96,8 +108,22 @@ export const execute = ({
       reconnection: false,
     })
 
-    socket.on('updates', (message) => {
-      if (message.messageType === 'STATUS') {
+    // Messages will need to be parsed
+    socket.on('updates', (message: any) => {
+      if (
+        message.messageType === 'COLLECTION_VARIABLES' ||
+        message.messageType === 'ENVIRONMENT_VARIABLES'
+      ) {
+        handleVariableUpdates(
+          parseMessage(message) as GlobeTestVariablesMessage,
+          workspace,
+          params as WrappedExecutionParams,
+          environmentContext,
+          collectionContext,
+          hashSumModule,
+          activeEnvironmentYMap
+        )
+      } else if (message.messageType === 'STATUS') {
         if (
           message.message === 'COMPLETED_SUCCESS' ||
           message.message === 'COMPLETED_FAILURE'
@@ -162,13 +188,173 @@ const handleRESTAutoFocus = (
   )
 }
 
+type GlobeTestVariablesMessage = GlobeTestMessage & {
+  messageType: 'ENVIRONMENT_VARIABLES' | 'COLLECTION_VARIABLES'
+}
+
+const handleVariableUpdates = (
+  message: GlobeTestVariablesMessage,
+  workspace: YDoc,
+  params: WrappedExecutionParams,
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
+  hashSumModule: HashSumModule,
+  activeEnvironmentYMap: YMap<any> | null
+) => {
+  const { default: hash } = hashSumModule
+
+  console.log('variable update message', message)
+
+  if (message.messageType === 'COLLECTION_VARIABLES') {
+    const collectionYMap = workspace
+      .getMap<any>('projects')
+      ?.get(params.projectId)
+      ?.get('branches')
+      ?.get(params.branchId)
+      ?.get('collections')
+      ?.get(params.collectionId) as YMap<any> | undefined
+
+    if (!collectionYMap) {
+      throw new Error(`Couldn't find collection with id ${params.collectionId}`)
+    }
+
+    if (hash(message.message) === hash(collectionContext)) {
+      // No changes to the variables
+      return
+    }
+
+    const collectionVariables = kvLegacyImporter<LocalValueKV>(
+      'variables',
+      collectionYMap,
+      'localvalue'
+    )
+
+    // Clear deleted variables
+    const messageKeys = Object.keys(message.message)
+    collectionVariables.forEach((variable) => {
+      if (!messageKeys.includes(variable.keyString)) {
+        variable.localValue = {
+          ...variable.localValue,
+          data: null,
+        }
+      }
+    })
+
+    // Update changed variables
+    collectionVariables.forEach((variable) => {
+      const newValue = message.message[variable.keyString]
+
+      if (newValue === undefined) {
+        return
+      }
+
+      if (
+        newValue === variable.value &&
+        (variable.localValue.data === '' || variable.localValue.data === null)
+      ) {
+        return
+      }
+
+      if (newValue === variable.value) {
+        variable.localValue = {
+          ...variable.localValue,
+          data: null,
+        }
+        return
+      }
+
+      variable.localValue = {
+        ...variable.localValue,
+        data: newValue,
+      }
+    })
+
+    collectionYMap.set(
+      'variables',
+      kvExporter<LocalValueKV>(
+        collectionVariables,
+        'localvalue',
+        collectionYMap.doc?.guid as string
+      )
+    )
+  } else if (message.messageType === 'ENVIRONMENT_VARIABLES') {
+    if (hash(message.message) === hash(environmentContext)) {
+      // No changes to the variables
+      return
+    }
+
+    if (!activeEnvironmentYMap) {
+      throw new Error(
+        `Cannot set environment variables without an active environment`
+      )
+    }
+
+    const environmentVariables = kvLegacyImporter<LocalValueKV>(
+      'variables',
+      activeEnvironmentYMap,
+      'localvalue'
+    )
+
+    // Clear deleted variables
+    const messageKeys = Object.keys(message.message)
+    environmentVariables.forEach((variable) => {
+      if (!messageKeys.includes(variable.keyString)) {
+        variable.localValue = {
+          ...variable.localValue,
+          data: null,
+        }
+      }
+    })
+
+    // Update changed variables
+    environmentVariables.forEach((variable) => {
+      const newValue = message.message[variable.keyString]
+
+      if (newValue === undefined) {
+        return
+      }
+
+      if (
+        newValue === variable.value &&
+        (variable.localValue.data === '' || variable.localValue.data === null)
+      ) {
+        return
+      }
+
+      if (newValue === variable.value) {
+        variable.localValue = {
+          ...variable.localValue,
+          data: null,
+        }
+        return
+      }
+
+      variable.localValue = {
+        ...variable.localValue,
+        data: newValue,
+      }
+    })
+
+    activeEnvironmentYMap.set(
+      'variables',
+      kvExporter<LocalValueKV>(
+        environmentVariables,
+        'localvalue',
+        activeEnvironmentYMap.doc?.guid as string
+      )
+    )
+  }
+}
+
 export const parseMessage = (message: any) => {
   if (
     message.messageType === 'SUMMARY_METRICS' ||
     message.messageType === 'METRICS' ||
     message.messageType === 'JOB_INFO' ||
     message.messageType === 'CONSOLE' ||
-    message.messageType === 'OPTIONS'
+    message.messageType === 'OPTIONS' ||
+    message.messageType === 'ENVIRONMENT_VARIABLES' ||
+    message.messageType === 'COLLECTION_VARIABLES'
   ) {
     message.message = JSON.parse(message.message)
     message.time = new Date(message.time)

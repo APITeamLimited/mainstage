@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GlobeTestMessage } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 
-import { getUrl } from './execution'
+import { getUrl, parseMessage } from './execution'
 
 export const streamExistingTest = ({
   jobId,
@@ -25,9 +26,10 @@ export const streamExistingTest = ({
     reconnection: true,
   })
 
-  socket.on('updates', (data) => {
+  // Messages will need to be parsed
+  socket.on('updates', (data: any) => {
     if (data.jobId) {
-      onMessage(data)
+      onMessage(parseMessage(data))
     }
   })
 
