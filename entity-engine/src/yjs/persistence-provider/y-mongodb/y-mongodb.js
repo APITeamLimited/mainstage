@@ -44,7 +44,9 @@ export class MongodbPersistence {
   getYDoc(docName) {
     return this._transact(async (db) => {
       const docs = await U.getMongoUpdates(db, docName)
+
       const updates = getUpdates(docs)
+
       const ydoc = new Y.Doc({ guid: docName })
       ydoc.transact(() => {
         for (let i = 0; i < updates.length; i++) {

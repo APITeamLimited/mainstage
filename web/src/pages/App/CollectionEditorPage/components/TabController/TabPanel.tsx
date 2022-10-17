@@ -34,10 +34,6 @@ export const TabPanel = ({
   return (
     <Box
       sx={{
-        // Shift down by 1px to account for the bottom border
-        //top: '-1px',
-        //bottom: '-1px',
-
         height: `${tabPanelHeight}px`,
         background: theme.palette.background.paper,
         width: '100%',
@@ -56,11 +52,7 @@ export const TabPanel = ({
           sx={{
             zIndex: 2,
             height: `${tabPanelHeight}px`,
-            overflowY: 'visible',
-            overflowX: 'visible',
-
-            // Shift bottom down by 1px to account for the bottom border
-            // /position: 'relative',
+            overflow: 'visible',
           }}
         >
           <DndProvider backend={HTML5Backend}>

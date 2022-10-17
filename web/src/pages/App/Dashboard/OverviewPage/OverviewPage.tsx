@@ -3,7 +3,6 @@ import { useEffect } from 'react'
 import { Project } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Button, Stack } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { MetaTags } from '@redwoodjs/web'
 
@@ -12,6 +11,7 @@ import { createProjectDialogStateVar } from 'src/components/app/dialogs'
 import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspace } from 'src/entity-engine'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { NoProjectsCard } from './NoProjectsCard'
@@ -26,6 +26,9 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
   const workspaceDoc = useWorkspace()
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const workspaces = useReactiveVar(workspacesVar)
+
+  const actveWorkspace = useWorkspaceInfo()
+
   const projectsYMap = workspaceDoc?.getMap<Project>('projects')
   useYMap<Project, Record<string, Project>>(projectsYMap || new Y.Map())
 
@@ -57,7 +60,7 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
 
   return (
     <>
-      <MetaTags title="Overview" />
+      <MetaTags title={actveWorkspace?.scope.displayName} />
       <Stack spacing={4}>
         <Stack direction="row" justifyContent="flex-end" alignItems="top">
           <Button

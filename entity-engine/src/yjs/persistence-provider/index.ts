@@ -1,10 +1,4 @@
 import { checkValue } from '../../config'
-import {
-  eeRedisHost,
-  eeRedisPassword,
-  eeRedisPort,
-  eeRedisUsername,
-} from '../../redis'
 
 import { MongodbPersistence } from './y-mongodb/y-mongodb'
 import { RedisPersistence } from './y-redis'
@@ -22,11 +16,11 @@ export const mongoPersistence = new MongodbPersistence(
   mongoCollection
 )
 
-export const redisPersistence = new RedisPersistence({
-  redisOpts: {
-    port: eeRedisPort,
-    host: eeRedisHost,
-    username: eeRedisUsername,
-    password: eeRedisPassword,
-  },
-})
+//export const redisPersistence = new RedisPersistence({
+//  redisOpts: {
+//    port: eeRedisPort,
+//    host: eeRedisHost,
+//    username: eeRedisUsername,
+//    password: eeRedisPassword,
+//  },
+//})

@@ -4,6 +4,7 @@ import { Workspace } from '@apiteam/types/src'
 import { Box, Divider, Stack } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
+import { MetaTags } from '@redwoodjs/web'
 
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
@@ -70,24 +71,27 @@ export const GeneralSettingsPage = () => {
   if (!workspaceInfo) return null
 
   return (
-    <Stack spacing={6}>
-      <Box
-        sx={{
-          top: '-1em',
-          position: 'relative',
-        }}
-      >
-        <Headline headline={prettyType} />
-        <Divider
+    <>
+      <MetaTags title={prettyType} />
+      <Stack spacing={6}>
+        <Box
           sx={{
-            marginTop: 6,
+            top: '-1em',
+            position: 'relative',
           }}
-        />
-      </Box>
-      <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
-        <GeneralSettingsTab workspaceInfo={workspaceInfo} />
-      </SideTabManager>
-    </Stack>
+        >
+          <Headline headline={prettyType} />
+          <Divider
+            sx={{
+              marginTop: 6,
+            }}
+          />
+        </Box>
+        <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
+          <GeneralSettingsTab workspaceInfo={workspaceInfo} />
+        </SideTabManager>
+      </Stack>
+    </>
   )
 }
 

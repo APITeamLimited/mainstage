@@ -74,7 +74,7 @@ type SocketIOProviderConstructorArgs = {
 }
 
 export class SocketIOProvider extends Observable<string> {
-  updateAwarenessInterval
+  updateAwarenessInterval: unknown
   apolloClient: ApolloClient<unknown>
   maxBackoffTime: number
   bcChannel: string
@@ -82,7 +82,7 @@ export class SocketIOProvider extends Observable<string> {
   scopeId: string
   rawBearer: string
   doc: YDoc
-  awareness: Awareness
+  awareness: Awareness | null
   socketConnecting: boolean
   socketConnected: boolean
   disableBc: boolean
@@ -91,14 +91,22 @@ export class SocketIOProvider extends Observable<string> {
   _synced: boolean
   socket: Socket | null
   socketLastMessageReceived: number
+  connectHelper: unknown
   shouldConnect: boolean
   lastPinged: number
   _resyncInterval
-  _bcSubscriber: (data: ArrayBuffer, origin: any) => void
-  _updateHandler: (update: Uint8Array, origin: any) => void
+  _updateHandler: (update: Uint8Array, origin: unknown) => void
   _awarenessUpdateHandler: (
-    { added, updated, removed }: any,
-    origin: any
+    {
+      added,
+      updated,
+      removed,
+    }: {
+      added: Array<number>
+      updated: Array<number>
+      removed: Array<number>
+    },
+    origin: unknown
   ) => void
   _beforeUnloadHandler: () => void
   _checkInterval
@@ -117,9 +125,9 @@ export class SocketIOProvider extends Observable<string> {
   }: SocketIOProviderConstructorArgs) {
     const {
       connect = true,
-      awareness = new Y.awarenessProtocol.Awareness(doc),
+      awareness = null,
       resyncInterval = -1,
-      maxBackoffTime = 2500,
+      maxBackoffTime = 100,
       disableBc = false,
       onAwarenessUpdate = undefined,
       onStatusChange = undefined,
@@ -148,14 +156,16 @@ export class SocketIOProvider extends Observable<string> {
     this.onAwarenessUpdate = onAwarenessUpdate
     this.onStatusChange = onStatusChange
     this.onSyncMessage = onSyncMessage
-    this.updateAwarenessInterval = setInterval(
-      async () => this.getAndSetPublicBearer(),
-      20000
-    )
     this.Y = Y
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
+
+    this.connectHelper = setInterval(() => {
+      if (!this.socketConnected && window.navigator.onLine) {
+        this.setupSocket()
+      }
+    }, 1000)
 
     this._resyncInterval = resyncInterval
 
@@ -173,15 +183,6 @@ export class SocketIOProvider extends Observable<string> {
       }, resyncInterval)
     }
 
-    this._bcSubscriber = (data: ArrayBuffer, origin) => {
-      if (origin !== this) {
-        const encoder = this.readMessage(new Uint8Array(data), true)
-        if (encoding.length(encoder) > 1) {
-          bc.publish(this.bcChannel, encoding.toUint8Array(encoder), this)
-        }
-      }
-    }
-
     // Listens to Yjs updates and sends them to remote peers (socket and broadcastchannel)
     this._updateHandler = (update: Uint8Array, origin) => {
       if (origin !== this) {
@@ -194,30 +195,14 @@ export class SocketIOProvider extends Observable<string> {
 
     this.doc.on('update', this._updateHandler)
 
-    this._awarenessUpdateHandler = ({ added, updated, removed }, origin) =>
-      //origin: any old param that was not used, rember it for future reference
-      {
-        const changedClients = added.concat(updated).concat(removed)
-        const encoder = encoding.createEncoder()
-
-        encoding.writeVarUint(encoder, messageAwareness)
-        encoding.writeVarUint8Array(
-          encoder,
-          this.Y.awarenessProtocol.encodeAwarenessUpdate(
-            awareness,
-            changedClients
-          )
-        )
-
-        this.broadcastMessage(encoding.toUint8Array(encoder))
-      }
-
     this._beforeUnloadHandler = () => {
-      this.Y.awarenessProtocol.removeAwarenessStates(
-        this.awareness,
-        [doc.clientID],
-        'window unload'
-      )
+      if (this.awareness) {
+        this.Y.awarenessProtocol.removeAwarenessStates(
+          this.awareness,
+          [doc.clientID],
+          'window unload'
+        )
+      }
     }
 
     if (typeof window !== 'undefined') {
@@ -225,8 +210,6 @@ export class SocketIOProvider extends Observable<string> {
     } else if (typeof process !== 'undefined') {
       process.on('exit', this._beforeUnloadHandler)
     }
-
-    awareness.on('update', this._awarenessUpdateHandler)
 
     this._checkInterval = setInterval(() => {
       if (
@@ -265,14 +248,11 @@ export class SocketIOProvider extends Observable<string> {
 
       provider.onSyncMessage?.(provider.doc)
 
-      //console.log('syncMessageType:', syncMessageType)
-
       if (
         emitSynced &&
         syncMessageType === syncProtocol.messageYjsSyncStep2 &&
         !provider.synced
       ) {
-        //console.log('Setting as synced')
         provider.synced = true
       }
     }
@@ -284,15 +264,16 @@ export class SocketIOProvider extends Observable<string> {
       emitSynced,
       messageType
     ) => {
-      //console.log('messageQueryAwareness handler')
-      encoding.writeVarUint(encoder, messageAwareness)
-      encoding.writeVarUint8Array(
-        encoder,
-        this.Y.awarenessProtocol.encodeAwarenessUpdate(
-          provider.awareness,
-          Array.from(provider.awareness.getStates().keys())
+      if (provider.awareness) {
+        encoding.writeVarUint(encoder, messageAwareness)
+        encoding.writeVarUint8Array(
+          encoder,
+          this.Y.awarenessProtocol.encodeAwarenessUpdate(
+            provider.awareness,
+            Array.from(provider.awareness.getStates().keys())
+          )
         )
-      )
+      }
     }
 
     this.messageHandlers[messageAwareness] = (
@@ -302,13 +283,14 @@ export class SocketIOProvider extends Observable<string> {
       emitSynced,
       messageType
     ) => {
-      this.Y.awarenessProtocol.applyAwarenessUpdate(
-        provider.awareness,
-        decoding.readVarUint8Array(decoder),
-        provider
-      )
-      //console.log('messageAwareness handler')
-      provider.onAwarenessUpdate?.(provider.awareness)
+      if (provider.awareness) {
+        this.Y.awarenessProtocol.applyAwarenessUpdate(
+          provider.awareness,
+          decoding.readVarUint8Array(decoder),
+          provider
+        )
+        provider.onAwarenessUpdate?.(provider.awareness)
+      }
     }
 
     if (connect) {
@@ -316,58 +298,49 @@ export class SocketIOProvider extends Observable<string> {
     }
   }
 
-  syncAgain() {
-    if (this.socket && this.socket.connected) {
-      // resend sync step 1
-      const encoder = encoding.createEncoder()
-      encoding.writeVarUint(encoder, messageSync)
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      syncProtocol.writeSyncStep1(encoder, this.doc, this.Y)
-      this.socket.send(encoding.toUint8Array(encoder))
-    }
-  }
+  setupSocket() {
+    const handleSetup = async () => {
+      let newSocket = null as null | Socket
 
-  setupSocket(orderReconnect = false) {
-    if (orderReconnect) {
-      this.shouldConnect = false
-    }
-
-    if (this.shouldConnect && this.socket === null) {
-      this.socket = io(this.url, {
+      newSocket = io(this.url, {
         query: {
           scopeId: this.scopeId,
           bearer: this.rawBearer,
         },
         path: '/api/entity-engine',
+        reconnection: false,
       })
 
-      //this.socket.binaryType = 'arraybuffer'
       this.socketConnecting = true
       this.socketConnected = false
       this.synced = false
 
-      this.socket.on('connect', () => {
+      newSocket.on('connect', () => {
         this.socketConnecting = false
         this.socketConnected = true
       })
 
-      this.socket.on('message', (data) => {
+      newSocket.on('message', (data) => {
         this.socketLastMessageReceived = time.getUnixTime()
         const encoder = this.readMessage(new Uint8Array(data), true)
 
         if (encoding.length(encoder) > 1) {
-          //console.log('greater 1', encoding.length(encoder))
           this.socket?.send(encoding.toUint8Array(encoder))
         }
       })
 
-      this.socket.on('error', (error) => {
+      newSocket.on('error', (error) => {
         console.log('setupSocket: websocket error', error)
         this.emit('connection-error', [error, this])
       })
 
-      this.socket.on('disconnect', (error) => {
+      newSocket.on('connect_error', async () => {
+        this.socketUnsuccessfulReconnects++
+
+        newSocket?.close()
+      })
+
+      newSocket.on('disconnect', async (error) => {
         this.emit('connection-close', [error, this])
         this.socket = null
         this.socketConnecting = false
@@ -375,44 +348,52 @@ export class SocketIOProvider extends Observable<string> {
         if (this.socketConnected) {
           this.socketConnected = false
           this.synced = false
-          // update awareness (all users except local left)
-          this.Y.awarenessProtocol.removeAwarenessStates(
-            this.awareness,
-            Array.from(this.awareness.getStates().keys()).filter(
-              (client) => client !== this.doc.clientID
-            ),
-            this
-          )
           this.onStatusChange?.('disconnected')
         } else {
           this.socketUnsuccessfulReconnects++
         }
 
-        // Start with no reconnect timeout and increase timeout by
-        // using exponential backoff starting with 100ms
-        setTimeout(
-          () => this.setupSocket(true),
-          math.min(
-            math.pow(2, this.socketUnsuccessfulReconnects) * 100,
-            this.maxBackoffTime
-          ),
-          this
-        )
+        newSocket?.close()
       })
 
-      //websocket.onopen = () => {
-      //  console.log('setupSocket: opened')
-      //}
+      newSocket.on('connect', () => {
+        this.socket = newSocket
 
-      this.socket.on('connect', () => {
-        //console.log('setupSocket: socket opened')
+        const newAwareness = new this.Y.awarenessProtocol.Awareness(this.doc)
+        newAwareness.setLocalState({})
+
+        this._awarenessUpdateHandler = ({ added, updated, removed }) => {
+          const changedClients = added.concat(updated).concat(removed)
+          const encoder = encoding.createEncoder()
+
+          encoding.writeVarUint(encoder, messageAwareness)
+          encoding.writeVarUint8Array(
+            encoder,
+            this.Y.awarenessProtocol.encodeAwarenessUpdate(
+              newAwareness as Awareness,
+              changedClients
+            )
+          )
+
+          this.broadcastMessage(encoding.toUint8Array(encoder))
+        }
+
+        newAwareness.on('update', this._awarenessUpdateHandler)
+
+        this.awareness = newAwareness
+
+        this.awareness?.setLocalState({})
+        this.getAndSetPublicBearer()
+
+        this.updateAwarenessInterval = setInterval(
+          async () => this.getAndSetPublicBearer(),
+          2000
+        )
 
         this.socketLastMessageReceived = time.getUnixTime()
         this.socketConnecting = false
         this.socketConnected = true
         this.socketUnsuccessfulReconnects = 0
-
-        this.onStatusChange?.('connected')
 
         // always send sync step 1 when connected
         const encoder = encoding.createEncoder()
@@ -424,22 +405,25 @@ export class SocketIOProvider extends Observable<string> {
         this.socket?.send(encoding.toUint8Array(encoder))
 
         // broadcast local awareness state
-        if (this.awareness.getLocalState() !== null) {
+        if (this.awareness) {
           const encoderAwarenessState = encoding.createEncoder()
           encoding.writeVarUint(encoderAwarenessState, messageAwareness)
           encoding.writeVarUint8Array(
             encoderAwarenessState,
-            this.Y.awarenessProtocol.encodeAwarenessUpdate(this.awareness, [
+            this.Y.awarenessProtocol.encodeAwarenessUpdate(newAwareness, [
               this.doc.clientID,
             ])
           )
           this.socket?.send(encoding.toUint8Array(encoderAwarenessState))
         }
-
-        this.getAndSetPublicBearer()
       })
+
+      newSocket.on('synced', () => this.onStatusChange?.('connected'))
+
       this.onStatusChange?.('connecting')
     }
+
+    handleSetup()
   }
 
   get synced() {
@@ -456,7 +440,7 @@ export class SocketIOProvider extends Observable<string> {
 
   destroy() {
     this.shouldConnect = false
-    this.awareness.setLocalState(null)
+    this.awareness?.setLocalState(null)
 
     if (this._resyncInterval !== 0) {
       this.socket?.emit('forceDisconnect')
@@ -470,7 +454,8 @@ export class SocketIOProvider extends Observable<string> {
       process.off('exit', this._beforeUnloadHandler)
     }
 
-    this.awareness.off('update', this._awarenessUpdateHandler)
+    this.awareness?.off('update', this._awarenessUpdateHandler)
+
     this.doc.off('update', this._updateHandler)
     super.destroy()
   }
@@ -493,9 +478,7 @@ export class SocketIOProvider extends Observable<string> {
 
     const encoder = encoding.createEncoder()
     const messageType = decoding.readVarUint(decoder)
-    //console.log('message type', messageType)
 
-    //console.log('readMessage', buf, 'message type', messageType)
     const messageHandler = this.messageHandlers[messageType]
 
     if (messageHandler) {
@@ -513,17 +496,13 @@ export class SocketIOProvider extends Observable<string> {
     }
   }
 
-  permissionDeniedHandler(reason: string) {
-    console.warn(`Permission denied to access ${this.url}.\n${reason}`)
-  }
-
   // Provides a way to connect clientID to userId
   async getAndSetPublicBearer() {
     if (!this.socketConnected) return
 
     const result = await this.apolloClient.query({
       query: GET_PUBLIC_BEARER,
-      variables: { clientID: this.awareness.clientID, scopeId: this.scopeId },
+      variables: { clientID: this.awareness?.clientID, scopeId: this.scopeId },
       // Prevent using same token twice
       fetchPolicy: 'network-only',
     })
@@ -532,8 +511,6 @@ export class SocketIOProvider extends Observable<string> {
       throw new Error('Public bearer token not found')
     }
 
-    //console.log('aww', this.awareness.getStates())
-
-    this.awareness.setLocalStateField('publicBearer', result.data.publicBearer)
+    this.awareness?.setLocalStateField('publicBearer', result.data.publicBearer)
   }
 }

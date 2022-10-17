@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add'
 import { Box, Button, Divider } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { useSimplebarReactModule } from 'src/contexts/imports'
 import { HTML5Backend } from 'src/lib/dnd/backend-html5'
 import { DndProvider } from 'src/lib/dnd/react-dnd'
 
@@ -17,6 +18,8 @@ type CollectionTreeProps = {
 }
 
 export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const newItemButtonRef = useRef<HTMLButtonElement | null>(null)
   const [newItemPopoverOpen, setNewItemPopoverOpen] = useState(false)
 
@@ -57,12 +60,7 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
         >
           <AddIcon />
         </Button>
-        <Box
-          sx={{
-            overflowY: 'auto',
-            height: '100%',
-          }}
-        >
+        <SimpleBar style={{ maxHeight: '100%', overflowX: 'hidden' }}>
           <DndProvider backend={HTML5Backend}>
             <Node
               collectionYMap={collectionYMap}
@@ -70,7 +68,7 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
               parentIndex={0}
             />
           </DndProvider>
-        </Box>
+        </SimpleBar>
       </Box>
     </>
   )

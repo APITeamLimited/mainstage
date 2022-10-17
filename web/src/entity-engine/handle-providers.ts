@@ -1,13 +1,11 @@
 import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types/src'
 import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import type { IndexeddbPersistence } from 'y-indexeddb'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Doc as YDoc } from 'yjs'
 
 import type { Lib0Module, YJSModule } from 'src/contexts/imports'
 
 import { SocketIOProvider } from './socket-io-provider'
-import { UpdateDispatcherArgs } from './update-dispatcher'
 import { PossibleSyncStatus, ReadyStatus } from './utils'
 
 type HandleProvidersArgs = {
@@ -19,15 +17,13 @@ type HandleProvidersArgs = {
   setDoc: (doc: YDoc | null) => void
   socketioProvider: SocketIOProvider | null
   setSocketioProvider: (socketioProvider: SocketIOProvider | null) => void
-  indexeddbProvider: IndexeddbPersistence | null
-  setIndexeddbProvider: (indexeddbProvider: IndexeddbPersistence | null) => void
   setSocketioSyncStatus: (syncStatus: PossibleSyncStatus) => void
-  setIndexeddbSyncStatus: (syncStatus: PossibleSyncStatus) => void
-  handleUpdateDispatch: (args: HandleUpdateDispatchArgs) => void
   setAwareness: (newAwareness: ServerAwareness) => void
   apolloClient: ApolloClient<unknown>
   Y: YJSModule
   lib0: Lib0Module
+  socketioSyncStatus: PossibleSyncStatus
+  setSpawnKey: (spawnKey: string) => void
 }
 
 export const handleProviders = ({
@@ -38,18 +34,16 @@ export const handleProviders = ({
   doc,
   setDoc,
   socketioProvider,
+  socketioSyncStatus,
   setSocketioProvider,
-  indexeddbProvider,
-  setIndexeddbProvider,
   setSocketioSyncStatus,
-  setIndexeddbSyncStatus,
-  handleUpdateDispatch,
   setAwareness,
   apolloClient,
+  setSpawnKey,
   Y,
   lib0,
 }: HandleProvidersArgs) => {
-  const { socketioProviderReady, indexeddbProviderReady } = ready
+  const { socketioProviderReady } = ready
 
   // Close the providers if they should not be operational
   if (!socketioProviderReady && socketioProvider) {
@@ -57,13 +51,7 @@ export const handleProviders = ({
     socketioProvider.destroy()
   }
 
-  if (!indexeddbProviderReady && indexeddbProvider) {
-    indexeddbProvider.destroy()
-    setIndexeddbProvider(null)
-    setIndexeddbSyncStatus('disabled')
-  }
-
-  if (!socketioProviderReady && !indexeddbProviderReady) return
+  if (!socketioProviderReady) return
 
   if (!activeWorkspace) throw 'No active workspace'
   const isLocal = !activeWorkspace.remote
@@ -88,12 +76,6 @@ export const handleProviders = ({
   }
 
   const guidChanged = doc?.guid !== activeGUID
-
-  if (guidChanged) {
-    socketioProvider?.disconnect()
-    socketioProvider?.destroy()
-    socketioProvider = null
-  }
 
   const getNewDoc = (
     oldDoc: YDoc | null,
@@ -126,18 +108,8 @@ export const handleProviders = ({
       Y,
       lib0,
       options: {
-        //onAwarenessUpdate: (awareness) => {
-        //  //console.log('awareness bing bing', awareness)
-        //},
-        onSyncMessage: (newDoc) =>
-          handleUpdateDispatch({
-            doc: newDoc,
-            activeWorkspace,
-          }),
         onStatusChange: (status) => {
           setSocketioSyncStatus(status)
-
-          console.log('socketio status', status)
 
           // TODO: Causes an infinite loop when first connecting
           //if (status === 'disconnected') {
@@ -165,33 +137,16 @@ export const handleProviders = ({
     })
   }
 
-  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
+  if (
+    socketioProviderReady &&
+    (!socketioProvider || guidChanged) // || socketioSyncStatus === 'disconnected')
+  ) {
+    socketioProvider?.disconnect()
+    socketioProvider?.destroy()
+    socketioProvider = null
+
+    setSpawnKey(Math.random().toString(36).substring(10))
     setSocketioProvider(newSocketIOInstance(newDoc, Y))
     setSocketioSyncStatus('connecting')
   }
-
-  if (indexeddbProviderReady && (!indexeddbProvider || guidChanged)) {
-    const newIndexeddbProvider = new Y.indexeddb.IndexeddbPersistence(
-      activeGUID,
-      newDoc
-    )
-
-    newIndexeddbProvider.on('synced', () => {
-      setIndexeddbSyncStatus('connected')
-    })
-
-    setIndexeddbProvider(newIndexeddbProvider)
-    setIndexeddbSyncStatus('connecting')
-  }
-
-  handleUpdateDispatch({
-    doc: newDoc,
-    activeWorkspace,
-    initial: guidChanged,
-  })
 }
-
-export type HandleUpdateDispatchArgs = Omit<
-  UpdateDispatcherArgs,
-  'socketioSyncStatus' | 'indexeddbSyncStatus'
->

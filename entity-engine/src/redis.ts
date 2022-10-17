@@ -32,6 +32,7 @@ const setupDeletion = async () => {
 
 setupDeletion()
 
+/*
 export const eeRedisUsername = checkValue<string>(
   'entity-engine.redis.userName'
 )
@@ -51,3 +52,4 @@ eeReadRedis.connect()
 eeSubscribeRedis.connect()
 
 export { eeReadRedis, eeSubscribeRedis }
+*/

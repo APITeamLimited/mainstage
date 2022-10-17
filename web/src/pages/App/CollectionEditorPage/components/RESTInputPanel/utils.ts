@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { KeyValueItem } from '@apiteam/types/src'
+import { DefaultKV, KeyValueItem } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
 export const generatePathVariables = ({
@@ -12,7 +12,7 @@ export const generatePathVariables = ({
   const path = unsavedEndpoint.split('?')[0]
   const pathParts = path.split('/') as string[]
 
-  if (pathParts.length === 1) return [] as KeyValueItem[]
+  if (pathParts.length === 1) return [] as KeyValueItem<DefaultKV>[]
 
   // Scan for path variables with colon after the slash
   const pathVariables: string[] = []
@@ -24,7 +24,7 @@ export const generatePathVariables = ({
     }
   })
 
-  if (pathVariables.length === 0) [] as KeyValueItem[]
+  if (pathVariables.length === 0) [] as KeyValueItem<DefaultKV>[]
 
   // Ignore if already set in pathVariables else set
   const pathVariablesSet = new Set(
@@ -32,18 +32,23 @@ export const generatePathVariables = ({
   ) as Set<string>
 
   const newPathVariables = Array.from(pathVariablesSet).map(
-    (pathVariable, index) => ({
-      id: index,
-      keyString: pathVariable,
-      value: '',
-      enabled: true,
-    })
+    (pathVariable, index) => {
+      const newPathVariable: KeyValueItem<DefaultKV> = {
+        id: index,
+        keyString: pathVariable,
+        value: '',
+        enabled: true,
+        variant: 'default',
+      }
+
+      return newPathVariable
+    }
   )
 
   const rawExistingPathVariables = (requestYMap?.get('pathVariables') ??
-    []) as KeyValueItem[]
+    []) as KeyValueItem<DefaultKV>[]
 
-  const existingPathVariables = [] as KeyValueItem[]
+  const existingPathVariables = [] as KeyValueItem<DefaultKV>[]
 
   // Remove any variables from existingPathVariables that are no longer in pathVariablesSet
   rawExistingPathVariables.forEach((existingPathVariable) => {
@@ -66,7 +71,7 @@ export const generatePathVariables = ({
   })
 
   // Ensure no duplicate keys
-  const finalPathVariables = [] as KeyValueItem[]
+  const finalPathVariables = [] as KeyValueItem<DefaultKV>[]
   const pathVariableKeys = new Set() as Set<string>
 
   existingPathVariables.forEach((existingPathVariable) => {

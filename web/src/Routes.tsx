@@ -36,10 +36,10 @@ export const brandedRoutes = [
         path: '/platform/globe-test',
         name: 'Globe Test',
       },
-      {
+      /* {
         path: '/platform/api-publishing',
         name: 'API Publishing',
-      },
+      },*/
       {
         path: '/docs',
         name: 'Docs',

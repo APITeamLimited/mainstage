@@ -15,6 +15,7 @@ import { handlePostAuth } from './utils'
 
 export const messageSyncType = 0
 export const messageAwarenessType = 1
+export const messageSyncedType = 2
 
 export const openDocs = new Map<string, OpenDoc>()
 
@@ -68,9 +69,7 @@ export const handleNewConnection = async (socket: Socket) => {
   const scopeSet = doc.scopes.get(socket)
 
   if (!scopeSet) {
-    socket.disconnect()
-    doc.sockets.delete(socket)
-    doc.scopes.delete(socket)
+    doc.closeSocket(socket)
     console.warn('Could not find scope set for socket')
     return
   }
@@ -85,9 +84,7 @@ export const handleNewConnection = async (socket: Socket) => {
     )
 
     if (!member) {
-      socket.disconnect()
-      doc.sockets.delete(socket)
-      doc.scopes.delete(socket)
+      doc.closeSocket(socket)
       console.warn('Could not find member for socket')
       return
     }
@@ -165,6 +162,9 @@ export const handleNewConnection = async (socket: Socket) => {
 
       doc.send(socket, encoding.toUint8Array(encoder))
     }
+
+    // Tell socket synced
+    socket.emit('synced')
   }
 }
 

@@ -23,7 +23,7 @@ import {
 import update from 'immutability-helper'
 import { v4 as uuid } from 'uuid'
 
-import { useDnDModule } from 'src/contexts/imports'
+import { useDnDModule, useSimplebarReactModule } from 'src/contexts/imports'
 
 import { DraggableTableRow } from './DraggableTableRow'
 import { SortableNewItemButton } from './SortableNewItemButton'
@@ -52,6 +52,7 @@ export const SortableEditor = <T extends KVVariantTypes>({
   variant,
 }: SortableEditorProps<T>) => {
   const { HTML5Backend, DndProvider } = useDnDModule()
+  const { default: SimpleBar } = useSimplebarReactModule()
 
   const itemsRef = useRef(items)
   itemsRef.current = items
@@ -141,18 +142,16 @@ export const SortableEditor = <T extends KVVariantTypes>({
   }
 
   return (
-    <Box
-      sx={{
-        height: '100%',
-        width: '100%',
-        overflowY: 'auto',
-      }}
-    >
-      <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={HTML5Backend}>
+      <SimpleBar
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100%',
+        }}
+      >
         <TableContainer
           sx={{
-            width: '100%',
-            overflowX: 'visible',
+            overflow: 'visible',
           }}
         >
           {items.length > 0 && (
@@ -262,7 +261,7 @@ export const SortableEditor = <T extends KVVariantTypes>({
             <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
           )}
         </TableContainer>
-      </DndProvider>
-    </Box>
+      </SimpleBar>
+    </DndProvider>
   )
 }

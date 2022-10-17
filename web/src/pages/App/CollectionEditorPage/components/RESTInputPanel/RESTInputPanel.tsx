@@ -89,6 +89,8 @@ export const RESTInputPanel = ({
     KeyValueItem<DefaultKV>[]
   >(kvLegacyImporter('pathVariables', requestYMap, 'default'))
 
+  const [setInitalPathVariables, setSetInitalPathVariables] = useState(false)
+
   useEffect(() => {
     const generatedPathVariables = generatePathVariables({
       requestYMap,
@@ -96,7 +98,12 @@ export const RESTInputPanel = ({
     })
 
     if (hash(unsavedPathVariables) !== hash(generatedPathVariables)) {
-      setUnsavedPathVariables(generatedPathVariables)
+      if (!setInitalPathVariables) {
+        requestYMap.set('pathVariables', generatedPathVariables)
+        setSetInitalPathVariables(true)
+      } else {
+        setUnsavedPathVariables(generatedPathVariables)
+      }
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps

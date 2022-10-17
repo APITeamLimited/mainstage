@@ -61,9 +61,7 @@ const handleNewServersideConnection = async (
   const { scope } = postAuth
 
   const doc = await getOpenDoc(scope)
-
   doc.serversideSockets.add(socket)
-
   socket.on('disconnect', () => doc.deleteServersideSocket(socket))
 
   manager(socket, doc)

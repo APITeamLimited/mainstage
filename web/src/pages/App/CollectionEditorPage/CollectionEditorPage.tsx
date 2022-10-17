@@ -18,7 +18,7 @@ import { CollectionTree } from './components/CollectionTree'
 import { TabController } from './components/TabController'
 
 import 'react-reflex/styles.css'
-import { useYMap } from 'src/lib/zustand-yjs'
+import { useYDoc, useYMap } from 'src/lib/zustand-yjs'
 
 export const viewportHeightReduction = 50
 
@@ -51,6 +51,8 @@ export const CollectionEditorPage = ({
   const collectionYMap = (
     branchYMap?.get('collections') as YMap<any> | undefined
   )?.get(collectionId) as YMap<any> | undefined
+
+  useYMap(branchYMap ?? new Y.Map())
 
   // Required to prevent branch not being found errors
   useYMap(collectionYMap ?? new Y.Map())

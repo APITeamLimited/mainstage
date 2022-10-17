@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'development') {
         '#70c289'
       )
     )
-  }, 600)
+  }, 2000)
 }
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {

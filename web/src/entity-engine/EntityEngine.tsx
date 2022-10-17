@@ -13,7 +13,6 @@ import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { makeVar } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
-import { IndexeddbPersistence } from 'y-indexeddb'
 import type { Doc as YDoc } from 'yjs'
 
 import { useAuth } from '@redwoodjs/auth'
@@ -23,11 +22,11 @@ import { useQuery } from '@redwoodjs/web'
 import { useLib0Module, useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
-import { handleProviders, HandleUpdateDispatchArgs } from './handle-providers'
+import { handleProviders } from './handle-providers'
 import { ScopeUpdater } from './ScopeUpdater'
+import { DisconnectedScreen } from './screens/DisconnectedScreen'
 import { SocketIOManager } from './socket-io-manager'
 import { SocketIOProvider } from './socket-io-provider'
-import { updateDispatcher } from './update-dispatcher'
 import {
   Bearer,
   determineIfReady,
@@ -96,12 +95,10 @@ export const useWorkspaceInfo = () => useContext(WorkspaceInfoContext)
 
 type SyncReadyStatus = {
   socketioProvider: PossibleSyncStatus
-  indexeddbProvider: PossibleSyncStatus
 }
 
 const initialSyncReadyStatus = {
   socketioProvider: 'disabled',
-  indexeddbProvider: 'disabled',
 } as SyncReadyStatus
 
 const SyncReadyContext = createContext(initialSyncReadyStatus)
@@ -128,19 +125,13 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const [doc, setDoc] = useState<YDoc | null>(null)
   const [socketioProvider, setSocketioProvider] =
     useState<SocketIOProvider | null>(null)
-  const [indexeddbProvider, setIndexeddbProvider] =
-    useState<IndexeddbPersistence | null>(null)
   const [ready, setReady] = useState<ReadyStatus>(initialReadyStatus)
   const [scopes, setScopes] = useState<GetBearerPubkeyScopes['scopes']>([])
   const [socketioSyncStatus, setSocketioSyncStatus] =
     useStateCallback<PossibleSyncStatus>('disabled')
-  const [indexeddbSyncStatus, setIndexeddbSyncStatus] =
-    useStateCallback<PossibleSyncStatus>('disabled')
-  const [doneFirstSync, setDoneFirstSync] = useState(false)
-  const [spawnKey] = useState(Math.random().toString(10))
+  const [spawnKey, setSpawnKey] = useState(Math.random().toString(10))
 
   const socketioSyncStatusRef = useRef<PossibleSyncStatus>(socketioSyncStatus)
-  const indexeddbSyncStatusRef = useRef<PossibleSyncStatus>(indexeddbSyncStatus)
 
   const apolloClient = useApolloClient()
 
@@ -171,41 +162,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   // Needed for callbacks to work
   socketioSyncStatusRef.current = socketioSyncStatus
-  indexeddbSyncStatusRef.current = indexeddbSyncStatus
-
-  const handleUpdateDispatch = useCallback(
-    ({ doc, activeWorkspace, initial }: HandleUpdateDispatchArgs) => {
-      updateDispatcher({
-        doc,
-        activeWorkspace,
-        initial,
-        socketioSyncStatus: socketioSyncStatusRef.current,
-        indexeddbSyncStatus: indexeddbSyncStatusRef.current,
-      })
-    },
-    []
-  )
-
-  useEffect(() => {
-    if (
-      socketioSyncStatus === 'disabled' ||
-      socketioSyncStatus === 'disconnected' ||
-      socketioSyncStatus === 'connecting'
-    ) {
-      setDoneFirstSync(false)
-    }
-    if (socketioSyncStatus === 'connected' && !doneFirstSync) {
-      setDoneFirstSync(true)
-      syncAgain()
-    }
-
-    async function syncAgain() {
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      if (socketioSyncStatus === 'connected') {
-        socketioProvider?.syncAgain()
-      }
-    }
-  }, [doneFirstSync, socketioProvider, socketioSyncStatus])
 
   useEffect(() => {
     determineIfReady({
@@ -276,32 +232,23 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       setDoc,
       socketioProvider,
       setSocketioProvider,
-      indexeddbProvider,
-      setIndexeddbProvider,
       setSocketioSyncStatus,
-      setIndexeddbSyncStatus,
-      handleUpdateDispatch,
       apolloClient,
       setAwareness,
+      socketioSyncStatus,
       Y,
       lib0,
+      setSpawnKey,
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeWorkspace,
     apolloClient,
     doc,
-    handleUpdateDispatch,
-    indexeddbProvider,
-    indexeddbSyncStatus,
     rawBearer,
     ready,
     scopes,
-    setIndexeddbSyncStatus,
-    setSocketioSyncStatus,
     socketioProvider,
-    socketioSyncStatus,
-    Y,
-    lib0,
   ])
 
   if (error) {
@@ -311,8 +258,12 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   return (
     <>
       <SocketIOManager
-        key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}`}
-        // No clue why ts-error here
+        key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}${(
+          socketioSyncStatus === 'disconnected'
+        ).toString()}`}
+        //key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}${(
+        //  socketioSyncStatus === 'disconnected'
+        //).toString()}`}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         socketioProvider={socketioProvider}
@@ -321,25 +272,26 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         <SyncReadyContext.Provider
           value={{
             socketioProvider: socketioSyncStatus,
-            indexeddbProvider: indexeddbSyncStatus,
           }}
         >
-          <DocContext.Provider value={doc}>
-            <ScopesContext.Provider value={scopes}>
-              <RawBearerContext.Provider value={rawBearer}>
-                <RefetchScopesCallbackContext.Provider value={refetchScopes}>
-                  <AwarenessContext.Provider value={awareness}>
-                    <WorkspaceInfoContext.Provider value={activeWorkspace}>
-                      <ScopeIdContext.Provider value={scopeId}>
-                        <ScopeUpdater />
-                        {children}
-                      </ScopeIdContext.Provider>
-                    </WorkspaceInfoContext.Provider>
-                  </AwarenessContext.Provider>
-                </RefetchScopesCallbackContext.Provider>
-              </RawBearerContext.Provider>
-            </ScopesContext.Provider>
-          </DocContext.Provider>
+          <DisconnectedScreen show={socketioSyncStatus === 'disconnected'}>
+            <DocContext.Provider value={doc}>
+              <ScopesContext.Provider value={scopes}>
+                <RawBearerContext.Provider value={rawBearer}>
+                  <RefetchScopesCallbackContext.Provider value={refetchScopes}>
+                    <AwarenessContext.Provider value={awareness}>
+                      <WorkspaceInfoContext.Provider value={activeWorkspace}>
+                        <ScopeIdContext.Provider value={scopeId}>
+                          <ScopeUpdater />
+                          {children}
+                        </ScopeIdContext.Provider>
+                      </WorkspaceInfoContext.Provider>
+                    </AwarenessContext.Provider>
+                  </RefetchScopesCallbackContext.Provider>
+                </RawBearerContext.Provider>
+              </ScopesContext.Provider>
+            </DocContext.Provider>
+          </DisconnectedScreen>
         </SyncReadyContext.Provider>
       </div>
     </>

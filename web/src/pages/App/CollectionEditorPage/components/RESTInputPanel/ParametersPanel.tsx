@@ -95,7 +95,6 @@ export const ParametersPanel = ({
         style={{
           overflow: 'hidden',
         }}
-        size={pathVariables.length > 0 ? 250 : 50}
       >
         <Stack
           sx={{

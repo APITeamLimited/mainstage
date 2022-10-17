@@ -41,16 +41,30 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   const entityEngineStatus = useReactiveVar(entityEngineStatusVar)
 
   const [isLoading, setIsLoading] = useState(true)
+  const [displayLoading, setDisplayLoading] = useState(true)
 
   useEffect(() => {
-    const loaded = loadedImports && entityEngineStatus === 'connected'
+    let loaded =
+      loadedImports &&
+      (entityEngineStatus === 'connected' ||
+        entityEngineStatus === 'disconnected')
 
-    if (loaded) {
-      setInterval(() => {
-        setIsLoading(false)
+    if (entityEngineStatus === 'connecting') {
+      loaded = false
+    }
+
+    setIsLoading(!loaded)
+  }, [loadedImports, entityEngineStatus, isLoading])
+
+  useEffect(() => {
+    if (isLoading) {
+      setDisplayLoading(true)
+    } else {
+      setTimeout(() => {
+        setDisplayLoading(false)
       }, 1000)
     }
-  }, [loadedImports, entityEngineStatus])
+  }, [isLoading])
 
   // Pre-load dynamic imports
   useEffect(() => {
@@ -100,7 +114,8 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   }, [onDashboard, pathname])
 
   return (
-    <LoadingScreen show={isLoading}>
+    <>
+      {displayLoading && <LoadingScreen />}
       <Lib0ModuleProvider>
         <HashSumModuleProvider>
           <SimplebarReactModuleProvider>
@@ -139,6 +154,6 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
           </SimplebarReactModuleProvider>
         </HashSumModuleProvider>
       </Lib0ModuleProvider>
-    </LoadingScreen>
+    </>
   )
 }

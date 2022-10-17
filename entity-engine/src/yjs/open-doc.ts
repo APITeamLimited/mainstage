@@ -162,6 +162,7 @@ export class OpenDoc extends Y.Doc {
 
   // Removes a connection from a doc
   async closeSocket(socket: Socket) {
+    // Find client ids that are controlled by this socket
     if (this.sockets.has(socket)) {
       const controlledIds: Set<number> = this.sockets.get(socket) || new Set()
       this.sockets.delete(socket)
@@ -320,7 +321,7 @@ export class OpenDoc extends Y.Doc {
       await coreCacheSubscribeRedis.subscribe(
         `team:${this.variantTargetId}`,
         (message) => {
-          console.log('message', message)
+          //console.log('message', message)
           const parsedMessage = JSON.parse(message) as RedisTeamPublishMessage
 
           if (parsedMessage.type === 'ADD_MEMBER') {
@@ -424,6 +425,8 @@ export class OpenDoc extends Y.Doc {
           return
         }
 
+        //console.log('public bearer verified', clientID)
+
         // Successfully verified the token
         this.lastVerifiedClients.set(clientID, new Date().getTime())
         await this.updateServerAwareness(decodedToken)
@@ -509,7 +512,7 @@ export class OpenDoc extends Y.Doc {
         ),
       }
 
-      console.log('648 newServerAwareness')
+      //console.log('648 newServerAwareness')
       this.setAndBroadcastServerAwareness(newServerAwareness)
     }
   }
@@ -549,7 +552,7 @@ export class OpenDoc extends Y.Doc {
       ],
     }
 
-    console.log('686 newServerAwareness', newServerAwareness)
+    //console.log('686 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 
@@ -569,7 +572,7 @@ export class OpenDoc extends Y.Doc {
       ),
     }
 
-    console.log('707 newServerAwareness', newServerAwareness)
+    //console.log('707 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
 
     this.activeSubscriptions = this.activeSubscriptions.filter(
@@ -595,7 +598,7 @@ export class OpenDoc extends Y.Doc {
       ),
     }
 
-    console.log('732 newServerAwareness', newServerAwareness)
+    //console.log('732 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 
@@ -623,7 +626,7 @@ export class OpenDoc extends Y.Doc {
       ),
     }
 
-    console.log('759 newServerAwareness', newServerAwareness)
+    //console.log('759 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 

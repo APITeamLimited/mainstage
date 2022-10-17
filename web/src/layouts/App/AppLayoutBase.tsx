@@ -73,24 +73,10 @@ export const AppLayoutBase = ({
             backgroundColor: theme.palette.background.default,
           }}
         >
-          <main>
-            <InnerLayout>{children}</InnerLayout>
-          </main>
+          <main>{children}</main>
         </Box>
         {footer.element}
       </Stack>
     </EntityEngine>
   )
-}
-
-const InnerLayout = ({ children }: { children?: React.ReactNode }) => {
-  const syncReady = useSyncReady()
-
-  const shouldDisable =
-    syncReady.socketioProvider === 'connecting' ||
-    syncReady.socketioProvider === 'disconnected' ||
-    syncReady.indexeddbProvider === 'connecting' ||
-    syncReady.indexeddbProvider === 'disconnected'
-
-  return <>{shouldDisable ? <NotConnectedBanner /> : children}</>
 }

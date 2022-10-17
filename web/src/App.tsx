@@ -18,7 +18,7 @@ import { CustomApolloProvider } from './contexts/custom-apollo-provider'
 
 const App = () => (
   <FatalErrorBoundary page={FatalErrorPage}>
-    <RedwoodProvider titleTemplate="%PageTitle | %AppTitle">
+    <RedwoodProvider titleTemplate="%PageTitle – %AppTitle">
       <AuthProvider type="dbAuth">
         <SettingsProvider>
           <SettingsConsumer>

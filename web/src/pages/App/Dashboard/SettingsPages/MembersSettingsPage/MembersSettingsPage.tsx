@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import { Stack, Typography, useTheme, Box, Divider } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
+import { MetaTags } from '@redwoodjs/web'
 
 import { CustomTabs } from 'src/components/app/CustomTabs'
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
@@ -78,28 +79,31 @@ export const MembersSettingsPage = () => {
   if (!workspaceInfo?.scope) return null
 
   return (
-    <Stack spacing={6}>
-      <Box
-        sx={{
-          top: '-1em',
-          position: 'relative',
-        }}
-      >
-        <Headline headline={prettyType} />
-        <Divider
+    <>
+      <MetaTags title={prettyType} />
+      <Stack spacing={6}>
+        <Box
           sx={{
-            marginTop: 6,
+            top: '-1em',
+            position: 'relative',
           }}
-        />
-      </Box>
-      <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
-        {workspaceInfo.scope.variant === 'USER' ? (
-          <CallToCreateTeam />
-        ) : (
-          <MembersSettingsTab teamId={workspaceInfo.scope.variantTargetId} />
-        )}
-      </SideTabManager>
-    </Stack>
+        >
+          <Headline headline={prettyType} />
+          <Divider
+            sx={{
+              marginTop: 6,
+            }}
+          />
+        </Box>
+        <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
+          {workspaceInfo.scope.variant === 'USER' ? (
+            <CallToCreateTeam />
+          ) : (
+            <MembersSettingsTab teamId={workspaceInfo.scope.variantTargetId} />
+          )}
+        </SideTabManager>
+      </Stack>
+    </>
   )
 }
 

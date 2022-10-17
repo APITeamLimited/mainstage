@@ -14,12 +14,7 @@ const loadingMessages = [
   'Reticulating splines',
 ]
 
-type LoadingScreenProps = {
-  show: boolean
-  children?: React.ReactNode
-}
-
-export const LoadingScreen = ({ show, children }: LoadingScreenProps) => {
+export const LoadingScreen = () => {
   const theme = useTheme()
 
   const loadingMessagesRandomOrder = useMemo(() => {
@@ -49,72 +44,67 @@ export const LoadingScreen = ({ show, children }: LoadingScreenProps) => {
   }, [messageIndex])
 
   return (
-    <>
-      {show && (
-        <Box
-          sx={{
-            height: '100vh',
-            width: '100vw',
-            position: 'fixed',
-            zIndex: 10000000,
-            backgroundColor: theme.palette.background.paper,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden',
-            userSelect: 'none',
-          }}
+    <Box
+      sx={{
+        height: '100vh',
+        width: '100vw',
+        position: 'fixed',
+        zIndex: 10000000,
+        backgroundColor: theme.palette.background.paper,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        userSelect: 'none',
+      }}
+    >
+      <Stack
+        spacing={4}
+        alignItems="center"
+        sx={{
+          // Looks better slightly higher up on the screen
+          paddingBottom: '200px',
+        }}
+      >
+        <Typography
+          fontSize={80}
+          fontWeight={1000}
+          // The old theme's font, think this might look better for the logo
+          fontFamily="Roboto"
+          color={theme.palette.text.primary}
         >
-          <Stack
-            spacing={4}
-            alignItems="center"
-            sx={{
-              // Looks better slightly higher up on the screen
-              paddingBottom: '200px',
+          <span
+            style={{
+              whiteSpace: 'nowrap',
             }}
           >
-            <Typography
-              fontSize={80}
-              fontWeight={1000}
-              // The old theme's font, think this might look better for the logo
-              fontFamily="Roboto"
-              color={theme.palette.text.primary}
-            >
-              <span
-                style={{
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                API Team
-              </span>
-            </Typography>
-            <Typography variant="h6" color={theme.palette.text.secondary}>
-              <TextTransition
-                springConfig={presets.default}
-                style={{
-                  // Align text to the center
-                  whiteSpace: 'nowrap',
-                  textAlign: 'center',
-                  display: 'inline-block',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {loadingMessagesRandomOrder[messageIndex]}
-              </TextTransition>
-            </Typography>
+            API Team
+          </span>
+        </Typography>
+        <Typography variant="h6" color={theme.palette.text.secondary}>
+          <TextTransition
+            springConfig={presets.default}
+            style={{
+              // Align text to the center
+              whiteSpace: 'nowrap',
+              textAlign: 'center',
+              display: 'inline-block',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {loadingMessagesRandomOrder[messageIndex]}
+          </TextTransition>
+        </Typography>
 
-            <Box sx={{ width: '50vw', maxWidth: 500 }}>
-              <LinearProgress
-                sx={{
-                  height: 6,
-                }}
-              />
-            </Box>
-          </Stack>
+        <Box sx={{ width: '50vw', maxWidth: 500 }}>
+          <LinearProgress
+            sx={{
+              height: 6,
+            }}
+          />
         </Box>
-      )}
-      {children}
-    </>
+      </Stack>
+    </Box>
   )
 }
