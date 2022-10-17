@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import {
+  KeyValueItem,
   kvExporter,
   kvLegacyImporter,
   LocalValueKV,
@@ -39,6 +40,15 @@ export const CollectionInputPanel = ({
 
   const collectionHook = useYMap(collectionYMap)
 
+  const getSetDescription = () => {
+    collectionYMap.set('description', '')
+    return collectionYMap.get('descSription')
+  }
+
+  const [unsavedDescription, setUnsavedDescription] = useState<string>(
+    collectionYMap.get('description') ?? getSetDescription()
+  )
+
   const getSetAuth = () => {
     collectionYMap.set('auth', {
       authType: 'none',
@@ -47,14 +57,6 @@ export const CollectionInputPanel = ({
     return collectionYMap.get('auth')
   }
 
-  const getSetDescription = () => {
-    collectionYMap.set('description', '')
-    return collectionYMap.get('description')
-  }
-
-  const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    collectionYMap.get('description') ?? getSetDescription()
-  )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
     collectionYMap.get('auth') ?? getSetAuth()
   )
@@ -66,21 +68,52 @@ export const CollectionInputPanel = ({
   const [needSave, setNeedSave] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  const handleSetNeedSave = (needSave: boolean) => {
+    setNeedSave(needSave)
+
+    if (needSave) {
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+    } else {
+      setObservedNeedsSave(false)
+    }
+  }
+
   // If doesn't need save, update fields automatically
-  /*useEffect(() => {
+  useEffect(() => {
     if (!needSave) {
       setUnsavedDescription(collectionYMap.get('description') ?? '')
       setUnsavedAuth(collectionYMap.get('auth') ?? getSetAuth())
-      setUnsavedVariables(
-        kvLegacyImporter<LocalValueKV>(
-          'variables',
-          collectionYMap,
-          'localvalue'
-        )
+
+      const newVariables = kvLegacyImporter<LocalValueKV>(
+        'variables',
+        collectionYMap,
+        'localvalue'
       )
+
+      // This is necessary to prevent a feedback loop
+      if (hash(newVariables) !== hash(unsavedVariables)) {
+        setUnsavedVariables(newVariables)
+      }
+
+      // This seems to be required to trigger re-render
+      handleSetNeedSave(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionHook])*/
+  }, [collectionHook])
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  const handleFieldUpdate = <T extends any>(
+    setter: (value: T) => void,
+    newValue: T
+  ) => {
+    if (!needSave) {
+      handleSetNeedSave(true)
+    }
+
+    // Call the setter after the needSave state is set to true else will try and
+    // update fields automatically
+    setter(newValue)
+  }
 
   const handleSave = () => {
     collectionYMap.set('auth', unsavedAuth)
@@ -94,42 +127,11 @@ export const CollectionInputPanel = ({
     )
     collectionYMap.set('description', unsavedDescription)
     collectionYMap.set('updatedAt', new Date().toISOString())
-    setNeedSave(false)
-    setObservedNeedsSave(false)
+    handleSetNeedSave(false)
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
-
-  const [mountTime] = useState(Date.now())
-
-  // Update needSave when any of the unsaved fields change
-  useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 400) {
-      const needsSave =
-        hash(unsavedDescription) !== hash(collectionYMap.get('description')) ||
-        hash(unsavedAuth) !== hash(collectionYMap.get('auth'))
-
-      if (needsSave) {
-        setNeedSave(true)
-        setObservedNeedsSave(true, () => saveCallbackRef.current())
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps, prettier/prettier
-  }, [
-    needSave,
-    collectionHook,
-    unsavedDescription,
-    unsavedAuth,
-  ])
-
-  useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 400) {
-      setNeedSave(true)
-      setObservedNeedsSave(true, () => saveCallbackRef.current())
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unsavedVariables])
 
   return (
     <>
@@ -184,7 +186,12 @@ export const CollectionInputPanel = ({
         {activeTabIndex === 0 && (
           <KeyValueEditor<LocalValueKV>
             items={unsavedVariables}
-            setItems={setUnsavedVariables}
+            setItems={(newItems) =>
+              handleFieldUpdate<KeyValueItem<LocalValueKV>[]>(
+                setUnsavedVariables,
+                newItems
+              )
+            }
             namespace={`${collectionYMap.get('id')}}-variables`}
             setActionArea={setActionArea}
             enableEnvironmentVariables={false}
@@ -195,7 +202,9 @@ export const CollectionInputPanel = ({
         {activeTabIndex === 1 && (
           <AuthPanel
             auth={unsavedAuth}
-            setAuth={setUnsavedAuth}
+            setAuth={(newAuth) =>
+              handleFieldUpdate<RESTAuth>(setUnsavedAuth, newAuth)
+            }
             namespace={collectionYMap.get('id')}
             setActionArea={setActionArea}
             disableInherit
@@ -204,7 +213,9 @@ export const CollectionInputPanel = ({
         {activeTabIndex === 2 && (
           <DescriptionPanel
             description={unsavedDescription}
-            setDescription={setUnsavedDescription}
+            setDescription={(newDescription) =>
+              handleFieldUpdate<string>(setUnsavedDescription, newDescription)
+            }
             setActionArea={setActionArea}
           />
         )}

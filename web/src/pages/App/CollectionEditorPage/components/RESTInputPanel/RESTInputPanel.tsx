@@ -146,31 +146,74 @@ export const RESTInputPanel = ({
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  const handleSetNeedSave = (needSave: boolean) => {
+    setNeedSave(needSave)
+
+    if (needSave) {
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+    } else {
+      setObservedNeedsSave(false)
+    }
+  }
+
   // If doesn't need save, update fields automatically
-  /*useEffect(() => {
+  useEffect(() => {
     if (!needSave) {
       setUnsavedEndpoint(requestYMap.get('endpoint'))
-      setUnsavedHeaders(kvLegacyImporter('headers', requestYMap, 'default'))
-      setUnsavedParameters(kvLegacyImporter('params', requestYMap, 'default'))
-      setUnsavedPathVariables(
-        kvLegacyImporter('pathVariables', requestYMap, 'default')
+
+      const newHeaders = kvLegacyImporter<DefaultKV>(
+        'headers',
+        requestYMap,
+        'default'
       )
+
+      // This is necessary to prevent a feedback loop
+      if (hash(unsavedHeaders) !== hash(newHeaders)) {
+        setUnsavedHeaders(newHeaders)
+      }
+
+      const newParameters = kvLegacyImporter<DefaultKV>(
+        'params',
+        requestYMap,
+        'default'
+      )
+
+      if (hash(unsavedParameters) !== hash(newParameters)) {
+        setUnsavedParameters(newParameters)
+      }
+
+      const newPathVariables = kvLegacyImporter<DefaultKV>(
+        'pathVariables',
+        requestYMap,
+        'default'
+      )
+
+      // This is necessary to prevent a feedback loop
+      if (hash(unsavedPathVariables) !== hash(newPathVariables)) {
+        setUnsavedPathVariables(newPathVariables)
+      }
+
       setUnsavedBody(requestYMap.get('body'))
       setUnsavedRequestMethod(requestYMap.get('method'))
       setUnsavedAuth(requestYMap.get('auth'))
       setUnsavedDescription(
         requestYMap.get('description') ?? getSetDescription()
       )
-      setUnsavedExecutionScripts(
-        requestYMap.get('executionScripts')
-          ? [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
-          : getAndSetExecutionScripts()
-      )
+
+      const newExecutionScripts = requestYMap.get('executionScripts')
+        ? [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
+        : getAndSetExecutionScripts()
+
+      // This is necessary to prevent a feedback loop
+      if (hash(unsavedExecutionScripts) !== hash(newExecutionScripts)) {
+        setUnsavedExecutionScripts(newExecutionScripts)
+      }
+
+      // This seems to be required to trigger re-render
+      setNeedSave(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requestHook])*/
-
-  const [mountTime] = useState(Date.now())
+  }, [requestHook])
 
   const handleSave = () => {
     requestYMap.set('endpoint', unsavedEndpoint)
@@ -194,48 +237,6 @@ export const RESTInputPanel = ({
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
 
-  // Update needSave when any of the unsaved fields change
-  useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 400) {
-      const needsSave =
-        hash(unsavedEndpoint) !== hash(requestYMap.get('endpoint')) ||
-        hash(unsavedHeaders) !== hash(requestYMap.get('headers')) ||
-        hash(unsavedParameters) !== hash(requestYMap.get('params')) ||
-        hash(stripBodyStoredObjectData(unsavedBody)) !==
-          hash(requestYMap.get('body')) ||
-        hash(unsavedRequestMethod) !== hash(requestYMap.get('method')) ||
-        hash(unsavedAuth) !== hash(requestYMap.get('auth')) ||
-        hash(unsavedDescription) !== hash(requestYMap.get('description')) ||
-        hash(unsavedPathVariables) !== hash(requestYMap.get('pathVariables'))
-
-      if (needsSave) {
-        setNeedSave(true)
-        setObservedNeedsSave(true, () => saveCallbackRef.current())
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    needSave,
-    requestHook,
-    unsavedAuth,
-    unsavedBody,
-    unsavedDescription,
-    unsavedEndpoint,
-    unsavedHeaders,
-    unsavedParameters,
-    unsavedPathVariables,
-    unsavedRequestMethod,
-  ])
-
-  // TODO: Hack for now till script saving fixed, ensures save icon shown at correct time
-  useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 400) {
-      setNeedSave(true)
-      setObservedNeedsSave(true, () => saveCallbackRef.current())
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unsavedExecutionScripts])
-
   useEffect(() => {
     if (!unsavedBody) return
 
@@ -244,6 +245,20 @@ export const RESTInputPanel = ({
       requestYMap.set('body', unsavedBody)
     }
   }, [requestYMap, unsavedBody])
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  const handleFieldUpdate = <T extends any>(
+    setter: (value: T) => void,
+    newValue: T
+  ) => {
+    if (!needSave) {
+      handleSetNeedSave(true)
+    }
+
+    // Call the setter after the needSave state is set to true else will try and
+    // update fields automatically
+    setter(newValue)
+  }
 
   const handleSaveAs = (newName: string) => {
     const newId = uuid()
@@ -332,7 +347,9 @@ export const RESTInputPanel = ({
           >
             <EndpointBox
               unsavedEndpoint={unsavedEndpoint}
-              setUnsavedEndpoint={(e) => setUnsavedEndpoint(e)}
+              setUnsavedEndpoint={(newEndpoint) =>
+                handleFieldUpdate<string>(setUnsavedEndpoint, newEndpoint)
+              }
               requestMethod={unsavedRequestMethod}
               setRequestMethod={setUnsavedRequestMethod}
               requestId={requestId}
@@ -366,9 +383,19 @@ export const RESTInputPanel = ({
         {activeTabIndex === 0 && (
           <ParametersPanel
             queryParameters={unsavedParameters}
+            setQueryParameters={(newParams) =>
+              handleFieldUpdate<KeyValueItem<DefaultKV>[]>(
+                setUnsavedParameters,
+                newParams
+              )
+            }
             pathVariables={unsavedPathVariables}
-            setQueryParameters={setUnsavedParameters}
-            setPathVariables={setUnsavedPathVariables}
+            setPathVariables={(newPathVariables) =>
+              handleFieldUpdate<KeyValueItem<DefaultKV>[]>(
+                setUnsavedPathVariables,
+                newPathVariables
+              )
+            }
             namespace={`request:${requestId}:params`}
             setActionArea={setActionArea}
           />
@@ -377,14 +404,21 @@ export const RESTInputPanel = ({
           <BodyPanel
             requestId={requestId}
             body={unsavedBody}
-            setBody={setUnsavedBody}
+            setBody={(newBody) =>
+              handleFieldUpdate<RESTReqBody>(setUnsavedBody, newBody)
+            }
             setActionArea={setActionArea}
           />
         )}
         {activeTabIndex === 2 && (
           <KeyValueEditor<DefaultKV>
             items={unsavedHeaders}
-            setItems={setUnsavedHeaders}
+            setItems={(newHeaders) =>
+              handleFieldUpdate<KeyValueItem<DefaultKV>[]>(
+                setUnsavedHeaders,
+                newHeaders
+              )
+            }
             namespace={`request:${requestId}:headers`}
             setActionArea={setActionArea}
             variant="default"
@@ -393,7 +427,9 @@ export const RESTInputPanel = ({
         {activeTabIndex === 3 && (
           <AuthPanel
             auth={unsavedAuth}
-            setAuth={setUnsavedAuth}
+            setAuth={(newAuth) =>
+              handleFieldUpdate<RESTAuth>(setUnsavedAuth, newAuth)
+            }
             namespace={requestId}
             setActionArea={setActionArea}
           />
@@ -401,7 +437,12 @@ export const RESTInputPanel = ({
         {activeTabIndex === 4 && (
           <ScriptsPanel
             executionScripts={unsavedExecutionScripts}
-            setExecutionScripts={setUnsavedExecutionScripts}
+            setExecutionScripts={(newScripts) =>
+              handleFieldUpdate<ExecutionScript[]>(
+                setUnsavedExecutionScripts,
+                newScripts
+              )
+            }
             namespace={spawnId}
             setActionArea={setActionArea}
             onExecuteRef={handleSendRef}
@@ -410,7 +451,9 @@ export const RESTInputPanel = ({
         {activeTabIndex === 5 && (
           <DescriptionPanel
             description={unsavedDescription}
-            setDescription={setUnsavedDescription}
+            setDescription={(newDescription) =>
+              handleFieldUpdate<string>(setUnsavedDescription, newDescription)
+            }
             setActionArea={setActionArea}
           />
         )}

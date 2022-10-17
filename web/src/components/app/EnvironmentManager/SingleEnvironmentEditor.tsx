@@ -23,6 +23,7 @@ import {
 } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { useHashSumModule } from 'src/contexts/imports'
 import {
   activeEnvironmentVar,
   updateActiveEnvironmentId,
@@ -43,6 +44,8 @@ export const SingleEnvironmentEditor = ({
   show,
   setShow,
 }: SingleEnvironmentEditorProps) => {
+  const { default: hash } = useHashSumModule()
+
   const theme = useTheme()
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
@@ -61,23 +64,38 @@ export const SingleEnvironmentEditor = ({
   const [needSave, setNeedSave] = useState(false)
 
   // If doesn't need save, update fields automatically
-  /*useEffect(() => {
+  useEffect(() => {
     if (!needSave) {
-      setUnsavedKeyValues(
-        kvLegacyImporter('variables', environmentYMap, 'localvalue')
+      const newKeyValues = kvLegacyImporter<LocalValueKV>(
+        'variables',
+        environmentYMap,
+        'localvalue'
       )
+
+      // This is necessary to prevent a feedback loop
+      if (hash(newKeyValues) !== hash(unsavedKeyValues)) {
+        setUnsavedKeyValues(newKeyValues)
+
+        // This seems to be required to trigger re-render
+        setNeedSave(false)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environmentHook])*/
+  }, [environmentHook])
 
-  const [mountTime, setMountTime] = useState(Date.now())
-
-  useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 400) {
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  const handleFieldUpdate = <T extends any>(
+    setter: (value: T) => void,
+    newValue: T
+  ) => {
+    if (!needSave) {
       setNeedSave(true)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unsavedKeyValues])
+
+    // Call the setter after the needSave state is set to true else will try and
+    // update fields automatically
+    setter(newValue)
+  }
 
   const handleEnvironmentSave = (
     newKeyValues: KeyValueItem<LocalValueKV>[]
@@ -116,7 +134,6 @@ export const SingleEnvironmentEditor = ({
   // Load the variables again when the dialog is opened
   useEffect(() => {
     if (show) {
-      setMountTime(Date.now())
       setNeedSave(false)
       setUnsavedKeyValues(
         kvLegacyImporter('variables', environmentYMap, 'localvalue')
@@ -181,7 +198,12 @@ export const SingleEnvironmentEditor = ({
           >
             <KeyValueEditor<LocalValueKV>
               items={unsavedKeyValues}
-              setItems={setUnsavedKeyValues}
+              setItems={(newItems) =>
+                handleFieldUpdate<KeyValueItem<LocalValueKV>[]>(
+                  setUnsavedKeyValues,
+                  newItems
+                )
+              }
               namespace={`env-${environmentId}`}
               enableEnvironmentVariables={false}
               variant="localvalue"

@@ -14,7 +14,6 @@ import {
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
-import { useHashSumModule } from 'src/contexts/imports'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { duplicateRecursive } from '../CollectionTree/Node/utils'
@@ -36,20 +35,11 @@ export const FolderInputPanel = ({
   collectionYMap,
   setObservedNeedsSave,
 }: FolderInputPanelProps) => {
-  const { default: hash } = useHashSumModule()
-
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
+
   const folderYMap = foldersYMap.get(folderId)
   const folderHook = useYMap(folderYMap)
-
-  const getSetAuth = () => {
-    folderYMap.set('auth', {
-      authType: 'inherit',
-    })
-
-    return folderYMap.get('auth')
-  }
 
   const getSetDescription = () => {
     folderYMap.set('description', '')
@@ -59,6 +49,15 @@ export const FolderInputPanel = ({
   const [unsavedDescription, setUnsavedDescription] = useState<string>(
     folderYMap.get('description') ?? getSetDescription()
   )
+
+  const getSetAuth = () => {
+    folderYMap.set('auth', {
+      authType: 'inherit',
+    })
+
+    return folderYMap.get('auth')
+  }
+
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
     folderYMap.get('auth') ?? getSetAuth()
   )
@@ -68,44 +67,53 @@ export const FolderInputPanel = ({
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
+  const handleSetNeedSave = (needSave: boolean) => {
+    setNeedSave(needSave)
+
+    if (needSave) {
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+    } else {
+      setObservedNeedsSave(false)
+    }
+  }
+
   // If doesn't need save, update fields automatically
-  /*useEffect(() => {
+  useEffect(() => {
     if (!needSave) {
       setUnsavedDescription(
         folderYMap.get('description') ?? getSetDescription()
       )
       setUnsavedAuth(folderYMap.get('auth') ?? getSetAuth())
-      setNeedSave(false)
-      setObservedNeedsSave(false)
+
+      // This seems to be required to trigger re-render
+      handleSetNeedSave(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folderHook])*/
+  }, [folderHook])
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  const handleFieldUpdate = <T extends any>(
+    setter: (value: T) => void,
+    newValue: T
+  ) => {
+    if (!needSave) {
+      handleSetNeedSave(true)
+    }
+
+    // Call the setter after the needSave state is set to true else will try and
+    // update fields automatically
+    setter(newValue)
+  }
 
   const handleSave = () => {
     folderYMap.set('description', unsavedDescription)
     folderYMap.set('auth', unsavedAuth)
     folderYMap.set('updatedAt', new Date().toISOString())
-    setNeedSave(false)
-    setObservedNeedsSave(false)
+    handleSetNeedSave(false)
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
-
-  // Update needSave when any of the unsaved fields change
-  useEffect(() => {
-    if (!needSave) {
-      const needsSave =
-        hash(unsavedDescription) !== hash(folderYMap.get('description')) ||
-        hash(unsavedAuth) !== hash(folderYMap.get('auth'))
-
-      if (needsSave) {
-        setNeedSave(true)
-        setObservedNeedsSave(true, () => saveCallbackRef.current())
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [needSave, folderHook, unsavedDescription, unsavedAuth])
 
   const handleSaveAs = (newName: string) => {
     const newId = uuid()
@@ -180,7 +188,9 @@ export const FolderInputPanel = ({
         {activeTabIndex === 0 && (
           <AuthPanel
             auth={unsavedAuth}
-            setAuth={setUnsavedAuth}
+            setAuth={(newValue) =>
+              handleFieldUpdate<RESTAuth>(setUnsavedAuth, newValue)
+            }
             namespace={folderYMap.get('id')}
             setActionArea={setActionArea}
           />
@@ -188,7 +198,9 @@ export const FolderInputPanel = ({
         {activeTabIndex === 1 && (
           <DescriptionPanel
             description={unsavedDescription}
-            setDescription={setUnsavedDescription}
+            setDescription={(newValue) =>
+              handleFieldUpdate<string>(setUnsavedDescription, newValue)
+            }
             setActionArea={setActionArea}
           />
         )}

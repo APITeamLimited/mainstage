@@ -54,7 +54,6 @@ export const getEntityEngineSocket = async (
     })
 
     // Create and delete a temporary id to enable streaming of tests by jobId
-
     await coreCacheReadRedis.set(`jobScopeId:${data.jobId}`, scopeId)
 
     entityEngineSocket.on('disconnect', async () => {

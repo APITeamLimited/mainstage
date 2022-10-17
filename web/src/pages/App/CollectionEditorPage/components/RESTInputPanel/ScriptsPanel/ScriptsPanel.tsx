@@ -48,10 +48,10 @@ export const ScriptsPanel = ({
   activeScriptIndexRef.current = activeScriptIndex
 
   const valueRef = useRef<string>(
-    executionScriptsRef.current[activeScriptIndexRef.current].script
+    executionScriptsRef.current[activeScriptIndexRef.current]?.script
   )
   valueRef.current =
-    executionScriptsRef.current[activeScriptIndexRef.current].script
+    executionScriptsRef.current[activeScriptIndexRef.current]?.script
 
   const handleBodyDelete = () => {
     // Set active executtion script to empty string
@@ -144,6 +144,12 @@ export const ScriptsPanel = ({
   }
 
   const [sourceKey] = useState(() => Math.random().toString())
+
+  // In case remote clients delete the active script
+  if (valueRef.current === undefined) {
+    setActiveScriptIndex(0)
+    return <></>
+  }
 
   return (
     <>

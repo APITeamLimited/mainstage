@@ -46,7 +46,7 @@ export const AboutAside = ({ itemYMap, onCloseAside }: AboutAsideProps) => {
             fontWeight: 'bold',
           }}
         >
-          Item ID:
+          {getPrettyName(itemYMap)} ID:
         </span>{' '}
         {itemYMap.get('id')}
       </Typography>
@@ -143,14 +143,17 @@ export const AboutAside = ({ itemYMap, onCloseAside }: AboutAsideProps) => {
   )
 }
 
-export const getPrettyInfoTitle = (itemYMap: YMap<any>) => {
+export const getPrettyInfoTitle = (itemYMap: YMap<any>) =>
+  `${getPrettyName(itemYMap)} Info`
+
+const getPrettyName = (itemYMap: YMap<any>) => {
   if (itemYMap.get('__typename') === 'Collection') {
-    return 'Collection Info'
+    return 'Collection'
   } else if (itemYMap.get('__typename') === 'Folder') {
-    return 'Folder Info'
+    return 'Folder'
   } else if (itemYMap.get('__typename') === 'RESTRequest') {
-    return 'Request Info'
+    return 'Request'
   } else {
-    return 'Info'
+    return 'Item'
   }
 }

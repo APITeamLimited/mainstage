@@ -83,28 +83,25 @@ export const EnvironmentManager = ({
     [activeEnvironmentDict, branchHook]
   )
 
-  const [mountTime, setMountTime] = useState(Date.now())
-
   // If doesn't need save, update fields automatically
-  /*useEffect(() => {
-    if (!needSave && activeEnvironmentYMap) {
-      setUnsavedKeyValues(
-        kvLegacyImporter<LocalValueKV>(
-          'variables',
-          activeEnvironmentYMap,
-          'localvalue'
-        )
-      )
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeEnvironmentHook])*/
-
   useEffect(() => {
-    if (!needSave && Date.now() - mountTime > 400) {
-      setNeedSave(true)
+    if (!needSave && activeEnvironmentYMap) {
+      const newKeyValues = kvLegacyImporter<LocalValueKV>(
+        'variables',
+        activeEnvironmentYMap,
+        'localvalue'
+      )
+
+      // This is necessary to prevent a feedback loop
+      if (hash(newKeyValues) !== hash(unsavedKeyValues)) {
+        setUnsavedKeyValues(newKeyValues)
+
+        // This seems to be required to trigger re-render
+        setNeedSave(false)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unsavedKeyValues])
+  }, [activeEnvironmentHook])
 
   // Load the variables again when the dialog is opened or active environment changes
   useEffect(() => {
@@ -114,11 +111,19 @@ export const EnvironmentManager = ({
     }
 
     if (show && activeEnvironmentId && activeEnvironmentYMap) {
-      setMountTime(Date.now())
-      setNeedSave(false)
-      setUnsavedKeyValues(
-        kvLegacyImporter('variables', activeEnvironmentYMap, 'localvalue')
+      const newKeyValues = kvLegacyImporter<LocalValueKV>(
+        'variables',
+        activeEnvironmentYMap,
+        'localvalue'
       )
+
+      // This is necessary to prevent a feedback loop
+      if (hash(newKeyValues) !== hash(unsavedKeyValues)) {
+        setUnsavedKeyValues(newKeyValues)
+      }
+
+      // This seems to be required to trigger re-render
+      setNeedSave(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, activeEnvironmentId, activeEnvironmentYMap])
@@ -138,6 +143,20 @@ export const EnvironmentManager = ({
     activeEnvironmentYMap.set('updatedAt', new Date().toISOString())
 
     setNeedSave(false)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  const handleFieldUpdate = <T extends any>(
+    setter: (value: T) => void,
+    newValue: T
+  ) => {
+    if (!needSave) {
+      setNeedSave(true)
+    }
+
+    // Call the setter after the needSave state is set to true else will try and
+    // update fields automatically
+    setter(newValue)
   }
 
   const handleEnvironmentCreate = (name: string) => {
@@ -335,7 +354,12 @@ export const EnvironmentManager = ({
                   <>
                     <KeyValueEditor<LocalValueKV>
                       items={unsavedKeyValues}
-                      setItems={setUnsavedKeyValues}
+                      setItems={(newItems) =>
+                        handleFieldUpdate<KeyValueItem<LocalValueKV>[]>(
+                          setUnsavedKeyValues,
+                          newItems
+                        )
+                      }
                       namespace={`env${activeEnvironmentId}`}
                       enableEnvironmentVariables={false}
                       disableBulkEdit
