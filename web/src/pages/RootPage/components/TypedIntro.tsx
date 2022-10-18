@@ -114,7 +114,7 @@ const TypedIntro = (): JSX.Element => {
                 sm: 'row',
               }}
             >
-              <SignUpOrContinueButton />
+              <SignUpOrContinueButton size="large" />
               {/*<Button
                 component={'a'}
                 href={'/docs/introduction'}

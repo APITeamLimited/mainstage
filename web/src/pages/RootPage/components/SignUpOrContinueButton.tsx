@@ -3,7 +3,13 @@ import { Button } from '@mui/material'
 import { useAuth } from '@redwoodjs/auth'
 import { Link, routes } from '@redwoodjs/router'
 
-export const SignUpOrContinueButton = () => {
+type SignUpOrContinueButtonProps = {
+  size: 'small' | 'medium' | 'large'
+}
+
+export const SignUpOrContinueButton = ({
+  size,
+}: SignUpOrContinueButtonProps) => {
   const { isAuthenticated } = useAuth()
 
   return isAuthenticated ? (
@@ -16,10 +22,10 @@ export const SignUpOrContinueButton = () => {
       <Button
         variant="contained"
         color="success"
-        size="large"
         sx={{
           fontSize: 'normal',
         }}
+        size={size}
       >
         <span
           style={{

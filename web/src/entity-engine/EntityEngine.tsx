@@ -119,7 +119,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     if (!activeWorkspace) return null
     return activeWorkspace.scope.id
   }, [activeWorkspace])
-
   const [doc, setDoc] = useState<YDoc | null>(null)
   const [socketioProvider, setSocketioProvider] =
     useState<SocketIOProvider | null>(null)
@@ -248,10 +247,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     scopes,
     socketioProvider,
   ])
-
-  useEffect(() => {
-    console.log('socketiosyncstatus', socketioSyncStatus)
-  }, [socketioSyncStatus])
 
   if (error) {
     throw error

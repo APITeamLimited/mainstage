@@ -6,7 +6,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 
-import { Link, Router, routes } from '@redwoodjs/router'
+import { Link, routes } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
 import { SignUpOrContinueButton } from 'src/pages/RootPage/components/SignUpOrContinueButton'
@@ -72,7 +72,7 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
             )
           })}
           <Box marginLeft={4}>
-            <SignUpOrContinueButton />
+            <SignUpOrContinueButton size="medium" />
           </Box>
         </Box>
         <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems={'center'}>

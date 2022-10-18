@@ -436,6 +436,10 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
                     </Typography>
                   }
                 />
+                <FormHelperText>
+                  APITeam is currently in beta. Features may change and bugs may
+                  occur.
+                </FormHelperText>
                 {formik.errors.submit && (
                   <FormHelperText error>{formik.errors.submit}</FormHelperText>
                 )}

@@ -74,7 +74,7 @@ const SidebarNav = (): JSX.Element => {
         })}
       </Box>
       <Box paddingX={2} paddingY={3}>
-        <SignUpOrContinueButton />
+        <SignUpOrContinueButton size="medium" />
       </Box>
     </Box>
   )

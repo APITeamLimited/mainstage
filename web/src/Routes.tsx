@@ -100,7 +100,7 @@ const Routes = () => {
         <Route path={ROUTES.privacyPolicy} page={PrivacyPolicyPage} name="privacyPolicy" />
         <Route path={ROUTES.cookiePolicy} page={CookiePolicyPage} name="cookiePolicy" />
         <Route path={ROUTES.supportCenter} page={PrivacyPolicyPage} name="supportCenter" />
-        <Route path={ROUTES.docs} page={PrivacyPolicyPage} name="docs" />
+        <Route path={ROUTES.docs} page={DocsPage} name="docs" />
         <Route path={ROUTES.blog} page={PrivacyPolicyPage} name="blog" />
       </Set>
       <Route path={ROUTES.acceptInvitation} page={AcceptInvitationPage} name="acceptInvitation" />

@@ -15,7 +15,7 @@ import {
   Avatar,
 } from '@mui/material'
 
-import { navigate, routes } from '@redwoodjs/router'
+import { routes } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
@@ -128,6 +128,7 @@ export const WorkspaceSwitcherPopover = ({
                   color={theme.palette.text.secondary}
                   sx={{
                     paddingLeft: 1,
+                    userSelect: 'none',
                   }}
                   fontSize="0.8rem"
                   gutterBottom

@@ -34,7 +34,6 @@ export const handleProviders = ({
   doc,
   setDoc,
   socketioProvider,
-  socketioSyncStatus,
   setSocketioProvider,
   setSocketioSyncStatus,
   setAwareness,
@@ -44,8 +43,6 @@ export const handleProviders = ({
   lib0,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady } = ready
-
-  console.log('activeWorkspace', activeWorkspace)
 
   // Close the providers if they should not be operational
   if (!socketioProviderReady && socketioProvider) {
@@ -144,13 +141,9 @@ export const handleProviders = ({
     (!socketioProvider || guidChanged) // &&
     //socketioSyncStatus !== 'connecting'
   ) {
-    console.log('activeGUID', activeGUID)
-
     socketioProvider?.disconnect()
     socketioProvider?.destroy()
     socketioProvider = null
-
-    console.log('Creating new socketioProvider', socketioSyncStatus)
 
     setSpawnKey(Math.random().toString(36).substring(10))
     setSocketioProvider(newSocketIOInstance(newDoc, Y))

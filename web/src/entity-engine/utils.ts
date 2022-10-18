@@ -57,7 +57,20 @@ export const processAuthData = ({
       newWorkspaces.push({
         __typename: 'Workspace',
         id: scope.variantTargetId,
-        scope,
+        scope: {
+          id: scope.id,
+          variant: scope.variant,
+          variantTargetId: scope.variantTargetId,
+          role: scope.role ?? null,
+          createdAt: new Date(scope.createdAt as string),
+          updatedAt: scope.updatedAt
+            ? new Date(scope.updatedAt as string)
+            : null,
+          userId: scope.userId,
+          displayName: scope.displayName,
+          profilePicture: scope.profilePicture ?? null,
+          slug: scope.slug,
+        },
         remote: true,
         isTeam: false,
         createdAt: new Date(scope.createdAt),
@@ -67,7 +80,20 @@ export const processAuthData = ({
       newWorkspaces.push({
         __typename: 'Workspace',
         id: scope.variantTargetId,
-        scope,
+        scope: {
+          id: scope.id,
+          variant: scope.variant,
+          variantTargetId: scope.variantTargetId,
+          role: scope.role ?? null,
+          createdAt: new Date(scope.createdAt as string),
+          updatedAt: scope.updatedAt
+            ? new Date(scope.updatedAt as string)
+            : null,
+          userId: scope.userId,
+          displayName: scope.displayName,
+          profilePicture: scope.profilePicture ?? null,
+          slug: scope.slug,
+        },
         remote: true,
         isTeam: true,
         createdAt: new Date(scope.createdAt),

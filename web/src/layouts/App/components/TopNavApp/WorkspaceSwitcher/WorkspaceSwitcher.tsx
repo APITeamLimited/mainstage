@@ -1,142 +1,193 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useMemo } from 'react'
 
-import { Workspace } from '@apiteam/types/src'
-import { useReactiveVar } from '@apollo/client'
+import { MemberAwareness } from '@apiteam/types/src'
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import {
   Typography,
   useTheme,
   Stack,
-  Skeleton,
   Tooltip,
   Avatar,
   Chip,
   IconButton,
   Box,
-  ButtonBase,
+  MenuItem,
+  AvatarGroup,
+  Badge,
 } from '@mui/material'
 
-import { navigate, routes } from '@redwoodjs/router'
+import {
+  useServerAwareness,
+  useWorkspaceInfo,
+} from 'src/entity-engine/EntityEngine'
 
-import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
-
+import { TeamOverviewPopover } from './TeamOverviewPopover'
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
 
 export const WorkspaceSwitcher = () => {
-  const anchorRef = useRef<Element | null>(null)
-  const [openPopover, setOpenPopover] = useState<boolean>(false)
-  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
-  const workspaces = useReactiveVar(workspacesVar)
   const theme = useTheme()
-  const [activeWorkspace, setActiveWorkspace] = useState<Workspace | null>(null)
 
-  useEffect(
-    () =>
-      setActiveWorkspace(
-        workspaces.find((workspace) => workspace.id === activeWorkspaceId) ||
-          null
-      ),
-    [activeWorkspace, activeWorkspaceId, workspaces]
-  )
+  const workspaceInfo = useWorkspaceInfo()
 
-  const handleOpenPopover = (): void => {
-    setOpenPopover(true)
-  }
+  const teamOverviewAnchorRef = useRef<HTMLLIElement | null>(null)
+  const [teamOverviewOpen, setTeamOverviewOpen] = useState(false)
 
-  const handleClosePopover = (): void => {
-    setOpenPopover(false)
-  }
+  const [workspaceSwitcherOpen, setWorkspaceSwitcherOpen] =
+    useState<boolean>(false)
+  const workspaceSwitcherAnchorRef = useRef<HTMLLIElement | null>(null)
 
-  if (!activeWorkspace) {
-    return (
-      <Skeleton
-        variant="rectangular"
-        width={172.58}
-        height={44.3}
-        sx={{
-          marginLeft: 8,
-          borderRadius: 1,
-        }}
-      />
-    )
-  }
+  const serverAwareness = useServerAwareness()
+
+  const usedMembers = useMemo(() => {
+    if (
+      workspaceInfo?.scope?.variant !== 'TEAM' ||
+      serverAwareness?.variant !== 'TEAM'
+    ) {
+      return [
+        {
+          userId: workspaceInfo?.scope?.userId,
+          displayName: workspaceInfo?.scope?.displayName,
+          role: 'OWNER',
+          profilePicture: workspaceInfo?.scope?.profilePicture,
+          joinedTeam: new Date(),
+          lastOnline: new Date(),
+        },
+      ] as MemberAwareness[]
+    }
+
+    return serverAwareness.members as MemberAwareness[]
+  }, [workspaceInfo, serverAwareness])
+
+  if (!workspaceInfo) return <></>
 
   return (
-    <Box>
-      <ButtonBase onClick={() => navigate(routes.dashboard())} disableRipple>
-        <Stack
-          direction="row"
-          alignItems="center"
+    <>
+      <Stack direction="row" alignItems="center">
+        <MenuItem
+          onClick={() => setTeamOverviewOpen(true)}
           sx={{
-            width: '100%',
-            overflow: 'hidden',
+            borderRadius: 2,
+            padding: 1,
+            userSelect: 'pointer',
           }}
-          ref={anchorRef}
+          ref={teamOverviewAnchorRef}
         >
-          <Avatar
-            src={activeWorkspace?.scope?.profilePicture || ''}
-            sx={{
-              width: '25px',
-              height: '25px',
-            }}
-          />
-
-          <Typography
-            fontWeight="bold"
-            sx={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              WebkitUserSelect: 'none',
-              marginLeft: 1,
-            }}
+          <Stack
+            direction="row"
+            alignItems="center"
+            ref={workspaceSwitcherAnchorRef}
           >
-            {activeWorkspace.scope
-              ? activeWorkspace.scope.displayName
-              : 'Local'}
-          </Typography>
-          <Box>
-            <Chip
-              label={
-                !activeWorkspace.scope
-                  ? 'Local'
-                  : activeWorkspace.scope.variant === 'USER'
-                  ? 'PERSONAL'
-                  : 'TEAM'
-              }
-              color="primary"
-              size="small"
+            <AvatarGroup
+              max={3}
               sx={{
-                fontSize: '10px',
-                padding: 0,
-                '& .MuiChip-label': {
-                  paddingX: '6px',
-                  fontWeight: 'bold',
-                },
-                marginLeft: 1,
-                transistion: 'background-color 0',
-                height: '20px',
-                backgroundColor: !activeWorkspace.scope
-                  ? theme.palette.grey[500]
-                  : activeWorkspace.scope.variant === 'USER'
-                  ? theme.palette.primary.main
-                  : theme.palette.mode === 'light'
-                  ? theme.palette.grey[900]
-                  : theme.palette.grey[100],
+                marginLeft: workspaceInfo.scope.variant === 'TEAM' ? 1 : 0,
               }}
-            />
-          </Box>
-        </Stack>
-      </ButtonBase>
-      <Tooltip title="Switch Workspace">
-        <IconButton onClick={handleOpenPopover}>
-          <UnfoldMoreIcon />
-        </IconButton>
-      </Tooltip>
+            >
+              {usedMembers.map((member, index) => {
+                const isOnline =
+                  member.lastOnline &&
+                  new Date(member.lastOnline).getTime() >
+                    new Date().getTime() - 1000 * 60
+
+                return isOnline && workspaceInfo.scope.variant === 'TEAM' ? (
+                  <Badge
+                    overlap="circular"
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    variant="dot"
+                    sx={{
+                      '& .MuiBadge-badge': {
+                        backgroundColor: '#44b700',
+                        color: '#44b700',
+                        height: '12px',
+                        width: '12px',
+                        borderRadius: '50%',
+                        right: '6px',
+                        bottom: '6px',
+                        border: `2px solid ${theme.palette.background.paper}`,
+                      },
+                    }}
+                    key={index}
+                  >
+                    <Avatar
+                      alt={member.displayName}
+                      src={member.profilePicture || ''}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                      }}
+                    />
+                  </Badge>
+                ) : (
+                  <Avatar
+                    alt={member.displayName}
+                    src={member.profilePicture || ''}
+                    sx={{
+                      width: 24,
+                      height: 24,
+                    }}
+                    key={index}
+                  />
+                )
+              })}
+            </AvatarGroup>
+            <Typography
+              fontWeight="bold"
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                WebkitUserSelect: 'none',
+                marginLeft: 1,
+              }}
+            >
+              {workspaceInfo.scope.displayName}
+            </Typography>
+            <Box>
+              <Chip
+                label={
+                  workspaceInfo.scope.variant === 'USER' ? 'PERSONAL' : 'TEAM'
+                }
+                color="primary"
+                size="small"
+                sx={{
+                  fontSize: '10px',
+                  padding: 0,
+                  '& .MuiChip-label': {
+                    paddingX: '6px',
+                    fontWeight: 'bold',
+                  },
+                  marginLeft: 1,
+                  transistion: 'background-color 0',
+                  height: '20px',
+                  backgroundColor: !workspaceInfo.scope
+                    ? theme.palette.grey[500]
+                    : workspaceInfo.scope.variant === 'USER'
+                    ? theme.palette.primary.main
+                    : theme.palette.mode === 'light'
+                    ? theme.palette.grey[900]
+                    : theme.palette.grey[100],
+                  cursor: 'pointer',
+                }}
+              />
+            </Box>
+          </Stack>
+        </MenuItem>
+        <Tooltip title="Switch Workspace">
+          <IconButton onClick={() => setWorkspaceSwitcherOpen(true)}>
+            <UnfoldMoreIcon />
+          </IconButton>
+        </Tooltip>
+      </Stack>
       <WorkspaceSwitcherPopover
-        anchorEl={anchorRef.current}
-        onClose={handleClosePopover}
-        open={openPopover}
+        anchorEl={workspaceSwitcherAnchorRef.current}
+        onClose={() => setWorkspaceSwitcherOpen(false)}
+        open={workspaceSwitcherOpen}
       />
-    </Box>
+      <TeamOverviewPopover
+        anchorEl={teamOverviewAnchorRef.current}
+        onClose={() => setTeamOverviewOpen(false)}
+        open={teamOverviewOpen}
+        members={usedMembers}
+      />
+    </>
   )
 }

@@ -9,6 +9,7 @@ import { TopNavBase } from 'src/layouts/TopNavBase'
 
 import { APITeamLogo } from '../../../../components/APITeamLogo'
 
+import { InviteButton } from './InviteButton'
 import { OnlineMembers } from './OnlineMembers'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher/index'
 
@@ -46,7 +47,7 @@ export const TopNavApp = () => {
       }
       rightZone={
         <>
-          <OnlineMembers />
+          <InviteButton />
           <WorkspaceSwitcher />
         </>
       }
