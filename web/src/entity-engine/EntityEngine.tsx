@@ -22,6 +22,7 @@ import { useQuery } from '@redwoodjs/web'
 import { useLib0Module, useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
+import { DocProviderGuard } from './DocProviderGuard'
 import { handleProviders } from './handle-providers'
 import { ScopeUpdater } from './ScopeUpdater'
 import { DisconnectedScreen } from './screens/DisconnectedScreen'
@@ -65,9 +66,6 @@ function useStateCallback<T>(
 }
 
 export const entityEngineStatusVar = makeVar<PossibleSyncStatus>('disabled')
-
-const DocContext = createContext<YDoc | null>(null)
-export const useWorkspace = () => useContext(DocContext)
 
 const ScopesContext = createContext<GetBearerPubkeyScopes['scopes'] | null>(
   null
@@ -251,21 +249,22 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     socketioProvider,
   ])
 
+  useEffect(() => {
+    console.log('socketiosyncstatus', socketioSyncStatus)
+  }, [socketioSyncStatus])
+
   if (error) {
     throw error
   }
+
+  if (socketioProvider === null) return <></>
 
   return (
     <>
       <SocketIOManager
         key={`${socketioProvider?.doc.guid.toString()}${inApp.toString()}${spawnKey}${(
           socketioSyncStatus === 'disconnected'
-        ).toString()}`}
-        //key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}${(
-        //  socketioSyncStatus === 'disconnected'
-        //).toString()}`}
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
+        ).toString()}${(socketioSyncStatus === 'disabled').toString()}`}
         socketioProvider={socketioProvider}
       />
       <div key={socketioSyncStatusRef.current}>
@@ -275,7 +274,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
           }}
         >
           <DisconnectedScreen show={socketioSyncStatus === 'disconnected'}>
-            <DocContext.Provider value={doc}>
+            <DocProviderGuard doc={doc}>
               <ScopesContext.Provider value={scopes}>
                 <RawBearerContext.Provider value={rawBearer}>
                   <RefetchScopesCallbackContext.Provider value={refetchScopes}>
@@ -290,7 +289,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
                   </RefetchScopesCallbackContext.Provider>
                 </RawBearerContext.Provider>
               </ScopesContext.Provider>
-            </DocContext.Provider>
+            </DocProviderGuard>
           </DisconnectedScreen>
         </SyncReadyContext.Provider>
       </div>

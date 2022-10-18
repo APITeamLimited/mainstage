@@ -1,7 +1,7 @@
 import { SocketIOProvider } from './socket-io-provider'
 
 type EntityManagerNewProps = {
-  socketioProvider: SocketIOProvider | null
+  socketioProvider: SocketIOProvider
 }
 
 export class SocketIOManager extends React.Component {

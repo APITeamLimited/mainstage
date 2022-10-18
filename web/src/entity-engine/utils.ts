@@ -77,10 +77,6 @@ export const processAuthData = ({
   })
 
   if (!activeWorkspaceId) {
-    console.log(
-      'No active workspace id',
-      localStorage.getItem('activeWorkspaceId')
-    )
     activeWorkspaceIdVar(
       localStorage.getItem('activeWorkspaceId') || newWorkspaces[0].id
     )
@@ -88,6 +84,7 @@ export const processAuthData = ({
   workspacesVar(newWorkspaces)
 
   if (switchToTeam) {
+    console.log('Switching to team', switchToTeam)
     const workspace = newWorkspaces.find(
       (workspace) => workspace.id === switchToTeam
     )
@@ -96,13 +93,15 @@ export const processAuthData = ({
     }
   }
 
+  // Old code did this do anything?
+
   // Check activeWorkspaceId in workspaces else set to first
-  if (
-    !newWorkspaces.find((workspace) => workspace.id === activeWorkspaceId) &&
-    newWorkspaces.length > 0
-  ) {
-    activeWorkspaceIdVar(newWorkspaces[0].id)
-  }
+  //if (
+  //  !newWorkspaces.find((workspace) => workspace.id === activeWorkspaceId) &&
+  //  newWorkspaces.length > 0
+  //) {
+  //  activeWorkspaceIdVar(newWorkspaces[0].id)
+  //}
 }
 
 export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`

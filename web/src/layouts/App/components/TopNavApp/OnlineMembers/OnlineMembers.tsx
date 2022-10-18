@@ -5,13 +5,14 @@ import {
   AvatarGroup,
   Tooltip,
   useTheme,
-  styled,
   Badge,
   Button,
-  Box,
 } from '@mui/material'
 
-import { useServerAwareness } from 'src/entity-engine/EntityEngine'
+import {
+  useServerAwareness,
+  useWorkspaceInfo,
+} from 'src/entity-engine/EntityEngine'
 
 import { TeamMembersDropdown } from './TeamMembersDropdown'
 
@@ -20,7 +21,9 @@ export const OnlineMembers = () => {
   const serverAwareness = useServerAwareness()
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false)
   const anchorEl = useRef<HTMLButtonElement>(null)
+  const workspaceInfo = useWorkspaceInfo()
 
+  if (workspaceInfo?.scope?.variant !== 'TEAM') return <></>
   if (!serverAwareness || serverAwareness.variant === 'USER') return <></>
 
   return (

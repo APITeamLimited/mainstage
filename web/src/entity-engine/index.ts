@@ -1,1 +1,2 @@
-export { EntityEngine, useWorkspace } from './EntityEngine'
+export { EntityEngine } from './EntityEngine'
+export { useWorkspace } from './DocProviderGuard'
