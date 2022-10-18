@@ -203,8 +203,6 @@ const handleVariableUpdates = (
 ) => {
   const { default: hash } = hashSumModule
 
-  console.log('variable update message', message)
-
   if (message.messageType === 'COLLECTION_VARIABLES') {
     const collectionYMap = workspace
       .getMap<any>('projects')

@@ -78,7 +78,16 @@ export const WorkspaceSwitcherPopover = ({
 
   const switchWorkspace = (workspaceId: string) => {
     activeWorkspaceIdVar(workspaceId)
-    navigate(routes.dashboard())
+
+    const usingTls = window.location.protocol === 'https:'
+    const domain = window.location.hostname
+    const port = window.location.port
+    const path = routes.dashboard()
+    const dashboardUrl = `${usingTls ? 'https' : 'http'}://${domain}${
+      port ? `:${port}` : ''
+    }${path}`
+
+    window.location.href = dashboardUrl
     onClose()
     console.log('switchWorkspace', workspaceId)
     activeWorkspaceIdVar(workspaceId)

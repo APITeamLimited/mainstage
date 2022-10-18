@@ -84,9 +84,20 @@ export const DropdownPopover = ({
 
     if (personalWorkspace.id !== activeWorkspaceId) {
       activeWorkspaceIdVar(personalWorkspace.id)
+
+      const usingTls = window.location.protocol === 'https:'
+      const domain = window.location.hostname
+      const port = window.location.port
+      const path = routes.settingsWorkspace()
+      const personalSettingsUrl = `${usingTls ? 'https' : 'http'}://${domain}${
+        port ? `:${port}` : ''
+      }${path}`
+
+      window.location.href = personalSettingsUrl
+    } else {
+      navigate(routes.settingsWorkspace())
     }
 
-    navigate(routes.settingsWorkspace())
     onClose?.()
   }
 

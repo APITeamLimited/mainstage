@@ -321,7 +321,6 @@ export class OpenDoc extends Y.Doc {
       await coreCacheSubscribeRedis.subscribe(
         `team:${this.variantTargetId}`,
         (message) => {
-          //console.log('message', message)
           const parsedMessage = JSON.parse(message) as RedisTeamPublishMessage
 
           if (parsedMessage.type === 'ADD_MEMBER') {

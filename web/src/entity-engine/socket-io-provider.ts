@@ -96,18 +96,20 @@ export class SocketIOProvider extends Observable<string> {
   lastPinged: number
   _resyncInterval
   _updateHandler: (update: Uint8Array, origin: unknown) => void
-  _awarenessUpdateHandler: (
-    {
-      added,
-      updated,
-      removed,
-    }: {
-      added: Array<number>
-      updated: Array<number>
-      removed: Array<number>
-    },
-    origin: unknown
-  ) => void
+  _awarenessUpdateHandler:
+    | ((
+        {
+          added,
+          updated,
+          removed,
+        }: {
+          added: Array<number>
+          updated: Array<number>
+          removed: Array<number>
+        },
+        origin: unknown
+      ) => void)
+    | undefined
   _beforeUnloadHandler: () => void
   _checkInterval
   onAwarenessUpdate: ((awareness: Awareness) => void) | undefined
@@ -454,7 +456,9 @@ export class SocketIOProvider extends Observable<string> {
       process.off('exit', this._beforeUnloadHandler)
     }
 
-    this.awareness?.off('update', this._awarenessUpdateHandler)
+    if (this._awarenessUpdateHandler) {
+      this.awareness?.off('update', this._awarenessUpdateHandler)
+    }
 
     this.doc.off('update', this._updateHandler)
     super.destroy()

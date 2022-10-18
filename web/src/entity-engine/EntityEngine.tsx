@@ -258,7 +258,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   return (
     <>
       <SocketIOManager
-        key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}${(
+        key={`${socketioProvider?.doc.guid.toString()}${inApp.toString()}${spawnKey}${(
           socketioSyncStatus === 'disconnected'
         ).toString()}`}
         //key={`${activeWorkspaceId}${inApp.toString()}${spawnKey}${(
