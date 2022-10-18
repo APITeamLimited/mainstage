@@ -655,7 +655,9 @@ export const TabController = () => {
               <Divider orientation="vertical" />
               <EmptyPanelMessage
                 primaryText="No tabs open"
-                secondaryMessages={['Select a request or folder get started']}
+                secondaryMessages={[
+                  'Select a request, folder, or the Collection get started',
+                ]}
                 icon={
                   <LayersClearIcon
                     sx={{

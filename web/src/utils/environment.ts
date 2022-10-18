@@ -190,7 +190,7 @@ export const createEnvironmentContext = (
 ): {
   name: string
   variables: FinalVariable[]
-} => {
+} | null => {
   const rawVariables = (
     (environmentOrCollection?.get('variables') ??
       []) as KeyValueItem<LocalValueKV>[]
@@ -225,8 +225,7 @@ export const createEnvironmentContext = (
   })
 
   if (!environmentOrCollection?.get('name')) {
-    snackErrorMessageVar("Couldn't find environment or collection name")
-    throw new Error("Couldn't find environment or collection name")
+    return null
   }
 
   return {

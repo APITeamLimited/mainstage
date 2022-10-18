@@ -112,7 +112,7 @@ export const RESTInputPanel = ({
   const [unsavedBody, setUnsavedBody] = useState<RESTReqBody>(
     requestYMap.get('body')
   )
-  const [unsavedRequestMethod, setUnsavedRequestMethod] = useState(
+  const [unsavedRequestMethod, setUnsavedRequestMethod] = useState<string>(
     requestYMap.get('method')
   )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
@@ -358,7 +358,9 @@ export const RESTInputPanel = ({
                 handleFieldUpdate<string>(setUnsavedEndpoint, newEndpoint)
               }
               requestMethod={unsavedRequestMethod}
-              setRequestMethod={setUnsavedRequestMethod}
+              setRequestMethod={(newMethod) =>
+                handleFieldUpdate<string>(setUnsavedRequestMethod, newMethod)
+              }
               requestId={requestId}
             />
             <Box marginLeft={2} />

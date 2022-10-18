@@ -258,14 +258,6 @@ export const parseMessage = (message: any) => {
     message.time = new Date(message.time)
   }
 
-  if (message.workerId === '' && message.orchestratorId !== '') {
-    delete message.workerId
-  }
-
-  if (message.orchestratorId === '' && message.workerId !== '') {
-    delete message.orchestratorId
-  }
-
   return message as GlobeTestMessage
 }
 

@@ -143,10 +143,12 @@ export const SortableEditor = <T extends KVVariantTypes>({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <SimpleBar
+      <Box
         style={{
           maxWidth: '100%',
+          width: '100%',
           maxHeight: '100%',
+          overflow: 'auto',
         }}
       >
         <TableContainer
@@ -261,7 +263,7 @@ export const SortableEditor = <T extends KVVariantTypes>({
             <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
           )}
         </TableContainer>
-      </SimpleBar>
+      </Box>
     </DndProvider>
   )
 }

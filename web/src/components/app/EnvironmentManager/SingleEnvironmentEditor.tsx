@@ -192,6 +192,8 @@ export const SingleEnvironmentEditor = ({
             sx={{
               width: '100%',
               height: '100%',
+              maxHeight: '100%',
+              maxWidth: '100%',
             }}
             justifyContent="space-between"
             alignItems="flex-end"

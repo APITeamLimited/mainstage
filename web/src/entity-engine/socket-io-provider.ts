@@ -423,19 +423,6 @@ export class SocketIOProvider extends Observable<string> {
 
       this.metaMap = this.doc.getMap('meta')
 
-      //this.metaMap.observe(() => {
-      //  if (this.metaMap?.get('performedFirstRun') === true) {
-      //    this.onStatusChange('connected', this.doc)
-      //  } else {
-      //    const encoder = encoding.createEncoder()
-      //    encoding.writeVarUint(encoder, messageSync)
-      //    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //    // @ts-ignore
-      //    syncProtocol.writeSyncStep1(encoder, this.doc, this.Y)
-      //    this.socket?.send(encoding.toUint8Array(encoder))
-      //  }
-      //})
-
       newSocket.on('synced', () => this.onStatusChange('connected', this.doc))
 
       this.onStatusChange?.('connecting', this.doc)
