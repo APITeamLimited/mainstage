@@ -155,7 +155,9 @@ export const DropdownPopover = ({
                 mx: 2,
               }}
             >
-              <Typography variant="h6">{fullName}</Typography>
+              <Typography variant="h6" fontWeight="bold">
+                {fullName}
+              </Typography>
               <Typography color="textSecondary" variant="body2">
                 {currentUser?.email || null}
               </Typography>

@@ -15,11 +15,11 @@ import {
 import { useFormik } from 'formik'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 import * as Yup from 'yup'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useWorkspace } from 'src/entity-engine'
 import { createProject } from 'src/entity-engine/creators'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 type CreateProjectDialogState = {
   isOpen: boolean
@@ -38,7 +38,7 @@ export const CreateProjectDialog = () => {
 
   const workspace = useWorkspace()
   const projects = useYMap<Project, Record<string, Project>>(
-    workspace?.getMap('projects') || new Y.Map()
+    workspace?.getMap('projects') ?? new Y.Map()
   )
   const { isOpen } = useReactiveVar(createProjectDialogStateVar)
 

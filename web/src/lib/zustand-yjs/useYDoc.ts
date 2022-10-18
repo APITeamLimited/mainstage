@@ -1,32 +1,22 @@
-import { useEffect, useMemo } from 'react'
+import type { Doc as YDoc } from 'yjs'
 
-import shallow from 'zustand/shallow'
+import useYObserve from './useYObserve'
 
-import type { YJSModule } from 'src/contexts/imports'
+const useYDoc = (yDoc: YDoc) => {
+  useYObserve<YDoc>(yDoc, () => yDoc.toJSON())
+  //const dataSet = useYStore((state) => state.data)
 
-import { MountFunction, YDocEnum } from './types'
-import useYStore from './useYStore'
+  //const data = useMemo(() => {
+  //  const match = dataSet.find(([type]) => type === yDoc)
+  //  if (!match) return {}
+  //  return match[1]
+  //}, [yDoc, dataSet])
+  //
+  //const noBinding = (funcKey: keyof YDoc) => () => {
+  //  throw new Error(`Y.Map#${funcKey.toString()} is not implemented`)
+  //}
 
-const useYDoc = (name: string, mount: MountFunction, Y: YJSModule) => {
-  const [mountYDoc, unMountYDoc, yDocs] = useYStore(
-    (state) => [state.mountYDoc, state.unMountYDoc, state.yDocs],
-    shallow
-  )
-  const yDoc = useMemo(() => {
-    const match = yDocs.find(([docGuid]) => docGuid === name)
-    if (match) return match[YDocEnum.DOC]
-    const yDoc = new Y.Doc()
-    yDoc.guid = name
-    mountYDoc(yDoc, mount)
-    return yDoc
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [yDocs, name])
-
-  useEffect(() => {
-    return () => unMountYDoc(yDoc)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [unMountYDoc, name])
-  return yDoc
+  return
 }
 
 export default useYDoc

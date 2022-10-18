@@ -77,7 +77,6 @@ export const TeamOverviewPopover = ({
               sx={{
                 userSelect: 'none',
               }}
-              gutterBottom
             >
               {workspaceInfo?.scope.displayName}
             </Typography>

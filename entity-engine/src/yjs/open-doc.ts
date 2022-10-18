@@ -57,7 +57,6 @@ export class OpenDoc extends Y.Doc {
 
     // TODO: add logic with persistence provider to load state and
     // populate the doc with the state only when not already populated
-    populateOpenDoc(this)
     this.mux = mutex.createMutex()
     this.scopes = new Map()
     this.sockets = new Map()
@@ -142,6 +141,8 @@ export class OpenDoc extends Y.Doc {
 
     this.variant = scope.variant
     this.variantTargetId = scope.variantTargetId
+
+    populateOpenDoc(this)
 
     setInterval(() => this.discardUnawareClients(), 5000)
   }

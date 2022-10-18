@@ -29,8 +29,9 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
 
   const actveWorkspace = useWorkspaceInfo()
 
-  const projectsYMap = workspaceDoc?.getMap<Project>('projects')
-  useYMap<Project, Record<string, Project>>(projectsYMap || new Y.Map())
+  const projectsYMap = workspaceDoc.getMap<Project>('projects')
+
+  useYMap<Project, Record<string, Project>>(projectsYMap ?? new Y.Map())
 
   const projectYMaps = Array.from(projectsYMap?.values() || [])
 

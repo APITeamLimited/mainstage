@@ -56,7 +56,7 @@ type SocketIOProviderConstructorArgs = {
   scopeId: string
   rawBearer: string
   doc: YDoc
-  options?: {
+  options: {
     connect?: boolean
     // Specify an existing Awareness instance - see https://github.com/yjs/y-protocols
     awareness?: Awareness
@@ -65,7 +65,7 @@ type SocketIOProviderConstructorArgs = {
     maxBackoffTime?: number
     disableBc?: boolean
     onAwarenessUpdate?: (awareness: Awareness) => void
-    onStatusChange?: ((status: PossibleSyncStatus) => void) | undefined
+    onStatusChange: (status: PossibleSyncStatus, doc: YDoc) => void
     onSyncMessage?: ((newDoc: YDoc) => void) | undefined
   }
   apolloClient: ApolloClient<unknown>
@@ -113,9 +113,10 @@ export class SocketIOProvider extends Observable<string> {
   _beforeUnloadHandler: () => void
   _checkInterval
   onAwarenessUpdate: ((awareness: Awareness) => void) | undefined
-  onStatusChange: ((status: PossibleSyncStatus) => void) | undefined
+  onStatusChange: (status: PossibleSyncStatus, doc: YDoc) => void
   onSyncMessage: ((newDoc: YDoc) => void) | undefined
   Y: YJSModule
+  metaMap: YMap<unknown> | undefined
 
   constructor({
     scopeId,
@@ -132,7 +133,7 @@ export class SocketIOProvider extends Observable<string> {
       maxBackoffTime = 100,
       disableBc = false,
       onAwarenessUpdate = undefined,
-      onStatusChange = undefined,
+      onStatusChange,
       onSyncMessage = undefined,
     } = options || {}
 
@@ -350,7 +351,7 @@ export class SocketIOProvider extends Observable<string> {
         if (this.socketConnected) {
           this.socketConnected = false
           this.synced = false
-          this.onStatusChange?.('disconnected')
+          this.onStatusChange('disconnected', this.doc)
         } else {
           this.socketUnsuccessfulReconnects++
         }
@@ -420,9 +421,24 @@ export class SocketIOProvider extends Observable<string> {
         }
       })
 
-      newSocket.on('synced', () => this.onStatusChange?.('connected'))
+      this.metaMap = this.doc.getMap('meta')
 
-      this.onStatusChange?.('connecting')
+      //this.metaMap.observe(() => {
+      //  if (this.metaMap?.get('performedFirstRun') === true) {
+      //    this.onStatusChange('connected', this.doc)
+      //  } else {
+      //    const encoder = encoding.createEncoder()
+      //    encoding.writeVarUint(encoder, messageSync)
+      //    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //    // @ts-ignore
+      //    syncProtocol.writeSyncStep1(encoder, this.doc, this.Y)
+      //    this.socket?.send(encoding.toUint8Array(encoder))
+      //  }
+      //})
+
+      newSocket.on('synced', () => this.onStatusChange('connected', this.doc))
+
+      this.onStatusChange?.('connecting', this.doc)
     }
 
     handleSetup()

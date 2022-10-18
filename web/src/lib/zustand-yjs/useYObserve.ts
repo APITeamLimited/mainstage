@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 
+import type { Doc as YDoc } from 'yjs'
 import type { AbstractType } from 'yjs'
 import shallow from 'zustand/shallow'
 
 import useYStore from './useYStore'
 
-const useYObserve = <T extends AbstractType<any>>(
+const useYObserve = <T extends AbstractType<any> | YDoc>(
   yType: T,
   serialize: () => any
 ): void => {

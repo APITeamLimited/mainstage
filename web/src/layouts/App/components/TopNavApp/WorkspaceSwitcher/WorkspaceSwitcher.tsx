@@ -66,7 +66,7 @@ export const WorkspaceSwitcher = () => {
         <MenuItem
           onClick={() => setTeamOverviewOpen(true)}
           sx={{
-            borderRadius: 2,
+            borderRadius: 1,
             padding: 1,
             userSelect: 'pointer',
           }}

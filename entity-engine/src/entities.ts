@@ -14,7 +14,9 @@ export const populateOpenDoc = (doc: Y.Doc) => {
   // /  projectsFolder.set(id, project)
   // /}
 
-  const rootMap = doc.getMap()
+  console.log('Populating open doc')
+
+  const rootMap = doc.getMap('meta')
   rootMap.set('performedFirstRun', true)
 
   // Will be used in future to handle upgrades in YJS

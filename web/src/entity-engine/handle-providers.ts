@@ -82,7 +82,8 @@ export const handleProviders = ({
     activeGUID: string
   ) => {
     if (oldDoc === null || oldDoc.guid !== activeGUID) {
-      const newDoc = new Y.Doc({ guid: activeGUID })
+      const newDoc = new Y.Doc({ guid: activeGUID, autoLoad: true })
+      newDoc.load()
       setDoc(newDoc)
       return newDoc
     }
@@ -107,7 +108,9 @@ export const handleProviders = ({
       Y,
       lib0,
       options: {
-        onStatusChange: (status) => {
+        onStatusChange: (status, doc) => {
+          doc.load()
+
           setSocketioSyncStatus(status)
 
           // TODO: Causes an infinite loop when first connecting
@@ -131,7 +134,9 @@ export const handleProviders = ({
 
           setAwareness(serverAwareness[0])
         },
-        resyncInterval: -1,
+
+        // Doesn't always sync correctly the first time
+        resyncInterval: 1000,
       },
     })
   }

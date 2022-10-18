@@ -269,7 +269,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
           }}
         >
           <DisconnectedScreen show={socketioSyncStatus === 'disconnected'}>
-            <DocProviderGuard doc={doc}>
+            <DocProviderGuard socketioSyncStatus={socketioSyncStatus} doc={doc}>
               <ScopesContext.Provider value={scopes}>
                 <RawBearerContext.Provider value={rawBearer}>
                   <RefetchScopesCallbackContext.Provider value={refetchScopes}>
