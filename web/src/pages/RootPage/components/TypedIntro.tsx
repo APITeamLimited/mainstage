@@ -31,7 +31,6 @@ const TypedIntro = (): JSX.Element => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const handleNextImage = () => {
-    console.log('handleNextImage')
     setCurrentImageIndex((prev) => (prev + 1) % images.length)
   }
 

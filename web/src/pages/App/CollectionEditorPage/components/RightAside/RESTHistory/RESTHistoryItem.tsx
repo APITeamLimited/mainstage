@@ -43,9 +43,8 @@ export const RESTHistoryItem = ({
         return theme.palette.success.main
       } else if (responseYMap.get('statusCode') < 400) {
         return theme.palette.warning.main
-      } else {
-        return theme.palette.error.main
       }
+      return theme.palette.error.main
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [responseHook, theme]
@@ -84,7 +83,12 @@ export const RESTHistoryItem = ({
         </Tooltip>
       }
       icon={
-        <ListItemIcon color={theme.palette.text.secondary}>
+        <ListItemIcon
+          color={theme.palette.text.secondary}
+          sx={{
+            marginX: -1,
+          }}
+        >
           {getNodeIcon(responseYMap, true)}
         </ListItemIcon>
       }

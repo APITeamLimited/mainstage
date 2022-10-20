@@ -67,6 +67,10 @@ export const RequestListItem = ({
             isRenaming={renaming ?? false}
           />
         }
+        primaryTypographyProps={{
+          variant: 'body1',
+          fontWeight: isInFocus ? 'bold' : 'normal',
+        }}
         secondary={
           <>
             {!renaming && (
@@ -83,6 +87,7 @@ export const RequestListItem = ({
                 }}
                 fontSize="0.75rem"
                 color={theme.palette.text.secondary}
+                variant="body2"
               >
                 {secondaryText}
               </Typography>
@@ -91,7 +96,7 @@ export const RequestListItem = ({
         }
         sx={{
           whiteSpace: 'nowrap',
-          marginLeft: renaming ? -1 : -2,
+          marginLeft: renaming ? -1 : -2.5,
           marginRight: renaming ? -1 : 'auto',
           overflow: 'hidden',
           ...listItemTextSx,

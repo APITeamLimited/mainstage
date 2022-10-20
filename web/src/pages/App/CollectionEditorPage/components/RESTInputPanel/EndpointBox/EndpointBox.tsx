@@ -50,7 +50,11 @@ export const EndpointBox = ({
         contentEditableStyles={{
           height: '40px',
         }}
-        innerRightArea={<IsVerifiedDomainBadge endpoint={unsavedEndpoint} />}
+        innerRightArea={
+          unsavedEndpoint.length > 0 && (
+            <IsVerifiedDomainBadge endpoint={unsavedEndpoint} />
+          )
+        }
       />
     </>
   )

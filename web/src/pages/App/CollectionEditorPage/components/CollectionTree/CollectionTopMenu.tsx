@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -18,6 +18,8 @@ import {
 } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { RenameDialog } from 'src/components/app/dialogs/RenameDialog'
+import { EnvironmentManager } from 'src/components/app/EnvironmentManager'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
@@ -26,8 +28,6 @@ import {
 } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { RenameDialog } from 'src/components/app/dialogs/RenameDialog'
-import { EnvironmentManager } from 'src/components/app/EnvironmentManager'
 type CollectionTopMenuProps = {
   collectionYMap: YMap<any>
 }
@@ -48,6 +48,14 @@ export const CollectionTopMenu = ({
   const collection = useYMap(collectionYMap)
 
   const isActiveEnvironment = activeEnvironmentYMap?.get('id') ? true : false
+
+  const collectionInFocus = useMemo(
+    () =>
+      focusedElementDict[getFocusedElementKey(collectionYMap)]?.get('id') ===
+      collectionYMap?.get('id'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedElementDict, collection]
+  )
 
   if (!projectYMap) {
     throw `Could not find project with id ${projectYMap?.get(
@@ -102,11 +110,7 @@ export const CollectionTopMenu = ({
           py: 2,
         }}
         disableRipple
-        selected={
-          focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
-            'id'
-          ) === collectionYMap.get('id')
-        }
+        selected={collectionInFocus}
       >
         <Stack
           direction="row"

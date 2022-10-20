@@ -116,7 +116,7 @@ export const CollectionEditorPage = ({
                       backgroundColor: 'transparent',
                     }}
                   />
-                  <ReflexElement flex={1} minSize={400}>
+                  <ReflexElement flex={1} minSize={600}>
                     <TabController />
                   </ReflexElement>
                 </ReflexContainer>

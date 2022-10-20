@@ -36,12 +36,6 @@ export const LiveExecutionPanel = ({
   const [metrics, setMetrics] = useState<GlobeTestMessage[]>([])
   const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
 
-  const globeTestLogsRef = useRef<GlobeTestMessage[]>([])
-  const metricsRef = useRef<GlobeTestMessage[]>([])
-
-  globeTestLogsRef.current = globeTestLogs
-  metricsRef.current = metrics
-
   const [testSocket, setTestSocket] = useState<Socket | null>(null)
   const [oldJobId, setOldJobId] = useState<string | null>(null)
 
@@ -49,6 +43,19 @@ export const LiveExecutionPanel = ({
     return focusedResponse.get('jobId') as string
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [responseHook])
+
+  const globeTestLogsBuffer = useRef<GlobeTestMessage[]>([])
+  const metricsBuffer = useRef<GlobeTestMessage[]>([])
+
+  useEffect(() => {
+    // Every second, flush the buffers into the state
+    const interval = setInterval(() => {
+      setGlobeTestLogs(globeTestLogsBuffer.current)
+      setMetrics(metricsBuffer.current)
+    }, 500)
+
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     if (!rawBearer || !scopeId || !jobId) {
@@ -78,9 +85,9 @@ export const LiveExecutionPanel = ({
       rawBearer,
       onMessage: (message) => {
         if (message.messageType === 'METRICS') {
-          setMetrics([...metricsRef.current, message])
+          metricsBuffer.current.push(message)
         } else {
-          setGlobeTestLogs([...globeTestLogsRef.current, message])
+          globeTestLogsBuffer.current.push(message)
         }
       },
     })

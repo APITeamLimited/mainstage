@@ -258,6 +258,7 @@ export const EnvironmentManager = ({
           sx={{
             height: '500px',
             padding: 0,
+            maxWidth: '100%',
           }}
         >
           {environmentsYMap.size === 0 ? (
@@ -292,6 +293,9 @@ export const EnvironmentManager = ({
               direction="row"
               sx={{
                 height: '100%',
+                width: '100%',
+                maxWidth: '100%',
+                overflow: 'hidden',
               }}
             >
               <Stack
@@ -346,6 +350,8 @@ export const EnvironmentManager = ({
                   width: '100%',
                   height: 'calc(100% - 2em)',
                   padding: 2,
+                  maxWidth: '100%',
+                  overflow: 'auto',
                 }}
                 justifyContent="space-between"
                 alignItems="flex-end"

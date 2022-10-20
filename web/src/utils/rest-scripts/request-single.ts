@@ -19,7 +19,7 @@ export default function () {
     // Run the request
     const response = http.request(method, url, body, params);
 
-    // Create a marker to see the response in the Collection Editor
+    // Create a marker to see the response in the collection editor
     lifecycle.markResponse(response);
 }
 `,

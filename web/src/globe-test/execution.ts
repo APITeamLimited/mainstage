@@ -368,6 +368,7 @@ export const parseMessage = (message: any) => {
 
   if (message.workerId === '' && message.orchestratorId !== '') {
     delete message.workerId
+    delete message.childJobId
   }
 
   if (message.orchestratorId === '' && message.workerId !== '') {

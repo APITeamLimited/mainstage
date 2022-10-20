@@ -42,7 +42,7 @@ export const QuickSuccessSingleStats = ({
       <Typography
         variant="body2"
         color={statusCodeColor}
-        fontWeight={600}
+        fontWeight="bold"
         sx={{
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -67,7 +67,7 @@ export const QuickSuccessSingleStats = ({
       <Typography
         variant="body2"
         color={statusCodeColor}
-        fontWeight={600}
+        fontWeight="bold"
         sx={{
           overflow: 'hidden',
           textOverflow: 'ellipsis',

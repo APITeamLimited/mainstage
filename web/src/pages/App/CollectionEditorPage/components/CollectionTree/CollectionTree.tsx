@@ -58,7 +58,7 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
             marginBottom: 1.875,
           }}
         >
-          <AddIcon />
+          <AddIcon fontSize="small" />
         </Button>
         <SimpleBar style={{ maxHeight: '100%', overflowX: 'hidden' }}>
           <DndProvider backend={HTML5Backend}>

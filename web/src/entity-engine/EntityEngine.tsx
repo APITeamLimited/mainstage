@@ -248,6 +248,13 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     socketioProvider,
   ])
 
+  // Pass on raw bearer updates
+  useEffect(() => {
+    if (socketioProvider && rawBearer) {
+      socketioProvider.rawBearer = rawBearer
+    }
+  }, [rawBearer, socketioProvider])
+
   if (error) {
     throw error
   }

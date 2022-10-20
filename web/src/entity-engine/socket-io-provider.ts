@@ -337,7 +337,8 @@ export class SocketIOProvider extends Observable<string> {
         this.emit('connection-error', [error, this])
       })
 
-      newSocket.on('connect_error', async () => {
+      newSocket.on('connect_error', async (error) => {
+        // Check status code
         this.socketUnsuccessfulReconnects++
 
         newSocket?.close()

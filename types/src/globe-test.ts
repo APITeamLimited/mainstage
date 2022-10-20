@@ -56,10 +56,11 @@ export type WrappedExecutionParams = Omit<
 
 type ClientType =
   | {
-      orchestratorClient: string
+      orchestratorId: string
     }
   | {
-      workerClient: string
+      workerId: string
+      childJobId: string
     }
 
 export type StatusType =

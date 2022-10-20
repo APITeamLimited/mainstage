@@ -66,6 +66,7 @@ export const GlobeTestLogsPanel = ({
       }
     }
     return workerIds
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globeTestLogs])
 
   const [checkedOrchestratorId, setCheckedOrchestratorId] = useState(true)
@@ -76,6 +77,25 @@ export const GlobeTestLogsPanel = ({
       return acc
     }, {} as Record<string, boolean>)
   )
+
+  useEffect(() => {
+    // If checked workerIds doesnt include worker id add it
+    const newCheckedWorkerIds = { ...checkedWorkerIds }
+    let updated = false
+
+    for (const workerId of workerIds) {
+      if (!newCheckedWorkerIds[workerId]) {
+        newCheckedWorkerIds[workerId] = true
+        updated = true
+      }
+    }
+
+    if (updated) {
+      setCheckedWorkerIds(newCheckedWorkerIds)
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workerIds])
 
   const [messageTypeShown, setMessageTypeShown] = useState(
     globeTestLogs.reduce((acc, globeTestLog) => {

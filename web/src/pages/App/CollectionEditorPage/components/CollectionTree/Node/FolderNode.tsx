@@ -101,6 +101,9 @@ export const FolderNode = ({
                 color={
                   isBeingDragged ? theme.palette.text.secondary : 'inherit'
                 }
+                sx={{
+                  marginX: -1,
+                }}
               >
                 {getNodeIcon(nodeYMap, showCollapsedIcon)}
               </ListItemIcon>

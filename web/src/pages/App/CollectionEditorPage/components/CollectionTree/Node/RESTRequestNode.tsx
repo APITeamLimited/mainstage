@@ -120,6 +120,9 @@ export const RESTRequestNode = ({
         !renaming && (
           <ListItemIcon
             color={isBeingDragged ? theme.palette.text.secondary : 'inherit'}
+            sx={{
+              marginX: -1,
+            }}
           >
             {getNodeIcon(nodeYMap, collapsed)}
           </ListItemIcon>
