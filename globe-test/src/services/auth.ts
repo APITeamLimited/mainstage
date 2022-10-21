@@ -68,6 +68,7 @@ export const verifyJWT = async (
       decodedToken = await verifyJWT(request)
     }
   }
+
   return decodedToken
 }
 

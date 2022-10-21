@@ -22,9 +22,11 @@ import {
   restAddOptions,
   restCreateResponse,
   restHandleFailure,
+  restHandleSuccessMultiple,
   restHandleSuccessSingle,
 } from './helpers'
 import { getEntityEngineSocket, getVerifiedDomains } from './utils'
+
 // Store state of running tests
 export const runningTestStates = new Map<Socket, TestRunningState>()
 
@@ -202,9 +204,16 @@ const handleMessage = async (
             !runningState.globeTestLogsStoreReceipt ||
             !runningState.metricsStoreReceipt ||
             !runningState.options ||
-            !runningState.markedResponse ||
             !runningState.responseId ||
             !runningState.entityEngineSocket
+          ) {
+            wasSuccessful = false
+          }
+
+          if (
+            (runningState.options as GlobeTestOptions).executionMode ===
+              'http_single' &&
+            !runningState.markedResponse
           ) {
             wasSuccessful = false
           }
@@ -225,6 +234,20 @@ const handleMessage = async (
               responseId: runningState.responseId as string,
               response: runningState.markedResponse as Response,
             })
+          } else if (
+            (runningState.options as GlobeTestOptions).executionMode ===
+              'http_multiple' &&
+            runningState.testType === 'rest'
+          ) {
+            await restHandleSuccessMultiple({
+              params,
+              socket,
+              globeTestLogsStoreReceipt:
+                runningState.globeTestLogsStoreReceipt as string,
+              metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+            })
+          } else {
+            throw new Error(`Invalid test type: ${runningState.testType}`)
           }
         } else {
           await restHandleFailure({
@@ -232,6 +255,7 @@ const handleMessage = async (
             params,
             globeTestLogsStoreReceipt:
               runningState.globeTestLogsStoreReceipt ?? null,
+            metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
           })
         }
 

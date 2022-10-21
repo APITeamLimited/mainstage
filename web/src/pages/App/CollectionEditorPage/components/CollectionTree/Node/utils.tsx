@@ -13,7 +13,9 @@ import {
   useTheme,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
+
+import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 
 export const getNewOrderingIndex = ({
   folderYMaps,
@@ -58,6 +60,8 @@ export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
             <CircularProgress size={20} />
           ) : nodeYMap.get('__subtype') === 'FailureResult' ? (
             <ErrorIcon sx={{ color: 'error.main' }} />
+          ) : nodeYMap.get('__subtype') === 'SuccessMultipleResult' ? (
+            <GlobeTestIcon sx={{ color: 'primary.light' }} />
           ) : (
             <>
               <Typography

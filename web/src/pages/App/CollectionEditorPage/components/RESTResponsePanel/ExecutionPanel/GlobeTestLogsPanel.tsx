@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types/src'
@@ -18,6 +19,7 @@ import {
 } from '@mui/material'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
 import { codeFormatter } from 'src/utils/codeFormatter'
 
 type GlobeTestLogsPanelProps = {
@@ -39,14 +41,15 @@ export const GlobeTestLogsPanel = ({
     }
 
     const anyOrchestratorMessage = globeTestLogs.find(
-      (log) => log.orchestratorId !== undefined
+      (log) => (log as any).orchestratorId !== undefined
     )
 
     if (!anyOrchestratorMessage) {
       return null
     }
 
-    return anyOrchestratorMessage.orchestratorId as string
+    return (anyOrchestratorMessage as any).orchestratorId as string
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [globeTestLogs])
 
   const workerIds = useMemo(() => {
@@ -58,10 +61,10 @@ export const GlobeTestLogsPanel = ({
     for (const globeTestLog of globeTestLogs) {
       // Check if workerId is in log
 
-      if (globeTestLog?.workerId) {
+      if ((globeTestLog as any).workerId) {
         // Check if workerId is in workerIds
-        if (!workerIds.includes(globeTestLog.workerId)) {
-          workerIds.push(globeTestLog.workerId)
+        if (!workerIds.includes((globeTestLog as any).workerId)) {
+          workerIds.push((globeTestLog as any).workerId)
         }
       }
     }
@@ -113,7 +116,7 @@ export const GlobeTestLogsPanel = ({
     // Filter out
     if (!checkedOrchestratorId) {
       sortedAll = sortedAll.filter(
-        (log) => log.orchestratorId !== orchestratorId
+        (log) => (log as any).orchestratorId !== orchestratorId
       )
     }
 
@@ -122,7 +125,9 @@ export const GlobeTestLogsPanel = ({
       // Check if workerId is checked
       if (!checkedWorkerIds[workerId]) {
         // Filter out
-        sortedAll = sortedAll.filter((log) => log.workerId !== workerId)
+        sortedAll = sortedAll.filter(
+          (log) => (log as any).workerId !== workerId
+        )
       }
     }
 
@@ -161,17 +166,15 @@ export const GlobeTestLogsPanel = ({
 
     customActions.push(
       <Tooltip title="Copy All" key="Copy All">
-        <Box>
-          <IconButton
-            onClick={() => navigator.clipboard.writeText(editorValue ?? '')}
-          >
-            <ContentCopyIcon />
-          </IconButton>
-        </Box>
+        <IconButton
+          onClick={() => navigator.clipboard.writeText(editorValue ?? '')}
+        >
+          <ContentCopyIcon />
+        </IconButton>
       </Tooltip>
     )
 
-    setActionArea(customActions)
+    setActionArea(<QuickActionArea customActions={customActions} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorValue])
 

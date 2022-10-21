@@ -113,17 +113,15 @@ export const KeyValueEditor = <T extends KVVariantTypes>({
     if (enableCopy) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
-          <Box>
-            <IconButton
-              onClick={() =>
-                isBulkEditing
-                  ? navigator.clipboard.writeText(bulkContents)
-                  : navigator.clipboard.writeText(generateClipboardContents())
-              }
-            >
-              <ContentCopyIcon />
-            </IconButton>
-          </Box>
+          <IconButton
+            onClick={() =>
+              isBulkEditing
+                ? navigator.clipboard.writeText(bulkContents)
+                : navigator.clipboard.writeText(generateClipboardContents())
+            }
+          >
+            <ContentCopyIcon />
+          </IconButton>
         </Tooltip>
       )
     }

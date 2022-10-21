@@ -1,9 +1,6 @@
-import { resolve } from 'path'
-
 import { createClient } from 'redis'
 
 import { checkValue } from './config'
-import { deleteTeam, deleteUser } from './yjs/delete-handlers'
 
 const coreCacheUsername = checkValue<string>('coreCache.redis.userName')
 const coreCachePassword = checkValue<string>('coreCache.redis.password')
@@ -16,21 +13,23 @@ const coreCacheReadRedis = createClient({
 
 const coreCacheSubscribeRedis = coreCacheReadRedis.duplicate()
 
-coreCacheReadRedis.connect()
+coreCacheReadRedis.connect().catch((err) => {
+  console.error('Failed to connect to core cache read redis', err)
+})
 coreCacheSubscribeRedis.connect()
 
 export { coreCacheReadRedis, coreCacheSubscribeRedis }
 
 // Handle deletion
-const setupDeletion = async () => {
-  // Sleep for 5 seconds to allow redis to connect
-  await new Promise((resolve) => setTimeout(resolve, 5000))
-
-  coreCacheSubscribeRedis.subscribe('TEAM_DELETED', deleteTeam)
-  coreCacheSubscribeRedis.subscribe('USER_DELETED', deleteUser)
-}
-
-setupDeletion()
+// /const setupDeletion = async () => {
+// /  // Sleep for 5 seconds to allow redis to connect
+// /  await new Promise((resolve) => setTimeout(resolve, 5000))
+// /
+// /  coreCacheSubscribeRedis.subscribe('TEAM_DELETED', deleteTeam)
+// /  coreCacheSubscribeRedis.subscribe('USER_DELETED', deleteUser)
+// /}
+// /
+// /setupDeletion()
 
 /*
 export const eeRedisUsername = checkValue<string>(

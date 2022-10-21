@@ -12,7 +12,6 @@ import {
   Tooltip,
   useTheme,
   IconButton,
-  Box,
 } from '@mui/material'
 import { ResponseCookie } from 'k6/http'
 
@@ -33,31 +32,29 @@ export const CookieTable = ({ cookies, setActionArea }: CookieTableProps) => {
     if (cookies.length > 0) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
-          <Box>
-            <IconButton
-              onClick={() =>
-                navigator.clipboard.writeText(
-                  `Name\tValue\tDomain\tPath\tHttpOnly\tSecure\tMax Age\tExpires\n${cookies
-                    .map((cookie) => {
-                      const values = Object.values(cookie)
+          <IconButton
+            onClick={() =>
+              navigator.clipboard.writeText(
+                `Name\tValue\tDomain\tPath\tHttpOnly\tSecure\tMax Age\tExpires\n${cookies
+                  .map((cookie) => {
+                    const values = Object.values(cookie)
 
-                      return values
-                        .map((value, index) => {
-                          if (index === values.length - 1) {
-                            return value
-                          }
+                    return values
+                      .map((value, index) => {
+                        if (index === values.length - 1) {
+                          return value
+                        }
 
-                          return `${value}\t`
-                        })
-                        .join('')
-                    })
-                    .join('\n')}`
-                )
-              }
-            >
-              <ContentCopyIcon />
-            </IconButton>
-          </Box>
+                        return `${value}\t`
+                      })
+                      .join('')
+                  })
+                  .join('\n')}`
+              )
+            }
+          >
+            <ContentCopyIcon />
+          </IconButton>
         </Tooltip>
       )
     }

@@ -7,14 +7,14 @@ import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { parseMessage } from 'src/globe-test/execution'
 import { streamExistingTest } from 'src/globe-test/existing-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
+import { MetricsList } from '../subtype-panels/SuccessSingleResultPanel'
+
 import { ExecutionPanel } from './ExecutionPanel'
 
-// Use reactive var to ensure only one socket is created in the whole app at
-// once
+// Use reactive var to ensure only one socket is created in the whole app at once
 const existingTestSocketVar = makeVar<Socket | null>(null)
 
 type LiveExecutionPanelProps = {
@@ -33,7 +33,7 @@ export const LiveExecutionPanel = ({
 
   const responseHook = useYMap(focusedResponse)
 
-  const [metrics, setMetrics] = useState<GlobeTestMessage[]>([])
+  const [metrics, setMetrics] = useState<MetricsList[]>([])
   const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
 
   const [testSocket, setTestSocket] = useState<Socket | null>(null)
@@ -45,14 +45,14 @@ export const LiveExecutionPanel = ({
   }, [responseHook])
 
   const globeTestLogsBuffer = useRef<GlobeTestMessage[]>([])
-  const metricsBuffer = useRef<GlobeTestMessage[]>([])
+  const metricsBuffer = useRef<MetricsList[]>([])
 
   useEffect(() => {
     // Every second, flush the buffers into the state
     const interval = setInterval(() => {
       setGlobeTestLogs(globeTestLogsBuffer.current)
       setMetrics(metricsBuffer.current)
-    }, 500)
+    }, 1000)
 
     return () => clearInterval(interval)
   }, [])
@@ -85,7 +85,7 @@ export const LiveExecutionPanel = ({
       rawBearer,
       onMessage: (message) => {
         if (message.messageType === 'METRICS') {
-          metricsBuffer.current.push(message)
+          metricsBuffer.current.push(message as unknown as MetricsList)
         } else {
           globeTestLogsBuffer.current.push(message)
         }

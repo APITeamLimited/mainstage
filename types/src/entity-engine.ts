@@ -54,6 +54,7 @@ export type EntityEngineServersideMessages = {
     source: string
     sourceName: string
     jobId: string
+    createdByUserId: string
   }
   'rest-add-options': {
     branchId: string
@@ -70,9 +71,16 @@ export type EntityEngineServersideMessages = {
     metricsStoreReceipt: string
     globeTestLogsStoreReceipt: string
   }
+  'rest-handle-success-multiple': {
+    branchId: string
+    collectionId: string
+    metricsStoreReceipt: string
+    globeTestLogsStoreReceipt: string
+  }
   'rest-handle-failure': {
     branchId: string
     collectionId: string
     globeTestLogsStoreReceipt: string | null
+    metricsStoreReceipt: string | null
   }
 }

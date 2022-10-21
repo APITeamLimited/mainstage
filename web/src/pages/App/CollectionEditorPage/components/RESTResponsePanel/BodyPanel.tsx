@@ -6,6 +6,7 @@ import { Tooltip, IconButton, Box } from '@mui/material'
 import { Response } from 'k6/http'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
 import { focusedResponseVar } from 'src/contexts/focused-response'
 import { useHashSumModule } from 'src/contexts/imports'
@@ -44,13 +45,11 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
     if (activeTabIndex === 0 && prettifiedBody) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
-          <Box>
-            <IconButton
-              onClick={() => navigator.clipboard.writeText(prettifiedBody)}
-            >
-              <ContentCopyIcon />
-            </IconButton>
-          </Box>
+          <IconButton
+            onClick={() => navigator.clipboard.writeText(prettifiedBody)}
+          >
+            <ContentCopyIcon />
+          </IconButton>
         </Tooltip>
       )
     } else if (
@@ -59,16 +58,14 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
     ) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
-          <Box>
-            <IconButton onClick={() => navigator.clipboard.writeText(rawBody)}>
-              <ContentCopyIcon />
-            </IconButton>
-          </Box>
+          <IconButton onClick={() => navigator.clipboard.writeText(rawBody)}>
+            <ContentCopyIcon />
+          </IconButton>
         </Tooltip>
       )
     }
 
-    setActionArea(customActions)
+    setActionArea(<QuickActionArea customActions={customActions} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTabIndex, prettifiedBody, rawBody])
 

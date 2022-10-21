@@ -82,63 +82,68 @@ export const AboutAside = ({ itemYMap, onCloseAside }: AboutAsideProps) => {
           ? new Date(itemYMap.get('updatedAt')).toLocaleString()
           : 'N/A'}
       </Typography>
-      {focusedResponseYMap && (
-        <>
-          <Divider />
-          <Typography variant="body2">
-            <span
-              style={{
-                fontWeight: 'bold',
-              }}
-            >
-              Response ID:
-            </span>{' '}
-            {focusedResponseYMap.get('id')}
-          </Typography>
-          <Typography variant="body2">
-            <span
-              style={{
-                fontWeight: 'bold',
-              }}
-            >
-              Response Type:
-            </span>{' '}
-            {focusedResponseYMap.get('__typename')}
-          </Typography>
-          <Typography variant="body2">
-            <span
-              style={{
-                fontWeight: 'bold',
-              }}
-            >
-              Response Subtype:
-            </span>{' '}
-            {focusedResponseYMap.get('__subtype')}
-          </Typography>
-          <Typography variant="body2">
-            <span
-              style={{
-                fontWeight: 'bold',
-              }}
-            >
-              Created At:
-            </span>{' '}
-            {new Date(focusedResponseYMap.get('createdAt')).toLocaleString()}
-          </Typography>
-          <Typography variant="body2">
-            <span
-              style={{
-                fontWeight: 'bold',
-              }}
-            >
-              Last Updated At:
-            </span>{' '}
-            {focusedResponseYMap.get('updatedAt')
-              ? new Date(focusedResponseYMap.get('updatedAt')).toLocaleString()
-              : 'N/A'}
-          </Typography>
-        </>
-      )}
+      {
+        // Sometimes focused response seems to be wrongly defined so check is a request
+        focusedResponseYMap && itemYMap.get('__typename') === 'RESTRequest' && (
+          <>
+            <Divider />
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontWeight: 'bold',
+                }}
+              >
+                Response ID:
+              </span>{' '}
+              {focusedResponseYMap.get('id')}
+            </Typography>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontWeight: 'bold',
+                }}
+              >
+                Response Type:
+              </span>{' '}
+              {focusedResponseYMap.get('__typename')}
+            </Typography>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontWeight: 'bold',
+                }}
+              >
+                Response Subtype:
+              </span>{' '}
+              {focusedResponseYMap.get('__subtype')}
+            </Typography>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontWeight: 'bold',
+                }}
+              >
+                Created At:
+              </span>{' '}
+              {new Date(focusedResponseYMap.get('createdAt')).toLocaleString()}
+            </Typography>
+            <Typography variant="body2">
+              <span
+                style={{
+                  fontWeight: 'bold',
+                }}
+              >
+                Last Updated At:
+              </span>{' '}
+              {focusedResponseYMap.get('updatedAt')
+                ? new Date(
+                    focusedResponseYMap.get('updatedAt')
+                  ).toLocaleString()
+                : 'N/A'}
+            </Typography>
+          </>
+        )
+      }
     </RightAsideLayout>
   )
 }

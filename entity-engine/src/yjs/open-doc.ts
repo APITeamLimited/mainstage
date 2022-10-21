@@ -334,9 +334,11 @@ export class OpenDoc extends Y.Doc {
             this.changeRoleMember(parsedMessage.payload)
             return
           } else if (parsedMessage.type === 'LAST_ONLINE_TIME') {
-            const serverAwareness =
-              this.awareness.getLocalState() as ServerAwareness
-            if (serverAwareness.variant !== 'TEAM') return
+            // This sometimes causes an error
+            const serverAwareness = this.awareness.getLocalState() as
+              | ServerAwareness
+              | undefined
+            if (serverAwareness?.variant !== 'TEAM') return
 
             const newServerAwareness: ServerAwareness = {
               ...serverAwareness,

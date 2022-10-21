@@ -20,26 +20,39 @@ export type SuccessSingleResult = {
   options: Record<string, unknown>
 }
 
+export type SuccessMultipleResult = {
+  __subtype: 'SuccessMultipleResult'
+  globeTestLogs: StoredObject<GlobeTestMessage[]>
+  metrics: StoredObject<DefaultMetrics>
+  options: Record<string, unknown>
+}
+
 export type FailureResult = {
   __subtype: 'FailureResult'
   globeTestLogs: StoredObject<GlobeTestMessage[]>
+
+  // Running test may have failed so these fields may exist
+  metrics: StoredObject<DefaultMetrics> | null
+  options: Record<string, unknown> | null
 }
 
 export type RESTResponseBase = {
+  __typename: 'RESTResponse'
   id: string
   createdAt: Date
   updatedAt: Date | null
-  __typename: 'RESTResponse'
   parentId: string
   __parentTypename: 'RESTRequest'
-  // Keep name, endpoint, and method for backwards compatibility
-  name: string
-  endpoint: string
-  method: string
   underlyingRequest: RESTRequest
   source: string
   sourceName: string
   jobId: string
+  createdByUserId: string
+
+  // Keep name, endpoint, and method for backwards compatibility
+  name: string
+  endpoint: string
+  method: string
 }
 
 export type RESTResponse = RESTResponseBase &

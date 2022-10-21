@@ -8,6 +8,7 @@ import {
   restAddOptions,
   restCreateResponse,
   restHandleFailure,
+  restHandleSuccessMultiple,
   restHandleSuccessSingle,
 } from './rest'
 
@@ -64,6 +65,12 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
     'rest-handle-success-single',
     (data: EntityEngineServersideMessages['rest-handle-success-single']) =>
       restHandleSuccessSingle(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'rest-handle-success-multiple',
+    (data: EntityEngineServersideMessages['rest-handle-success-multiple']) =>
+      restHandleSuccessMultiple(data, projectYMap, socket)
   )
 
   socket.on(

@@ -13,12 +13,12 @@ import { VariablesProvider } from 'src/contexts/VariablesProvider'
 import { VerifiedDomainsProvider } from 'src/contexts/verified-domains-provider'
 import { useWorkspace } from 'src/entity-engine'
 import { GlobeTestProvider } from 'src/globe-test'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { CollectionTree } from './components/CollectionTree'
 import { TabController } from './components/TabController'
 
 import 'react-reflex/styles.css'
-import { useYDoc, useYMap } from 'src/lib/zustand-yjs'
 
 export const viewportHeightReduction = 50
 

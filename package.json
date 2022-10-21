@@ -49,7 +49,7 @@
     "seed": "yarn rw exec seed"
   },
   "scripts": {
-    "dev": "OPENSSL_CONF=/dev/null && yarn rw dev",
+    "dev": "OPENSSL_CONF=/dev/null yarn rw dev",
     "start-entity-engine": "cd entity-engine && yarn start",
     "start-globe-test": "cd globe-test && yarn start",
     "start-mailman": "cd mailman && yarn start",

@@ -2,10 +2,15 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
+import StackedLineChartIcon from '@mui/icons-material/StackedLineChart'
+import { useTheme } from '@mui/material'
 
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
 import { focusedResponseVar } from 'src/contexts/focused-response'
 import { useHashSumModule } from 'src/contexts/imports'
+
+import { MetricsList } from '../subtype-panels/SuccessSingleResultPanel'
 
 import { GlobeTestLogsPanel } from './GlobeTestLogsPanel'
 import { ScriptPanel } from './ScriptPanel'
@@ -13,7 +18,7 @@ import { ScriptPanel } from './ScriptPanel'
 type ExecutionPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   globeTestLogs: GlobeTestMessage[]
-  metrics?: GlobeTestMessage[]
+  metrics?: 'NONE' | MetricsList[] | null
   source: string
   sourceName: string
 }
@@ -26,6 +31,8 @@ export const ExecutionPanel = ({
   sourceName,
 }: ExecutionPanelProps) => {
   const { default: hash } = useHashSumModule()
+
+  const theme = useTheme()
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
 
@@ -52,6 +59,18 @@ export const ExecutionPanel = ({
     [focusedResponseDict]
   )
 
+  useEffect(() => {
+    if (activeTabIndex === 2) {
+      setActionArea(null)
+    } else if (
+      activeTabIndex === 3 &&
+      (!metrics || metrics === 'NONE' || metrics.length === 0)
+    ) {
+      setActionArea(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTabIndex, metrics])
+
   return (
     <>
       <SecondaryChips
@@ -74,13 +93,52 @@ export const ExecutionPanel = ({
           key={focusedResponseHash}
         />
       )}
-      {activeTabIndex === 3 && metrics !== undefined && (
-        <GlobeTestLogsPanel
-          setActionArea={setActionArea}
-          globeTestLogs={metrics}
-          disableFilterOptions
-          key={focusedResponseHash}
-        />
+      {activeTabIndex === 2 && (
+        <>
+          {!metrics || metrics === 'NONE' || metrics.length === 0 ? (
+            <EmptyPanelMessage
+              primaryText="No metrics were found"
+              icon={
+                <StackedLineChartIcon
+                  sx={{
+                    marginBottom: 2,
+                    width: 80,
+                    height: 80,
+                    color: theme.palette.action.disabled,
+                  }}
+                />
+              }
+            />
+          ) : (
+            <>Metrics</>
+          )}
+        </>
+      )}
+      {activeTabIndex === 3 && (
+        <>
+          {!metrics || metrics === 'NONE' || metrics.length === 0 ? (
+            <EmptyPanelMessage
+              primaryText="No metrics were found"
+              icon={
+                <StackedLineChartIcon
+                  sx={{
+                    marginBottom: 2,
+                    width: 80,
+                    height: 80,
+                    color: theme.palette.action.disabled,
+                  }}
+                />
+              }
+            />
+          ) : (
+            <GlobeTestLogsPanel
+              setActionArea={setActionArea}
+              globeTestLogs={metrics as unknown as GlobeTestMessage[]}
+              disableFilterOptions
+              key={focusedResponseHash}
+            />
+          )}
+        </>
       )}
     </>
   )

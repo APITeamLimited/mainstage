@@ -66,7 +66,8 @@ export const RESTHistory = ({
       return (
         response.get('__subtype') === 'SuccessSingleResult' ||
         response.get('__subtype') === 'FailureResult' ||
-        response.get('__subtype') === 'LoadingResponse'
+        response.get('__subtype') === 'LoadingResponse' ||
+        response.get('__subtype') === 'SuccessMultipleResult'
       )
     })
 

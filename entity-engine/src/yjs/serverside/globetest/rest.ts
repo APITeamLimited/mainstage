@@ -15,8 +15,6 @@ export const restCreateResponse = async (
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
-  console.log('restCreateResponse', data)
-
   const globeTestStateCurrent = globeTestState.get(socket)
   if (!globeTestStateCurrent) {
     socket.emit('error', 'Failed to find globeTestStateCurrent')
@@ -59,6 +57,7 @@ export const restCreateResponse = async (
     source: data.source,
     sourceName: data.sourceName,
     jobId: data.jobId,
+    createdByUserId: data.createdByUserId,
   }
 
   const responseYMap = new Y.Map()
@@ -181,12 +180,62 @@ export const restHandleSuccessSingle = async (
   cleanupSocket(socket)
 }
 
+export const restHandleSuccessMultiple = async (
+  data: EntityEngineServersideMessages['rest-handle-success-multiple'],
+  projectYMap: Y.Map<any>,
+  socket: Socket
+) => {
+  const globeTestStateCurrent = globeTestState.get(socket)
+
+  if (!globeTestStateCurrent) {
+    socket.emit('error', 'Failed to find globeTestStateCurrent')
+    return
+  } else if (!globeTestStateCurrent.responseId) {
+    socket.emit('error', 'Failed to find responseId')
+    return
+  }
+
+  const { branchId, collectionId } = data
+
+  const getResponseYMap = async (): Promise<Y.Map<any>> => {
+    const responseYMap = projectYMap
+      ?.get('branches')
+      ?.get(branchId)
+      ?.get('collections')
+      ?.get(collectionId)
+      ?.get('restResponses')
+      .get(globeTestStateCurrent.responseId) as Y.Map<any> | undefined
+
+    if (!responseYMap) {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      return getResponseYMap()
+    }
+
+    return responseYMap
+  }
+
+  const responseYMap = await getResponseYMap()
+
+  responseYMap.set('__subtype', 'SuccessMultipleResult')
+  responseYMap.set('metrics', {
+    __typename: 'StoredObject',
+    storeReceipt: data.metricsStoreReceipt,
+    data: null,
+  })
+  responseYMap.set('globeTestLogs', {
+    __typename: 'StoredObject',
+    storeReceipt: data.globeTestLogsStoreReceipt,
+    data: null,
+  })
+
+  cleanupSocket(socket)
+}
+
 export const restHandleFailure = async (
   data: EntityEngineServersideMessages['rest-handle-failure'],
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
-  console.log('restHandleFailure', data)
   const globeTestStateCurrent = globeTestState.get(socket)
   if (!globeTestStateCurrent) {
     socket.emit('error', 'Failed to find globeTestStateCurrent')
@@ -196,7 +245,12 @@ export const restHandleFailure = async (
     return
   }
 
-  const { branchId, collectionId, globeTestLogsStoreReceipt } = data
+  const {
+    branchId,
+    collectionId,
+    globeTestLogsStoreReceipt,
+    metricsStoreReceipt,
+  } = data
 
   const getResponseYMap = async (): Promise<Y.Map<any>> => {
     const responseYMap = projectYMap
@@ -219,11 +273,29 @@ export const restHandleFailure = async (
 
   responseYMap.set('__subtype', 'FailureResult')
 
-  responseYMap.set('globeTestLogs', {
-    __typename: 'StoredObject',
-    storeReceipt: globeTestLogsStoreReceipt,
-    data: null,
-  })
+  if (globeTestLogsStoreReceipt !== null) {
+    responseYMap.set('globeTestLogs', {
+      __typename: 'StoredObject',
+      storeReceipt: globeTestLogsStoreReceipt,
+      data: null,
+    })
+  } else {
+    responseYMap.set('globeTestLogs', null)
+  }
+
+  if (metricsStoreReceipt !== null) {
+    responseYMap.set('metrics', {
+      __typename: 'StoredObject',
+      storeReceipt: metricsStoreReceipt,
+      data: null,
+    })
+  } else {
+    responseYMap.set('metrics', null)
+  }
+
+  if (responseYMap.get('options') === undefined) {
+    responseYMap.set('options', null)
+  }
 
   cleanupSocket(socket)
 }

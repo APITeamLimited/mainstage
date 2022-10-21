@@ -5,17 +5,6 @@ import * as Y from 'yjs'
  * populates an open doc with the necessary projects folder
  */
 export const populateOpenDoc = (doc: Y.Doc) => {
-  // See if the scope has a projects folder
-
-  //const projectsFolder = doc.getMap('projects')
-
-  // /if (projectsFolder.size === 0) {
-  // /  const { project, id } = createProject('My First Project')
-  // /  projectsFolder.set(id, project)
-  // /}
-
-  console.log('Populating open doc')
-
   const rootMap = doc.getMap('meta')
   rootMap.set('performedFirstRun', true)
 

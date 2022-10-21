@@ -9,6 +9,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 
 import { FailureResultPanel } from './subtype-panels/FailureResultPanel'
 import { LoadingResponsePanel } from './subtype-panels/LoadingResponsePanel'
+import { SuccessMultipleResultPanel } from './subtype-panels/SuccessMultipleResultPanel'
 import { SuccessSingleResultPanel } from './subtype-panels/SuccessSingleResultPanel'
 
 type RESTResponsePanelProps = {
@@ -46,6 +47,8 @@ export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
         <SuccessSingleResultPanel focusedResponse={responseYMap} />
       ) : responseYMap.get('__subtype') === 'FailureResult' ? (
         <FailureResultPanel focusedResponse={responseYMap} />
+      ) : responseYMap.get('__subtype') === 'SuccessMultipleResult' ? (
+        <SuccessMultipleResultPanel focusedResponse={responseYMap} />
       ) : (
         <EmptyPanelMessage
           primaryText="Invalid response type"

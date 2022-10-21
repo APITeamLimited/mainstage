@@ -16,6 +16,8 @@ import { PanelLayout } from '../../PanelLayout'
 import { ExecutionPanel } from '../ExecutionPanel'
 import { FocusedRequestPanel } from '../FocusedRequestPanel/FocusedRequestPanel'
 
+import { MetricsList } from './SuccessSingleResultPanel'
+
 type FailureResultPanelProps = {
   focusedResponse: YMap<any>
 }
@@ -37,24 +39,62 @@ export const FailureResultPanel = ({
   const [storedGlobeTestLogs, setStoredGlobeTestLogs] = useState<
     GlobeTestMessage[] | null
   >(null)
+  const [storedMetrics, setStoredMetrics] = useState<
+    MetricsList[] | null | 'NONE'
+  >(null)
 
   const updateData = async ({
     globeTestLogsStoreReceipt,
+    metricsStoreReceipt,
   }: {
     globeTestLogsStoreReceipt: string
+    metricsStoreReceipt: string | null
   }) => {
     if (!scopeId || !rawBearer) {
       throw new Error('No scopeId or rawBearer')
     }
 
-    const globeTestLogs = await retrieveScopedResource({
+    let metricsPromise = new Promise((resolve) => resolve('NONE')) as Promise<
+      | {
+          data: any
+          contentType: string
+        }
+      | 'NONE'
+    >
+
+    console.log('metricsStoreReceipt', metricsStoreReceipt)
+
+    if (metricsStoreReceipt !== null) {
+      metricsPromise = retrieveScopedResource({
+        scopeId,
+        rawBearer,
+        storeReceipt: metricsStoreReceipt,
+      })
+    }
+
+    const globeTestLogsPromise = retrieveScopedResource({
       scopeId,
       rawBearer,
       storeReceipt: globeTestLogsStoreReceipt,
     })
 
+    const [metricsResult, globeTestLogsResult] = await Promise.all([
+      metricsPromise,
+      globeTestLogsPromise,
+    ])
+
+    console.log('metricsResult', metricsResult)
+
+    if (metricsResult === 'NONE') {
+      setStoredMetrics(metricsResult)
+    } else {
+      setStoredMetrics(
+        (metricsResult.data ?? []).map((log: string) => parseMessage(log))
+      )
+    }
+
     setStoredGlobeTestLogs(
-      globeTestLogs.data.map((log: string) => parseMessage(log))
+      (globeTestLogsResult.data ?? []).map((log: string) => parseMessage(log))
     )
   }
 
@@ -66,12 +106,16 @@ export const FailureResultPanel = ({
     const globeTestLogsStoreReceipt =
       focusedResponse?.get('globeTestLogs')?.storeReceipt
 
+    const metricsStoreReceipt =
+      focusedResponse?.get('metrics')?.storeReceipt ?? (null as string | null)
+
     if (globeTestLogsStoreReceipt) {
       setStoredGlobeTestLogs(null)
       setFetching(true)
 
       updateData({
         globeTestLogsStoreReceipt,
+        metricsStoreReceipt,
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -125,6 +169,7 @@ export const FailureResultPanel = ({
             globeTestLogs={storedGlobeTestLogs}
             source={focusedResponse.get('source')}
             sourceName={focusedResponse.get('sourceName')}
+            metrics={storedMetrics}
           />
         ) : (
           <Skeleton />

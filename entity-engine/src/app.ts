@@ -38,9 +38,9 @@ clientIoServer.on(
   async (socket) => await handleNewConnection(socket)
 )
 
-clientIoServer.on('disconnect', (socket) => {
+clientIoServer.on('disconnect', () =>
   console.log(new Date(), 'Client disconnected')
-})
+)
 
 // Support intrnal serverside connections
 createServersideHandlers(httpServer)
@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'development') {
         '#70c289'
       )
     )
-  }, 2000)
+  }, 60000)
 }
 
 httpServer.listen(entityEnginePort, entityEngineHost, () => {

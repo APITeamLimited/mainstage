@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { Box, IconButton, Tooltip, Stack, Typography } from '@mui/material'
+import { IconButton, Tooltip, Stack, Typography } from '@mui/material'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
 
 type ScriptPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
@@ -21,17 +22,15 @@ export const ScriptPanel = ({
 
     customActions.push(
       <Tooltip title="Copy All" key="Copy All">
-        <Box>
-          <IconButton
-            onClick={() => navigator.clipboard.writeText(source as string)}
-          >
-            <ContentCopyIcon />
-          </IconButton>
-        </Box>
+        <IconButton
+          onClick={() => navigator.clipboard.writeText(source as string)}
+        >
+          <ContentCopyIcon />
+        </IconButton>
       </Tooltip>
     )
 
-    setActionArea(customActions)
+    setActionArea(<QuickActionArea customActions={customActions} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source])
 

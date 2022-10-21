@@ -1,4 +1,4 @@
-import { Box, Grid, Stack, SxProps } from '@mui/material'
+import { Grid, Stack, SxProps } from '@mui/material'
 
 import { CustomTabs } from 'src/components/app/CustomTabs'
 
@@ -43,6 +43,7 @@ export const PanelLayout = ({
       alignItems="center"
       sx={{
         maxWidth: '100%',
+        width: '100%',
       }}
     >
       <Grid item sx={{ maxWidth: '100%' }}>
@@ -53,7 +54,7 @@ export const PanelLayout = ({
           icons={tabIcons}
         />
       </Grid>
-      <Grid item sx={{ flexGrow: 1 }}>
+      <Grid item sx={{ flexGrow: 1, alignItems: 'flex-end' }}>
         {actionArea}
       </Grid>
     </Grid>

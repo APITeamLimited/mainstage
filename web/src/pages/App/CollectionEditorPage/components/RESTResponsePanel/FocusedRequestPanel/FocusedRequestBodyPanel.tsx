@@ -2,13 +2,15 @@ import { useEffect, useMemo } from 'react'
 
 import { RESTRequest } from '@apiteam/types/src'
 import { getPrettyContentTypes, knownContentTypes } from '@apiteam/types/src'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import InventoryIcon from '@mui/icons-material/Inventory'
-import { useTheme, Typography, Stack } from '@mui/material'
+import { useTheme, Typography, Stack, Tooltip, IconButton } from '@mui/material'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { KeyValueResultsTable } from 'src/components/app/utils/KeyValueResultsTable'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
 
 type FocusedRequestBodyPanelProps = {
   body: RESTRequest['body']
@@ -43,7 +45,22 @@ export const FocusedRequestBodyPanel = ({
   useEffect(() => {
     if (prettyName === 'None' || prettyName === 'File') {
       setActionArea(null)
+    } else {
+      const customActions = []
+
+      customActions.push(
+        <Tooltip title="Copy All" key="Copy All">
+          <IconButton
+            onClick={() => navigator.clipboard.writeText(body.body as string)}
+          >
+            <ContentCopyIcon />
+          </IconButton>
+        </Tooltip>
+      )
+
+      setActionArea(<QuickActionArea customActions={customActions} />)
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prettyName])
 

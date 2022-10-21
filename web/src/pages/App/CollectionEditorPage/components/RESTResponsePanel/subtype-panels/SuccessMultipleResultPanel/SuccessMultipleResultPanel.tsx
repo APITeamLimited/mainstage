@@ -2,8 +2,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types/src'
-import { Box, Skeleton } from '@mui/material'
-import { Response, ResponseCookie } from 'k6/http'
+import { Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
@@ -16,11 +15,8 @@ import { retrieveScopedResource } from 'src/store'
 import { PanelLayout } from '../../../PanelLayout'
 import { ExecutionPanel } from '../../ExecutionPanel'
 import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
-import { FocusedResponsePanel } from '../../FocusedResponsePanel/FocusedResponsePanel'
 
-import { QuickSuccessSingleStats } from './QuickSuccessSingleStats'
-
-type SuccessSingleResultPanelProps = {
+type SuccessMultipleResultPanelProps = {
   focusedResponse: YMap<any>
 }
 
@@ -31,9 +27,9 @@ export type MetricsList = (GlobeTestMessage & {
   message: Record<string, unknown>
 })[]
 
-export const SuccessSingleResultPanel = ({
+export const SuccessMultipleResultPanel = ({
   focusedResponse,
-}: SuccessSingleResultPanelProps) => {
+}: SuccessMultipleResultPanelProps) => {
   const Y = useYJSModule()
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -45,27 +41,17 @@ export const SuccessSingleResultPanel = ({
 
   const [fetching, setFetching] = useState(false)
 
-  const [storedResponse, setStoredResponse] = useState<Response | null>(null)
   const [storedGlobeTestLogs, setStoredGlobeTestLogs] = useState<
     GlobeTestMessage[] | null
   >(null)
   const [storedMetrics, setStoredMetrics] = useState<MetricsList[] | null>(null)
-  const [mappedCookies, setMappedCookies] = useState<ResponseCookie[]>([])
-  const [mappedHeaders, setMappedHeaders] = useState<
-    {
-      key: string
-      value: string
-    }[]
-  >([])
 
   const updateData = async ({
     globeTestLogsStoreReceipt,
     metricsStoreReceipt,
-    responseStoreReceipt,
   }: {
     globeTestLogsStoreReceipt: string
     metricsStoreReceipt: string
-    responseStoreReceipt: string
   }) => {
     if (!scopeId || !rawBearer) {
       throw new Error('No scopeId or rawBearer')
@@ -77,43 +63,23 @@ export const SuccessSingleResultPanel = ({
       storeReceipt: globeTestLogsStoreReceipt,
     })
 
-    const responsePromise = retrieveScopedResource({
-      scopeId,
-      rawBearer,
-      storeReceipt: responseStoreReceipt,
-    })
-
     const metricsPromise = retrieveScopedResource({
       scopeId,
       rawBearer,
       storeReceipt: metricsStoreReceipt,
     })
 
-    const [globeTestLogsResult, responseResult, metricsResult] =
-      await Promise.all([globeTestLogsPromise, responsePromise, metricsPromise])
+    const [globeTestLogsResult, metricsResult] = await Promise.all([
+      globeTestLogsPromise,
+      metricsPromise,
+    ])
 
-    setStoredResponse(responseResult.data)
     setStoredGlobeTestLogs(
       (globeTestLogsResult.data ?? []).map((log: string) => parseMessage(log))
     )
 
     setStoredMetrics(
       (metricsResult.data ?? []).map((log: string) => parseMessage(log))
-    )
-
-    setMappedCookies(
-      Object.values(
-        (responseResult.data.request as Response | null)?.cookies ?? []
-      ).flat()
-    )
-
-    setMappedHeaders(
-      Object.entries((responseResult.data as Response | null)?.headers ?? {})
-        .map(([key, value]) => ({
-          key,
-          value,
-        }))
-        .flat()
     )
   }
 
@@ -130,12 +96,6 @@ export const SuccessSingleResultPanel = ({
     [focusedResponseHook]
   )
 
-  const responseStoreReceipt = useMemo(
-    () => focusedResponse?.get('response')?.storeReceipt as string | undefined,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
-  )
-
   useEffect(() => {
     if (fetching) {
       return
@@ -144,7 +104,6 @@ export const SuccessSingleResultPanel = ({
     if (
       !focusedResponse ||
       !globeTestLogsStoreReceipt ||
-      !responseStoreReceipt ||
       !metricsStoreReceipt
     ) {
       return
@@ -154,41 +113,15 @@ export const SuccessSingleResultPanel = ({
 
     updateData({
       globeTestLogsStoreReceipt,
-      responseStoreReceipt,
       metricsStoreReceipt,
     })
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    focusedResponseHook,
-    globeTestLogsStoreReceipt,
-    responseStoreReceipt,
-    metricsStoreReceipt,
-  ])
-
-  const singleStats = useMemo(
-    () => {
-      const statusCode = focusedResponse.get('statusCode')
-      const responseDuration = focusedResponse?.get('meta')?.responseDuration
-      const responseSize = focusedResponse?.get('meta')?.responseSize
-
-      if (!statusCode || !responseDuration || !responseSize) {
-        return null
-      }
-
-      return {
-        statusCode,
-        responseDuration,
-        responseSize,
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook, fetching]
-  )
+  }, [focusedResponseHook, globeTestLogsStoreReceipt, metricsStoreReceipt])
 
   return (
     <PanelLayout
-      tabNames={['Response', 'Execution', 'Request']}
+      tabNames={['Execution', 'Request']}
       tabIcons={[
         {
           name: 'Execution',
@@ -198,37 +131,8 @@ export const SuccessSingleResultPanel = ({
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
-      aboveTabsArea={
-        <Box
-          sx={{
-            maxHeight: '18.38px',
-            minHeight: '18.38px',
-          }}
-        >
-          {singleStats ? (
-            <QuickSuccessSingleStats
-              statusCode={singleStats.statusCode}
-              responseTimeMilliseconds={singleStats.responseDuration}
-              responseSizeBytes={singleStats.responseSize}
-            />
-          ) : (
-            <Skeleton />
-          )}
-        </Box>
-      }
     >
       {activeTabIndex === 0 &&
-        (storedResponse ? (
-          <FocusedResponsePanel
-            storedResponse={storedResponse}
-            mappedHeaders={mappedHeaders}
-            setActionArea={setActionArea}
-            cookies={mappedCookies}
-          />
-        ) : (
-          <Skeleton />
-        ))}
-      {activeTabIndex === 1 &&
         (storedGlobeTestLogs && storedMetrics !== null ? (
           <ExecutionPanel
             setActionArea={setActionArea}
@@ -240,16 +144,13 @@ export const SuccessSingleResultPanel = ({
         ) : (
           <Skeleton />
         ))}
-      {activeTabIndex === 2 &&
-        (storedResponse ? (
-          <FocusedRequestPanel
-            setActionArea={setActionArea}
-            request={focusedResponse.get('underlyingRequest')}
-            finalEndpoint={focusedResponse.get('endpoint')}
-          />
-        ) : (
-          <Skeleton />
-        ))}
+      {activeTabIndex === 1 && (
+        <FocusedRequestPanel
+          setActionArea={setActionArea}
+          request={focusedResponse.get('underlyingRequest')}
+          finalEndpoint={focusedResponse.get('endpoint')}
+        />
+      )}
     </PanelLayout>
   )
 }

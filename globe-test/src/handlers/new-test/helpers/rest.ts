@@ -3,14 +3,13 @@ import {
   GlobeTestOptions,
   WrappedExecutionParams,
 } from '@apiteam/types'
+import JWT from 'jsonwebtoken'
 import { Response } from 'k6/http'
 import { Socket } from 'socket.io'
 
-import { uploadScopedResource } from '../../services/upload-scoped-resource'
-
-import { estimateRESTResponseSize, getEntityEngineSocket } from './utils'
-
-import { TestRunningState, runningTestStates } from '.'
+import { TestRunningState, runningTestStates } from '..'
+import { uploadScopedResource } from '../../../services/upload-scoped-resource'
+import { estimateRESTResponseSize, getEntityEngineSocket } from '../utils'
 
 export const restCreateResponse = async ({
   socket,
@@ -34,6 +33,11 @@ export const restCreateResponse = async ({
     params.projectId
   )
 
+  // Decode bearer token, don't need to check if it's valid
+  const { userId } = JWT.decode(params.bearer) as {
+    userId: string
+  }
+
   runningTestStates.set(socket, {
     ...(runningTestStates.get(socket) as TestRunningState),
     testType: 'rest',
@@ -48,6 +52,7 @@ export const restCreateResponse = async ({
     source: params.source,
     sourceName: params.sourceName,
     jobId,
+    createdByUserId: userId,
   }
 
   entityEngineSocket.emit('rest-create-response', eeParams)
@@ -134,14 +139,47 @@ export const restHandleSuccessSingle = async ({
   entityEngineSocket.emit('rest-handle-success-single', eeParams)
 }
 
+export const restHandleSuccessMultiple = async ({
+  params,
+  globeTestLogsStoreReceipt,
+  metricsStoreReceipt,
+  socket,
+}: {
+  params: WrappedExecutionParams
+  globeTestLogsStoreReceipt: string
+  metricsStoreReceipt: string
+  socket: Socket
+}) => {
+  console.log('restHandleSuccessMultiple')
+
+  const entityEngineSocket = await getEntityEngineSocket(
+    socket,
+    params.scopeId,
+    params.bearer,
+    params.projectId
+  )
+
+  const eeParams: EntityEngineServersideMessages['rest-handle-success-multiple'] =
+    {
+      branchId: params.branchId,
+      collectionId: params.collectionId,
+      metricsStoreReceipt,
+      globeTestLogsStoreReceipt,
+    }
+
+  entityEngineSocket.emit('rest-handle-success-multiple', eeParams)
+}
+
 export const restHandleFailure = async ({
   params,
   globeTestLogsStoreReceipt,
   socket,
+  metricsStoreReceipt,
 }: {
   params: WrappedExecutionParams
   globeTestLogsStoreReceipt: EntityEngineServersideMessages['rest-handle-failure']['globeTestLogsStoreReceipt']
   socket: Socket
+  metricsStoreReceipt: string | null
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
@@ -154,6 +192,7 @@ export const restHandleFailure = async ({
     branchId: params.branchId,
     collectionId: params.collectionId,
     globeTestLogsStoreReceipt,
+    metricsStoreReceipt,
   }
 
   entityEngineSocket.emit('rest-handle-failure', eeParams)
