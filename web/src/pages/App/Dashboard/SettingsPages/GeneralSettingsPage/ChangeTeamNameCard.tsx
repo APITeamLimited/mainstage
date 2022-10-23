@@ -88,7 +88,9 @@ export const ChangeTeamNameCard = ({
       <form noValidate onSubmit={formik.handleSubmit}>
         <Card>
           <Stack spacing={2} p={2}>
-            <Typography variant="h6">Team Name</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Team Name
+            </Typography>
             <Typography variant="body2">
               This is your team&apos;s publicly available name. This could be
               the name of your company or department.

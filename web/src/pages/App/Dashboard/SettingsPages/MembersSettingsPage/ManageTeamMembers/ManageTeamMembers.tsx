@@ -136,7 +136,9 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
             p: 2,
           }}
         >
-          <Typography variant="h6">Team Members</Typography>
+          <Typography variant="h6" fontWeight="bold">
+            Team Members
+          </Typography>
           <Divider />
           {data.memberships.map((membership, index) => (
             <MemberRow

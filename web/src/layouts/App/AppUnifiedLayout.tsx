@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import { Container } from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'
 
@@ -25,6 +24,7 @@ import {
 
 import { AppLayoutBase } from './AppLayoutBase'
 import { LoadingScreen } from './components/LoadingScreen'
+import { OnDashboardWrapper } from './components/OnDashboardWrapper'
 import { TopBarDashboard } from './components/TopBarDashboard'
 import { TopNavApp } from './components/TopNavApp'
 
@@ -135,19 +135,9 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
                         }
                       : undefined
                   }
+                  onDashboard={onDashboard}
                 >
-                  {onDashboard ? (
-                    <Container
-                      sx={{
-                        paddingY: 6,
-                        minHeight: '94vh',
-                      }}
-                    >
-                      {children}
-                    </Container>
-                  ) : (
-                    children
-                  )}
+                  {children}
                 </AppLayoutBase>
               </DnDModuleProvider>
             </YJSModuleProvider>

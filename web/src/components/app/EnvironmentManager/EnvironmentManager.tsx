@@ -71,6 +71,8 @@ export const EnvironmentManager = ({
     [] as KeyValueItem<LocalValueKV>[]
   )
 
+  const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
+
   const [needSave, setNeedSave] = useState(false)
 
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
@@ -107,6 +109,7 @@ export const EnvironmentManager = ({
   useEffect(() => {
     if (!activeEnvironmentId) {
       setUnsavedKeyValues([])
+      setActionArea(<></>)
       return
     }
 
@@ -145,7 +148,7 @@ export const EnvironmentManager = ({
     setNeedSave(false)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint, @typescript-eslint/no-explicit-any
   const handleFieldUpdate = <T extends any>(
     setter: (value: T) => void,
     newValue: T
@@ -223,6 +226,7 @@ export const EnvironmentManager = ({
               marginRight: 2,
             }}
           >
+            {actionArea}
             {activeEnvironmentId && (
               <Tooltip title="Deselect Environment">
                 <IconButton
@@ -370,6 +374,7 @@ export const EnvironmentManager = ({
                       enableEnvironmentVariables={false}
                       disableBulkEdit
                       variant="localvalue"
+                      setActionArea={setActionArea}
                     />
                     <Box sx={{ marginTop: 2 }} />
                     <Stack spacing={2} direction="row">

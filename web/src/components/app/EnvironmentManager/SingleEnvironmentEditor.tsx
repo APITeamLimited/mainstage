@@ -61,6 +61,8 @@ export const SingleEnvironmentEditor = ({
     kvLegacyImporter<LocalValueKV>('variables', environmentYMap, 'localvalue')
   )
 
+  const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
+
   const [needSave, setNeedSave] = useState(false)
 
   // If doesn't need save, update fields automatically
@@ -169,6 +171,7 @@ export const SingleEnvironmentEditor = ({
               marginRight: 2,
             }}
           >
+            {actionArea}
             <Tooltip title="Close">
               <IconButton
                 onClick={handleClose}
@@ -210,6 +213,7 @@ export const SingleEnvironmentEditor = ({
               enableEnvironmentVariables={false}
               variant="localvalue"
               disableBulkEdit
+              setActionArea={setActionArea}
             />
             <Box sx={{ marginTop: 2 }} />
             <Stack spacing={2} direction="row">

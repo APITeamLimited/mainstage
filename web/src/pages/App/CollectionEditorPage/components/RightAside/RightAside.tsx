@@ -17,7 +17,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 
 import { AboutAside, getPrettyInfoTitle } from './AboutAside'
 import { RESTCodeGenerator } from './CodeGenerator/RESTCodeGenerator'
-import { RESTHistory } from './RESTHistory'
+import { ResponseHistory } from './ResponseHistory'
 
 type RightAsideProps = {
   setShowRightAside: (showRightAside: boolean) => void
@@ -173,7 +173,7 @@ export const RightAside = ({
         {showRightAside &&
           focusedElement?.get('__typename') === 'RESTRequest' &&
           activeRightAside === 'restHistory' && (
-            <RESTHistory
+            <ResponseHistory
               onCloseAside={handleCloseAside}
               collectionYMap={collectionYMap}
             />

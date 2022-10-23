@@ -97,7 +97,11 @@ export const DeleteAccountCard = ({
     <>
       <Card sx={{ backgroundColor: theme.palette.error.light }}>
         <Stack spacing={2} p={2}>
-          <Typography variant="h6" color={theme.palette.background.paper}>
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            color={theme.palette.background.paper}
+          >
             Delete Account
           </Typography>
           <Typography variant="body2" color={theme.palette.background.paper}>

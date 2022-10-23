@@ -136,11 +136,11 @@
   right: 0;
   min-height: 10px;
   border-radius: 0px;
-  background-color: rgba(100, 100, 100, 0.4);
 }
 
 /* These styles copied from monaco-editor MANUALLY!!! If color scheme changes these
-will need to be updated */
+will need to be updated. Fortunately I think these are baked into Monaco and as such
+are independent of the theme. */
 
 [data-color-scheme='light'] .simplebar-scrollbar {
   background-color: rgba(100, 100, 100, 0.4);
@@ -204,11 +204,13 @@ will need to be updated */
 
 
 .simplebar-track.simplebar-vertical .simplebar-scrollbar:before {
+  opacity: 0;
   border-radius: 0px;
   width: 5px;
 }
 
 .simplebar-track.simplebar-horizontal .simplebar-scrollbar:before {
+  opacity: 0;
   border-radius: 0px;
   height: 5px;
 }

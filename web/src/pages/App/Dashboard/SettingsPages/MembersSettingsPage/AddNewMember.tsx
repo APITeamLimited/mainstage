@@ -159,7 +159,9 @@ export const AddNewMember = ({
       <Card>
         <form noValidate onSubmit={formik.handleSubmit}>
           <Stack spacing={2} p={2}>
-            <Typography variant="h6">Add New</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Add New
+            </Typography>
             <Divider />
             <Typography variant="body1" color={theme.palette.text.secondary}>
               Invite new members to your team via email.

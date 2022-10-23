@@ -147,7 +147,9 @@ export const ManagePendingInvitations = ({
               p: 2,
             }}
           >
-            <Typography variant="h6">Pending Invitations</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Pending Invitations
+            </Typography>
             <Divider />
             {data.invitations.map((invitation, index) => (
               <ManageInvitationRow

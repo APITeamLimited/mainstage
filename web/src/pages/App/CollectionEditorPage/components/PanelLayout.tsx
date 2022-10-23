@@ -47,7 +47,7 @@ export const PanelLayout = ({
         width: '100%',
       }}
     >
-      <Grid item sx={{ maxWidth: '100%' }}>
+      <Grid item sx={{ height: '34px', maxWidth: '100%' }}>
         <CustomTabs
           value={activeTabIndex}
           onChange={setActiveTabIndex}

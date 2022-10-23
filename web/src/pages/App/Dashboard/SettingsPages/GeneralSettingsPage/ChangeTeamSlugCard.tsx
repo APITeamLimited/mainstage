@@ -88,7 +88,9 @@ export const ChangeTeamSlugCard = ({
       <form noValidate onSubmit={formik.handleSubmit}>
         <Card>
           <Stack spacing={2} p={2}>
-            <Typography variant="h6">Team Slug</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Team Slug
+            </Typography>
             <Typography variant="body2">
               This is your team&apos;s slug, it is a unique identifier for your
               team as well as its subdomain on the APITeam platform

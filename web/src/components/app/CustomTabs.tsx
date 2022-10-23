@@ -1,4 +1,4 @@
-import { Tabs, useTheme, Button, Divider } from '@mui/material'
+import { Tabs, useTheme, Button, Divider, Typography } from '@mui/material'
 
 type CustomTabsProps = {
   value: number
@@ -34,19 +34,19 @@ export const CustomTabs = ({
         onChange={handleTabChange}
         variant="scrollable"
         TabIndicatorProps={{
-          style: {
+          sx: {
             backgroundColor: theme.palette.primary.main,
             //top: '30px',
-            top: '2.5rem',
+            bottom: '0.8rem',
           },
         }}
         style={{
           // Correction for overly large uncotnrollable inner component height.
           // Having no marginBottom would be the most pure way, but not sure if
           // it looks as good as the marginBottoms below.
-          //marginBottom: '-1em',
-          //marginBottom: '-0.25em',
-          overflow: 'visible',
+          marginBottom: '-1em',
+          overflow: 'hidden',
+          height: '34px',
         }}
       >
         {names.map((name, index) => {
@@ -54,19 +54,24 @@ export const CustomTabs = ({
             icons?.find((icon) => icon.name === name)?.icon ?? undefined
 
           return (
-            <Button
+            <Typography
               sx={{
                 marginRight: index === names.length - 1 ? 0 : 2,
                 color:
-                  value === index ? undefined : theme.palette.text.secondary,
-                padding: '0.5rem',
+                  value === index
+                    ? theme.palette.primary.main
+                    : theme.palette.text.secondary,
+                padding: '0.25rem',
+                paddingBottom: 0,
+                userSelect: 'none',
+                cursor: 'pointer',
               }}
               onClick={() => onChange(index)}
               key={index}
-              endIcon={endIcon}
+              fontWeight="bold"
             >
               {name}
-            </Button>
+            </Typography>
           )
         })}
       </Tabs>

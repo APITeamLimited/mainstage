@@ -15,19 +15,19 @@ import { useYMap } from 'src/lib/zustand-yjs'
 
 import { getNodeIcon } from '../../CollectionTree/Node/utils'
 
-type RESTHistoryItemProps = {
+type ResponseHistoryItemProps = {
   responseYMap: YMap<any>
   collectionYMap: YMap<any>
   focusedResponseDict: FocusedElementDictionary
   handleDeleteResponse: () => void
 }
 
-export const RESTHistoryItem = ({
+export const ResponseHistoryItem = ({
   responseYMap,
   collectionYMap,
   focusedResponseDict,
   handleDeleteResponse,
-}: RESTHistoryItemProps) => {
+}: ResponseHistoryItemProps) => {
   const responseHook = useYMap(responseYMap)
   const theme = useTheme()
 

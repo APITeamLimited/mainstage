@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@mui/material'
 
-type QuerySaveDialogProps = {
+export type QuerySaveDialogProps = {
   show: boolean
   onClose: () => void
   saveCallback: () => void

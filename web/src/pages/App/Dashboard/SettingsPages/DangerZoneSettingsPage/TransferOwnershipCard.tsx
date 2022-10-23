@@ -134,7 +134,9 @@ export const TransferOwnershipCard = ({
     <>
       <Card>
         <Stack spacing={2} p={2}>
-          <Typography variant="h6">Transfer Ownership</Typography>
+          <Typography variant="h6" fontWeight="bold">
+            Transfer Ownership
+          </Typography>
           <Typography variant="body2">
             Transfer ownership of this team to another admin, you will be remain
             an admin.

@@ -87,7 +87,9 @@ export const ChangePersonalSlugCard = ({
       <form noValidate onSubmit={formik.handleSubmit}>
         <Card>
           <Stack spacing={2} p={2}>
-            <Typography variant="h6">Personal Slug</Typography>
+            <Typography variant="h6" fontWeight="bold">
+              Personal Slug
+            </Typography>
             <Typography variant="body2">
               This is your personal slug, it your unique identifier and personal
               subdomain on the APITeam platform

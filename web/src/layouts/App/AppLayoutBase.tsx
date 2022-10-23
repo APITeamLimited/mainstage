@@ -1,6 +1,15 @@
-import { useTheme, useScrollTrigger, Stack, Box } from '@mui/material'
+import { useRef } from 'react'
+
+import {
+  useTheme,
+  useScrollTrigger,
+  Stack,
+  Box,
+  Container,
+} from '@mui/material'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
+import { useSimplebarReactModule } from 'src/contexts/imports'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
 
@@ -17,6 +26,7 @@ type AppLayoutProps = {
       md: string | number
     }
   }
+  onDashboard?: boolean
 }
 
 export const AppLayoutBase = ({
@@ -30,13 +40,18 @@ export const AppLayoutBase = ({
       md: 0,
     },
   },
+  onDashboard,
 }: AppLayoutProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const theme = useTheme()
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 38,
   })
+
+  const simpleBarRef = useRef<SimpleBar>(null)
 
   return (
     <EntityEngine>
@@ -70,7 +85,20 @@ export const AppLayoutBase = ({
             backgroundColor: theme.palette.background.default,
           }}
         >
-          <main>{children}</main>
+          <main>
+            {onDashboard ? (
+              <Container
+                sx={{
+                  paddingY: 6,
+                  minHeight: '94vh',
+                }}
+              >
+                {children}
+              </Container>
+            ) : (
+              children
+            )}
+          </main>
         </Box>
         {footer.element}
       </Stack>

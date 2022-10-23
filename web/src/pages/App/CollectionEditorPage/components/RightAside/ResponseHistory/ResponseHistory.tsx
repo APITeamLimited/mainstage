@@ -17,21 +17,23 @@ import { useYMap } from 'src/lib/zustand-yjs'
 
 import { RightAsideLayout } from '../RightAsideLayout'
 
-import { RESTHistoryItem } from './RESTHistoryItem'
+import { ResponseHistoryItem } from './ResponseHistoryItem'
 
 type GroupedResponses = {
   [key: string]: YMap<any>[]
 }
 
-type RESTHistoryProps = {
+type ResponseHistoryProps = {
   onCloseAside: () => void
   collectionYMap: YMap<any>
+  includeAll?: boolean
 }
 
-export const RESTHistory = ({
+export const ResponseHistory = ({
   onCloseAside,
   collectionYMap,
-}: RESTHistoryProps) => {
+  includeAll,
+}: ResponseHistoryProps) => {
   const Y = useYJSModule()
   const { default: SimpleBar } = useSimplebarReactModule()
 
@@ -46,7 +48,7 @@ export const RESTHistory = ({
     new Y.Map()) as YMap<any>
   const responsesHook = useYMap(restResponsesYMap)
 
-  useEffect(() => {
+  const groupedResponses = useMemo(() => {
     if (
       focusedElementDict[getFocusedElementKey(collectionYMap)]?.get(
         '__typename'
@@ -54,23 +56,24 @@ export const RESTHistory = ({
     ) {
       throw `focusedElementDict.__typename: '${focusedElementDict[
         getFocusedElementKey(collectionYMap)
-      ]?.get('__typename')}' invalid for RESTHistory`
+      ]?.get('__typename')}' invalid for ResponseHistory`
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedElementDict, collectionHook])
 
-  const groupedResponses = useMemo(() => {
-    const responsesToDelete: YMap<any>[] = []
+    const parentId =
+      focusedElementDict[getFocusedElementKey(collectionYMap)]?.get('id')
 
     const responses: YMap<any>[] = (
       Array.from(restResponsesYMap.values()) as YMap<any>[]
     ).filter((response) => {
-      return (
+      const baseCondition =
         response.get('__subtype') === 'SuccessSingleResult' ||
         response.get('__subtype') === 'FailureResult' ||
         response.get('__subtype') === 'LoadingResponse' ||
         response.get('__subtype') === 'SuccessMultipleResult'
-      )
+
+      return includeAll
+        ? baseCondition
+        : baseCondition && response.get('parentId') === parentId
     })
 
     // Sort most recent first
@@ -79,6 +82,11 @@ export const RESTHistory = ({
       const bDate = new Date(b.get('createdAt'))
       return bDate.getTime() - aDate.getTime()
     })
+
+    /*
+    // TODO: Move deletion serverside
+
+        const responsesToDelete: YMap<any>[] = []
 
     if (responses.length > 100) {
       responsesToDelete.push(...responses.slice(100))
@@ -89,7 +97,7 @@ export const RESTHistory = ({
     }
 
     // Ensure responses not in responsesToDelete by id
-    const responsesChecked = responses.filter(
+    const checkedResponses = responses.filter(
       (response) =>
         !responsesToDelete.some(
           (responseToDelete) =>
@@ -97,11 +105,13 @@ export const RESTHistory = ({
         )
     )
 
+    */
+
     // Group requests by time, less than a day group by hour, more than a day group by day
     const groupedResponsesNew: GroupedResponses = {}
     const currentDate = new Date()
 
-    responsesChecked.forEach((response) => {
+    responses.forEach((response) => {
       // If less than a day, group by hour
       if (
         currentDate.getTime() - new Date(response.get('createdAt')).getTime() <
@@ -149,7 +159,7 @@ export const RESTHistory = ({
 
     return groupedResponsesNew
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [responsesHook, collectionHook])
+  }, [responsesHook, collectionHook, focusedElementDict])
 
   const handleDeleteResponse = (responseId: string) => {
     const restResponse = restResponsesYMap.get(responseId) as YMap<any>
@@ -159,8 +169,11 @@ export const RESTHistory = ({
 
   const handleDeleteAllResponses = () => {
     clearFocusedRESTResponse(focusedElementDict, collectionYMap)
-    Array.from(restResponsesYMap.keys()).forEach((responseId) =>
-      restResponsesYMap.delete(responseId)
+
+    Object.values(groupedResponses).forEach((responses) =>
+      responses.forEach((responseYMap) => {
+        restResponsesYMap.delete(responseYMap.get('id'))
+      })
     )
   }
 
@@ -253,7 +266,7 @@ export const RESTHistory = ({
                         const id = response.get('id')
 
                         return (
-                          <RESTHistoryItem
+                          <ResponseHistoryItem
                             key={id}
                             responseYMap={response}
                             collectionYMap={collectionYMap}
