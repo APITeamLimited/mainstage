@@ -10,7 +10,7 @@ import {
   clearFocusedRESTResponse,
   focusedResponseVar,
 } from 'src/contexts/focused-response'
-import { useYJSModule } from 'src/contexts/imports'
+import { useSimplebarReactModule, useYJSModule } from 'src/contexts/imports'
 import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
 import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 import { useYMap } from 'src/lib/zustand-yjs'
@@ -33,6 +33,8 @@ export const RESTHistory = ({
   collectionYMap,
 }: RESTHistoryProps) => {
   const Y = useYJSModule()
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const theme = useTheme()
 
   const focusedElementDict = useReactiveVar(focusedElementVar)
@@ -195,89 +197,96 @@ export const RESTHistory = ({
         )}
         <Box
           sx={{
+            overflow: 'hidden',
+            height: '100%',
             maxHeight: '100%',
-            paddingBottom: 2,
-            overflowY: 'auto',
           }}
         >
-          {Object.values(groupedResponses).length === 0 ? (
-            <Typography
-              sx={{
-                overflow: 'hidden',
-                color: theme.palette.text.secondary,
-                paddingX: 2,
-              }}
-              fontSize="small"
-            >
-              <span
-                style={{
-                  userSelect: 'none',
-                }}
-              >
-                No history yet, when this request is sent its response history
-                will be shown here
-              </span>
-            </Typography>
-          ) : (
-            <>
-              {Object.keys(groupedResponses).map((timeLabel) => (
-                <Box
-                  key={timeLabel}
+          <SimpleBar style={{ maxHeight: '100%' }}>
+            <Box sx={{ paddingBottom: 2 }}>
+              {Object.values(groupedResponses).length === 0 ? (
+                <Typography
                   sx={{
-                    marginBottom: 2,
+                    overflow: 'hidden',
+                    color: theme.palette.text.secondary,
+                    paddingX: 2,
                   }}
+                  fontSize="small"
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: theme.palette.text.secondary,
-                      marginX: 2,
-                      marginBottom: 1,
+                  <span
+                    style={{
+                      userSelect: 'none',
                     }}
+                  >
+                    No history yet, when this request is sent its response
+                    history will be shown here
+                  </span>
+                </Typography>
+              ) : (
+                <>
+                  {Object.keys(groupedResponses).map((timeLabel) => (
+                    <Box
+                      key={timeLabel}
+                      sx={{
+                        marginBottom: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: theme.palette.text.secondary,
+                          marginX: 2,
+                          marginBottom: 1,
+                        }}
+                      >
+                        <span
+                          style={{
+                            userSelect: 'none',
+                          }}
+                        >
+                          {timeLabel}:
+                        </span>
+                      </Typography>
+                      {groupedResponses[timeLabel].map((response) => {
+                        // Need to get litteral value of response id for re-rendering
+                        // to work properly
+                        const id = response.get('id')
+
+                        return (
+                          <RESTHistoryItem
+                            key={id}
+                            responseYMap={response}
+                            collectionYMap={collectionYMap}
+                            focusedResponseDict={focusedResponseDict}
+                            handleDeleteResponse={() =>
+                              handleDeleteResponse(id)
+                            }
+                          />
+                        )
+                      })}
+                    </Box>
+                  ))}
+                  <Typography
+                    sx={{
+                      overflow: 'hidden',
+                      color: theme.palette.text.secondary,
+                      paddingX: 2,
+                    }}
+                    fontSize="small"
                   >
                     <span
                       style={{
                         userSelect: 'none',
                       }}
                     >
-                      {timeLabel}:
+                      Responses more than 100 deep are deleted automatically,
+                      pin them to keep them
                     </span>
                   </Typography>
-                  {groupedResponses[timeLabel].map((response) => {
-                    // Need to get litteral value of response id for re-rendering
-                    // to work properly
-                    const id = response.get('id')
-
-                    return (
-                      <RESTHistoryItem
-                        key={id}
-                        responseYMap={response}
-                        collectionYMap={collectionYMap}
-                        focusedResponseDict={focusedResponseDict}
-                        handleDeleteResponse={() => handleDeleteResponse(id)}
-                      />
-                    )
-                  })}
-                </Box>
-              ))}
-              <Typography
-                sx={{
-                  overflow: 'hidden',
-                  color: theme.palette.text.secondary,
-                  paddingX: 2,
-                }}
-                fontSize="small"
-              >
-                <span
-                  style={{
-                    userSelect: 'none',
-                  }}
-                >
-                  Responses more than 100 deep are deleted automatically
-                </span>
-              </Typography>
-            </>
-          )}
+                </>
+              )}
+            </Box>
+          </SimpleBar>
         </Box>
       </Stack>
     </RightAsideLayout>

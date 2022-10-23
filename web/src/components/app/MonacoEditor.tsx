@@ -124,6 +124,11 @@ const MonacoEditorInner = ({
 
         'editorBracketMatch.background': theme.palette.divider,
         'editorBracketMatch.border': theme.palette.divider,
+
+        // Change slider color
+        'editorOverviewRuler.border': theme.palette.divider,
+        'editorOverviewRuler.currentContentForeground': theme.palette.divider,
+        'editorOverviewRuler.incomingContentForeground': theme.palette.divider,
       },
     })
   }, [
@@ -212,6 +217,18 @@ const MonacoEditorInner = ({
               'bracketPairColorization.enabled': true,
               contextmenu: false,
               wordWrap,
+
+              scrollbar: {
+                verticalScrollbarSize: 5,
+                horizontalScrollbarSize: 5,
+                vertical: 'visible',
+                horizontal: 'visible',
+                useShadows: false,
+                verticalHasArrows: false,
+                horizontalHasArrows: false,
+              },
+
+              overviewRulerBorder: false,
 
               // Disable new line sequences
             }}

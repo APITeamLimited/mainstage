@@ -3,11 +3,8 @@ import { useTheme, useScrollTrigger, Stack, Box } from '@mui/material'
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
-import { useSyncReady } from 'src/entity-engine/EntityEngine'
 
 import { CustomAppBar } from '../CustomAppBar'
-
-import { NotConnectedBanner } from './components/NotConnectedBanner'
 
 type AppLayoutProps = {
   children?: React.ReactNode

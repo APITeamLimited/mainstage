@@ -58,7 +58,6 @@ export const baseThemeOptions: ThemeOptions = {
       fontWeight: 500,
     },
   },
-
   components: {
     MuiFormLabel: {
       styleOverrides: {

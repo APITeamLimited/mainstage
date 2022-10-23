@@ -78,7 +78,9 @@ export const KeyValueEditor = <T extends KVVariantTypes>({
             return ''
           }
 
-          return `${item.keyString}\t${item.value}\t${item.localValue}`
+          return `${item.keyString}\t${item.value}\t${
+            item.localValue.data ?? ''
+          }`
         })
         .join('\n')}`
     } else if (variant === 'default') {

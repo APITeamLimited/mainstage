@@ -302,13 +302,19 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
 
   // If the root element, just return innerContent
   return (
-    <div ref={nodeYMapRef}>
+    <div
+      ref={nodeYMapRef}
+      style={{
+        height: '100%',
+      }}
+    >
       <div
         ref={drop}
         style={{
           overflow: 'visible',
           paddingTop:
             nodeYMap.get('__typename') === 'Collection' ? '0.125rem' : 0,
+          height: '100%',
         }}
       >
         {dropSpace === 'Top' && hovered && <DropSpace />}
@@ -353,13 +359,10 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
         {nodeYMap.get('__typename') === 'Collection' && (
           <Box
             sx={{
-              minHeight: '300px',
+              minHeight: '100px',
             }}
           />
         )}
-        {dropSpace === 'Bottom' &&
-          nodeYMap.get('__typename') !== 'Collection' &&
-          hovered && <DropSpace />}
       </div>
     </div>
   )

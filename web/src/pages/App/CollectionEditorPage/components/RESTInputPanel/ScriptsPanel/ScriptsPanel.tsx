@@ -16,6 +16,7 @@ import {
 import { QueryDeleteDialog } from 'src/components/app/dialogs/QueryDeleteDialog'
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
 import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
+import { useSimplebarReactModule } from 'src/contexts/imports'
 import { codeFormatter } from 'src/utils/codeFormatter'
 
 import { CreateScriptDialog } from './CreateScriptDialog'
@@ -37,6 +38,8 @@ export const ScriptsPanel = ({
   namespace,
   onExecuteRef,
 }: ScriptsPanelProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const theme = useTheme()
 
   const [activeScriptIndex, setActiveScriptIndex] = useState(0)
@@ -184,7 +187,12 @@ export const ScriptsPanel = ({
         />
         <Stack
           spacing={2}
-          sx={{ height: '100%', overflow: 'auto', width: '16rem' }}
+          sx={{
+            height: '100%',
+            maxHeight: '100%',
+            overflow: 'hidden',
+            width: '16rem',
+          }}
         >
           <Box>
             <Typography
@@ -206,51 +214,67 @@ export const ScriptsPanel = ({
               Scripts can be used to customise request execution
             </Typography>
           </Box>
-          {executionScripts.map((executionScript, index) => (
-            <Stack
-              key={index}
-              direction="row"
-              spacing={1}
-              sx={{ width: '100%' }}
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              <DescriptionTooltipWrapper executionScript={executionScript}>
-                <Button
-                  onClick={() => setActiveScriptIndex(index)}
-                  size="small"
-                  variant={index === activeScriptIndex ? 'contained' : 'text'}
-                  fullWidth
-                >
-                  <span
-                    style={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {executionScript.name}
-                  </span>
-                </Button>
-              </DescriptionTooltipWrapper>
-              <IconButton
-                onClick={() => setShowQueryDeleteDialog(executionScript)}
-                size="small"
-                disabled={executionScript.builtIn}
-              >
-                <ClearIcon />
-              </IconButton>
-            </Stack>
-          ))}
-          <Divider />
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => setShowCreateScriptDialog(true)}
-            color="secondary"
+          <Box
+            sx={{
+              overflow: 'hidden',
+              height: '100%',
+              maxHeight: '100%',
+            }}
           >
-            New Script
-          </Button>
+            <SimpleBar style={{ maxHeight: '100%' }}>
+              <Stack spacing={2} sx={{ height: '100%', overflow: 'visible' }}>
+                {executionScripts.map((executionScript, index) => (
+                  <Stack
+                    key={index}
+                    direction="row"
+                    spacing={1}
+                    sx={{ width: '100%' }}
+                    alignItems="center"
+                    justifyContent="space-between"
+                  >
+                    <DescriptionTooltipWrapper
+                      executionScript={executionScript}
+                    >
+                      <Button
+                        onClick={() => setActiveScriptIndex(index)}
+                        size="small"
+                        variant={
+                          index === activeScriptIndex ? 'contained' : 'text'
+                        }
+                        fullWidth
+                      >
+                        <span
+                          style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {executionScript.name}
+                        </span>
+                      </Button>
+                    </DescriptionTooltipWrapper>
+                    <IconButton
+                      onClick={() => setShowQueryDeleteDialog(executionScript)}
+                      size="small"
+                      disabled={executionScript.builtIn}
+                    >
+                      <ClearIcon />
+                    </IconButton>
+                  </Stack>
+                ))}
+                <Divider />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setShowCreateScriptDialog(true)}
+                  color="secondary"
+                >
+                  New Script
+                </Button>
+              </Stack>
+            </SimpleBar>
+          </Box>
         </Stack>
       </Stack>
     </>

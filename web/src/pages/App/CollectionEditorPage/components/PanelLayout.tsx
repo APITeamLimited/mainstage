@@ -33,6 +33,7 @@ export const PanelLayout = ({
       height: 'calc(100% - 1.5rem)',
       maxHeight: 'calc(100% - 1.5rem)',
       maxWidth: '100%',
+      overflow: 'hidden',
       ...rootPanelStyles,
     }}
   >

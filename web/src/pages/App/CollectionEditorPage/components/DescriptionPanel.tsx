@@ -7,6 +7,8 @@ import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
+import { QuickActionArea } from 'src/components/app/utils/QuickActionArea'
+import { useSimplebarReactModule } from 'src/contexts/imports'
 
 type DescriptionPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
@@ -19,21 +21,23 @@ export const DescriptionPanel = ({
   description,
   setDescription,
 }: DescriptionPanelProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const theme = useTheme()
 
   const [showPreview, setShowPreview] = useState(true)
 
   useEffect(() => {
-    setActionArea(
-      <Tooltip title="Show Preview">
-        <Box>
-          <Switch
-            checked={showPreview}
-            onChange={(_, value) => setShowPreview(value)}
-          />
-        </Box>
-      </Tooltip>
-    )
+    const customActions = [
+      <Tooltip title="Show Preview" key={1}>
+        <Switch
+          checked={showPreview}
+          onChange={(_, value) => setShowPreview(value)}
+        />
+      </Tooltip>,
+    ]
+
+    setActionArea(<QuickActionArea customActions={customActions} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showPreview])
 
@@ -57,46 +61,49 @@ export const DescriptionPanel = ({
         style={{
           border: 'none',
           backgroundColor: theme.palette.divider,
-          marginLeft: '1rem',
-          marginRight: '1rem',
+          marginLeft: '0.5rem',
+          marginRight: '0.5rem',
         }}
       />
-      <ReflexElement>
-        <Box
-          sx={{
-            overflow: 'auto',
-            height: '100%',
-          }}
-        >
-          {description.length > 0 ? (
+      <ReflexElement
+        style={{
+          overflow: 'hidden',
+          maxHeight: '100%',
+          minHeight: '100%',
+        }}
+      >
+        {description.length > 0 ? (
+          <SimpleBar
+            style={{ height: '100%', maxWidth: '100%', maxHeight: '100%' }}
+          >
             <Markdown>{description}</Markdown>
-          ) : (
-            <Box
-              sx={{
-                height: '100%',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-              }}
-            >
-              <EmptyPanelMessage
-                primaryText="No description"
-                secondaryMessages={[
-                  'A preview of the description will be shown here',
-                ]}
-                icon={
-                  <DescriptionIcon
-                    sx={{
-                      marginBottom: 2,
-                      width: 80,
-                      height: 80,
-                      color: theme.palette.action.disabled,
-                    }}
-                  />
-                }
-              />
-            </Box>
-          )}
-        </Box>
+          </SimpleBar>
+        ) : (
+          <Box
+            sx={{
+              height: '100%',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+            }}
+          >
+            <EmptyPanelMessage
+              primaryText="No description"
+              secondaryMessages={[
+                'A preview of the description will be shown here',
+              ]}
+              icon={
+                <DescriptionIcon
+                  sx={{
+                    marginBottom: 2,
+                    width: 80,
+                    height: 80,
+                    color: theme.palette.action.disabled,
+                  }}
+                />
+              }
+            />
+          </Box>
+        )}
       </ReflexElement>
     </ReflexContainer>
   ) : (

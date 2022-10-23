@@ -11,8 +11,11 @@ import {
 import FatalErrorPage from 'src/pages/FatalErrorPage'
 import Routes from 'src/Routes'
 
-import './scaffold.css'
+// Some external styles required
+
 import './index.css'
+import 'react-reflex/styles.css'
+import './simplebar.css'
 
 import { CustomApolloProvider } from './contexts/custom-apollo-provider'
 

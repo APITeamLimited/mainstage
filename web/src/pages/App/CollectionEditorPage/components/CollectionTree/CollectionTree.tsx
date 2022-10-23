@@ -40,6 +40,7 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
           flexDirection: 'column',
           overflow: 'hidden',
           height: '100%',
+          maxHeight: '100%',
           backgroundColor: 'inherit',
         }}
       >
@@ -60,15 +61,23 @@ export const CollectionTree = ({ collectionYMap }: CollectionTreeProps) => {
         >
           <AddIcon fontSize="small" />
         </Button>
-        <SimpleBar style={{ maxHeight: '100%', overflowX: 'hidden' }}>
-          <DndProvider backend={HTML5Backend}>
-            <Node
-              collectionYMap={collectionYMap}
-              nodeYMap={collectionYMap}
-              parentIndex={0}
-            />
-          </DndProvider>
-        </SimpleBar>
+        <Box
+          sx={{
+            overflow: 'hidden',
+            height: '100%',
+            maxHeight: '100%',
+          }}
+        >
+          <SimpleBar style={{ maxHeight: '100%' }}>
+            <DndProvider backend={HTML5Backend}>
+              <Node
+                collectionYMap={collectionYMap}
+                nodeYMap={collectionYMap}
+                parentIndex={0}
+              />
+            </DndProvider>
+          </SimpleBar>
+        </Box>
       </Box>
     </>
   )

@@ -14,6 +14,7 @@ export const EmptyPanelMessage = ({
   children,
 }: EmptyPanelMessageProps) => {
   const theme = useTheme()
+
   return (
     <Stack
       sx={{
@@ -22,6 +23,8 @@ export const EmptyPanelMessage = ({
         justifyContent: 'center',
         height: '100%',
         width: '100%',
+        maxHeight: '100%',
+        maxWidth: '100%',
         overflow: 'hidden',
       }}
     >

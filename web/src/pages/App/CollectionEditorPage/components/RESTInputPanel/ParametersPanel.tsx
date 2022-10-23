@@ -87,8 +87,8 @@ export const ParametersPanel = ({
         style={{
           border: 'none',
           backgroundColor: theme.palette.divider,
-          marginTop: '1rem',
-          marginBottom: '1rem',
+          marginTop: '0.5rem',
+          marginBottom: '0.5rem',
         }}
       />
       <ReflexElement

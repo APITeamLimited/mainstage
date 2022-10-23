@@ -25,7 +25,6 @@ import {
 } from 'src/contexts/reactives/FocusedElement'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import 'react-reflex/styles.css'
 import { viewportHeightReduction } from '../../../CollectionEditorPage'
 import { CollectionInputPanel } from '../CollectionInputPanel'
 import { DeletedPanel } from '../DeletedPanel'

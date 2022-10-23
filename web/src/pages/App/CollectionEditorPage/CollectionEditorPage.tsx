@@ -18,8 +18,6 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { CollectionTree } from './components/CollectionTree'
 import { TabController } from './components/TabController'
 
-import 'react-reflex/styles.css'
-
 export const viewportHeightReduction = 50
 
 type CollectionEditorPageProps = {

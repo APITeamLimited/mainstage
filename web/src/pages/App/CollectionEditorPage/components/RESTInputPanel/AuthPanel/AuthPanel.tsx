@@ -3,10 +3,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { RESTAuth } from '@apiteam/types/src'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
-import { Grid, Stack, useTheme, Typography, Chip } from '@mui/material'
+import { Grid, Stack, useTheme, Typography, Chip, Box } from '@mui/material'
 
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
+import { useSimplebarReactModule } from 'src/contexts/imports'
 
 import { APIKeyAuthForm } from './APIKeyAuthForm'
 import { BasicAuthForm } from './BasicAuthForm'
@@ -56,6 +57,8 @@ export const AuthPanel = ({
   namespace,
   disableInherit,
 }: AuthPanelProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const theme = useTheme()
   const [unsavedAuths, setUnsavedAuths] = useState<RESTAuth[]>([auth])
 
@@ -188,79 +191,48 @@ export const AuthPanel = ({
         value={getIndexOfAuthMethod(auth.authType) || 0}
         onChange={handleChipChange}
       />
-      <Stack
-        spacing={2}
-        sx={{
-          height: '100%',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
-        {auth.authType === 'inherit' && (
-          <EmptyPanelMessage
-            primaryText="Inherit"
-            secondaryMessages={[
-              'Auth type wil be inherited from parent folder or collection',
-            ]}
-            icon={
-              <InputIcon
-                sx={{
-                  marginBottom: 2,
-                  width: 80,
-                  height: 80,
-                  color: theme.palette.action.disabled,
-                }}
-              />
-            }
-          />
-        )}
-        {auth.authType === 'none' && (
-          <EmptyPanelMessage
-            primaryText="None"
-            secondaryMessages={['No auth will be used']}
-            icon={
-              <LockOpenIcon
-                sx={{
-                  marginBottom: 2,
-                  width: 80,
-                  height: 80,
-                  color: theme.palette.action.disabled,
-                }}
-              />
-            }
-          />
-        )}
-        {auth.authType === 'basic' && (
-          <Stack
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <BasicAuthForm
-              auth={auth}
-              setAuth={setAuth}
-              namespace={namespace}
+
+      {auth.authType === 'inherit' && (
+        <EmptyPanelMessage
+          primaryText="Inherit"
+          secondaryMessages={[
+            'Auth type wil be inherited from parent folder or collection',
+          ]}
+          icon={
+            <InputIcon
+              sx={{
+                marginBottom: 2,
+                width: 80,
+                height: 80,
+                color: theme.palette.action.disabled,
+              }}
             />
-          </Stack>
-        )}
-        {auth.authType === 'bearer' && (
-          <Stack
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <BearerAuthForm
-              auth={auth}
-              setAuth={setAuth}
-              namespace={namespace}
+          }
+        />
+      )}
+      {auth.authType === 'none' && (
+        <EmptyPanelMessage
+          primaryText="None"
+          secondaryMessages={['No auth will be used']}
+          icon={
+            <LockOpenIcon
+              sx={{
+                marginBottom: 2,
+                width: 80,
+                height: 80,
+                color: theme.palette.action.disabled,
+              }}
             />
-          </Stack>
-        )}
-        {/*auth.authType === 'oauth-2' && (
+          }
+        />
+      )}
+      {auth.authType === 'basic' && (
+        <BasicAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+      )}
+      {auth.authType === 'bearer' && (
+        <BearerAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+      )}
+      {/*auth.authType === 'oauth-2' && (
           <Stack
             sx={{
               display: 'flex',
@@ -275,22 +247,9 @@ export const AuthPanel = ({
             />
           </Stack>
           )*/}
-        {auth.authType === 'api-key' && (
-          <Stack
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <APIKeyAuthForm
-              auth={auth}
-              setAuth={setAuth}
-              namespace={namespace}
-            />
-          </Stack>
-        )}
-      </Stack>
+      {auth.authType === 'api-key' && (
+        <APIKeyAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+      )}
     </>
   )
 }
