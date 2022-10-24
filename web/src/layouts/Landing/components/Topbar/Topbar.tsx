@@ -8,7 +8,7 @@ import { alpha, useTheme } from '@mui/material/styles'
 
 import { Link, routes } from '@redwoodjs/router'
 
-import { APITeamLogo } from 'src/components/APITeamLogo'
+import { APITeamLogo, LOGO_DEFAULT_HEIGHT } from 'src/components/APITeamLogo'
 import { SignUpOrContinueButton } from 'src/pages/RootPage/components/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
 
@@ -34,24 +34,16 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
         alignItems={'center'}
         width={1}
       >
-        <Box
-          sx={{
-            width: {
-              xs: 100,
-              sm: 120,
-            },
+        <Link
+          to={routes.splash()}
+          style={{
+            textDecoration: 'none',
+            color: theme.palette.text.primary,
+            height: LOGO_DEFAULT_HEIGHT,
           }}
         >
-          <Link
-            to={routes.splash()}
-            style={{
-              textDecoration: 'none',
-              color: theme.palette.text.primary,
-            }}
-          >
-            <APITeamLogo />
-          </Link>
-        </Box>
+          <APITeamLogo />
+        </Link>
         <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
           {brandedRoutes.map((route, index) => {
             if (route.includeAppBar === false) {

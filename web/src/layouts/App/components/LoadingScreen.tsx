@@ -3,15 +3,18 @@ import { useMemo, useEffect, useState } from 'react'
 import { useTheme, Box, Typography, Stack, LinearProgress } from '@mui/material'
 import TextTransition, { presets } from 'react-text-transition'
 
+import { APITeamLogo } from 'src/components/APITeamLogo'
+
 const loadingMessages = [
   'Polishing POST requests',
   'Checking for bugs',
-  'Warming up the API',
   'Plumbing websockets',
   'Sketching graphql schemas',
   'Organising metrics',
   'Deriving execution plans',
   'Reticulating splines',
+  'Generating API keys',
+  'Solving the halting problem',
 ]
 
 export const LoadingScreen = () => {
@@ -66,21 +69,7 @@ export const LoadingScreen = () => {
           paddingBottom: '200px',
         }}
       >
-        <Typography
-          fontSize={80}
-          fontWeight={1000}
-          // The old theme's font, think this might look better for the logo
-          fontFamily="Roboto"
-          color={theme.palette.text.primary}
-        >
-          <span
-            style={{
-              whiteSpace: 'nowrap',
-            }}
-          >
-            API Team
-          </span>
-        </Typography>
+        <APITeamLogo height="100px" disableLinks />
         <Typography variant="h6" color={theme.palette.text.secondary}>
           <TextTransition
             springConfig={presets.default}

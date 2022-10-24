@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 
 import { useTheme, Box, useScrollTrigger } from '@mui/material'
 
+import { Head } from '@redwoodjs/web'
+
 import { TopNavLanding } from 'src/layouts/Landing/components/TopNavLanding'
 
 import { CustomAppBar } from '../CustomAppBar'
@@ -47,34 +49,40 @@ export const LandingLayoutBase = ({
   })
 
   return (
-    <Box
-      sx={{
-        backgroundColor: theme.palette.background.paper,
-        position: 'relative',
-        minHeight: '100vh',
-      }}
-    >
-      <TopNavLanding disableTop={disableTop} />
-      <CustomAppBar disableTop={disableTop} trigger={trigger}>
-        {appBarInner || <Topbar onSidebarOpen={handleSidebarOpen} />}
-      </CustomAppBar>
-      <Sidebar
-        onClose={handleSidebarClose}
-        open={openSidebar}
-        variant="temporary"
-      />
+    <>
+      <Head>
+        <link rel="icon" type="image/png" href="favicon.png" />
+      </Head>
       <Box
         sx={{
-          paddingBottom: {
-            xs: footer.height.xs,
-            md: footer.height.md,
-          },
-          backgroundColor: backgroundColor ?? theme.palette.background.default,
+          backgroundColor: theme.palette.background.paper,
+          position: 'relative',
+          minHeight: '100vh',
         }}
       >
-        <main>{children}</main>
+        <TopNavLanding disableTop={disableTop} />
+        <CustomAppBar disableTop={disableTop} trigger={trigger}>
+          {appBarInner || <Topbar onSidebarOpen={handleSidebarOpen} />}
+        </CustomAppBar>
+        <Sidebar
+          onClose={handleSidebarClose}
+          open={openSidebar}
+          variant="temporary"
+        />
+        <Box
+          sx={{
+            paddingBottom: {
+              xs: footer.height.xs,
+              md: footer.height.md,
+            },
+            backgroundColor:
+              backgroundColor ?? theme.palette.background.default,
+          }}
+        >
+          <main>{children}</main>
+        </Box>
+        {footer.element}
       </Box>
-      {footer.element}
-    </Box>
+    </>
   )
 }

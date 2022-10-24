@@ -4,13 +4,11 @@ import { Stack, Tooltip } from '@mui/material'
 
 import { routes, useLocation } from '@redwoodjs/router'
 
+import { APITeamLogo, LOGO_DEFAULT_HEIGHT } from 'src/components/APITeamLogo'
 import { TopNavLink } from 'src/components/utils/TopNavLink'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
-import { APITeamLogo } from '../../../../components/APITeamLogo'
-
 import { InviteButton } from './InviteButton'
-import { OnlineMembers } from './OnlineMembers'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher/index'
 
 export const TopNavApp = () => {
@@ -34,7 +32,11 @@ export const TopNavApp = () => {
         >
           {!isOnDashboard ? (
             <Tooltip title="Dashboard">
-              <span>
+              <span
+                style={{
+                  height: LOGO_DEFAULT_HEIGHT,
+                }}
+              >
                 <APITeamLogo />
               </span>
             </Tooltip>

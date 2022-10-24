@@ -8,6 +8,8 @@ import {
   Container,
 } from '@mui/material'
 
+import { Head } from '@redwoodjs/web'
+
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
@@ -54,54 +56,59 @@ export const AppLayoutBase = ({
   const simpleBarRef = useRef<SimpleBar>(null)
 
   return (
-    <EntityEngine>
-      <DialogsProvider />
-      <ReactiveVarPersistor />
-      <Stack
-        sx={{
-          backgroundColor: theme.palette.background.default,
-          position: 'relative',
-          minHeight: '100vh',
-        }}
-      >
-        {appBar ? (
-          topNav
-        ) : (
-          <CustomAppBar trigger={trigger} disableTop={false}>
-            {topNav}
-          </CustomAppBar>
-        )}
-        {appBar && (
-          <CustomAppBar trigger={trigger} disableTop={false}>
-            {appBar}
-          </CustomAppBar>
-        )}
-        <Box
+    <>
+      <Head>
+        <link rel="icon" type="image/png" href="favicon.png" />
+      </Head>
+      <EntityEngine>
+        <DialogsProvider />
+        <ReactiveVarPersistor />
+        <Stack
           sx={{
-            paddingBottom: {
-              xs: footer.height.xs,
-              md: footer.height.md,
-            },
             backgroundColor: theme.palette.background.default,
+            position: 'relative',
+            minHeight: '100vh',
           }}
         >
-          <main>
-            {onDashboard ? (
-              <Container
-                sx={{
-                  paddingY: 6,
-                  minHeight: '94vh',
-                }}
-              >
-                {children}
-              </Container>
-            ) : (
-              children
-            )}
-          </main>
-        </Box>
-        {footer.element}
-      </Stack>
-    </EntityEngine>
+          {appBar ? (
+            topNav
+          ) : (
+            <CustomAppBar trigger={trigger} disableTop={false}>
+              {topNav}
+            </CustomAppBar>
+          )}
+          {appBar && (
+            <CustomAppBar trigger={trigger} disableTop={false}>
+              {appBar}
+            </CustomAppBar>
+          )}
+          <Box
+            sx={{
+              paddingBottom: {
+                xs: footer.height.xs,
+                md: footer.height.md,
+              },
+              backgroundColor: theme.palette.background.default,
+            }}
+          >
+            <main>
+              {onDashboard ? (
+                <Container
+                  sx={{
+                    paddingY: 6,
+                    minHeight: '94vh',
+                  }}
+                >
+                  {children}
+                </Container>
+              ) : (
+                children
+              )}
+            </main>
+          </Box>
+          {footer.element}
+        </Stack>
+      </EntityEngine>
+    </>
   )
 }

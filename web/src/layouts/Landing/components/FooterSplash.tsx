@@ -11,6 +11,7 @@ import {
 
 import { Link } from '@redwoodjs/router'
 
+import { APITeamLogo } from 'src/components/APITeamLogo'
 import { brandedRoutes } from 'src/Routes'
 
 export const FOOTER_SPASH_HEIGHT = {
@@ -19,20 +20,9 @@ export const FOOTER_SPASH_HEIGHT = {
 }
 
 const LogoBanners = () => {
-  const theme = useTheme()
-
   return (
     <Grid item key={-1} alignSelf="center">
-      <Typography
-        fontSize={22}
-        fontWeight={1000}
-        color={theme.palette.text.primary}
-        sx={{
-          userSelect: 'none',
-        }}
-      >
-        API Team
-      </Typography>
+      <APITeamLogo disableLinks />
     </Grid>
   )
 }

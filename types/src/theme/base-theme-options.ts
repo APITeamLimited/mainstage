@@ -4,7 +4,7 @@ export const baseThemeOptions: ThemeOptions = {
   spacing: 6,
   typography: {
     // Old theme uses poppins
-    fontFamily: '"Poppins", "sans-serif"',
+    fontFamily: '"Roboto", "sans-serif"',
     //fontFamily: 'Manrope, sans-serif',
     fontSize: 16,
     h1: {
@@ -50,7 +50,7 @@ export const baseThemeOptions: ThemeOptions = {
     body2: {
       fontSize: '0.875rem',
       lineHeight: 1.3125,
-      fontWeight: 200,
+      fontWeight: 300,
     },
     button: {
       fontSize: '0.875rem',
