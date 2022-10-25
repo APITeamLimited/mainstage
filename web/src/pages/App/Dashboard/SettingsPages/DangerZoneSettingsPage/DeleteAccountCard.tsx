@@ -152,8 +152,8 @@ export const DeleteAccountCard = ({
               </Alert>
               <Divider />
               <FormHelperText>
-                To confirm, type the slug of your account{' '}
-                <strong>{workspaceInfo.scope.slug}</strong>
+                To confirm, type the slug of your account &apos;
+                {workspaceInfo.scope.slug}&apos;
               </FormHelperText>
               <TextField
                 label="Account Name"
@@ -171,7 +171,7 @@ export const DeleteAccountCard = ({
                 }
               />
               <FormHelperText>
-                Type <strong>delete my account</strong> to confirm
+                Type &apos;delete my account&apos; to confirm
               </FormHelperText>
               <TextField
                 label="Confirmation"

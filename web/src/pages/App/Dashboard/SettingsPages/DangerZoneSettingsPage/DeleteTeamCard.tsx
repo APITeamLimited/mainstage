@@ -150,8 +150,8 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
               </Alert>
               <Divider />
               <FormHelperText>
-                To confirm, type the slug of your team{' '}
-                <strong>{workspaceInfo.scope.slug}</strong>
+                To confirm, type the slug of your team &apos;
+                {workspaceInfo.scope.slug}&apos;
               </FormHelperText>
               <TextField
                 label="Team Name"
@@ -167,7 +167,7 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
                 helperText={formik.touched.teamName && formik.errors.teamName}
               />
               <FormHelperText>
-                Type <strong>delete my team</strong> to confirm
+                Type &apos;delete my team&apos; to confirm
               </FormHelperText>
               <TextField
                 label="Confirmation"

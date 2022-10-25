@@ -1,6 +1,6 @@
 import { Grid, Stack, SxProps } from '@mui/material'
 
-import { CustomTabs } from 'src/components/app/CustomTabs'
+import { CustomTabs, CUSTOM_TABS_HEIGHT } from 'src/components/app/CustomTabs'
 
 type PanelLayoutProps = {
   children?: React.ReactNode
@@ -47,7 +47,7 @@ export const PanelLayout = ({
         width: '100%',
       }}
     >
-      <Grid item sx={{ height: '34px', maxWidth: '100%' }}>
+      <Grid item sx={{ height: CUSTOM_TABS_HEIGHT, maxWidth: '100%' }}>
         <CustomTabs
           value={activeTabIndex}
           onChange={setActiveTabIndex}

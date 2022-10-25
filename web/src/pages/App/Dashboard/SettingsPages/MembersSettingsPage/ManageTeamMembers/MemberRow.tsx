@@ -99,7 +99,7 @@ export const MemberRow = ({
         showMakeAdmin: false,
         denyReason:
           userRole === 'OWNER'
-            ? 'Transfer your ownership to an admin to change your role'
+            ? 'Transfer team ownership to stop being an owner'
             : 'You cannot change your own role',
       }
     }

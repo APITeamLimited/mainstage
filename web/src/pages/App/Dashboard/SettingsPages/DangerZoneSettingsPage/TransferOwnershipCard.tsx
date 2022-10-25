@@ -226,7 +226,7 @@ export const TransferOwnershipCard = ({
               </TextField>
 
               <FormHelperText>
-                Type <strong>transfer ownership</strong> to confirm
+                Type &apos;transfer ownership&apos; to confirm
               </FormHelperText>
               <TextField
                 label="Confirmation"

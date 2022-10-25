@@ -1,4 +1,6 @@
-import { Tabs, useTheme, Button, Divider, Typography } from '@mui/material'
+import { Tabs, useTheme, Divider, Typography } from '@mui/material'
+
+export const CUSTOM_TABS_HEIGHT = '40px'
 
 type CustomTabsProps = {
   value: number
@@ -44,9 +46,8 @@ export const CustomTabs = ({
           // Correction for overly large uncotnrollable inner component height.
           // Having no marginBottom would be the most pure way, but not sure if
           // it looks as good as the marginBottoms below.
-          marginBottom: '-1em',
           overflow: 'hidden',
-          height: '34px',
+          height: CUSTOM_TABS_HEIGHT,
         }}
       >
         {names.map((name, index) => {

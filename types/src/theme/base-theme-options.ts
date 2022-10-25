@@ -3,8 +3,10 @@ import { ThemeOptions } from '@mui/material'
 export const baseThemeOptions: ThemeOptions = {
   spacing: 6,
   typography: {
-    // Old theme uses poppins
-    fontFamily: '"Roboto", "sans-serif"',
+    // Old theme uses poppins, roboto maybe?
+    // Reckon inter has an edge over the others
+    fontFamily:
+      'Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji',
     //fontFamily: 'Manrope, sans-serif',
     fontSize: 16,
     h1: {
