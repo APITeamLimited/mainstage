@@ -150,8 +150,6 @@ export const restHandleSuccessMultiple = async ({
   metricsStoreReceipt: string
   socket: Socket
 }) => {
-  console.log('restHandleSuccessMultiple')
-
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
     params.scopeId,

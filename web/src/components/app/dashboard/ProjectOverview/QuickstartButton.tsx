@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useReactiveVar } from '@apollo/client'
 import AddCircleOutlineTwoToneIcon from '@mui/icons-material/AddCircleOutlineTwoTone'
 import { Button, Tooltip } from '@mui/material'
-
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
 
@@ -30,7 +30,7 @@ export const QuickstartButton = ({
           : null,
         __typename: 'Project',
         __parentTypename: 'Workspace',
-        parentId: activeWorkspaceId,
+        parentId: activeWorkspaceId as string,
       },
     })
   }

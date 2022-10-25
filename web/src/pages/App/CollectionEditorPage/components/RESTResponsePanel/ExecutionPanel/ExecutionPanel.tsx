@@ -39,7 +39,6 @@ export const ExecutionPanel = ({
   const tabNames = useMemo(() => {
     const tabNames = ['Script', 'Logs']
     if (metrics !== undefined) {
-      tabNames.push('Metrics')
       tabNames.push('Metrics (Logs)')
     }
     return tabNames
@@ -94,27 +93,6 @@ export const ExecutionPanel = ({
         />
       )}
       {activeTabIndex === 2 && (
-        <>
-          {!metrics || metrics === 'NONE' || metrics.length === 0 ? (
-            <EmptyPanelMessage
-              primaryText="No metrics were found"
-              icon={
-                <StackedLineChartIcon
-                  sx={{
-                    marginBottom: 2,
-                    width: 80,
-                    height: 80,
-                    color: theme.palette.action.disabled,
-                  }}
-                />
-              }
-            />
-          ) : (
-            <>Metrics</>
-          )}
-        </>
-      )}
-      {activeTabIndex === 3 && (
         <>
           {!metrics || metrics === 'NONE' || metrics.length === 0 ? (
             <EmptyPanelMessage

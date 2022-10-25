@@ -9,7 +9,7 @@ import http from "k6/http";
 import { lifecycle } from "apiteam/context";
 
 export const options = {
-    executionMode: "http_single",
+    executionMode: "httpSingle",
 };
 
 export default function () {

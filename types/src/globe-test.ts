@@ -78,6 +78,20 @@ export type MarkType = {
   message: unknown
 }
 
+type InnerMetric = {
+  contains: 'data' | 'time'
+  type: 'rate' | 'counter' | 'gauge' | 'trend'
+  value: number
+}
+
+export type MetricsCombination = {
+  messageType: 'METRICS'
+  message: {
+    global: Record<string, InnerMetric>
+    [loadZone: string]: Record<string, InnerMetric>
+  }
+}
+
 type MessageCombination =
   | {
       messageType: 'MESSAGE'
@@ -95,10 +109,7 @@ type MessageCombination =
       messageType: 'SUMMARY_METRICS'
       message: Record<string, unknown>
     }
-  | {
-      messageType: 'METRICS'
-      message: Record<string, unknown>
-    }
+  | MetricsCombination
   | {
       messageType: 'ERROR'
       message: string
@@ -197,5 +208,5 @@ export type ResolvedVariable = {
 } | null
 
 export type GlobeTestOptions = Omit<K6Options, 'noUsageReport' | 'linger'> & {
-  executionMode: 'http_single' | 'http_multiple'
+  executionMode: 'httpSingle' | 'httpMultiple'
 }

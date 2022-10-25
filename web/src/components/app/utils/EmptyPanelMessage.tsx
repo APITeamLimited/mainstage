@@ -26,17 +26,12 @@ export const EmptyPanelMessage = ({
         maxHeight: '100%',
         maxWidth: '100%',
         overflow: 'hidden',
+        userSelect: 'none',
       }}
     >
       {icon}
       <Typography variant="h6" gutterBottom={secondaryMessages.length > 0}>
-        <span
-          style={{
-            userSelect: 'none',
-          }}
-        >
-          {primaryText}
-        </span>
+        {primaryText}
       </Typography>
       {secondaryMessages.map((message, index) => (
         <Typography
@@ -45,13 +40,7 @@ export const EmptyPanelMessage = ({
           color={theme.palette.text.secondary}
           gutterBottom={index < secondaryMessages.length - 1}
         >
-          <span
-            style={{
-              userSelect: 'none',
-            }}
-          >
-            {message}
-          </span>
+          {message}
         </Typography>
       ))}
       {children}

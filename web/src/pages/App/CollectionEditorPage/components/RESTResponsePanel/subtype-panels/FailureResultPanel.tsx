@@ -5,7 +5,6 @@ import { GlobeTestMessage } from '@apiteam/types/src'
 import { Alert, Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
-import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { parseMessage } from 'src/globe-test/execution'
@@ -151,12 +150,6 @@ export const FailureResultPanel = ({
   return (
     <PanelLayout
       tabNames={['Execution', 'Request']}
-      tabIcons={[
-        {
-          name: 'Execution',
-          icon: <GlobeTestIcon />,
-        },
-      ]}
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}

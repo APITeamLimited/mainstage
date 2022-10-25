@@ -13,9 +13,7 @@ const coreCacheReadRedis = createClient({
 
 const coreCacheSubscribeRedis = coreCacheReadRedis.duplicate()
 
-coreCacheReadRedis.connect().catch((err) => {
-  console.error('Failed to connect to core cache read redis', err)
-})
+coreCacheReadRedis.connect()
 coreCacheSubscribeRedis.connect()
 
 export { coreCacheReadRedis, coreCacheSubscribeRedis }

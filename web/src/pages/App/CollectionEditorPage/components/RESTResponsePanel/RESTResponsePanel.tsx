@@ -42,13 +42,19 @@ export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
           ]}
         />
       ) : responseYMap.get('__subtype') === 'LoadingResponse' ? (
-        <LoadingResponsePanel focusedResponse={responseYMap} />
+        <LoadingResponsePanel
+          focusedResponse={responseYMap}
+          key={responseYMap.get('id')}
+        />
       ) : responseYMap.get('__subtype') === 'SuccessSingleResult' ? (
         <SuccessSingleResultPanel focusedResponse={responseYMap} />
       ) : responseYMap.get('__subtype') === 'FailureResult' ? (
         <FailureResultPanel focusedResponse={responseYMap} />
       ) : responseYMap.get('__subtype') === 'SuccessMultipleResult' ? (
-        <SuccessMultipleResultPanel focusedResponse={responseYMap} />
+        <SuccessMultipleResultPanel
+          focusedResponse={responseYMap}
+          key={responseYMap.get('id')}
+        />
       ) : (
         <EmptyPanelMessage
           primaryText="Invalid response type"

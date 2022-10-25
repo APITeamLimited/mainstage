@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types/src'
+import type { GlobeTestMessage, MetricsCombination } from '@apiteam/types/src'
 import { Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
-import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { parseMessage } from 'src/globe-test/execution'
@@ -15,17 +14,16 @@ import { retrieveScopedResource } from 'src/store'
 import { PanelLayout } from '../../../PanelLayout'
 import { ExecutionPanel } from '../../ExecutionPanel'
 import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
+import { LoadTestSummaryPanel } from '../../load-test-metrics/above-tabs-area/LoadTestSummaryPanel'
+import { GraphsPanel } from '../../load-test-metrics/graphs/GraphsPanel'
+
+type MetricsList = (GlobeTestMessage & {
+  orchestratorId: string
+} & MetricsCombination)[]
 
 type SuccessMultipleResultPanelProps = {
   focusedResponse: YMap<any>
 }
-
-export type MetricsList = (GlobeTestMessage & {
-  orchestratorId: string
-} & {
-  messageType: 'METRICS'
-  message: Record<string, unknown>
-})[]
 
 export const SuccessMultipleResultPanel = ({
   focusedResponse,
@@ -119,20 +117,42 @@ export const SuccessMultipleResultPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedResponseHook, globeTestLogsStoreReceipt, metricsStoreReceipt])
 
+  const aboveTabsArea = useMemo(
+    () => (
+      <LoadTestSummaryPanel
+        key={`${storedMetrics?.length}-${focusedResponse.get('id')}`}
+        metrics={
+          (storedMetrics && storedMetrics?.length > 0
+            ? storedMetrics
+            : null) as unknown as
+            | (GlobeTestMessage & MetricsCombination)[]
+            | null
+        }
+        responseYMap={focusedResponse}
+      />
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook, storedMetrics]
+  )
+
   return (
     <PanelLayout
-      tabNames={['Execution', 'Request']}
-      tabIcons={[
-        {
-          name: 'Execution',
-          icon: <GlobeTestIcon />,
-        },
-      ]}
+      tabNames={['Graphs', 'Execution', 'Request']}
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
+      aboveTabsArea={aboveTabsArea}
     >
       {activeTabIndex === 0 &&
+        (storedMetrics !== null ? (
+          <GraphsPanel
+            focusedResponse={focusedResponse}
+            metrics={storedMetrics as unknown as MetricsList | null}
+          />
+        ) : (
+          <Skeleton />
+        ))}
+      {activeTabIndex === 1 &&
         (storedGlobeTestLogs && storedMetrics !== null ? (
           <ExecutionPanel
             setActionArea={setActionArea}
@@ -144,7 +164,7 @@ export const SuccessMultipleResultPanel = ({
         ) : (
           <Skeleton />
         ))}
-      {activeTabIndex === 1 && (
+      {activeTabIndex === 2 && (
         <FocusedRequestPanel
           setActionArea={setActionArea}
           request={focusedResponse.get('underlyingRequest')}

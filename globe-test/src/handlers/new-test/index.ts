@@ -212,7 +212,7 @@ const handleMessage = async (
 
           if (
             (runningState.options as GlobeTestOptions).executionMode ===
-              'http_single' &&
+              'httpSingle' &&
             !runningState.markedResponse
           ) {
             wasSuccessful = false
@@ -222,7 +222,7 @@ const handleMessage = async (
         if (wasSuccessful) {
           if (
             (runningState.options as GlobeTestOptions).executionMode ===
-              'http_single' &&
+              'httpSingle' &&
             runningState.testType === 'rest'
           ) {
             await restHandleSuccessSingle({
@@ -236,7 +236,7 @@ const handleMessage = async (
             })
           } else if (
             (runningState.options as GlobeTestOptions).executionMode ===
-              'http_multiple' &&
+              'httpMultiple' &&
             runningState.testType === 'rest'
           ) {
             await restHandleSuccessMultiple({

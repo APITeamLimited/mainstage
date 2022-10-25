@@ -9,6 +9,7 @@ import type { Map as YMap } from 'yjs'
 import {
   clearFocusedRESTResponse,
   focusedResponseVar,
+  updateFocusedRESTResponse,
 } from 'src/contexts/focused-response'
 import { useSimplebarReactModule, useYJSModule } from 'src/contexts/imports'
 import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
@@ -165,6 +166,27 @@ export const ResponseHistory = ({
     const restResponse = restResponsesYMap.get(responseId) as YMap<any>
     clearFocusedRESTResponse(focusedElementDict, restResponse)
     deleteRestResponse([restResponse])
+
+    const focusedRequestId = focusedElementDict[
+      getFocusedElementKey(collectionYMap)
+    ]?.get('id') as string | undefined
+
+    if (!focusedRequestId) {
+      return
+    }
+
+    // Set focused response to the next most recent response
+    const responses = (Array.from(restResponsesYMap.values()) as YMap<any>[])
+      .filter((response) => response.get('parentId') === focusedRequestId)
+      .sort((a, b) => {
+        const aDate = new Date(a.get('createdAt'))
+        const bDate = new Date(b.get('createdAt'))
+        return bDate.getTime() - aDate.getTime()
+      })
+
+    if (responses.length > 0) {
+      updateFocusedRESTResponse(focusedResponseDict, responses[0])
+    }
   }
 
   const handleDeleteAllResponses = () => {
