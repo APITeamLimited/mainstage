@@ -4,6 +4,7 @@ import { Workspace } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 import CheckIcon from '@mui/icons-material/Check'
+import GroupIcon from '@mui/icons-material/Group'
 import {
   Box,
   MenuItem,
@@ -176,7 +177,16 @@ export const WorkspaceSwitcherPopover = ({
                               width: '25px',
                               height: '25px',
                             }}
-                          />
+                          >
+                            {scope.variant === 'TEAM' && (
+                              <SvgIcon
+                                component={GroupIcon}
+                                sx={{
+                                  fontSize: '20px',
+                                }}
+                              />
+                            )}
+                          </Avatar>
                           <Typography
                             fontWeight={isActive ? 'bold' : 'normal'}
                             sx={{

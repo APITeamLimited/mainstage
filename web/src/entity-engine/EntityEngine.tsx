@@ -146,8 +146,10 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const [inApp, setInApp] = useState(pathname.startsWith('/app/'))
 
   useEffect(() => {
-    entityEngineStatusVar(socketioSyncStatus)
-  }, [socketioSyncStatus])
+    if (socketioSyncStatus === 'connected' && activeWorkspace?.scope) {
+      entityEngineStatusVar(socketioSyncStatus)
+    }
+  }, [socketioSyncStatus, activeWorkspace])
 
   useEffect(() => {
     // Check if pathname starts with '/app/'

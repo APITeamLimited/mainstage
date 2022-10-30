@@ -29,6 +29,5 @@ export const schema = gql`
 
   type Query {
     scopes: [Scope!]! @requireAuth
-    scope(id: ID!): Scope @requireAuth
   }
 `

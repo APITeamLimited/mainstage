@@ -1,5 +1,6 @@
 import { SafeUser } from '@apiteam/types'
 import { Membership } from '@prisma/client'
+import { url as gravatarUrl } from 'gravatar'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
 
@@ -33,6 +34,12 @@ export const memberships = async ({ teamId }: { teamId: string }) => {
 
   return memberships.map((membership) => {
     const user = users.find((user) => user.id === membership.userId)
+
+    if (user && !user.profilePicture) {
+      user.profilePicture = gravatarUrl(user.email, {
+        default: 'mp',
+      })
+    }
 
     return {
       ...membership,

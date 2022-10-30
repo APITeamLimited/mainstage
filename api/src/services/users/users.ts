@@ -1,4 +1,5 @@
 import { User } from '@prisma/client'
+import { url as gravatarUrl } from 'gravatar'
 
 import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
@@ -87,6 +88,15 @@ export const teamUser = async ({
     throw `User does not exist with id '${id}' in team '${teamId}'`
   }
 
+  if (!user.profilePicture) {
+    return {
+      ...user,
+      profilePicture: gravatarUrl(user.email, {
+        default: 'mp',
+      }),
+    }
+  }
+
   return user
 }
 
@@ -102,11 +112,22 @@ export const currentUser = async () => {
     `user__id:${context.currentUser.id}`
   )
 
-  if (userRedisRaw) {
-    return JSON.parse(userRedisRaw) as User
+  if (!userRedisRaw) {
+    throw new ServiceValidationError(
+      'User profile not found. Please log out and log back in.'
+    )
   }
 
-  throw new ServiceValidationError(
-    'User profile not found. Please log out and log back in.'
-  )
+  const user = JSON.parse(userRedisRaw) as User
+
+  if (!user.profilePicture) {
+    return {
+      ...user,
+      profilePicture: gravatarUrl(user.email, {
+        default: 'mp',
+      }),
+    }
+  }
+
+  return user
 }

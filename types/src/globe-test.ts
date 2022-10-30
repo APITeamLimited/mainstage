@@ -3,6 +3,7 @@ import type { RequestBody, ResponseType, RefinedParams } from 'k6/http'
 import { Options as K6Options } from 'k6/options'
 
 import { RESTRequest } from './entities'
+import { GraphSeries } from './graph'
 
 export interface K6RequestConfig<RT extends ResponseType | undefined> {
   method: string
@@ -86,11 +87,26 @@ type InnerMetric = {
 
 export type MetricsCombination = {
   messageType: 'METRICS'
-  message: {
-    global: Record<string, InnerMetric>
-    [loadZone: string]: Record<string, InnerMetric>
-  }
+  message: LoadDistribution
 }
+
+export const BUILT_IN_METRICS = [
+  'data_received',
+  'data_sent',
+  'http_req_blocked',
+  'http_req_connecting',
+  'http_req_duration',
+  'http_req_failed',
+  'http_req_receiving',
+  'http_req_sending',
+  'http_req_tls_handshaking',
+  'http_req_waiting',
+  'http_reqs',
+  'iteration_duration',
+  'iterations',
+  'vus',
+  'vus_max',
+] as const
 
 type MessageCombination =
   | {
@@ -207,6 +223,22 @@ export type ResolvedVariable = {
   value: string
 } | null
 
+type LoadDistribution = {
+  global: Record<string, InnerMetric>
+  [loadZone: string]: Record<string, InnerMetric>
+}
+
+type GraphConfig = {
+  name: string
+  description?: string
+  series: GraphSeries[]
+  desiredWidth: number
+}
+
 export type GlobeTestOptions = Omit<K6Options, 'noUsageReport' | 'linger'> & {
   executionMode: 'httpSingle' | 'httpMultiple'
+  loadDistribution: LoadDistribution
+  outputConfig: {
+    graphs: GraphConfig[]
+  } | null
 }

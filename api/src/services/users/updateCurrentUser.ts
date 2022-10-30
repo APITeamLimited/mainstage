@@ -1,3 +1,5 @@
+import { url as gravatarUrl } from 'gravatar'
+
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { setUserRedis } from 'src/helpers'
@@ -72,6 +74,15 @@ export const updateCurrentUser = async ({
   await setUserRedis(updatedUser)
 
   console.log('updatedUser', updatedUser)
+
+  if (!updatedUser.profilePicture) {
+    return {
+      ...updatedUser,
+      profilePicture: gravatarUrl(updatedUser.email, {
+        default: 'mp',
+      }),
+    }
+  }
 
   return updatedUser
 }

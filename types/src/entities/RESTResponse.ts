@@ -1,6 +1,8 @@
 import { Response } from 'k6/http'
+import type { Map as YMap } from 'yjs'
 
 import { DefaultMetrics, GlobeTestMessage, RESTRequest, StoredObject } from '..'
+import { Graph } from '../graph'
 
 export type LoadingResult = {
   __subtype: 'LoadingResponse'
@@ -25,6 +27,7 @@ export type SuccessMultipleResult = {
   globeTestLogs: StoredObject<GlobeTestMessage[]>
   metrics: StoredObject<DefaultMetrics>
   options: Record<string, unknown>
+  graphs?: YMap<Graph>
 }
 
 export type FailureResult = {

@@ -224,10 +224,21 @@ are independent of the theme. */
   border-radius: 0px;
 }
 
+.simplebar-track.simplebar-vertical .simplebar-scrollbar {
+  bottom: auto;
+  top: 0;
+  width: 5px;
+  max-width: 5px;
+  min-height: 10px;
+  border-radius: 0px;
+}
+
 /* Rtl support */
 [data-simplebar-direction='rtl'] .simplebar-track.simplebar-vertical {
   right: auto;
   left: 0;
+  width: 5px;
+  max-width: 5px !important;
 }
 
 .hs-dummy-scrollbar-size {

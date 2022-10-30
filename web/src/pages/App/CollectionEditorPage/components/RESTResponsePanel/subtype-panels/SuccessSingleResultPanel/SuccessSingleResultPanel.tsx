@@ -13,6 +13,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../../PanelLayout'
+import { StatsSkeleton } from '../../../stats'
 import { ExecutionPanel } from '../../ExecutionPanel'
 import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
 import { FocusedResponsePanel } from '../../FocusedResponsePanel/FocusedResponsePanel'
@@ -192,22 +193,15 @@ export const SuccessSingleResultPanel = ({
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
       aboveTabsArea={
-        <Box
-          sx={{
-            maxHeight: '18.38px',
-            minHeight: '18.38px',
-          }}
-        >
-          {singleStats ? (
-            <QuickSuccessSingleStats
-              statusCode={singleStats.statusCode}
-              responseTimeMilliseconds={singleStats.responseDuration}
-              responseSizeBytes={singleStats.responseSize}
-            />
-          ) : (
-            <Skeleton />
-          )}
-        </Box>
+        singleStats ? (
+          <QuickSuccessSingleStats
+            statusCode={singleStats.statusCode}
+            responseTimeMilliseconds={singleStats.responseDuration}
+            responseSizeBytes={singleStats.responseSize}
+          />
+        ) : (
+          <StatsSkeleton count={3} />
+        )
       }
     >
       {activeTabIndex === 0 &&

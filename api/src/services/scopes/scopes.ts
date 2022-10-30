@@ -1,7 +1,8 @@
-import { ensureCorrectType, SafeUser } from '@apiteam/types'
+import { SafeUser } from '@apiteam/types'
 import { Scope } from '@prisma/client'
+import { url as gravatarUrl } from 'gravatar'
 
-import { ServiceValidationError, validateWith } from '@redwoodjs/api'
+import { ServiceValidationError } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
@@ -29,29 +30,21 @@ export const scopes = async () => {
   const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
 
   return Object.values(rawScopes).map((rawScope) => {
-    return JSON.parse(rawScope) as Scope
+    const scope = JSON.parse(rawScope) as Scope
+
+    return determineGravatar(scope, user.email)
   })
 }
 
-/*
-Gets a single scope by id from cache, must be called by the current user.
-*/
-export const scope = async ({ id }: { id: string }) => {
-  if (!context.currentUser) {
-    throw new ServiceValidationError(
-      'You must be logged in to access this resource.'
-    )
+const determineGravatar = (scope: Scope, email: string) => {
+  if (scope.variant === 'USER') {
+    return {
+      ...scope,
+      profilePicture: gravatarUrl(email, {
+        default: 'mp',
+      }),
+    }
   }
 
-  if (!context?.currentUser?.id) throw 'Unexpected error'
-
-  const redisScopeRaw = ensureCorrectType(
-    await coreCacheReadRedis.get(`scope__id:${id}`)
-  )
-  if (!redisScopeRaw) return null
-
-  const redisScope = JSON.parse(redisScopeRaw) as Scope
-
-  if (redisScope.userId !== context.currentUser.id) return null
-  return redisScope
+  return scope
 }

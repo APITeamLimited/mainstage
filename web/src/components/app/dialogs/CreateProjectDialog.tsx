@@ -19,6 +19,7 @@ import * as Yup from 'yup'
 import { useYJSModule } from 'src/contexts/imports'
 import { useWorkspace } from 'src/entity-engine'
 import { createProject } from 'src/entity-engine/creators'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 type CreateProjectDialogState = {
@@ -57,6 +58,8 @@ export const CreateProjectDialog = () => {
     },
   })
 
+  const workspaceInfo = useWorkspaceInfo()
+
   if (!workspace) {
     return <></>
   }
@@ -73,7 +76,8 @@ export const CreateProjectDialog = () => {
         <DialogContent>
           <Stack spacing={2} sx={{ my: 2 }}>
             <Typography variant="body1">
-              Create a new project for your workspace
+              Create a new project for your{' '}
+              {workspaceInfo?.isTeam ? "team's" : 'personal'} workspace
             </Typography>
             <TextField
               id="name"
@@ -89,9 +93,6 @@ export const CreateProjectDialog = () => {
               error={Boolean(formik.touched.name && formik.errors.name)}
               helperText={formik.touched.name && formik.errors.name}
             />
-            <Divider variant="middle" />
-            <FormLabel>Access Options</FormLabel>
-            <Typography variant="body1">Unimplemented</Typography>
           </Stack>
         </DialogContent>
         <DialogActions>

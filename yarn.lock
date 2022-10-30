@@ -75,9 +75,11 @@ __metadata:
     "@redwoodjs/graphql-server": ^3.0.3
     "@sendgrid/mail": ^7.7.0
     "@types/extract-domain": ^2.3.1
+    "@types/gravatar": ^1.8.3
     "@types/nodemailer": ^6.4.5
     "@types/yargs": ^17.0.12
     extract-domain: ^2.4.8
+    gravatar: ^1.8.2
     nodemailer: ^6.7.8
     yup: ^0.32.11
   languageName: unknown
@@ -193,6 +195,7 @@ __metadata:
     memoize-one: ^6.0.0
     mime-types: ^2.1.35
     monaco-editor-webpack-plugin: ^7.0.1
+    mui-color: ^2.0.0-beta.2
     mui-markdown: ^0.5.5
     oas-validator: ^5.0.8
     postman-collection: ^4.1.5
@@ -9144,6 +9147,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/gravatar@npm:^1.8.3":
+  version: 1.8.3
+  resolution: "@types/gravatar@npm:1.8.3"
+  checksum: 2e4cd7691083b0fd687b5e36e822662515a8738f6e4542e92ee07fb2f277b0ce2fb9eccc5f548a1292fdd1e081eb15ee7b0a31982e401105efa58c1ed17faf94
+  languageName: node
+  linkType: hard
+
 "@types/har-format@npm:*":
   version: 1.2.8
   resolution: "@types/har-format@npm:1.2.8"
@@ -12273,6 +12283,13 @@ __metadata:
   version: 3.7.2
   resolution: "bluebird@npm:3.7.2"
   checksum: 680de03adc54ff925eaa6c7bb9a47a0690e8b5de60f4792604aae8ed618c65e6b63a7893b57ca924beaf53eee69c5af4f8314148c08124c550fe1df1add897d2
+  languageName: node
+  linkType: hard
+
+"blueimp-md5@npm:^2.16.0":
+  version: 2.19.0
+  resolution: "blueimp-md5@npm:2.19.0"
+  checksum: 85d04343537dd99a288c62450341dcce7380d3454c81f8e5a971ddd80307d6f9ef51b5b92ad7d48aaaa92fd6d3a1f6b2f4fada068faae646887f7bfabc17a346
   languageName: node
   linkType: hard
 
@@ -15761,6 +15778,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"email-validator@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "email-validator@npm:2.0.4"
+  checksum: 580ac50374b006805589cad39b3ed2a016b95e625072f507bfa8fba2d405ba25ffe6686c3f4b06f73380da2106041415387c0dee5b06709d03e56d94013205b1
+  languageName: node
+  linkType: hard
+
 "emittery@npm:^0.10.2":
   version: 0.10.2
   resolution: "emittery@npm:0.10.2"
@@ -15941,11 +15965,13 @@ __metadata:
   dependencies:
     "@apiteam/types": "*"
     "@apollo/client": ^3.6.9
+    "@types/gravatar": ^1.8.3
     "@types/jsonwebtoken": ^8.5.8
     "@types/node": ^18.0.6
     "@types/ws": ^8.5.3
     colorterm: ^1.0.0
     config: ^3.3.7
+    gravatar: ^1.8.2
     ioredis: ^5.2.2
     jsonwebtoken: ^8.5.1
     lib0: ^0.2.51
@@ -18817,6 +18843,20 @@ __metadata:
   version: 16.6.0
   resolution: "graphql@npm:16.6.0"
   checksum: 3a2c15ff58b69d017618d2b224fa6f3c4a7937e1f711c3a5e0948db536b4931e6e649560b53de7cc26735e027ceea6e2d0a6bb7c29fc4639b290313e3aa71618
+  languageName: node
+  linkType: hard
+
+"gravatar@npm:^1.8.2":
+  version: 1.8.2
+  resolution: "gravatar@npm:1.8.2"
+  dependencies:
+    blueimp-md5: ^2.16.0
+    email-validator: ^2.0.4
+    querystring: 0.2.0
+    yargs: ^15.4.1
+  bin:
+    gravatar: cli.js
+  checksum: a28c320f5c55805d851d140c138aa6f450b5c444bfaf3a42f5477d39b589f2fd367604fee11e39b74d32341067c2afa67bf1f18383d8c5268e417d2618f715d0
   languageName: node
   linkType: hard
 
@@ -23854,6 +23894,22 @@ __metadata:
   bin:
     msw: cli/index.js
   checksum: 186d6f102ad385da9f8175d4824e8ee490a435eb1d9dd27aef5a5432830cbdd1ae849049970c12dc3d197c613a89e6d4e520f8574cf73883678021a3f955c841
+  languageName: node
+  linkType: hard
+
+"mui-color@npm:^2.0.0-beta.2":
+  version: 2.0.0-beta.2
+  resolution: "mui-color@npm:2.0.0-beta.2"
+  peerDependencies:
+    "@emotion/react": ^11.5.0
+    "@emotion/styled": ^11.3.0
+    "@mui/material": ^5.2.2
+    "@mui/styles": ^5.2.2
+    material-ui-popup-state: ^1.5.3
+    prop-types: ^15.7.2
+    react: ^16.0.0 || ^17.0.0
+    react-dom: ^16.0.0 || ^17.0.0
+  checksum: b8d27920182d6ee073f4320d773400e573f1c9ccf6385995428c6a3c39058d589b184bb1a852d5a06e8f63908b2e4be1a11c4fb8f4f360554d9850987ba981f2
   languageName: node
   linkType: hard
 
@@ -33604,7 +33660,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs@npm:^15.3.1":
+"yargs@npm:^15.3.1, yargs@npm:^15.4.1":
   version: 15.4.1
   resolution: "yargs@npm:15.4.1"
   dependencies:

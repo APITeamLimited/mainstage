@@ -1,7 +1,9 @@
 import { useMemo } from 'react'
 
-import { Typography, Stack, useTheme } from '@mui/material'
+import { Typography, Grid, useTheme } from '@mui/material'
 import { getReasonPhrase } from 'http-status-codes'
+
+import { StatsItem } from '../../../stats'
 
 type QuickStatsProps = {
   statusCode: number
@@ -21,8 +23,13 @@ export const QuickSuccessSingleStats = ({
   const responseTime = useMemo(
     () =>
       responseTimeMilliseconds < 1000
-        ? `${responseTimeMilliseconds.toFixed(0)} ms`
-        : `${(responseTimeMilliseconds / 1000).toFixed(2)} s`,
+        ? responseTimeMilliseconds.toFixed(0)
+        : (responseTimeMilliseconds / 1000).toFixed(2),
+    [responseTimeMilliseconds]
+  )
+
+  const responseTimeUnits = useMemo(
+    () => (responseTimeMilliseconds < 1000 ? 'ms' : 's'),
     [responseTimeMilliseconds]
   )
 
@@ -41,90 +48,40 @@ export const QuickSuccessSingleStats = ({
   const responseSize = useMemo(
     () =>
       responseSizeBytes < 1024
-        ? `${responseSizeBytes} B`
+        ? responseSizeBytes.toString()
         : responseSizeBytes < 1048576
-        ? `${(responseSizeBytes / 1024).toFixed(2)} KB`
-        : `${(responseSizeBytes / 1048576).toFixed(2)} MB`,
+        ? (responseSizeBytes / 1024).toFixed(2)
+        : (responseSizeBytes / 1048576).toFixed(2),
+    [responseSizeBytes]
+  )
+
+  const responseSizeUnits = useMemo(
+    () =>
+      responseSizeBytes < 1024
+        ? 'B'
+        : responseSizeBytes < 1048576
+        ? 'KB'
+        : 'MB',
     [responseSizeBytes]
   )
 
   return (
-    <Stack spacing={2} direction="row">
-      <Typography
-        variant="body2"
-        color={statusCodeColor}
-        fontWeight="bold"
-        sx={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        <span
-          style={{
-            userSelect: 'none',
-          }}
-        >
-          <span
-            style={{
-              color: theme.palette.text.primary,
-            }}
-          >
-            Status:{' '}
-          </span>
-          {statusCode} {reasonPhrase}
-        </span>
-      </Typography>
-      <Typography
-        variant="body2"
-        color={statusCodeColor}
-        fontWeight="bold"
-        sx={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        <span
-          style={{
-            userSelect: 'none',
-          }}
-        >
-          <span
-            style={{
-              color: theme.palette.text.primary,
-            }}
-          >
-            Response Time:{' '}
-          </span>
-          {responseTime}
-        </span>
-      </Typography>
-      <Typography
-        variant="body2"
-        color={statusCodeColor}
-        fontWeight={600}
-        sx={{
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        <span
-          style={{
-            userSelect: 'none',
-          }}
-        >
-          <span
-            style={{
-              color: theme.palette.text.primary,
-            }}
-          >
-            Response Size:{' '}
-          </span>
-          {responseSize}
-        </span>
-      </Typography>
-    </Stack>
+    <Grid container spacing={2}>
+      <StatsItem
+        name="Status"
+        value={`${statusCode} ${reasonPhrase}`}
+        valueColor={statusCodeColor}
+      />
+      <StatsItem
+        name="Response Time"
+        value={responseTime}
+        units={responseTimeUnits}
+      />
+      <StatsItem
+        name="Response Size"
+        value={responseSize}
+        units={responseSizeUnits}
+      />
+    </Grid>
   )
 }

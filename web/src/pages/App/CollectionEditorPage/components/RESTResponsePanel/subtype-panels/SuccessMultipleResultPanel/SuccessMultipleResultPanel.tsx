@@ -120,7 +120,6 @@ export const SuccessMultipleResultPanel = ({
   const aboveTabsArea = useMemo(
     () => (
       <LoadTestSummaryPanel
-        key={`${storedMetrics?.length}-${focusedResponse.get('id')}`}
         metrics={
           (storedMetrics && storedMetrics?.length > 0
             ? storedMetrics
@@ -134,6 +133,12 @@ export const SuccessMultipleResultPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [focusedResponseHook, storedMetrics]
   )
+
+  useEffect(() => {
+    if (activeTabIndex === 0) {
+      setActionArea(null)
+    }
+  }, [activeTabIndex])
 
   return (
     <PanelLayout

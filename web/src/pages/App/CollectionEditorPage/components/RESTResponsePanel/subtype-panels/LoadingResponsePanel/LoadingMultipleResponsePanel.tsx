@@ -58,8 +58,8 @@ export const LoadingMultipleResponsePanel = ({
   useEffect(() => {
     // Every second, flush the buffers into the state
     const interval = setInterval(() => {
-      setGlobeTestLogs(globeTestLogsBuffer.current)
-      setMetrics(metricsBuffer.current)
+      setGlobeTestLogs([...globeTestLogsBuffer.current])
+      setMetrics([...metricsBuffer.current])
     }, 1000)
 
     return () => clearInterval(interval)
@@ -107,6 +107,12 @@ export const LoadingMultipleResponsePanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])
 
+  useEffect(() => {
+    if (activeTabIndex === 0) {
+      setActionArea(null)
+    }
+  }, [activeTabIndex])
+
   return (
     <>
       <SendingRequestAnimation />
@@ -117,7 +123,6 @@ export const LoadingMultipleResponsePanel = ({
         actionArea={actionArea}
         aboveTabsArea={
           <LoadTestSummaryPanel
-            key={`${metrics.length}-${focusedResponse.get('id')}`}
             metrics={
               metrics as unknown as
                 | (GlobeTestMessage & MetricsCombination)[]

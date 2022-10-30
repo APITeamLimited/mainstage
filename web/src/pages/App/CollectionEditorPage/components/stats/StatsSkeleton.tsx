@@ -1,12 +1,10 @@
 import { Skeleton, Grid } from '@mui/material'
 
-type MetricsOverviewStatsSkeletonProps = {
+type StatsSkeletonProps = {
   count?: number
 }
 
-export const MetricsOverviewStatsSkeleton = (
-  { count = 4 }: MetricsOverviewStatsSkeletonProps = { count: 3 }
-) => {
+export const StatsSkeleton = ({ count = 4 }: StatsSkeletonProps) => {
   return (
     <Grid container spacing={2}>
       {Array.from({ length: count }).map((_, index) => (

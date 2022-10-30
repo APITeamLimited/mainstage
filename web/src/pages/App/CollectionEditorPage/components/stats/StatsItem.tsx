@@ -7,24 +7,24 @@ import {
   TypographyProps,
 } from '@mui/material'
 
-type MetricsOverviewItemProps = {
+type StatsItemProps = {
   name: string
   value: string
   valueColor?: TypographyProps['color']
   units?: string
 }
 
-export const MetricsOverviewItem = ({
+export const StatsItem = ({
   name,
   value,
   valueColor,
   units,
-}: MetricsOverviewItemProps) => {
+}: StatsItemProps) => {
   const theme = useTheme()
 
   return (
     <Grid item>
-      <Card sx={{ p: 2 }}>
+      <Card sx={{ p: 2 }} variant="outlined">
         <Stack spacing={1}>
           <Typography variant="body2" color={theme.palette.text.secondary}>
             {name}:

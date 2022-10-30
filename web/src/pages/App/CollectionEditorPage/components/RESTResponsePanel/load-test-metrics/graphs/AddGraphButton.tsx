@@ -9,10 +9,10 @@ import {
 } from '.'
 
 type AddGraphButtonProps = {
-  onOpenMenu: () => void
+  onOpenCreateDialog: () => void
 }
 
-export const AddGraphButton = ({ onOpenMenu }: AddGraphButtonProps) => {
+export const AddGraphButton = ({ onOpenCreateDialog }: AddGraphButtonProps) => {
   return (
     <Grid
       item
@@ -23,14 +23,15 @@ export const AddGraphButton = ({ onOpenMenu }: AddGraphButtonProps) => {
       <Button
         color="primary"
         variant="outlined"
-        onClick={onOpenMenu}
+        onClick={onOpenCreateDialog}
+        endIcon={<AddCircleOutlineTwoToneIcon />}
         sx={{
           height: GRAPH_HEIGHT,
           margin: 0,
           width: '100%',
+          borderStyle: 'dashed',
         }}
       >
-        <AddCircleOutlineTwoToneIcon sx={{ fontSize: 60 }} />
         Add Graph
       </Button>
     </Grid>

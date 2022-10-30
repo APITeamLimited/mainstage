@@ -38,77 +38,20 @@ export const APITeamLogo = ({
           transform="translate(0 0)"
         >
           <g
-            id="path180658"
+            id="path180648"
             aria-label="A"
-            transform="translate(0 302.99833128) translate(243.79438309999995 39.90643344) scale(1.14) translate(-583.50195 72.096904)"
+            transform="translate(0 302.99833128) translate(243.79 40.016904) scale(1.14) translate(-273.42382 72)"
           >
-            <polygon
+            <path
               className="c1"
-              points="90.96389,80.26048 100.55395,97.52252 121.92904,136 139.99039,136 109.58989,81.26211 99.99983,64 "
-              transform="translate(523.49267 -136.096904)"
+              d="M139.99072,136H121.9292l-21.375-38.47742L79.18945,136H60.00928l30.95459-55.7395L100,64l9.58984,17.26221 L139.99072,136z"
+              transform="translate(213.41454 -136)"
               strokeWidth="0"
               strokeLinejoin="miter"
               strokeMiterlimit="2"
               fill={theme.palette.text.primary}
               stroke={theme.palette.text.primary}
-            ></polygon>
-            <linearGradient
-              id="e2157aab-a0db-4697-b873-41910ca2577c"
-              gradientUnits="userSpaceOnUse"
-              x1="127.32748"
-              y1="113.82432"
-              x2="91.08822"
-              y2="83.20757"
-            >
-              <stop
-                offset="0"
-                style={{
-                  stopColor: theme.palette.text.primary,
-                  stopOpacity: 0,
-                }}
-              ></stop>
-              <stop
-                offset="0.23462"
-                style={{
-                  stopColor: theme.palette.text.primary,
-                  stopOpacity: 0.29264,
-                }}
-              ></stop>
-              <stop
-                offset="0.52244"
-                style={{
-                  stopColor: theme.palette.text.primary,
-                  stopOpacity: 0.65165,
-                }}
-              ></stop>
-              <stop
-                offset="0.72155"
-                style={{
-                  stopColor: theme.palette.text.primary,
-                  stopOpacity: 0.9,
-                }}
-              ></stop>
-            </linearGradient>
-            <polygon
-              className="highlight"
-              fill="url(#e2157aab-a0db-4697-b873-41910ca2577c)"
-              points="90.96389,80.26048 100.55395,97.52252 121.92904,136 139.99039,136 109.58989,81.26211 99.99983,64 "
-              transform="translate(523.49267 -136.096904)"
-              strokeWidth="0"
-              strokeLinejoin="miter"
-              strokeMiterlimit="2"
-              opacity="0.66"
-            ></polygon>
-            <polygon
-              className="c2"
-              points="60.00928,136 79.18938,136 100.55395,97.52252 109.58989,81.26211 99.99983,64 90.96389,80.26048 "
-              transform="translate(523.49267 -136.096904)"
-              strokeWidth="0"
-              strokeLinejoin="miter"
-              strokeMiterlimit="2"
-              stroke={accentColor}
-              fill={accentColor}
-            ></polygon>
+            ></path>
           </g>
           <g
             id="path180650"
@@ -176,21 +119,79 @@ export const APITeamLogo = ({
               ></path>
             </g>
             <g
-              id="path180648"
+              id="path180658"
               aria-label="A"
-              transform="translate(0 302.99833128) translate(597.2834513 40.016904) scale(1.14) translate(-273.42382 72)"
+              transform="translate(0 302.99833128) translate(597.28 39.90643344) scale(1.14) translate(-583.50195 72.096904)"
             >
-              <path
+              <polygon
                 className="c1"
-                d="M139.99072,136H121.9292l-21.375-38.47742L79.18945,136H60.00928l30.95459-55.7395L100,64l9.58984,17.26221 L139.99072,136z"
-                transform="translate(213.41454 -136)"
+                points="90.96389,80.26048 100.55395,97.52252 121.92904,136 139.99039,136 109.58989,81.26211 99.99983,64 "
+                transform="translate(523.49267 -136.096904)"
                 strokeWidth="0"
                 strokeLinejoin="miter"
                 strokeMiterlimit="2"
                 fill={theme.palette.text.primary}
                 stroke={theme.palette.text.primary}
-              ></path>
+              ></polygon>
+              <linearGradient
+                id="e2157aab-a0db-4697-b873-41910ca2577c"
+                gradientUnits="userSpaceOnUse"
+                x1="127.32748"
+                y1="113.82432"
+                x2="91.08822"
+                y2="83.20757"
+              >
+                <stop
+                  offset="0"
+                  style={{
+                    stopColor: theme.palette.text.primary,
+                    stopOpacity: 0,
+                  }}
+                ></stop>
+                <stop
+                  offset="0.23462"
+                  style={{
+                    stopColor: theme.palette.text.primary,
+                    stopOpacity: 0.29264,
+                  }}
+                ></stop>
+                <stop
+                  offset="0.52244"
+                  style={{
+                    stopColor: theme.palette.text.primary,
+                    stopOpacity: 0.65165,
+                  }}
+                ></stop>
+                <stop
+                  offset="0.72155"
+                  style={{
+                    stopColor: theme.palette.text.primary,
+                    stopOpacity: 0.9,
+                  }}
+                ></stop>
+              </linearGradient>
+              <polygon
+                className="highlight"
+                fill="url(#e2157aab-a0db-4697-b873-41910ca2577c)"
+                points="90.96389,80.26048 100.55395,97.52252 121.92904,136 139.99039,136 109.58989,81.26211 99.99983,64 "
+                transform="translate(523.49267 -136.096904)"
+                strokeWidth="0"
+                strokeLinejoin="miter"
+                strokeMiterlimit="2"
+                opacity="0.66"
+              ></polygon>
+              <polygon
+                className="c2"
+                points="60.00928,136 79.18938,136 100.55395,97.52252 109.58989,81.26211 99.99983,64 90.96389,80.26048 "
+                transform="translate(523.49267 -136.096904)"
+                strokeWidth="0"
+                strokeLinejoin="miter"
+                strokeMiterlimit="2"
+                stroke={accentColor}
+                fill={accentColor}
+              ></polygon>
             </g>
+
             <g
               id="path180660"
               aria-label="M"

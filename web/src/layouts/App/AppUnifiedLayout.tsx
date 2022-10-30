@@ -13,9 +13,13 @@ import {
   Lib0ModuleProvider,
   HashSumModuleProvider,
   SimplebarReactModuleProvider,
+  ApexChartsModuleProvider,
 } from 'src/contexts/imports'
 import { YJSModuleProvider } from 'src/contexts/imports'
-import { entityEngineStatusVar } from 'src/entity-engine/EntityEngine'
+import {
+  entityEngineStatusVar,
+  useWorkspaceInfo,
+} from 'src/entity-engine/EntityEngine'
 
 import {
   FooterSplash,
@@ -24,7 +28,6 @@ import {
 
 import { AppLayoutBase } from './AppLayoutBase'
 import { LoadingScreen } from './components/LoadingScreen'
-import { OnDashboardWrapper } from './components/OnDashboardWrapper'
 import { TopBarDashboard } from './components/TopBarDashboard'
 import { TopNavApp } from './components/TopNavApp'
 
@@ -43,6 +46,8 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [displayLoading, setDisplayLoading] = useState(true)
 
+  const workspaceInfo = useWorkspaceInfo()
+
   useEffect(() => {
     let loaded =
       loadedImports &&
@@ -54,7 +59,7 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
     }
 
     setIsLoading(!loaded)
-  }, [loadedImports, entityEngineStatus, isLoading])
+  }, [loadedImports, entityEngineStatus, isLoading, workspaceInfo])
 
   useEffect(() => {
     if (isLoading) {
@@ -80,6 +85,8 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('hash-sum'),
         import('simplebar-react'),
         import('@monaco-editor/react'),
+        import('react-apexcharts'),
+        import('yjs'),
 
         new Promise((resolve) => {
           import('@monaco-editor/loader').then((module) => {
@@ -121,24 +128,26 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
           <SimplebarReactModuleProvider>
             <YJSModuleProvider>
               <DnDModuleProvider>
-                <AppLayoutBase
-                  topNav={<TopNavApp />}
-                  appBar={onDashboard ? <TopBarDashboard /> : undefined}
-                  footer={
-                    onDashboard
-                      ? {
-                          element: <FooterSplash />,
-                          height: {
-                            xs: FOOTER_SPASH_HEIGHT.xs,
-                            md: FOOTER_SPASH_HEIGHT.md,
-                          },
-                        }
-                      : undefined
-                  }
-                  onDashboard={onDashboard}
-                >
-                  {children}
-                </AppLayoutBase>
+                <ApexChartsModuleProvider>
+                  <AppLayoutBase
+                    topNav={<TopNavApp />}
+                    appBar={onDashboard ? <TopBarDashboard /> : undefined}
+                    footer={
+                      onDashboard
+                        ? {
+                            element: <FooterSplash />,
+                            height: {
+                              xs: FOOTER_SPASH_HEIGHT.xs,
+                              md: FOOTER_SPASH_HEIGHT.md,
+                            },
+                          }
+                        : undefined
+                    }
+                    onDashboard={onDashboard}
+                  >
+                    {children}
+                  </AppLayoutBase>
+                </ApexChartsModuleProvider>
               </DnDModuleProvider>
             </YJSModuleProvider>
           </SimplebarReactModuleProvider>

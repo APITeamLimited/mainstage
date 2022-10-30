@@ -27,6 +27,7 @@ export const EmptyPanelMessage = ({
         maxWidth: '100%',
         overflow: 'hidden',
         userSelect: 'none',
+        minHeight: '200px',
       }}
     >
       {icon}

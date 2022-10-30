@@ -21,7 +21,7 @@ import {
   useWorkspaceInfo,
 } from 'src/entity-engine/EntityEngine'
 
-import { TeamOverviewPopover } from './TeamOverviewPopover'
+import { WorkspaceOverviewPopover } from './WorkspaceOverviewPopover'
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
 
 export const WorkspaceSwitcher = () => {
@@ -182,7 +182,7 @@ export const WorkspaceSwitcher = () => {
         onClose={() => setWorkspaceSwitcherOpen(false)}
         open={workspaceSwitcherOpen}
       />
-      <TeamOverviewPopover
+      <WorkspaceOverviewPopover
         anchorEl={teamOverviewAnchorRef.current}
         onClose={() => setTeamOverviewOpen(false)}
         open={teamOverviewOpen}

@@ -3,6 +3,9 @@ import {
   RESTResponseBase,
   EntityEngineServersideMessages,
   LoadingResult,
+  GlobeTestOptions,
+  Graph,
+  GraphSeries,
 } from '@apiteam/types'
 import { Socket } from 'socket.io'
 import { v4 as uuid } from 'uuid'
@@ -117,6 +120,10 @@ export const restAddOptions = async (
   const responseYMap = await getResponseYMap()
 
   responseYMap.set('options', options)
+
+  if (options.executionMode === 'httpMultiple') {
+    configureGlobetestGraphs(responseYMap, options)
+  }
 }
 
 export const restHandleSuccessSingle = async (
@@ -298,4 +305,35 @@ export const restHandleFailure = async (
   }
 
   cleanupSocket(socket)
+}
+
+const configureGlobetestGraphs = async (
+  responseYMap: Y.Map<any>,
+  options: GlobeTestOptions
+) => {
+  if (!responseYMap.has('graphs')) {
+    responseYMap.set('graphs', new Y.Map<Graph>())
+  }
+
+  const graphsYMap = responseYMap.get('graphs') as Y.Map<Graph>
+
+  if (!options.outputConfig?.graphs) return
+
+  options.outputConfig.graphs.forEach((graphConfig) => {
+    const graph: Graph = {
+      __typename: 'Graph',
+      id: uuid(),
+      name: graphConfig.name,
+      description: graphConfig.description ?? undefined,
+      series: graphConfig.series.map((seriesConfig) => ({
+        name: seriesConfig.name,
+        metric: seriesConfig.metric,
+        kind: seriesConfig.kind,
+        color: seriesConfig.color,
+      })),
+      desiredWidth: graphConfig.desiredWidth as 1 | 2 | 3,
+    }
+
+    graphsYMap.set(graph.id, graph)
+  })
 }

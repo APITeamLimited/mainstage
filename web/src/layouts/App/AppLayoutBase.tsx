@@ -11,7 +11,6 @@ import {
 import { Head } from '@redwoodjs/web'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
-import { useSimplebarReactModule } from 'src/contexts/imports'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
 
@@ -44,16 +43,12 @@ export const AppLayoutBase = ({
   },
   onDashboard,
 }: AppLayoutProps) => {
-  const { default: SimpleBar } = useSimplebarReactModule()
-
   const theme = useTheme()
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 38,
   })
-
-  const simpleBarRef = useRef<SimpleBar>(null)
 
   return (
     <>

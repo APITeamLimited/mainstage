@@ -9,18 +9,20 @@
     "@redwoodjs/api-server": "^3.0.3",
     "@redwoodjs/graphql-server": "^3.0.3",
     "@sendgrid/mail": "^7.7.0",
-    "@types/nodemailer": "^6.4.5",
-    "@types/yargs": "^17.0.12",
     "extract-domain": "^2.4.8",
+    "gravatar": "^1.8.2",
     "nodemailer": "^6.7.8",
     "yup": "^0.32.11"
+  },
+  "devDependencies": {
+    "@types/extract-domain": "^2.3.1",
+    "@types/gravatar": "^1.8.3",
+    "@types/nodemailer": "^6.4.5",
+    "@types/yargs": "^17.0.12"
   },
   "scripts": {
     "install": "rw build api",
     "build": "rw build api",
     "start": "./start.sh"
-  },
-  "devDependencies": {
-    "@types/extract-domain": "^2.3.1"
   }
 }

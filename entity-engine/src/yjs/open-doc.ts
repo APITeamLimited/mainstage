@@ -8,6 +8,7 @@ import {
 } from '@apiteam/types'
 import { Team, Membership } from '@prisma/client'
 import { Scope } from '@prisma/client'
+import { url as gravatarUrl } from 'gravatar'
 import * as JWT from 'jsonwebtoken'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
@@ -282,6 +283,14 @@ export class OpenDoc extends Y.Doc {
           : []
 
       const users = usersRaw.map((u) => JSON.parse(u || '') as SafeUser)
+
+      users.forEach((user) => {
+        if (!user.profilePicture) {
+          user.profilePicture = gravatarUrl(user.email, {
+            default: 'mp',
+          })
+        }
+      })
 
       const lastOnlineTimes = [] as LastOnlineTime[]
 

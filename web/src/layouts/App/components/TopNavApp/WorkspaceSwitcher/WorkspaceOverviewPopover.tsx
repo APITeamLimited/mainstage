@@ -22,19 +22,19 @@ import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { CreateTeamDialog } from './CreateTeamDialog'
 import { OnlineDot } from './OnlineDot'
 
-interface TeamOverviewPopoverProps {
+interface WorkspaceOverviewPopoverProps {
   anchorEl: null | Element
   onClose: () => void
   open: boolean
   members: MemberAwareness[]
 }
 
-export const TeamOverviewPopover = ({
+export const WorkspaceOverviewPopover = ({
   anchorEl,
   onClose,
   open,
   members,
-}: TeamOverviewPopoverProps) => {
+}: WorkspaceOverviewPopoverProps) => {
   const theme = useTheme()
 
   const workspaceInfo = useWorkspaceInfo()

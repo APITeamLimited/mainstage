@@ -238,7 +238,7 @@ export const EnvironmentManager = ({
                     )
                   }
                   sx={{
-                    color: (theme) => theme.palette.grey[500],
+                    color: theme.palette.grey[500],
                   }}
                 >
                   <DeselectIcon />
@@ -249,7 +249,7 @@ export const EnvironmentManager = ({
               <IconButton
                 onClick={() => setShowCallback(false)}
                 sx={{
-                  color: (theme) => theme.palette.grey[500],
+                  color: theme.palette.grey[500],
                 }}
               >
                 <CloseIcon />

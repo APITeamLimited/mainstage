@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { GlobeTestMessage, MetricsCombination } from '@apiteam/types/src'
 import { Grid, useTheme } from '@mui/material'
 
-import { MetricsOverviewItem } from './MetricsOverviewItem'
+import { StatsItem } from '../../../stats'
 
 type MetricsStats = {
   totalRequests: string
@@ -89,23 +89,23 @@ export const MetricsOverviewStats = ({
 
   return (
     <Grid container spacing={2}>
-      <MetricsOverviewItem
+      <StatsItem
         name="Total Requests"
         value={stats.totalRequests}
         units="reqs"
       />
-      <MetricsOverviewItem
+      <StatsItem
         name="Failed Requests"
         value={stats.failedRequests}
         valueColor={theme.palette.error.main}
         units="reqs"
       />
-      <MetricsOverviewItem
+      <StatsItem
         name="Peak Requests"
         value={stats.peakRequests}
         units="reqs / second"
       />
-      <MetricsOverviewItem
+      <StatsItem
         name="Mean Duration"
         value={stats.meanDuration}
         units={stats.meanDurationUnits}

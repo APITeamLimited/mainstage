@@ -149,5 +149,29 @@ export const baseThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          fontWeight: 'bold',
+          borderBottom: '1px solid palette.divider',
+          userSelect: 'none',
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          paddingTop: 0,
+          paddingLeft: '1.125rem',
+          paddingRight: '1.125rem',
+          paddingBottom: '1.125rem',
+        },
+        spacing: {
+          '& > :not(:first-of-type)': {
+            marginLeft: '1.125rem',
+          },
+        },
+      },
+    },
   },
 }
