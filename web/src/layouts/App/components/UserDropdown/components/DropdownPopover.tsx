@@ -19,7 +19,7 @@ import { useAuth } from '@redwoodjs/auth'
 import { navigate, routes, useLocation } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
-import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceSwitcher/CreateTeamDialog'
+import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceOverview/CreateTeamDialog'
 
 import { CurrentUser } from './DropdownButton'
 
@@ -187,7 +187,7 @@ export const DropdownPopover = ({
                       </Stack>
                     </MenuItem>
                     <MenuItem onClick={handleNavigatePersonalSettings}>
-                      Personal Settings
+                      Personal Account Settings
                     </MenuItem>
                     <Divider />
                   </>

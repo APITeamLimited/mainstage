@@ -5,7 +5,6 @@ import {
   LoadingResult,
   GlobeTestOptions,
   Graph,
-  GraphSeries,
 } from '@apiteam/types'
 import { Socket } from 'socket.io'
 import { v4 as uuid } from 'uuid'

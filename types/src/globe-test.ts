@@ -242,3 +242,11 @@ export type GlobeTestOptions = Omit<K6Options, 'noUsageReport' | 'linger'> & {
     graphs: GraphConfig[]
   } | null
 }
+
+export type RunningTestInfo = {
+  jobId: string
+  sourceName: string
+  createdByUserId: string
+  createdAt: string
+  status: StatusType
+}

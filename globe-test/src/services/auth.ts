@@ -1,6 +1,8 @@
 import { IncomingMessage } from 'http'
 
+import { AuthenticatedIncomingMessage } from '@apiteam/types'
 import { gql } from '@apollo/client'
+import type { Scope } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 import queryString from 'query-string'
 
@@ -75,19 +77,19 @@ export const verifyJWT = async (
 const verifyScope = async (
   request: IncomingMessage,
   jwt: JWT.Jwt
-): Promise<boolean> => {
+): Promise<Scope | null> => {
   const scopeId =
     queryString.parse(request.url?.split('?')[1] || '').scopeId?.toString() ||
     undefined
 
   if (!scopeId) {
-    return false
+    return null
   }
 
   const scope = await findScope(scopeId)
 
   if (!scope) {
-    return false
+    return null
   }
 
   if (typeof jwt.payload === 'string') {
@@ -96,19 +98,39 @@ const verifyScope = async (
 
   // Ensure the user is the target of the scope
   // Just in case 2 undefined values are passed in pass 'No id'
-  return scope.userId === (jwt.payload.userId?.toString() || 'No Id')
+  const validScope =
+    scope.userId === (jwt.payload.userId?.toString() || 'No Id')
+
+  if (!validScope) {
+    return null
+  }
+
+  return scope
 }
 
-export const handleAuth = async (request: IncomingMessage) => {
+export const handleAuth = async (
+  request: IncomingMessage
+): Promise<AuthenticatedIncomingMessage> => {
   const jwt = await verifyJWT(request)
 
+  const authenticatedRequest = {
+    ...request,
+    jwt: null,
+    scope: null,
+  } as AuthenticatedIncomingMessage
+
   if (!jwt) {
-    return false
+    return authenticatedRequest
   }
 
-  if (!(await verifyScope(request, jwt))) {
-    return false
+  const scope = await verifyScope(request, jwt)
+
+  if (!scope) {
+    return authenticatedRequest
   }
 
-  return true
+  authenticatedRequest.jwt = jwt
+  authenticatedRequest.scope = scope
+
+  return authenticatedRequest
 }

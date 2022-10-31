@@ -9,7 +9,7 @@ import { TopNavLink } from 'src/components/utils/TopNavLink'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 import { InviteButton } from './InviteButton'
-import { WorkspaceSwitcher } from './WorkspaceSwitcher/index'
+import { WorkspaceSwitcher } from './WorkspaceOverview'
 
 export const TopNavApp = () => {
   const { pathname } = useLocation()

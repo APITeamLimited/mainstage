@@ -1,5 +1,6 @@
 import { createServer } from 'http'
 
+import { AuthenticatedSocket } from '@apiteam/types'
 import { Color } from 'colorterm'
 import queryString from 'query-string'
 import { Server } from 'socket.io'
@@ -24,8 +25,11 @@ const io = new Server(httpServer, {
 })
 
 io.use(async (socket, next) => {
-  const didAuthenticate = await handleAuth(socket.request)
-  if (didAuthenticate) {
+  const { scope, jwt } = await handleAuth(socket.request)
+  if (scope && jwt) {
+    ;(socket as AuthenticatedSocket).scope = scope
+    ;(socket as AuthenticatedSocket).jwt = jwt
+
     next()
   } else {
     console.log(new Date(), 'Client failed to authenticate')
@@ -39,7 +43,7 @@ io.use(async (socket, next) => {
   if (endpoint === '/new-test') {
     console.log('Client connected, /new-test')
     try {
-      await handleNewTest(socket)
+      await handleNewTest(socket as AuthenticatedSocket)
     } catch (error) {
       console.log(error)
       socket.emit('error', 'An unexpected error occurred')
@@ -47,7 +51,7 @@ io.use(async (socket, next) => {
     }
   } else if (endpoint === '/current-test') {
     try {
-      await handleCurrentTest(socket)
+      await handleCurrentTest(socket as AuthenticatedSocket)
     } catch (error) {
       console.log(error)
       socket.emit('error', 'An unexpected error occurred')

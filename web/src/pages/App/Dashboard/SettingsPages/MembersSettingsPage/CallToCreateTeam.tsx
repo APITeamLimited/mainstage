@@ -4,7 +4,7 @@ import { Button, Card, Stack, Typography, Box } from '@mui/material'
 
 import { navigate, routes } from '@redwoodjs/router'
 
-import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceSwitcher/CreateTeamDialog'
+import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceOverview/CreateTeamDialog'
 
 export const CallToCreateTeam = () => {
   const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false)

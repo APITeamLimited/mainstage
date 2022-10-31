@@ -22,7 +22,7 @@ import { NoDomainsCard } from './NoDomainsCard'
 
 import { VERIFIED_DOMAINS_CARD_HEIGHT } from '.'
 
-const VERIFIED_DOMAINS_QUERY = gql`
+export const VERIFIED_DOMAINS_QUERY = gql`
   query VerifiedDomains($teamId: String) {
     verifiedDomains(teamId: $teamId) {
       id

@@ -16,9 +16,11 @@ import { GlobeTestProvider } from 'src/globe-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { CollectionTree } from './components/CollectionTree'
+import { StatusBar } from './components/StatusBar'
 import { TabController } from './components/TabController'
 
-export const viewportHeightReduction = 50
+// App bar height -2 + STATUS_BAR_HEIGHT -1 (border)
+export const viewportHeightReduction = 52 + 20
 
 type CollectionEditorPageProps = {
   projectId: string
@@ -70,22 +72,22 @@ export const CollectionEditorPage = ({
   return (
     <>
       <MetaTags title={collectionYMap.get('name')} />
-      <div
-        style={{
-          display: 'fixed',
-          maxHeight: `calc(100vh - ${viewportHeightReduction}px)`,
-          height: `calc(100vh - ${viewportHeightReduction}px)`,
-          backgroundColor: theme.palette.alternate.dark,
-          width: '100%',
-          minWidth: '100%',
-          overflow: 'hidden',
-        }}
-      >
-        <EnvironmentProvider branchYMap={branchYMap}>
-          <CollectionContext.Provider value={collectionYMap}>
-            <VariablesProvider>
-              <VerifiedDomainsProvider>
-                <GlobeTestProvider />
+      <EnvironmentProvider branchYMap={branchYMap}>
+        <CollectionContext.Provider value={collectionYMap}>
+          <VariablesProvider>
+            <VerifiedDomainsProvider>
+              <GlobeTestProvider />
+              <div
+                style={{
+                  display: 'fixed',
+                  maxHeight: `calc(100vh - ${viewportHeightReduction}px)`,
+                  height: `calc(100vh - ${viewportHeightReduction}px)`,
+                  backgroundColor: theme.palette.alternate.dark,
+                  width: '100%',
+                  minWidth: '100%',
+                  overflow: 'hidden',
+                }}
+              >
                 <ReflexContainer orientation="vertical">
                   <ReflexElement
                     minSize={200}
@@ -118,11 +120,12 @@ export const CollectionEditorPage = ({
                     <TabController />
                   </ReflexElement>
                 </ReflexContainer>
-              </VerifiedDomainsProvider>
-            </VariablesProvider>
-          </CollectionContext.Provider>
-        </EnvironmentProvider>
-      </div>
+              </div>
+              <StatusBar />
+            </VerifiedDomainsProvider>
+          </VariablesProvider>
+        </CollectionContext.Provider>
+      </EnvironmentProvider>
     </>
   )
 }

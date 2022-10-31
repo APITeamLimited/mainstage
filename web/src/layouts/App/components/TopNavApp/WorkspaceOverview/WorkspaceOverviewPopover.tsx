@@ -5,10 +5,6 @@ import {
   Popover,
   Typography,
   Stack,
-  Avatar,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
   Tooltip,
   Box,
   useTheme,
@@ -16,7 +12,7 @@ import {
   Button,
 } from '@mui/material'
 
-import { RoleChip } from 'src/components/team/RoleChip'
+import { QuickUserSummary } from 'src/components/app/utils/QuickUserSummary'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { CreateTeamDialog } from './CreateTeamDialog'
@@ -139,7 +135,7 @@ export const WorkspaceOverviewPopover = ({
                   }
 
                   return (
-                    <ListItem
+                    <QuickUserSummary
                       key={index}
                       secondaryAction={
                         <Box
@@ -165,40 +161,13 @@ export const WorkspaceOverviewPopover = ({
                           ) : null}
                         </Box>
                       }
-                      sx={{
-                        padding: 0,
-                        width: '100%',
-                      }}
-                    >
-                      <ListItemAvatar>
-                        <Avatar
-                          src={member.profilePicture || ''}
-                          sx={{
-                            width: 32,
-                            height: 32,
-                          }}
-                        />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={
-                          <span
-                            style={{
-                              userSelect: 'none',
-                              fontWeight:
-                                workspaceInfo?.scope.userId === member.userId
-                                  ? 600
-                                  : 400,
-                            }}
-                          >
-                            {member.displayName}
-                            <RoleChip role={member.role} />
-                          </span>
-                        }
-                        sx={{
-                          marginLeft: -2,
-                        }}
-                      />
-                    </ListItem>
+                      profilePicture={member.profilePicture || undefined}
+                      role={member.role}
+                      isEmphasized={
+                        workspaceInfo?.scope.userId === member.userId
+                      }
+                      displayName={member.displayName}
+                    />
                   )
                 })}
               </Stack>

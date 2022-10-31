@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useRef, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
@@ -17,11 +18,11 @@ import {
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { routes, navigate } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { QueryDeleteDialog } from '../../dialogs/QueryDeleteDialog'
 import { RenameDialog } from '../../dialogs/RenameDialog'
@@ -232,8 +233,12 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
               <Stack
                 direction="row"
                 justifyContent="space-between"
-                alignItems="top"
-                width="100%"
+                alignContent="baseline"
+                sx={{
+                  marginTop: 1,
+                  paddingRight: 1,
+                }}
+                spacing={1}
               >
                 <Typography
                   variant="body2"
@@ -241,7 +246,7 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
                     textTransform: 'none',
                     color: theme.palette.text.secondary,
                     marginLeft: 2,
-                    marginTop: 2,
+                    marginTop: 1,
                   }}
                 >
                   {displayType}

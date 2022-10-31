@@ -1,14 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import { Branch, Project } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Typography, Divider, Stack, useTheme, Paper } from '@mui/material'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
+import type { Map as YMap } from 'yjs'
 
 import { ImportDialog } from 'src/components/app/dialogs/ImportDialog'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
 import { userProjectBranchesVar } from 'src/contexts/reactives/UserBranches'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { BranchSwitcherButton } from '../BranchSwitcher/BranchSwitcherButton'
 import { ProjectActionsButton } from '../ProjectActionsButton'
@@ -27,7 +28,7 @@ type ProjectOverviewProps = {
 export const ProjectOverview = ({
   project,
   projectYMap,
-}: ProjectOverviewProps & { refreshProjects: () => void }) => {
+}: ProjectOverviewProps) => {
   const theme = useTheme()
   const branches = useYMap<Branch, Record<string, Branch>>(
     projectYMap.get('branches')

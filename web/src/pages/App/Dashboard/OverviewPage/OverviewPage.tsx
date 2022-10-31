@@ -7,6 +7,7 @@ import { Button, Stack } from '@mui/material'
 import { MetaTags } from '@redwoodjs/web'
 
 import { ProjectOverview } from 'src/components/app/dashboard/ProjectOverview/ProjectOverview'
+import { DashboardPageFrame } from 'src/components/app/dashboard/utils/DashboardPageFrame'
 import { createProjectDialogStateVar } from 'src/components/app/dialogs'
 import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
@@ -62,8 +63,8 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
   return (
     <>
       <MetaTags title={actveWorkspace?.scope.displayName} />
-      <Stack spacing={4}>
-        <Stack direction="row" justifyContent="flex-end" alignItems="top">
+      <DashboardPageFrame
+        actionArea={
           <Button
             variant="contained"
             color="primary"
@@ -75,7 +76,9 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
           >
             New Project
           </Button>
-        </Stack>
+        }
+        title={actveWorkspace?.scope.displayName}
+      >
         {projectYMaps.length > 0 ? (
           <>
             {workspaceDoc
@@ -103,7 +106,7 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
         ) : (
           <NoProjectsCard />
         )}
-      </Stack>
+      </DashboardPageFrame>
     </>
   )
 }

@@ -6,6 +6,7 @@ import { routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
 import { CustomTabs } from 'src/components/app/CustomTabs'
+import { DashboardPageFrame } from 'src/components/app/dashboard/utils/DashboardPageFrame'
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { Headline } from 'src/pages/RootPage/components/Headline'
@@ -69,7 +70,7 @@ export const MembersSettingsPage = () => {
   const prettyType = useMemo(() => {
     if (!workspaceInfo) return null
     if (workspaceInfo.scope?.variant === 'USER') {
-      return 'Personal Settings'
+      return 'Personal Account Settings'
     } else {
       return 'Team Settings'
     }
@@ -81,20 +82,7 @@ export const MembersSettingsPage = () => {
   return (
     <>
       <MetaTags title={prettyType} />
-      <Stack spacing={6}>
-        <Box
-          sx={{
-            top: '-1em',
-            position: 'relative',
-          }}
-        >
-          <Headline headline={prettyType} />
-          <Divider
-            sx={{
-              marginTop: 6,
-            }}
-          />
-        </Box>
+      <DashboardPageFrame title={prettyType}>
         <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
           {workspaceInfo.scope.variant === 'USER' ? (
             <CallToCreateTeam />
@@ -102,7 +90,7 @@ export const MembersSettingsPage = () => {
             <MembersSettingsTab teamId={workspaceInfo.scope.variantTargetId} />
           )}
         </SideTabManager>
-      </Stack>
+      </DashboardPageFrame>
     </>
   )
 }

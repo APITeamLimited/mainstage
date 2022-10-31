@@ -3,6 +3,9 @@ import {
   GlobeTestMessage,
   ExecutionParams,
   GlobeTestOptions,
+  AuthenticatedSocket,
+  RunningTestInfo,
+  StatusType,
 } from '@apiteam/types'
 import type { Scope } from '@prisma/client'
 import { Response } from 'k6/http'
@@ -50,7 +53,7 @@ export type TestRunningState =
     )
 
 // Creates a new test and streams the result
-export const handleNewTest = async (socket: Socket) => {
+export const handleNewTest = async (socket: AuthenticatedSocket) => {
   let params = null as WrappedExecutionParams | null
 
   try {
@@ -76,29 +79,18 @@ export const handleNewTest = async (socket: Socket) => {
   })
 
   // Calling this first here seems to prevent the race condition
-  const [_, scopeRaw] = await Promise.all([
+  const [_, verifiedDomains] = await Promise.all([
     getEntityEngineSocket(
       socket,
       params.scopeId,
       params.bearer,
       params.projectId
     ),
-    coreCacheReadRedis.get(`scope__id:${params.scopeId}`),
+    await getVerifiedDomains(
+      socket.scope.variant,
+      socket.scope.variantTargetId
+    ),
   ])
-
-  if (!scopeRaw) {
-    socket.emit('error', 'Scope unexpectedly not found')
-    socket.disconnect()
-    console.error('Scope unexpectedly not found')
-    return
-  }
-
-  const fullScope = JSON.parse(scopeRaw) as Scope
-
-  const verifiedDomains = await getVerifiedDomains(
-    fullScope.variant,
-    fullScope.variantTargetId
-  )
 
   const executionParams = {
     id: uuid(),
@@ -110,8 +102,8 @@ export const handleNewTest = async (socket: Socket) => {
     finalRequest: params.finalRequest,
     underlyingRequest: params.underlyingRequest,
     scope: {
-      variant: fullScope.variant,
-      variantTargetId: fullScope.variantTargetId,
+      variant: socket.scope.variant,
+      variantTargetId: socket.scope.variantTargetId,
     },
     verifiedDomains,
   } as ExecutionParams
@@ -124,15 +116,36 @@ export const handleNewTest = async (socket: Socket) => {
         JSON.parse(message)
       ) as GlobeTestMessage
       socket.emit('updates', messageObject)
-      handleMessage(messageObject, socket, params as WrappedExecutionParams)
+      handleMessage(
+        messageObject,
+        socket,
+        params as WrappedExecutionParams,
+        executionParams.id
+      )
     }
   )
 
-  await orchestratorReadRedis.hSet(
-    executionParams.id,
-    'job',
-    JSON.stringify(executionParams)
-  )
+  const runningTestInfo: RunningTestInfo = {
+    jobId: executionParams.id,
+    sourceName: executionParams.sourceName,
+    createdByUserId: socket.scope.userId,
+    createdAt: new Date().toISOString(),
+    status: 'ASSIGNED',
+  }
+
+  // Set job info first to prevent race condition
+  await Promise.all([
+    orchestratorReadRedis.hSet(
+      executionParams.id,
+      'job',
+      JSON.stringify(executionParams)
+    ),
+    coreCacheReadRedis.hSet(
+      `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+      runningTestInfo.jobId,
+      JSON.stringify(runningTestInfo)
+    ),
+  ])
 
   // Broadcast the new job
   await Promise.all([
@@ -147,8 +160,9 @@ export const handleNewTest = async (socket: Socket) => {
 // Trigger custom actions in response to certain messages
 const handleMessage = async (
   message: GlobeTestMessage,
-  socket: Socket,
-  params: WrappedExecutionParams
+  socket: AuthenticatedSocket,
+  params: WrappedExecutionParams,
+  jobId: string
 ) => {
   if (params.testType === 'rest') {
     await ensureRESTResponseExists(socket, params, message.jobId)
@@ -187,6 +201,8 @@ const handleMessage = async (
     }
 
     if (message.messageType === 'STATUS') {
+      updateTestInfo(socket.scope, jobId, message.message)
+
       if (
         message.message === 'COMPLETED_SUCCESS' ||
         message.message === 'COMPLETED_FAILURE'
@@ -225,15 +241,21 @@ const handleMessage = async (
               'httpSingle' &&
             runningState.testType === 'rest'
           ) {
-            await restHandleSuccessSingle({
-              params,
-              socket,
-              globeTestLogsStoreReceipt:
-                runningState.globeTestLogsStoreReceipt as string,
-              metricsStoreReceipt: runningState.metricsStoreReceipt as string,
-              responseId: runningState.responseId as string,
-              response: runningState.markedResponse as Response,
-            })
+            await Promise.all([
+              restHandleSuccessSingle({
+                params,
+                socket,
+                globeTestLogsStoreReceipt:
+                  runningState.globeTestLogsStoreReceipt as string,
+                metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+                responseId: runningState.responseId as string,
+                response: runningState.markedResponse as Response,
+              }),
+              coreCacheReadRedis.hDel(
+                `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+                jobId
+              ),
+            ])
           } else if (
             (runningState.options as GlobeTestOptions).executionMode ===
               'httpMultiple' &&
@@ -262,7 +284,7 @@ const handleMessage = async (
         // In case of linering client, force disconnect after 1 second
         setTimeout(() => {
           socket.disconnect()
-        }, 1000)
+        }, 5000)
       }
     }
   }
@@ -312,4 +334,30 @@ const ensureRESTResponseExists = async (
 
     return await restCreateResponse({ socket, params, jobId })
   }
+}
+
+const updateTestInfo = async (
+  scope: Scope,
+  jobId: string,
+  status: StatusType
+) => {
+  const testInfo = await coreCacheReadRedis.hGet(
+    `workspace:${scope.variant}:${scope.variantTargetId}`,
+    jobId
+  )
+
+  if (!testInfo) {
+    throw new Error('Test info not found')
+  }
+
+  const parsedTestInfo = JSON.parse(testInfo) as RunningTestInfo
+
+  await coreCacheReadRedis.hSet(
+    `workspace:${scope.variant}:${scope.variantTargetId}`,
+    jobId,
+    JSON.stringify({
+      ...parsedTestInfo,
+      status,
+    })
+  )
 }

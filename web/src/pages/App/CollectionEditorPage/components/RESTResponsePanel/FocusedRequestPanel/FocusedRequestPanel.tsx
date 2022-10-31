@@ -39,7 +39,7 @@ export const FocusedRequestPanel = ({
   )
 
   return (
-    <Stack sx={{ height: '100%' }} spacing={2}>
+    <Stack sx={{ height: '100%', maxHeight: '100%' }} spacing={2}>
       <SecondaryChips
         names={['Body', 'Headers', 'Info']}
         value={activeTabIndex}

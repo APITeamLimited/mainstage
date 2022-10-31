@@ -21,7 +21,7 @@ export const ListCollapsible = ({
     <Collapse in={!collapsed || hovered} timeout={100}>
       <List
         sx={{
-          marginLeft: 1.5,
+          marginLeft: 2,
           paddingTop: 0,
           paddingBottom: 0, //dropSpace === 'Bottom' ? 0 : 1,
         }}

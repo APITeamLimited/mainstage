@@ -30,6 +30,7 @@ export const CopyBox = ({ text, onCopy }: CopyBoxProps) => {
           height: '60px',
           display: 'flex',
           alignItems: 'center',
+          flex: 1,
         }}
         sx={{
           paddingX: 2,

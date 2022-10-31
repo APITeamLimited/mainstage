@@ -1,7 +1,7 @@
-import { GlobeTestMessage } from '@apiteam/types'
+import { AuthenticatedSocket, GlobeTestMessage } from '@apiteam/types'
 import { Scope } from '@prisma/client'
+import type { Jwt } from 'jsonwebtoken'
 import { parse } from 'query-string'
-import { Socket } from 'socket.io'
 
 import {
   coreCacheReadRedis,
@@ -10,10 +10,8 @@ import {
 } from '../redis'
 
 // Streams an ongoing test
-export const handleCurrentTest = async (socket: Socket) => {
+export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
   const params = parse(socket.request.url?.split('?')[1] || '')
-
-  const jobId = params.jobId
 
   if (typeof params.jobId !== 'string') {
     socket.emit('error', 'Invalid jobId')
@@ -22,32 +20,24 @@ export const handleCurrentTest = async (socket: Socket) => {
   }
 
   // Get job
-  const scopeId = await coreCacheReadRedis.get(`jobScopeId:${jobId}`)
+  const jobScopeId = await coreCacheReadRedis.get(`jobScopeId:${params.jobId}`)
 
-  if (!scopeId) {
+  if (!jobScopeId) {
     socket.emit('error', 'Invalid jobId')
     socket.disconnect()
     return
   }
 
-  const jobScopePromis = coreCacheReadRedis.get(`scope__id:${scopeId}`)
-  const userScopePromise = coreCacheReadRedis.get(
-    `scope__id:${params['scopeId']}`
-  )
+  const jobScopeRaw = await coreCacheReadRedis.get(`scope__id:${jobScopeId}`)
 
-  const [jobScopeRaw, userScopeRaw] = await Promise.all([
-    jobScopePromis,
-    userScopePromise,
-  ])
-
-  if (!jobScopeRaw || !userScopeRaw) {
+  if (!jobScopeRaw) {
     socket.emit('error', 'Invalid jobId')
     socket.disconnect()
     return
   }
 
   const jobScope = JSON.parse(jobScopeRaw) as Scope
-  const userScope = JSON.parse(userScopeRaw) as Scope
+  const userScope = socket.scope
 
   if (jobScope.variantTargetId !== userScope.variantTargetId) {
     socket.emit('error', 'Invalid jobId')
@@ -59,7 +49,7 @@ export const handleCurrentTest = async (socket: Socket) => {
   console.log(new Date(), 'Client authenticated, /current-test')
 
   const pastMessages = (
-    await orchestratorReadRedis.sMembers(`${jobId}:updates`)
+    await orchestratorReadRedis.sMembers(`${params.jobId}:updates`)
   ).map((value) => JSON.parse(value) as GlobeTestMessage)
 
   // Send past messages
@@ -79,7 +69,7 @@ export const handleCurrentTest = async (socket: Socket) => {
 
   // Stream updates
   orchestratorSubscribeRedis.subscribe(
-    `orchestrator:executionUpdates:${jobId}`,
+    `orchestrator:executionUpdates:${params.jobId}`,
     (message) => {
       const messageObject = JSON.parse(message) as GlobeTestMessage
 

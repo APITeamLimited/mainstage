@@ -13,6 +13,8 @@ import {
   Box,
 } from '@mui/material'
 
+import { useSimplebarReactModule } from 'src/contexts/imports'
+
 import { QuickActionArea } from './QuickActionArea'
 
 type KeyValueResultsTableProps = {
@@ -27,6 +29,8 @@ export const KeyValueResultsTable = ({
   values,
   setActionArea,
 }: KeyValueResultsTableProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   useEffect(() => {
     const customActions = []
 
@@ -55,37 +59,41 @@ export const KeyValueResultsTable = ({
   }, [values])
 
   return (
-    <TableContainer>
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell>Name</TableCell>
-            <TableCell>Value</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {values.map(({ key, value }, index) => (
-            <TableRow key={index}>
-              <TableCell
-                sx={{
-                  width: '50%',
-                  wordBreak: 'break-all',
-                }}
-              >
-                {key}
-              </TableCell>
-              <TableCell
-                sx={{
-                  width: '50%',
-                  wordBreak: 'break-all',
-                }}
-              >
-                {value.toString()}
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Box sx={{ height: '100%', maxHeight: '100%', overflow: 'hidden' }}>
+      <SimpleBar style={{ height: '100%', maxHeight: '100%' }}>
+        <TableContainer>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Value</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {values.map(({ key, value }, index) => (
+                <TableRow key={index}>
+                  <TableCell
+                    sx={{
+                      width: '50%',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {key}
+                  </TableCell>
+                  <TableCell
+                    sx={{
+                      width: '50%',
+                      wordBreak: 'break-all',
+                    }}
+                  >
+                    {value.toString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </SimpleBar>
+    </Box>
   )
 }

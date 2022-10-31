@@ -81,7 +81,7 @@ export const handler = async (event, context) => {
       // For security reasons you may want to make this the same as the
       // usernameNotFound error so that a malicious user can't use the error
       // to narrow down if it's the username or password that's incorrect
-      incorrectPassword: 'Incorrect password for ${username}',
+      incorrectPassword: 'Username ${username} not found',
     },
 
     // How long a user will remain logged in, in seconds

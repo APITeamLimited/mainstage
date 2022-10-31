@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { useApolloClient } from '@apollo/client'
 import {
   Stack,
   TextField,
@@ -31,6 +32,8 @@ import { useMutation } from '@redwoodjs/web'
 
 import { CopyBox } from 'src/components/app/utils/CopyBox'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
+
+import { VERIFIED_DOMAINS_QUERY } from './DomainsPage'
 
 const ADD_VERIFIED_DOMAIN_MUTATION = gql`
   mutation AddVerifiedDomain($domain: String!, $teamId: String) {
@@ -68,6 +71,8 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
   const [domain, setDomain] = useState<string | null>(null)
   const [verifiedDomainId, setVerifiedDomainId] = useState<string | null>(null)
 
+  const apolloClient = useApolloClient()
+
   const formik = useFormik({
     initialValues: {
       domain: '',
@@ -89,6 +94,17 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
     },
   })
 
+  const refetchVerifiedDomains = () =>
+    apolloClient.query({
+      query: VERIFIED_DOMAINS_QUERY,
+      variables: {
+        teamId:
+          workspace?.scope.variant === 'TEAM'
+            ? workspace?.scope.variantTargetId
+            : null,
+      },
+    })
+
   const [addDomain, { reset: resetAddDomain }] = useMutation<
     AddVerifiedDomain,
     AddVerifiedDomainVariables
@@ -98,6 +114,7 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
       setVerifiedDomainId(data.addVerifiedDomain.id)
       setDomain(data.addVerifiedDomain.domain)
       setActiveStep(1)
+      refetchVerifiedDomains()
     },
     onError: (error) => {
       formik.setErrors({
@@ -116,6 +133,7 @@ export const AddDomainDialog = ({ open, onClose }: AddDomainDialogProps) => {
       onCompleted: () => {
         setSnackSuccessMessage('Domain verified successfully')
         setActiveStep(2)
+        refetchVerifiedDomains()
       },
       onError: (error) => {
         setSnackErrorMessage(error.message)

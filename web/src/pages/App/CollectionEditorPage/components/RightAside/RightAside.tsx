@@ -8,6 +8,7 @@ import InfoIcon from '@mui/icons-material/Info'
 import { IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
@@ -125,50 +126,53 @@ export const RightAside = ({
         }}
       >
         <Stack
+          justifyContent="space-between"
           spacing={2}
           sx={{
-            width: '50px',
-            height: '100%',
             borderRight: activeRightAside ? '1px solid' : 'none',
             borderColor: theme.palette.divider,
             paddingY: 1,
+            width: '50px',
           }}
         >
-          {focusedElement?.get('__typename') === 'RESTRequest' && (
-            <>
-              <Tooltip title="Response History" placement="left">
+          <Stack spacing={2}>
+            {focusedElement?.get('__typename') === 'RESTRequest' && (
+              <>
+                <Tooltip title="Response History" placement="left">
+                  <IconButton
+                    size="large"
+                    color={
+                      activeRightAside === 'restHistory' ? 'primary' : 'inherit'
+                    }
+                    onClick={() => handleButtonClick('restHistory')}
+                  >
+                    <CommentIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Generate Code" placement="left">
+                  <IconButton
+                    size="large"
+                    color={activeRightAside === 'code' ? 'primary' : 'inherit'}
+                    onClick={() => handleButtonClick('code')}
+                  >
+                    <CodeIcon />
+                  </IconButton>
+                </Tooltip>
+              </>
+            )}
+            {prettyInfoName && (
+              <Tooltip title={prettyInfoName} placement="left">
                 <IconButton
                   size="large"
-                  color={
-                    activeRightAside === 'restHistory' ? 'primary' : 'inherit'
-                  }
-                  onClick={() => handleButtonClick('restHistory')}
+                  color={activeRightAside === 'info' ? 'primary' : 'inherit'}
+                  onClick={() => handleButtonClick('info')}
                 >
-                  <CommentIcon />
+                  <InfoIcon />
                 </IconButton>
               </Tooltip>
-              <Tooltip title="Generate Code" placement="left">
-                <IconButton
-                  size="large"
-                  color={activeRightAside === 'code' ? 'primary' : 'inherit'}
-                  onClick={() => handleButtonClick('code')}
-                >
-                  <CodeIcon />
-                </IconButton>
-              </Tooltip>
-            </>
-          )}
-          {prettyInfoName && (
-            <Tooltip title={prettyInfoName} placement="left">
-              <IconButton
-                size="large"
-                color={activeRightAside === 'info' ? 'primary' : 'inherit'}
-                onClick={() => handleButtonClick('info')}
-              >
-                <InfoIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+            )}
+          </Stack>
+          <Stack spacing={2}></Stack>
         </Stack>
         {showRightAside &&
           focusedElement?.get('__typename') === 'RESTRequest' &&

@@ -103,7 +103,7 @@ const TypedIntro = (): JSX.Element => {
               sx={{ fontWeight: 400 }}
             >
               APITeam is an all in one platform for designing, testing and
-              scaling your APIs collaboratively
+              scaling APIs collaboratively
             </Typography>
             <Stack
               spacing={2}

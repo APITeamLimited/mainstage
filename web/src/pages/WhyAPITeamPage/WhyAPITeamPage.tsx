@@ -7,7 +7,7 @@ const WhyAPITeamPage = () => {
     <Headline
       headline="Why APITeam?"
       sublines={[
-        'APITeam is a platform for designing, testing and scaling your APIs collaboratively',
+        'APITeam is a platform for designing, testing and scaling APIs collaboratively',
         'While saving time and money',
       ]}
     />

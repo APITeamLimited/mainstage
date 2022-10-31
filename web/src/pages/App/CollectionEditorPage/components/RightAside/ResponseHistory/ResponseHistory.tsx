@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Box, useTheme, Button } from '@mui/material'
