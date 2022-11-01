@@ -1,4 +1,4 @@
-import { SummaryInfo } from '@apiteam/types'
+import { RunningTestInfo } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
@@ -19,7 +19,7 @@ export const runningTests = async ({ teamId }: { teamId: string | null }) => {
         teamId ?? context.currentUser.id
       }`
     )
-  ).map((runningTest) => JSON.parse(runningTest) as SummaryInfo)
+  ).map((runningTest) => JSON.parse(runningTest) as RunningTestInfo)
 
   return runningTests
 }
@@ -40,4 +40,47 @@ export const runningTestsCount = async ({
   )
 
   return runningTestsCount
+}
+
+export const cancelRunningTest = async ({
+  teamId,
+  jobId,
+}: {
+  teamId: string | null
+  jobId: string
+}) => {
+  if (!context.currentUser) throw new ServiceValidationError('Not logged in.')
+
+  if (teamId) {
+    await checkMember({ teamId })
+  }
+
+  const scopeVariant = teamId ? 'TEAM' : 'USER'
+  const scopeVariantTargetId = teamId ?? context.currentUser.id
+
+  const runningTestInfoRaw = await coreCacheReadRedis.hGet(
+    `workspace:${scopeVariant}:${scopeVariantTargetId}`,
+    jobId
+  )
+
+  if (!runningTestInfoRaw) {
+    throw new ServiceValidationError('Test not found.')
+  }
+
+  coreCacheReadRedis.publish(
+    `jobUserUpdates:${scopeVariant}:${scopeVariantTargetId}:${jobId}`,
+    JSON.stringify({
+      updateType: 'CANCEL',
+    })
+  )
+
+  // In case a rogue test is still listed by error, we need to remove it from the running tests list
+  setTimeout(() => {
+    coreCacheReadRedis.hDel(
+      `workspace:${scopeVariant}:${scopeVariantTargetId}`,
+      jobId
+    )
+  }, 10000)
+
+  return true
 }

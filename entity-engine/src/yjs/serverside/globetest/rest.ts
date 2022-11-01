@@ -121,7 +121,9 @@ export const restAddOptions = async (
   responseYMap.set('options', options)
 
   if (options.executionMode === 'httpMultiple') {
-    configureGlobetestGraphs(responseYMap, options)
+    setTimeout(() => {
+      configureGlobetestGraphs(responseYMap, options)
+    }, 1000)
   }
 }
 

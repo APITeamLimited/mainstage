@@ -2,6 +2,8 @@
 import { GlobeTestMessage } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 
+import { refetchRunningCountVar } from 'src/pages/App/CollectionEditorPage/components/StatusBar/running-tests'
+
 import { getUrl, parseMessage } from './execution'
 
 export const streamExistingTest = ({
@@ -29,7 +31,18 @@ export const streamExistingTest = ({
   // Messages will need to be parsed
   socket.on('updates', (data: any) => {
     if (data.jobId) {
-      onMessage(parseMessage(data))
+      const parsedMessage = parseMessage(data)
+
+      if (parsedMessage.messageType === 'STATUS') {
+        if (
+          parsedMessage.message === 'SUCCESS' ||
+          parsedMessage.message === 'FAILURE'
+        ) {
+          refetchRunningCountVar(Math.random())
+        }
+      }
+
+      onMessage(parsedMessage)
     }
   })
 

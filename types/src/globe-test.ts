@@ -250,3 +250,7 @@ export type RunningTestInfo = {
   createdAt: string
   status: StatusType
 }
+
+export type JobUserUpdateMessage = {
+  updateType: 'CANCEL'
+}

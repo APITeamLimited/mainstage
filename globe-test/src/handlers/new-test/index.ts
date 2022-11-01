@@ -5,7 +5,7 @@ import {
   GlobeTestOptions,
   AuthenticatedSocket,
   RunningTestInfo,
-  StatusType,
+  JobUserUpdateMessage,
 } from '@apiteam/types'
 import type { Scope } from '@prisma/client'
 import { Response } from 'k6/http'
@@ -16,6 +16,7 @@ import { v4 as uuid } from 'uuid'
 
 import {
   coreCacheReadRedis,
+  coreCacheSubscribeRedis,
   orchestratorReadRedis,
   orchestratorSubscribeRedis,
 } from '../../redis'
@@ -28,7 +29,12 @@ import {
   restHandleSuccessMultiple,
   restHandleSuccessSingle,
 } from './helpers'
-import { getEntityEngineSocket, getVerifiedDomains } from './utils'
+import {
+  getEntityEngineSocket,
+  getVerifiedDomains,
+  parseMessage,
+  updateTestInfo,
+} from './utils'
 
 // Store state of running tests
 export const runningTestStates = new Map<Socket, TestRunningState>()
@@ -55,6 +61,16 @@ export type TestRunningState =
 // Creates a new test and streams the result
 export const handleNewTest = async (socket: AuthenticatedSocket) => {
   let params = null as WrappedExecutionParams | null
+
+  // Check hasnt already got too many tests running
+  const existingJobCount = await coreCacheReadRedis.hLen(
+    `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`
+  )
+
+  if (existingJobCount >= 5) {
+    socket.emit('error', 'Too many tests already running, cancel some first')
+    return
+  }
 
   try {
     params = validateParams(parse(socket.request.url?.split('?')[1] || ''))
@@ -115,7 +131,9 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
       const messageObject = parseMessage(
         JSON.parse(message)
       ) as GlobeTestMessage
+
       socket.emit('updates', messageObject)
+
       handleMessage(
         messageObject,
         socket,
@@ -144,6 +162,12 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
       `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
       runningTestInfo.jobId,
       JSON.stringify(runningTestInfo)
+    ),
+    // Listen for job updates
+    coreCacheSubscribeRedis.subscribe(
+      `jobUserUpdates:${socket.scope.variant}:${socket.scope.variantTargetId}:${runningTestInfo.jobId}`,
+      (message) =>
+        handleJobUserUpdates(message, socket.scope, executionParams.id)
     ),
   ])
 
@@ -203,6 +227,23 @@ const handleMessage = async (
     if (message.messageType === 'STATUS') {
       updateTestInfo(socket.scope, jobId, message.message)
 
+      // Cleaup running test state if the is finished
+      if (message.message === 'SUCCESS' || message.message === 'FAILURE') {
+        coreCacheReadRedis.hDel(
+          `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+          jobId
+        )
+
+        coreCacheSubscribeRedis.unsubscribe(
+          `jobUserUpdates:${socket.scope.variant}:${socket.scope.variantTargetId}:${jobId}`
+        )
+
+        setTimeout(() => {
+          runningTestStates.delete(socket)
+          socket.disconnect()
+        }, 10000)
+      }
+
       if (
         message.message === 'COMPLETED_SUCCESS' ||
         message.message === 'COMPLETED_FAILURE'
@@ -241,21 +282,20 @@ const handleMessage = async (
               'httpSingle' &&
             runningState.testType === 'rest'
           ) {
-            await Promise.all([
-              restHandleSuccessSingle({
-                params,
-                socket,
-                globeTestLogsStoreReceipt:
-                  runningState.globeTestLogsStoreReceipt as string,
-                metricsStoreReceipt: runningState.metricsStoreReceipt as string,
-                responseId: runningState.responseId as string,
-                response: runningState.markedResponse as Response,
-              }),
-              coreCacheReadRedis.hDel(
-                `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
-                jobId
-              ),
-            ])
+            await restHandleSuccessSingle({
+              params,
+              socket,
+              globeTestLogsStoreReceipt:
+                runningState.globeTestLogsStoreReceipt as string,
+              metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+              responseId: runningState.responseId as string,
+              response: runningState.markedResponse as Response,
+            })
+
+            await coreCacheReadRedis.hDel(
+              `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+              jobId
+            )
           } else if (
             (runningState.options as GlobeTestOptions).executionMode ===
               'httpMultiple' &&
@@ -268,6 +308,11 @@ const handleMessage = async (
                 runningState.globeTestLogsStoreReceipt as string,
               metricsStoreReceipt: runningState.metricsStoreReceipt as string,
             })
+
+            await coreCacheReadRedis.hDel(
+              `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+              jobId
+            )
           } else {
             throw new Error(`Invalid test type: ${runningState.testType}`)
           }
@@ -279,32 +324,25 @@ const handleMessage = async (
               runningState.globeTestLogsStoreReceipt ?? null,
             metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
           })
+
+          await coreCacheReadRedis.hDel(
+            `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+            jobId
+          )
         }
 
         // In case of linering client, force disconnect after 1 second
         setTimeout(() => {
           socket.disconnect()
+
+          coreCacheReadRedis.hDel(
+            `workspace:${socket.scope.variant}:${socket.scope.variantTargetId}`,
+            jobId
+          )
         }, 5000)
       }
     }
   }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseMessage = (message: any) => {
-  if (
-    message.messageType === 'SUMMARY_METRICS' ||
-    message.messageType === 'METRICS' ||
-    message.messageType === 'MARK' ||
-    message.messageType === 'JOB_INFO' ||
-    message.messageType === 'CONSOLE' ||
-    message.messageType === 'OPTIONS'
-  ) {
-    message.message = JSON.parse(message.message)
-    message.time = new Date(message.time)
-  }
-
-  return message as GlobeTestMessage
 }
 
 const ensureRESTResponseExists = async (
@@ -336,28 +374,23 @@ const ensureRESTResponseExists = async (
   }
 }
 
-const updateTestInfo = async (
-  scope: Scope,
-  jobId: string,
-  status: StatusType
-) => {
-  const testInfo = await coreCacheReadRedis.hGet(
-    `workspace:${scope.variant}:${scope.variantTargetId}`,
-    jobId
-  )
+const handleJobUserUpdates = (message: string, scope: Scope, jobId: string) => {
+  const parsedMessage = JSON.parse(message) as JobUserUpdateMessage
 
-  if (!testInfo) {
-    throw new Error('Test info not found')
+  if (parsedMessage.updateType === 'CANCEL') {
+    orchestratorReadRedis.publish(
+      `jobUserUpdates:${scope.variant}:${scope.variantTargetId}:${jobId}`,
+      JSON.stringify({
+        updateType: 'CANCEL',
+      })
+    )
+
+    // In case of stray jobs cleanup
+    setTimeout(() => {
+      coreCacheReadRedis.hDel(
+        `workspace:${scope.variant}:${scope.variantTargetId}`,
+        jobId
+      )
+    }, 10000)
   }
-
-  const parsedTestInfo = JSON.parse(testInfo) as RunningTestInfo
-
-  await coreCacheReadRedis.hSet(
-    `workspace:${scope.variant}:${scope.variantTargetId}`,
-    jobId,
-    JSON.stringify({
-      ...parsedTestInfo,
-      status,
-    })
-  )
 }

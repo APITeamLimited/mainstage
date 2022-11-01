@@ -2,8 +2,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { GlobeTestMessage, MetricsCombination } from '@apiteam/types/src'
-import { makeVar, useReactiveVar } from '@apollo/client'
-import { Skeleton } from '@mui/material'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
@@ -19,9 +17,6 @@ import { LoadTestSummaryPanel } from '../../load-test-metrics/above-tabs-area/Lo
 import { GraphsPanel } from '../../load-test-metrics/graphs/GraphsPanel'
 import { MetricsList } from '../SuccessSingleResultPanel'
 
-// Use reactive var to ensure only one socket is created in the whole app at once
-const existingTestSocketVar = makeVar<Socket | null>(null)
-
 type LoadingMultipleResponsePanelProps = {
   focusedResponse: YMap<any>
 }
@@ -32,8 +27,6 @@ export const LoadingMultipleResponsePanel = ({
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
   useYMap(focusedResponse)
-
-  const existingTestSocket = useReactiveVar(existingTestSocketVar)
 
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
@@ -58,6 +51,11 @@ export const LoadingMultipleResponsePanel = ({
   useEffect(() => {
     // Every second, flush the buffers into the state
     const interval = setInterval(() => {
+      console.log(
+        'Flushing buffers',
+        metricsBuffer.current,
+        globeTestLogsBuffer.current
+      )
       setGlobeTestLogs([...globeTestLogsBuffer.current])
       setMetrics([...metricsBuffer.current])
     }, 1000)
@@ -68,21 +66,13 @@ export const LoadingMultipleResponsePanel = ({
   useEffect(() => {
     if (!rawBearer || !scopeId || !jobId) {
       return
-      throw new Error('No rawBearer or scopeId or jobId')
     }
 
     if (jobId === oldJobId) {
       return
     }
 
-    // Disconnect any rouge old sockets
-
-    if (existingTestSocket) {
-      existingTestSocket.disconnect()
-    }
-
     if (testSocket) {
-      testSocket.disconnect()
       setGlobeTestLogs([])
       setMetrics([])
     }
@@ -102,7 +92,11 @@ export const LoadingMultipleResponsePanel = ({
 
     setTestSocket(newSocket)
     setOldJobId(jobId)
-    existingTestSocketVar(newSocket)
+
+    // This seems to be causing some issues
+    // return () => {
+    //   newSocket.close()
+    // }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])

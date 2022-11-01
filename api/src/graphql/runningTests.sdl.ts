@@ -22,4 +22,8 @@ export const schema = gql`
     runningTests(teamId: String): [RunningTestInfo!]! @requireAuth
     runningTestsCount(teamId: String): Int! @requireAuth
   }
+
+  type Mutation {
+    cancelRunningTest(teamId: String, jobId: String!): Boolean! @requireAuth
+  }
 `

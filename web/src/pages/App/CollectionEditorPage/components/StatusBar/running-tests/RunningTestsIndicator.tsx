@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   RunningTestsCountQuery,
   RunningTestsCountQueryVariables,
@@ -22,6 +23,8 @@ const RUNNING_TESTS_COUNT_QUERY = gql`
   }
 `
 
+export const refetchRunningCountVar = makeVar(0)
+
 export const RunningTestsIndicator = () => {
   const workspaceInfo = useWorkspaceInfo()
 
@@ -33,7 +36,7 @@ export const RunningTestsIndicator = () => {
     [workspaceInfo]
   )
 
-  const { data } = useQuery<
+  const { data, refetch } = useQuery<
     RunningTestsCountQuery,
     RunningTestsCountQueryVariables
   >(RUNNING_TESTS_COUNT_QUERY, {
@@ -42,6 +45,13 @@ export const RunningTestsIndicator = () => {
     },
     pollInterval: 1000,
   })
+
+  const refetchRunningCount = useReactiveVar(refetchRunningCountVar)
+
+  useEffect(() => {
+    refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [refetchRunningCount])
 
   const [dialogOpen, setDialogOpen] = useState(false)
 

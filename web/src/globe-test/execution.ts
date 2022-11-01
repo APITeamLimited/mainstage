@@ -133,6 +133,10 @@ export const execute = ({
       }
     })
 
+    socket.on('error', (error: string) => {
+      snackErrorMessageVar(error)
+    })
+
     if (params.testType === 'rest') {
       handleRESTAutoFocus(focusedResponseDict, workspace, socket, params)
     }

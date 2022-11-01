@@ -2,6 +2,7 @@
 import { useMemo } from 'react'
 
 import { MemberAwareness } from '@apiteam/types'
+import { useApolloClient } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import ReorderIcon from '@mui/icons-material/Reorder'
 import {
@@ -15,15 +16,20 @@ import {
   DialogActions,
   Button,
   Typography,
-  Box,
   Chip,
   Skeleton,
   DialogContent,
 } from '@mui/material'
-import { RunningTestsQuery, RunningTestsQueryVariables } from 'types/graphql'
+import {
+  RunningTestsQuery,
+  RunningTestsQueryVariables,
+  CancelRunningTestMutation,
+  CancelRunningTestMutationVariables,
+} from 'types/graphql'
 
-import { useQuery } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
 
+import { snackSuccessMessageVar } from 'src/components/app/dialogs'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { QuickUserSummary } from 'src/components/app/utils/QuickUserSummary'
 import { useSimplebarReactModule } from 'src/contexts/imports'
@@ -49,6 +55,12 @@ const RUNNING_TESTS_QUERY = gql`
   }
 `
 
+const CANCEL_RUNNING_TEST_MUTATION = gql`
+  mutation CancelRunningTestMutation($teamId: String, $jobId: String!) {
+    cancelRunningTest(teamId: $teamId, jobId: $jobId)
+  }
+`
+
 export const RunningTestsDialog = ({
   open,
   onClose,
@@ -67,17 +79,31 @@ export const RunningTestsDialog = ({
     [workspaceInfo]
   )
 
-  const { data, loading, refetch } = useQuery<
+  const { data, loading } = useQuery<
     RunningTestsQuery,
     RunningTestsQueryVariables
   >(RUNNING_TESTS_QUERY, {
     variables: {
       teamId,
     },
+    skip: !open,
     pollInterval: 1000,
   })
 
-  const cancelRunningTest = (jobId: string) => {}
+  const [cancelRunningTest] = useMutation<
+    CancelRunningTestMutation,
+    CancelRunningTestMutationVariables
+  >(CANCEL_RUNNING_TEST_MUTATION, {
+    refetchQueries: [
+      {
+        query: RUNNING_TESTS_QUERY,
+        variables: {
+          teamId,
+        },
+      },
+    ],
+    onCompleted: () => snackSuccessMessageVar('Stopping test run'),
+  })
 
   const serverAwareness = useServerAwareness()
 
@@ -198,7 +224,6 @@ export const RunningTestsDialog = ({
                         <Typography variant="body1" fontWeight="bold">
                           {test.sourceName}
                         </Typography>
-
                         <QuickUserSummary
                           displayName={workspaceInfos[index]?.displayName}
                           profilePicture={workspaceInfos[index]?.profilePicture}
@@ -215,6 +240,14 @@ export const RunningTestsDialog = ({
                             variant="contained"
                             color="error"
                             size="small"
+                            onClick={() =>
+                              cancelRunningTest({
+                                variables: {
+                                  teamId,
+                                  jobId: test.jobId,
+                                },
+                              })
+                            }
                           >
                             Cancel
                           </Button>

@@ -1,7 +1,13 @@
 import { Buffer } from 'buffer'
 
-import { EntityEngineServersideMessages } from '@apiteam/types'
+import {
+  EntityEngineServersideMessages,
+  GlobeTestMessage,
+  RunningTestInfo,
+  StatusType,
+} from '@apiteam/types'
 import type { VerifiedDomain } from '@prisma/client'
+import type { Scope } from '@prisma/client'
 import { Response } from 'k6/http'
 import { Socket } from 'socket.io'
 import { io } from 'socket.io-client'
@@ -105,4 +111,62 @@ export const getVerifiedDomains = async (
     ) as VerifiedDomain[]
 
   return verifiedDomains
+}
+
+export const updateTestInfo = async (
+  scope: Scope,
+  jobId: string,
+  status: StatusType
+) => {
+  // Delete test info if completed
+  if (
+    status === 'COMPLETED_SUCCESS' ||
+    status === 'COMPLETED_FAILURE' ||
+    status === 'SUCCESS' ||
+    status === 'FAILURE'
+  ) {
+    await coreCacheReadRedis.hDel(
+      `workspace:${scope.variant}:${scope.variantTargetId}`,
+      jobId
+    )
+    return
+  }
+
+  const testInfo = await coreCacheReadRedis.hGet(
+    `workspace:${scope.variant}:${scope.variantTargetId}`,
+    jobId
+  )
+
+  if (!testInfo) {
+    console.warn('Test info not found')
+    return
+  }
+
+  const parsedTestInfo = JSON.parse(testInfo) as RunningTestInfo
+
+  await coreCacheReadRedis.hSet(
+    `workspace:${scope.variant}:${scope.variantTargetId}`,
+    jobId,
+    JSON.stringify({
+      ...parsedTestInfo,
+      status,
+    })
+  )
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const parseMessage = (message: any) => {
+  if (
+    message.messageType === 'SUMMARY_METRICS' ||
+    message.messageType === 'METRICS' ||
+    message.messageType === 'MARK' ||
+    message.messageType === 'JOB_INFO' ||
+    message.messageType === 'CONSOLE' ||
+    message.messageType === 'OPTIONS'
+  ) {
+    message.message = JSON.parse(message.message)
+    message.time = new Date(message.time)
+  }
+
+  return message as GlobeTestMessage
 }
