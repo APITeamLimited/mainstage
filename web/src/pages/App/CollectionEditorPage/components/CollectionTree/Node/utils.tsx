@@ -15,7 +15,7 @@ import {
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
-import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
+import { GlobeTestIcon } from 'src/components/utils/Icons'
 
 export const getNewOrderingIndex = ({
   folderYMaps,

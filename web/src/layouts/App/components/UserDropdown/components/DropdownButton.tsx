@@ -26,7 +26,7 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
     setOpenPopover(false)
   }
 
-  return (
+  return currentUser ? (
     <>
       <Box
         component={ButtonBase}
@@ -38,6 +38,9 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
           borderRadius: 4,
           height: 30,
           width: 30,
+          maxWidth: 30,
+          minHeight: 30,
+          overflow: 'hidden',
         }}
       >
         <Avatar
@@ -63,5 +66,7 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
         currentUser={currentUser}
       />
     </>
+  ) : (
+    <></>
   )
 }

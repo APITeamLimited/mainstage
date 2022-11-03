@@ -19,17 +19,11 @@ export const SignUpOrContinueButton = ({
         textDecoration: 'none',
       }}
     >
-      <Button
-        variant="contained"
-        color="success"
-        sx={{
-          fontSize: 'normal',
-        }}
-        size={size}
-      >
+      <Button variant="contained" color="success" size={size}>
         <span
           style={{
             whiteSpace: 'nowrap',
+            fontSize: 'normal',
           }}
         >
           Go to Dashboard
@@ -43,13 +37,14 @@ export const SignUpOrContinueButton = ({
         textDecoration: 'none',
       }}
     >
-      <Button variant="contained" color="primary" size="large">
+      <Button variant="contained" color="primary" size={size}>
         <span
           style={{
             whiteSpace: 'nowrap',
+            fontSize: 'normal',
           }}
         >
-          Sign Up
+          Sign Up for Free
         </span>
       </Button>
     </Link>

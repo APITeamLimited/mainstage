@@ -8,7 +8,6 @@ import {
   LocalValueKV,
   RESTAuth,
 } from '@apiteam/types/src'
-import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import {
   ListItem,
   ListItemIcon,
@@ -19,6 +18,7 @@ import {
 import type { Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
+import { CollectionEditorIcon } from 'src/components/utils/Icons'
 import { useHashSumModule } from 'src/contexts/imports'
 import { useYMap } from 'src/lib/zustand-yjs'
 
@@ -159,7 +159,7 @@ export const CollectionInputPanel = ({
               }}
             >
               <ListItemIcon>
-                <FeaturedPlayListIcon />
+                <CollectionEditorIcon />
               </ListItemIcon>
               <ListItemText
                 primary={

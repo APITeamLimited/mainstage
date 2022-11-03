@@ -1,38 +1,17 @@
-import React, { useState } from 'react'
-
-import { Container, Stack } from '@mui/material'
-import Box from '@mui/material/Box'
-import { alpha, useTheme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
+import {
+  Box,
+  alpha,
+  useTheme,
+  Container,
+  Stack,
+  Typography,
+} from '@mui/material'
 import Typed from 'react-typed'
 
 import { SignUpOrContinueButton } from './SignUpOrContinueButton'
 
-const images = [
-  {
-    light: require('public/img/splash/app-demo-new-light.png'),
-    dark: require('public/img/splash/app-demo-new-dark.png'),
-  } /*
-
-  Think just one iamge looks better
-
-  {
-    light: require('public/img/splash/integrated-load-testing-light.png'),
-    dark: require('public/img/splash/integrated-load-testing-dark.png'),
-  },
-  {
-    light: require('public/img/splash/code-generation-light.png'),
-    dark: require('public/img/splash/code-generation-dark.png'),
-  },*/,
-]
-
 const TypedIntro = (): JSX.Element => {
   const theme = useTheme()
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-
-  const handleNextImage = () => {
-    setCurrentImageIndex((prev) => (prev + 1) % images.length)
-  }
 
   return (
     <Box
@@ -43,16 +22,18 @@ const TypedIntro = (): JSX.Element => {
         )}, ${alpha(theme.palette.alternate.dark, 1)} 100%)`,
         backgroundRepeat: 'repeat-x',
         position: 'relative',
-        overflowX: 'hidden',
-        overflowY: 'hidden',
-        marginBottom: 10,
+        overflow: 'hidden',
       }}
     >
-      <Container>
+      <Container
+        sx={{
+          overflow: 'hidden',
+        }}
+      >
         <Stack
-          paddingY={{ xs: 0, sm: '4rem', md: '8rem' }}
+          paddingY={{ xs: '4rem', md: '8rem' }}
           alignItems="baseline"
-          direction="row"
+          direction={{ xs: 'column', md: 'row' }}
         >
           <Box
             maxWidth={{ xs: 1, sm: '50%' }}
@@ -91,8 +72,7 @@ const TypedIntro = (): JSX.Element => {
                     'that scale',
                   ]}
                   typeSpeed={150}
-                  loop={true}
-                  preStringTyped={handleNextImage}
+                  loop
                 />
               </Typography>
             </Typography>
@@ -125,33 +105,6 @@ const TypedIntro = (): JSX.Element => {
             </Button>*/}
             </Stack>
           </Box>
-          {images.map((image, index) => (
-            <Box
-              sx={{
-                display: { xs: 'none', sm: 'block' },
-                maxWidth: { xs: 1, sm: '75%' },
-                position: 'absolute',
-                width: '100%',
-                right: 0,
-                textAlign: 'right',
-                top: '4rem',
-                zIndex: 0,
-              }}
-              key={index}
-            >
-              <img
-                src={theme.palette.mode == 'light' ? image.light : image.dark}
-                width="100%"
-                alt="Splash demo"
-                style={{
-                  // Fade to white when src changes
-                  transition: 'opacity 0.5s ease-in-out',
-                  opacity: currentImageIndex === index ? 0.2 : 0,
-                  maxWidth: '1000px',
-                }}
-              />
-            </Box>
-          ))}
         </Stack>
       </Container>
       <Box
@@ -160,7 +113,7 @@ const TypedIntro = (): JSX.Element => {
         }}
       />
       <Box
-        component={'svg'}
+        component="svg"
         preserveAspectRatio="none"
         xmlns="http://www.w3.org/2000/svg"
         x="0px"
@@ -168,14 +121,23 @@ const TypedIntro = (): JSX.Element => {
         viewBox="0 0 1920 100.1"
         sx={{
           width: '100%',
-          marginBottom: theme.spacing(-1),
+          zIndex: 1,
+          marginBottom: -2,
         }}
       >
         <path
           fill={theme.palette.background.paper}
+          opacity={1}
           d="M0,0c0,0,934.4,93.4,1920,0v100.1H0L0,0z"
         ></path>
       </Box>
+      <Box
+        sx={{
+          height: '5vh',
+          backgroundColor: theme.palette.background.paper,
+          zIndex: 1,
+        }}
+      />
     </Box>
   )
 }

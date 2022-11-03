@@ -10,6 +10,8 @@ import {
   Button,
   Link,
   Paper,
+  Grid,
+  useMediaQuery,
 } from '@mui/material'
 
 import { Link as RouterLink, routes } from '@redwoodjs/router'
@@ -30,18 +32,19 @@ const emailIcon = (
 export const ContactUs = () => {
   const theme = useTheme()
 
+  const isMd = useMediaQuery(theme.breakpoints.up('md'))
+
   return (
-    <>
-      <Stack spacing={6} marginY={6}>
-        <Typography variant="h4">Reach Us</Typography>
-        <Stack
-          direction={{
-            xs: 'column',
-            sm: 'column',
-            md: 'row',
+    <Stack spacing={2} marginY={6}>
+      <Typography variant="h4">Reach Us</Typography>
+      <Grid container spacing={isMd ? 6 : 0}>
+        <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{
+            marginBottom: isMd ? 0 : 6,
           }}
-          justifyContent="space-between"
-          spacing={4}
         >
           <Stack spacing={2}>
             <Typography
@@ -114,6 +117,8 @@ export const ContactUs = () => {
               </Stack>
             </Paper>
           </Stack>
+        </Grid>
+        <Grid item xs={12} md={6}>
           <Stack spacing={2}>
             <Typography
               variant="h6"
@@ -149,8 +154,8 @@ export const ContactUs = () => {
               />
             </ListItem>
           </Stack>
-        </Stack>
-      </Stack>
-    </>
+        </Grid>
+      </Grid>
+    </Stack>
   )
 }

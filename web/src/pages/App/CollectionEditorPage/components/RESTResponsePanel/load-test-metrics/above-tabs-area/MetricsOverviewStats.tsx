@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react'
 
 import { GlobeTestMessage, MetricsCombination } from '@apiteam/types/src'
-import { Grid, useTheme } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
+import {
+  Alert,
+  Grid,
+  useTheme,
+  AlertTitle,
+  Stack,
+  IconButton,
+} from '@mui/material'
 
 import { StatsItem } from '../../../stats'
 
@@ -15,6 +23,7 @@ type MetricsStats = {
 
 type MetricsOverviewStatsProps = {
   metrics: (GlobeTestMessage & MetricsCombination)[]
+  wasLimited?: boolean
 }
 
 const calculateStats = (
@@ -63,6 +72,7 @@ const calculateStats = (
 
 export const MetricsOverviewStats = ({
   metrics,
+  wasLimited,
 }: MetricsOverviewStatsProps) => {
   const theme = useTheme()
 
@@ -87,29 +97,47 @@ export const MetricsOverviewStats = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metrics])
 
+  const [hiddenWarning, setHiddenWarning] = useState(false)
+
   return (
-    <Grid container spacing={2}>
-      <StatsItem
-        name="Total Requests"
-        value={stats.totalRequests}
-        units="reqs"
-      />
-      <StatsItem
-        name="Failed Requests"
-        value={stats.failedRequests}
-        valueColor={theme.palette.error.main}
-        units="reqs"
-      />
-      <StatsItem
-        name="Peak Requests"
-        value={stats.peakRequests}
-        units="reqs / second"
-      />
-      <StatsItem
-        name="Mean Duration"
-        value={stats.meanDuration}
-        units={stats.meanDurationUnits}
-      />
-    </Grid>
+    <Stack spacing={1}>
+      {wasLimited && !hiddenWarning && (
+        <Alert
+          severity="warning"
+          action={
+            <IconButton onClick={() => setHiddenWarning(true)}>
+              <CloseIcon />
+            </IconButton>
+          }
+        >
+          <AlertTitle>Warning</AlertTitle>
+          An unverified domain was used in this test so requests per second are
+          limited. Verify the domain to remove load limits.
+        </Alert>
+      )}
+      <Grid container spacing={2}>
+        <StatsItem
+          name="Total Requests"
+          value={stats.totalRequests}
+          units="reqs"
+        />
+        <StatsItem
+          name="Failed Requests"
+          value={stats.failedRequests}
+          valueColor={theme.palette.error.main}
+          units="reqs"
+        />
+        <StatsItem
+          name="Peak Requests"
+          value={stats.peakRequests}
+          units="reqs / second"
+        />
+        <StatsItem
+          name="Mean Duration"
+          value={stats.meanDuration}
+          units={stats.meanDurationUnits}
+        />
+      </Grid>
+    </Stack>
   )
 }

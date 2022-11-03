@@ -36,7 +36,7 @@ export type ExecutionParams = {
     variant: 'USER' | 'TEAM'
     variantTargetId: string
   }
-  verifiedDomains: VerifiedDomain[]
+  verifiedDomains: string[]
 }
 
 /* Wrapper around the execution params that servers as user arguments to the
@@ -111,7 +111,7 @@ export const BUILT_IN_METRICS = [
 type MessageCombination =
   | {
       messageType: 'MESSAGE'
-      message: string
+      message: 'UNVERIFIED_DOMAIN_THROTTLED' | string
     }
   | {
       messageType: 'CONSOLE'

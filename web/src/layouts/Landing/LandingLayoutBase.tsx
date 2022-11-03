@@ -22,6 +22,7 @@ type SplashLayoutProps = {
   }
   disableTop?: boolean
   backgroundColor?: string
+  overflowIntoAppBar?: boolean
 }
 
 export const LandingLayoutBase = ({
@@ -30,6 +31,7 @@ export const LandingLayoutBase = ({
   disableTop = false,
   appBarInner = null,
   backgroundColor,
+  overflowIntoAppBar,
 }: SplashLayoutProps) => {
   const theme = useTheme()
 
@@ -55,7 +57,7 @@ export const LandingLayoutBase = ({
       </Head>
       <Box
         sx={{
-          backgroundColor: theme.palette.background.paper,
+          backgroundColor: backgroundColor ?? theme.palette.background.paper,
           position: 'relative',
           minHeight: '100vh',
         }}
@@ -77,9 +79,16 @@ export const LandingLayoutBase = ({
             },
             backgroundColor:
               backgroundColor ?? theme.palette.background.default,
+            overflow: overflowIntoAppBar ? 'visible' : 'hidden',
           }}
         >
-          <main>{children}</main>
+          <main
+            style={{
+              overflow: overflowIntoAppBar ? 'visible' : 'hidden',
+            }}
+          >
+            {children}
+          </main>
         </Box>
         {footer.element}
       </Box>

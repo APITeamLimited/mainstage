@@ -8,6 +8,7 @@ export const ROUTES = {
   blanketUnsubscribe: '/blanket-unsubscribe',
   whyAPITeam: '/platform/why-apiteam',
   pricing: '/platform/pricing',
+  aboutCollectionEditor: '/platform/collection-editor',
   about: '/company/about',
   contact: '/contact',
   termsOfService: '/legal/terms-of-service',
@@ -29,4 +30,9 @@ export const ROUTES = {
   deleteAccount: '/delete-account',
   deleteTeam: '/delete-team',
   changeOwner: '/change-owner',
+} as const
+
+export const LINKS = {
+  gitHub: 'https://github.com/APITeamLimited',
+  linkedIn: 'https://www.linkedin.com/company/apiteamlimited',
 } as const

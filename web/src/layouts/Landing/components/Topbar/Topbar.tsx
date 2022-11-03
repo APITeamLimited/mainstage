@@ -1,7 +1,7 @@
 import React from 'react'
 
 import MenuIcon from '@mui/icons-material/Menu'
-import { Container, Typography } from '@mui/material'
+import { Container } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
@@ -26,12 +26,13 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
     <Container
       sx={{
         py: 2,
+        backgroundColor: 'transparent',
       }}
     >
       <Box
-        display={'flex'}
-        justifyContent={'space-between'}
-        alignItems={'center'}
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
         width={1}
       >
         <Link
@@ -44,7 +45,7 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
         >
           <APITeamLogo />
         </Link>
-        <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems={'center'}>
+        <Box sx={{ display: { xs: 'none', md: 'flex' } }} alignItems="center">
           {brandedRoutes.map((route, index) => {
             if (route.includeAppBar === false) {
               return <></>
@@ -71,7 +72,7 @@ const Topbar = ({ onSidebarOpen }: Props): JSX.Element => {
           <Button
             onClick={() => onSidebarOpen()}
             aria-label="Menu"
-            variant={'outlined'}
+            variant="outlined"
             sx={{
               borderRadius: 2,
               minWidth: 'auto',

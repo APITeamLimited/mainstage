@@ -68,7 +68,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
   )
 
   if (existingJobCount >= 5) {
-    socket.emit('error', 'Too many tests already running, cancel some first')
+    socket.emit('error', 'Too many tests already running, cancel one first')
     return
   }
 
@@ -105,6 +105,8 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     await getVerifiedDomains(
       socket.scope.variant,
       socket.scope.variantTargetId
+    ).then((domains) =>
+      domains.filter((domain) => domain.verified).map((d) => d.domain)
     ),
   ])
 

@@ -107,6 +107,19 @@ export const LoadingMultipleResponsePanel = ({
     }
   }, [activeTabIndex])
 
+  const wasLimited = useMemo(
+    () =>
+      globeTestLogs?.filter(
+        (log) =>
+          log.messageType === 'MESSAGE' &&
+          log.message === 'UNVERIFIED_DOMAIN_THROTTLED'
+      )
+        ? true
+        : // eslint-disable-next-line react-hooks/exhaustive-deps
+          false,
+    [globeTestLogs]
+  )
+
   return (
     <>
       <SendingRequestAnimation />
@@ -123,6 +136,7 @@ export const LoadingMultipleResponsePanel = ({
                 | null
             }
             responseYMap={focusedResponse}
+            wasLimited={wasLimited}
           />
         }
       >

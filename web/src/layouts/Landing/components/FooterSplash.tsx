@@ -1,3 +1,6 @@
+import { LINKS } from '@apiteam/types/src'
+import GitHubIcon from '@mui/icons-material/GitHub'
+import LinkedInIcon from '@mui/icons-material/LinkedIn'
 import {
   Container,
   Grid,
@@ -7,6 +10,8 @@ import {
   useTheme,
   Divider,
   useMediaQuery,
+  SvgIcon,
+  Tooltip,
 } from '@mui/material'
 
 import { Link } from '@redwoodjs/router'
@@ -15,21 +20,28 @@ import { APITeamLogo } from 'src/components/APITeamLogo'
 import { brandedRoutes } from 'src/Routes'
 
 export const FOOTER_SPASH_HEIGHT = {
-  xs: '600px',
+  xs: '950px',
   md: '500px',
 }
 
-const LogoBanners = () => {
-  return (
-    <Grid item key={-1} alignSelf="center">
-      <APITeamLogo disableLinks />
-    </Grid>
-  )
-}
+const socialLinks = [
+  {
+    name: 'GitHub',
+    actionMessage: 'Check us out on GitHub',
+    href: LINKS.gitHub,
+    icon: GitHubIcon,
+  },
+  {
+    name: 'LinkedIn',
+    actionMessage: 'Connect with us on LinkedIn',
+    href: LINKS.linkedIn,
+    icon: LinkedInIcon,
+  },
+]
 
 export const FooterSplash = () => {
   const theme = useTheme()
-  const isMd = useMediaQuery(theme.breakpoints.down('md'))
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'))
 
   return (
     <Box
@@ -61,56 +73,79 @@ export const FooterSplash = () => {
             backgroundColor: theme.palette.alternate.dark,
             alignItems: 'center',
             height: '100%',
-            padding: 4,
+            paddingX: 6,
+            paddingY: 12,
           }}
         >
           <Stack
-            justifyContent={{
-              md: 'space-between',
-              xs: 'space-evenly',
-            }}
-            spacing={4}
             sx={{
-              height: '100%',
+              width: '100%',
             }}
+            justifyContent="center"
+            alignItems="flex-start"
           >
-            {isMd && <LogoBanners />}
-            <Box
+            <Stack
+              direction={isSmall ? 'column' : 'row'}
+              spacing={6}
               sx={{
-                display: 'flex',
-                alignItems: 'center',
-                height: '100%',
-                justifyContent: 'center',
+                width: '100%',
+                marginBottom: 6,
               }}
+              alignItems="center"
+              justifyContent={isSmall ? 'flex-start' : 'space-between'}
             >
-              <Grid
-                container
-                spacing={{
-                  xs: 4,
-                  md: 10,
-                }}
-                justifyContent="center"
-              >
-                {!isMd && <LogoBanners />}
-                {brandedRoutes.map((route, index) => (
-                  <Grid item key={index} alignItems="center">
-                    <Stack spacing={1}>
-                      <Typography
+              <APITeamLogo disableLinks height="50px" />
+              <Stack direction="row" spacing={2}>
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Tooltip title={link.actionMessage}>
+                      <SvgIcon
+                        component={link.icon}
+                        fontSize="large"
                         sx={{
-                          paddingBottom: 1,
-                          fontWeight: 'bold',
                           color: theme.palette.text.primary,
                         }}
-                      >
-                        {route.name}
-                      </Typography>
+                      />
+                    </Tooltip>
+                  </a>
+                ))}
+              </Stack>
+            </Stack>
+            <Divider flexItem sx={{ marginBottom: 6 }} />
+            <Grid container justifyContent="flex-start" alignItems="baseline">
+              {brandedRoutes.map((route, index) => (
+                <Grid
+                  item
+                  key={index}
+                  alignItems="center"
+                  sx={{
+                    marginRight: 12,
+                    marginBottom: 6,
+                  }}
+                >
+                  <Stack spacing={4}>
+                    <Typography
+                      sx={{
+                        fontWeight: 'bold',
+                        color: theme.palette.text.primary,
+                      }}
+                      variant="h6"
+                    >
+                      {route.name}
+                    </Typography>
+                    <Stack spacing={2}>
                       {route.sublinks.map(
                         (
                           subLink: { name: string; path: string },
                           indexLink: number
                         ) => {
                           return (
-                            <Typography key={indexLink}>
+                            <Typography key={indexLink} variant="body2">
                               <Link
                                 key={indexLink}
                                 to={subLink.path}
@@ -126,19 +161,19 @@ export const FooterSplash = () => {
                         }
                       )}
                     </Stack>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+                  </Stack>
+                </Grid>
+              ))}
+            </Grid>
+            <Divider flexItem sx={{ marginBottom: 6 }} />
             <Typography
               variant="caption"
               sx={{
-                textAlign: 'center',
                 color: theme.palette.text.secondary,
               }}
             >
-              © {new Date().getFullYear()} APITeam. APITeam is a limited company
-              registered in England and Wales, Company Number 13429411
+              © {new Date().getFullYear()} APITeam Limited. Registered in
+              England and Wales, Company No. 13429411
             </Typography>
           </Stack>
         </Container>

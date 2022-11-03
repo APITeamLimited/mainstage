@@ -6,6 +6,8 @@ type CustomAppBarProps = {
   disableTop?: boolean
 }
 
+export const nightAppBarColor = '#2E3441'
+
 export const CustomAppBar = ({
   children,
   trigger,
@@ -18,12 +20,17 @@ export const CustomAppBar = ({
       position="sticky"
       sx={{
         top: 0,
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor:
+          trigger || !disableTop
+            ? theme.palette.background.paper
+            : 'transparent',
         // Prevent app bar form changing color by applying desired linearGradien
         // all the time
         backgroundImage: disableTop
           ? undefined
-          : 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
+          : !trigger
+          ? 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))'
+          : undefined,
 
         // Disable shaddow on top of appbar
         clipPath: disableTop ? undefined : `inset(1 0px -20px 0px)`,

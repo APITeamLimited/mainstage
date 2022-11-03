@@ -10,7 +10,7 @@ import {
 
 import { useQuery } from '@redwoodjs/web'
 
-import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
+import { GlobeTestIcon } from 'src/components/utils/Icons'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { StatusBarItem } from '../StatusBarItem'
@@ -43,7 +43,7 @@ export const RunningTestsIndicator = () => {
     variables: {
       teamId,
     },
-    pollInterval: 1000,
+    pollInterval: 2000,
   })
 
   const refetchRunningCount = useReactiveVar(refetchRunningCountVar)

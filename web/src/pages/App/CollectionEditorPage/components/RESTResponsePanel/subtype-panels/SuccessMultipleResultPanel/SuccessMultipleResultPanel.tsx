@@ -94,6 +94,19 @@ export const SuccessMultipleResultPanel = ({
     [focusedResponseHook]
   )
 
+  const wasLimited = useMemo(
+    () =>
+      storedGlobeTestLogs?.filter(
+        (log) =>
+          log.messageType === 'MESSAGE' &&
+          log.message === 'UNVERIFIED_DOMAIN_THROTTLED'
+      )
+        ? true
+        : // eslint-disable-next-line react-hooks/exhaustive-deps
+          false,
+    [storedGlobeTestLogs]
+  )
+
   useEffect(() => {
     if (fetching) {
       return
@@ -128,6 +141,7 @@ export const SuccessMultipleResultPanel = ({
             | null
         }
         responseYMap={focusedResponse}
+        wasLimited={wasLimited}
       />
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps

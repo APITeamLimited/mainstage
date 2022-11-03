@@ -24,42 +24,37 @@ export const brandedRoutes = [
         name: 'Why APITeam',
       },
       {
-        path: '/pricing',
-        name: 'Pricing',
+        path: ROUTES.pricing,
+        name: 'Plans and Pricing',
         includeAppBar: false,
       },
       {
-        path: '/platform/collection-editor',
+        path: ROUTES.aboutCollectionEditor,
         name: 'Collection Editor',
       },
       {
-        path: '/platform/globe-test',
-        name: 'Globe Test',
-      },
-      /* {
-        path: '/platform/api-publishing',
-        name: 'API Publishing',
-      },*/
-      {
-        path: '/docs',
-        name: 'Docs',
-        includeAppBar: false,
+        path: '/platform/load-testing',
+        name: 'Load Testing',
       },
     ],
   },
   {
-    name: 'Company',
+    name: 'About',
     sublinks: [
       {
-        path: '/company/about',
+        path: ROUTES.about,
         name: 'About',
       },
       {
-        path: '/blog',
+        path: '/open-source',
+        name: 'Open Source',
+      },
+      {
+        path: ROUTES.blog,
         name: 'Blog',
       },
       {
-        path: '/contact',
+        path: ROUTES.contact,
         name: 'Contact Us',
       },
     ],
@@ -69,15 +64,15 @@ export const brandedRoutes = [
     name: 'Legal',
     sublinks: [
       {
-        path: '/legal/terms-of-service',
+        path: ROUTES.termsOfService,
         name: 'Terms of Service',
       },
       {
-        path: '/legal/privacy-policy',
+        path: ROUTES.privacyPolicy,
         name: 'Privacy Policy',
       },
       {
-        path: '/legal/cookie-policy',
+        path: ROUTES.cookiePolicy,
         name: 'Cookie Policy',
       },
     ],

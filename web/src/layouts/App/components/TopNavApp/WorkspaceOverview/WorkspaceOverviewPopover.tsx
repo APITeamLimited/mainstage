@@ -104,6 +104,7 @@ export const WorkspaceOverviewPopover = ({
                 sx={{
                   width: '100%',
                 }}
+                spacing={2}
               >
                 {members.map((member, index) => {
                   // If online in last minute, show online dot

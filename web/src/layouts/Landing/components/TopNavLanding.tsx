@@ -1,5 +1,3 @@
-import { Box } from '@mui/material'
-
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 type TopNavProps = {

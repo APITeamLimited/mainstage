@@ -20,6 +20,7 @@ import {
   useServerAwareness,
   useWorkspaceInfo,
 } from 'src/entity-engine/EntityEngine'
+import { nightAppBarColor } from 'src/layouts/CustomAppBar'
 
 import { WorkspaceOverviewPopover } from './WorkspaceOverviewPopover'
 import { WorkspaceSwitcherPopover } from './WorkspaceSwitcherPopover'
@@ -55,7 +56,18 @@ export const WorkspaceSwitcher = () => {
       ] as MemberAwareness[]
     }
 
-    return serverAwareness.members as MemberAwareness[]
+    // Temporary just for screenshots
+    return [
+      ...serverAwareness.members,
+      {
+        userId: workspaceInfo?.scope?.userId,
+        displayName: workspaceInfo?.scope?.displayName,
+        role: 'OWNER',
+        profilePicture: workspaceInfo?.scope?.profilePicture,
+        joinedTeam: new Date(),
+        lastOnline: 0,
+      },
+    ] as MemberAwareness[]
   }, [workspaceInfo, serverAwareness])
 
   if (!workspaceInfo) return <></>
@@ -81,6 +93,12 @@ export const WorkspaceSwitcher = () => {
               max={3}
               sx={{
                 marginLeft: workspaceInfo.scope.variant === 'TEAM' ? 1 : 0,
+                '& .MuiAvatar-root': {
+                  borderColor:
+                    theme.palette.mode === 'light'
+                      ? theme.palette.background.paper
+                      : nightAppBarColor,
+                },
               }}
             >
               {usedMembers.map((member, index) => {
@@ -103,7 +121,11 @@ export const WorkspaceSwitcher = () => {
                         borderRadius: '50%',
                         right: '6px',
                         bottom: '6px',
-                        border: `2px solid ${theme.palette.background.paper}`,
+                        border: `2px solid ${
+                          theme.palette.mode === 'light'
+                            ? theme.palette.background.paper
+                            : nightAppBarColor
+                        }`,
                       },
                     }}
                     key={index}

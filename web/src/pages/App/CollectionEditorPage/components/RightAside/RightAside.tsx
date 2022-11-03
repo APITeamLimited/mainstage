@@ -8,7 +8,7 @@ import InfoIcon from '@mui/icons-material/Info'
 import { IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
-import { GlobeTestIcon } from 'src/components/utils/GlobeTestIcon'
+import { GlobeTestIcon } from 'src/components/utils/Icons'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
