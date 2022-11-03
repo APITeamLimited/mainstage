@@ -9,7 +9,7 @@ import { useTheme } from '@mui/material/styles'
 import { Link, routes } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
-import { SignUpOrContinueButton } from 'src/pages/RootPage/components/SignUpOrContinueButton'
+import { SignUpOrContinueButton } from 'src/pages/SplashPage/components/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
 
 const SidebarNav = (): JSX.Element => {

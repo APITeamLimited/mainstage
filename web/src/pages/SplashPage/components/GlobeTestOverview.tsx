@@ -5,7 +5,7 @@ import LandscapeIcon from '@mui/icons-material/Landscape'
 import PublicIcon from '@mui/icons-material/Public'
 import { useTheme } from '@mui/material'
 
-import { FeatureOverviewPanel } from 'src/layouts/Landing/components/FeatureOverviewPanel'
+import { FeatureOverviewPanel } from 'src/layouts/Landing/components/templates/FeatureOverviewPanel'
 
 const features = [
   {

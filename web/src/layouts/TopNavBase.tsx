@@ -7,7 +7,6 @@ import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { TopNavLink } from 'src/components/utils/TopNavLink'
 
 import { UserDropdown } from './App/components/UserDropdown/UserDropdown'
-import { nightAppBarColor } from './CustomAppBar'
 
 type TopNavBaseProps = {
   leftZone?: React.ReactNode
@@ -29,19 +28,20 @@ export const TopNavBase = ({
         borderRadius: 0,
         boxShadow: 'none',
         border: 'none',
-        // For consistency with fix in landing TopNav
-        marginY: '-0.5px',
         backgroundColor: disableTop
           ? 'transparent'
-          : theme.palette.mode === 'light'
-          ? theme.palette.background.paper
-          : nightAppBarColor,
+          : theme.palette.background.paper,
+        // Prevent app bar form changing color by applying desired linearGradien
+        // all the time
+        backgroundImage: disableTop
+          ? undefined
+          : 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
         height: '50px',
         width: '100%',
         alignItems: 'center',
         display: 'flex',
         zIndex: 1,
-        position: 'inherit',
+        position: 'relative',
       }}
       elevation={disableTop ? 0 : 8}
     >

@@ -78,6 +78,7 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
           </Button>
         }
         title={actveWorkspace?.scope.displayName}
+        disableDivider
       >
         {projectYMaps.length > 0 ? (
           <>

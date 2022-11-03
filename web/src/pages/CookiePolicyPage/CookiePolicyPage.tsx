@@ -2,7 +2,7 @@ import { Stack } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
 
-import { Headline } from 'src/pages/RootPage/components/Headline'
+import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 
 import { Markdown } from '../../components/utils/Markdown'
 
@@ -13,7 +13,7 @@ const CookiePolicyPage = () => {
     <>
       <MetaTags title="Cookie Policy" />
       <Stack spacing={2}>
-        <Headline headline="Cookie Policy" />
+        <Headline headline="Cookie Policy" padBottom />
         <Markdown>{cookiePolicy}</Markdown>
       </Stack>
     </>

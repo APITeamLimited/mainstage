@@ -1,7 +1,6 @@
 import { Project } from '@apiteam/types/src'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
-import ImportExportIcon from '@mui/icons-material/ImportExport'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import {
   Dialog,
@@ -13,6 +12,8 @@ import {
   MenuItem,
   SvgIcon,
 } from '@mui/material'
+
+import { ImporterIcon } from 'src/components/utils/Icons'
 
 import { createCollectionDialogStateVar } from './CreateCollectionDialog'
 import { createEnvironmentDialogStateVar } from './CreateEnvironmentDialog'
@@ -61,7 +62,7 @@ export function QuickstartDialog() {
       primary: 'Import',
       secondary:
         'Quickly get started with an existing API, Collection, or something else',
-      icon: ImportExportIcon,
+      icon: ImporterIcon,
       onClick: () => {
         handleClose()
         importDialogStateVar({ isOpen: true, project })

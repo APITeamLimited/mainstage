@@ -1,6 +1,5 @@
 import { ElementType, useState } from 'react'
 
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import {
   useTheme,
   Typography,
@@ -10,10 +9,10 @@ import {
   MenuItem,
   Card,
   SvgIcon,
-  Button,
 } from '@mui/material'
 
-import { navigate } from '@redwoodjs/router'
+import { CallToClickLink } from '../CallToClickLink'
+import { largePanelSpacing, mediumPanelSpacing } from '../constants'
 
 export type FeatureOverviewElement = {
   icon: ElementType
@@ -38,8 +37,6 @@ type FeatureOverviewPanelProps = {
   alignment?: 'left' | 'right'
 }
 
-const gridSpacing = 8
-
 export const FeatureOverviewPanel = ({
   title,
   description,
@@ -54,7 +51,7 @@ export const FeatureOverviewPanel = ({
   const [editorFeatureIndex, setEditorFeatureIndex] = useState(0)
 
   return (
-    <Stack spacing={gridSpacing}>
+    <Stack spacing={largePanelSpacing}>
       <Box>
         <Typography
           variant="h4"
@@ -74,26 +71,14 @@ export const FeatureOverviewPanel = ({
           {description}
         </Typography>
         {moreInfo && (
-          <Button
-            variant="outlined"
-            onClick={() => navigate(moreInfo.link)}
-            endIcon={<ChevronRightIcon />}
-          >
-            {moreInfo.text}
-          </Button>
+          <CallToClickLink text={moreInfo.text} link={moreInfo.link} />
         )}
       </Box>
       <Stack
         direction={
-          isSmall
-            ? alignment === 'left'
-              ? 'column'
-              : 'column-reverse'
-            : alignment === 'left'
-            ? 'row'
-            : 'row-reverse'
+          isSmall ? 'column' : alignment === 'left' ? 'row' : 'row-reverse'
         }
-        spacing={4}
+        spacing={mediumPanelSpacing}
       >
         <Stack spacing={2} sx={{ width: { md: '30%' } }}>
           {elements.map((element, i) => (

@@ -19,7 +19,7 @@ export const LandingLayoutSplash = ({
           md: FOOTER_SPASH_HEIGHT.md,
         },
       }}
-      disableTop={true}
+      disableTop
       backgroundColor="transparent"
       overflowIntoAppBar
     >
@@ -68,6 +68,8 @@ export const LandingLayoutContained = ({
 }: {
   children?: React.ReactNode
 }) => {
+  const theme = useTheme()
+
   return (
     <LandingLayoutBase
       footer={{
@@ -77,15 +79,18 @@ export const LandingLayoutContained = ({
           md: FOOTER_SPASH_HEIGHT.md,
         },
       }}
+      disableTop
     >
-      <Container
-        sx={{
-          paddingY: 6,
-          minHeight: '94vh',
-        }}
-      >
-        {children}
-      </Container>
+      <Box sx={{ backgroundColor: theme.palette.background.paper }}>
+        <Container
+          sx={{
+            paddingY: 6,
+            minHeight: '94vh',
+          }}
+        >
+          {children}
+        </Container>
+      </Box>
     </LandingLayoutBase>
   )
 }

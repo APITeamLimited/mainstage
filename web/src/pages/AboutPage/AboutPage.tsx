@@ -1,15 +1,6 @@
-import {
-  Grid,
-  Stack,
-  Typography,
-  Paper,
-  useTheme,
-  Divider,
-  useMediaQuery,
-} from '@mui/material'
+import { Grid, Stack, Typography, useTheme, useMediaQuery } from '@mui/material'
 
-import { NewsletterSignup } from 'src/components/landing/NewsletterSignup'
-import { Headline } from 'src/pages/RootPage/components/Headline'
+import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 
 const UnionJackGrid = (
   <Grid item xs={12} md={6} style={{ textAlign: 'center' }} marginBottom={6}>
@@ -76,8 +67,6 @@ const AboutPage = () => {
         </Grid>
         {isMd ? null : UnionJackGrid}
       </Grid>
-      <Divider />
-      <NewsletterSignup />
     </Stack>
   )
 }

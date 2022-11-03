@@ -20,21 +20,17 @@ export const brandedRoutes = [
     name: 'Platform',
     sublinks: [
       {
-        path: '/platform/why-apiteam',
-        name: 'Why APITeam',
+        path: ROUTES.apiClient,
+        name: 'API Client',
+      },
+      {
+        path: ROUTES.loadTesting,
+        name: 'Load Testing',
       },
       {
         path: ROUTES.pricing,
         name: 'Plans and Pricing',
         includeAppBar: false,
-      },
-      {
-        path: ROUTES.aboutCollectionEditor,
-        name: 'Collection Editor',
-      },
-      {
-        path: '/platform/load-testing',
-        name: 'Load Testing',
       },
     ],
   },
@@ -84,10 +80,10 @@ const Routes = () => {
   return (
     <Router>
       <Set wrap={LandingLayoutSplash}>
-        <Route path="/" page={RootPage} name="splash" />
+        <Route path="/" page={SplashPage} name="splash" />
       </Set>
       <Set wrap={LandingLayoutContained}>
-        <Route path="/platform/why-apiteam" page={WhyAPITeamPage} name="whyAPITeam" />
+        <Route path="/platform/api-client" page={APIClientPage} name="apiClient" />
         <Route path="/platform/pricing" page={PricingPage} name="pricing" />
         <Route path="/company/about" page={AboutPage} name="about" />
         <Route path="/contact" page={ContactPage} name="contact" />

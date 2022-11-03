@@ -1,6 +1,6 @@
-import { ListItemText, Divider, Stack, Box, Typography } from '@mui/material'
+import { Divider, Stack } from '@mui/material'
 
-import { Headline } from 'src/pages/RootPage/components/Headline'
+import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 
 import { ContactUs } from './components/ContactUs'
 import { DocsHelp } from './components/DocsHelp'

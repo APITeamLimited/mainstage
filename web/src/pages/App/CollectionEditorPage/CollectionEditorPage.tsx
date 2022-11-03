@@ -19,8 +19,8 @@ import { CollectionTree } from './components/CollectionTree'
 import { StatusBar } from './components/StatusBar'
 import { TabController } from './components/TabController'
 
-// App bar height -2 + STATUS_BAR_HEIGHT -1 (border)
-export const viewportHeightReduction = 52 + 20
+// App bar height + STATUS_BAR_HEIGHT (+3)
+export const viewportHeightReduction = 53 + 20
 
 type CollectionEditorPageProps = {
   projectId: string

@@ -2,17 +2,16 @@ import { Box, Container, Stack, useTheme } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
 
-import EditorFeatures from 'src/pages/RootPage/components/EditorFeatures'
-import GlobeTestOverview from 'src/pages/RootPage/components/GlobeTestOverview'
-import PricingOverview from 'src/pages/RootPage/components/PricingOverview'
-import PublishOverview from 'src/pages/RootPage/components/PublishOverview'
-import TypedIntro from 'src/pages/RootPage/components/TypedIntro'
+import { panelSeparation } from 'src/layouts/Landing/components/constants'
+import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
+import GlobeTestOverview from 'src/pages/SplashPage/components/GlobeTestOverview'
+import PricingOverview from 'src/pages/SplashPage/components/PricingOverview'
+import PublishOverview from 'src/pages/SplashPage/components/PublishOverview'
+import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'
 
 import { WhyUseAPITeam } from './components/WhyUseAPITeam'
 
-const mainCardSpacing = 20
-
-const RootPage = () => {
+const SplashPage = () => {
   const theme = useTheme()
 
   return (
@@ -37,9 +36,9 @@ const RootPage = () => {
           }}
         >
           <Stack
-            spacing={mainCardSpacing}
+            spacing={panelSeparation}
             sx={{
-              paddingY: mainCardSpacing,
+              paddingY: panelSeparation,
             }}
           >
             <WhyUseAPITeam />
@@ -54,4 +53,4 @@ const RootPage = () => {
   )
 }
 
-export default RootPage
+export default SplashPage

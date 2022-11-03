@@ -9,7 +9,7 @@ import { MetaTags } from '@redwoodjs/web'
 import { DashboardPageFrame } from 'src/components/app/dashboard/utils/DashboardPageFrame'
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import { Headline } from 'src/pages/RootPage/components/Headline'
+import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 
 import { SETTINGS_TABS } from '..'
 

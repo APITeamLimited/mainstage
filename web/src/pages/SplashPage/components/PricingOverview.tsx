@@ -22,6 +22,8 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 import { Link, routes } from '@redwoodjs/router'
 
+import { CallToClickLink } from 'src/layouts/Landing/components/CallToClickLink'
+
 const mock = [
   {
     title: 'Free',
@@ -196,146 +198,118 @@ const WithOptionTogglerButton = (): JSX.Element => {
         </Container>
       </Box>
       <Container>
-        <Grid container spacing={4}>
-          {mock.map((item, i) => (
-            <Grid item xs={12} md={4} key={i}>
-              <Box
-                component={Card}
-                height={1}
-                display={'flex'}
-                flexDirection={'column'}
-              >
-                <CardContent
-                  sx={{
-                    padding: 4,
-                  }}
+        <Stack spacing={4}>
+          <Grid container spacing={4}>
+            {mock.map((item, i) => (
+              <Grid item xs={12} md={4} key={i}>
+                <Box
+                  component={Card}
+                  height={1}
+                  display={'flex'}
+                  flexDirection={'column'}
                 >
-                  <Box marginBottom={2}>
-                    <Typography variant={'h4'} fontWeight={600} gutterBottom>
-                      {item.title}
-                    </Typography>
-                    <Typography color={'text.secondary'}>
-                      {item.subtitle}
-                    </Typography>
-                  </Box>
-                  <Box
-                    display={'flex'}
-                    alignItems={'baseline'}
-                    marginBottom={2}
-                  >
-                    <Typography variant={'h3'} fontWeight={700}>
-                      {pricingOption === 'annual'
-                        ? item.price.annual
-                        : item.price.monthly}
-                    </Typography>
-                    <Typography
-                      variant={'subtitle1'}
-                      color={'text.secondary'}
-                      fontWeight={700}
-                    >
-                      {pricingOption === 'annual' ? '/y' : '/mo'}
-                    </Typography>
-                  </Box>
-                  <Grid container spacing={1}>
-                    {item.features.map((feature, j) => (
-                      <Grid item xs={12} key={j}>
-                        <Box
-                          component={ListItem}
-                          disableGutters
-                          width={'auto'}
-                          padding={0}
-                        >
-                          <Box
-                            component={ListItemAvatar}
-                            minWidth={'auto !important'}
-                            marginRight={2}
-                          >
-                            <Box
-                              component={Avatar}
-                              bgcolor={theme.palette.primary.main}
-                              width={20}
-                              height={20}
-                            >
-                              <svg
-                                width={12}
-                                height={12}
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </Box>
-                          </Box>
-                          <ListItemText primary={feature} />
-                        </Box>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </CardContent>
-                <Box flexGrow={1} />
-                <CardActions sx={{ justifyContent: 'flex-end', padding: 4 }}>
-                  <Link
-                    to={item.callToAction.path}
-                    style={{
-                      textDecoration: 'none',
+                  <CardContent
+                    sx={{
+                      padding: 4,
                     }}
                   >
-                    <Button
-                      size={'large'}
-                      variant={'contained'}
-                      sx={{
+                    <Box marginBottom={2}>
+                      <Typography variant={'h4'} fontWeight={600} gutterBottom>
+                        {item.title}
+                      </Typography>
+                      <Typography color={'text.secondary'}>
+                        {item.subtitle}
+                      </Typography>
+                    </Box>
+                    <Box
+                      display={'flex'}
+                      alignItems={'baseline'}
+                      marginBottom={2}
+                    >
+                      <Typography variant={'h3'} fontWeight={700}>
+                        {pricingOption === 'annual'
+                          ? item.price.annual
+                          : item.price.monthly}
+                      </Typography>
+                      <Typography
+                        variant={'subtitle1'}
+                        color={'text.secondary'}
+                        fontWeight={700}
+                      >
+                        {pricingOption === 'annual' ? '/y' : '/mo'}
+                      </Typography>
+                    </Box>
+                    <Grid container spacing={1}>
+                      {item.features.map((feature, j) => (
+                        <Grid item xs={12} key={j}>
+                          <Box
+                            component={ListItem}
+                            disableGutters
+                            width={'auto'}
+                            padding={0}
+                          >
+                            <Box
+                              component={ListItemAvatar}
+                              minWidth={'auto !important'}
+                              marginRight={2}
+                            >
+                              <Box
+                                component={Avatar}
+                                bgcolor={theme.palette.primary.main}
+                                width={20}
+                                height={20}
+                              >
+                                <svg
+                                  width={12}
+                                  height={12}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </Box>
+                            </Box>
+                            <ListItemText primary={feature} />
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </CardContent>
+                  <Box flexGrow={1} />
+                  <CardActions sx={{ justifyContent: 'flex-end', padding: 4 }}>
+                    <Link
+                      to={item.callToAction.path}
+                      style={{
                         textDecoration: 'none',
                       }}
                     >
-                      {item.callToAction.text}
-                    </Button>
-                  </Link>
-                </CardActions>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
-        <Link
-          to={routes.pricing()}
-          style={{
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-        >
-          <Stack
-            direction="row"
-            spacing={1}
-            alignItems="center"
-            justifyContent="center"
-            sx={{
-              marginTop: 8,
-              marginBottom: 4,
-            }}
-          >
-            <Typography
-              variant="h6"
-              component="p"
-              color="text.primary"
-              sx={{
-                textDecoration: 'none',
-                color: theme.palette.text.primary,
-              }}
-            >
-              Full pricing and add-ons
-            </Typography>
-            <SvgIcon
-              component={ArrowForwardIosIcon}
-              sx={{
-                color: theme.palette.text.primary,
-              }}
+                      <Button
+                        size={'large'}
+                        variant={'contained'}
+                        sx={{
+                          textDecoration: 'none',
+                        }}
+                      >
+                        {item.callToAction.text}
+                      </Button>
+                    </Link>
+                  </CardActions>
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+          <div>
+            <CallToClickLink
+              text="Full pricing and add-ons"
+              link={routes.pricing()}
             />
-          </Stack>
-        </Link>
+          </div>
+        </Stack>
       </Container>
     </Box>
   )
