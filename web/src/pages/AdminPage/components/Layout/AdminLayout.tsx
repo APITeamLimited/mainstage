@@ -65,8 +65,6 @@ export const AdminLayout = ({ children }: LayoutProps) => {
             {isMd && <SideCardAdmin />}
             <Box
               sx={{
-                justifyContent: 'center',
-                display: 'flex',
                 width: '100%',
               }}
             >

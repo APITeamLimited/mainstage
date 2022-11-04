@@ -1,7 +1,15 @@
-import { Button, Box, Stack, Typography, useTheme } from '@mui/material'
+import {
+  ListItemText,
+  MenuItem,
+  Stack,
+  Typography,
+  useTheme,
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
+
+import { UserAdmin } from '../users'
 
 type SideContentProps = {
   onClose?: () => void
@@ -12,8 +20,8 @@ const sideGroups = [
     title: 'Accounts',
     items: [
       {
-        title: 'Users',
-        gqlName: 'adminUsers',
+        title: UserAdmin.displayNamePlural,
+        gqlName: UserAdmin.gqlName,
       },
     ],
   },
@@ -48,24 +56,16 @@ export const SideContentAdmin = ({ onClose }: SideContentProps) => {
       {sideGroups.map(({ title, items }, index) => (
         <Stack key={index} spacing={2}>
           <Typography
-            variant="h6"
+            variant="overline"
             color={theme.palette.text.secondary}
             sx={{ paddingTop: 4, paddingLeft: 1 }}
           >
             {title}
           </Typography>
           {items.map(({ title, gqlName }, index) => (
-            <Box key={index}>
-              <Button
-                sx={{
-                  color: theme.palette.text.primary,
-                }}
-                variant="text"
-                onClick={() => handleButtonClick(gqlName)}
-              >
-                {title}
-              </Button>
-            </Box>
+            <MenuItem key={index} onClick={() => handleButtonClick(gqlName)}>
+              <ListItemText primary={title} />
+            </MenuItem>
           ))}
         </Stack>
       ))}

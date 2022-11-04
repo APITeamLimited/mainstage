@@ -1,8 +1,10 @@
+import type { SafeUser } from '@apiteam/types/src'
+import type { User } from '@prisma/client'
 import { url as gravatarUrl } from 'gravatar'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { setUserRedis } from 'src/helpers'
+import { recreateAllScopes, setUserRedis } from 'src/helpers'
 import { db } from 'src/lib/db'
 
 export const updateCurrentUser = async ({
@@ -17,7 +19,7 @@ export const updateCurrentUser = async ({
   shortBio?: string | null
   emailMarketing?: boolean
   slug?: string
-}) => {
+}): Promise<SafeUser> => {
   if (!context.currentUser) {
     throw new ServiceValidationError(
       'You must be logged in to update your profile.'
@@ -72,17 +74,22 @@ export const updateCurrentUser = async ({
   })
 
   await setUserRedis(updatedUser)
+  await recreateAllScopes(updatedUser)
 
-  console.log('updatedUser', updatedUser)
-
-  if (!updatedUser.profilePicture) {
-    return {
-      ...updatedUser,
-      profilePicture: gravatarUrl(updatedUser.email, {
-        default: 'mp',
-      }),
-    }
+  return {
+    id: updatedUser.id,
+    firstName: updatedUser.firstName,
+    lastName: updatedUser.lastName,
+    email: updatedUser.email,
+    createdAt: updatedUser.createdAt,
+    updatedAt: updatedUser.updatedAt,
+    isAdmin: updatedUser.isAdmin,
+    emailVerified: updatedUser.emailVerified,
+    shortBio: updatedUser.shortBio,
+    profilePicture: gravatarUrl(updatedUser.email, {
+      default: 'mp',
+    }),
+    emailMarketing: updatedUser.emailMarketing,
+    slug: updatedUser.slug,
   }
-
-  return updatedUser
 }

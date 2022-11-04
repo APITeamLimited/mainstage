@@ -8,6 +8,7 @@
     "@redwoodjs/api": "^3.0.3",
     "@redwoodjs/api-server": "^3.0.3",
     "@redwoodjs/graphql-server": "^3.0.3",
+    "@redwoodjs/record": "^3.3.0",
     "@sendgrid/mail": "^7.7.0",
     "extract-domain": "^2.4.8",
     "gravatar": "^1.8.2",

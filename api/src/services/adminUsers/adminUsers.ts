@@ -1,7 +1,9 @@
-import { validateWith } from '@redwoodjs/api'
+import * as Yup from 'yup'
 
+import { recreateAllScopes, setUserRedis } from 'src/helpers'
 import { db } from 'src/lib/db'
 
+import { DATA_VALID_TIME } from '../admin/constants'
 import { checkAdmin } from '../checkAdmin'
 
 export const adminUserGetList = async ({
@@ -11,9 +13,7 @@ export const adminUserGetList = async ({
   page?: number
   perPage?: number
 }) => {
-  validateWith(checkAdmin)
-
-  console.log({ page, perPage })
+  await checkAdmin()
 
   const dataPromise = db.user.findMany({
     skip: (page - 1) * perPage,
@@ -27,12 +27,12 @@ export const adminUserGetList = async ({
   return {
     data,
     total,
-    validUntil: new Date(Date.now() + 1000 * 60 * 20),
+    validUntil: new Date(Date.now() + DATA_VALID_TIME),
   }
 }
 
 export const adminUserGetOne = async ({ id }: { id: string }) => {
-  validateWith(checkAdmin)
+  await checkAdmin()
 
   const data = await db.user.findFirst({
     where: {
@@ -42,7 +42,7 @@ export const adminUserGetOne = async ({ id }: { id: string }) => {
 
   return {
     data,
-    validUntil: new Date(Date.now() + 1000 * 60 * 20),
+    validUntil: new Date(Date.now() + DATA_VALID_TIME),
   }
 }
 
@@ -52,7 +52,66 @@ export const adminUsersReference = async (
   page: number,
   perPage: number
 ) => {
-  validateWith(checkAdmin)
+  await checkAdmin()
 
   throw new Error('Not implemented')
+}
+
+export const adminUserUpdate = async ({
+  id,
+  firstName,
+  lastName,
+  email,
+  shortBio,
+  emailVerified,
+}: {
+  id: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  shortBio?: string | null
+  emailVerified?: boolean
+}) => {
+  await checkAdmin()
+
+  if (shortBio) {
+    const schema = Yup.string().max(140, 'Must be 140 characters or less')
+    await schema.validate(shortBio)
+  }
+
+  if (firstName) {
+    const schema = Yup.string().max(50, 'Must be 50 characters or less')
+    await schema.validate(firstName)
+  }
+
+  if (lastName) {
+    const schema = Yup.string().max(50, 'Must be 50 characters or less')
+    await schema.validate(lastName)
+  }
+
+  if (email) {
+    const schema = Yup.string().email('Must be a valid email')
+    await schema.validate(email)
+  }
+
+  const updatedUser = await db.user.update({
+    where: {
+      id,
+    },
+    data: {
+      firstName,
+      lastName,
+      email,
+      shortBio,
+      emailVerified,
+    },
+  })
+
+  await setUserRedis(updatedUser)
+  await recreateAllScopes(updatedUser)
+
+  return {
+    data: updatedUser,
+    validUntil: new Date(Date.now() + DATA_VALID_TIME),
+  }
 }

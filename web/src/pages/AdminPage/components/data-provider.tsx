@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react'
 
+import type { DocumentNode } from '@apollo/client'
 import { ApolloClient } from '@apollo/client'
-import type { Documentquery } from 'graphql'
 
 import { UserAdmin } from './users'
 
@@ -14,7 +14,7 @@ type SortArgs = {
 
 type ValidMethod = {
   name: string
-  query: Documentquery
+  query: DocumentNode
 }
 
 type PaginationArgs = {
@@ -38,8 +38,9 @@ export type ValidAdmin = {
     deleteMany: ValidMethod
   }
   admins: {
-    show: ReactElement
-    list: ReactElement
+    show?: ReactElement
+    list?: ReactElement
+    edit?: ReactElement
   }
 }
 
@@ -78,7 +79,7 @@ export class DataProviderInstance {
           perPage: params.pagination?.perPage,
         },
       })
-    ).data[admin.getList.name]
+    ).data[admin.methods.getList.name]
   }
 
   async getOne(resource: string, params: { id: string }) {
@@ -91,7 +92,7 @@ export class DataProviderInstance {
           id: params.id,
         },
       })
-    ).data[admin.methodNames.getOne]
+    ).data[admin.methods.getOne.name]
   }
 
   getMany(resource: string, params: { ids: Array<string> }) {

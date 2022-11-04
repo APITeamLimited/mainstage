@@ -82,20 +82,7 @@ export const createPersonalScope = async (user: SafeUser) => {
   const { scope, changed } = await getLatestScope()
 
   if (changed) {
-    await coreCacheReadRedis.set(`scope__id:${scope.id}`, JSON.stringify(scope))
-    await coreCacheReadRedis.publish(
-      `scope__id:${scope.id}`,
-      JSON.stringify(scope)
-    )
-    await coreCacheReadRedis.hSet(
-      `scope__userId:${user.id}`,
-      scope.id,
-      JSON.stringify(scope)
-    )
-    await coreCacheReadRedis.publish(
-      `scope__userId:${user.id}`,
-      JSON.stringify(scope)
-    )
+    await setScopeRedis(scope)
   }
 
   return scope
@@ -177,20 +164,7 @@ export const createTeamScope = async (
   const { scope, changed } = await getLatestScope()
 
   if (changed) {
-    await coreCacheReadRedis.set(`scope__id:${scope.id}`, JSON.stringify(scope))
-    await coreCacheReadRedis.publish(
-      `scope__id:${scope.id}`,
-      JSON.stringify(scope)
-    )
-    await coreCacheReadRedis.hSet(
-      `scope__userId:${user.id}`,
-      scope.id,
-      JSON.stringify(scope)
-    )
-    await coreCacheReadRedis.publish(
-      `scope__userId:${user.id}`,
-      JSON.stringify(scope)
-    )
+    await setScopeRedis(scope)
   }
 
   return scope
@@ -217,4 +191,50 @@ export const deleteScope = async (scopeId: string) => {
   await coreCacheReadRedis.hDel(`scope__userId:${scope.userId}`, scopeId)
   await coreCacheReadRedis.publish(`scope__id:${scopeId}`, 'DELETED')
   await coreCacheReadRedis.publish(`scope__userId:${scope.userId}`, 'DELETED')
+}
+
+// Recreates all scopes
+export const recreateAllScopes = async (user: SafeUser) => {
+  const memberships = await db.membership.findMany({
+    where: {
+      userId: user.id,
+    },
+  })
+
+  const teams = await db.team.findMany({
+    where: {
+      id: {
+        in: memberships.map((membership) => membership.teamId),
+      },
+    },
+  })
+
+  const scopes = (await Promise.all(
+    memberships.map((membership) => {
+      const team = teams.find((team) => team.id === membership.teamId)
+      if (!team) {
+        return null
+      }
+      return createTeamScope(team, membership, user)
+    })
+  ).then((scopes) => scopes.filter((scope) => scope !== null))) as Scope[]
+
+  await Promise.all(scopes.map(setScopeRedis))
+}
+
+const setScopeRedis = async (scope: Scope) => {
+  await coreCacheReadRedis.set(`scope__id:${scope.id}`, JSON.stringify(scope))
+  await coreCacheReadRedis.publish(
+    `scope__id:${scope.id}`,
+    JSON.stringify(scope)
+  )
+  await coreCacheReadRedis.hSet(
+    `scope__userId:${scope.userId}`,
+    scope.id,
+    JSON.stringify(scope)
+  )
+  await coreCacheReadRedis.publish(
+    `scope__userId:${scope.userId}`,
+    JSON.stringify(scope)
+  )
 }

@@ -4,7 +4,7 @@ import { useApolloClient, ApolloClient } from '@apollo/client'
 import { useTheme } from '@mui/material'
 import { Admin, Resource } from 'react-admin'
 
-import { admins, DataProviderInstance, ValidAdmin } from './data-provider'
+import { admins, DataProviderInstance } from './data-provider'
 import { AdminLayout } from './Layout/AdminLayout'
 
 export const ReactAdmin = () => {
@@ -23,6 +23,7 @@ export const ReactAdmin = () => {
             key={index}
             list={admin.admins.list}
             show={admin.admins.show}
+            edit={admin.admins.edit}
             options={{
               label: admin.displayNamePlural,
             }}

@@ -1,7 +1,7 @@
-import { ValidAdmin } from '../ReactAdmin'
+import { ValidAdmin } from '../data-provider'
 
+import { UserEdit } from './UserEdit'
 import { UserList } from './UserList'
-import { UserShow } from './UserShow'
 
 export const USER_ADMIN_GET_LIST_QUERY = gql`
   query AdminUserGetList($page: Int, $perPage: Int) {
@@ -120,6 +120,6 @@ export const UserAdmin: ValidAdmin = {
   },
   admins: {
     list: UserList,
-    show: UserShow,
+    edit: UserEdit,
   },
 }
