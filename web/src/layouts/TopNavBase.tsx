@@ -6,7 +6,7 @@ import { routes } from '@redwoodjs/router'
 import ThemeModeToggler from 'src/components/ThemeModeToggler'
 import { TopNavLink } from 'src/components/utils/TopNavLink'
 
-import { UserDropdown } from './App/components/UserDropdown/UserDropdown'
+import { UserDropdownButton } from './App/components/UserDropdown/UserDropdownButton'
 
 type TopNavBaseProps = {
   leftZone?: React.ReactNode
@@ -69,7 +69,7 @@ export const TopNavBase = ({
               <TopNavLink name="Login" path={routes.login()} />
             )}
             <ThemeModeToggler />
-            <UserDropdown />
+            <UserDropdownButton />
           </Stack>
         </Box>
       </Stack>

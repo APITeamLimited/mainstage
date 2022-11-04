@@ -112,13 +112,20 @@ export const FramedGraph = ({
           }}
         >
           <Card
-            sx={{ maxHeight: `${GRAPH_HEIGHT - 2}px`, overflow: 'hidden' }}
+            sx={{
+              maxHeight: 'calc(100% - 2px)',
+              overflow: 'hidden',
+              height: '100%',
+            }}
             variant="outlined"
           >
-            <Box
+            <Stack
               sx={{
-                padding: 2,
+                maxHeight: 'calc(100% - 2rem)',
+                overflow: 'hidden',
+                height: '100%',
               }}
+              padding={2}
             >
               <Stack
                 direction="row"
@@ -174,12 +181,20 @@ export const FramedGraph = ({
                   </IconButton>
                 </Stack>
               </Stack>
-              <BaseGraph
-                graph={graph}
-                metrics={metrics ?? []}
-                key={graph.desiredWidth}
-              />
-            </Box>
+              <Box
+                sx={{
+                  height: '100%',
+                  maxHeight: '100%',
+                }}
+              >
+                <BaseGraph
+                  graph={graph}
+                  metrics={metrics ?? []}
+                  key={graph.desiredWidth}
+                  showDescription
+                />
+              </Box>
+            </Stack>
           </Card>
         </Box>
       </Grid>

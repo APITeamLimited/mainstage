@@ -1,8 +1,9 @@
 import { IsAdminQuery } from 'types/graphql'
 
 import { useAuth } from '@redwoodjs/auth'
-import { navigate, routes } from '@redwoodjs/router'
 import { useQuery } from '@redwoodjs/web'
+
+import NotFoundCover from 'src/components/NotFoundCover'
 
 const IS_ADMIN_QUERY = gql`
   query IsAdminQuery {
@@ -24,7 +25,7 @@ export const AdminGuard = ({ children }: GuardProps) => {
   })
 
   if (data?.currentUser.isAdmin === false) {
-    navigate(routes.splash())
+    return <NotFoundCover />
   }
 
   return data?.currentUser.isAdmin ? <>{children}</> : <></>

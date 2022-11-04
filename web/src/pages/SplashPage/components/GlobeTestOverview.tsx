@@ -1,44 +1,8 @@
-import React from 'react'
-
-import InsightsIcon from '@mui/icons-material/Insights'
-import LandscapeIcon from '@mui/icons-material/Landscape'
-import PublicIcon from '@mui/icons-material/Public'
+import { ROUTES } from '@apiteam/types/src'
 import { useTheme } from '@mui/material'
 
 import { FeatureOverviewPanel } from 'src/layouts/Landing/components/templates/FeatureOverviewPanel'
-
-const features = [
-  {
-    title: 'Multi-Region Support',
-    description:
-      'Each load test is orchestrated globally from multiple servers in the APITeam Cloud, enabling geographic insights into your load test results.',
-    icon: PublicIcon,
-    image: {
-      light: require('public/img/splash/environments-light.png'),
-      dark: require('public/img/splash/environments-dark.png'),
-    },
-  },
-  {
-    title: 'K6 Compatible',
-    description:
-      'GlobeTest is bult upon K6, the most popular load testing tool. Import existing tests and run them instantly',
-    icon: LandscapeIcon,
-    image: {
-      light: require('public/img/splash/environments-light.png'),
-      dark: require('public/img/splash/environments-dark.png'),
-    },
-  },
-  {
-    title: 'Unparalleled Insights',
-    description:
-      'Easily determine problems with your system at load, get detailed insights, easily export your data to use with your own tools, and more',
-    icon: InsightsIcon,
-    image: {
-      light: require('public/img/splash/environments-light.png'),
-      dark: require('public/img/splash/environments-dark.png'),
-    },
-  },
-]
+import { globeTestFeaturesMinimal } from 'src/layouts/Landing/content/globe-test-features'
 
 const GlobeTestOverview = (): JSX.Element => {
   const theme = useTheme()
@@ -57,10 +21,15 @@ const GlobeTestOverview = (): JSX.Element => {
           your APIs globally with a single click
         </>
       }
-      description="Test your API globally using distributed load testing with
-                GlobeTest, our open source load testing tool built on top of K6."
-      elements={features}
+      description="Load test your API globally using distributed load testing with
+                GlobeTest, our open source load testing tool built on top of K6. Import existing tests and run them instantly using our
+                cloud infrastructure."
+      elements={globeTestFeaturesMinimal}
       alignment="right"
+      moreInfo={{
+        text: 'Learn more about load testing with APITeam',
+        link: ROUTES.loadTesting,
+      }}
     />
   )
 }

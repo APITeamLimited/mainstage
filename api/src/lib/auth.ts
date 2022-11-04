@@ -1,4 +1,5 @@
 import { ensureCorrectType, SafeUser } from '@apiteam/types'
+import { url as gravatarUrl } from 'gravatar'
 
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
@@ -25,15 +26,22 @@ import { coreCacheReadRedis } from './redis'
  * seen if someone were to open the Web Inspector in their browser.
  */
 
-export const getCurrentUser = async (session) => {
+export const getCurrentUser = async (session: { id: string }) => {
   const userCoreCache = ensureCorrectType(
     await coreCacheReadRedis.get(`user__id:${session.id}`)
   )
 
-  if (userCoreCache) return JSON.parse(userCoreCache) as SafeUser
+  if (userCoreCache) {
+    const parsedUser = JSON.parse(userCoreCache) as SafeUser
+    return {
+      ...parsedUser,
+      profilePicture: gravatarUrl(parsedUser.email, {
+        default: 'mp',
+      }),
+    }
+  }
 
   const userDb = await db.user.findUnique({ where: { id: session.id } })
-
   if (!userDb) return null
 
   const safeUser = await setUserRedis(userDb)

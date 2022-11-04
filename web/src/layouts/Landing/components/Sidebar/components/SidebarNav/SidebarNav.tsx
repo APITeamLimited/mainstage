@@ -1,12 +1,6 @@
-import React from 'react'
+import { Stack, Typography, Box, Button, useTheme } from '@mui/material'
 
-import { List, Stack, Typography } from '@mui/material'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import MenuItem from '@mui/material/MenuItem'
-import { useTheme } from '@mui/material/styles'
-
-import { Link, routes } from '@redwoodjs/router'
+import { Link } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
 import { SignUpOrContinueButton } from 'src/pages/SplashPage/components/SignUpOrContinueButton'

@@ -1,6 +1,7 @@
 import { SignupWelcomeData } from '@apiteam/mailman'
 import { ROUTES } from '@apiteam/types'
 import { User } from '@prisma/client'
+import { url as gravatarUrl } from 'gravatar'
 
 import { DbAuthHandler, ServiceValidationError } from '@redwoodjs/api'
 
@@ -72,7 +73,12 @@ export const handler = async (event, context) => {
     // by the `logIn()` function from `useAuth()` in the form of:
     // `{ message: 'Error message' }`
     handler: (user: User) => {
-      return user
+      return {
+        ...user,
+        profilePicture: gravatarUrl(user.email, {
+          default: 'mp',
+        }),
+      }
     },
 
     errors: {

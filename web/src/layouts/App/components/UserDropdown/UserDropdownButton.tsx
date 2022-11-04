@@ -2,19 +2,12 @@ import { useState, useRef } from 'react'
 
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import { Avatar, Box, SvgIcon, ButtonBase } from '@mui/material'
-import type { UserDropdownCurrentUser } from 'types/graphql'
+
+import { useAuth } from '@redwoodjs/auth'
 
 import { DropdownPopover } from './DropdownPopover'
 
-// Make the type
-const { currentUser } = new Object() as UserDropdownCurrentUser
-export type CurrentUser = typeof currentUser
-
-type UserDropdownProps = {
-  currentUser: CurrentUser | null
-}
-
-export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
+export const UserDropdownButton = () => {
   const anchorRef = useRef<HTMLButtonElement | null>(null)
   const [openPopover, setOpenPopover] = useState<boolean>(false)
 
@@ -25,6 +18,8 @@ export const DropdownButton = ({ currentUser }: UserDropdownProps) => {
   const handleClosePopover = () => {
     setOpenPopover(false)
   }
+
+  const { currentUser } = useAuth()
 
   return currentUser ? (
     <>

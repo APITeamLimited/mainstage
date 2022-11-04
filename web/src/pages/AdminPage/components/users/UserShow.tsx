@@ -1,14 +1,10 @@
-import React from 'react'
-
 import {
   Show,
-  SimpleShowLayout,
   TextField,
   DateField,
   RichTextField,
   BooleanField,
   UrlField,
-  ShowView,
 } from 'react-admin'
 
 export const UserShow = () => (

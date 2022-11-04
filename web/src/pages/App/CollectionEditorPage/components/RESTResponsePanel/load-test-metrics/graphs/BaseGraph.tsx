@@ -54,12 +54,14 @@ type BaseGraphProps = {
     orchestratorId: string
   } & MetricsCombination)[]
   height?: string | number
+  showDescription?: boolean
 }
 
 export const BaseGraph = ({
   graph,
   metrics,
-  height = GRAPH_HEIGHT,
+  height = '100%',
+  showDescription,
 }: BaseGraphProps) => {
   const { default: Chart } = useApexChartsModule()
 
@@ -158,8 +160,9 @@ export const BaseGraph = ({
       options={options}
       series={series}
       type="line"
-      height={height - 50}
+      height={height}
       style={{ width: '100%' }}
+      description={showDescription ? graph.description : ''}
     />
   )
 }

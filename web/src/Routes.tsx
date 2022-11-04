@@ -84,6 +84,7 @@ const Routes = () => {
       </Set>
       <Set wrap={LandingLayoutContained}>
         <Route path="/platform/api-client" page={APIClientPage} name="apiClient" />
+        <Route path="/platform/load-testing" page={LoadTestingPage} name="loadTesting" />
         <Route path="/platform/pricing" page={PricingPage} name="pricing" />
         <Route path="/company/about" page={AboutPage} name="about" />
         <Route path="/contact" page={ContactPage} name="contact" />

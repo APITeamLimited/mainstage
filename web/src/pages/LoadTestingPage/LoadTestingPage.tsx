@@ -7,15 +7,15 @@ import { CallToClickLink } from 'src/layouts/Landing/components/CallToClickLink'
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
 import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 import { ImageTextPanel } from 'src/layouts/Landing/components/templates/ImageTextPanel'
-import { extendedApiClientFeatures } from 'src/layouts/Landing/content/api-client-features'
+import { extendedGlobeTestFeatures } from 'src/layouts/Landing/content/globe-test-features'
 
-const title = 'API Client'
+const title = 'Load Testing'
 const descriptions = [
-  'Our real-time, cross-platform web based editor is free to use for an unlimited number of users.',
-  'All work is automatically saved to the cloud.',
+  'Load test your APIs with our integrated load testing tool GlobeTest.',
+  ' Easily create and run load tests, viewing the results in real-time.',
 ]
 
-const APIClientPage = () => {
+const LoadTestingPage = () => {
   const theme = useTheme()
 
   return (
@@ -28,7 +28,7 @@ const APIClientPage = () => {
           paddingY: panelSeparation,
         }}
       >
-        {extendedApiClientFeatures.map((feature, index) => (
+        {extendedGlobeTestFeatures.map((feature, index) => (
           <ImageTextPanel
             key={index}
             title={feature.title}
@@ -37,6 +37,7 @@ const APIClientPage = () => {
             alignment={index % 2 === 0 ? 'left' : 'right'}
           />
         ))}
+        {/*
         <Box>
           <Typography
             variant="h4"
@@ -54,16 +55,17 @@ const APIClientPage = () => {
             variant="h6"
           >
             Load test your APIs with our integrated load testing tool GlobeTest.
-            Easily create and run load tests, viewing the results in real-time.
+            Easily create and run load tests, and view the results in real-time.
           </Typography>
           <CallToClickLink
-            text="Learn more about load testing with APITeam"
+            text="Load testing with APITeam"
             link={ROUTES.loadTesting}
           />
         </Box>
+        */}
       </Stack>
     </>
   )
 }
 
-export default APIClientPage
+export default LoadTestingPage

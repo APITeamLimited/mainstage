@@ -1,44 +1,49 @@
-import { ComponentType, ReactElement } from 'react'
+import type { ReactElement } from 'react'
 
 import { ApolloClient } from '@apollo/client'
-import { DocumentNode } from 'graphql'
+import type { Documentquery } from 'graphql'
 
 import { UserAdmin } from './users'
+
+type FilterArgs = Record<string, unknown>
+
+type SortArgs = {
+  field: string
+  order: 'ASC' | 'DESC'
+}
+
+type ValidMethod = {
+  name: string
+  query: Documentquery
+}
+
+type PaginationArgs = {
+  page?: number
+  perPage?: number
+}
 
 export type ValidAdmin = {
   gqlName: string
   displayName: string
   displayNamePlural: string
   methods: {
-    getList: DocumentNode
-    getOne: DocumentNode
-    getMany: DocumentNode
-    getManyReference: DocumentNode
-    //create: DocumentNode
-    //update: DocumentNode
-    //updateMany: DocumentNode
-    //delete: DocumentNode
-    //deleteMany: DocumentNode
-  }
-  methodNames: {
-    getList: string
-    getOne: string
-    getMany: string
-    getManyReference: string
-    //create: string
-    //update: string
-    //updateMany: string
-    //delete: string
-    //deleteMany: string
+    getList: ValidMethod
+    getOne: ValidMethod
+    getMany: ValidMethod
+    getManyReference: ValidMethod
+    create: ValidMethod
+    update: ValidMethod
+    updateMany: ValidMethod
+    delete: ValidMethod
+    deleteMany: ValidMethod
   }
   admins: {
-    show: ComponentType<any> | ReactElement
-    list: ComponentType<any> | ReactElement
+    show: ReactElement
+    list: ReactElement
   }
 }
 
-//export const admins: Array<ValidAdmin> = [UserAdmin]
-export const admins: Array<ValidAdmin> = []
+export const admins: Array<ValidAdmin> = [UserAdmin]
 
 export class DataProviderInstance {
   apollo: ApolloClient<unknown>
@@ -58,28 +63,22 @@ export class DataProviderInstance {
   async getList(
     resource: string,
     params: {
-      pagination?: {
-        page?: number
-        perPage?: number
-      }
-      sort?: {
-        field: string
-        order: 'ASC' | 'DESC'
-      }
-      filter?: any
+      pagination?: PaginationArgs
+      sort?: SortArgs
+      filter?: FilterArgs
     }
   ) {
     const admin = this.getAdmin(resource)
 
     return (
       await this.apollo.query({
-        query: admin.methods.getList,
+        query: admin.methods.getList.query,
         variables: {
           page: params.pagination?.page,
           perPage: params.pagination?.perPage,
         },
       })
-    ).data[admin.methodNames.getList]
+    ).data[admin.getList.name]
   }
 
   async getOne(resource: string, params: { id: string }) {
@@ -87,7 +86,7 @@ export class DataProviderInstance {
 
     return (
       await this.apollo.query({
-        query: admin.methods.getOne,
+        query: admin.methods.getOne.query,
         variables: {
           id: params.id,
         },
@@ -99,7 +98,7 @@ export class DataProviderInstance {
     const admin = this.getAdmin(resource)
 
     return this.apollo.query({
-      query: admin.methods.getMany,
+      query: admin.methods.getMany.query,
       variables: params,
     })
   }
@@ -109,21 +108,15 @@ export class DataProviderInstance {
     params: {
       target: string
       id: string
-      pagination?: {
-        page?: number
-        perPage?: number
-      }
-      sort?: {
-        field: string
-        order: 'ASC' | 'DESC'
-      }
-      filter?: any
+      pagination?: PaginationArgs
+      sort?: SortArgs
+      filter?: FilterArgs
     }
   ) {
     const admin = this.getAdmin(resource)
 
     return this.apollo.query({
-      query: admin.methods.getManyReference,
+      query: admin.methods.getManyReference.query,
       variables: params,
     })
   }
@@ -132,7 +125,7 @@ export class DataProviderInstance {
     const admin = this.getAdmin(resource)
 
     return this.apollo.mutate({
-      mutation: admin.methods.create,
+      mutation: admin.methods.create.query,
       variables: params,
     })
   }
@@ -144,7 +137,7 @@ export class DataProviderInstance {
     const admin = this.getAdmin(resource)
 
     return this.apollo.mutate({
-      mutation: admin.methods.update,
+      mutation: admin.methods.update.query,
       variables: params,
     })
   }
@@ -153,7 +146,7 @@ export class DataProviderInstance {
     const admin = this.getAdmin(resource)
 
     return this.apollo.mutate({
-      mutation: admin.methods.updateMany,
+      mutation: admin.methods.updateMany.query,
       variables: params,
     })
   }
@@ -162,7 +155,7 @@ export class DataProviderInstance {
     const admin = this.getAdmin(resource)
 
     return this.apollo.mutate({
-      mutation: admin.methods.delete,
+      mutation: admin.methods.delete.query,
       variables: params,
     })
   }
@@ -174,7 +167,7 @@ export class DataProviderInstance {
     const admin = this.getAdmin(resource)
 
     return this.apollo.mutate({
-      mutation: admin.methods.deleteMany,
+      mutation: admin.methods.deleteMany.query,
       variables: params,
     })
   }

@@ -2,7 +2,7 @@ import { ValidAdmin } from '../ReactAdmin'
 
 import { UserList } from './UserList'
 import { UserShow } from './UserShow'
-/*
+
 export const USER_ADMIN_GET_LIST_QUERY = gql`
   query AdminUserGetList($page: Int, $perPage: Int) {
     adminUserGetList(page: $page, perPage: $perPage) {
@@ -101,20 +101,25 @@ export const UserAdmin: ValidAdmin = {
   displayName: 'User',
   displayNamePlural: 'Users',
   methods: {
-    getList: USER_ADMIN_GET_LIST_QUERY,
-    getOne: ADMIN_USER_GET_ONE_QUERY,
-    getMany: ADMIN_USER_GET_MANY_QUERY,
-    getManyReference: ADMIN_USER_GET_MANY_REFERENCE_QUERY,
-  },
-  methodNames: {
-    getList: 'adminUserGetList',
-    getOne: 'adminUserGetOne',
-    getMany: 'adminUserGetMany',
-    getManyReference: 'adminUserReference',
+    getList: {
+      name: 'adminUserGetList',
+      query: USER_ADMIN_GET_LIST_QUERY,
+    },
+    getOne: {
+      name: 'adminUserGetOne',
+      query: ADMIN_USER_GET_ONE_QUERY,
+    },
+    getMany: {
+      name: 'adminUserGetMany',
+      query: ADMIN_USER_GET_MANY_QUERY,
+    },
+    getManyReference: {
+      name: 'adminUserGetManyReference',
+      query: ADMIN_USER_GET_MANY_REFERENCE_QUERY,
+    },
   },
   admins: {
     list: UserList,
     show: UserShow,
   },
 }
-*/

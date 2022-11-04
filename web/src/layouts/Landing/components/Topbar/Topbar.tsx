@@ -1,5 +1,3 @@
-import React from 'react'
-
 import MenuIcon from '@mui/icons-material/Menu'
 import { Container } from '@mui/material'
 import Box from '@mui/material/Box'

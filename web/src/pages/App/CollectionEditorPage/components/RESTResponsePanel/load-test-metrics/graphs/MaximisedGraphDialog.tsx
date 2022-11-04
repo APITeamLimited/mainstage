@@ -71,14 +71,14 @@ export const MaximisedGraphDialog = ({
       <DialogContent
         sx={{
           maxWidth: '100%',
-          maxHeight: '100%',
+          maxHeight: 'calc(100% - 1rem)',
           height: 500,
           padding: 1,
           overflow: 'hidden',
         }}
       >
-        <SimpleBar style={{ height: '500px', maxHeight: '100%' }}>
-          <BaseGraph graph={graph} metrics={metrics ?? []} height={500} />
+        <SimpleBar style={{ height: '100%', maxHeight: '100%' }}>
+          <BaseGraph graph={graph} metrics={metrics ?? []} height={480} />
         </SimpleBar>
       </DialogContent>
     </Dialog>

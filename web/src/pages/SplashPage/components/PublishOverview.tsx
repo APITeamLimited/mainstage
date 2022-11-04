@@ -1,5 +1,4 @@
 /* eslint-disable react/no-unescaped-entities */
-import React from 'react'
 
 import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings'
 import SvgIcon from '@mui/icons-material/DisplaySettings'

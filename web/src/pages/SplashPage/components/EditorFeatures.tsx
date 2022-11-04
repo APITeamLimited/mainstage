@@ -8,9 +8,9 @@ const EditorFeatures = (): JSX.Element => {
     <FeatureOverviewPanel
       title="Real-time collaborative API Client"
       description="Design, debug and test your APIs in real-time with your whole team
-  in our interractive editor. Easily import your existing API designs from Postman,
+  within our interactive editor. Easily import your existing API designs from Postman,
   Insomnia, or other API testing tools. Create custom scripts and to automate your
-  workflows, and run them in our integrated scripting runtime."
+  workflows, and run them within our integrated scripting runtime."
       elements={apiClientFeaturesMinimal}
       moreInfo={{
         text: 'Learn more about the editor',

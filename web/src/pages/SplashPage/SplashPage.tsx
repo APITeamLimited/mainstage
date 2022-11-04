@@ -47,8 +47,10 @@ const SplashPage = () => {
           </Stack>
         </Container>
       </Box>
+      {/*
       <PublishOverview />
       <PricingOverview />
+      */}
     </>
   )
 }
