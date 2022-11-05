@@ -1,3 +1,5 @@
+import { useRef } from 'react'
+
 import { Box, Container, Stack, useTheme } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
@@ -5,8 +7,6 @@ import { MetaTags } from '@redwoodjs/web'
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
 import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
 import GlobeTestOverview from 'src/pages/SplashPage/components/GlobeTestOverview'
-import PricingOverview from 'src/pages/SplashPage/components/PricingOverview'
-import PublishOverview from 'src/pages/SplashPage/components/PublishOverview'
 import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'
 
 import { WhyUseAPITeam } from './components/WhyUseAPITeam'
@@ -14,13 +14,15 @@ import { WhyUseAPITeam } from './components/WhyUseAPITeam'
 const SplashPage = () => {
   const theme = useTheme()
 
+  const whyUseAPITeamRef = useRef<HTMLDivElement>(null)
+
   return (
     <>
       <MetaTags
         title="Free Unlimited Team API Development"
         description="APITeam is an all in one platform for designing, testing and scaling APIs collaboratively"
       />
-      <TypedIntro />
+      <TypedIntro whyUseAPITeamRef={whyUseAPITeamRef} />
       <Box
         sx={{
           backgroundColor: theme.palette.background.paper,
@@ -41,7 +43,7 @@ const SplashPage = () => {
               paddingY: panelSeparation,
             }}
           >
-            <WhyUseAPITeam />
+            <WhyUseAPITeam locationRef={whyUseAPITeamRef} />
             <EditorFeatures />
             <GlobeTestOverview />
           </Stack>

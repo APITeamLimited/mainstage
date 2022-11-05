@@ -4,94 +4,95 @@ import { UserEdit } from './UserEdit'
 import { UserList } from './UserList'
 
 export const USER_ADMIN_GET_LIST_QUERY = gql`
-  query AdminUserGetList($page: Int, $perPage: Int) {
-    adminUserGetList(page: $page, perPage: $perPage) {
+  query AdminUserGetList(input: AdminUserGetListInput!) {
+    adminUserGetList(input: $input) {
       data {
-        id
-        firstName
-        lastName
-        email
-        createdAt
-        updatedAt
-        isAdmin
-        emailVerified
-        shortBio
-        profilePicture
+        ...AllUserFields
       }
       total
-      validUntil
     }
   }
 `
 
 export const ADMIN_USER_GET_ONE_QUERY = gql`
-  query AdminUserGetOne($id: ID!) {
-    adminUserGetOne(id: $id) {
+  query AdminUserGetOne(input: AdminUserGetOneInput!) {
+    adminUserGetOne(input: $input) {
       data {
-        id
-        firstName
-        lastName
-        email
-        createdAt
-        updatedAt
-        isAdmin
-        emailVerified
-        shortBio
-        profilePicture
+        ...AllUserFields
       }
-      validUntil
     }
   }
 `
 
 export const ADMIN_USER_GET_MANY_QUERY = gql`
-  query AdminUserGetMany($ids: [ID!]!) {
-    adminUserGetMany(ids: $ids) {
+  query AdminUserGetMany(input: AdminUserGetManyInput!) {
+    adminUserGetMany(input: $input) {
       data {
-        id
-        firstName
-        lastName
-        email
-        createdAt
-        updatedAt
-        isAdmin
-        emailVerified
-        shortBio
-        profilePicture
+        ...AllUserFields
       }
-      total
-      validUntil
     }
   }
 `
 
 export const ADMIN_USER_GET_MANY_REFERENCE_QUERY = gql`
   query AdminUserGetManyReference(
-    $target: ID!
-    $id: [ID!]!
-    $page: Int
-    $perPage: Int
+    input: AdminUserGetManyReferenceInput!
   ) {
-    adminUsersReference(
-      target: $target
-      ids: $ids
-      page: $page
-      perPage: $perPage
-    ) {
+    adminUsersReference(input: $input) {
       data {
-        id
-        firstName
-        lastName
-        email
-        createdAt
-        updatedAt
-        isAdmin
-        emailVerified
-        shortBio
-        profilePicture
+        ...AllUserFields
       }
       total
-      validUntil
+    }
+  }
+`
+
+export const ADMIN_USER_CREATE_MUTATION = gql`
+  mutation AdminUserCreate($input: AdminUserCreateInput!) {
+    adminUserCreate(input: $input) {
+      data {
+        ...AllUserFields
+      }
+    }
+  }
+`
+
+export const ADMIN_USER_UPDATE_MUTATION = gql`
+  mutation AdminUserUpdate($input: AdminUserUpdateInput!) {
+    adminUserUpdate(input: $input) {
+      data {
+        ...AllUserFields
+      }
+    }
+  }
+`
+
+export const ADMIN_USER_UPDATE_MANY_MUTATION = gql`
+  mutation AdminUserUpdateMany($input: AdminUserUpdateManyInput!) {
+    adminUserUpdateMany(input: $input) {
+      data {
+        id
+      }
+    }
+  }
+`
+
+export const ADMIN_USER_DELETE_MUTATION = gql`
+  mutation AdminUserDelete($input: AdminUserDeleteInput!) {
+    adminUserDelete(input: $input) {
+      data {
+        ...AllUserFields
+      }
+    }
+  }
+`
+
+const ADMIN_USER_DELETE_MANY_MUTATION = gql`
+  mutation AdminUserDeleteMany($input: AdminUserDeleteManyInput!) {
+    adminUserDeleteMany(input: $input) {
+      data {
+        id
+      }
     }
   }
 `
@@ -116,6 +117,26 @@ export const UserAdmin: ValidAdmin = {
     getManyReference: {
       name: 'adminUserGetManyReference',
       query: ADMIN_USER_GET_MANY_REFERENCE_QUERY,
+    },
+    update: {
+      name: 'adminUserUpdate',
+      mutation: ADMIN_USER_UPDATE_MUTATION,
+    },
+    updateMany: {
+      name: 'adminUserUpdateMany',
+      mutation: ADMIN_USER_UPDATE_MANY_MUTATION,
+    },
+    create: {
+      name: 'adminUserCreate',
+      mutation: ADMIN_USER_CREATE_MUTATION,
+    },
+    delete: {
+      name: 'adminUserDelete',
+      mutation: ADMIN_USER_DELETE_MUTATION,
+    },
+    deleteMany: {
+      name: 'adminUserDeleteMany',
+      mutation: ADMIN_USER_DELETE_MANY_MUTATION,
     },
   },
   admins: {

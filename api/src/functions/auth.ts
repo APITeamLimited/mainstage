@@ -221,6 +221,7 @@ export const handler = async (event, context) => {
       })
 
       await Promise.all([setUserRedis(user), createPersonalScope(user)])
+
       return user
     },
 

@@ -12,9 +12,14 @@ type SortArgs = {
   order: 'ASC' | 'DESC'
 }
 
-type ValidMethod = {
+type ValidQueryMethod = {
   name: string
   query: DocumentNode
+}
+
+type ValidMutationMethod = {
+  name: string
+  mutation: DocumentNode
 }
 
 type PaginationArgs = {
@@ -27,20 +32,20 @@ export type ValidAdmin = {
   displayName: string
   displayNamePlural: string
   methods: {
-    getList: ValidMethod
-    getOne: ValidMethod
-    getMany: ValidMethod
-    getManyReference: ValidMethod
-    create: ValidMethod
-    update: ValidMethod
-    updateMany: ValidMethod
-    delete: ValidMethod
-    deleteMany: ValidMethod
+    getList: ValidQueryMethod
+    getOne: ValidQueryMethod
+    getMany: ValidQueryMethod
+    getManyReference: ValidQueryMethod
+    create: ValidMutationMethod
+    update: ValidMutationMethod
+    updateMany: ValidMutationMethod
+    delete: ValidMutationMethod
+    deleteMany: ValidMutationMethod
   }
   admins: {
-    show?: ReactElement
-    list?: ReactElement
-    edit?: ReactElement
+    show?: ReactElement | (() => ReactElement)
+    list?: ReactElement | (() => ReactElement)
+    edit?: ReactElement | (() => ReactElement)
   }
 }
 

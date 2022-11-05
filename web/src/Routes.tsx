@@ -37,12 +37,13 @@ export const brandedRoutes = [
   {
     name: 'About',
     sublinks: [
+      // TODO: When built up more of a presence, we can add this back in
+      // {
+      //   path: ROUTES.aboutUs,
+      //   name: 'About Us',
+      // },
       {
-        path: ROUTES.about,
-        name: 'About',
-      },
-      {
-        path: '/open-source',
+        path: ROUTES.openSource,
         name: 'Open Source',
       },
       {
@@ -83,12 +84,13 @@ const Routes = () => {
         <Route path="/" page={SplashPage} name="splash" />
       </Set>
       <Set wrap={LandingLayoutContained}>
-        <Route path="/platform/api-client" page={APIClientPage} name="apiClient" />
-        <Route path="/platform/load-testing" page={LoadTestingPage} name="loadTesting" />
-        <Route path="/platform/pricing" page={PricingPage} name="pricing" />
-        <Route path="/company/about" page={AboutPage} name="about" />
-        <Route path="/contact" page={ContactPage} name="contact" />
-        <Route path="/legal/terms-of-service" page={TermsOfServicePage} name="termsOfService" />
+        <Route path={ROUTES.apiClient} page={APIClientPage} name="apiClient" />
+        <Route path={ROUTES.loadTesting} page={LoadTestingPage} name="loadTesting" />
+        <Route path={ROUTES.pricing} page={PricingPage} name="pricing" />
+        {/* <Route path={ROUTES.aboutUs} page={AboutPage} name="about" /> */}
+        <Route path={ROUTES.openSource} page={OpenSourcePage} name="openSource" />
+        <Route path={ROUTES.contact} page={ContactPage} name="contact" />
+        <Route path={ROUTES.termsOfService} page={TermsOfServicePage} name="termsOfService" />
         <Route path={ROUTES.privacyPolicy} page={PrivacyPolicyPage} name="privacyPolicy" />
         <Route path={ROUTES.cookiePolicy} page={CookiePolicyPage} name="cookiePolicy" />
         <Route path={ROUTES.supportCenter} page={PrivacyPolicyPage} name="supportCenter" />
@@ -99,15 +101,14 @@ const Routes = () => {
       <Route path={ROUTES.declineInvitation} page={DeclineInvitationPage} name="declineInvitation" />
       <Route path={ROUTES.login} page={LoginPage} name="login" />
       <Route path={ROUTES.signup} page={SignupPage} name="signup" />
-      <Route path="/forgot-password" page={ForgotPasswordPage} name="forgotPassword" />
-      <Route path="/reset-password" page={ResetPasswordPage} name="resetPassword" />
+      <Route path={ROUTES.forgotPassword} page={ForgotPasswordPage} name="forgotPassword" />
+      <Route path={ROUTES.resetPassword} page={ResetPasswordPage} name="resetPassword" />
       <Route path={ROUTES.userUnsubscribe} page={ResetPasswordPage} name="userUnsubscribe" />
       <Route path={ROUTES.blanketUnsubscribe} page={ResetPasswordPage} name="blanketUnsubscribe" />
       <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
       <Route path={ROUTES.deleteAccount} page={DeleteAccountPage} name="deleteAccount" />
       <Route path={ROUTES.deleteTeam} page={DeleteTeamPage} name="deleteTeam" />
       <Route path={ROUTES.changeOwner} page={ChangeOwnerPage} name="changeOwner" />
-      {/* TODO: Re-enable local workspaces when done cloud*/}
       <Private unauthenticated="login">
         <Set wrap={AppUnifiedLayout}>
           <Route path="/app" redirect={ROUTES.dashboard} />

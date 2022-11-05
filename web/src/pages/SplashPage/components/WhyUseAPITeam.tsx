@@ -40,15 +40,18 @@ const overviewMessages: OverviewItem[] = [
   },
 ]
 
-export const WhyUseAPITeam = () => {
+type WhyUseAPITeamProps = {
+  locationRef?: React.RefObject<HTMLDivElement>
+}
+
+export const WhyUseAPITeam = ({ locationRef }: WhyUseAPITeamProps) => {
   const theme = useTheme()
 
   const isSmall = useMediaQuery(theme.breakpoints.down('md'))
-
   return (
-    <Stack spacing={4}>
+    <Stack spacing={4} id="why-use-apiteam">
       <Stack spacing={2} alignItems="center">
-        <Typography variant="h2" sx={{ fontWeight: 600 }}>
+        <Typography variant="h2" sx={{ fontWeight: 600 }} ref={locationRef}>
           Why use{' '}
           <span
             style={{

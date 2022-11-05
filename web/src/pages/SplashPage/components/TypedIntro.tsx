@@ -5,12 +5,17 @@ import {
   Container,
   Stack,
   Typography,
+  Button,
 } from '@mui/material'
 import Typed from 'react-typed'
 
 import { SignUpOrContinueButton } from './SignUpOrContinueButton'
 
-const TypedIntro = (): JSX.Element => {
+type TypedIntroProps = {
+  whyUseAPITeamRef?: React.RefObject<HTMLDivElement>
+}
+
+const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
   const theme = useTheme()
 
   return (
@@ -34,6 +39,9 @@ const TypedIntro = (): JSX.Element => {
           paddingY={{ xs: '4rem', md: '8rem' }}
           alignItems="baseline"
           direction={{ xs: 'column', md: 'row' }}
+          sx={{
+            minHeight: '80vh',
+          }}
         >
           <Box
             maxWidth={{ xs: 1, sm: '50%' }}
@@ -78,7 +86,6 @@ const TypedIntro = (): JSX.Element => {
             </Typography>
             <Typography
               variant="h6"
-              component="p"
               color="text.secondary"
               sx={{ fontWeight: 400 }}
             >
@@ -94,15 +101,22 @@ const TypedIntro = (): JSX.Element => {
               }}
             >
               <SignUpOrContinueButton size="large" />
-              {/*<Button
-                component={'a'}
-                href={'/docs/introduction'}
-                variant="outlined"
-                color="primary"
-                size="large"
-              >
-                See Features
-            </Button>*/}
+              <div>
+                <Button
+                  // Scroll to the features section
+                  onClick={() =>
+                    whyUseAPITeamRef?.current?.scrollIntoView({
+                      behavior: 'smooth',
+                      block: 'center',
+                    })
+                  }
+                  variant="outlined"
+                  color="secondary"
+                  size="large"
+                >
+                  See Features
+                </Button>
+              </div>
             </Stack>
           </Box>
         </Stack>

@@ -4,6 +4,7 @@ import { User, Scope } from '@prisma/client'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 
+import { deleteMembership } from './memberships'
 import { deleteScope } from './scopes'
 
 export const setUserRedis = async (user: User) => {
@@ -43,10 +44,27 @@ export const setUserRedis = async (user: User) => {
 }
 
 export const deleteUser = async (user: User) => {
-  const scopes = Object.values(
-    await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
-  ).map((rawScope) => JSON.parse(rawScope) as Scope)
+  const scopesPromise = db.scope.findMany({
+    where: {
+      userId: user.id,
+    },
+  })
+
+  const membershipsPromise = db.membership.findMany({
+    where: {
+      userId: user.id,
+    },
+  })
+
+  const [scopes, memberships] = await Promise.all([
+    scopesPromise,
+    membershipsPromise,
+  ])
+
+  await Promise.all(memberships.map(deleteMembership))
+
   await Promise.all([
+    // Delete the personal scope
     scopes.map((scope) => deleteScope(scope.id)),
     coreCacheReadRedis.del(`user__id:${user.id}`),
     coreCacheReadRedis.del(`user__email:${user.email}`),

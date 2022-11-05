@@ -53,7 +53,7 @@ const APIClientPage = () => {
             }}
             variant="h6"
           >
-            Load test your APIs with our integrated load testing tool GlobeTest.
+            Load test your APIs with our integrated open source load testing tool GlobeTest.
             Easily create and run load tests, viewing the results in real-time.
           </Typography>
           <CallToClickLink

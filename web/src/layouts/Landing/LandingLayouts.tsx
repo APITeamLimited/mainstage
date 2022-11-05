@@ -1,5 +1,6 @@
 import { Container, useTheme, Box } from '@mui/material'
 
+import { largePanelSpacing, panelSeparation } from './components/constants'
 import { FooterSplash, FOOTER_SPASH_HEIGHT } from './components/FooterSplash'
 import { LandingLayoutBase } from './LandingLayoutBase'
 
@@ -43,7 +44,7 @@ export const LandingLayoutSplash = ({
           style={{
             width: '100%',
             overflow: 'hidden',
-            height: '1000px',
+            height: '120vh',
             filter: 'blur(8px)',
             borderColor: 'transparent',
             objectFit: 'fill',
@@ -84,7 +85,8 @@ export const LandingLayoutContained = ({
       <Box sx={{ backgroundColor: theme.palette.background.paper }}>
         <Container
           sx={{
-            paddingY: 6,
+            paddingTop: largePanelSpacing,
+            paddingBottom: panelSeparation,
             minHeight: '94vh',
           }}
         >

@@ -1,4 +1,4 @@
-import { AppBar, Divider, useTheme } from '@mui/material'
+import { AppBar, useTheme } from '@mui/material'
 
 type CustomAppBarProps = {
   children?: React.ReactNode
@@ -19,7 +19,7 @@ export const CustomAppBar = ({
     <AppBar
       position="sticky"
       sx={{
-        top: 0,
+        marginTop: '-1px',
         backgroundColor:
           disableTop && !trigger
             ? 'transparent'

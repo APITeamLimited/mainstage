@@ -34,6 +34,7 @@ type FeatureOverviewPanelProps = {
     text: string
     link: string
   }
+  moreInfoElement?: JSX.Element
   alignment?: 'left' | 'right'
 }
 
@@ -42,6 +43,7 @@ export const FeatureOverviewPanel = ({
   description,
   elements,
   moreInfo,
+  moreInfoElement,
   alignment = 'left',
 }: FeatureOverviewPanelProps): JSX.Element => {
   const theme = useTheme()
@@ -49,6 +51,12 @@ export const FeatureOverviewPanel = ({
   const isSmall = useMediaQuery(theme.breakpoints.down('md'))
 
   const [editorFeatureIndex, setEditorFeatureIndex] = useState(0)
+
+  if (moreInfo && moreInfoElement) {
+    throw new Error(
+      'You cannot provide both moreInfo and moreInfoElement to FeatureOverviewPanel'
+    )
+  }
 
   return (
     <Stack spacing={largePanelSpacing}>
@@ -73,6 +81,7 @@ export const FeatureOverviewPanel = ({
         {moreInfo && (
           <CallToClickLink text={moreInfo.text} link={moreInfo.link} />
         )}
+        {moreInfoElement}
       </Box>
       <Stack
         direction={

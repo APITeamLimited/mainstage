@@ -1,9 +1,7 @@
-import { ROUTES } from '@apiteam/types/src'
-import { Box, Stack, Typography, useTheme } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
 
-import { CallToClickLink } from 'src/layouts/Landing/components/CallToClickLink'
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
 import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 import { ImageTextPanel } from 'src/layouts/Landing/components/templates/ImageTextPanel'
@@ -11,33 +9,30 @@ import { extendedGlobeTestFeatures } from 'src/layouts/Landing/content/globe-tes
 
 const title = 'Load Testing'
 const descriptions = [
-  'Load test your APIs with our integrated load testing tool GlobeTest.',
+  'Load test your APIs with our integrated open source load testing tool GlobeTest.',
   ' Easily create and run load tests, viewing the results in real-time.',
 ]
 
-const LoadTestingPage = () => {
-  const theme = useTheme()
-
-  return (
-    <>
-      <MetaTags title={title} description={descriptions.join(' ')} />
-      <Headline headline={title} sublines={descriptions} />
-      <Stack
-        spacing={panelSeparation}
-        sx={{
-          paddingY: panelSeparation,
-        }}
-      >
-        {extendedGlobeTestFeatures.map((feature, index) => (
-          <ImageTextPanel
-            key={index}
-            title={feature.title}
-            description={feature.description}
-            image={feature.image}
-            alignment={index % 2 === 0 ? 'left' : 'right'}
-          />
-        ))}
-        {/*
+const LoadTestingPage = () => (
+  <>
+    <MetaTags title={title} description={descriptions.join(' ')} />
+    <Headline headline={title} sublines={descriptions} />
+    <Stack
+      spacing={panelSeparation}
+      sx={{
+        paddingY: panelSeparation,
+      }}
+    >
+      {extendedGlobeTestFeatures.map((feature, index) => (
+        <ImageTextPanel
+          key={index}
+          title={feature.title}
+          description={feature.description}
+          image={feature.image}
+          alignment={index % 2 === 0 ? 'left' : 'right'}
+        />
+      ))}
+      {/*
         <Box>
           <Typography
             variant="h4"
@@ -54,7 +49,7 @@ const LoadTestingPage = () => {
             }}
             variant="h6"
           >
-            Load test your APIs with our integrated load testing tool GlobeTest.
+            Load test your APIs with our integrated open source load testing tool GlobeTest.
             Easily create and run load tests, and view the results in real-time.
           </Typography>
           <CallToClickLink
@@ -63,9 +58,8 @@ const LoadTestingPage = () => {
           />
         </Box>
         */}
-      </Stack>
-    </>
-  )
-}
+    </Stack>
+  </>
+)
 
 export default LoadTestingPage

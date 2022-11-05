@@ -14,6 +14,21 @@ export const schema = gql`
     slug: String!
   }
 
+  fragment AllUserFields on User {
+    id
+    firstName
+    lastName
+    email
+    createdAt
+    updatedAt
+    isAdmin
+    emailVerified
+    shortBio
+    profilePicture
+    emailMarketing
+    slug
+  }
+
   type Query {
     currentUser: User! @requireAuth
   }

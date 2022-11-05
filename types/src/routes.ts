@@ -9,7 +9,7 @@ export const ROUTES = {
   apiClient: '/platform/api-client',
   loadTesting: '/platform/load-testing',
   pricing: '/platform/pricing',
-  about: '/company/about',
+  //aboutUs: '/about-us',
   contact: '/contact',
   termsOfService: '/legal/terms-of-service',
   privacyPolicy: '/legal/privacy-policy',
@@ -17,6 +17,7 @@ export const ROUTES = {
   supportCenter: '/support',
   docs: '/docs',
   blog: '/blog',
+  openSource: '/open-source',
   dashboard: '/app/dashboard',
   settingsWorkspace: '/app/dashboard/settings',
   settingsWorkspaceMembers: '/app/dashboard/settings/members',
@@ -35,4 +36,5 @@ export const ROUTES = {
 export const LINKS = {
   gitHub: 'https://github.com/APITeamLimited',
   linkedIn: 'https://www.linkedin.com/company/apiteamlimited',
+  globeTestRepo: 'https://github.com/APITeamLimited/globe-test',
 } as const
