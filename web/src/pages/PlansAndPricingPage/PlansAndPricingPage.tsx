@@ -4,7 +4,7 @@ import { MetaTags } from '@redwoodjs/web'
 
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 
-const PricingPage = () => {
+const PlansAndPricingPage = () => {
   const theme = useTheme()
 
   return (
@@ -38,4 +38,4 @@ const PricingPage = () => {
   )
 }
 
-export default PricingPage
+export default PlansAndPricingPage

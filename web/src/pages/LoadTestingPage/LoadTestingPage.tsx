@@ -16,13 +16,8 @@ const descriptions = [
 const LoadTestingPage = () => (
   <>
     <MetaTags title={title} description={descriptions.join(' ')} />
-    <Headline headline={title} sublines={descriptions} />
-    <Stack
-      spacing={panelSeparation}
-      sx={{
-        paddingY: panelSeparation,
-      }}
-    >
+    <Headline headline={title} sublines={descriptions} padBottom />
+    <Stack spacing={panelSeparation}>
       {extendedGlobeTestFeatures.map((feature, index) => (
         <ImageTextPanel
           key={index}

@@ -8,7 +8,7 @@ export const ROUTES = {
   blanketUnsubscribe: '/blanket-unsubscribe',
   apiClient: '/platform/api-client',
   loadTesting: '/platform/load-testing',
-  pricing: '/platform/pricing',
+  plansAndPricing: '/platform/plans-and-pricing',
   //aboutUs: '/about-us',
   contact: '/contact',
   termsOfService: '/legal/terms-of-service',

@@ -9,7 +9,8 @@
       "store",
       "types",
       "mailman",
-      "desktop"
+      "desktop",
+      "docs"
     ]
   },
   "devDependencies": {

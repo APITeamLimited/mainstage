@@ -85,8 +85,7 @@ export const LandingLayoutContained = ({
       <Box sx={{ backgroundColor: theme.palette.background.paper }}>
         <Container
           sx={{
-            paddingTop: largePanelSpacing,
-            paddingBottom: panelSeparation,
+            paddingY: largePanelSpacing,
             minHeight: '94vh',
           }}
         >

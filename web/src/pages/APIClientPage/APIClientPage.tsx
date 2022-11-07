@@ -21,13 +21,8 @@ const APIClientPage = () => {
   return (
     <>
       <MetaTags title={title} description={descriptions.join(' ')} />
-      <Headline headline={title} sublines={descriptions} />
-      <Stack
-        spacing={panelSeparation}
-        sx={{
-          paddingY: panelSeparation,
-        }}
-      >
+      <Headline headline={title} sublines={descriptions} padBottom />
+      <Stack spacing={panelSeparation}>
         {extendedApiClientFeatures.map((feature, index) => (
           <ImageTextPanel
             key={index}
@@ -53,8 +48,9 @@ const APIClientPage = () => {
             }}
             variant="h6"
           >
-            Load test your APIs with our integrated open source load testing tool GlobeTest.
-            Easily create and run load tests, viewing the results in real-time.
+            Load test your APIs with our integrated open source load testing
+            tool GlobeTest. Easily create and run load tests, viewing the
+            results in real-time.
           </Typography>
           <CallToClickLink
             text="Learn more about load testing with APITeam"

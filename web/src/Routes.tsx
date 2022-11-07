@@ -1,8 +1,9 @@
 import { ROUTES } from '@apiteam/types/src/routes'
 
-import { Router, Route, Set, Private } from '@redwoodjs/router'
+import { Router, Route, Set, Private, Redirect } from '@redwoodjs/router'
 
 import { AppUnifiedLayout } from './layouts/App'
+import { DocsLayout } from './layouts/Docs/DocsLayout'
 import { LandingLayoutSplash, LandingLayoutContained } from './layouts/Landing'
 
 export type LandingGroup = {
@@ -28,9 +29,12 @@ export const brandedRoutes = [
         name: 'Load Testing',
       },
       {
-        path: ROUTES.pricing,
+        path: ROUTES.docs,
+        name: 'Docs',
+      },
+      {
+        path: ROUTES.plansAndPricing,
         name: 'Plans and Pricing',
-        includeAppBar: false,
       },
     ],
   },
@@ -86,7 +90,7 @@ const Routes = () => {
       <Set wrap={LandingLayoutContained}>
         <Route path={ROUTES.apiClient} page={APIClientPage} name="apiClient" />
         <Route path={ROUTES.loadTesting} page={LoadTestingPage} name="loadTesting" />
-        <Route path={ROUTES.pricing} page={PricingPage} name="pricing" />
+        <Route path={ROUTES.plansAndPricing} page={PlansAndPricingPage} name="plansAndPricing" />
         {/* <Route path={ROUTES.aboutUs} page={AboutPage} name="about" /> */}
         <Route path={ROUTES.openSource} page={OpenSourcePage} name="openSource" />
         <Route path={ROUTES.contact} page={ContactPage} name="contact" />
@@ -94,21 +98,13 @@ const Routes = () => {
         <Route path={ROUTES.privacyPolicy} page={PrivacyPolicyPage} name="privacyPolicy" />
         <Route path={ROUTES.cookiePolicy} page={CookiePolicyPage} name="cookiePolicy" />
         <Route path={ROUTES.supportCenter} page={PrivacyPolicyPage} name="supportCenter" />
-        <Route path={ROUTES.docs} page={DocsPage} name="docs" />
         <Route path={ROUTES.blog} page={PrivacyPolicyPage} name="blog" />
       </Set>
-      <Route path={ROUTES.acceptInvitation} page={AcceptInvitationPage} name="acceptInvitation" />
-      <Route path={ROUTES.declineInvitation} page={DeclineInvitationPage} name="declineInvitation" />
-      <Route path={ROUTES.login} page={LoginPage} name="login" />
-      <Route path={ROUTES.signup} page={SignupPage} name="signup" />
-      <Route path={ROUTES.forgotPassword} page={ForgotPasswordPage} name="forgotPassword" />
-      <Route path={ROUTES.resetPassword} page={ResetPasswordPage} name="resetPassword" />
-      <Route path={ROUTES.userUnsubscribe} page={ResetPasswordPage} name="userUnsubscribe" />
-      <Route path={ROUTES.blanketUnsubscribe} page={ResetPasswordPage} name="blanketUnsubscribe" />
-      <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
-      <Route path={ROUTES.deleteAccount} page={DeleteAccountPage} name="deleteAccount" />
-      <Route path={ROUTES.deleteTeam} page={DeleteTeamPage} name="deleteTeam" />
-      <Route path={ROUTES.changeOwner} page={ChangeOwnerPage} name="changeOwner" />
+      <Set wrap={DocsLayout}>
+        {generateDocsRoutes()}
+        <Route path={ROUTES.docs} page={DocsWelcomePage} name="docs" />
+        <Route path={`${ROUTES.docs}/introduction`} page={DocsIntroductionPage} name="docsIntroduction" />
+      </Set>
       <Private unauthenticated="login">
         <Set wrap={AppUnifiedLayout}>
           <Route path="/app" redirect={ROUTES.dashboard} />
@@ -124,6 +120,18 @@ const Routes = () => {
         <Route path={ROUTES.admin} page={AdminPage} name="admin" />
       </Private>
       <Route prerender notfound page={NotFoundPage} />
+      <Route path={ROUTES.acceptInvitation} page={AcceptInvitationPage} name="acceptInvitation" />
+      <Route path={ROUTES.declineInvitation} page={DeclineInvitationPage} name="declineInvitation" />
+      <Route path={ROUTES.login} page={LoginPage} name="login" />
+      <Route path={ROUTES.signup} page={SignupPage} name="signup" />
+      <Route path={ROUTES.forgotPassword} page={ForgotPasswordPage} name="forgotPassword" />
+      <Route path={ROUTES.resetPassword} page={ResetPasswordPage} name="resetPassword" />
+      <Route path={ROUTES.userUnsubscribe} page={ResetPasswordPage} name="userUnsubscribe" />
+      <Route path={ROUTES.blanketUnsubscribe} page={ResetPasswordPage} name="blanketUnsubscribe" />
+      <Route path={ROUTES.verifyEmail} page={ResetPasswordPage} name="verifyEmail" />
+      <Route path={ROUTES.deleteAccount} page={DeleteAccountPage} name="deleteAccount" />
+      <Route path={ROUTES.deleteTeam} page={DeleteTeamPage} name="deleteTeam" />
+      <Route path={ROUTES.changeOwner} page={ChangeOwnerPage} name="changeOwner" />
     </Router>
   )
 }
