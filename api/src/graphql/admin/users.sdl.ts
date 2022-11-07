@@ -1,5 +1,5 @@
 export const schema = gql`
-  type AdminUserCreateInputData {
+  input AdminUserCreateInputData {
     firstName: String!
     lastName: String!
     email: String!
@@ -10,7 +10,7 @@ export const schema = gql`
     profilePicture: String
   }
 
-  type AdminUserUpdateInputData {
+  input AdminUserUpdateInputData {
     firstName: String
     lastName: String
     email: String
@@ -19,28 +19,59 @@ export const schema = gql`
     profilePicture: String
   }
 
-  type AdminUserGetListInput extends GetListFields
+  input AdminUserGetListInput {
+    pagination: PaginationOptions
+    sort: SortOptions
+    filter: JSON
+    meta: JSON
+  }
 
-  type AdminUserGetOneInput extends GetOneFields
+  input AdminUserGetOneInput {
+    id: ID!
+    meta: JSON
+  }
 
-  type AdminUserGetManyInput extends GetManyFields
+  input AdminUserGetManyInput {
+    ids: [ID!]!
+    meta: JSON
+  }
 
-  type AdminUserGetManyReferenceInput extends GetManyReferenceInput
+  input AdminUserGetManyReferenceInput {
+    target: String!
+    id: ID!
+    pagination: PaginationOptions
+    sort: SortOptions
+    filter: JSON
+    meta: JSON
+  }
 
-  type AdminUserCreateInput extends CreateFieldsNonData {
+  input AdminUserCreateInput {
+    meta: JSON
     data: AdminUserCreateInputData!
   }
 
-  type AdminUserUpdateInput extends UpdateFieldsNonData {
+  input AdminUserUpdateInput {
+    id: ID!
+    meta: JSON
     data: AdminUserUpdateInputData!
     previousData: AdminUserUpdateInputData
   }
 
-  type AdminUserUpdateManyInput extends UpdateManyFieldsNonData {
+  input AdminUserUpdateManyInput {
+    ids: [ID!]!
+    meta: JSON
     data: AdminUserUpdateInputData!
   }
 
-  type AdminUserDeleteInput extends DeleteFieldsNonData
+  input AdminUserDeleteInput {
+    id: ID!
+    meta: JSON
+  }
+
+  input AdminUserDeleteManyInput {
+    ids: [ID!]!
+    meta: JSON
+  }
 
   type AdminUserGetListResponse {
     data: [User!]!
@@ -82,18 +113,28 @@ export const schema = gql`
 
   type Query {
     adminUserGetList(input: AdminUserGetListInput!): AdminUserGetListResponse!
+      @requireAuth
     adminUserGetOne(input: AdminUserGetOneInput!): AdminUserGetOneResponse!
+      @requireAuth
     adminUserGetMany(input: AdminUserGetManyInput!): AdminUserGetManyResponse!
+      @requireAuth
     adminUserGetManyReference(
       input: AdminUserGetManyReferenceInput!
-    ): AdminUserGetManyReferenceResponse!
+    ): AdminUserGetManyReferenceResponse! @requireAuth
   }
 
   type Mutation {
     adminUserCreate(input: AdminUserCreateInput!): AdminUserCreateResponse!
+      @requireAuth
     adminUserUpdate(input: AdminUserUpdateInput!): AdminUserUpdateResponse!
-    adminUserUpdateMany(input: AdminUserUpdateManyInput!): AdminUserUpdateManyResponse!
+      @requireAuth
+    adminUserUpdateMany(
+      input: AdminUserUpdateManyInput!
+    ): AdminUserUpdateManyResponse! @requireAuth
     adminUserDelete(input: AdminUserDeleteInput!): AdminUserDeleteResponse!
-    adminUserDeleteMany(input: AdminUserDeleteManyInput!): AdminUserDeleteManyResponse!
+      @requireAuth
+    adminUserDeleteMany(
+      input: AdminUserDeleteManyInput!
+    ): AdminUserDeleteManyResponse! @requireAuth
   }
 `

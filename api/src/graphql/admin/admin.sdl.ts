@@ -1,17 +1,21 @@
-
 // Util gql types for react admin
 export const schema = gql`
-  type PaginationOptions {
+  input PaginationOptions {
     page: Int!
     perPage: Int!
   }
 
-  type SortOptions {
+  input SortOptions {
     field: String!
     order: String!
   }
+`
 
-  interface GetListFields {
+/*
+
+Illustration of where addition variables (data) is needed
+
+ interface GetListFields {
     pagination: PaginationOptions
     sort: SortOptions
     filter: JSON
@@ -37,86 +41,27 @@ export const schema = gql`
     meta: JSON
   }
 
-  interface CreateFieldsNonData {
+
+  interface CreateNonDataFields {
     meta: JSON
   }
 
-  interface UpdateFieldsNonData {
+  interface UpdateNonDataFields {
     id: ID!
     meta: JSON
   }
 
-  interface UpdateManyFieldsNonData {
+  interface UpdateManyNonDataFields {
     ids: [ID!]!
     meta: JSON
   }
 
-  interface DeleteFieldsNonData {
+  interface DeleteNonDataFields {
     id: ID!
     meta: JSON
   }
 
-  interface DeleteManyFieldsNonData {
-    ids: [ID!]!
-    meta: JSON
-  }
-`
-
-/*
-
-Illustration of where addition variables (data) is needed
-
- fragment GetListFields on Admin {
-    pagination: PaginationOptions
-    sort: SortOptions
-    filter: JSON
-    meta: JSON
-  }
-
-  fragment GetOneFields on Admin {
-    id: ID!
-    meta: JSON
-  }
-
-  fragment GetManyFields on Admin {
-    ids: [ID!]!
-    meta: JSON
-  }
-
-  fragment GetManyReferenceFields on Admin {
-    target: String!
-    id: ID!
-    pagination: PaginationOptions
-    sort: SortOptions
-    filter: JSON
-    meta: JSON
-  }
-
-  fragment CreateFieldsNonData on Admin {
-    // Data
-    meta: JSON
-  }
-
-  fragment UpdateFieldsNonData on Admin {
-    id: ID!
-    meta: JSON
-    // Data
-    // Previous data
-  }
-
-  fragment UpdateManyFieldsNonData on Admin {
-    ids: [ID!]!
-    meta: JSON
-    // Data
-  }
-
-  fragment DeleteFieldsNonData on Admin {
-    id: ID!
-    // Previous data
-    meta: JSON
-  }
-
-  fragment DeleteManyFields on Admin {
+  interface DeleteManyNonDataFields {
     ids: [ID!]!
     meta: JSON
   }
