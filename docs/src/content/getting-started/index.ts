@@ -1,17 +1,11 @@
-import type { Chapter, DocsPage } from '@apiteam/types'
+import type { Chapter, DocsPage } from '@apiteam/types/src'
 
-export const INTRODUCTION_CONTENT: (Chapter | DocsPage)[] = [
+export const GETTING_STARTED_CONTENT: (Chapter | DocsPage)[] = [
   {
     variant: 'chapter',
     slug: 'getting-started',
     title: 'Getting Started',
-    content: [
-      {
-        variant: 'page',
-        title: 'Introduction',
-        slug: 'introduction',
-        markdown: require('./introduction.md').default,
-      },
-    ],
+    markdown: require('./getting-started.md').default,
+    content: [],
   },
 ]

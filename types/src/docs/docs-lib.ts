@@ -2,12 +2,8 @@ export type Chapter = {
   variant: 'chapter'
   title: string
   slug: string
+  markdown: string
   content: (Chapter | DocsPage)[]
-  markdown?: string
-}
-
-export type ChapterInfo = Omit<Chapter, 'content' | 'markdown'> & {
-  content: (ChapterInfo | DocsPageInfo)[]
 }
 
 export type DocsPage = {
@@ -17,8 +13,6 @@ export type DocsPage = {
   markdown: string
 }
 
-export type DocsPageInfo = Omit<DocsPage, 'markdown'>
-
 export const searchForContent = (
   pathname: string,
   docsContent: (Chapter | DocsPage)[]
@@ -27,7 +21,7 @@ export const searchForContent = (
   return searchInMarkdown(pathParts, docsContent)
 }
 
-const searchInMarkdown = (
+export const searchInMarkdown = (
   currentSlugs: string[],
   contentLayer: (Chapter | DocsPage)[]
 ): Chapter | DocsPage | null => {

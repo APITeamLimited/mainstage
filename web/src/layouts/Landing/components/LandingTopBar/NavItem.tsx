@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Box from '@mui/material/Box'
@@ -7,7 +7,9 @@ import Popover from '@mui/material/Popover'
 import Stack from '@mui/material/Stack'
 import { alpha, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
+
 import { Link, useLocation } from '@redwoodjs/router'
+
 import { LandingGroup } from 'src/Routes'
 
 interface Props {
@@ -17,7 +19,7 @@ interface Props {
   colorInvert?: boolean
 }
 
-const NavItem = ({
+export const NavItem = ({
   title,
   id,
   items,
@@ -89,34 +91,34 @@ const NavItem = ({
         }}
       >
         <Stack spacing={0.5}>
-          {items.filter((item) => item.includeAppBar !== false).map((p, i) => (
-            <Link key={i} to={p.path} style={{ textDecoration: 'none' }}>
-              <Box>
-                <Button
-                  key={i}
-                  sx={{
-                    color:
-                      pathname === p.path
-                        ? theme.palette.primary.main
-                        : theme.palette.text.primary,
-                    backgroundColor:
-                      pathname === p.path
-                        ? alpha(theme.palette.primary.main, 0.1)
-                        : 'transparent',
-                    fontWeight: pathname === p.path ? 600 : 400,
-                  }}
-                  fullWidth
-                  onClick={handleClose}
-                >
-                  {p.name}
-                </Button>
-              </Box>
-            </Link>
-          ))}
+          {items
+            .filter((item) => item.includeAppBar !== false)
+            .map((p, i) => (
+              <Link key={i} to={p.path} style={{ textDecoration: 'none' }}>
+                <Box>
+                  <Button
+                    key={i}
+                    sx={{
+                      color:
+                        pathname === p.path
+                          ? theme.palette.primary.main
+                          : theme.palette.text.primary,
+                      backgroundColor:
+                        pathname === p.path
+                          ? alpha(theme.palette.primary.main, 0.1)
+                          : 'transparent',
+                      fontWeight: pathname === p.path ? 600 : 400,
+                    }}
+                    fullWidth
+                    onClick={handleClose}
+                  >
+                    {p.name}
+                  </Button>
+                </Box>
+              </Link>
+            ))}
         </Stack>
       </Popover>
     </Box>
   )
 }
-
-export default NavItem

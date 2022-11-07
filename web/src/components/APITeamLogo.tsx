@@ -1,6 +1,7 @@
-import { useTheme } from '@mui/material'
+import { ROUTES } from '@apiteam/types/src'
+import { Box, useTheme } from '@mui/material'
 
-import { useLocation, routes, Link } from '@redwoodjs/router'
+import { useLocation, routes, Link, navigate } from '@redwoodjs/router'
 
 export const LOGO_DEFAULT_HEIGHT = '32px'
 
@@ -217,9 +218,9 @@ export const APITeamLogo = ({
   return disableLinks ? (
     inner
   ) : (
-    <Link
-      to={isInApp ? routes.dashboard() : routes.splash()}
-      style={{
+    <Box
+      onClick={() => navigate(isInApp ? ROUTES.dashboard : ROUTES.splash)}
+      sx={{
         textDecoration: 'none',
         color: theme.palette.text.primary,
         userSelect: 'none',
@@ -230,6 +231,6 @@ export const APITeamLogo = ({
       }}
     >
       {inner}
-    </Link>
+    </Box>
   )
 }

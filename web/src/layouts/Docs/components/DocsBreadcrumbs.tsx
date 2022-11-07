@@ -1,14 +1,12 @@
 import { useMemo } from 'react'
 
 import type { Chapter, DocsPage } from '@apiteam/types/src/docs/docs-lib'
-import DescriptionIcon from '@mui/icons-material/Description'
-import HomeIcon from '@mui/icons-material/Home'
-import ViewListIcon from '@mui/icons-material/ViewList'
 import { Breadcrumbs, Link, SvgIcon, useTheme } from '@mui/material'
 
 import { navigate, useLocation } from '@redwoodjs/router'
 
 import { useDocsContent } from 'src/contexts/imports/docs-content-provider'
+import { getDocsIcon } from 'src/docs'
 
 type FoundPart = {
   title: string
@@ -73,17 +71,12 @@ export const DocsBreadcrumbs = ({ content }: DocsBreadcrumbsProps) => {
   return (
     <Breadcrumbs>
       {parts.map((part, index) => {
-        const isLast = index === parts.length - 1
-        const to = `/${parts.map((part) => part.slug).join('/')}`
+        const to = `/${parts
+          .slice(0, index + 1)
+          .map((p) => p.slug)
+          .join('/')}`
 
-        const icon =
-          index === 0
-            ? HomeIcon
-            : !isLast
-            ? ViewListIcon
-            : content.variant === 'chapter'
-            ? ViewListIcon
-            : DescriptionIcon
+        const icon = getDocsIcon(content.variant, index === 0)
 
         return (
           <Link
@@ -93,8 +86,8 @@ export const DocsBreadcrumbs = ({ content }: DocsBreadcrumbsProps) => {
             onClick={() => navigate(to)}
             key={index}
           >
-            <SvgIcon sx={{ mr: 0.5 }} component={icon} />
-            {part.title}
+            {index === 0 && <SvgIcon sx={{ mr: 0.5 }} component={icon} />}
+            {index > 0 && part.title}
           </Link>
         )
       })}

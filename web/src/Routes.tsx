@@ -1,6 +1,8 @@
 import { ROUTES } from '@apiteam/types/src/routes'
 
-import { Router, Route, Set, Private, Redirect } from '@redwoodjs/router'
+import { Router, Route, Set, Private } from '@redwoodjs/router'
+
+import { generateDocRoutes } from 'src/docs'
 
 import { AppUnifiedLayout } from './layouts/App'
 import { DocsLayout } from './layouts/Docs/DocsLayout'
@@ -100,11 +102,7 @@ const Routes = () => {
         <Route path={ROUTES.supportCenter} page={PrivacyPolicyPage} name="supportCenter" />
         <Route path={ROUTES.blog} page={PrivacyPolicyPage} name="blog" />
       </Set>
-      <Set wrap={DocsLayout}>
-        {generateDocsRoutes()}
-        <Route path={ROUTES.docs} page={DocsWelcomePage} name="docs" />
-        <Route path={`${ROUTES.docs}/introduction`} page={DocsIntroductionPage} name="docsIntroduction" />
-      </Set>
+      <Set wrap={DocsLayout}>{generateDocRoutes()}</Set>
       <Private unauthenticated="login">
         <Set wrap={AppUnifiedLayout}>
           <Route path="/app" redirect={ROUTES.dashboard} />

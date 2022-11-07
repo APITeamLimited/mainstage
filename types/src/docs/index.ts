@@ -1,2 +1,2 @@
 export * from './docs-lib'
-export * from './contents-index'
+export * from './docs-content-index'

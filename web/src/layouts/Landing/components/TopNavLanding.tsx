@@ -12,7 +12,7 @@ export const TopNavLanding = ({ disableTop = false }: TopNavProps) => {
         <>
           {/*
           <TopNavLink name="Contact" path={routes.contact()} />
-          <TopNavLink name="Docs" path={routes.docs()} />*/}
+          <TopNavLink name="Docs" path={ROUTES.docs} />*/}
         </>
       }
     />

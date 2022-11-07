@@ -1,10 +1,11 @@
 import MenuIcon from '@mui/icons-material/Menu'
-import { Stack, Tooltip, Typography, useMediaQuery } from '@mui/material'
+import { Stack, Tooltip, useMediaQuery } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import { alpha, useTheme } from '@mui/material/styles'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
+import { TopBarPageName } from 'src/components/TopBarPageName'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 interface Props {
@@ -23,6 +24,7 @@ const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
       leftZone={
         <Stack direction="row" alignItems="center" spacing={2}>
           <APITeamLogo />
+          <TopBarPageName name="Admin" />
           {isSmall && (
             <Tooltip title="Toggle Sidebar">
               <Box sx={{ display: 'flex' }} alignItems="center">
@@ -45,20 +47,6 @@ const TopBarAdmin = ({ onSidebarOpen }: Props): JSX.Element => {
             </Tooltip>
           )}
         </Stack>
-      }
-      rightZone={
-        <>
-          <Typography
-            variant="h6"
-            color={theme.palette.text.primary}
-            fontWeight="bold"
-            sx={{
-              userSelect: 'none',
-            }}
-          >
-            Admin
-          </Typography>
-        </>
       }
     />
   )

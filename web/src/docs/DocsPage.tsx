@@ -1,10 +1,12 @@
 import { Markdown } from 'src/components/utils/Markdown'
 import { useCurrentContent } from 'src/layouts/Docs/DocsLayout'
 
-const DocsIntroductionPage = () => {
+export const DocsPage = () => {
   const currentContent = useCurrentContent()
 
-  return <Markdown>{currentContent?.markdown ?? ''}</Markdown>
-}
+  if (currentContent === null) {
+    return <></>
+  }
 
-export default DocsIntroductionPage
+  return <Markdown>{currentContent.markdown}</Markdown>
+}

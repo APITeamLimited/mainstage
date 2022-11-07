@@ -11,11 +11,13 @@ import { useLocation } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
 import NotFoundCover from 'src/components/NotFoundCover'
+import { TopBarPageName } from 'src/components/TopBarPageName'
 import {
   DocsContentProvider,
   useDocsContent,
 } from 'src/contexts/imports/docs-content-provider'
 
+import { LandingTopBar } from '../Landing/components'
 import {
   largePanelSpacing,
   mediumPanelSpacing,
@@ -55,6 +57,8 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
     [pathname, docsContent]
   )
 
+  const handleSidebarOpen = () => {}
+
   if (currentContent === null) {
     return <NotFoundCover />
   }
@@ -70,6 +74,14 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
             md: FOOTER_SPASH_HEIGHT.md,
           },
         }}
+        appBarInner={
+          <LandingTopBar
+            onSidebarOpen={handleSidebarOpen}
+            leftZone={<TopBarPageName name="Docs" />}
+            rightZone={<span>aa</span>}
+            hideBrandedRoutes
+          />
+        }
       >
         <Container
           sx={{

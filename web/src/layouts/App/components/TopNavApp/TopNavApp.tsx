@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { ROUTES } from '@apiteam/types/src'
 import { Stack, Tooltip } from '@mui/material'
 
 import { routes, useLocation } from '@redwoodjs/router'
@@ -43,7 +44,7 @@ export const TopNavApp = () => {
           ) : (
             <APITeamLogo />
           )}
-          <TopNavLink name="Docs" path={routes.docs()} />
+          <TopNavLink name="Docs" path={ROUTES.docs} />
           <TopNavLink name="Support" path={routes.supportCenter()} />
         </Stack>
       }

@@ -8,7 +8,7 @@ import { TopNavLanding } from 'src/layouts/Landing/components/TopNavLanding'
 
 import { CustomAppBar } from '../CustomAppBar'
 
-import { Topbar, Sidebar } from './components/index'
+import { LandingTopBar, Sidebar } from './components'
 
 type SplashLayoutProps = {
   children?: React.ReactNode
@@ -64,7 +64,7 @@ export const LandingLayoutBase = ({
       >
         <TopNavLanding disableTop={disableTop} />
         <CustomAppBar disableTop={disableTop} trigger={trigger}>
-          {appBarInner || <Topbar onSidebarOpen={handleSidebarOpen} />}
+          {appBarInner || <LandingTopBar onSidebarOpen={handleSidebarOpen} />}
         </CustomAppBar>
         <Sidebar
           onClose={handleSidebarClose}
