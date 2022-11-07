@@ -8,6 +8,8 @@ import { navigate, useLocation } from '@redwoodjs/router'
 
 import { useDocsContent } from 'src/contexts/imports/docs-content-provider'
 
+import { markdownLineSpacing } from '../Markdown'
+
 type ContentsItem = {
   variant: 'page' | 'chapter'
   title: string
@@ -67,7 +69,7 @@ const navigateContent = (
   return results
 }
 
-export const DocsContents = () => {
+export const DocContents = () => {
   const allContent = useDocsContent()
   const theme = useTheme()
   const { pathname } = useLocation()
@@ -78,7 +80,7 @@ export const DocsContents = () => {
   )
 
   return (
-    <Card sx={{ p: 2, my: 2 }} variant="outlined">
+    <Card sx={{ p: 2, mb: markdownLineSpacing }} variant="outlined">
       <Stack spacing={2}>
         <Typography variant="h6" fontWeight="bold">
           Contents
@@ -93,7 +95,6 @@ export const DocsContents = () => {
                 fontWeight: 'bold',
                 color: theme.palette.primary.main,
                 cursor: 'pointer',
-                userSelect: 'none',
                 // Bullet point
                 '&::before': {
                   content: '"•"',

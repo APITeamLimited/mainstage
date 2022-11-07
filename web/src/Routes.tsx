@@ -2,7 +2,7 @@ import { ROUTES } from '@apiteam/types/src/routes'
 
 import { Router, Route, Set, Private } from '@redwoodjs/router'
 
-import { generateDocRoutes } from 'src/docs'
+import { generateDocRoutes } from 'src/layouts/Docs/routing'
 
 import { AppUnifiedLayout } from './layouts/App'
 import { DocsLayout } from './layouts/Docs/DocsLayout'
@@ -13,9 +13,9 @@ export type LandingGroup = {
   sublinks: Array<{
     path: string
     name: string
-    includeAppBar?: boolean
+    hideInAppBar?: boolean
   }>
-  includeAppBar?: boolean
+  hideInAppBar?: boolean
 }
 
 export const brandedRoutes = [
@@ -31,12 +31,12 @@ export const brandedRoutes = [
         name: 'Load Testing',
       },
       {
-        path: ROUTES.docs,
-        name: 'Docs',
-      },
-      {
         path: ROUTES.plansAndPricing,
         name: 'Plans and Pricing',
+      },
+      {
+        path: ROUTES.docs,
+        name: 'Docs',
       },
     ],
   },
@@ -61,7 +61,7 @@ export const brandedRoutes = [
         name: 'Contact Us',
       },
     ],
-    includeAppBar: false,
+    hideInAppBar: true,
   },
   {
     name: 'Legal',
@@ -79,7 +79,7 @@ export const brandedRoutes = [
         name: 'Cookie Policy',
       },
     ],
-    includeAppBar: false,
+    hideInAppBar: true,
   },
 ] as LandingGroup[]
 

@@ -20,7 +20,7 @@ const SidebarNav = (): JSX.Element => {
         }}
       >
         {Object.values(brandedRoutes).map((value, indexCategory) => {
-          if (value.includeAppBar !== false) {
+          if (!value.hideInAppBar) {
             return (
               <Stack
                 spacing={2}

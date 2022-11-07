@@ -27,14 +27,9 @@ export const NavItem = ({
 }: Props): JSX.Element => {
   const theme = useTheme()
 
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [openedPopoverId, setOpenedPopoverId] = useState(null)
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const [openedPopoverId, setOpenedPopoverId] = useState<string | null>(null)
   const { pathname } = useLocation()
-
-  const handleClick = (event, popoverId) => {
-    setAnchorEl(event.target)
-    setOpenedPopoverId(popoverId)
-  }
 
   const handleClose = (): void => {
     setAnchorEl(null)
@@ -47,11 +42,14 @@ export const NavItem = ({
   return (
     <Box>
       <Box
-        display={'flex'}
-        alignItems={'center'}
+        display="flex"
+        alignItems="center"
         aria-describedby={id}
         sx={{ cursor: 'pointer' }}
-        onClick={(e) => handleClick(e, id)}
+        onClick={(event) => {
+          setAnchorEl(event.target as HTMLElement)
+          setOpenedPopoverId(id)
+        }}
       >
         <Typography
           fontWeight={openedPopoverId === id || hasActiveLink() ? 700 : 400}
@@ -92,7 +90,7 @@ export const NavItem = ({
       >
         <Stack spacing={0.5}>
           {items
-            .filter((item) => item.includeAppBar !== false)
+            .filter((item) => !item.hideInAppBar)
             .map((p, i) => (
               <Link key={i} to={p.path} style={{ textDecoration: 'none' }}>
                 <Box>

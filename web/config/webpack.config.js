@@ -1,6 +1,7 @@
 const webpack = require('webpack')
 const BundleAnalyzerPlugin =
   require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const CopyPlugin = require('copy-webpack-plugin')
 
 /** @returns {import('webpack').Configuration} Webpack Configuration */
 module.exports = (config, { mode }) => {
@@ -19,6 +20,12 @@ module.exports = (config, { mode }) => {
 
   // Add custom plugins for your project
   // config.plugins.push(YOUR_PLUGIN)
+
+  config.plugins.push(
+    new CopyPlugin({
+      patterns: [{ from: '../docs/src/content', to: 'public/docs' }],
+    })
+  )
 
   config.plugins.push(
     new webpack.ProvidePlugin({
@@ -41,7 +48,8 @@ module.exports = (config, { mode }) => {
   }
 
   // Override redwood react dom with root react dom
-  // Drastically reduces bundle size and prevents 2 versions of react-dom
+  // Drastically reduces bundle size and prevents 2 versions of react-dom from
+  // incorrectly being loaded
   config.resolve.alias['react-dom'] = require.resolve('react-dom')
 
   return config

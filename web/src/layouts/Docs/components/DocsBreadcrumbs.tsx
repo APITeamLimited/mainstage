@@ -6,7 +6,7 @@ import { Breadcrumbs, Link, SvgIcon, useTheme } from '@mui/material'
 import { navigate, useLocation } from '@redwoodjs/router'
 
 import { useDocsContent } from 'src/contexts/imports/docs-content-provider'
-import { getDocsIcon } from 'src/docs'
+import { getDocsIcon } from 'src/layouts/Docs/routing'
 
 type FoundPart = {
   title: string

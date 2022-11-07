@@ -19,6 +19,7 @@ type LandingTopBarProps = {
   leftZone?: React.ReactNode
   rightZone?: React.ReactNode
   hideBrandedRoutes?: boolean
+  hideSignUpOrContinueButton?: boolean
 }
 
 export const LandingTopBar = ({
@@ -26,6 +27,7 @@ export const LandingTopBar = ({
   leftZone,
   rightZone,
   hideBrandedRoutes,
+  hideSignUpOrContinueButton,
 }: LandingTopBarProps): JSX.Element => {
   const theme = useTheme()
 
@@ -69,31 +71,31 @@ export const LandingTopBar = ({
           {rightZone}
           {!hideBrandedRoutes && (
             <>
-              {brandedRoutes.map((route, index) => {
-                if (route.includeAppBar === false) {
-                  return <div key={index} />
-                }
+              {brandedRoutes
+                .filter((route) => !route.hideInAppBar)
+                .map((route, index) => {
+                  const marginLeft = index === 0 ? 0 : landingTopBarXSpacing
 
-                const marginLeft = index === 0 ? 0 : landingTopBarXSpacing
-
-                return (
-                  <Box
-                    key={index}
-                    marginLeft={marginLeft}
-                    sx={{ display: { xs: 'none', md: 'flex' } }}
-                  >
-                    <NavItem
+                  return (
+                    <Box
                       key={index}
-                      id={route.name}
-                      title={route.name}
-                      items={route.sublinks}
-                    />
-                  </Box>
-                )
-              })}
+                      marginLeft={marginLeft}
+                      sx={{ display: { xs: 'none', md: 'flex' } }}
+                    >
+                      <NavItem
+                        key={index}
+                        id={route.name}
+                        title={route.name}
+                        items={route.sublinks}
+                      />
+                    </Box>
+                  )
+                })}
             </>
           )}
-          <SignUpOrContinueButton size="medium" />
+          {!hideSignUpOrContinueButton && (
+            <SignUpOrContinueButton size="medium" />
+          )}
           <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems="center">
             <Button
               onClick={() => onSidebarOpen()}

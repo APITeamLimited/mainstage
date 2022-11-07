@@ -103,6 +103,7 @@ __metadata:
     "@types/node": ^18.0.6
     "@types/ws": ^8.5.3
     copyfiles: ^2.4.1
+    fuse.js: ^6.6.2
     ts-node: ^10.9.1
     typescript: ^4.7.4
   peerDependencies:
@@ -188,6 +189,7 @@ __metadata:
     apollo3-cache-persist: ^0.14.1
     axios: ^0.27.2
     buffer: ^6.0.3
+    copy-webpack-plugin: ^11.0.0
     dotenv-webpack: ^8.0.1
     draft-js: ^0.11.7
     draft-js-plugins-editor: ^3.0.0
@@ -195,6 +197,7 @@ __metadata:
     extract-domain: ^2.4.8
     form-data: ^4.0.0
     formik: ^2.2.9
+    fuse.js: ^6.6.2
     hash-sum: ^2.0.0
     html-prettify: ^1.0.7
     http-status-codes: ^2.2.0
@@ -14056,7 +14059,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"copy-webpack-plugin@npm:11.0.0":
+"copy-webpack-plugin@npm:11.0.0, copy-webpack-plugin@npm:^11.0.0":
   version: 11.0.0
   resolution: "copy-webpack-plugin@npm:11.0.0"
   dependencies:
@@ -18315,6 +18318,13 @@ __metadata:
   version: 1.2.3
   resolution: "functions-have-names@npm:1.2.3"
   checksum: 33e77fd29bddc2d9bb78ab3eb854c165909201f88c75faa8272e35899e2d35a8a642a15e7420ef945e1f64a9670d6aa3ec744106b2aa42be68ca5114025954ca
+  languageName: node
+  linkType: hard
+
+"fuse.js@npm:^6.6.2":
+  version: 6.6.2
+  resolution: "fuse.js@npm:6.6.2"
+  checksum: c2fe4f234f516e9ea83b06f06f8f3c8b7117f51aa75bbccd052eed0c0423364bf1e360ffbf29cadae8ef6aa39476b7961eaf9d07bed779cea5c83d62b34e2df9
   languageName: node
   linkType: hard
 

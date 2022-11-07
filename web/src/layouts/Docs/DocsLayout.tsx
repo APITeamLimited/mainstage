@@ -31,6 +31,7 @@ import {
 import { LandingLayoutBase } from '../Landing/LandingLayoutBase'
 
 import { DocsBreadcrumbs } from './components/DocsBreadcrumbs'
+import { DocsSearch } from './components/DocsSearch'
 
 type DocsLayoutProps = {
   children?: React.ReactNode
@@ -78,8 +79,9 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
           <LandingTopBar
             onSidebarOpen={handleSidebarOpen}
             leftZone={<TopBarPageName name="Docs" />}
-            rightZone={<span>aa</span>}
+            rightZone={<DocsSearch />}
             hideBrandedRoutes
+            hideSignUpOrContinueButton
           />
         }
       >

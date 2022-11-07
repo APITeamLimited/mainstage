@@ -1,6 +1,6 @@
 import { Container, useTheme, Box } from '@mui/material'
 
-import { largePanelSpacing, panelSeparation } from './components/constants'
+import { largePanelSpacing } from './components/constants'
 import { FooterSplash, FOOTER_SPASH_HEIGHT } from './components/FooterSplash'
 import { LandingLayoutBase } from './LandingLayoutBase'
 

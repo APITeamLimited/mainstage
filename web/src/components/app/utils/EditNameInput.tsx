@@ -1,9 +1,7 @@
-import { memo, useRef } from 'react'
+import { memo } from 'react'
 
 import { TextField } from '@mui/material'
 import { useFormik } from 'formik'
-import { useHotkeys } from 'react-hotkeys-hook'
-import useDoubleClick from 'use-double-click'
 import * as Yup from 'yup'
 
 type EditNameInputProps = {

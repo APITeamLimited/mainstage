@@ -173,5 +173,13 @@ export const baseThemeOptions: ThemeOptions = {
         },
       },
     },
+    MuiContainer: {
+      defaultProps: {
+        style: {
+          paddingLeft: '12px',
+          paddingRight: '12px',
+        },
+      },
+    },
   },
 }
