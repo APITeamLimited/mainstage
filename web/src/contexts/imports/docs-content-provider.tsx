@@ -33,7 +33,6 @@ export const DocsContentProvider = ({
   useEffect(() => {
     const importContents = async () => {
       const importedContent = await importDocsContent()
-      console.log(importedContent)
       setDocsContent(importedContent.DOCS_CONTENT)
       setDocsSearchIndex(importedContent.DOCS_SEARCH_INDEX)
     }

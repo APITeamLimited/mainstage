@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-import { DocsSearchIndex } from '@apiteam/docs/src'
-import SearchIcon from '@mui/icons-material/Search'
+import type { DocsSearchIndex } from '@apiteam/docs/src'
+import DocsSearchIcon from '@mui/icons-material/Search'
 import {
   useMediaQuery,
   useTheme,
@@ -10,8 +10,9 @@ import {
   Typography,
   Tooltip,
 } from '@mui/material'
-import type Fuse from 'fuse.js'
 
+import { SimplebarReactModuleProvider } from 'src/contexts/imports'
+import { useDocsSearchIndex } from 'src/contexts/imports/docs-content-provider'
 import {
   HotkeysModuleProvider,
   useHotkeysModule,
@@ -22,31 +23,34 @@ import { SearchKeys } from './SearchKeys'
 
 export type IndexableType = DocsSearchIndex
 
-export type SearchResult = {
-  name: string
-  category?: string
-  path: string
-}
-
-type SearchProps<IndexedType> = {
-  searchIndex: IndexedType
+type DocsSearchProps = {
+  searchIndex: DocsSearchIndex
   prompt?: string
-  namespace: string
+  namespace?: string
 }
 
-export const Search = <IndexedType extends IndexableType>(
-  props: SearchProps<IndexedType>
-) => (
-  <HotkeysModuleProvider>
-    <SearchInner {...props} />
-  </HotkeysModuleProvider>
-)
+export const DocsSearch = (props: Omit<DocsSearchProps, 'searchIndex'>) => {
+  const docsSearchIndex = useDocsSearchIndex()
 
-const SearchInner = <IndexedType extends IndexableType>({
+  return (
+    <SimplebarReactModuleProvider>
+      <HotkeysModuleProvider>
+        <DocsSearchInner
+          {...{
+            ...props,
+            searchIndex: docsSearchIndex,
+          }}
+        />
+      </HotkeysModuleProvider>
+    </SimplebarReactModuleProvider>
+  )
+}
+
+const DocsSearchInner = ({
   searchIndex,
-  prompt = 'Search',
-  namespace,
-}: SearchProps<IndexedType>) => {
+  prompt = 'Search Docs',
+  namespace = 'docs',
+}: DocsSearchProps) => {
   const { useHotkeys } = useHotkeysModule()
 
   const theme = useTheme()
@@ -90,7 +94,7 @@ const SearchInner = <IndexedType extends IndexableType>({
               cursor: 'inherit',
             }}
           >
-            <SearchIcon
+            <DocsSearchIcon
               sx={{
                 color: theme.palette.text.primary,
               }}

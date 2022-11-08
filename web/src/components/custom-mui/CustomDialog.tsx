@@ -23,7 +23,7 @@ type CustomDialogProps = {
   title: string
   actionArea?: ReactNode
   children?: ReactNode
-  disableScroll?: boolean
+  disableScrollAndPadding?: boolean
   fullWidth?: DialogProps['fullWidth']
   maxWidth?: DialogProps['maxWidth']
 }
@@ -40,7 +40,7 @@ const CustomDialogInner = ({
   title,
   actionArea,
   children,
-  disableScroll,
+  disableScrollAndPadding,
   fullWidth,
   maxWidth,
 }: CustomDialogProps) => {
@@ -62,6 +62,9 @@ const CustomDialogInner = ({
       onClose={onClose}
       fullWidth={fullWidth}
       maxWidth={maxWidth}
+      sx={{
+        overflow: 'hidden',
+      }}
     >
       <Stack
         direction="row"
@@ -96,8 +99,8 @@ const CustomDialogInner = ({
         sx={{
           height: '500px',
           maxWidth: '100%',
-          overflow: disableScroll ? 'hidden' : 'auto',
-          padding: disableScroll ? 0 : 2,
+          overflow: disableScrollAndPadding ? 'hidden' : 'auto',
+          padding: disableScrollAndPadding ? 0 : 2,
         }}
       >
         {children}

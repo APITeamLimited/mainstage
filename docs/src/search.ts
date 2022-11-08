@@ -3,37 +3,73 @@ import Fuse from 'fuse.js'
 
 import { DOCS_CONTENT } from './content'
 
-export type DocsSearchIndex = Fuse<Chapter | DocsPage> & {
+export type DocsSearchIndex = Fuse<FlatContent> & {
   variant: 'docs'
 }
 
-const flattenedContent: (Chapter | DocsPage)[] = []
+export type FlatContent =
+  | {
+      title: string
+      slug: string
+      markdown: string
+    } & (
+      | {
+          variant: 'page'
+          chapter: string
+        }
+      | {
+          variant: 'chapter'
+        }
+    )
 
 const traverseContent = (
   content: (Chapter | DocsPage)[],
-  previusSlugs: string[] = []
-) => {
+  previusSlugs: string[] = [],
+  parentChapter: string | null = null
+): FlatContent[] => {
+  const flatContent: FlatContent[] = []
+
   for (const item of content) {
     if (item.variant === 'page') {
-      flattenedContent.push({
-        ...item,
+      if (!parentChapter) {
+        throw new Error('Page without parent chapter')
+      }
+
+      flatContent.push({
+        variant: 'page',
+        title: item.title,
         slug: `/${[...previusSlugs, item.slug].join('/')}`,
+        markdown: item.markdown,
+        chapter: parentChapter,
       })
     } else {
-      traverseContent(item.content, [...previusSlugs, item.slug])
+      flatContent.push({
+        variant: 'chapter',
+        title: item.title,
+        slug: `/${[...previusSlugs, item.slug].join('/')}`,
+        markdown: item.markdown,
+      })
+
+      flatContent.push(
+        ...traverseContent(
+          item.content,
+          [...previusSlugs, item.slug],
+          item.title
+        )
+      )
     }
   }
+
+  return flatContent
 }
 
-traverseContent(DOCS_CONTENT)
+const flattenedContent = traverseContent(DOCS_CONTENT)
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 const DOCS_SEARCH_INDEX: DocsSearchIndex = new Fuse(flattenedContent, {
+  shouldSort: true,
   keys: ['title', 'markdown'],
-  includeScore: true,
-  threshold: 0.3,
-  minMatchCharLength: 3,
 })
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

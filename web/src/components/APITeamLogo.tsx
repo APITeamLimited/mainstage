@@ -1,7 +1,7 @@
 import { ROUTES } from '@apiteam/types/src'
 import { Box, useTheme } from '@mui/material'
 
-import { useLocation, routes, Link, navigate } from '@redwoodjs/router'
+import { useLocation, navigate } from '@redwoodjs/router'
 
 export const LOGO_DEFAULT_HEIGHT = '32px'
 
@@ -20,6 +20,10 @@ export const APITeamLogo = ({
   const isInApp = pathname.includes('/app')
 
   const accentColor = theme.palette.primary.main
+
+  const actualDisableLinks = disableLinks
+    ? true
+    : pathname === ROUTES.splash || pathname === ROUTES.dashboard
 
   const inner = (
     <svg viewBox="0 0 1200 300" height={height}>
@@ -215,7 +219,7 @@ export const APITeamLogo = ({
     </svg>
   )
 
-  return disableLinks ? (
+  return actualDisableLinks ? (
     inner
   ) : (
     <Box
@@ -228,6 +232,7 @@ export const APITeamLogo = ({
         // @ts-ignore
         WebkitUserDrag: 'none',
         height,
+        cursor: 'pointer',
       }}
     >
       {inner}

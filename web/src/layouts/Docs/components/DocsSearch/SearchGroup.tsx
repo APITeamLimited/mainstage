@@ -1,28 +1,20 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
-  Stack,
-  useTheme,
-  Typography,
-  Box,
-} from '@mui/material'
+import { FlatContent } from '@apiteam/docs/src'
+import { Stack, useTheme, Typography, Box } from '@mui/material'
 
-import { SearchResult } from './Search'
 import { SearchItem } from './SearchItem'
 
 export type SearchGroup = {
   name: string
-  results: SearchResult[]
+  results: (Omit<FlatContent, 'markdown'> & { listIndex: number })[]
 }
 
 type SearchGroupProps = {
   group: SearchGroup
-  onNavigate: (result: SearchResult) => void
+  onNavigate: (result: Omit<FlatContent, 'markdown'>) => void
   deletePreviousSearchResult?: (previousIndex: number) => void
   previous?: boolean
+  setActiveIndex: (index: number) => void
+  activeIndex: number
 }
 
 export const SearchGroup = ({
@@ -30,6 +22,8 @@ export const SearchGroup = ({
   onNavigate,
   deletePreviousSearchResult,
   previous,
+  setActiveIndex,
+  activeIndex,
 }: SearchGroupProps) => {
   const theme = useTheme()
 
@@ -54,6 +48,8 @@ export const SearchGroup = ({
               onClick={() => onNavigate(result)}
               previous={previous}
               onDelete={() => deletePreviousSearchResult?.(index)}
+              onSetActive={() => setActiveIndex(result.listIndex)}
+              activeIndex={activeIndex}
             />
           ))}
         </Stack>

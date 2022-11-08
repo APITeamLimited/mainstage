@@ -1,7 +1,7 @@
+const CopyPlugin = require('copy-webpack-plugin')
 const webpack = require('webpack')
 const BundleAnalyzerPlugin =
   require('webpack-bundle-analyzer').BundleAnalyzerPlugin
-const CopyPlugin = require('copy-webpack-plugin')
 
 /** @returns {import('webpack').Configuration} Webpack Configuration */
 module.exports = (config, { mode }) => {
