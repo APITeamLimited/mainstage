@@ -1,11 +1,18 @@
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 
 import {
   Chapter,
   DocsPage,
   searchForContent,
 } from '@apiteam/types/src/docs/docs-lib'
-import { Container, Paper, Stack, Typography } from '@mui/material'
+import {
+  Container,
+  Paper,
+  Stack,
+  Typography,
+  useTheme,
+  useMediaQuery,
+} from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -30,6 +37,7 @@ import {
 } from '../Landing/components/FooterSplash'
 import { LandingLayoutBase } from '../Landing/LandingLayoutBase'
 
+import { DocsAside, docsAsideWidth } from './components/DocsAside'
 import { DocsBreadcrumbs } from './components/DocsBreadcrumbs'
 import { DocsSearch } from './components/DocsSearch'
 
@@ -48,7 +56,15 @@ export const DocsLayout = (props: DocsLayoutProps) => {
   )
 }
 
+const footerHeights = {
+  xs: FOOTER_SPASH_HEIGHT.xs,
+  md: FOOTER_SPASH_HEIGHT.md,
+}
+
 export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
+  const theme = useTheme()
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'))
+
   const { pathname } = useLocation()
 
   const docsContent = useDocsContent()
@@ -58,7 +74,7 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
     [pathname, docsContent]
   )
 
-  const handleSidebarOpen = () => {}
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (currentContent === null) {
     return <NotFoundCover />
@@ -70,14 +86,11 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
       <LandingLayoutBase
         footer={{
           element: <FooterSplash />,
-          height: {
-            xs: FOOTER_SPASH_HEIGHT.xs,
-            md: FOOTER_SPASH_HEIGHT.md,
-          },
+          height: footerHeights,
         }}
         appBarInner={
           <LandingTopBar
-            onSidebarOpen={handleSidebarOpen}
+            onSidebarOpen={() => setSidebarOpen(true)}
             leftZone={<TopBarPageName name="Docs" />}
             rightZone={<DocsSearch />}
             hideBrandedRoutes
@@ -85,30 +98,42 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
           />
         }
       >
-        <Container
+        <Stack
+          direction="row"
           sx={{
-            paddingTop: largePanelSpacing,
-            paddingBottom: panelSeparation,
-            minHeight: '94vh',
+            paddingLeft: isSmall ? 0 : `${docsAsideWidth}px`,
           }}
         >
-          <Stack spacing={mediumPanelSpacing}>
-            <DocsBreadcrumbs content={currentContent} />
-            <Typography variant="h4" fontWeight="bold">
-              {currentContent.title}
-            </Typography>
-            <Paper
-              sx={{
-                padding: {
-                  xs: smallPanelSpacing,
-                  md: mediumPanelSpacing,
-                },
-              }}
-            >
-              {children}
-            </Paper>
-          </Stack>
-        </Container>
+          <DocsAside
+            open={sidebarOpen}
+            setOpen={setSidebarOpen}
+            footerHeights={footerHeights}
+          />
+          <Container
+            sx={{
+              paddingTop: largePanelSpacing,
+              paddingBottom: panelSeparation,
+              minHeight: '94vh',
+            }}
+          >
+            <Stack spacing={mediumPanelSpacing}>
+              <DocsBreadcrumbs content={currentContent} />
+              <Typography variant="h4" fontWeight="bold">
+                {currentContent.title}
+              </Typography>
+              <Paper
+                sx={{
+                  padding: {
+                    xs: smallPanelSpacing,
+                    md: mediumPanelSpacing,
+                  },
+                }}
+              >
+                {children}
+              </Paper>
+            </Stack>
+          </Container>
+        </Stack>
       </LandingLayoutBase>
     </CurrentContentContext.Provider>
   )

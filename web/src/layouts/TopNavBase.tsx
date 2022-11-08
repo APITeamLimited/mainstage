@@ -40,7 +40,7 @@ export const TopNavBase = ({
         width: '100%',
         alignItems: 'center',
         display: 'flex',
-        zIndex: 1,
+        zIndex: theme.zIndex.appBar,
         position: 'relative',
       }}
       elevation={disableTop ? 0 : 8}

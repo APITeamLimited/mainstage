@@ -87,7 +87,7 @@ const DocsSearchInner = ({
           <Stack
             direction="row"
             alignItems="center"
-            spacing={1}
+            spacing={2}
             sx={{
               paddingX: 2,
               paddingY: 1,

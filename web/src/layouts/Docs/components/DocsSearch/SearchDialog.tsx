@@ -25,12 +25,14 @@ import { SearchKeys } from './SearchKeys'
 const loadPreviousSearches = (namespace: string): FlatContent[] => {
   const previousSearches = localStorage.getItem(`localSearches-${namespace}`)
   if (previousSearches) {
-    return JSON.parse(previousSearches)
+    return JSON.parse(previousSearches).slice(0, maxResults)
   }
   return []
 }
 
 const minSearchTime = 100
+
+const maxResults = 10
 
 type SearchDialogProps = {
   open: boolean
@@ -66,10 +68,12 @@ export const SearchDialog = ({
   const recentResults = useMemo(
     () => ({
       name: 'Recent',
-      results: previousSearches.map((previousSearch, index) => ({
-        ...previousSearch,
-        listIndex: index,
-      })),
+      results: previousSearches
+        .slice(0, maxResults)
+        .map((previousSearch, index) => ({
+          ...previousSearch,
+          listIndex: index,
+        })),
     }),
     [previousSearches]
   )
@@ -118,7 +122,7 @@ export const SearchDialog = ({
 
     setPreviousSearchText(searchBarContent)
 
-    const results = searchIndex.search(searchBarContent)
+    const results = searchIndex.search(searchBarContent).slice(0, maxResults)
 
     // Group results by chapter
     const groupedResults: SearchGroup[] = []
@@ -165,7 +169,7 @@ export const SearchDialog = ({
 
     setSearchResults(Object.values(groupedResults))
     setScheduledSearch(false)
-  }, [searchIndex, searchBarContent])
+  }, [searchBarContent, previousSearchText, searchIndex])
 
   const [scheduledSearch, setScheduledSearch] = useState(false)
 
@@ -294,7 +298,7 @@ export const SearchDialog = ({
             <Stack
               direction="row"
               alignItems="center"
-              spacing={1}
+              spacing={2}
               sx={{
                 paddingX: 2,
                 paddingY: 1,
