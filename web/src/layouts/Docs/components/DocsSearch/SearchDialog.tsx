@@ -61,6 +61,7 @@ export const SearchDialog = ({
   const [activeIndex, setActiveIndex] = useState(0)
   const [maxIndex, setMaxIndex] = useState(0)
   const [recentMode, setRecentMode] = useState(true)
+  const [previousSearchText, setPreviousSearchText] = useState('')
 
   const recentResults = useMemo(
     () => ({
@@ -110,6 +111,12 @@ export const SearchDialog = ({
 
   const handleSearch = useCallback(() => {
     setLastSearchTime(Date.now())
+
+    if (searchBarContent === previousSearchText) {
+      return
+    }
+
+    setPreviousSearchText(searchBarContent)
 
     const results = searchIndex.search(searchBarContent)
 
