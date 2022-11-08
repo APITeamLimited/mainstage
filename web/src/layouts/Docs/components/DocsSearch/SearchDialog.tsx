@@ -366,15 +366,40 @@ export const SearchDialog = ({
             >
               <Stack spacing={4}>
                 {searchBarContent !== '' ? (
-                  searchResults.map((group, index) => (
-                    <SearchGroup
-                      key={index}
-                      group={group}
-                      onNavigate={handleNavigate}
-                      activeIndex={activeIndex}
-                      setActiveIndex={setActiveIndex}
-                    />
-                  ))
+                  searchResults.length > 0 ? (
+                    searchResults.map((group, index) => (
+                      <SearchGroup
+                        key={index}
+                        group={group}
+                        onNavigate={handleNavigate}
+                        activeIndex={activeIndex}
+                        setActiveIndex={setActiveIndex}
+                      />
+                    ))
+                  ) : (
+                    <Box
+                      sx={{
+                        width: '100%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '100px',
+                      }}
+                    >
+                      <Typography
+                        variant="body1"
+                        color={theme.palette.text.secondary}
+                        sx={{
+                          textAlign: 'center',
+                          userSelect: 'none',
+                          textOverflow: 'ellipsis',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        No results found for <b>{searchBarContent}</b>
+                      </Typography>
+                    </Box>
+                  )
                 ) : (
                   <SearchGroup
                     group={recentResults}
@@ -392,7 +417,7 @@ export const SearchDialog = ({
         <Box
           sx={{
             minHeight: '45.75px',
-            // PRevent the search bar from shrinking
+            // Prevent the search bar from shrinking
             flexShrink: 0,
           }}
         >

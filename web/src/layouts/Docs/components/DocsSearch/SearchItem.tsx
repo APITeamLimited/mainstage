@@ -1,13 +1,16 @@
 import { FlatContent } from '@apiteam/docs/src'
+import ClearIcon from '@mui/icons-material/Clear'
 import HistoryIcon from '@mui/icons-material/History'
 import TagIcon from '@mui/icons-material/Tag'
 import {
   Card,
+  IconButton,
   ListItem,
   ListItemIcon,
   ListItemText,
   MenuItem,
   SvgIcon,
+  Tooltip,
   useTheme,
 } from '@mui/material'
 
@@ -40,7 +43,8 @@ export const SearchItem = ({
       onMouseEnter={onSetActive}
       component={MenuItem}
       sx={{
-        padding: 2,
+        paddingY: 3,
+
         width: '100%',
         backgroundColor:
           activeIndex === result.listIndex
@@ -65,7 +69,11 @@ export const SearchItem = ({
       }}
       onClick={onClick}
     >
-      <ListItem>
+      <ListItem
+        sx={{
+          padding: 0,
+        }}
+      >
         <ListItemIcon>
           <SvgIcon
             component={previous ? HistoryIcon : TagIcon}
@@ -88,6 +96,32 @@ export const SearchItem = ({
             },
           }}
         />
+        {previous && activeIndex === result.listIndex ? (
+          <Tooltip title="Delete">
+            <IconButton
+              onClick={(event) => {
+                event.stopPropagation()
+                event.preventDefault()
+                onDelete?.()
+              }}
+            >
+              <ClearIcon
+                sx={{
+                  color: theme.palette.background.paper,
+                  height: '24px',
+                  width: '24px',
+                }}
+              />
+            </IconButton>
+          </Tooltip>
+        ) : (
+          // Maintain the same height as the IconButton above
+          <div
+            style={{
+              height: '34px',
+            }}
+          />
+        )}
       </ListItem>
     </Card>
   )
