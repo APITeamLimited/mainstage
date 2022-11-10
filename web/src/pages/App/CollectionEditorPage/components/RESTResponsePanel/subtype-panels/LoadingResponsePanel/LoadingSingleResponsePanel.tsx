@@ -8,7 +8,7 @@ import type { Map as YMap } from 'yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { streamExistingTest } from 'src/globe-test/existing-test'
+import { streamExistingTest } from 'src/test-manager/existing-test'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { PanelLayout } from '../../../PanelLayout'

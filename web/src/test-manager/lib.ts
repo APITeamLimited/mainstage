@@ -1,5 +1,4 @@
 import {
-  RESTRequest,
   GlobeTestMessage,
   StatusType,
   ExecutionParams,

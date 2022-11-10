@@ -6,7 +6,7 @@ import { Socket } from 'socket.io'
 import * as awarenessProtocol from 'y-protocols/awareness'
 import * as Y from 'yjs'
 
-import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../redis'
+import { getReadRedis, getSubscribeRedis } from '../redis'
 
 import { OpenDoc } from './open-doc'
 import { mongoPersistence } from './persistence-provider'
@@ -107,13 +107,13 @@ export const handleNewConnection = async (socket: Socket) => {
 
     doc.setAndBroadcastServerAwareness(newServerAwareness)
 
-    const setPromise = coreCacheReadRedis.hSet(
+    const setPromise = (await getReadRedis()).hSet(
       `team:${doc.variantTargetId}`,
       `lastOnlineTime:${scope.userId}`,
       member.lastOnline.getTime()
     )
 
-    const publishPromise = coreCacheReadRedis.publish(
+    const publishPromise = (await getReadRedis()).publish(
       `team:${doc.variantTargetId}`,
       JSON.stringify({
         type: 'LAST_ONLINE_TIME',
@@ -184,8 +184,8 @@ export const handleRemoveSubscription = async (name: string) => {
     const isPattern = name.endsWith('*')
 
     isPattern
-      ? await coreCacheSubscribeRedis.pUnsubscribe(name)
-      : await coreCacheSubscribeRedis.unsubscribe(name)
+      ? await (await getSubscribeRedis()).pUnsubscribe(name)
+      : await (await getSubscribeRedis()).unsubscribe(name)
 
     return
   }

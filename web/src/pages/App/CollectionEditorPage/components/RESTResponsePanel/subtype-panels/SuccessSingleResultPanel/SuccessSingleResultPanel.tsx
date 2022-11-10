@@ -8,7 +8,7 @@ import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { parseMessage } from 'src/globe-test/execution'
+import { parseMessage } from 'src/test-manager/execution'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 

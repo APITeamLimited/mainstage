@@ -7,16 +7,36 @@ const coreCachePassword = checkValue<string>('coreCache.redis.password')
 const coreCacheHost = checkValue<string>('coreCache.redis.host')
 const coreCachePort = checkValue<number>('coreCache.redis.port')
 
-const coreCacheReadRedis = createClient({
-  url: `redis://${coreCacheUsername}:${coreCachePassword}@${coreCacheHost}:${coreCachePort}`,
-})
+type RedisClient = ReturnType<typeof createClient>
 
-const coreCacheSubscribeRedis = coreCacheReadRedis.duplicate()
+let coreCacheReadRedis: RedisClient | null = null
+let coreCacheSubscribeRedis: RedisClient | null = null
 
-coreCacheReadRedis.connect()
-coreCacheSubscribeRedis.connect()
+const connectClient = async () => {
+  const client = createClient({
+    url: `redis://${coreCacheUsername}:${coreCachePassword}@${coreCacheHost}:${coreCachePort}`,
+  })
 
-export { coreCacheReadRedis, coreCacheSubscribeRedis }
+  await client.connect()
+
+  return client
+}
+
+export const getReadRedis = async (): Promise<RedisClient> => {
+  if (!coreCacheReadRedis) {
+    coreCacheReadRedis = await connectClient()
+  }
+
+  return coreCacheReadRedis
+}
+
+export const getSubscribeRedis = async (): Promise<RedisClient> => {
+  if (!coreCacheSubscribeRedis) {
+    coreCacheSubscribeRedis = await connectClient()
+  }
+
+  return coreCacheSubscribeRedis
+}
 
 // Handle deletion
 // /const setupDeletion = async () => {

@@ -12,7 +12,7 @@ import { useYJSModule } from 'src/contexts/imports'
 import { VariablesProvider } from 'src/contexts/VariablesProvider'
 import { VerifiedDomainsProvider } from 'src/contexts/verified-domains-provider'
 import { useWorkspace } from 'src/entity-engine'
-import { GlobeTestProvider } from 'src/globe-test'
+import { GlobeTestProvider } from 'src/test-manager'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { CollectionTree } from './components/CollectionTree'

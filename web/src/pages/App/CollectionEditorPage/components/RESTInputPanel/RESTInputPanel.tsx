@@ -19,8 +19,8 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { singleRESTRequestGenerator } from 'src/globe-test'
-import { jobQueueVar } from 'src/globe-test/lib'
+import { singleRESTRequestGenerator } from 'src/test-manager'
+import { jobQueueVar } from 'src/test-manager/lib'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { BUILTIN_REST_SCRIPTS } from 'src/utils/rest-scripts'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'

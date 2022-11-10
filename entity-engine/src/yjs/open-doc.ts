@@ -19,7 +19,7 @@ import * as Y from 'yjs'
 
 import { checkValue } from '../config'
 import { populateOpenDoc } from '../entities'
-import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../redis'
+import { getReadRedis, getSubscribeRedis } from '../redis'
 import { getAndSetAPIPublicKey } from '../services'
 
 import {
@@ -262,9 +262,9 @@ export class OpenDoc extends Y.Doc {
 
   async connectAwareness() {
     if (this.variant === 'TEAM') {
-      const allTeamInfoRaw = await coreCacheReadRedis.hGetAll(
-        `team:${this.variantTargetId}`
-      )
+      const allTeamInfoRaw = await (
+        await getReadRedis()
+      ).hGetAll(`team:${this.variantTargetId}`)
 
       const team = JSON.parse(allTeamInfoRaw.team) as Team
       const memberships = [] as Membership[]
@@ -277,9 +277,9 @@ export class OpenDoc extends Y.Doc {
 
       const usersRaw =
         memberships.length > 0
-          ? await coreCacheReadRedis.mGet(
-              memberships.map((m) => `user__id:${m.userId}`)
-            )
+          ? await (
+              await getReadRedis()
+            ).mGet(memberships.map((m) => `user__id:${m.userId}`))
           : []
 
       const users = usersRaw.map((u) => JSON.parse(u || '') as SafeUser)
@@ -328,54 +328,51 @@ export class OpenDoc extends Y.Doc {
 
       globalActiveSubscriptions.get(`team:${this.variantTargetId}`)
 
-      await coreCacheSubscribeRedis.subscribe(
-        `team:${this.variantTargetId}`,
-        (message) => {
-          const parsedMessage = JSON.parse(message) as RedisTeamPublishMessage
+      await (
+        await getSubscribeRedis()
+      ).subscribe(`team:${this.variantTargetId}`, (message) => {
+        const parsedMessage = JSON.parse(message) as RedisTeamPublishMessage
 
-          if (parsedMessage.type === 'ADD_MEMBER') {
-            this.addMember(parsedMessage.payload)
-            return
-          } else if (parsedMessage.type === 'REMOVE_MEMBER') {
-            this.removeMember(parsedMessage.payload)
-            return
-          } else if (parsedMessage.type === 'CHANGE_ROLE') {
-            this.changeRoleMember(parsedMessage.payload)
-            return
-          } else if (parsedMessage.type === 'LAST_ONLINE_TIME') {
-            // This sometimes causes an error
-            const serverAwareness = this.awareness.getLocalState() as
-              | ServerAwareness
-              | undefined
-            if (serverAwareness?.variant !== 'TEAM') return
+        if (parsedMessage.type === 'ADD_MEMBER') {
+          this.addMember(parsedMessage.payload)
+          return
+        } else if (parsedMessage.type === 'REMOVE_MEMBER') {
+          this.removeMember(parsedMessage.payload)
+          return
+        } else if (parsedMessage.type === 'CHANGE_ROLE') {
+          this.changeRoleMember(parsedMessage.payload)
+          return
+        } else if (parsedMessage.type === 'LAST_ONLINE_TIME') {
+          // This sometimes causes an error
+          const serverAwareness = this.awareness.getLocalState() as
+            | ServerAwareness
+            | undefined
+          if (serverAwareness?.variant !== 'TEAM') return
 
-            const newServerAwareness: ServerAwareness = {
-              ...serverAwareness,
-              members: serverAwareness.members.map((m) => {
-                if (m.userId === parsedMessage.payload.userId) {
-                  return {
-                    ...m,
-                    lastOnline: parsedMessage.payload.lastOnline,
-                  }
+          const newServerAwareness: ServerAwareness = {
+            ...serverAwareness,
+            members: serverAwareness.members.map((m) => {
+              if (m.userId === parsedMessage.payload.userId) {
+                return {
+                  ...m,
+                  lastOnline: parsedMessage.payload.lastOnline,
                 }
-                return m
-              }),
-            }
-
-            this.setAndBroadcastServerAwareness(newServerAwareness)
-            return
+              }
+              return m
+            }),
           }
-          console.warn(
-            `Unknown message type for message ${message} ignoring...`
-          )
+
+          this.setAndBroadcastServerAwareness(newServerAwareness)
+          return
         }
-      )
+        console.warn(`Unknown message type for message ${message} ignoring...`)
+      })
 
       // Subscribe to user updates
-      const membershipSubscribePromises = memberships.map((m) => {
+      const membershipSubscribePromises = memberships.map(async (m) => {
         this.activeSubscriptions.push(`user__id:${m.userId}`)
         handleAddSubscription(`user__id:${m.userId}`)
-        return coreCacheSubscribeRedis.subscribe(
+        return (await getSubscribeRedis()).subscribe(
           `user__id:${m.userId}`,
           (message) => this.updateMemberUser(JSON.parse(message) as SafeUser)
         )
@@ -497,13 +494,13 @@ export class OpenDoc extends Y.Doc {
 
       member.lastOnline = new Date()
 
-      const setPromise = coreCacheReadRedis.hSet(
+      const setPromise = (await getReadRedis()).hSet(
         `team:${this.variantTargetId}`,
         `lastOnlineTime:${decodedToken.payload.userId}`,
         member.lastOnline.getTime()
       )
 
-      const publishPromise = coreCacheReadRedis.publish(
+      const publishPromise = (await getReadRedis()).publish(
         `team:${this.variantTargetId}`,
         JSON.stringify({
           type: 'LAST_ONLINE_TIME',
@@ -541,7 +538,7 @@ export class OpenDoc extends Y.Doc {
       return
     }
 
-    const user = await coreCacheReadRedis.get(`user__id:${member.userId}`)
+    const user = await (await getReadRedis()).get(`user__id:${member.userId}`)
     if (!user) {
       console.warn(
         `Could not find user ${member.userId} in cache, skipping adding to team ${this.variantTargetId}`
@@ -551,7 +548,10 @@ export class OpenDoc extends Y.Doc {
 
     this.activeSubscriptions.push(`user__id:${member.userId}`)
     handleAddSubscription(`user__id:${member.userId}`)
-    coreCacheSubscribeRedis.subscribe(`user__id:${member.userId}`, (message) =>
+
+    const readRedis = await getReadRedis()
+
+    readRedis.subscribe(`user__id:${member.userId}`, (message) =>
       this.updateMemberUser(JSON.parse(message) as SafeUser)
     )
 

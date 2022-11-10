@@ -9,7 +9,7 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { getFinalRequest } from 'src/globe-test/rest'
+import { getFinalRequest } from 'src/test-manager/rest'
 import { useYMap } from 'src/lib/zustand-yjs'
 import {
   generateRESTCode,
