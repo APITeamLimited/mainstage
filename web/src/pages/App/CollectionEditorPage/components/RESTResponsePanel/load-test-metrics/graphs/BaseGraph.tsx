@@ -10,8 +10,6 @@ import type { ApexOptions } from 'apexcharts'
 
 import { useApexChartsModule } from 'src/contexts/imports'
 
-import { GRAPH_HEIGHT } from '.'
-
 const percentToHex = (p: number) => {
   const intValue = Math.round((p / 100) * 255) // map percent to nearest integer (0 - 255)
   const hexValue = intValue.toString(16) // get hexadecimal representation
@@ -54,22 +52,18 @@ type BaseGraphProps = {
     orchestratorId: string
   } & MetricsCombination)[]
   height?: string | number
-  showDescription?: boolean
 }
 
 export const BaseGraph = ({
   graph,
   metrics,
   height = '100%',
-  showDescription,
 }: BaseGraphProps) => {
   const { default: Chart } = useApexChartsModule()
 
   const theme = useTheme()
 
   const series = useMemo<ApexAxisChartSeries>(() => {
-    const findKey = graph.shownZone ?? 'global'
-
     // First two dataseries doesn't show all the correct values,
     // fault of globetest
     const slicedMetrics = metrics.slice(2)
@@ -79,11 +73,11 @@ export const BaseGraph = ({
         theme.palette.mode === 'dark' ? invertColor(series.color) : series.color
 
       return {
-        name: series.name,
+        name: `${series.metric} (${series.loadZone})`,
         type: series.kind,
         data: slicedMetrics.map(({ time, message }) => ({
           x: time,
-          y: message?.[findKey]?.[series.metric]?.value ?? 0,
+          y: message?.[series.loadZone]?.[series.metric]?.value ?? 0,
         })),
         // If dark theme, invert colors
         color:
@@ -162,7 +156,6 @@ export const BaseGraph = ({
       type="line"
       height={height}
       style={{ width: '100%' }}
-      description={showDescription ? graph.description : ''}
     />
   )
 }

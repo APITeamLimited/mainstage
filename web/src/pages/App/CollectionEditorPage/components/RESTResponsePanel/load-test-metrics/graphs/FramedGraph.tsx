@@ -183,16 +183,26 @@ export const FramedGraph = ({
               </Stack>
               <Box
                 sx={{
-                  height: '100%',
-                  maxHeight: '100%',
+                  height: GRAPH_HEIGHT,
+                  maxHeight: GRAPH_HEIGHT,
                 }}
               >
                 <BaseGraph
                   graph={graph}
                   metrics={metrics ?? []}
                   key={graph.desiredWidth}
-                  showDescription
+                  height={GRAPH_HEIGHT - 60 - (graph.description ? 29 : 0)}
                 />
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {graph.description}
+                </Typography>
               </Box>
             </Stack>
           </Card>

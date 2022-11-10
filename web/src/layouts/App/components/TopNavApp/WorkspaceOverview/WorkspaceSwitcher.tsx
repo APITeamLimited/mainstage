@@ -56,18 +56,7 @@ export const WorkspaceSwitcher = () => {
       ] as MemberAwareness[]
     }
 
-    // Temporary just for screenshots
-    return [
-      ...serverAwareness.members,
-      {
-        userId: workspaceInfo?.scope?.userId,
-        displayName: workspaceInfo?.scope?.displayName,
-        role: 'OWNER',
-        profilePicture: workspaceInfo?.scope?.profilePicture,
-        joinedTeam: new Date(),
-        lastOnline: 0,
-      },
-    ] as MemberAwareness[]
+    return serverAwareness.members
   }, [workspaceInfo, serverAwareness])
 
   if (!workspaceInfo) return <></>

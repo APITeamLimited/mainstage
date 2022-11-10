@@ -16,10 +16,10 @@ import { useYMap } from 'src/lib/zustand-yjs'
 
 import { AddGraphButton } from './AddGraphButton'
 import {
-  AddGraphDialog,
-  AddGraphDialogProps,
+  EditGraphDialog,
+  EditGraphDialogProps,
   defaultSeries,
-} from './AddGraphDialog'
+} from './EditGraphDialog'
 import { FramedGraph } from './FramedGraph'
 
 type GraphsPanelProps = {
@@ -68,7 +68,7 @@ export const GraphsPanel = ({ focusedResponse, metrics }: GraphsPanelProps) => {
   }
 
   const [graphDialogState, setGraphDialogState] =
-    useState<AddGraphDialogProps['existingGraph']>(null)
+    useState<EditGraphDialogProps['existingGraph']>(null)
 
   const graphs = useMemo(() => {
     const graphsYMap = getAndSetGraphYMap()
@@ -79,7 +79,7 @@ export const GraphsPanel = ({ focusedResponse, metrics }: GraphsPanelProps) => {
 
   return (
     <>
-      <AddGraphDialog
+      <EditGraphDialog
         onClose={() => setGraphDialogState(null)}
         existingGraph={graphDialogState}
         setGraph={handleSetGraph}

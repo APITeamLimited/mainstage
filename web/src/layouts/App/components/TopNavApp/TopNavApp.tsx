@@ -45,7 +45,7 @@ export const TopNavApp = () => {
             <APITeamLogo />
           )}
           <TopNavLink name="Docs" path={ROUTES.docs} />
-          <TopNavLink name="Support" path={routes.supportCenter()} />
+          <TopNavLink name="Support" path={routes.support()} />
         </Stack>
       }
       rightZone={

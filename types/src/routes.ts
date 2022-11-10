@@ -14,7 +14,7 @@ export const ROUTES = {
   termsOfService: '/legal/terms-of-service',
   privacyPolicy: '/legal/privacy-policy',
   cookiePolicy: '/legal/cookie-policy',
-  supportCenter: '/support',
+  support: '/support',
   docs: '/docs',
   blog: '/blog',
   openSource: '/open-source',

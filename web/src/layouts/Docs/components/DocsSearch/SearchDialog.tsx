@@ -262,7 +262,7 @@ export const SearchDialog = ({
       title="Search"
       fullWidth
       maxWidth="sm"
-      disableScrollAndPadding
+      disableScroll
     >
       <Stack
         spacing={2}

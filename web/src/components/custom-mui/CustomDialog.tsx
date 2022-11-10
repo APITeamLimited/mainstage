@@ -10,8 +10,13 @@ import {
   useTheme,
   DialogContent,
   DialogProps,
+  Tooltip,
 } from '@mui/material'
 
+import {
+  SimplebarReactModuleProvider,
+  useSimplebarReactModule,
+} from 'src/contexts/imports'
 import {
   HotkeysModuleProvider,
   useHotkeysModule,
@@ -23,16 +28,21 @@ type CustomDialogProps = {
   title: string
   actionArea?: ReactNode
   children?: ReactNode
-  disableScrollAndPadding?: boolean
+  disableScroll?: boolean
   fullWidth?: DialogProps['fullWidth']
   maxWidth?: DialogProps['maxWidth']
+  dialogActions?: ReactNode
 }
 
 export const CustomDialog = (props: CustomDialogProps) => (
-  <HotkeysModuleProvider>
-    <CustomDialogInner {...props} />
-  </HotkeysModuleProvider>
+  <SimplebarReactModuleProvider>
+    <HotkeysModuleProvider>
+      <CustomDialogInner {...props} />
+    </HotkeysModuleProvider>
+  </SimplebarReactModuleProvider>
 )
+
+export const customDialogContentHeight = 500
 
 const CustomDialogInner = ({
   open,
@@ -40,10 +50,13 @@ const CustomDialogInner = ({
   title,
   actionArea,
   children,
-  disableScrollAndPadding,
+  disableScroll,
   fullWidth,
   maxWidth,
+  dialogActions,
 }: CustomDialogProps) => {
+  const { default: SimpleBar } = useSimplebarReactModule()
+
   const { useHotkeys } = useHotkeysModule()
 
   const theme = useTheme()
@@ -84,27 +97,61 @@ const CustomDialogInner = ({
           }}
         >
           {actionArea}
-          <IconButton
-            onClick={onClose}
-            sx={{
-              color: theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
+          <Tooltip title="Close">
+            <IconButton
+              onClick={onClose}
+              sx={{
+                color: theme.palette.grey[500],
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </Tooltip>
         </Stack>
       </Stack>
       <Divider />
       <DialogContent
         sx={{
-          height: '500px',
+          height: `${customDialogContentHeight + 24}px`,
           maxWidth: '100%',
-          overflow: disableScrollAndPadding ? 'hidden' : 'auto',
-          padding: disableScrollAndPadding ? 0 : 2,
+          overflow: disableScroll ? 'hidden' : 'auto',
+          padding: 0,
         }}
       >
-        {children}
+        {disableScroll ? (
+          children
+        ) : (
+          <Stack
+            sx={{
+              height: '100%',
+              maxHeight: '100%',
+              overflow: 'hidden',
+            }}
+          >
+            <SimpleBar style={{ height: '100%', flex: 1 }}>
+              {children}
+            </SimpleBar>
+          </Stack>
+        )}
       </DialogContent>
+      {dialogActions && <Divider />}
+      {dialogActions && (
+        <Stack
+          spacing={2}
+          direction="row"
+          sx={{
+            padding: 2,
+          }}
+          alignItems="right"
+        >
+          <div
+            style={{
+              flex: 1,
+            }}
+          />
+          {dialogActions}
+        </Stack>
+      )}
     </Dialog>
   )
 }

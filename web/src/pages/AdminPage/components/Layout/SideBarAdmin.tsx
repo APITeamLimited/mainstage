@@ -16,7 +16,7 @@ export const SideBarAdmin = ({
   return (
     <Drawer
       anchor="left"
-      onClose={() => onClose()}
+      onClose={onClose}
       open={open}
       variant={variant}
       sx={{

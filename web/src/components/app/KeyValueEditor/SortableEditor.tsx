@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useCallback, useMemo, useRef } from 'react'
 
 import {
   DefaultKV,
@@ -37,6 +37,7 @@ type SortableEditorProps<T extends KVVariantTypes> = {
   disableDelete?: boolean
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
+  disableScroll?: boolean
   variant: KeyValueItem<T>['variant']
 }
 
@@ -49,6 +50,7 @@ export const SortableEditor = <T extends KVVariantTypes>({
   disableDelete,
   disableKeyEdit,
   disableCheckboxes,
+  disableScroll,
   variant,
 }: SortableEditorProps<T>) => {
   const { HTML5Backend, DndProvider } = useDnDModule()
@@ -59,27 +61,33 @@ export const SortableEditor = <T extends KVVariantTypes>({
 
   const theme = useTheme()
 
-  const moveCard = (dragIndex: number, hoverIndex: number) => {
-    const dragItem = itemsRef.current[dragIndex]
+  const moveCard = useCallback(
+    (dragIndex: number, hoverIndex: number) => {
+      const dragItem = itemsRef.current[dragIndex]
 
-    const newItems = update(itemsRef.current, {
-      $splice: [
-        [dragIndex, 1],
-        [hoverIndex, 0, dragItem],
-      ],
-    })
-    setItems(newItems)
-  }
-
-  const handleDelete = (index: number) => {
-    setItems(
-      update(itemsRef.current, {
-        $splice: [[index, 1]],
+      const newItems = update(itemsRef.current, {
+        $splice: [
+          [dragIndex, 1],
+          [hoverIndex, 0, dragItem],
+        ],
       })
-    )
-  }
+      setItems(newItems)
+    },
+    [setItems]
+  )
 
-  const handleCreateNewRow = () => {
+  const handleDelete = useCallback(
+    (index: number) => {
+      setItems(
+        update(itemsRef.current, {
+          $splice: [[index, 1]],
+        })
+      )
+    },
+    [setItems]
+  )
+
+  const handleCreateNewRow = useCallback(() => {
     const largestOldId = itemsRef.current.reduce(
       (largestId, item) => Math.max(largestId, item.id),
       0
@@ -131,142 +139,167 @@ export const SortableEditor = <T extends KVVariantTypes>({
         $push: [newItem],
       })
     )
-  }
+  }, [setItems, variant])
 
-  const handleSetItem = (index: number, newItem: KeyValueItem<T>) => {
-    setItems(
-      update(itemsRef.current, {
-        [index]: { $set: newItem },
-      })
-    )
-  }
+  const handleSetItem = useCallback(
+    (index: number, newItem: KeyValueItem<T>) => {
+      setItems(
+        update(itemsRef.current, {
+          [index]: { $set: newItem },
+        })
+      )
+    },
+    [setItems]
+  )
+
+  const inner = useMemo(
+    () => (
+      <>
+        {items.length > 0 && (
+          <Table size="small" sx={{ width: '100%' }}>
+            <TableHead
+              sx={{
+                backgroundColor: 'transparent',
+              }}
+            >
+              <TableRow>
+                <TableCell
+                  sx={{
+                    borderColor: theme.palette.divider,
+                  }}
+                />
+                {!disableCheckboxes && (
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  />
+                )}
+                {variant === 'filefield' && (
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  />
+                )}
+                <TableCell
+                  sx={{
+                    borderColor: theme.palette.divider,
+                  }}
+                >
+                  <Box paddingLeft={2}>Key</Box>
+                </TableCell>
+                <TableCell
+                  sx={{
+                    borderColor: theme.palette.divider,
+                  }}
+                >
+                  <Box paddingLeft={2}>Value</Box>
+                </TableCell>
+                {variant === 'localvalue' && (
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      sx={{
+                        maxHeight: '22.72px',
+                      }}
+                      spacing={1}
+                    >
+                      <Box paddingLeft={2}>Local Value</Box>
+                      <Tooltip title="Local variable value that is not synced with team members">
+                        <span
+                          style={{
+                            maxHeight: '22.72px',
+                            overflow: 'visible',
+                          }}
+                        >
+                          <HelpIcon
+                            sx={{
+                              fontSize: '0.9rem',
+                              color: theme.palette.text.secondary,
+                            }}
+                          />
+                        </span>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                )}
+                {!disableDelete && (
+                  <TableCell
+                    sx={{
+                      borderColor: theme.palette.divider,
+                    }}
+                  />
+                )}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {items.map((item, index) => (
+                <DraggableTableRow
+                  key={item.id}
+                  index={index}
+                  onMove={moveCard}
+                  onDelete={() => handleDelete(index)}
+                  namespace={namespace}
+                  enableEnvironmentVariables={enableEnvironmentVariables}
+                  disableDelete={disableDelete}
+                  disableKeyEdit={disableKeyEdit}
+                  disableCheckboxes={disableCheckboxes}
+                  variant={variant}
+                  setItem={(newItem) => handleSetItem(index, newItem)}
+                  item={item}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        )}
+        {!disableAdd && (
+          <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
+        )}
+      </>
+    ),
+    [
+      disableAdd,
+      disableCheckboxes,
+      disableDelete,
+      disableKeyEdit,
+      enableEnvironmentVariables,
+      handleCreateNewRow,
+      handleDelete,
+      handleSetItem,
+      items,
+      moveCard,
+      namespace,
+      theme.palette.divider,
+      theme.palette.text.secondary,
+      variant,
+    ]
+  )
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <Box
-        style={{
-          maxWidth: '100%',
-          width: '100%',
-          height: '100%',
-          maxHeight: '100%',
-          overflow: 'hidden',
-        }}
-      >
-        <SimpleBar style={{ height: '100%', maxHeight: '100%' }}>
-          <TableContainer
-            sx={{
-              overflow: 'visible',
-            }}
-          >
-            {items.length > 0 && (
-              <Table size="small">
-                <TableHead
-                  sx={{
-                    backgroundColor: 'transparent',
-                  }}
-                >
-                  <TableRow>
-                    <TableCell
-                      sx={{
-                        borderColor: theme.palette.divider,
-                      }}
-                    />
-                    {!disableCheckboxes && (
-                      <TableCell
-                        sx={{
-                          borderColor: theme.palette.divider,
-                        }}
-                      />
-                    )}
-                    {variant === 'filefield' && (
-                      <TableCell
-                        sx={{
-                          borderColor: theme.palette.divider,
-                        }}
-                      />
-                    )}
-                    <TableCell
-                      sx={{
-                        borderColor: theme.palette.divider,
-                      }}
-                    >
-                      <Box paddingLeft={2}>Key</Box>
-                    </TableCell>
-                    <TableCell
-                      sx={{
-                        borderColor: theme.palette.divider,
-                      }}
-                    >
-                      <Box paddingLeft={2}>Value</Box>
-                    </TableCell>
-                    {variant === 'localvalue' && (
-                      <TableCell
-                        sx={{
-                          borderColor: theme.palette.divider,
-                        }}
-                      >
-                        <Stack
-                          direction="row"
-                          alignItems="center"
-                          sx={{
-                            maxHeight: '22.72px',
-                          }}
-                          spacing={1}
-                        >
-                          <Box paddingLeft={2}>Local Value</Box>
-                          <Tooltip title="Local variable value that is not synced with team members">
-                            <span
-                              style={{
-                                maxHeight: '22.72px',
-                                overflow: 'visible',
-                              }}
-                            >
-                              <HelpIcon
-                                sx={{
-                                  fontSize: '0.9rem',
-                                  color: theme.palette.text.secondary,
-                                }}
-                              />
-                            </span>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    )}
-                    {!disableDelete && (
-                      <TableCell
-                        sx={{
-                          borderColor: theme.palette.divider,
-                        }}
-                      />
-                    )}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {items.map((item, index) => (
-                    <DraggableTableRow
-                      key={item.id}
-                      index={index}
-                      onMove={moveCard}
-                      onDelete={() => handleDelete(index)}
-                      namespace={namespace}
-                      enableEnvironmentVariables={enableEnvironmentVariables}
-                      disableDelete={disableDelete}
-                      disableKeyEdit={disableKeyEdit}
-                      disableCheckboxes={disableCheckboxes}
-                      variant={variant}
-                      setItem={(newItem) => handleSetItem(index, newItem)}
-                      item={item}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-            {!disableAdd && (
-              <SortableNewItemButton onNewKeyValuePair={handleCreateNewRow} />
-            )}
-          </TableContainer>
-        </SimpleBar>
-      </Box>
+      {disableScroll ? (
+        inner
+      ) : (
+        <Box
+          style={{
+            maxWidth: disableScroll ? 'auto' : '100%',
+            width: '100%',
+            height: '100%',
+            maxHeight: disableScroll ? 'auto' : '100%',
+            overflow: disableScroll ? 'visible' : 'hidden',
+          }}
+        >
+          <SimpleBar style={{ height: '100%', maxHeight: '100%' }}>
+            {inner}
+          </SimpleBar>
+        </Box>
+      )}
     </DndProvider>
   )
 }

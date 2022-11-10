@@ -1,10 +1,12 @@
 import { BUILT_IN_METRICS } from './globe-test'
 
+export const AVAILABLE_LOAD_ZONES = ['global', 'uk-portsmouth'] as const
+
 export type GraphSeries = {
+  loadZone: typeof AVAILABLE_LOAD_ZONES[number]
   color: string
   kind: 'line' | 'area' | 'column'
   metric: typeof BUILT_IN_METRICS[number]
-  name: string
 }
 
 export type Graph = {
@@ -14,5 +16,4 @@ export type Graph = {
   description?: string
   series: GraphSeries[]
   desiredWidth: 1 | 2 | 3
-  shownZone?: string
 }

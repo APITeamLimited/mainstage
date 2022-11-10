@@ -78,8 +78,6 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
         }
       )
     }
-
-    console.log('Newoverviewitem', newItem)
   }
 
   const handleRename = (newName: string) => {
@@ -213,6 +211,7 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
             padding: 0,
           }}
           onClick={handleOverviewClick}
+          disableRipple
         >
           <Box
             sx={{
@@ -236,7 +235,7 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
                 alignContent="baseline"
                 sx={{
                   marginTop: 1,
-                  paddingRight: 1,
+                  width: '100%',
                 }}
                 spacing={1}
               >
@@ -255,10 +254,14 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
                   <IconButton
                     ref={actionsButtonRef}
                     onClick={(event) => {
+                      event.preventDefault()
                       event.stopPropagation()
                       setShowActionsPopover(true)
                     }}
                     component="span"
+                    sx={{
+                      marginRight: 1,
+                    }}
                   >
                     <MoreVertIcon />
                   </IconButton>

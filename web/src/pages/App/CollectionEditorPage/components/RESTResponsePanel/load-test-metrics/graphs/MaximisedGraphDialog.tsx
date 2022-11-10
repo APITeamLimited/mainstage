@@ -1,17 +1,10 @@
 import { Graph, MetricsCombination, GlobeTestMessage } from '@apiteam/types/src'
-import CloseIcon from '@mui/icons-material/Close'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  useTheme,
-} from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
-import { useSimplebarReactModule } from 'src/contexts/imports'
+import {
+  CustomDialog,
+  customDialogContentHeight,
+} from 'src/components/custom-mui'
 
 import { BaseGraph } from './BaseGraph'
 
@@ -31,56 +24,36 @@ export const MaximisedGraphDialog = ({
   onClose,
   graph,
   metrics,
-}: MaximisedGraphDialogProps) => {
-  const { default: SimpleBar } = useSimplebarReactModule()
-
-  const theme = useTheme()
-
-  return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
+}: MaximisedGraphDialogProps) => (
+  <CustomDialog
+    open={open}
+    onClose={onClose}
+    fullWidth
+    maxWidth="xl"
+    title={graph.name}
+  >
+    <Box
+      sx={{
+        height: `${customDialogContentHeight}`,
+      }}
+    >
+      <BaseGraph
+        graph={graph}
+        metrics={metrics ?? []}
+        height={customDialogContentHeight - (graph.description ? 20 : 0)}
+      />
+      <Typography
+        variant="caption"
+        color="text.secondary"
         sx={{
-          width: '100%',
-        }}
-      >
-        <DialogTitle>{graph.name}</DialogTitle>
-        <Stack
-          direction="row"
-          alignItems="center"
-          spacing={1}
-          sx={{
-            marginRight: 2,
-          }}
-        >
-          <Tooltip title="Close">
-            <IconButton
-              onClick={onClose}
-              sx={{
-                color: theme.palette.grey[500],
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Tooltip>
-        </Stack>
-      </Stack>
-      <Divider color={theme.palette.divider} />
-      <DialogContent
-        sx={{
-          maxWidth: '100%',
-          maxHeight: 'calc(100% - 1rem)',
-          height: 500,
-          padding: 1,
+          px: 2,
+          pb: 2,
+          textOverflow: 'ellipsis',
           overflow: 'hidden',
         }}
       >
-        <SimpleBar style={{ height: '100%', maxHeight: '100%' }}>
-          <BaseGraph graph={graph} metrics={metrics ?? []} height={480} />
-        </SimpleBar>
-      </DialogContent>
-    </Dialog>
-  )
-}
+        {graph.description}
+      </Typography>
+    </Box>
+  </CustomDialog>
+)

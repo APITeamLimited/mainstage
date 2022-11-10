@@ -51,11 +51,6 @@ export const LoadingMultipleResponsePanel = ({
   useEffect(() => {
     // Every second, flush the buffers into the state
     const interval = setInterval(() => {
-      console.log(
-        'Flushing buffers',
-        metricsBuffer.current,
-        globeTestLogsBuffer.current
-      )
       setGlobeTestLogs([...globeTestLogsBuffer.current])
       setMetrics([...metricsBuffer.current])
     }, 1000)

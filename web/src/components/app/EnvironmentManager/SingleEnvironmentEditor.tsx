@@ -8,22 +8,11 @@ import {
   LocalValueKV,
 } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
-import CloseIcon from '@mui/icons-material/Close'
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  IconButton,
-  Stack,
-  Tooltip,
-  useTheme,
-} from '@mui/material'
+import { Box, Button } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
-import { useHashSumModule } from 'src/contexts/imports'
+import { CustomDialog } from 'src/components/custom-mui'
+import { useHashSumModule, useSimplebarReactModule } from 'src/contexts/imports'
 import {
   activeEnvironmentVar,
   updateActiveEnvironmentId,
@@ -45,8 +34,8 @@ export const SingleEnvironmentEditor = ({
   setShow,
 }: SingleEnvironmentEditorProps) => {
   const { default: hash } = useHashSumModule()
+  const { default: SimpleBar } = useSimplebarReactModule()
 
-  const theme = useTheme()
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
 
   const environmentHook = useYMap(environmentYMap)
@@ -153,53 +142,48 @@ export const SingleEnvironmentEditor = ({
         title="Delete Environment"
         description="Are you sure you want to delete this environment?"
       />
-      <Dialog open={show} onClose={handleClose} fullWidth maxWidth="lg">
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{
+      <CustomDialog
+        open={show}
+        onClose={handleClose}
+        fullWidth
+        maxWidth="lg"
+        title={`Environment - ${environmentYMap.get('name')}`}
+        actionArea={actionArea}
+        disableScroll
+        dialogActions={
+          <>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => setShowQueryDeleteDialog(true)}
+            >
+              Delete Environment
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              disabled={!needSave}
+              onClick={() => handleEnvironmentSave(unsavedKeyValues)}
+            >
+              Save
+            </Button>
+          </>
+        }
+      >
+        <div
+          style={{
             width: '100%',
+            height: '100%',
+
+            overflow: 'hidden',
           }}
         >
-          <DialogTitle>Environment - {environmentYMap.get('name')}</DialogTitle>
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{
-              marginRight: 2,
-            }}
-          >
-            {actionArea}
-            <Tooltip title="Close">
-              <IconButton
-                onClick={handleClose}
-                sx={{
-                  color: theme.palette.grey[500],
-                }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Tooltip>
-          </Stack>
-        </Stack>
-        <Divider color={theme.palette.divider} />
-        <DialogContent
-          sx={{
-            height: '500px',
-            padding: 2,
-          }}
-        >
-          <Stack
-            sx={{
-              width: '100%',
+          <SimpleBar
+            style={{
               height: '100%',
               maxHeight: '100%',
-              maxWidth: '100%',
+              width: '100%',
             }}
-            justifyContent="space-between"
-            alignItems="flex-end"
           >
             <KeyValueEditor<LocalValueKV>
               items={unsavedKeyValues}
@@ -214,28 +198,12 @@ export const SingleEnvironmentEditor = ({
               variant="localvalue"
               disableBulkEdit
               setActionArea={setActionArea}
+              disableScroll
             />
-            <Box sx={{ marginTop: 2 }} />
-            <Stack spacing={2} direction="row">
-              <Button
-                variant="contained"
-                color="success"
-                disabled={!needSave}
-                onClick={() => handleEnvironmentSave(unsavedKeyValues)}
-              >
-                Save
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => setShowQueryDeleteDialog(true)}
-              >
-                Delete Environment
-              </Button>
-            </Stack>
-          </Stack>
-        </DialogContent>
-      </Dialog>
+            <Box sx={{ height: '12px' }} />
+          </SimpleBar>
+        </div>
+      </CustomDialog>
     </>
   )
 }

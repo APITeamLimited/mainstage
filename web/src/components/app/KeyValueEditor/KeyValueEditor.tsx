@@ -20,6 +20,7 @@ type KeyValueEditorProps<T extends KVVariantTypes> = {
   disableKeyEdit?: boolean
   disableCheckboxes?: boolean
   disableBulkEdit?: boolean
+  disableScroll?: boolean
   variant: KeyValueItem<T>['variant']
 }
 
@@ -34,6 +35,7 @@ export const KeyValueEditor = <T extends KVVariantTypes>({
   disableKeyEdit,
   disableCheckboxes,
   disableBulkEdit,
+  disableScroll,
   variant,
 }: KeyValueEditorProps<T>) => {
   const [isBulkEditing, setIsBulkEditing] = useState(false)
@@ -247,6 +249,7 @@ export const KeyValueEditor = <T extends KVVariantTypes>({
       disableDelete={disableDelete}
       disableKeyEdit={disableKeyEdit}
       disableCheckboxes={disableCheckboxes}
+      disableScroll={disableScroll}
       variant={variant}
     />
   )

@@ -42,6 +42,8 @@ type DraggableTableRowProps<T extends KVVariantTypes> = {
   onDelete: () => void
 }
 
+const rowSpacingX = 2
+
 export const DraggableTableRow = <T extends KVVariantTypes>({
   index,
   item,
@@ -174,7 +176,8 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
     >
       <TableCell
         sx={{
-          padding: 0,
+          paddingY: 0,
+          paddingX: rowSpacingX,
           whiteSpace: 'nowrap',
           width: 0,
           borderColor: theme.palette.divider,
@@ -194,6 +197,7 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
         <TableCell
           sx={{
             padding: 0,
+            paddingLeft: -rowSpacingX,
             whiteSpace: 'nowrap',
             width: 0,
             borderColor: theme.palette.divider,
@@ -209,6 +213,7 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
         <TableCell
           sx={{
             padding: 0,
+            paddingLeft: rowSpacingX,
             whiteSpace: 'nowrap',
             width: 0,
             borderColor: theme.palette.divider,
@@ -237,6 +242,8 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
       )}
       <TableCell
         sx={{
+          padding: 0,
+          paddingLeft: rowSpacingX,
           maxWidth: '200px',
           minWidth: '200px',
           borderColor: theme.palette.divider,
@@ -259,6 +266,8 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
       </TableCell>
       <TableCell
         sx={{
+          padding: 0,
+          paddingLeft: rowSpacingX,
           maxWidth: '200px',
           minWidth: '200px',
           borderColor: theme.palette.divider,
@@ -295,6 +304,8 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
       {variant === 'localvalue' && item.variant === 'localvalue' && (
         <TableCell
           sx={{
+            paddingY: 0,
+            paddingX: rowSpacingX,
             maxWidth: '200px',
             minWidth: '200px',
             borderColor: theme.palette.divider,
@@ -335,7 +346,9 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
       {!disableDelete && (
         <TableCell
           sx={{
-            padding: 0,
+            paddingY: 0,
+            paddingLeft: 0,
+            paddingRight: rowSpacingX,
             whiteSpace: 'nowrap',
             width: 0,
             borderColor: theme.palette.divider,
