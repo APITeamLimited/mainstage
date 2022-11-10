@@ -24,7 +24,7 @@ export const streamExistingTest = ({
       bearer: rawBearer,
       endpoint: '/current-test',
     },
-    path: '/api/globe-test',
+    path: '/api/test-manager',
     reconnection: true,
   })
 

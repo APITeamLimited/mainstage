@@ -16,7 +16,7 @@ export const createServersideHandlers = (httpServer: HttpServer) => {
     cors: {
       origin: '*',
     },
-    path: '/internal/entity-engine/globe-test',
+    path: '/internal/entity-engine/test-manager',
   })
 
   globetestIoServer.use(async (socket, next) => {

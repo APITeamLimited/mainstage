@@ -327,7 +327,7 @@ const configureGlobetestGraphs = async (
       name: graphConfig.name,
       description: graphConfig.description ?? undefined,
       series: graphConfig.series.map((seriesConfig) => ({
-        name: seriesConfig.name,
+        loadZone: seriesConfig.loadZone,
         metric: seriesConfig.metric,
         kind: seriesConfig.kind,
         color: seriesConfig.color,

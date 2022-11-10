@@ -9,11 +9,11 @@ import { checkValue } from './config'
 import { handleCurrentTest, handleNewTest } from './handlers'
 import { handleAuth } from './services'
 
-process.title = 'globe-test'
+process.title = 'test-manager'
 
 // This will always be localhost, container mapping will set this to the actual hostname
-const globeTestHost = '0.0.0.0'
-const globeTestPort = checkValue<number>('globe-test.port')
+const testManagerHost = '0.0.0.0'
+const testManagerPort = checkValue<number>('test-manager.port')
 
 const httpServer = createServer()
 
@@ -21,7 +21,7 @@ const io = new Server(httpServer, {
   cors: {
     origin: '*',
   },
-  path: '/api/globe-test',
+  path: '/api/test-manager',
 })
 
 io.use(async (socket, next) => {
@@ -79,10 +79,10 @@ if (process.env.NODE_ENV === 'development') {
   }, 60000)
 }
 
-httpServer.listen(globeTestPort, globeTestHost, () => {
+httpServer.listen(testManagerPort, testManagerHost, () => {
   console.log(
     Color(
-      `\n\nAPITeam GlobeTest Manager Listening at ${globeTestHost}:${globeTestPort}${io.path()}\n\n`,
+      `\n\nAPITeam Test Manager Listening at ${testManagerHost}:${testManagerPort}${io.path()}\n\n`,
       '#f531ca'
     )
   )

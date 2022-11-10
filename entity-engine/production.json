@@ -33,7 +33,7 @@
           "port": "${ORCHESTRATOR_REDIS_PORT}"
       }
   },
-  "globe-test": {
+  "test-manager": {
       "host": "${GLOBE_TEST_HOST}",
       "port": "${GLOBE_TEST_PORT}"
   },

@@ -1,4 +1,3 @@
-import type { VerifiedDomain } from '@prisma/client'
 import type { RequestBody, ResponseType, RefinedParams } from 'k6/http'
 import { Options as K6Options } from 'k6/options'
 
@@ -17,7 +16,7 @@ export type FinalVariable = {
   value: string
 }
 
-/* Parameters that are passed to the globe-test orchestrator */
+/* Parameters that are passed to the orchestrator */
 export type ExecutionParams = {
   id: string
   source: string
@@ -40,7 +39,7 @@ export type ExecutionParams = {
 }
 
 /* Wrapper around the execution params that servers as user arguments to the
-globe-test agent */
+test-manager agent */
 export type WrappedExecutionParams = Omit<
   ExecutionParams,
   'id' | 'scope' | 'verifiedDomains'

@@ -40,7 +40,7 @@ export const getEntityEngineSocket = async (
   }
 
   const entityEngineSocket = io(ENTITY_ENGINE_URL, {
-    path: '/internal/entity-engine/globe-test',
+    path: '/internal/entity-engine/test-manager',
     query: {
       scopeId,
       bearer,

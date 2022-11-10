@@ -1,4 +1,4 @@
-import { BUILT_IN_METRICS } from './globe-test'
+import { BUILT_IN_METRICS } from './test-manager'
 
 export const AVAILABLE_LOAD_ZONES = ['global', 'uk-portsmouth'] as const
 

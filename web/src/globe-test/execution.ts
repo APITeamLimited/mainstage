@@ -104,7 +104,7 @@ export const execute = ({
           endpoint: '/new-test',
         }
       ),
-      path: '/api/globe-test',
+      path: '/api/test-manager',
       reconnection: false,
     })
 

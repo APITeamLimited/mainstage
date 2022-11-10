@@ -1,6 +1,6 @@
 export * from './entities'
 export * from './zustand-yjs'
-export * from './globe-test'
+export * from './test-manager'
 export * from './entity-engine'
 export * from './user'
 export * from './team'

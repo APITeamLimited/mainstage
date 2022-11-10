@@ -1,7 +1,7 @@
 {
-  "name": "globe-test",
+  "name": "test-manager",
   "version": "0.0.0",
-  "description": "APITeam GlobeTest Manager",
+  "description": "APITeam Test Manager for GlobeTest",
   "dependencies": {
     "@apiteam/types": "*",
     "@apollo/client": "^3.6.9",
