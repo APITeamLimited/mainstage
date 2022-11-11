@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import {
   Box,
   Card,
@@ -11,6 +13,8 @@ import {
 import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
+import { APITeamLogo } from 'src/components/APITeamLogo'
+
 import PasswordSignupForm from './PasswordSignupForm'
 
 type SignupPageProps = {
@@ -20,6 +24,26 @@ type SignupPageProps = {
 
 const SignupPage = ({ redirectTo, suggestedEmail }: SignupPageProps) => {
   const theme = useTheme()
+
+  const toLoginLinks = useMemo(() => {
+    let base = {}
+
+    if (redirectTo) {
+      base = {
+        ...base,
+        redirectTo,
+      }
+    }
+
+    if (suggestedEmail) {
+      base = {
+        ...base,
+        suggestedEmail,
+      }
+    }
+
+    return base
+  }, [redirectTo, suggestedEmail])
 
   return (
     <>
@@ -41,32 +65,14 @@ const SignupPage = ({ redirectTo, suggestedEmail }: SignupPageProps) => {
           >
             <Card elevation={16} sx={{ p: 4 }}>
               <Stack spacing={4}>
-                <Link
-                  to={routes.splash()}
-                  style={{
-                    textDecoration: 'none',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Typography
-                    fontSize={22}
-                    fontWeight={1000}
-                    color={theme.palette.text.primary}
-                  >
-                    API Team
-                  </Typography>
-                </Link>
+                <APITeamLogo alignSelf="center" />
                 <Typography variant="h5" sx={{ textAlign: 'center' }}>
                   Signup
                 </Typography>
                 <PasswordSignupForm suggestedEmail={suggestedEmail} />
                 <Divider />
                 <Link
-                  to={
-                    redirectTo
-                      ? routes.login({ redirectTo, suggestedEmail })
-                      : routes.login({ suggestedEmail })
-                  }
+                  to={routes.login(toLoginLinks)}
                   style={{
                     textDecoration: 'none',
                     color: theme.palette.text.secondary,

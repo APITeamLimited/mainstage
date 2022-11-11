@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+
 import {
   Box,
   Stack,
@@ -11,6 +13,8 @@ import {
 import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
+import { APITeamLogo } from 'src/components/APITeamLogo'
+
 import PasswordLoginForm from './PasswordLoginForm'
 
 type LoginPageProps = {
@@ -20,6 +24,26 @@ type LoginPageProps = {
 
 const LoginPage = ({ redirectTo, suggestedEmail }: LoginPageProps) => {
   const theme = useTheme()
+
+  const toSignupLinks = useMemo(() => {
+    let base = {}
+
+    if (redirectTo) {
+      base = {
+        ...base,
+        redirectTo,
+      }
+    }
+
+    if (suggestedEmail) {
+      base = {
+        ...base,
+        suggestedEmail,
+      }
+    }
+
+    return base
+  }, [redirectTo, suggestedEmail])
 
   return (
     <>
@@ -41,21 +65,7 @@ const LoginPage = ({ redirectTo, suggestedEmail }: LoginPageProps) => {
           >
             <Card elevation={16} sx={{ p: 4 }}>
               <Stack spacing={4}>
-                <Link
-                  to={routes.splash()}
-                  style={{
-                    textDecoration: 'none',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Typography
-                    fontSize={22}
-                    fontWeight={1000}
-                    color={theme.palette.text.primary}
-                  >
-                    API Team
-                  </Typography>
-                </Link>
+                <APITeamLogo alignSelf="center" />
                 <Typography
                   variant="h5"
                   sx={{
@@ -68,11 +78,7 @@ const LoginPage = ({ redirectTo, suggestedEmail }: LoginPageProps) => {
                 <Divider />
                 <Stack spacing={2}>
                   <Link
-                    to={
-                      redirectTo
-                        ? routes.signup({ redirectTo, suggestedEmail })
-                        : routes.signup({ suggestedEmail })
-                    }
+                    to={routes.signup(toSignupLinks)}
                     style={{
                       textDecoration: 'none',
                       color: theme.palette.text.secondary,

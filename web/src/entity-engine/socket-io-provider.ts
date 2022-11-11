@@ -13,6 +13,7 @@ import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { Lib0Module, YJSModule } from 'src/contexts/imports'
 
+import { entityEngineStatusVar } from './EntityEngine'
 import * as syncProtocol from './sync'
 import { GET_PUBLIC_BEARER, PossibleSyncStatus } from './utils'
 

@@ -16,6 +16,7 @@ type ProcessAuthDataArgs = {
   setRawBearer: (bearer: string | null) => void
   setScopes: (scopes: GetBearerPubkeyScopes['scopes']) => void
   switchToTeam?: string
+  setActiveWorkspace: (workspace: Workspace | null) => void
 }
 
 export const processAuthData = ({
@@ -28,6 +29,7 @@ export const processAuthData = ({
   setRawBearer,
   setScopes,
   switchToTeam,
+  setActiveWorkspace,
 }: ProcessAuthDataArgs) => {
   if (!data) {
     // No data yet, just return
@@ -102,32 +104,46 @@ export const processAuthData = ({
     }
   })
 
-  if (!activeWorkspaceId) {
-    activeWorkspaceIdVar(
-      localStorage.getItem('activeWorkspaceId') || newWorkspaces[0].id
-    )
+  let newWorkspaceId = activeWorkspaceId
+
+  if (!newWorkspaceId) {
+    const localStorageId = localStorage.getItem('activeWorkspaceId')
+    if (localStorageId) {
+      newWorkspaceId = localStorageId
+    } else {
+      const personalWorkspace = newWorkspaces.find(
+        (workspace) => !workspace.isTeam
+      )
+
+      if (!personalWorkspace) {
+        throw new Error('No personal workspace found')
+      }
+
+      newWorkspaceId = personalWorkspace.id
+    }
   }
+
   workspacesVar(newWorkspaces)
 
   if (switchToTeam) {
-    console.log('Switching to team', switchToTeam)
     const workspace = newWorkspaces.find(
       (workspace) => workspace.id === switchToTeam
     )
     if (workspace && workspace.id !== activeWorkspaceId) {
-      activeWorkspaceIdVar(workspace.id)
+      newWorkspaceId = workspace.id
     }
   }
 
-  // Old code did this do anything?
+  const activeWorkspace = newWorkspaces.find(
+    (workspace) => workspace.id === newWorkspaceId
+  )
 
-  // Check activeWorkspaceId in workspaces else set to first
-  //if (
-  //  !newWorkspaces.find((workspace) => workspace.id === activeWorkspaceId) &&
-  //  newWorkspaces.length > 0
-  //) {
-  //  activeWorkspaceIdVar(newWorkspaces[0].id)
-  //}
+  if (!activeWorkspace) {
+    throw new Error('No active workspace found')
+  }
+
+  activeWorkspaceIdVar(newWorkspaceId)
+  setActiveWorkspace(activeWorkspace)
 }
 
 export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`

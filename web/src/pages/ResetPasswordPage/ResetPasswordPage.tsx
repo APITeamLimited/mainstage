@@ -21,6 +21,8 @@ import { useAuth } from '@redwoodjs/auth'
 import { navigate, routes, Link } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
+import { APITeamLogo } from 'src/components/APITeamLogo'
+
 type ResetPasswordFormProps = {
   resetToken: string
 }
@@ -141,21 +143,7 @@ const ResetPasswordPage = ({ resetToken }: ResetPasswordFormProps) => {
           >
             <Card elevation={16} sx={{ p: 4 }}>
               <Stack spacing={4}>
-                <Link
-                  to={routes.splash()}
-                  style={{
-                    textDecoration: 'none',
-                  }}
-                >
-                  <Typography
-                    fontSize={22}
-                    fontWeight={1000}
-                    color={theme.palette.text.primary}
-                    sx={{ textAlign: 'center' }}
-                  >
-                    API Team
-                  </Typography>
-                </Link>
+                <APITeamLogo alignSelf="center" />
                 <Typography variant="h5" sx={{ textAlign: 'center' }}>
                   Reset Password
                 </Typography>

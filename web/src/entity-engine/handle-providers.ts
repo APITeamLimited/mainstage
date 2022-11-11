@@ -51,24 +51,17 @@ export const handleProviders = ({
   }
 
   if (!socketioProviderReady) return
-
   if (!activeWorkspace) throw 'No active workspace'
-  const isLocal = !activeWorkspace.remote
 
-  let activeGUID = ''
-  if (isLocal) {
-    activeGUID = `LOCAL:${activeWorkspace.id}`
-  } else {
-    const scope = scopes.find(
-      (scope) => scope.variantTargetId === activeWorkspace.id
-    )
-    if (!scope) throw 'No scope found for active workspace'
-    activeGUID = `${scope.variant}:${scope.variantTargetId}`
-  }
+  const scope = scopes.find(
+    (scope) => scope.variantTargetId === activeWorkspace.id
+  )
+  if (!scope) throw 'No scope found for active workspace'
+  const activeGUID = `${scope.variant}:${scope.variantTargetId}`
 
-  const scopeId = isLocal
-    ? activeWorkspace.id
-    : scopes.find((scope) => scope.variantTargetId === activeWorkspace.id)?.id
+  const scopeId = scopes.find(
+    (scope) => scope.variantTargetId === activeWorkspace.id
+  )?.id
 
   if (!scopeId) {
     throw `No scopeId could be found for workspace ${activeWorkspace.id}`
@@ -110,16 +103,7 @@ export const handleProviders = ({
       options: {
         onStatusChange: (status, doc) => {
           doc.load()
-
           setSocketioSyncStatus(status)
-
-          // TODO: Causes an infinite loop when first connecting
-          //if (status === 'disconnected') {
-          //  // TODO: Come up with a better way to deal with rogue open docs
-          //  setTimeout(() => {
-          //    window.location.reload()
-          //  }, 1000)
-          //}
         },
         onAwarenessUpdate: (awareness) => {
           const statesArray = Array.from(awareness.getStates().values()) as (
@@ -141,11 +125,7 @@ export const handleProviders = ({
     })
   }
 
-  if (
-    socketioProviderReady &&
-    (!socketioProvider || guidChanged) // &&
-    //socketioSyncStatus !== 'connecting'
-  ) {
+  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
     socketioProvider?.disconnect()
     socketioProvider?.destroy()
     socketioProvider = null

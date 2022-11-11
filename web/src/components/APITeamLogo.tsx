@@ -8,11 +8,13 @@ export const LOGO_DEFAULT_HEIGHT = '32px'
 type APITeamLogoProps = {
   height?: number | string
   disableLinks?: boolean
+  alignSelf?: 'flex-start' | 'center' | 'flex-end'
 }
 
 export const APITeamLogo = ({
   height = LOGO_DEFAULT_HEIGHT,
   disableLinks,
+  alignSelf,
 }: APITeamLogoProps) => {
   const theme = useTheme()
 
@@ -26,7 +28,13 @@ export const APITeamLogo = ({
     : pathname === ROUTES.splash || pathname === ROUTES.dashboard
 
   const inner = (
-    <svg viewBox="0 0 1200 300" height={height}>
+    <svg
+      viewBox="0 0 1200 300"
+      height={height}
+      style={{
+        alignSelf,
+      }}
+    >
       <g transform="translate(-480, -625) scale(2)">
         <g
           id="title"
@@ -233,6 +241,7 @@ export const APITeamLogo = ({
         WebkitUserDrag: 'none',
         height,
         cursor: 'pointer',
+        alignSelf,
       }}
     >
       {inner}

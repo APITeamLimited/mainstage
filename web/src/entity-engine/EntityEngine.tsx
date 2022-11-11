@@ -146,12 +146,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const [inApp, setInApp] = useState(pathname.startsWith('/app/'))
 
   useEffect(() => {
-    if (socketioSyncStatus === 'connected' && activeWorkspace?.scope) {
-      entityEngineStatusVar(socketioSyncStatus)
-    }
-  }, [socketioSyncStatus, activeWorkspace])
-
-  useEffect(() => {
     // Check if pathname starts with '/app/'
     const newInApp = pathname.startsWith('/app/')
     if (newInApp !== inApp) {
@@ -174,12 +168,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     })
   }, [activeWorkspace, bearer, bearerExpiry, publicKey, rawBearer, scopes])
 
-  useEffect(() => {
-    setActiveWorkspace(
-      workspaces.find((workspace) => workspace.id === activeWorkspaceId) || null
-    )
-  }, [workspaces, activeWorkspaceId])
-
   const refetchScopes = useCallback(
     async (teamId?: string) => {
       const { data } = await apolloClient.query<GetBearerPubkeyScopes>({
@@ -200,6 +188,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         setRawBearer,
         setScopes,
         switchToTeam: filteredSwitchToTeam,
+        setActiveWorkspace,
       })
     },
     [activeWorkspaceId, apolloClient, workspaces]
@@ -216,6 +205,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       setBearerExpiry,
       setRawBearer,
       setScopes,
+      setActiveWorkspace,
     })
   }, [activeWorkspaceId, data, workspaces])
 
@@ -256,6 +246,14 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       socketioProvider.rawBearer = rawBearer
     }
   }, [rawBearer, socketioProvider])
+
+  useEffect(() => {
+    if (socketioSyncStatus === 'connected' && activeWorkspace?.scope) {
+      entityEngineStatusVar(socketioSyncStatus)
+    } else {
+      entityEngineStatusVar('disabled')
+    }
+  }, [socketioSyncStatus, activeWorkspace])
 
   if (error) {
     throw error

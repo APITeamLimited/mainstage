@@ -58,6 +58,10 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
       loaded = false
     }
 
+    // if (!workspaceInfo) {
+    //   loaded = false
+    // }
+
     setIsLoading(!loaded)
   }, [loadedImports, entityEngineStatus, isLoading, workspaceInfo])
 
