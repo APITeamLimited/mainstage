@@ -92,7 +92,7 @@ export const GlobeTestProvider = () => {
           ])
         )
 
-        const didExecute = execute({
+        execute({
           job,
           rawBearer,
           workspace: workspace as YDoc,
@@ -102,9 +102,6 @@ export const GlobeTestProvider = () => {
           hashSumModule,
           activeEnvironmentYMap,
         })
-        if (!didExecute) {
-          throw new Error('Failed to execute job')
-        }
       }
 
       if (

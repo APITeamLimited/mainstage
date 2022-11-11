@@ -252,6 +252,25 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       entityEngineStatusVar(socketioSyncStatus)
     } else {
       entityEngineStatusVar('disabled')
+
+      if (socketioSyncStatus === 'disconnected') {
+        // If connected to internet, but not connected to the server, reload the page
+        if (window.navigator.onLine) {
+          window.location.reload()
+        } else {
+          const onlineCallback = () => {
+            window.location.reload()
+            console.log('Online')
+            window.removeEventListener('online', onlineCallback)
+          }
+
+          window.addEventListener('online', onlineCallback)
+
+          return () => {
+            window.removeEventListener('online', onlineCallback)
+          }
+        }
+      }
     }
   }, [socketioSyncStatus, activeWorkspace])
 

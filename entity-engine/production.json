@@ -34,8 +34,8 @@
       }
   },
   "test-manager": {
-      "host": "${GLOBE_TEST_HOST}",
-      "port": "${GLOBE_TEST_PORT}"
+      "host": "${TEST_MANAGER_HOST}",
+      "port": "${TEST_MANAGER_PORT}"
   },
   "entity-engine": {
       "host": "${ENTITY_ENGINE_HOST}",

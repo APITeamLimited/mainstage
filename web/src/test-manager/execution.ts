@@ -19,12 +19,12 @@ import type { BaseJob, PendingLocalJob } from './lib'
 
 export const getUrl = () => {
   if (process.env.NODE_ENV === 'development') {
-    const host = process.env['GLOBE_TEST_HOST']
-    const port = process.env['GLOBE_TEST_PORT']
+    const host = process.env['TEST_MANAGER_HOST']
+    const port = process.env['TEST_MANAGER_PORT']
 
     if (!(host && port)) {
       throw new Error(
-        `GLOBE_TEST_HOST and GLOBE_TEST_PORT must be set, got ${host} and ${port}`
+        `TEST_MANAGER_HOST and TEST_MANAGER_PORT must be set, got ${host} and ${port}`
       )
     }
 
@@ -141,6 +141,7 @@ export const execute = ({
       handleRESTAutoFocus(focusedResponseDict, workspace, socket, params)
     }
   } catch (error) {
+    console.error(error)
     snackErrorMessageVar(
       "Couldn't execute request, an unexpected error occurred"
     )
