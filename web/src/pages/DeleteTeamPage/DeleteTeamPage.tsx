@@ -140,7 +140,8 @@ const DeleteTeamPage = ({ token }: DeleteTeamPageProps) => {
                           }
                         } catch (e) {
                           setSnackErrorMessage(
-                            'Something went wrong while deleting your team'
+                            e.message ??
+                              'Something went wrong while deleting your team'
                           )
                         }
                       }}

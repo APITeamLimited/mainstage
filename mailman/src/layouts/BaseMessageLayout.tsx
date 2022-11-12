@@ -4,6 +4,7 @@ import { ROUTES } from '@apiteam/types'
 import { Box, Card, Divider, Typography, useTheme } from '@mui/material'
 import { Email, Box as EmailBox } from 'react-html-email'
 
+import { APITeamLogo } from '../components'
 import { checkValue } from '../config'
 import { useInput } from '../MailmanProvider'
 
@@ -45,18 +46,17 @@ export const BaseMessageLayout = ({
             maxWidth: 1000,
           }}
         >
-          <Typography
-            fontSize={22}
-            fontWeight={1000}
-            color={theme.palette.text.primary}
-            sx={{
+          <div
+            style={{
               textAlign: 'center',
-              userSelect: 'none',
-              marginBottom: mainSpacing,
             }}
           >
-            API Team
-          </Typography>
+            <APITeamLogo
+              style={{
+                marginBottom: theme.spacing(mainSpacing),
+              }}
+            />
+          </div>
           <Card
             sx={{
               p: mainSpacing,

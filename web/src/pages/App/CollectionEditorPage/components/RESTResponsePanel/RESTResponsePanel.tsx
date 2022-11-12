@@ -47,9 +47,15 @@ export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
           key={responseYMap.get('id')}
         />
       ) : responseYMap.get('__subtype') === 'SuccessSingleResult' ? (
-        <SuccessSingleResultPanel focusedResponse={responseYMap} />
+        <SuccessSingleResultPanel
+          focusedResponse={responseYMap}
+          key={responseYMap.get('id')}
+        />
       ) : responseYMap.get('__subtype') === 'FailureResult' ? (
-        <FailureResultPanel focusedResponse={responseYMap} />
+        <FailureResultPanel
+          focusedResponse={responseYMap}
+          key={responseYMap.get('id')}
+        />
       ) : responseYMap.get('__subtype') === 'SuccessMultipleResult' ? (
         <SuccessMultipleResultPanel
           focusedResponse={responseYMap}

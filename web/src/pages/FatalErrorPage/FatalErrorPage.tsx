@@ -54,8 +54,14 @@ export default RedwoodDevFatalErrorPage ||
       />
       <section>
         <h1>
-          <span>Something went wrong</span>
+          <span>A fatal error has occured</span>
         </h1>
+        <p>
+          <span>
+            We are sorry for the inconvenience. Please try again later. If the
+            problem persists, please reach out to us
+          </span>
+        </p>
       </section>
     </main>
   ))

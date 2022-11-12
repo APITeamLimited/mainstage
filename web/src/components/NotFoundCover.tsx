@@ -60,7 +60,7 @@ const NotFoundCover = (): JSX.Element => {
                     Oops! Looks like you followed a bad link.
                     <br />
                     If you think this is a problem with us, please{' '}
-                    <Link href="mailto://support@apiteam.cloud">
+                    <Link href="mailto:support@apiteam.cloud">
                       <span
                         style={{
                           textDecoration: 'none',

@@ -37,9 +37,9 @@ export const NotifyDeclineInvitation = (
           textAlign: 'center',
         }}
       >
-        Hi {data.recipientFirstName}, {data.targetEmail}
-        has declined the invite to join your team {data.teamName}. If you think
-        this was done by mistake, you can resend an invite to them.
+        Hi {data.recipientFirstName}, {data.targetEmail} has declined the invite
+        to join your team {data.teamName}. If you think this was done by
+        mistake, you can resend an invite to them.
       </Typography>
     </BaseMessageLayout>
   )

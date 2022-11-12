@@ -146,7 +146,8 @@ const ChangeOwnerPage = ({ token }: ChangeOwnerPageProps) => {
                           }
                         } catch (e) {
                           setSnackErrorMessage(
-                            'Something went wrong while transferring your ownership'
+                            e.message ??
+                              'Something went wrong while transferring your ownership'
                           )
                         }
                       }}

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createElement } from 'react'
 
 import CSSInliner from 'css-inliner'
 import { renderEmail } from 'react-html-email'
@@ -30,7 +30,7 @@ export const handleRenderRequest = async (
       <MailmanProvider input={input}>
         {
           // Init template
-          React.createElement(template.html, input)
+          createElement(template.html, input)
         }
       </MailmanProvider>
     ).replace(

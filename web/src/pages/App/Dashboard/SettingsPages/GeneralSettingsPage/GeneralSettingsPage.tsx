@@ -1,15 +1,19 @@
 import { useMemo } from 'react'
 
 import { Workspace } from '@apiteam/types/src'
-import { Box, Divider, Stack } from '@mui/material'
+import { useReactiveVar } from '@apollo/client'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import { Button, Stack, useTheme } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
 import { DashboardPageFrame } from 'src/components/app/dashboard/utils/DashboardPageFrame'
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
+import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
+import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import { Headline } from 'src/layouts/Landing/components/templates/Headline'
+import { navigatePersonalSettings } from 'src/utils/navigate-personal-settings'
 
 import { SETTINGS_TABS } from '..'
 
@@ -22,6 +26,10 @@ type GeneralSettingsTabProps = {
 }
 
 const GeneralSettingsTab = ({ workspaceInfo }: GeneralSettingsTabProps) => {
+  const theme = useTheme()
+  const workspaces = useReactiveVar(workspacesVar)
+  const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
+
   const isTeam = useMemo(
     () => workspaceInfo.scope.variant === 'TEAM',
     [workspaceInfo]
@@ -39,10 +47,44 @@ const GeneralSettingsTab = ({ workspaceInfo }: GeneralSettingsTabProps) => {
     <Stack spacing={4}>
       {isTeam ? (
         <>
-          {isAtLeastAdmin && (
+          {isAtLeastAdmin ? (
             <>
               <ChangeTeamNameCard workspaceInfo={workspaceInfo} />
               <ChangeTeamSlugCard workspaceInfo={workspaceInfo} />
+            </>
+          ) : (
+            <>
+              <EmptyPanelMessage
+                primaryText="You are not an admin of this team"
+                secondaryMessages={[
+                  "Ask to be promoted to an admin to change your team's settings",
+                ]}
+                icon={
+                  <AccountCircleIcon
+                    sx={{
+                      marginBottom: 2,
+                      width: 80,
+                      height: 80,
+                      color: theme.palette.action.disabled,
+                    }}
+                  />
+                }
+              >
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    navigatePersonalSettings({
+                      workspaces,
+                      activeWorkspaceId,
+                    })
+                  }}
+                  sx={{
+                    marginTop: 2,
+                  }}
+                >
+                  Go to your personal account settings
+                </Button>
+              </EmptyPanelMessage>
             </>
           )}
         </>

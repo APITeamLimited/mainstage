@@ -275,7 +275,8 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   }, [socketioSyncStatus, activeWorkspace])
 
   if (error) {
-    throw error
+    // Hack if auth context is old
+    window.location.reload()
   }
 
   if (socketioProvider === null) return <></>

@@ -156,7 +156,8 @@ const DeclineInvitationPage = ({ token }: DeclineInvitationPageProps) => {
                           }
                         } catch (e) {
                           setSnackErrorMessage(
-                            'Something went wrong while declining the invitation'
+                            e.message ??
+                              'Something went wrong while declining the invitation'
                           )
                         }
                       }}

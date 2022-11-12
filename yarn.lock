@@ -82,6 +82,7 @@ __metadata:
     extract-domain: ^2.4.8
     gravatar: ^1.8.2
     nodemailer: ^6.7.8
+    xml-js: ^1.6.11
     yup: ^0.32.11
   languageName: unknown
   linkType: soft
@@ -28790,7 +28791,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sax@npm:>=0.6.0":
+"sax@npm:>=0.6.0, sax@npm:^1.2.4":
   version: 1.2.4
   resolution: "sax@npm:1.2.4"
   checksum: 6e9b05ff443ee5e5096ce92d31c0740a20d33002fad714ebcb8fc7a664d9ee159103ebe8f7aef0a1f7c5ecacdd01f177f510dff95611c589399baf76437d3fe3
@@ -33517,6 +33518,17 @@ __metadata:
   dependencies:
     xml-parser-xo: ^3.2.0
   checksum: 97af94786f14d295eb74d5062e311f6c7b351d7b2b11c76d275eeb5197d98450bd0197de51dda9fbd6f03fbd23432e535fd13e8780a207cb1158a3d987bf02e5
+  languageName: node
+  linkType: hard
+
+"xml-js@npm:^1.6.11":
+  version: 1.6.11
+  resolution: "xml-js@npm:1.6.11"
+  dependencies:
+    sax: ^1.2.4
+  bin:
+    xml-js: ./bin/cli.js
+  checksum: c83631057f10bf90ea785cee434a8a1a0030c7314fe737ad9bf568a281083b565b28b14c9e9ba82f11fc9dc582a3a907904956af60beb725be1c9ad4b030bc5a
   languageName: node
   linkType: hard
 

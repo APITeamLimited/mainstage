@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 
+import { SafeUser } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AddIcon from '@mui/icons-material/Add'
@@ -20,14 +21,13 @@ import { navigate, routes, useLocation } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceOverview/CreateTeamDialog'
-
-import { CurrentUser } from './DropdownButton'
+import { navigatePersonalSettings } from 'src/utils/navigate-personal-settings'
 
 interface AccountPopoverProps {
   anchorEl: null | Element
   onClose?: () => void
   open?: boolean
-  currentUser: CurrentUser | null
+  currentUser: SafeUser | null
 }
 
 export const DropdownPopover = ({
@@ -73,31 +73,10 @@ export const DropdownPopover = ({
   }
 
   const handleNavigatePersonalSettings = () => {
-    // Set active workspace to personal workspace
-    const personalWorkspace = workspaces.find(
-      (workspace) => workspace.scope?.variant === 'USER'
-    )
-
-    if (!personalWorkspace) {
-      throw new Error('No personal workspace found')
-    }
-
-    if (personalWorkspace.id !== activeWorkspaceId) {
-      activeWorkspaceIdVar(personalWorkspace.id)
-
-      const usingTls = window.location.protocol === 'https:'
-      const domain = window.location.hostname
-      const port = window.location.port
-      const path = routes.settingsWorkspace()
-      const personalSettingsUrl = `${usingTls ? 'https' : 'http'}://${domain}${
-        port ? `:${port}` : ''
-      }${path}`
-
-      window.location.href = personalSettingsUrl
-    } else {
-      navigate(routes.settingsWorkspace())
-    }
-
+    navigatePersonalSettings({
+      workspaces,
+      activeWorkspaceId,
+    })
     onClose?.()
   }
 

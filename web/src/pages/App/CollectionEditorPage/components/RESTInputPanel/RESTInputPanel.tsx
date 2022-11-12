@@ -19,9 +19,9 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
+import { useYMap } from 'src/lib/zustand-yjs'
 import { singleRESTRequestGenerator } from 'src/test-manager'
 import { jobQueueVar } from 'src/test-manager/lib'
-import { useYMap } from 'src/lib/zustand-yjs'
 import { BUILTIN_REST_SCRIPTS } from 'src/utils/rest-scripts'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
@@ -244,14 +244,15 @@ export const RESTInputPanel = ({
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
 
-  useEffect(() => {
-    if (!unsavedBody) return
+  // TODO: Re-enable this if file upload is re-enabled
+  // useEffect(() => {
+  //   if (!unsavedBody) return
 
-    // If unsaved body is a stored object and changes, immeditely save
-    if (unsavedBody.contentType === 'application/octet-stream') {
-      requestYMap.set('body', unsavedBody)
-    }
-  }, [requestYMap, unsavedBody])
+  //   // If unsaved body is a stored object and changes, immeditely save
+  //   if (unsavedBody.contentType === 'application/octet-stream') {
+  //     requestYMap.set('body', unsavedBody)
+  //   }
+  // }, [requestYMap, unsavedBody])
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
   const handleFieldUpdate = <T extends any>(

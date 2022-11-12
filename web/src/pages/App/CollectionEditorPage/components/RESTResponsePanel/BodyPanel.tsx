@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { Tooltip, IconButton, Box } from '@mui/material'
+import { Tooltip, IconButton } from '@mui/material'
 import { Response } from 'k6/http'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'

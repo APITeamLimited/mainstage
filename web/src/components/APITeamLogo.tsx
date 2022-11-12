@@ -21,8 +21,6 @@ export const APITeamLogo = ({
   const { pathname } = useLocation()
   const isInApp = pathname.includes('/app')
 
-  const accentColor = theme.palette.primary.main
-
   const actualDisableLinks = disableLinks
     ? true
     : pathname === ROUTES.splash || pathname === ROUTES.dashboard
@@ -200,11 +198,10 @@ export const APITeamLogo = ({
                 strokeWidth="0"
                 strokeLinejoin="miter"
                 strokeMiterlimit="2"
-                stroke={accentColor}
-                fill={accentColor}
+                stroke={theme.palette.primary.main}
+                fill={theme.palette.primary.main}
               ></polygon>
             </g>
-
             <g
               id="path180660"
               aria-label="M"

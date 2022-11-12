@@ -19,20 +19,21 @@ const SupportPage = () => {
           height: '100%',
         }}
       >
-        <EmptyPanelMessage
-          primaryText="Nothings here yet"
-          secondaryMessages={[
-            "We're still working on our paid plans, feel free to use APITeam for free until then!",
-          ]}
-          icon={
-            <Typography
-              variant="h1"
-              sx={{ color: theme.palette.primary.main, fontSize: '80px' }}
-            >
-              🚧
-            </Typography>
-          }
-        />
+        <Typography
+          variant="h4"
+          sx={{ color: theme.palette.text.primary }}
+          gutterBottom
+        >
+          Support
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ color: theme.palette.text.primary }}
+          gutterBottom
+        >
+          We are still building this page. In the meantime, please reach out to
+          us at <a href="mailto:support@apiteam.cloud">support@apiteam.cloud</a>
+        </Typography>
       </Box>
     </>
   )

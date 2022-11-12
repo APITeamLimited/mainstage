@@ -145,7 +145,8 @@ const DeleteAccountPage = ({ token }: DeleteAccountPageProps) => {
                           }
                         } catch (e) {
                           setSnackErrorMessage(
-                            'Something went wrong while deleting your account'
+                            e.message ??
+                              'Something went wrong while deleting your account'
                           )
                         }
                       }}

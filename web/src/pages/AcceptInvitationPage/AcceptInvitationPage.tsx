@@ -180,7 +180,8 @@ const AcceptInvitationPage = ({ token }: AcceptInvitationPageProps) => {
                               }
                             } catch (e) {
                               setSnackErrorMessage(
-                                'Something went wrong while accepting the invitation'
+                                e.message ??
+                                  'Something went wrong while accepting the invitation'
                               )
                             }
                           }}

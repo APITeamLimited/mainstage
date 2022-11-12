@@ -189,13 +189,13 @@ export const BodyPanel = ({
     }
 
     // If body is application/octet-stream or none , clear the action area
-    if (
-      bodyRef.current?.contentType === 'application/octet-stream' ||
-      bodyRef.current?.contentType === 'none'
-    ) {
-      setActionArea(null)
-      return
-    }
+    // if (
+    //   bodyRef.current?.contentType === 'application/octet-stream' ||
+    //   bodyRef.current?.contentType === 'none'
+    // ) {
+    //   setActionArea(null)
+    //   return
+    // }
 
     const contentTypeFromTab = getContentTypeFromIndex(tab || 0)
     const includePrettyPrint = contentTypeFromTab
@@ -298,11 +298,13 @@ export const BodyPanel = ({
           setItems={(bodyValues) => setBody({ ...body, body: bodyValues })}
           setActionArea={setActionArea}
           namespace={`${requestId}${body.contentType}`}
-          variant="filefield"
+          // TODO: may add support for files in the future
+          variant="default"
           disableBulkEdit
         />
       )}
-      {body.contentType === 'application/octet-stream' && (
+      {/* TODO: may add support for files in the future */}
+      {/* {body.contentType === 'application/octet-stream' && (
         <StoredDropzone
           file={body.body}
           setFile={(file) => {
@@ -315,7 +317,7 @@ export const BodyPanel = ({
           primaryText="Drop file here"
           secondaryMessages={['Or click to browse']}
         />
-      )}
+      )} */}
     </Stack>
   )
 }

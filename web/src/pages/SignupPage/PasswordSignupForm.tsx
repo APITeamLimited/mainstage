@@ -326,8 +326,8 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
                   }}
                   variant="body2"
                 >
-                  We have sent an email to {formik.values.email}. Please click
-                  on the link in the email to verify your email address.
+                  We have sent a verification code to {formik.values.email}.
+                  Please enter it below.
                 </Typography>
                 <Box>
                   <Button

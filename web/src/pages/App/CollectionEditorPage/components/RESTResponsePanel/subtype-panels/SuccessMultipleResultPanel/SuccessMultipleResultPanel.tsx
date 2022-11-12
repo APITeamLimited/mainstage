@@ -7,9 +7,9 @@ import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { parseMessage } from 'src/test-manager/execution'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
+import { parseMessage } from 'src/test-manager/execution'
 
 import { PanelLayout } from '../../../PanelLayout'
 import { ExecutionPanel } from '../../ExecutionPanel'
@@ -96,11 +96,11 @@ export const SuccessMultipleResultPanel = ({
 
   const wasLimited = useMemo(
     () =>
-      storedGlobeTestLogs?.filter(
+      storedGlobeTestLogs?.find(
         (log) =>
           log.messageType === 'MESSAGE' &&
           log.message === 'UNVERIFIED_DOMAIN_THROTTLED'
-      )
+      ) !== undefined
         ? true
         : // eslint-disable-next-line react-hooks/exhaustive-deps
           false,

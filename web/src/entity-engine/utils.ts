@@ -112,7 +112,7 @@ export const processAuthData = ({
       newWorkspaceId = localStorageId
     } else {
       const personalWorkspace = newWorkspaces.find(
-        (workspace) => !workspace.isTeam
+        (workspace) => workspace.scope.variant === 'USER'
       )
 
       if (!personalWorkspace) {

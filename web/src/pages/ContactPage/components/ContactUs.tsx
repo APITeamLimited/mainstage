@@ -75,7 +75,7 @@ export const ContactUs = () => {
             <ListItemText
               primary={
                 <Link
-                  href="mailto://support@apiteam.cloud"
+                  href="mailto:support@apiteam.cloud"
                   sx={{
                     textDecoration: 'none',
                   }}
@@ -127,7 +127,7 @@ export const ContactUs = () => {
             <ListItemText
               primary={
                 <Link
-                  href="mailto://info@apiteam.cloud"
+                  href="mailto:info@apiteam.cloud"
                   sx={{
                     textDecoration: 'none',
                   }}

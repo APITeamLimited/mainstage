@@ -3,12 +3,11 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import CodeIcon from '@mui/icons-material/Code'
-import CommentIcon from '@mui/icons-material/Comment'
 import InfoIcon from '@mui/icons-material/Info'
+import ReorderIcon from '@mui/icons-material/Reorder'
 import { IconButton, Paper, Stack, Tooltip, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
-import { GlobeTestIcon } from 'src/components/utils/Icons'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
   focusedElementVar,
@@ -146,7 +145,7 @@ export const RightAside = ({
                     }
                     onClick={() => handleButtonClick('restHistory')}
                   >
-                    <CommentIcon />
+                    <ReorderIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip title="Generate Code" placement="left">

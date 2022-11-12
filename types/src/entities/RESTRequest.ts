@@ -12,7 +12,7 @@ export const knownContentTypes = {
   'multipart/form-data': 'Form Data',
   'text/html': 'HTML',
   'text/plain': 'Plain',
-  'application/octet-stream': 'File',
+  // 'application/octet-stream': 'File',
   none: 'None',
 } as const
 
@@ -97,15 +97,16 @@ export type RESTReqBody =
     }
   | {
       contentType: 'multipart/form-data'
-      body: KeyValueItem<FileFieldKV>[]
+      // TODO: may add support for files in the future
+      body: KeyValueItem<DefaultKV>[]
     }
-  | {
-      contentType: 'application/octet-stream'
-      body: {
-        data: StoredObject<string | ArrayBuffer>
-        filename: string
-      } | null
-    }
+// | {
+//     contentType: 'application/octet-stream'
+//     body: {
+//       data: StoredObject<string | ArrayBuffer>
+//       filename: string
+//     } | null
+//   }
 
 export type ExecutionScript = {
   script: string

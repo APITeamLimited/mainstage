@@ -22,4 +22,4 @@ Thanks for choosing us, as a small company we really appreciate it. We hope you 
 
 # Getting Help
 
-This documentation is a work in progress, so if you have any questions or suggestions, please let us know at [support@apiteam.cloud](mailto://support@apiteam.cloud). We are always happy to help and will try to respond as quickly as possible.
+This documentation is a work in progress, so if you have any questions or suggestions, please let us know at [support@apiteam.cloud](mailto:support@apiteam.cloud). We are always happy to help and will try to respond as quickly as possible.
