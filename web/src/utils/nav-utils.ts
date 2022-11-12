@@ -36,3 +36,20 @@ export const navigatePersonalSettings = ({
     navigate(routes.settingsWorkspace())
   }
 }
+
+export const handleLogout = (logOut: () => void) => {
+  // Clear local storage of everything
+  logOut()
+
+  localStorage.clear()
+
+  // Clear all cookies
+  document.cookie.split(';').forEach(function (c) {
+    document.cookie = c
+      .replace(/^ +/, '')
+      .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+  })
+
+  navigate(routes.splash())
+  window.location.reload()
+}

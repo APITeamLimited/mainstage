@@ -46,12 +46,12 @@ export const DeleteAccountCard = ({
 
   const formik = useFormik({
     initialValues: {
-      accountName: '',
+      accountSlug: '',
       confirmation: '',
       submit: null,
     },
     validationSchema: Yup.object({
-      accountName: Yup.string().oneOf(
+      accountSlug: Yup.string().oneOf(
         [workspaceInfo.scope.slug],
         'Slugs must match'
       ),
@@ -156,18 +156,18 @@ export const DeleteAccountCard = ({
                 {workspaceInfo.scope.slug}&apos;
               </FormHelperText>
               <TextField
-                label="Account Name"
+                label="Account Slug"
                 variant="outlined"
                 fullWidth
                 size="small"
-                name="accountName"
-                value={formik.values.accountName}
+                name="accountSlug"
+                value={formik.values.accountSlug}
                 onChange={formik.handleChange}
                 error={Boolean(
-                  formik.touched.accountName && formik.errors.accountName
+                  formik.touched.accountSlug && formik.errors.accountSlug
                 )}
                 helperText={
-                  formik.touched.accountName && formik.errors.accountName
+                  formik.touched.accountSlug && formik.errors.accountSlug
                 }
               />
               <FormHelperText>
@@ -198,7 +198,7 @@ export const DeleteAccountCard = ({
               disabled={
                 formik.isSubmitting ||
                 !formik.isValid ||
-                formik.values.accountName === '' ||
+                formik.values.accountSlug === '' ||
                 formik.values.confirmation === ''
               }
             >

@@ -16,6 +16,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
+import { coreCacheSubscribeRedis } from 'src/lib/redis'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
 const issuer = checkValue<string>('api.bearer.issuer')

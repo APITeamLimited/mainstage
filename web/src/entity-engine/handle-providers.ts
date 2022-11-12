@@ -1,4 +1,4 @@
-import { ClientAwareness, ServerAwareness, Workspace } from '@apiteam/types/src'
+import { ClientAwareness, ServerAwareness } from '@apiteam/types/src'
 import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import type { Doc as YDoc } from 'yjs'
@@ -10,9 +10,8 @@ import { PossibleSyncStatus, ReadyStatus } from './utils'
 
 type HandleProvidersArgs = {
   ready: ReadyStatus
-  activeWorkspace: Workspace | null
   rawBearer: string | null
-  scopes: GetBearerPubkeyScopes['scopes']
+  activeScope: GetBearerPubkeyScopes['scopes'][number]
   doc: YDoc | null
   setDoc: (doc: YDoc | null) => void
   socketioProvider: SocketIOProvider | null
@@ -28,9 +27,8 @@ type HandleProvidersArgs = {
 
 export const handleProviders = ({
   ready,
-  activeWorkspace,
   rawBearer,
-  scopes,
+  activeScope,
   doc,
   setDoc,
   socketioProvider,
@@ -51,21 +49,8 @@ export const handleProviders = ({
   }
 
   if (!socketioProviderReady) return
-  if (!activeWorkspace) throw 'No active workspace'
 
-  const scope = scopes.find(
-    (scope) => scope.variantTargetId === activeWorkspace.id
-  )
-  if (!scope) throw 'No scope found for active workspace'
-  const activeGUID = `${scope.variant}:${scope.variantTargetId}`
-
-  const scopeId = scopes.find(
-    (scope) => scope.variantTargetId === activeWorkspace.id
-  )?.id
-
-  if (!scopeId) {
-    throw `No scopeId could be found for workspace ${activeWorkspace.id}`
-  }
+  const activeGUID = `${activeScope.variant}:${activeScope.variantTargetId}`
 
   const guidChanged = doc?.guid !== activeGUID
 
@@ -94,7 +79,7 @@ export const handleProviders = ({
     }
 
     return new SocketIOProvider({
-      scopeId,
+      scopeId: activeScope.id,
       rawBearer: rawBearer || '',
       apolloClient,
       doc,

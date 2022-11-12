@@ -3,5 +3,5 @@
 #./test-manager/build.sh
 ./mailman/build.sh
 #./store/build.sh
-#./web/build.sh
-#./api/build.sh
+./web/build.sh
+./api/build.sh

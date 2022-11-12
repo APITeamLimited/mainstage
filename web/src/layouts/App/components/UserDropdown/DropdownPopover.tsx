@@ -21,7 +21,7 @@ import { navigate, routes, useLocation } from '@redwoodjs/router'
 
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { CreateTeamDialog } from 'src/layouts/App/components/TopNavApp/WorkspaceOverview/CreateTeamDialog'
-import { navigatePersonalSettings } from 'src/utils/navigate-personal-settings'
+import { handleLogout, navigatePersonalSettings } from 'src/utils/nav-utils'
 
 interface AccountPopoverProps {
   anchorEl: null | Element
@@ -55,22 +55,6 @@ export const DropdownPopover = ({
   )
 
   const [openCreateTeamDialog, setOpenCreateTeamDialog] = useState(false)
-
-  const handleLogout = () => {
-    // Clear local storage of everything
-    localStorage.clear()
-
-    // Clear all cookies
-    document.cookie.split(';').forEach(function (c) {
-      document.cookie = c
-        .replace(/^ +/, '')
-        .replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
-    })
-
-    logOut()
-    navigate(routes.splash())
-    window.location.reload()
-  }
 
   const handleNavigatePersonalSettings = () => {
     navigatePersonalSettings({
@@ -171,7 +155,7 @@ export const DropdownPopover = ({
                     <Divider />
                   </>
                 )}
-                <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                <MenuItem onClick={() => handleLogout(logOut)}>Logout</MenuItem>
               </>
             ) : (
               <MenuItem

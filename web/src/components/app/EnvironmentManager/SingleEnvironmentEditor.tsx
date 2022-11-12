@@ -54,6 +54,12 @@ export const SingleEnvironmentEditor = ({
 
   const [needSave, setNeedSave] = useState(false)
 
+  // If environmentId changes, close the dialog
+  useEffect(() => {
+    setShow(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [environmentId])
+
   // If doesn't need save, update fields automatically
   useEffect(() => {
     if (!needSave) {

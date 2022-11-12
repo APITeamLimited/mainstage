@@ -13,7 +13,7 @@ import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManage
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import { navigatePersonalSettings } from 'src/utils/navigate-personal-settings'
+import { navigatePersonalSettings } from 'src/utils/nav-utils'
 
 import { SETTINGS_TABS } from '..'
 

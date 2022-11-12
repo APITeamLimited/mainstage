@@ -6,6 +6,7 @@ import { Server } from 'socket.io'
 import { checkValue } from './config'
 import { handleAuth } from './services'
 import { handleNewConnection } from './yjs/connection-provider'
+import { registerDeleteHandlers } from './yjs/delete-handler'
 import { createServersideHandlers } from './yjs/serverside'
 
 process.title = 'entity-engine'
@@ -41,6 +42,8 @@ clientIoServer.on(
 clientIoServer.on('disconnect', () =>
   console.log(new Date(), 'Client disconnected')
 )
+
+registerDeleteHandlers()
 
 // Support intrnal serverside connections
 createServersideHandlers(httpServer)

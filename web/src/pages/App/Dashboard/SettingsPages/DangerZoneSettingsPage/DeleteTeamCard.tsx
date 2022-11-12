@@ -44,12 +44,12 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
 
   const formik = useFormik({
     initialValues: {
-      teamName: '',
+      teamSlug: '',
       confirmation: '',
       submit: null,
     },
     validationSchema: Yup.object({
-      teamName: Yup.string().oneOf(
+      teamSlug: Yup.string().oneOf(
         [workspaceInfo.scope.slug],
         'Slugs must match'
       ),
@@ -154,17 +154,17 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
                 {workspaceInfo.scope.slug}&apos;
               </FormHelperText>
               <TextField
-                label="Team Name"
+                label="Team Slug"
                 variant="outlined"
                 fullWidth
                 size="small"
-                name="teamName"
-                value={formik.values.teamName}
+                name="teamSlug"
+                value={formik.values.teamSlug}
                 onChange={formik.handleChange}
                 error={Boolean(
-                  formik.touched.teamName && formik.errors.teamName
+                  formik.touched.teamSlug && formik.errors.teamSlug
                 )}
-                helperText={formik.touched.teamName && formik.errors.teamName}
+                helperText={formik.touched.teamSlug && formik.errors.teamSlug}
               />
               <FormHelperText>
                 Type &apos;delete my team&apos; to confirm
@@ -194,7 +194,7 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
               disabled={
                 formik.isSubmitting ||
                 !formik.isValid ||
-                formik.values.teamName === '' ||
+                formik.values.teamSlug === '' ||
                 formik.values.confirmation === ''
               }
             >

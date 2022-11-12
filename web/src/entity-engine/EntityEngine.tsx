@@ -212,11 +212,20 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   // Create and destroy the providers based on readiness
   useEffect(() => {
     if (!activeWorkspace) return
+
+    const activeScope = scopes.find(
+      (scope) => scope.variantTargetId === activeWorkspace.id
+    )
+
+    if (!activeScope) {
+      activeWorkspaceIdVar(null)
+      return
+    }
+
     handleProviders({
       ready,
-      activeWorkspace,
       rawBearer,
-      scopes,
+      activeScope,
       doc,
       setDoc,
       socketioProvider,

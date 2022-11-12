@@ -2,10 +2,10 @@ import { Collection } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Button, Box, useTheme } from '@mui/material'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-import { useYMap } from 'src/lib/zustand-yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { activeWorkspaceIdVar } from 'src/contexts/reactives'
+import { useYMap } from 'src/lib/zustand-yjs'
 
 import { quickstartDialogStateVar } from '../../../dialogs'
 import { OverviewItem } from '../OverviewItem'
@@ -57,7 +57,7 @@ export const ResourceProvider = ({
   // TODO implement sort
   const sortedOverviews = unsortedOverviews
 
-  return sortedOverviews.length === 0 ? (
+  return workspaceId && sortedOverviews.length === 0 ? (
     <Stack
       spacing={2}
       alignItems="center"

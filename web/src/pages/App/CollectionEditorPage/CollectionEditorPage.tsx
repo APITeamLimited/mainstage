@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { useEffect, useState } from 'react'
+
+import { ROUTES } from '@apiteam/types/src'
 import { Paper, useTheme, Container } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import type { Map as YMap } from 'yjs'
@@ -12,8 +15,8 @@ import { useYJSModule } from 'src/contexts/imports'
 import { VariablesProvider } from 'src/contexts/VariablesProvider'
 import { VerifiedDomainsProvider } from 'src/contexts/verified-domains-provider'
 import { useWorkspace } from 'src/entity-engine'
-import { GlobeTestProvider } from 'src/test-manager'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { GlobeTestProvider } from 'src/test-manager'
 
 import { CollectionTree } from './components/CollectionTree'
 import { StatusBar } from './components/StatusBar'
@@ -40,32 +43,97 @@ export const CollectionEditorPage = ({
   const theme = useTheme()
   const activeWorkspace = useWorkspace()
 
+  const projectYMap = (
+    activeWorkspace?.get('projects') as YMap<any> | undefined
+  )?.get(projectId) as YMap<any> | undefined
+
   const branchYMap = (
-    (
-      (activeWorkspace?.get('projects') as YMap<any> | undefined)?.get(
-        projectId
-      ) as YMap<any> | undefined
-    )?.get('branches') as YMap<any> | undefined
+    projectYMap?.get('branches') as YMap<any> | undefined
   )?.get(branchId) as YMap<any> | undefined
 
   const collectionYMap = (
     branchYMap?.get('collections') as YMap<any> | undefined
   )?.get(collectionId) as YMap<any> | undefined
 
-  useYMap(branchYMap ?? new Y.Map())
+  // Escape hatch in case project is deleted
+  const projectHook = useYMap(projectYMap ?? new Y.Map())
+  const [fistLoadedProject, setFirstLoadedProject] = useState(false)
 
-  // Required to prevent branch not being found errors
-  useYMap(collectionYMap ?? new Y.Map())
+  useEffect(() => {
+    if (projectYMap?.get('__typename') === 'Project' && !fistLoadedProject) {
+      setFirstLoadedProject(true)
+      console.log('Project loaded')
+    }
+
+    if (!fistLoadedProject) {
+      return
+    }
+
+    const interval = setInterval(() => {
+      if (projectYMap?.get('__typename') !== 'Project') {
+        window.location.href = ROUTES.dashboard
+      }
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [projectYMap, projectHook, fistLoadedProject])
+
+  // Escape hatch in case branch is deleted
+  const branchHook = useYMap(branchYMap ?? new Y.Map())
+  const [firstLoadedBranch, setFirstLoadedBranch] = useState(false)
+
+  useEffect(() => {
+    if (branchYMap?.get('__typename') === 'Branch' && !firstLoadedBranch) {
+      setFirstLoadedBranch(true)
+    }
+
+    if (!firstLoadedBranch) {
+      return
+    }
+
+    const inteval = setInterval(() => {
+      if (branchYMap?.get('__typename') !== 'Branch') {
+        window.location.href = ROUTES.dashboard
+      }
+    }, 1000)
+
+    return () => clearInterval(inteval)
+  }, [firstLoadedBranch, branchYMap, branchHook])
+
+  // Escape hatch in case the collection is deleted
+  const collectionHook = useYMap(collectionYMap ?? new Y.Map())
+  const [firstLoadedCollection, setFirstLoadedCollection] = useState(false)
+
+  useEffect(() => {
+    if (
+      collectionYMap?.get('__typename') === 'Collection' &&
+      !firstLoadedCollection
+    ) {
+      setFirstLoadedCollection(true)
+    }
+
+    if (!firstLoadedCollection) {
+      return
+    }
+
+    const inteval = setInterval(() => {
+      if (collectionYMap?.get('__typename') !== 'Collection') {
+        window.location.href = ROUTES.dashboard
+      }
+    }, 1000)
+
+    return () => clearInterval(inteval)
+  }, [firstLoadedCollection, collectionYMap, collectionHook])
 
   if (!activeWorkspace) {
     return <Container>Workspace with id {workspaceId} not found</Container>
   }
 
-  if (!branchYMap) {
+  if (!branchYMap || branchYMap.get('__typename') !== 'Branch') {
     return <Container>Branch with id {branchId} not found</Container>
   }
 
-  if (!collectionYMap) {
+  if (!collectionYMap || collectionYMap.get('__typename') !== 'Collection') {
     return <Container>Collection with id {collectionId} not found</Container>
   }
 

@@ -659,4 +659,10 @@ export class OpenDoc extends Y.Doc {
       socket.send(encoding.toUint8Array(encoder))
     })
   }
+
+  publishDeletion() {
+    Array.from(this.sockets.keys()).forEach((socket) => {
+      socket.emit('doc-deleted')
+    })
+  }
 }

@@ -7,10 +7,33 @@ const coreCachePassword = checkValue<string>('coreCache.redis.password')
 const coreCacheHost = checkValue<string>('coreCache.redis.host')
 const coreCachePort = checkValue<number>('coreCache.redis.port')
 
-const coreCacheReadRedis = createClient({
-  url: `redis://${coreCacheUsername}:${coreCachePassword}@${coreCacheHost}:${coreCachePort}`,
-})
+type RedisClient = ReturnType<typeof createClient>
 
-coreCacheReadRedis.connect()
+let coreCacheReadRedis: RedisClient | null = null
+let coreCacheSubscribeRedis: RedisClient | null = null
 
-export { coreCacheReadRedis }
+const connectClient = async () => {
+  const client = createClient({
+    url: `redis://${coreCacheUsername}:${coreCachePassword}@${coreCacheHost}:${coreCachePort}`,
+  })
+
+  await client.connect()
+
+  return client
+}
+
+export const getReadRedis = async (): Promise<RedisClient> => {
+  if (!coreCacheReadRedis) {
+    coreCacheReadRedis = await connectClient()
+  }
+
+  return coreCacheReadRedis
+}
+
+export const getSubscribeRedis = async (): Promise<RedisClient> => {
+  if (!coreCacheSubscribeRedis) {
+    coreCacheSubscribeRedis = await connectClient()
+  }
+
+  return coreCacheSubscribeRedis
+}

@@ -364,6 +364,11 @@ export class SocketIOProvider extends Observable<string> {
       newSocket.on('connect', () => {
         this.socket = newSocket
 
+        this.socket?.on(
+          'doc-deleted',
+          () => (window.location.href = window.location.origin)
+        )
+
         const newAwareness = new this.Y.awarenessProtocol.Awareness(this.doc)
         newAwareness.setLocalState({})
 

@@ -15,7 +15,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { coreCacheReadRedis, coreCacheSubscribeRedis } from 'src/lib/redis'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
 import { checkOwner } from '../validators'
@@ -94,6 +94,9 @@ export const handleTeamDelete = async ({ token }: { token: string }) => {
 
   // Delete in reverse order of creation
 
+  // Broadcast team deletion to all services
+  coreCacheSubscribeRedis.publish('team:delete', teamId)
+
   const invitations = await db.invitation.findMany({
     where: {
       teamId,
@@ -135,6 +138,8 @@ export const handleTeamDelete = async ({ token }: { token: string }) => {
     .map((user) => JSON.parse(user || '') as SafeUser)
 
   await Promise.all([
+    // Broadcast team deletion to other services
+    coreCacheReadRedis.publish('TEAM_DELETED', teamId),
     // Notify all members of team deletion
     userMemberships.map(async (user) =>
       dispatchEmail({
@@ -153,8 +158,6 @@ export const handleTeamDelete = async ({ token }: { token: string }) => {
     ...memberships.map(deleteMembership),
     // Delete team
     coreCacheReadRedis.del(`team:${teamId}`),
-    // Broadcast team deletion to other services
-    coreCacheReadRedis.publish('TEAM_DELETED', teamId),
   ])
 
   return true

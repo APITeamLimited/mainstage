@@ -47,7 +47,19 @@ export const ProjectActionsButton = ({
   }
 
   const handleDelete = () => {
-    projectYMap.parent?.delete(projectId)
+    // Delete collections first so clients can escape
+    // TODO: implement support for branches and find a less hacky way to do this
+    Array.from(
+      (projectYMap.get('branches') as YMap<any>).values() ?? []
+    ).forEach((branch) => {
+      Array.from((branch.get('collections') as YMap<any>).keys() ?? []).forEach(
+        (collectionId) => {
+          branch.get('collections')?.delete(collectionId)
+        }
+      )
+
+      projectYMap.get('branches')?.delete(branch.get('id'))
+    })
   }
 
   if (!projectName) throw new Error('Project name is required')

@@ -89,6 +89,11 @@ export const EnvironmentManager = ({
 
   // If doesn't need save, update fields automatically
   useEffect(() => {
+    // Check if deleted, if so, clear active environment
+    if (activeEnvironmentId && !environmentsYMap.has(activeEnvironmentId)) {
+      updateActiveEnvironmentId(activeEnvironmentDict, branchYMap, null)
+    }
+
     if (!needSave && activeEnvironmentYMap) {
       const newKeyValues = kvLegacyImporter<LocalValueKV>(
         'variables',

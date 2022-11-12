@@ -130,13 +130,29 @@ export const processAuthData = ({
       (workspace) => workspace.id === switchToTeam
     )
     if (workspace && workspace.id !== activeWorkspaceId) {
-      newWorkspaceId = workspace.id
+      if (
+        newWorkspaces.find((workspace) => workspace.id === newWorkspaceId) !==
+        undefined
+      ) {
+        newWorkspaceId = workspace.id
+      }
     }
   }
 
-  const activeWorkspace = newWorkspaces.find(
+  let activeWorkspace = newWorkspaces.find(
     (workspace) => workspace.id === newWorkspaceId
   )
+
+  if (!activeWorkspace) {
+    // Try and set to personal workspace as a fallback
+    activeWorkspace = newWorkspaces.find(
+      (workspace) => workspace.scope.variant === 'USER'
+    )
+
+    if (activeWorkspace) {
+      newWorkspaceId = activeWorkspace.id
+    }
+  }
 
   if (!activeWorkspace) {
     throw new Error('No active workspace found')

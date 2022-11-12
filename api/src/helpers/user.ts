@@ -64,6 +64,8 @@ export const deleteUser = async (user: User) => {
   await Promise.all(memberships.map(deleteMembership))
 
   await Promise.all([
+    // Broadcast team deletion to other services
+    coreCacheReadRedis.publish('USER_DELETED', user.id),
     // Delete the personal scope
     scopes.map((scope) => deleteScope(scope.id)),
     coreCacheReadRedis.del(`user__id:${user.id}`),

@@ -3,7 +3,11 @@ import { createServer } from 'http'
 import { Color } from 'colorterm'
 
 import { checkValue } from './config'
-import { retrieveScopedResource, submitScopedResource } from './handlers'
+import {
+  registerDeleteHandlers,
+  retrieveScopedResource,
+  submitScopedResource,
+} from './handlers'
 import { requireScopedAuth } from './services'
 
 process.title = 'store'
@@ -41,6 +45,8 @@ httpServer.addListener('request', (req, res) => {
     res.end(JSON.stringify({ message: 'Not Found' }))
   }
 })
+
+registerDeleteHandlers()
 
 if (process.env.NODE_ENV === 'development') {
   // Every minute print memory usage and number of connections
