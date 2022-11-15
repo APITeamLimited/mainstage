@@ -159,6 +159,7 @@ export const FailureResultPanel = ({
             source={focusedResponse.get('source')}
             sourceName={focusedResponse.get('sourceName')}
             metrics={storedMetrics}
+            responseId={focusedResponse.get('id')}
           />
         ) : (
           <Skeleton />

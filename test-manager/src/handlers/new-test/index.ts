@@ -105,8 +105,6 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     await getVerifiedDomains(
       socket.scope.variant,
       socket.scope.variantTargetId
-    ).then((domains) =>
-      domains.filter((domain) => domain.verified).map((d) => d.domain)
     ),
   ])
 

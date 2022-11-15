@@ -48,7 +48,8 @@
   },
   "test-manager": {
     "host": "${TEST_MANAGER_HOST}",
-    "port": "${TEST_MANAGER_PORT}"
+    "port": "${TEST_MANAGER_PORT}",
+    "isMaster": "${IS_MASTER}"
   },
   "entity-engine": {
     "host": "${ENTITY_ENGINE_HOST}",
@@ -65,7 +66,8 @@
       "host": "${ENTITY_ENGINE_MONGO_HOST}",
       "port": "${ENTITY_ENGINE_MONGO_PORT}",
       "collection": "${ENTITY_ENGINE_MONGO_COLLECTION}"
-    }
+    },
+    "isMaster": "${IS_MASTER}"
   },
   "mailman": {
     "redis": {
@@ -84,6 +86,7 @@
       "host": "${STORE_MONGO_HOST}",
       "port": "${STORE_MONGO_PORT}",
       "database": "${STORE_MONGO_DATABASE}"
-    }
+    },
+    "isMaster": "${IS_MASTER}"
   }
 }

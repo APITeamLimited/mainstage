@@ -16,13 +16,13 @@ export const getFinalRequest = async (
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext']
 ): Promise<AxiosRequestConfig<any>> => {
-  const lookup = await import('mime-types').then((m) => m.lookup)
+  //const lookup = await import('mime-types').then((m) => m.lookup)
 
   const workspaceId = collectionYMap.doc?.guid as string | undefined
   if (!workspaceId) throw new Error('WorkspaceId not found')
 
   let body = null
-  let skipBodyEnvironmentSubstitution = false
+  const skipBodyEnvironmentSubstitution = false
 
   if (request.body.contentType === 'none') {
     body = null
@@ -46,14 +46,14 @@ export const getFinalRequest = async (
   } else if (request.body.contentType === 'multipart/form-data') {
     // TODO: implement this in globetest worker
     // Skip for now
-  } else if (request.body.contentType === 'application/octet-stream') {
+  } /*else if (request.body.contentType === 'application/octet-stream') {
     skipBodyEnvironmentSubstitution = true
 
     // TODO: implement this in globetest worker
     // Skip for now
 
     // If no body data, refetch
-  } else {
+  } */ else {
     body = request.body.body
   }
 
@@ -67,7 +67,7 @@ export const getFinalRequest = async (
   // if finalHeaders doesn't have a content-type, add one
   if (!finalHeaders['content-type'] && request.body.contentType !== 'none') {
     // A more accurate content type would be to use the mime type of the file
-    if (request.body.contentType === 'application/octet-stream') {
+    /*if (request.body.contentType === 'application/octet-stream') {
       const mimeType = lookup(
         request.body.body?.filename?.split('.')?.pop() ?? ''
       )
@@ -79,7 +79,9 @@ export const getFinalRequest = async (
       }
     } else {
       finalHeaders['content-type'] = request.body.contentType
-    }
+    }*/
+
+    finalHeaders['content-type'] = request.body.contentType
   }
 
   const folders = collectionYMap.get('folders') as YMap<any>

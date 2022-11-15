@@ -111,6 +111,8 @@ export const getVerifiedDomains = async (
     ) as VerifiedDomain[]
 
   return verifiedDomains
+    .filter((verifiedDomain) => verifiedDomain.verified)
+    .map((verifiedDomain) => verifiedDomain.domain)
 }
 
 export const updateTestInfo = async (

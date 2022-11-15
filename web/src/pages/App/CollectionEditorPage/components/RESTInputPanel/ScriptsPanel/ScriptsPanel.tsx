@@ -181,7 +181,7 @@ export const ScriptsPanel = ({
           placeholder={[
             'Start typing to create your new script',
             '',
-            'Alternatively, check out some of the built-in executionScriptsRef.current as a starting point',
+            'Alternatively, check out some of the built-in execution scripts as a starting point',
           ]}
           readOnly={executionScriptsRef.current[activeScriptIndex].builtIn}
         />

@@ -18,9 +18,14 @@ import { HTMLViewer } from './HTMLViewer'
 type BodyPanelProps = {
   response: Response
   setActionArea: (actionArea: React.ReactNode) => void
+  responseId: string
 }
 
-export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
+export const BodyPanel = ({
+  response,
+  setActionArea,
+  responseId,
+}: BodyPanelProps) => {
   const { default: hash } = useHashSumModule()
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -113,7 +118,7 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           value={prettifiedBody}
           readOnly
           wordWrap="on"
-          namespace={`${response.url}-0`}
+          namespace={responseId}
           key={focusedResponseHash}
         />
       )}
@@ -126,7 +131,7 @@ export const BodyPanel = ({ response, setActionArea }: BodyPanelProps) => {
           value={rawBody}
           readOnly
           wordWrap="on"
-          namespace={`${response.url}-1`}
+          namespace={responseId}
           key={focusedResponseHash}
         />
       )}

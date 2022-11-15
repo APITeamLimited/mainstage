@@ -8,8 +8,8 @@ import type { Map as YMap } from 'yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { streamExistingTest } from 'src/test-manager/existing-test'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { streamExistingTest } from 'src/test-manager/existing-test'
 
 import { PanelLayout } from '../../../PanelLayout'
 import { ExecutionPanel } from '../../ExecutionPanel'
@@ -120,6 +120,7 @@ export const LoadingSingleResponsePanel = ({
             metrics={metrics}
             source={focusedResponse.get('source') as string}
             sourceName={focusedResponse.get('sourceName') as string}
+            responseId={focusedResponse.get('id') as string}
           />
         )}
         {activeTabIndex === 1 && (

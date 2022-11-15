@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { IconButton, Tooltip, Stack, Typography } from '@mui/material'
@@ -10,12 +10,14 @@ type ScriptPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   source: string
   sourceName: string
+  namespace: string
 }
 
 export const ScriptPanel = ({
   setActionArea,
   source,
   sourceName,
+  namespace,
 }: ScriptPanelProps) => {
   useEffect(() => {
     const customActions = []
@@ -33,9 +35,6 @@ export const ScriptPanel = ({
     setActionArea(<QuickActionArea customActions={customActions} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [source])
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const [namespace] = useState(Math.random().toString(36).substring(8))
 
   return (
     <Stack spacing={2} sx={{ height: '100%' }}>

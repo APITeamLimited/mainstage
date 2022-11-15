@@ -54,8 +54,6 @@ export const performVerification = async ({
     )
   })
 
-  console.log(dnsRecords)
-
   const found = dnsRecords.some((record) =>
     record.includes(verifiedDomain.txtRecord)
   )

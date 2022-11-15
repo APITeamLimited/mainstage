@@ -26,12 +26,14 @@ type GlobeTestLogsPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
   globeTestLogs: GlobeTestMessage[]
   disableFilterOptions?: boolean
+  namespace: string
 }
 
 export const GlobeTestLogsPanel = ({
   setActionArea,
   globeTestLogs,
   disableFilterOptions,
+  namespace,
 }: GlobeTestLogsPanelProps) => {
   const theme = useTheme()
 
@@ -343,7 +345,7 @@ export const GlobeTestLogsPanel = ({
         readOnly={true}
         wordWrap="on"
         scrollBeyondLastLine={false}
-        namespace={`globe-test-logs-${globeTestLogs.length}`}
+        namespace={`globe-test-logs-${namespace}`}
       />
     </Stack>
   )

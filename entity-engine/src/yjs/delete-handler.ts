@@ -1,7 +1,10 @@
+import { checkValue } from '../config'
 import { getSubscribeRedis } from '../redis'
 
 import { openDocs } from './connection-provider'
 import { mongoPersistence } from './persistence-provider'
+
+const isMaster = checkValue<boolean>('entity-engine.isMaster')
 
 const handleDeletion = async (
   variant: 'USER' | 'TEAM',
@@ -16,7 +19,9 @@ const handleDeletion = async (
     await existingOpenDoc.closeDoc()
   }
 
-  await mongoPersistence.clearDocument(`${variant}:${variantTargetId}`)
+  if (isMaster) {
+    await mongoPersistence.clearDocument(`${variant}:${variantTargetId}`)
+  }
 }
 
 export const registerDeleteHandlers = async () => {

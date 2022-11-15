@@ -1,6 +1,6 @@
 import { BUILT_IN_METRICS } from './test-manager'
 
-export const AVAILABLE_LOAD_ZONES = ['global', 'uk-portsmouth'] as const
+export const AVAILABLE_LOAD_ZONES = ['global', 'uk-south', 'us-west'] as const
 
 export type GraphSeries = {
   loadZone: typeof AVAILABLE_LOAD_ZONES[number]

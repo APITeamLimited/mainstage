@@ -94,7 +94,9 @@ export const LandingTopBar = ({
             </>
           )}
           {!hideSignUpOrContinueButton && (
-            <SignUpOrContinueButton size="medium" />
+            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+              <SignUpOrContinueButton size="medium" />
+            </Box>
           )}
           <Box sx={{ display: { xs: 'flex', md: 'none' } }} alignItems="center">
             <Button

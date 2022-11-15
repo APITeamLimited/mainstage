@@ -148,6 +148,7 @@ export const LoadingMultipleResponsePanel = ({
             metrics={metrics}
             source={focusedResponse.get('source') as string}
             sourceName={focusedResponse.get('sourceName') as string}
+            responseId={focusedResponse.get('id') as string}
           />
         )}
         {activeTabIndex === 2 && (

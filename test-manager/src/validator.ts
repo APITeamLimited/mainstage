@@ -114,7 +114,6 @@ export const validateParams = (
   ) as unknown
 
   if (!validate(parsedParams)) {
-    console.log('parsedParams', validate.errors)
     throw new Error('Invalid params')
   }
 

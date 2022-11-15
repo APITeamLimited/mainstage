@@ -8,6 +8,7 @@ import { Server } from 'socket.io'
 import { checkValue } from './config'
 import { handleCurrentTest, handleNewTest } from './handlers'
 import { handleAuth } from './services'
+import { forwardGlobalTestStatistics } from './services/globetest-statistics'
 
 process.title = 'test-manager'
 
@@ -62,6 +63,10 @@ io.use(async (socket, next) => {
     socket.disconnect()
   }
 })
+
+if (checkValue<boolean>('test-manager.isMaster')) {
+  forwardGlobalTestStatistics()
+}
 
 // Every minute print memory usage and number of connections
 if (process.env.NODE_ENV === 'development') {

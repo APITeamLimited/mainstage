@@ -433,8 +433,6 @@ export class OpenDoc extends Y.Doc {
           return
         }
 
-        //console.log('public bearer verified', clientID)
-
         // Successfully verified the token
         this.lastVerifiedClients.set(clientID, new Date().getTime())
         await this.updateServerAwareness(decodedToken)
@@ -468,10 +466,6 @@ export class OpenDoc extends Y.Doc {
 
     this.lastVerifiedClients.forEach((lastVerified, clientID) => {
       if (currentTime - lastVerified > 30000) {
-        console.log(
-          "Client hasn't updated its awareness in 30 seconds",
-          clientID
-        )
         this.disconnectClient(clientID)
       }
     })
@@ -520,7 +514,6 @@ export class OpenDoc extends Y.Doc {
         ),
       }
 
-      //console.log('648 newServerAwareness')
       this.setAndBroadcastServerAwareness(newServerAwareness)
     }
   }
@@ -563,7 +556,6 @@ export class OpenDoc extends Y.Doc {
       ],
     }
 
-    //console.log('686 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 
@@ -583,7 +575,6 @@ export class OpenDoc extends Y.Doc {
       ),
     }
 
-    //console.log('707 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
 
     this.activeSubscriptions = this.activeSubscriptions.filter(
@@ -609,7 +600,6 @@ export class OpenDoc extends Y.Doc {
       ),
     }
 
-    //console.log('732 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 
@@ -637,7 +627,6 @@ export class OpenDoc extends Y.Doc {
       ),
     }
 
-    //console.log('759 newServerAwareness', newServerAwareness)
     this.setAndBroadcastServerAwareness(newServerAwareness)
   }
 

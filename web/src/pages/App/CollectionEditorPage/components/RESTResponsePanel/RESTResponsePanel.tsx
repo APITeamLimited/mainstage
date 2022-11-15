@@ -44,22 +44,22 @@ export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
       ) : responseYMap.get('__subtype') === 'LoadingResponse' ? (
         <LoadingResponsePanel
           focusedResponse={responseYMap}
-          key={responseYMap.get('id')}
+          key={`${responseYMap.get('id')}-${responseYMap.get('parentId')}`}
         />
       ) : responseYMap.get('__subtype') === 'SuccessSingleResult' ? (
         <SuccessSingleResultPanel
           focusedResponse={responseYMap}
-          key={responseYMap.get('id')}
+          key={`${responseYMap.get('id')}-${responseYMap.get('parentId')}`}
         />
       ) : responseYMap.get('__subtype') === 'FailureResult' ? (
         <FailureResultPanel
           focusedResponse={responseYMap}
-          key={responseYMap.get('id')}
+          key={`${responseYMap.get('id')}-${responseYMap.get('parentId')}`}
         />
       ) : responseYMap.get('__subtype') === 'SuccessMultipleResult' ? (
         <SuccessMultipleResultPanel
           focusedResponse={responseYMap}
-          key={responseYMap.get('id')}
+          key={`${responseYMap.get('id')}-${responseYMap.get('parentId')}`}
         />
       ) : (
         <EmptyPanelMessage

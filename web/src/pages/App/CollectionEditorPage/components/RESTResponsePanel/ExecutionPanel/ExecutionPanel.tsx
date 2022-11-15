@@ -8,7 +8,6 @@ import { useTheme } from '@mui/material'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
 import { focusedResponseVar } from 'src/contexts/focused-response'
-import { useHashSumModule } from 'src/contexts/imports'
 
 import { MetricsList } from '../subtype-panels/SuccessSingleResultPanel'
 
@@ -21,6 +20,7 @@ type ExecutionPanelProps = {
   metrics?: 'NONE' | MetricsList[] | null
   source: string
   sourceName: string
+  responseId: string
 }
 
 export const ExecutionPanel = ({
@@ -29,9 +29,8 @@ export const ExecutionPanel = ({
   metrics,
   source,
   sourceName,
+  responseId,
 }: ExecutionPanelProps) => {
-  const { default: hash } = useHashSumModule()
-
   const theme = useTheme()
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -49,14 +48,6 @@ export const ExecutionPanel = ({
       setActiveTabIndex(0)
     }
   }, [metrics, activeTabIndex])
-
-  const focusedResponseDict = useReactiveVar(focusedResponseVar)
-
-  const focusedResponseHash = useMemo(
-    () => hash(focusedResponseDict),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseDict]
-  )
 
   useEffect(() => {
     if (activeTabIndex === 2) {
@@ -82,14 +73,16 @@ export const ExecutionPanel = ({
           setActionArea={setActionArea}
           source={source}
           sourceName={sourceName}
-          key={focusedResponseHash}
+          key={responseId}
+          namespace={`execution-script-${responseId}`}
         />
       )}
       {activeTabIndex === 1 && (
         <GlobeTestLogsPanel
           setActionArea={setActionArea}
           globeTestLogs={globeTestLogs}
-          key={focusedResponseHash}
+          key={responseId}
+          namespace={`execution-logs-${responseId}`}
         />
       )}
       {activeTabIndex === 2 && (
@@ -113,7 +106,8 @@ export const ExecutionPanel = ({
               setActionArea={setActionArea}
               globeTestLogs={metrics as unknown as GlobeTestMessage[]}
               disableFilterOptions
-              key={focusedResponseHash}
+              key={responseId}
+              namespace={`execution-metrics-${responseId}`}
             />
           )}
         </>

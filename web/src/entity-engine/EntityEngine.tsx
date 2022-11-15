@@ -26,6 +26,7 @@ import { DocProviderGuard } from './DocProviderGuard'
 import { handleProviders } from './handle-providers'
 import { ScopeUpdater } from './ScopeUpdater'
 import { DisconnectedScreen } from './screens/DisconnectedScreen'
+import { SleepDetector } from './SleepDetector'
 import { SocketIOManager } from './socket-io-manager'
 import { SocketIOProvider } from './socket-io-provider'
 import {
@@ -269,7 +270,6 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
         } else {
           const onlineCallback = () => {
             window.location.reload()
-            console.log('Online')
             window.removeEventListener('online', onlineCallback)
           }
 
@@ -292,6 +292,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   return (
     <>
+      <SleepDetector />
       <SocketIOManager
         key={`${socketioProvider?.doc.guid.toString()}${inApp.toString()}${spawnKey}${(
           socketioSyncStatus === 'disconnected'

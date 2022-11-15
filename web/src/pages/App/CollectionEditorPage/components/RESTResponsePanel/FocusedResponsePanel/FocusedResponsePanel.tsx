@@ -17,6 +17,7 @@ type FocusedResponsePanelProps = {
   }[]
   cookies: ResponseCookie[]
   setActionArea: (actionArea: React.ReactNode) => void
+  responseId: string
 }
 
 export const FocusedResponsePanel = ({
@@ -24,6 +25,7 @@ export const FocusedResponsePanel = ({
   mappedHeaders,
   cookies,
   setActionArea,
+  responseId,
 }: FocusedResponsePanelProps) => {
   const [activeSubtabIndex, setActiveSubtabIndex] = useState(0)
 
@@ -41,7 +43,11 @@ export const FocusedResponsePanel = ({
       />
       {activeSubtabIndex === 0 &&
         (storedResponse ? (
-          <BodyPanel response={storedResponse} setActionArea={setActionArea} />
+          <BodyPanel
+            responseId={responseId}
+            response={storedResponse}
+            setActionArea={setActionArea}
+          />
         ) : (
           <Skeleton />
         ))}

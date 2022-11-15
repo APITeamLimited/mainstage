@@ -46,7 +46,9 @@ httpServer.addListener('request', (req, res) => {
   }
 })
 
-registerDeleteHandlers()
+if (checkValue<boolean>('store.isMaster')) {
+  registerDeleteHandlers()
+}
 
 if (process.env.NODE_ENV === 'development') {
   // Every minute print memory usage and number of connections

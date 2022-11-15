@@ -8,9 +8,9 @@ import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { parseMessage } from 'src/test-manager/execution'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
+import { parseMessage } from 'src/test-manager/execution'
 
 import { PanelLayout } from '../../../PanelLayout'
 import { StatsSkeleton } from '../../../stats'
@@ -211,6 +211,7 @@ export const SuccessSingleResultPanel = ({
             mappedHeaders={mappedHeaders}
             setActionArea={setActionArea}
             cookies={mappedCookies}
+            responseId={focusedResponse.get('id')}
           />
         ) : (
           <Skeleton />
@@ -223,6 +224,7 @@ export const SuccessSingleResultPanel = ({
             metrics={storedMetrics}
             source={focusedResponse?.get('source')}
             sourceName={focusedResponse?.get('sourceName')}
+            responseId={focusedResponse?.get('id')}
           />
         ) : (
           <Skeleton />

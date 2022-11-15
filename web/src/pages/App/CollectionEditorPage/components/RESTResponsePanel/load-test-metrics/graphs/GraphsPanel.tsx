@@ -7,7 +7,7 @@ import type {
   GlobeTestMessage,
   MetricsCombination,
 } from '@apiteam/types/src'
-import { Grid } from '@mui/material'
+import { Box, Grid } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
@@ -85,40 +85,48 @@ export const GraphsPanel = ({ focusedResponse, metrics }: GraphsPanelProps) => {
         setGraph={handleSetGraph}
         metrics={dateSortedMetrics}
       />
-      <SimpleBar style={{ maxHeight: '100%' }}>
-        <Grid container spacing={2} sx={{ width: '100%' }}>
-          {graphs.map((graph) => (
-            <FramedGraph
-              key={graph.id}
-              graph={graph}
-              metrics={dateSortedMetrics}
-              onDelete={() => handleDeleteGraph(graph.id)}
-              onEditDialog={() =>
+      <Box
+        sx={{
+          height: '100%',
+          maxHeight: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <SimpleBar style={{ maxHeight: '100%' }}>
+          <Grid container spacing={2} sx={{ width: '100%' }}>
+            {graphs.map((graph) => (
+              <FramedGraph
+                key={graph.id}
+                graph={graph}
+                metrics={dateSortedMetrics}
+                onDelete={() => handleDeleteGraph(graph.id)}
+                onEditDialog={() =>
+                  setGraphDialogState({
+                    graph,
+                    open: true,
+                    isNew: false,
+                  })
+                }
+                updateGraph={handleSetGraph}
+              />
+            ))}
+            <AddGraphButton
+              onOpenCreateDialog={() =>
                 setGraphDialogState({
-                  graph,
+                  graph: {
+                    __typename: 'Graph',
+                    id: uuid(),
+                    name: 'New Graph',
+                    series: [defaultSeries],
+                  },
                   open: true,
-                  isNew: false,
+                  isNew: true,
                 })
               }
-              updateGraph={handleSetGraph}
             />
-          ))}
-          <AddGraphButton
-            onOpenCreateDialog={() =>
-              setGraphDialogState({
-                graph: {
-                  __typename: 'Graph',
-                  id: uuid(),
-                  name: 'New Graph',
-                  series: [defaultSeries],
-                },
-                open: true,
-                isNew: true,
-              })
-            }
-          />
-        </Grid>
-      </SimpleBar>
+          </Grid>
+        </SimpleBar>
+      </Box>
     </>
   )
 }

@@ -179,6 +179,7 @@ export const SuccessMultipleResultPanel = ({
             metrics={storedMetrics}
             source={focusedResponse?.get('source')}
             sourceName={focusedResponse?.get('sourceName')}
+            responseId={focusedResponse?.get('id')}
           />
         ) : (
           <Skeleton />

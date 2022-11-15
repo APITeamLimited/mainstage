@@ -64,7 +64,7 @@ const getContent = () => {
         elements: [
           {
             type: 'text',
-            text: `${gatewayUrl}${route}`,
+            text: `${gatewayUrl}${route === '/' ? '' : route}`,
           },
         ],
       },

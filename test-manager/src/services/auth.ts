@@ -33,7 +33,6 @@ export const getAndSetAPIPublicKey = async (): Promise<string> => {
     return publicKey
   }
 
-  console.log('No public key found')
   throw 'No public key found'
 }
 
