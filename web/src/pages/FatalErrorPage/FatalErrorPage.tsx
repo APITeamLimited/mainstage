@@ -1,67 +1,66 @@
-// This page will be rendered when an error makes it all the way to the top of the
-// application without being handled by a Javascript catch statement or React error
-// boundary.
-//
-// You can modify this page as you wish, but it is important to keep things simple to
-// avoid the possibility that it will cause its own error. If it does, Redwood will
-// still render a generic error page, but your users will prefer something a bit more
-// thoughtful. =)
+import { useState } from 'react'
 
-// Ensures that production builds do not include the error page
-let RedwoodDevFatalErrorPage = undefined
-if (process.env.NODE_ENV === 'development') {
-  RedwoodDevFatalErrorPage =
-    require('@redwoodjs/web/dist/components/DevFatalErrorPage').DevFatalErrorPage
+import ErrorIcon from '@mui/icons-material/Error'
+import { Box, Button, Stack, Typography, useTheme } from '@mui/material'
+
+import { MetaTags } from '@redwoodjs/web'
+
+import { ReportErrorDialog } from './ReportErrorDialog'
+
+type FatalErrorPageProps = {
+  error?: Error
 }
 
-export default RedwoodDevFatalErrorPage ||
-  (() => (
-    <main>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-              html, body {
-                margin: 0;
-              }
-              html * {
-                box-sizing: border-box;
-              }
-              main {
-                display: flex;
-                align-items: center;
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-                text-align: center;
-                background-color: #E2E8F0;
-                height: 100vh;
-              }
-              section {
-                background-color: white;
-                border-radius: 0.25rem;
-                width: 32rem;
-                padding: 1rem;
-                margin: 0 auto;
-                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-              }
-              h1 {
-                font-size: 2rem;
-                margin: 0;
-                font-weight: 500;
-                line-height: 1;
-                color: #2D3748;
-              }
-            `,
-        }}
+export const FatalErrorPage = ({ error }: FatalErrorPageProps) => {
+  const theme = useTheme()
+
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false)
+
+  return (
+    <>
+      <MetaTags title="Fatal Error" />
+      <ReportErrorDialog
+        open={feedbackDialogOpen}
+        onClose={() => setFeedbackDialogOpen(false)}
+        error={error}
       />
-      <section>
-        <h1>
-          <span>A fatal error has occured</span>
-        </h1>
-        <p>
-          <span>
-            We are sorry for the inconvenience. Please try again later. If the
-            problem persists, please reach out to us
-          </span>
-        </p>
-      </section>
-    </main>
-  ))
+      <Box
+        sx={{
+          height: '100vh',
+          width: '100vw',
+          position: 'fixed',
+          zIndex: 10000000,
+          backgroundColor: theme.palette.background.paper,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          userSelect: 'none',
+        }}
+      >
+        <main>
+          <Stack spacing={4} alignItems="center" justifyContent="center">
+            <ErrorIcon
+              sx={{
+                height: '100px',
+                width: '100px',
+                color: theme.palette.error.main,
+              }}
+            />
+            <Typography variant="h6" component="h1" gutterBottom>
+              Fatal Error
+            </Typography>
+            <Typography>
+              We are sorry but something went wrong. We would love it if you
+              could tell us what happened. Alternatively, you can refresh the
+              page and try again.
+            </Typography>
+            <Button variant="contained" color="error">
+              Send Feedback
+            </Button>
+          </Stack>
+        </main>
+      </Box>
+    </>
+  )
+}

@@ -105,15 +105,17 @@ export const handleNewConnection = async (socket: Socket) => {
       }),
     }
 
-    doc.setAndBroadcastServerAwareness(newServerAwareness)
+    doc.awareness.setLocalState(newServerAwareness)
 
-    const setPromise = (await getReadRedis()).hSet(
+    const readRedis = await getReadRedis()
+
+    const setPromise = readRedis.hSet(
       `team:${doc.variantTargetId}`,
       `lastOnlineTime:${scope.userId}`,
       member.lastOnline.getTime()
     )
 
-    const publishPromise = (await getReadRedis()).publish(
+    const publishPromise = readRedis.publish(
       `team:${doc.variantTargetId}`,
       JSON.stringify({
         type: 'LAST_ONLINE_TIME',
@@ -180,12 +182,11 @@ export const handleRemoveSubscription = async (name: string) => {
 
   if (count === 1) {
     globalActiveSubscriptions.delete(name)
+    const subscribeRedis = await getSubscribeRedis()
 
-    const isPattern = name.endsWith('*')
-
-    isPattern
-      ? await (await getSubscribeRedis()).pUnsubscribe(name)
-      : await (await getSubscribeRedis()).unsubscribe(name)
+    name.endsWith('*')
+      ? await subscribeRedis.pUnsubscribe(name)
+      : await subscribeRedis.unsubscribe(name)
 
     return
   }

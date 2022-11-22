@@ -85,7 +85,7 @@ export const DomainsPage = () => {
                 Add Domain
               </Button>
             ) : (
-              <Tooltip title="You must be an admin or owner to add a domain">
+              <Tooltip title="Ask your team admin or owner to add a domain">
                 <span>
                   <Button variant="contained" color="primary" disabled>
                     Add Domain

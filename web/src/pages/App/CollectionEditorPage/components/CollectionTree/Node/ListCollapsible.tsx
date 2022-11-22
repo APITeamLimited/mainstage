@@ -49,6 +49,7 @@ export const ListCollapsible = ({
                 sx={{
                   opacity: dropSpace === 'Inner' && hovered ? 0 : 1,
                   margin: 1,
+                  userSelect: 'none',
                 }}
               >
                 This folder is empty

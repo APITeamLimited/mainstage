@@ -25,3 +25,5 @@ config/
 tsconfig.tsbuildinfo
 desktop/dist
 desktop/Webapp*
+
+.clinic/

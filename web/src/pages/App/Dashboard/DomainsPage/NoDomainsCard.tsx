@@ -41,7 +41,7 @@ export const NoDomainsCard = ({
             Add Domain
           </Button>
         ) : (
-          <Tooltip title="Ask your team admin to add a domain">
+          <Tooltip title="Ask your team admin or owner to add a domain">
             <span>
               <Button
                 variant="contained"

@@ -1,7 +1,7 @@
 import type { RequestBody, ResponseType, RefinedParams } from 'k6/http'
 import { Options as K6Options } from 'k6/options'
 
-import { RESTRequest } from './entities'
+import { RESTRequest, RESTResponse } from './entities'
 import { GraphSeries } from './graph'
 
 export interface K6RequestConfig<RT extends ResponseType | undefined> {
@@ -30,7 +30,7 @@ export type ExecutionParams = {
     name: string
   } | null
   finalRequest: K6RequestConfig<undefined> | null
-  underlyingRequest: RESTRequest | null
+  underlyingRequest: RESTResponse['underlyingRequest'] | null
   scope: {
     variant: 'USER' | 'TEAM'
     variantTargetId: string
@@ -51,7 +51,7 @@ export type WrappedExecutionParams = Omit<
 } & {
   testType: 'rest'
   collectionId: string
-  underlyingRequest: RESTRequest
+  underlyingRequest: RESTResponse['underlyingRequest']
 }
 
 type ClientType =

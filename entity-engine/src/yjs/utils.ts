@@ -1,5 +1,3 @@
-import { getDisplayName, MemberAwareness, SafeUser } from '@apiteam/types'
-import { Membership } from '@prisma/client'
 import { Scope } from '@prisma/client'
 import { Jwt } from 'jsonwebtoken'
 import queryString from 'query-string'
@@ -30,24 +28,3 @@ export const handlePostAuth = async (
     jwt,
   }
 }
-
-export type LastOnlineTime = {
-  userId: string
-  lastOnline: Date
-}
-
-export const createMemberAwareness = (
-  user: SafeUser,
-  membership: Membership,
-  lastOnlineTimes: LastOnlineTime[]
-) =>
-  ({
-    userId: membership.userId,
-    displayName: getDisplayName(user),
-    role: membership.role,
-    profilePicture: user.profilePicture,
-    joinedTeam: membership.createdAt,
-    lastOnline:
-      lastOnlineTimes.find((l) => l.userId === membership.userId)?.lastOnline ||
-      null,
-  } as MemberAwareness)

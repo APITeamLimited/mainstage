@@ -3,7 +3,7 @@ import { Jwt, JwtPayload } from 'jsonwebtoken'
 
 import { TeamRole } from './team'
 
-import { GlobeTestOptions, RESTRequest } from '.'
+import { ExecutionParams, GlobeTestOptions, RESTRequest, RESTResponse } from '.'
 
 export type ClientAwareness = {
   publicBearer?: string
@@ -49,12 +49,13 @@ export type EntityEngineServersideMessages = {
   'rest-create-response': {
     branchId: string
     collectionId: string
-    underlyingRequest: RESTRequest
+    underlyingRequest: RESTResponse['underlyingRequest']
     finalRequestEndpoint: string
     source: string
     sourceName: string
     jobId: string
     createdByUserId: string
+    finalRequestHeaders: Record<string, string>
   }
   'rest-add-options': {
     branchId: string

@@ -177,7 +177,7 @@ export const ScriptsPanel = ({
             setExecutionScripts(newExecutionScripts)
           }}
           language={executionScripts[activeScriptIndex].language}
-          namespace={`${namespace}${sourceKey}${executionScriptsRef.current[activeScriptIndex].name}-${activeScriptIndex}`}
+          namespace={`${namespace}${sourceKey}${executionScripts[activeScriptIndex].name}-${activeScriptIndex}`}
           placeholder={[
             'Start typing to create your new script',
             '',

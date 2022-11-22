@@ -28,8 +28,13 @@ export const restCreateResponse = async (
     return
   }
 
-  const { branchId, collectionId, underlyingRequest, finalRequestEndpoint } =
-    data
+  const {
+    branchId,
+    collectionId,
+    underlyingRequest,
+    finalRequestEndpoint,
+    finalRequestHeaders,
+  } = data
 
   const restResponsesYMap = projectYMap
     ?.get('branches')
@@ -55,7 +60,18 @@ export const restCreateResponse = async (
     createdAt: new Date(),
     updatedAt: null,
     options: null,
-    underlyingRequest,
+    underlyingRequest: {
+      ...underlyingRequest,
+      headers: Object.entries(finalRequestHeaders).map(
+        ([key, value], index) => ({
+          id: index,
+          variant: 'default',
+          keyString: key,
+          value,
+          enabled: true,
+        })
+      ),
+    },
     source: data.source,
     sourceName: data.sourceName,
     jobId: data.jobId,

@@ -49,6 +49,7 @@ export const restCreateResponse = async ({
     collectionId: params.collectionId,
     underlyingRequest: params.underlyingRequest,
     finalRequestEndpoint: params.finalRequest.url,
+    finalRequestHeaders: params.finalRequest.params?.headers ?? {},
     source: params.source,
     sourceName: params.sourceName,
     jobId,

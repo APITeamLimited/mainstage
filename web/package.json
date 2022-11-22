@@ -48,6 +48,7 @@
     "form-data": "^4.0.0",
     "formik": "^2.2.9",
     "fuse.js": "^6.6.2",
+    "har-validator": "^5.1.5",
     "hash-sum": "^2.0.0",
     "html-prettify": "^1.0.7",
     "http-status-codes": "^2.2.0",

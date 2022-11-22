@@ -46,7 +46,10 @@ export type RESTResponseBase = {
   updatedAt: Date | null
   parentId: string
   __parentTypename: 'RESTRequest'
-  underlyingRequest: RESTRequest
+  underlyingRequest: Omit<
+    RESTRequest,
+    'executionScripts' | 'description' | 'orderingIndex'
+  >
   source: string
   sourceName: string
   jobId: string

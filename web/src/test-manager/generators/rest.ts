@@ -91,7 +91,22 @@ export const singleRESTRequestGenerator = async ({
         ),
       },
     },
-    underlyingRequest: request,
+    underlyingRequest: {
+      id: request.id,
+      createdAt: request.createdAt,
+      updatedAt: request.updatedAt,
+      __typename: 'RESTRequest',
+      parentId: request.parentId,
+      __parentTypename: request.__parentTypename,
+      name: request.name,
+      method: request.method,
+      endpoint: request.endpoint,
+      params: request.params,
+      headers: request.headers,
+      auth: request.auth,
+      body: request.body,
+      pathVariables: request.pathVariables,
+    },
   }
 
   jobQueueVar([...jobQueue, job])

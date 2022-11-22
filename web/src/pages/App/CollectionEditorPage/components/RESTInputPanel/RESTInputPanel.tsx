@@ -239,6 +239,8 @@ export const RESTInputPanel = ({
     requestYMap.set('updatedAt', new Date().toISOString())
     setNeedSave(false)
     setObservedNeedsSave(false)
+
+    setSpawnId(uuid())
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)
@@ -287,6 +289,8 @@ export const RESTInputPanel = ({
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
     restRequestsYMap.set(newId, clone)
+
+    setSpawnId(uuid())
   }
 
   const environmentContext = useEnvironmentVariables()
@@ -338,7 +342,7 @@ export const RESTInputPanel = ({
   const handleSendRef = useRef<typeof handleSend>(handleSend)
   handleSendRef.current = handleSend
 
-  const spawnId = useMemo(() => uuid(), [])
+  const [spawnId, setSpawnId] = useState(uuid())
 
   return (
     <>

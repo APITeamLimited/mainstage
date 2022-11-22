@@ -38,17 +38,6 @@ export const getSubscribeRedis = async (): Promise<RedisClient> => {
   return coreCacheSubscribeRedis
 }
 
-// Handle deletion
-// /const setupDeletion = async () => {
-// /  // Sleep for 5 seconds to allow redis to connect
-// /  await new Promise((resolve) => setTimeout(resolve, 5000))
-// /
-// /  coreCacheSubscribeRedis.subscribe('TEAM_DELETED', deleteTeam)
-// /  coreCacheSubscribeRedis.subscribe('USER_DELETED', deleteUser)
-// /}
-// /
-// /setupDeletion()
-
 /*
 export const eeRedisUsername = checkValue<string>(
   'entity-engine.redis.userName'
