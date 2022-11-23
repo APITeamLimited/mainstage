@@ -1,7 +1,7 @@
 import { GridFSBucket } from 'mongodb'
 
-import { mongoDB } from '../mongo'
-import { getSubscribeRedis } from '../redis'
+import { mongoDB } from '../../mongo'
+import { getSubscribeRedis } from '../../redis'
 
 const handleDeletion = async (
   variant: 'USER' | 'TEAM',
@@ -11,10 +11,7 @@ const handleDeletion = async (
     bucketName: `${variant}:${variantTargetId}`,
   })
 
-  try {
-    await bucket.drop()
-    // eslint-disable-next-line no-empty
-  } catch {}
+  await bucket.drop().catch(() => {})
 }
 
 export const registerDeleteHandlers = async () => {

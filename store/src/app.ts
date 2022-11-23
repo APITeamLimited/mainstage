@@ -7,8 +7,9 @@ import {
   registerDeleteHandlers,
   retrieveScopedResource,
   submitScopedResource,
+  cleanupStoredObjects,
 } from './handlers'
-import { requireScopedAuth } from './services'
+import { requireInternalScopedAuth, requireScopedAuth } from './services'
 
 process.title = 'store'
 
@@ -40,6 +41,8 @@ httpServer.addListener('request', (req, res) => {
     requireScopedAuth(req, res, retrieveScopedResource)
   } else if (endpoint === '/api/store/submit-scoped-resource') {
     requireScopedAuth(req, res, submitScopedResource)
+  } else if (endpoint === '/internal/store/cleanup-stored-objects') {
+    requireInternalScopedAuth(req, res, cleanupStoredObjects)
   } else {
     res.writeHead(404, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ message: 'Not Found' }))

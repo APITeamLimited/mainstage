@@ -27,6 +27,7 @@ import {
   removeMemberHandler,
   updateMemberUserHandler,
 } from './members'
+import { cleanupStoreReceipts } from './store-receipts'
 
 export const publicAudience = `${checkValue<string>(
   'api.bearer.audience'
@@ -43,6 +44,7 @@ export class OpenDoc extends Y.Doc {
   lastVerifiedClients: Map<number, number>
   activeSubscriptions: string[]
   updateCallback: ((docName: string, update: Uint8Array) => void) | undefined
+  cleanupInterval: NodeJS.Timeout | undefined
 
   constructor(
     scope: Scope,
@@ -63,6 +65,10 @@ export class OpenDoc extends Y.Doc {
 
     this.activeSubscriptions = []
     this.updateCallback = updateCallback
+
+    this.cleanupInterval = setInterval(() => {
+      cleanupStoreReceipts(this)
+    }, 1000 * 60 * 5)
 
     this.awareness.on(
       'update',
@@ -134,16 +140,6 @@ export class OpenDoc extends Y.Doc {
     })
 
     populateOpenDoc(this)
-
-    setInterval(() => {
-      const currentTime = new Date().getTime()
-
-      this.lastVerifiedClients.forEach((lastVerified, clientID) => {
-        if (currentTime - lastVerified > 30000) {
-          this.disconnectClient(clientID)
-        }
-      })
-    }, 5000)
   }
 
   send(socket: Socket, m: Uint8Array) {
@@ -233,7 +229,28 @@ export class OpenDoc extends Y.Doc {
 
   async closeDoc() {
     await Promise.all(this.activeSubscriptions.map(handleRemoveSubscription))
+
+    this.cleanupInterval && clearInterval(this.cleanupInterval)
+    this.cleanupInterval = undefined
+
+    await cleanupStoreReceipts(this)
+
+    // Remove all sockets
+    this.sockets.forEach((_, socket) => {
+      this.closeSocket(socket)
+    })
+
+    // Remove all serverside sockets
+    this.serversideSockets.forEach((socket) => {
+      this.closeSocket(socket)
+    })
+
+    // Clear sockets
+    this.sockets.clear()
+    this.serversideSockets.clear()
+
     openDocs.delete(this.guid)
+
     super.destroy()
   }
 

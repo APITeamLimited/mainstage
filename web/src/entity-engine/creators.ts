@@ -11,11 +11,6 @@ export const populateOpenDoc = (doc: YDoc) => {
 
   //const projectsFolder = doc.getMap('projects')
 
-  // /if (projectsFolder.size === 0) {
-  // /  const { project, id } = createProject('My First Project')
-  // /  projectsFolder.set(id, project)
-  // /}
-
   const rootMap = doc.getMap()
   rootMap.set('performedFirstRun', true)
 

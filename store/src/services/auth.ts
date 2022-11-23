@@ -5,6 +5,7 @@ import * as JWT from 'jsonwebtoken'
 import * as queryString from 'query-string'
 
 import { apolloClient } from '../apollo'
+import { corsHeaders } from '../app'
 import { checkValue } from '../config'
 
 import { findScope } from './scope'
@@ -119,10 +120,49 @@ export const requireScopedAuth = async (
   const isAuthenticated = await handleAuth(req)
 
   if (!isAuthenticated) {
-    res.writeHead(401, { 'Content-Type': 'application/json' })
+    res.writeHead(401, { 'Content-Type': 'application/json', ...corsHeaders })
     res.end(JSON.stringify({ message: 'Unauthorized' }))
     return
   }
 
   callback(req, res)
+}
+
+const internalAPIKey = checkValue<string>('api.internalAPIKey')
+
+export const requireInternalScopedAuth = async (
+  req: IncomingMessage,
+  res: ServerResponse,
+  callback: (
+    req: IncomingMessage,
+    res: ServerResponse,
+    variant: 'USER' | 'TEAM',
+    variantTargetId: string
+  ) => void
+) => {
+  const apiKey = req.headers.authorization?.split(' ')[1] || undefined
+
+  if (apiKey !== internalAPIKey) {
+    res.writeHead(401, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ message: 'Unauthorized' }))
+    return
+  }
+
+  const queryParameters = queryString.parse(req.url?.split('?')[1] || '')
+
+  const variant = queryParameters.variant?.toString() || undefined
+  const variantTargetId =
+    queryParameters.variantTargetId?.toString() || undefined
+
+  if (
+    !variant ||
+    !variantTargetId ||
+    (variant !== 'USER' && variant !== 'TEAM')
+  ) {
+    res.writeHead(401, { 'Content-Type': 'application/json', ...corsHeaders })
+    res.end(JSON.stringify({ message: 'Unauthorized' }))
+    return
+  }
+
+  callback(req, res, variant, variantTargetId)
 }

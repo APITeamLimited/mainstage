@@ -67,7 +67,14 @@
       "port": "${ENTITY_ENGINE_MONGO_PORT}",
       "collection": "${ENTITY_ENGINE_MONGO_COLLECTION}"
     },
-    "isMaster": "${IS_MASTER}"
+    "isMaster": "${IS_MASTER}",
+    "inspector": {
+      "enabled": "${ENABLE_INSPECTOR}",
+      "s3AccessKeyID": "${INSPECTOR_S3_ACCESS_KEY_ID}",
+      "s3SecretAccessKey": "${INSPECTOR_S3_ACCESS_KEY_ID}",
+      "s3EndpointURL": "${INSPECTOR_S3_ENDPOINT_URL}",
+      "s3BucketName": "${INSPECTOR_S3_BUCKET_NAME}"
+    }
   },
   "mailman": {
     "redis": {

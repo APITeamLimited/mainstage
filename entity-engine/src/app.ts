@@ -4,6 +4,7 @@ import { Color } from 'colorterm'
 import { Server } from 'socket.io'
 
 import { checkValue } from './config'
+import { configureInspector } from './dev-utils'
 import { handleAuth } from './services'
 import { handleNewConnection } from './yjs/connection-provider'
 import { registerDeleteHandlers } from './yjs/delete-handler'
@@ -11,64 +12,70 @@ import { createServersideHandlers } from './yjs/serverside'
 
 process.title = 'entity-engine'
 
-const entityEngineHost = '0.0.0.0'
-const entityEnginePort = checkValue<number>('entity-engine.port')
+const handleInit = async () => {
+  configureInspector()
 
-const httpServer = createServer()
+  const entityEngineHost = '0.0.0.0'
+  const entityEnginePort = checkValue<number>('entity-engine.port')
 
-const clientIoServer = new Server(httpServer, {
-  cors: {
-    origin: '*',
-  },
-  path: '/api/entity-engine',
-})
+  const httpServer = createServer()
 
-clientIoServer.use(async (socket, next) => {
-  const didAuthenticate = await handleAuth(socket.request)
-  if (didAuthenticate) {
-    console.log(new Date(), 'Client authenticated')
-    next()
-  } else {
-    console.log(new Date(), 'Client failed to authenticate')
-    next(new Error('Authentication error'))
+  const clientIoServer = new Server(httpServer, {
+    cors: {
+      origin: '*',
+    },
+    path: '/api/entity-engine',
+  })
+
+  clientIoServer.use(async (socket, next) => {
+    const didAuthenticate = await handleAuth(socket.request)
+    if (didAuthenticate) {
+      console.log(new Date(), 'Client authenticated')
+      next()
+    } else {
+      console.log(new Date(), 'Client failed to authenticate')
+      next(new Error('Authentication error'))
+    }
+  })
+
+  clientIoServer.on(
+    'connection',
+    async (socket) => await handleNewConnection(socket)
+  )
+
+  clientIoServer.on('disconnect', () =>
+    console.log(new Date(), 'Client disconnected')
+  )
+
+  registerDeleteHandlers()
+
+  // Support intrnal serverside connections
+  createServersideHandlers(httpServer)
+
+  if (process.env.NODE_ENV === 'development') {
+    // Every minute print memory usage and number of connections
+    setInterval(() => {
+      console.log(
+        Color(
+          `${new Date().toISOString()} Connections: ${
+            clientIoServer.engine.clientsCount
+          } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
+            2
+          )}MB`,
+          '#70c289'
+        )
+      )
+    }, 60000)
   }
-})
 
-clientIoServer.on(
-  'connection',
-  async (socket) => await handleNewConnection(socket)
-)
-
-clientIoServer.on('disconnect', () =>
-  console.log(new Date(), 'Client disconnected')
-)
-
-registerDeleteHandlers()
-
-// Support intrnal serverside connections
-createServersideHandlers(httpServer)
-
-if (process.env.NODE_ENV === 'development') {
-  // Every minute print memory usage and number of connections
-  setInterval(() => {
+  httpServer.listen(entityEnginePort, entityEngineHost, () => {
     console.log(
       Color(
-        `${new Date().toISOString()} Connections: ${
-          clientIoServer.engine.clientsCount
-        } Memory: ${(process.memoryUsage().heapUsed / 1000 / 1000).toFixed(
-          2
-        )}MB`,
-        '#70c289'
+        `\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n`,
+        '#d11515'
       )
     )
-  }, 60000)
+  })
 }
 
-httpServer.listen(entityEnginePort, entityEngineHost, () => {
-  console.log(
-    Color(
-      `\n\nAPITeam Entity Engine Listening at ${entityEngineHost}:${entityEnginePort}\n\n`,
-      '#d11515'
-    )
-  )
-})
+handleInit()

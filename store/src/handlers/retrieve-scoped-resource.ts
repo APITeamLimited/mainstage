@@ -1,4 +1,4 @@
-import { IncomingMessage, ServerResponse } from 'http'
+import type { IncomingMessage, ServerResponse } from 'http'
 
 import { GridFSBucket, ObjectId } from 'mongodb'
 import * as queryString from 'query-string'

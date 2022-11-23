@@ -1,6 +1,9 @@
 import c from 'config'
 
-export const checkValue = <T>(configKey: string): T => {
+export const checkValue = <T>(
+  configKey: string,
+  defaultValue: T | undefined = undefined
+): T => {
   let value = c.get(configKey)
   const stringValue = String(value)
 
@@ -10,6 +13,12 @@ export const checkValue = <T>(configKey: string): T => {
       process.env[stringValue.substring(2, stringValue.length - 1)]
     if (sysValue) {
       value = sysValue
+    }
+  }
+
+  if (value === undefined) {
+    if (defaultValue !== undefined) {
+      return defaultValue
     }
   }
 

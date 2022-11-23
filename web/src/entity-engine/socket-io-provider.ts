@@ -393,11 +393,11 @@ export class SocketIOProvider extends Observable<string> {
         this.awareness = newAwareness
 
         this.awareness?.setLocalState({})
-        this.getAndSetPublicBearer()
+        this.setPublicBearer()
 
         this.updateAwarenessInterval = setInterval(
-          async () => this.getAndSetPublicBearer(),
-          2000
+          async () => this.setPublicBearer(),
+          10000
         )
 
         this.socketLastMessageReceived = time.getUnixTime()
@@ -511,7 +511,7 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   // Provides a way to connect clientID to userId
-  async getAndSetPublicBearer() {
+  async setPublicBearer() {
     if (!this.socketConnected) return
 
     const result = await this.apolloClient.query({
