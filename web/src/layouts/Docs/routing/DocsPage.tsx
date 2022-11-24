@@ -1,5 +1,6 @@
-import { Markdown } from 'src/components/utils/Markdown'
 import { useCurrentContent } from 'src/layouts/Docs/DocsLayout'
+
+import { DocsMarkdown } from '../components/DocsMarkdown'
 
 export const DocsPage = () => {
   const currentContent = useCurrentContent()
@@ -8,5 +9,5 @@ export const DocsPage = () => {
     return <></>
   }
 
-  return <Markdown>{currentContent.markdown}</Markdown>
+  return <DocsMarkdown>{currentContent.markdown}</DocsMarkdown>
 }

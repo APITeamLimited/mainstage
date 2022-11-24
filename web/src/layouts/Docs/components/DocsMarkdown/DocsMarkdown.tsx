@@ -3,14 +3,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { Typography, TypographyProps } from '@mui/material'
 import type { MuiMarkdownProps } from 'mui-markdown'
 
-import { DocContents, DocImage } from './docs'
+import { markdownLineSpacing } from 'src/components/utils/Markdown'
+
+import { DocContents } from './components/DocContents'
+import { DocImage } from './components/DocImage'
+import {
+  RegisteredPageHeading,
+  RegisteredPageHeadingProps,
+} from './components/RegisteredPageHeading'
 
 const importMarkdownModule = async () => import('mui-markdown')
 type MuiMarkdownModule = Awaited<typeof import('mui-markdown')>
 
-export const markdownLineSpacing = '12px'
-
-export const Markdown = (props: MuiMarkdownProps) => {
+export const DocsMarkdown = (props: MuiMarkdownProps) => {
   const [markdownModule, setMarkdownModule] =
     useState<MuiMarkdownModule | null>(null)
 
@@ -23,50 +28,53 @@ export const Markdown = (props: MuiMarkdownProps) => {
       ({
         ...props,
         overrides: {
-          DocContents: {
-            component: DocContents,
-          },
           h1: {
-            component: Typography,
+            component: RegisteredPageHeading,
             props: {
               variant: 'h4',
               mb: markdownLineSpacing,
-            } as TypographyProps,
+              actualVariant: 'h1',
+            } as RegisteredPageHeadingProps,
           },
           h2: {
-            component: Typography,
+            component: RegisteredPageHeading,
             props: {
               variant: 'h5',
               mb: markdownLineSpacing,
-            } as TypographyProps,
+              actualVariant: 'h2',
+            } as RegisteredPageHeadingProps,
           },
           h3: {
-            component: Typography,
+            component: RegisteredPageHeading,
             props: {
               variant: 'h6',
               mb: markdownLineSpacing,
-            } as TypographyProps,
+              actualVariant: 'h3',
+            } as RegisteredPageHeadingProps,
           },
           h4: {
-            component: Typography,
+            component: RegisteredPageHeading,
             props: {
               variant: 'h6',
               mb: markdownLineSpacing,
-            } as TypographyProps,
+              actualVariant: 'h4',
+            } as RegisteredPageHeadingProps,
           },
           h5: {
-            component: Typography,
+            component: RegisteredPageHeading,
             props: {
               variant: 'h6',
               mb: markdownLineSpacing,
-            } as TypographyProps,
+              actualVariant: 'h5',
+            } as RegisteredPageHeadingProps,
           },
           h6: {
-            component: Typography,
+            component: RegisteredPageHeading,
             props: {
               variant: 'h6',
               mb: markdownLineSpacing,
-            } as TypographyProps,
+              actualVariant: 'h6',
+            } as RegisteredPageHeadingProps,
           },
           p: {
             component: Typography,
@@ -74,6 +82,9 @@ export const Markdown = (props: MuiMarkdownProps) => {
               variant: 'body1',
               mb: markdownLineSpacing,
             } as TypographyProps,
+          },
+          DocContents: {
+            component: DocContents,
           },
           DocImage: {
             component: DocImage,

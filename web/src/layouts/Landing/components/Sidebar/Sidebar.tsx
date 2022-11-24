@@ -24,13 +24,7 @@ const Sidebar = ({ open, variant, onClose }: Props): JSX.Element => {
         },
       }}
     >
-      <Box
-        sx={{
-          padding: 1,
-        }}
-      >
-        <SidebarNav />
-      </Box>
+      <SidebarNav onClose={onClose} />
     </Drawer>
   )
 }

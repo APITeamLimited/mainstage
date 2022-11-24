@@ -4,7 +4,7 @@ import { Button } from '@mui/material'
 import { navigate } from '@redwoodjs/router'
 
 type CallToClickLinkProps = {
-  text: string
+  text: string | JSX.Element
   link: string
 }
 

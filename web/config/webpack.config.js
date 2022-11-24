@@ -20,7 +20,6 @@ module.exports = (config, { mode }) => {
 
   // Add custom plugins for your project
   // config.plugins.push(YOUR_PLUGIN)
-
   config.plugins.push(
     new CopyPlugin({
       patterns: [{ from: '../docs/src/content', to: 'public/docs' }],

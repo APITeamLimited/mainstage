@@ -6,9 +6,8 @@ import { Stack } from '@mui/system'
 
 import { navigate, useLocation } from '@redwoodjs/router'
 
+import { markdownLineSpacing } from 'src/components/utils/Markdown'
 import { useDocsContent } from 'src/contexts/imports/docs-content-provider'
-
-import { markdownLineSpacing } from '../Markdown'
 
 type ContentsItem = {
   variant: 'page' | 'chapter'
@@ -99,10 +98,12 @@ export const DocContents = () => {
                 '&::before': {
                   content: '"•"',
                   color: theme.palette.text.secondary,
-                  marginRight: 1,
+                  marginLeft: 1,
+                  marginRight: 2,
                 },
+                textTransform: 'none',
               }}
-              variant="overline"
+              variant="body2"
               onClick={() => navigate(item.slug)}
             >
               {item.title} {item.active && '👈'}

@@ -8,42 +8,7 @@ import { navigate, useLocation } from '@redwoodjs/router'
 import { useDocsContent } from 'src/contexts/imports/docs-content-provider'
 import { getDocsIcon } from 'src/layouts/Docs/routing'
 
-type FoundPart = {
-  title: string
-  slug: string
-}
-
-// Returns a list of slug parts and their associated title
-const navigateParts = (
-  parts: string[],
-  docsContent: (Chapter | DocsPage)[]
-): FoundPart[] | null => {
-  const results: FoundPart[] = []
-  const partToFind = parts[0]
-  const content = docsContent.find((c) => c.slug === partToFind)
-
-  if (content === undefined) {
-    return null
-  }
-
-  results.push({ slug: partToFind, title: content.title })
-
-  if (content.variant === 'page') {
-    return results
-  }
-
-  if (parts.length === 1) {
-    return results
-  }
-
-  const subResults = navigateParts(parts.slice(1), content.content)
-
-  if (subResults === null) {
-    return null
-  }
-
-  return results.concat(subResults)
-}
+import { navigateParts } from '../part-utils'
 
 type DocsBreadcrumbsProps = {
   content: Chapter | DocsPage

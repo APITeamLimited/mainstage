@@ -1,18 +1,19 @@
-import { useTheme, Stack, Typography, Card } from '@mui/material'
+import { useTheme, Stack, Typography, Card, Box } from '@mui/material'
 
 type SearchKeyProps = {
   keys: string[]
 }
 
+const keySpacing = 0.5
+
 export const SearchKeys = ({ keys }: SearchKeyProps) => {
   const theme = useTheme()
 
   return (
-    <Stack direction="row" spacing={0.5} alignItems="center">
+    <Stack direction="row" spacing={keySpacing} alignItems="center">
       {keys.map((key, index) => (
-        <>
+        <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
           <Card
-            key={index}
             elevation={8}
             sx={{
               paddingY: 0.25,
@@ -38,17 +39,19 @@ export const SearchKeys = ({ keys }: SearchKeyProps) => {
           </Card>
           {index !== keys.length - 1 && (
             <Typography
+              key={index + 0.5}
               variant="body2"
               sx={{
                 fontWeight: 'light',
                 userSelect: 'none',
                 color: theme.palette.grey[500],
+                marginLeft: keySpacing,
               }}
             >
               +
             </Typography>
           )}
-        </>
+        </Box>
       ))}
     </Stack>
   )
