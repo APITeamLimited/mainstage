@@ -335,7 +335,7 @@ export const RESTInputPanel = ({
         executionScript,
       })
     } catch (e) {
-      snackErrorMessageVar(e as string)
+      snackErrorMessageVar((e as Error).message)
     }
   }
 

@@ -11,6 +11,7 @@ import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
 } from 'src/helpers/routing'
+import { getCorsOptions } from 'src/lib/cors'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'

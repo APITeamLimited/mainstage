@@ -245,6 +245,7 @@ __metadata:
     httpsnippet: ^2.0.0
     immutability-helper: ^3.1.1
     insomnia-importers: ^3.5.0
+    is-valid-domain: ^0.1.6
     json-loader: ^0.5.7
     jwt-decode: ^3.1.2
     keypair: ^1.0.4
@@ -261,6 +262,7 @@ __metadata:
     postman-collection: ^4.1.5
     prettier: ^2.7.1
     prism-react-renderer: ^1.3.5
+    private-ip: ^3.0.0
     process: ^0.11.10
     prop-types: 15.8.1
     ra-data-graphql: ^4.3.0
@@ -3772,6 +3774,13 @@ __metadata:
     entities: 1.1
     readable-stream: 1.1
   checksum: 28de67658cf7ca2158645e42db32281bc3e6afa57e926296b0b768b404dd5de7dda1273e8076700cec41a90ff282b78894accefaf4b93e5e9513ef8ba7549706
+  languageName: node
+  linkType: hard
+
+"@chainsafe/is-ip@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@chainsafe/is-ip@npm:2.0.1"
+  checksum: fd667a2a6c7808b01c7a34626d608f5a78f23b565b807b9a11aa2bfffacc459a23f98a5dddee45e28208e10f8da88db3c85d8f82d27fd84dd55dee397b56d3c5
   languageName: node
   linkType: hard
 
@@ -22612,6 +22621,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ip-regex@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "ip-regex@npm:5.0.0"
+  checksum: 23f07cf393436627b3a91f7121eee5bc831522d07c95ddd13f5a6f7757698b08551480f12e5dbb3bf248724da135d54405c9687733dba7314f74efae593bdf06
+  languageName: node
+  linkType: hard
+
 "ip@npm:^2.0.0":
   version: 2.0.0
   resolution: "ip@npm:2.0.0"
@@ -23299,6 +23315,15 @@ __metadata:
   version: 0.2.1
   resolution: "is-utf8@npm:0.2.1"
   checksum: 3ed45e5b4ddfa04ed7e32c63d29c61b980ecd6df74698f45978b8c17a54034943bcbffb6ae243202e799682a66f90fef526f465dd39438745e9fe70794c1ef09
+  languageName: node
+  linkType: hard
+
+"is-valid-domain@npm:^0.1.6":
+  version: 0.1.6
+  resolution: "is-valid-domain@npm:0.1.6"
+  dependencies:
+    punycode: ^2.1.1
+  checksum: 4931790393c22b0bbd3bcdbdb1a75e2b7dc1407983759814ce7c6164a4aff25ab6fafbfcbff0569cae3c17b86a0ece3d97a31735b2c6bcb8f0c2986b72e68e3b
   languageName: node
   linkType: hard
 
@@ -27164,6 +27189,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"netmask@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "netmask@npm:2.0.2"
+  checksum: cafd28388e698e1138ace947929f842944d0f1c0b87d3fa2601a61b38dc89397d33c0ce2c8e7b99e968584b91d15f6810b91bef3f3826adf71b1833b61d4bf4f
+  languageName: node
+  linkType: hard
+
 "new-github-issue-url@npm:0.2.1":
   version: 0.2.1
   resolution: "new-github-issue-url@npm:0.2.1"
@@ -29674,6 +29706,18 @@ __metadata:
   version: 1.28.0
   resolution: "prismjs@npm:1.28.0"
   checksum: bf879309e74188b424cf8bb3962f9df9e7004a71f44f82a3cfbd26f884c9a0bb91f529db79503c1bc0b570ed7b94a10c3303153642da533c1e10f51779c0617f
+  languageName: node
+  linkType: hard
+
+"private-ip@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "private-ip@npm:3.0.0"
+  dependencies:
+    "@chainsafe/is-ip": ^2.0.1
+    ip-regex: ^5.0.0
+    ipaddr.js: ^2.0.1
+    netmask: ^2.0.2
+  checksum: 887479c602804929c699d1f49c15e5f78f987bc0987ff0a75de24718346503c2855692e74618afb8693f724da442424a7b0197aeb5379a9208aba0e0f55faa7b
   languageName: node
   linkType: hard
 

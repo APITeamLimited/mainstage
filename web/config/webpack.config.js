@@ -51,5 +51,21 @@ module.exports = (config, { mode }) => {
   // incorrectly being loaded
   config.resolve.alias['react-dom'] = require.resolve('react-dom')
 
+  // Redirect dev server to use dioffernt endpoint#
+
+  config.devServer.proxy = {
+    '/api': {
+      target: 'http://${API_HOST}:${API_PORT}',
+      // Enable cors
+      changeOrigin: true,
+      // Enable websockets
+
+      // Rewrite path
+      pathRewrite: { '^/api': '' },
+
+      ws: true,
+    },
+  }
+
   return config
 }

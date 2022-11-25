@@ -5,6 +5,7 @@ import { stringify } from 'qs'
 import type { Map as YMap } from 'yjs'
 
 import { findEnvironmentVariables } from 'src/utils/environment'
+import { validateURL } from 'src/utils/validate-url'
 
 /*
 Gets final axios config for a request, complete with environment variables
@@ -94,7 +95,7 @@ export const getFinalRequest = async (
     folders,
     {
       method: request.method,
-      url: ensureValidUrl(
+      url: await ensureValidUrl(
         findEnvironmentVariables(
           environmentContext,
           collectionContext,
@@ -311,20 +312,12 @@ const substitutePathVariables = (
   )
 }
 
-const urlRegex = new RegExp(
-  '^(?!-)[A-Za-z0-9-]+([\\-\\.]{1}[a-z0-9]+)*\\.[A-Za-z]{2,6}$'
-)
+const ensureValidUrl = async (url: string): Promise<string> => {
+  const validUrl = await validateURL(url)
 
-const ensureValidUrl = (url: string): string => {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url
+  if (validUrl === null) {
+    throw new Error(`Invalid url: ${url}`)
   }
 
-  const formattedUrl = `https://${url}`
-
-  if (!urlRegex.test(url)) {
-    throw `Invalid url ${url}`
-  }
-
-  return formattedUrl
+  return validUrl
 }

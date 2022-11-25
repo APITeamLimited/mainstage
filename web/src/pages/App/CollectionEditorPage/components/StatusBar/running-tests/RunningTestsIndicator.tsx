@@ -61,8 +61,8 @@ export const RunningTestsIndicator = () => {
     <>
       <StatusBarItem
         icon={GlobeTestIcon}
-        tooltip="Running tests"
-        text={`${data.runningTestsCount}/5 running tests`}
+        tooltip="Cloud tests"
+        text={`${data.runningTestsCount}/5 running cloud tests`}
         onClick={() => setDialogOpen(true)}
       />
       <RunningTestsDialog

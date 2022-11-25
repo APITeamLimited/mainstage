@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
 import { RESTRequest } from '@apiteam/types/src'
@@ -9,8 +10,8 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
-import { getFinalRequest } from 'src/test-manager/rest'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { getFinalRequest } from 'src/test-manager/rest'
 import {
   generateRESTCode,
   RESTCodegenDefinitions,
@@ -85,39 +86,44 @@ export const RESTCodeGenerator = ({
       if (!scopeId) throw new Error('No scopeId found')
       if (!rawBearer) throw new Error('No rawBearer found')
 
-      const axiosConfig = await getFinalRequest(
-        restRequest,
-        requestYMap,
-        collectionYMap,
-        environmentContext,
-        collectionContext
-      )
+      try {
+        const axiosConfig = await getFinalRequest(
+          restRequest,
+          requestYMap,
+          collectionYMap,
+          environmentContext,
+          collectionContext
+        )
 
-      const code = (await generateRESTCode(
-        codeGen.name,
-        axiosConfig,
-        restRequest,
-        environmentContext,
-        collectionContext
-      )) as string | 'NONE'
+        const code = (await generateRESTCode(
+          codeGen.name,
+          axiosConfig,
+          restRequest,
+          environmentContext,
+          collectionContext
+        )) as string | 'NONE'
 
-      if (code === 'NONE') {
+        if (code === 'NONE') {
+          setCodeGenerated('NONE')
+          return
+        }
+
+        if (
+          typeof codeGenerated === 'object' &&
+          codeGenerated?.value === code &&
+          codeGenerated?.language === codeGen.lang
+        ) {
+          return
+        }
+
+        setCodeGenerated({
+          language: codeGen.lang,
+          value: code,
+        })
+      } catch (e) {
         setCodeGenerated('NONE')
         return
       }
-
-      if (
-        typeof codeGenerated === 'object' &&
-        codeGenerated?.value === code &&
-        codeGenerated?.language === codeGen.lang
-      ) {
-        return
-      }
-
-      setCodeGenerated({
-        language: codeGen.lang,
-        value: code,
-      })
     }
 
     handleGenerateCode()

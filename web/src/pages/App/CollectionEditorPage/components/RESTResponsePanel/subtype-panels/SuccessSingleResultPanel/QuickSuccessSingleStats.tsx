@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Typography, Grid, useTheme } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import { getReasonPhrase } from 'http-status-codes'
 
 import { StatsItem } from '../../../stats'
@@ -16,7 +16,12 @@ export const QuickSuccessSingleStats = ({
   responseTimeMilliseconds,
   responseSizeBytes,
 }: QuickStatsProps) => {
-  const reasonPhrase = getReasonPhrase(statusCode)
+  let reasonPhrase = 'Unknown'
+  try {
+    reasonPhrase = getReasonPhrase(statusCode)
+    // eslint-disable-next-line no-empty
+  } catch (e) {}
+
   const theme = useTheme()
 
   // Format response time in either milliseconds or seconds
