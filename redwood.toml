@@ -2,10 +2,16 @@
   title = "APITeam"
   host = "${WEB_HOST}"
   port = "${WEB_PORT}"
+
+  # Prod
   apiUrl = "/api"
+
   includeEnvironmentVariables = []
 [api]
   port = "${API_PORT}"
   host = "${API_HOST}"
+  enableCors = true
+
+
 [browser]
   open = false

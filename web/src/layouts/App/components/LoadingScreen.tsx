@@ -61,14 +61,7 @@ export const LoadingScreen = () => {
         userSelect: 'none',
       }}
     >
-      <Stack
-        spacing={4}
-        alignItems="center"
-        sx={{
-          // Looks better slightly higher up on the screen
-          paddingBottom: '200px',
-        }}
-      >
+      <Stack spacing={4} alignItems="center">
         <APITeamLogo height="100px" disableLinks />
         <Typography variant="h6" color={theme.palette.text.secondary}>
           <TextTransition
