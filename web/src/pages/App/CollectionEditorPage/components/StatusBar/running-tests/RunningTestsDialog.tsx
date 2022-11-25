@@ -152,7 +152,7 @@ export const RunningTestsDialog = ({
           width: '100%',
         }}
       >
-        <DialogTitle>Running Tests</DialogTitle>
+        <DialogTitle>Running Cloud Tests</DialogTitle>
         <Stack
           direction="row"
           alignItems="center"

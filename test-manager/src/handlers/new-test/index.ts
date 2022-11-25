@@ -69,6 +69,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
 
   if (existingJobCount >= 5) {
     socket.emit('error', 'Too many tests already running, cancel one first')
+    socket.disconnect()
     return
   }
 
