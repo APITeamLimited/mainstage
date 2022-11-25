@@ -143,6 +143,9 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
                   spacing={
                     isMediumOrLess ? smallPanelSpacing : mediumPanelSpacing
                   }
+                  sx={{
+                    flex: 1,
+                  }}
                 >
                   <DocsBreadcrumbs content={currentContent} />
                   <Typography variant="h4" fontWeight="bold">

@@ -1,0 +1,1 @@
+Sending a request with APITeam is super easy. Open a collection and

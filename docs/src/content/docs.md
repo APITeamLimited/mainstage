@@ -1,6 +1,6 @@
 Welcome to the APITeam Docs!
 
-<DocImage src="collection-editor.png" alt="Collection Editor" adaptive="true" />
+<DocImage src="collection-editor.png" alt="Collection Editor" adaptive/>
 
 Feel free to jump to any specific section of the documentation using the sidebar on the left or contents pages found at the root of each chapter like the one below.
 

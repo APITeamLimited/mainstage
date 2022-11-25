@@ -62,37 +62,6 @@ const findNextPage = (
     return null
   }
 
-  const searchUpwards = (parts: DocsContent): LocatedPart | null => {
-    const currentPart = parts[parts.length - 1]
-    const parentPart = parts[parts.length - 2]
-
-    if (parentPart === undefined) {
-      return null
-    }
-
-    if (parentPart.variant === 'chapter') {
-      const currentIndex = parentPart.content.findIndex(
-        (c) => c.slug === currentPart.slug
-      )
-
-      // If last item in chapter, search one level up
-      if (currentIndex === parentPart.content.length - 1) {
-        return searchUpwards(parts.slice(0, parts.length - 1))
-      }
-
-      return {
-        part: parentPart.content[currentIndex + 1],
-        link: [
-          '',
-          ...parts.map((p) => p.slug),
-          parentPart.content[currentIndex + 1].slug,
-        ].join('/'),
-      }
-    } else {
-      throw new Error('Unexpected part type')
-    }
-  }
-
   // Check if last item in parts is a chapter
   const lastPart = parts[parts.length - 1]
 
@@ -106,4 +75,35 @@ const findNextPage = (
   }
 
   return searchUpwards(parts)
+}
+
+const searchUpwards = (parts: DocsContent): LocatedPart | null => {
+  const currentPart = parts[parts.length - 1]
+  const parentPart = parts[parts.length - 2]
+
+  if (parentPart === undefined) {
+    return null
+  }
+
+  if (parentPart.variant === 'chapter') {
+    const currentIndex = parentPart.content.findIndex(
+      (c) => c.slug === currentPart.slug
+    )
+
+    // If last item in chapter, search one level up
+    if (currentIndex === parentPart.content.length - 1) {
+      return searchUpwards(parts.slice(0, parts.length - 1))
+    }
+
+    return {
+      part: parentPart.content[currentIndex + 1],
+      link: [
+        '',
+        ...parts.map((p) => p.slug),
+        parentPart.content[currentIndex + 1].slug,
+      ].join('/'),
+    }
+  } else {
+    throw new Error('Unexpected part type')
+  }
 }

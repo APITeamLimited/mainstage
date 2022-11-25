@@ -22,7 +22,7 @@ export const PageOverview = () => {
     })
   }
 
-  return (
+  return headings.length > 0 ? (
     <Card
       sx={{
         p: 2,
@@ -72,5 +72,7 @@ export const PageOverview = () => {
         </Stack>
       </Stack>
     </Card>
+  ) : (
+    <></>
   )
 }

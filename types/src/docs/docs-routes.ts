@@ -2,6 +2,7 @@
 export const DOCS_ROUTES = {
   apiteamDocs: '/docs',
   gettingStarted: '/docs/getting-started',
-  apiClient: '/docs/getting-started/api-client',
   dashboard: '/docs/getting-started/dashboard',
+  sendingYourFirstRequest: '/docs/getting-started/sending-your-first-request',
+  apiClient: '/docs/getting-started/api-client',
 }
