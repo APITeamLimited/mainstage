@@ -20,6 +20,7 @@ type LandingTopBarProps = {
   rightZone?: React.ReactNode
   hideBrandedRoutes?: boolean
   hideSignUpOrContinueButton?: boolean
+  hideLogo?: boolean
 }
 
 export const LandingTopBar = ({
@@ -28,6 +29,7 @@ export const LandingTopBar = ({
   rightZone,
   hideBrandedRoutes,
   hideSignUpOrContinueButton,
+  hideLogo,
 }: LandingTopBarProps): JSX.Element => {
   const theme = useTheme()
 
@@ -51,16 +53,18 @@ export const LandingTopBar = ({
           spacing={landingTopBarXSpacing}
           alignItems="center"
         >
-          <Link
-            to={routes.splash()}
-            style={{
-              textDecoration: 'none',
-              color: theme.palette.text.primary,
-              height: LOGO_DEFAULT_HEIGHT,
-            }}
-          >
-            <APITeamLogo />
-          </Link>
+          {!hideLogo && (
+            <Link
+              to={routes.splash()}
+              style={{
+                textDecoration: 'none',
+                color: theme.palette.text.primary,
+                height: LOGO_DEFAULT_HEIGHT,
+              }}
+            >
+              <APITeamLogo />
+            </Link>
+          )}
           {leftZone}
         </Stack>
         <Stack

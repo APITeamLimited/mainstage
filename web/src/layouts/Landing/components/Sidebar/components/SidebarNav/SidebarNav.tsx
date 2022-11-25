@@ -1,76 +1,88 @@
-import { Stack, Typography, Box, Button, useTheme } from '@mui/material'
+import {
+  Stack,
+  Typography,
+  Box,
+  Button,
+  useTheme,
+  Divider,
+} from '@mui/material'
 
-import { Link } from '@redwoodjs/router'
+import { navigate } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
 import { SignUpOrContinueButton } from 'src/pages/SplashPage/components/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
 
-const SidebarNav = (): JSX.Element => {
+type SidebarNavProps = {
+  onClose: () => void
+}
+
+const SidebarNav = ({ onClose }: SidebarNavProps) => {
   const theme = useTheme()
 
+  const handleLinkClick = (link: string) => {
+    navigate(link)
+    onClose()
+  }
+
   return (
-    <Box>
-      <Box width={1} margin={1}>
-        <APITeamLogo />
-      </Box>
+    <Stack
+      spacing={2}
+      alignItems="flex-start"
+      sx={{
+        padding: 2,
+      }}
+    >
+      <APITeamLogo />
+      <Divider flexItem />
+      {Object.values(brandedRoutes).map((value, indexCategory) => {
+        if (!value.hideInAppBar) {
+          return (
+            <Stack
+              spacing={2}
+              key={indexCategory}
+              sx={{
+                pl: 2,
+              }}
+            >
+              <Typography variant="h6" color={theme.palette.text.secondary}>
+                {value.name}
+              </Typography>
+              {value.sublinks.map(
+                (
+                  sublink: {
+                    name: string
+                    path: string
+                  },
+                  indexSublink
+                ) => (
+                  <Typography
+                    key={indexSublink}
+                    variant="h6"
+                    color={theme.palette.text.primary}
+                    onClick={() => handleLinkClick(sublink.path)}
+                    sx={{
+                      cursor: 'pointer',
+                      py: 1,
+                    }}
+                  >
+                    {sublink.name}
+                  </Typography>
+                )
+              )}
+            </Stack>
+          )
+        }
+      })}
+      <Divider flexItem />
       <Box
         sx={{
-          paddingTop: 2,
+          width: '100%',
         }}
       >
-        {Object.values(brandedRoutes).map((value, indexCategory) => {
-          if (!value.hideInAppBar) {
-            return (
-              <Stack
-                spacing={2}
-                key={indexCategory}
-                sx={{
-                  pt: 4,
-                  paddingLeft: 1,
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  color={theme.palette.text.secondary}
-                  sx={{ paddingLeft: 1 }}
-                >
-                  {value.name}
-                </Typography>
-                {value.sublinks.map(
-                  (
-                    sublink: {
-                      name: string
-                      path: string
-                    },
-                    indexSublink
-                  ) => (
-                    <Box key={`${indexCategory}-${indexSublink}`}>
-                      <Link
-                        to={sublink.path}
-                        style={{ textDecoration: 'none' }}
-                      >
-                        <Button
-                          variant="text"
-                          sx={{
-                            color: theme.palette.text.primary,
-                          }}
-                        >
-                          {sublink.name}
-                        </Button>
-                      </Link>
-                    </Box>
-                  )
-                )}
-              </Stack>
-            )
-          }
-        })}
+        <SignUpOrContinueButton size="medium" fullWidth />
       </Box>
-      <Box paddingX={2} paddingY={3}>
-        <SignUpOrContinueButton size="medium" />
-      </Box>
-    </Box>
+    </Stack>
   )
 }
 

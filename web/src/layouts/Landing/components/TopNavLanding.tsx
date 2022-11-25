@@ -2,12 +2,17 @@ import { TopNavBase } from 'src/layouts/TopNavBase'
 
 type TopNavProps = {
   disableTop?: boolean
+  topBarLeftZone?: React.ReactNode
 }
 
-export const TopNavLanding = ({ disableTop = false }: TopNavProps) => {
+export const TopNavLanding = ({
+  disableTop = false,
+  topBarLeftZone,
+}: TopNavProps) => {
   return (
     <TopNavBase
       disableTop={disableTop}
+      leftZone={topBarLeftZone}
       rightZone={
         <>
           {/*

@@ -1,4 +1,4 @@
-Welcome to the APITeam Docs! This is a work in progress, so please bear with us as we get things up and running.
+Welcome to the APITeam Docs!
 
 <DocImage src="collection-editor.png" alt="Collection Editor" adaptive="true" />
 
@@ -12,13 +12,13 @@ APITeam is an API development platform with integrated load testing that allows 
 
 # How to Use This Documentation
 
-We recommend you start with the [Getting Started](/docs/getting-started) section to get up to speed with the APITeam platform. This section will walk you through the basics of creating a project and sending your first API request.
+We recommend you start with the [Getting Started](/docs/getting-started) section to get up to speed with the APITeam platform. This section will walk you through the basics of creating a project and sending your first API requests and running a basic load test.
 
 <!-- From there you can dive into the [API Design](/docs/api-design) section to learn how to design your APIs using the APITeam platform. Finally, you can learn how to [Test and Scale](/docs/test-and-scale) your APIs using the APITeam platform. -->
 
 # Thank You!
 
-Thanks for choosing us, as a small company we really appreciate it. We hope you enjoy using our products as much as we enjoy making them.
+Thanks for choosing us, as a small company we really appreciate it. We hope you enjoy using APITeam 😊
 
 # Getting Help
 

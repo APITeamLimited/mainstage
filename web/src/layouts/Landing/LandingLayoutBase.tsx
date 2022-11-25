@@ -12,6 +12,7 @@ import { LandingTopBar, Sidebar } from './components'
 
 type SplashLayoutProps = {
   children?: React.ReactNode
+  topBarLeftZone?: React.ReactNode
   appBarInner?: React.ReactNode | null
   footer: {
     element: React.ReactNode
@@ -27,6 +28,7 @@ type SplashLayoutProps = {
 
 export const LandingLayoutBase = ({
   children,
+  topBarLeftZone,
   footer,
   disableTop = false,
   appBarInner = null,
@@ -62,7 +64,10 @@ export const LandingLayoutBase = ({
           minHeight: '100vh',
         }}
       >
-        <TopNavLanding disableTop={disableTop} />
+        <TopNavLanding
+          disableTop={disableTop}
+          topBarLeftZone={topBarLeftZone}
+        />
         <CustomAppBar disableTop={disableTop} trigger={trigger}>
           {appBarInner || <LandingTopBar onSidebarOpen={handleSidebarOpen} />}
         </CustomAppBar>

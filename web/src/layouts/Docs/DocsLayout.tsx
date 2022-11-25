@@ -12,11 +12,13 @@ import {
   Typography,
   useTheme,
   useMediaQuery,
+  Box,
 } from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
+import { APITeamLogo } from 'src/components/APITeamLogo'
 import NotFoundCover from 'src/components/NotFoundCover'
 import { TopBarPageName } from 'src/components/TopBarPageName'
 import {
@@ -28,7 +30,6 @@ import { LandingTopBar } from '../Landing/components'
 import {
   largePanelSpacing,
   mediumPanelSpacing,
-  panelSeparation,
   smallPanelSpacing,
 } from '../Landing/components/constants'
 import {
@@ -40,6 +41,9 @@ import { LandingLayoutBase } from '../Landing/LandingLayoutBase'
 import { DocsAside, docsAsideWidth } from './components/DocsAside'
 import { DocsBreadcrumbs } from './components/DocsBreadcrumbs'
 import { DocsSearch } from './components/DocsSearch'
+import { NextPageLink } from './components/NextPageLink'
+import { PageOverview } from './components/PageOverview'
+import { DocHeadingsProvider } from './DocHeadingsProvider'
 
 type DocsLayoutProps = {
   children?: React.ReactNode
@@ -63,10 +67,11 @@ const footerHeights = {
 
 export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
   const theme = useTheme()
+
+  const isMediumOrLess = useMediaQuery(theme.breakpoints.down('lg'))
   const isSmall = useMediaQuery(theme.breakpoints.down('md'))
 
   const { pathname } = useLocation()
-
   const docsContent = useDocsContent()
 
   const currentContent = useMemo(
@@ -82,59 +87,97 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
 
   return (
     <CurrentContentContext.Provider value={currentContent}>
-      <MetaTags title={currentContent.title} />
-      <LandingLayoutBase
-        footer={{
-          element: <FooterSplash />,
-          height: footerHeights,
-        }}
-        appBarInner={
-          <LandingTopBar
-            onSidebarOpen={() => setSidebarOpen(true)}
-            leftZone={<TopBarPageName name="Docs" />}
-            rightZone={<DocsSearch />}
-            hideBrandedRoutes
-            hideSignUpOrContinueButton
-          />
-        }
-      >
-        <Stack
-          direction="row"
-          sx={{
-            paddingLeft: isSmall ? 0 : `${docsAsideWidth}px`,
+      <DocHeadingsProvider>
+        <MetaTags title={currentContent.title} />
+        <LandingLayoutBase
+          footer={{
+            element: <FooterSplash />,
+            height: footerHeights,
           }}
+          appBarInner={
+            <LandingTopBar
+              onSidebarOpen={() => setSidebarOpen(true)}
+              leftZone={isSmall ? <></> : <TopBarPageName name="Docs" />}
+              rightZone={<DocsSearch />}
+              hideBrandedRoutes
+              hideSignUpOrContinueButton
+              hideLogo={isSmall}
+            />
+          }
+          topBarLeftZone={
+            isSmall ? (
+              <Stack spacing={2} alignItems="center" direction="row">
+                <APITeamLogo />
+                <TopBarPageName name="Docs" />
+              </Stack>
+            ) : (
+              <></>
+            )
+          }
         >
-          <DocsAside
-            open={sidebarOpen}
-            setOpen={setSidebarOpen}
-            footerHeights={footerHeights}
-          />
-          <Container
+          <Stack
+            direction="row"
             sx={{
-              paddingTop: largePanelSpacing,
-              paddingBottom: panelSeparation,
-              minHeight: '94vh',
+              paddingLeft: isSmall ? 0 : `${docsAsideWidth}px`,
             }}
           >
-            <Stack spacing={mediumPanelSpacing}>
-              <DocsBreadcrumbs content={currentContent} />
-              <Typography variant="h4" fontWeight="bold">
-                {currentContent.title}
-              </Typography>
-              <Paper
-                sx={{
-                  padding: {
-                    xs: smallPanelSpacing,
-                    md: mediumPanelSpacing,
-                  },
-                }}
+            <DocsAside
+              open={sidebarOpen}
+              setOpen={setSidebarOpen}
+              footerHeights={footerHeights}
+            />
+            <Container
+              sx={{
+                paddingY: largePanelSpacing,
+                minHeight: '94vh',
+              }}
+              disableGutters
+            >
+              <Stack
+                spacing={
+                  isMediumOrLess ? smallPanelSpacing : mediumPanelSpacing
+                }
+                direction="row"
               >
-                {children}
-              </Paper>
-            </Stack>
-          </Container>
-        </Stack>
-      </LandingLayoutBase>
+                <Stack
+                  spacing={
+                    isMediumOrLess ? smallPanelSpacing : mediumPanelSpacing
+                  }
+                >
+                  <DocsBreadcrumbs content={currentContent} />
+                  <Typography variant="h4" fontWeight="bold">
+                    {currentContent.title}
+                  </Typography>
+                  {isMediumOrLess && (
+                    <Box
+                      sx={{
+                        maxWidth: '100%',
+                      }}
+                    >
+                      <PageOverview />
+                    </Box>
+                  )}
+                  <Paper
+                    sx={{
+                      padding: isMediumOrLess
+                        ? smallPanelSpacing
+                        : mediumPanelSpacing,
+                    }}
+                  >
+                    <main>{children}</main>
+                  </Paper>
+                  <NextPageLink />
+                </Stack>
+                {!isMediumOrLess && (
+                  <div>
+                    <PageOverview />
+                  </div>
+                )}
+              </Stack>
+            </Container>
+          </Stack>
+        </LandingLayoutBase>
+      </DocHeadingsProvider>
     </CurrentContentContext.Provider>
   )
 }

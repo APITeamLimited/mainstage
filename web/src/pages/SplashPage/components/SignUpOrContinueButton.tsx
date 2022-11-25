@@ -5,10 +5,12 @@ import { Link, routes } from '@redwoodjs/router'
 
 type SignUpOrContinueButtonProps = {
   size: 'small' | 'medium' | 'large'
+  fullWidth?: boolean
 }
 
 export const SignUpOrContinueButton = ({
   size,
+  fullWidth,
 }: SignUpOrContinueButtonProps) => {
   const { isAuthenticated } = useAuth()
 
@@ -19,7 +21,12 @@ export const SignUpOrContinueButton = ({
         textDecoration: 'none',
       }}
     >
-      <Button variant="contained" color="success" size={size}>
+      <Button
+        variant="contained"
+        color="success"
+        size={size}
+        fullWidth={fullWidth}
+      >
         <span
           style={{
             whiteSpace: 'nowrap',
@@ -37,7 +44,12 @@ export const SignUpOrContinueButton = ({
         textDecoration: 'none',
       }}
     >
-      <Button variant="contained" color="primary" size={size}>
+      <Button
+        variant="contained"
+        color="primary"
+        size={size}
+        fullWidth={fullWidth}
+      >
         <span
           style={{
             whiteSpace: 'nowrap',

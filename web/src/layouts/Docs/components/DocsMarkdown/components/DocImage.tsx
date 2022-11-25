@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 
-import { useTheme } from '@mui/material'
+import { Stack, useTheme, Typography } from '@mui/material'
 
-import { markdownLineSpacing } from '../Markdown'
+import { markdownLineSpacing } from 'src/components/utils/Markdown'
 
 const getAdaptiveSrc = (src: string, mode: 'light' | 'dark') => {
   // Split at the file extension (last full stop)
@@ -15,6 +15,7 @@ type DocImageProps = React.DetailedHTMLProps<
   HTMLImageElement
 > & {
   adaptive?: boolean
+  description?: string
 }
 
 export const DocImage = (props: DocImageProps) => {
@@ -26,7 +27,7 @@ export const DocImage = (props: DocImageProps) => {
         ? getAdaptiveSrc(props.src, theme.palette.mode)
         : props.src
 
-    return `public/docs/${base}`
+    return `${window.location.origin}/public/docs/${base}`
   }, [props.adaptive, props.src, theme.palette.mode])
 
   const adaptiveProps = useMemo(
@@ -37,7 +38,6 @@ export const DocImage = (props: DocImageProps) => {
         marginRight: 'auto',
         width: '100%',
         maxWidth: '500px',
-        marginBottom: markdownLineSpacing,
         ...props.style,
       },
       ...props,
@@ -47,6 +47,20 @@ export const DocImage = (props: DocImageProps) => {
     [adaptiveSrc, props]
   )
 
-  // eslint-disable-next-line jsx-a11y/alt-text
-  return <img {...adaptiveProps} />
+  return (
+    <Stack
+      spacing={1}
+      sx={{
+        mb: markdownLineSpacing,
+      }}
+    >
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+      <img {...adaptiveProps} />
+      {props.description && (
+        <Typography variant="caption" align="center" color="text.secondary">
+          {props.description}
+        </Typography>
+      )}
+    </Stack>
+  )
 }
