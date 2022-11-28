@@ -11,9 +11,7 @@ import type { Map as YMap } from 'yjs'
 import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
 import { getFinalRequest } from '../rest'
 
-/*
-Creates a new single rest job and adds it to the queue.
-*/
+/** Creates a new single rest job and adds it to the queue. */
 export const singleRESTRequestGenerator = async ({
   request,
   scopeId,

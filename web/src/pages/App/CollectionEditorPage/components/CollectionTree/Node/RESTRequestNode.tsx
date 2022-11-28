@@ -19,6 +19,7 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { substitutePathVariables } from 'src/test-manager/rest'
 import { findEnvironmentVariables } from 'src/utils/environment'
 
 import { NodeActionButton } from './NodeActionButton'
@@ -85,13 +86,13 @@ export const RESTRequestNode = ({
 
   const pathname = useMemo(() => {
     try {
-      return new URL(
+      return getPrettyEndpoint(
         findEnvironmentVariables(
           environmentContext,
           collectionContext,
           nodeYMap.get('endpoint')
         )
-      ).pathname
+      )
     } catch (e) {
       return ''
     }
@@ -135,4 +136,25 @@ export const RESTRequestNode = ({
       }}
     />
   )
+}
+
+// Removes a port
+const getPrettyEndpoint = (url: string) => {
+  // Remove protocol
+
+  const urlWithoutProtocol = url.replace(/(^\w+:|^)\/\//, '')
+
+  // Remove port
+  const urlNoPort = urlWithoutProtocol.replace(/:\d+/, '')
+
+  // Split by path at first slash
+  const [_, ...path] = urlNoPort.split('/')
+
+  // Remove query params
+  const pathNoQuery = path.map((p) => p.split('?')[0])
+
+  // Remove trailing slash
+  const pathNoTrailingSlash = pathNoQuery.map((p) => p.replace(/\/$/, ''))
+
+  return `/${pathNoTrailingSlash.join('/')}`
 }

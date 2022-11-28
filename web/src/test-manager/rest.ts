@@ -134,11 +134,13 @@ export const getFinalRequest = async (
     }
   }, {})
 
-  return makeEnvironmentAwareRequest(
-    environmentContext,
-    collectionContext,
-    withAuthRequest,
-    skipBodyEnvironmentSubstitution
+  return substituteURLShortcuts(
+    makeEnvironmentAwareRequest(
+      environmentContext,
+      collectionContext,
+      withAuthRequest,
+      skipBodyEnvironmentSubstitution
+    )
   )
 }
 
@@ -299,17 +301,32 @@ const makeEnvironmentAwareRequest = (
   }
 }
 
-const substitutePathVariables = (
+export const substitutePathVariables = (
   endpoint: string,
   request: RESTRequest
 ): string => {
-  return endpoint.replace(
+  // Extract protocol http or https from endpoint (2 // are required)
+  const protocol = endpoint.includes('://') ? endpoint.split('://')[0] : ''
+
+  // Remove protocol from endpoint
+  const endpointWithoutProtocol = endpoint.replace(`${protocol}://`, '')
+
+  // Split the endpoint into 2 parts aat first '/'
+  const parts = endpointWithoutProtocol.split('/')
+  const firstPart = parts[0]
+  const rest = parts.slice(1).join('/')
+
+  const pathSection = rest.replace(
     /:([a-zA-Z0-9-_]+)/g,
     (_, p1) =>
       (request.pathVariables ?? []).find(
         (pathVariable) => pathVariable.keyString === p1
       )?.value || ''
   )
+
+  const formattedProtocolPart = protocol ? `${protocol}://` : ''
+
+  return `${formattedProtocolPart}${firstPart}/${pathSection}`
 }
 
 const ensureValidUrl = async (url: string): Promise<string> => {
@@ -320,4 +337,21 @@ const ensureValidUrl = async (url: string): Promise<string> => {
   }
 
   return validUrl
+}
+
+const substituteURLShortcuts = (
+  config: AxiosRequestConfig
+): AxiosRequestConfig => {
+  // If request url is localhost, replace with the local server url
+
+  const url = new URL(config.url || '')
+
+  if (url.hostname === 'localhost') {
+    return {
+      ...config,
+      url: `${url.protocol}//127.0.0.1:${url.port}${url.pathname}`,
+    }
+  }
+
+  return config
 }

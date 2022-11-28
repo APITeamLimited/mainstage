@@ -26,4 +26,6 @@ tsconfig.tsbuildinfo
 desktop/dist
 desktop/Webapp*
 
+!web/config/webpack.config.js
+
 .clinic/

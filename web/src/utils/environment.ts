@@ -11,7 +11,6 @@ import {
 } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
-import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import {
   BRACED_REGEX,
   getPossibleVariableMatch,

@@ -34,10 +34,20 @@ import {
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitation'
 import {
+  NotifyNewOwner,
+  NotifyNewOwnerText,
+  NotifyNewOwnerTitle,
+} from './NotifyNewOwner'
+import {
   NotifyNewRole,
   notifyNewRoleText,
   notifyNewRoleTitle,
 } from './NotifyNewRole'
+import {
+  NotifyOldOwner,
+  NotifyOldOwnerText,
+  NotifyOldOwnerTitle,
+} from './NotifyOldOwner'
 import {
   NotifyPasswordReset,
   notifyPasswordResetText,
@@ -136,6 +146,16 @@ export const VALID_TEMPLATES = {
     text: confirmChangeOwnerText,
     title: confirmChangeOwnerTitle,
   },
+  'notify-new-owner': {
+    html: NotifyNewOwner,
+    text: NotifyNewOwnerText,
+    title: NotifyNewOwnerTitle,
+  },
+  'notify-old-owner': {
+    html: NotifyOldOwner,
+    text: NotifyOldOwnerText,
+    title: NotifyOldOwnerTitle,
+  },
 } as const
 
 export type TemplateIdentifier = keyof typeof VALID_TEMPLATES
@@ -154,3 +174,5 @@ export { ConfirmAccountDeleteData } from './ConfirmAccountDelete'
 export { NotifyAccountDeletedData } from './NotifyAccountDeleted'
 export { NotifyRemovedFromTeamData } from './NotifyRemovedFromTeam'
 export { ConfirmChangeOwnerData } from './ConfirmChangeOwner'
+export { NotifyNewOwnerData } from './NotifyNewOwner'
+export { NotifyOldOwnerData } from './NotifyOldOwner'

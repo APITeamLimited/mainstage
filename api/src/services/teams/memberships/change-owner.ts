@@ -1,7 +1,7 @@
 import {
   ConfirmChangeOwnerData,
-  NotifyNewRoleData,
-  NotifyRemovedFromTeamData,
+  NotifyOldOwnerData,
+  NotifyNewOwnerData,
 } from '@apiteam/mailman'
 import { SafeUser, TeamRole } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
@@ -179,13 +179,13 @@ export const handleChangeOwner = async ({ token }: { token: string }) => {
 
   await Promise.all([
     dispatchEmail({
-      template: 'notify-new-role',
+      template: 'notify-new-owner',
       to: newOwner.email,
       data: {
         targetName: newOwner.firstName,
         teamName: team.name,
-        newRole: 'OWNER',
-      } as NotifyNewRoleData,
+        oldOwnerName: oldOwner.firstName,
+      } as NotifyNewOwnerData,
       userUnsubscribeUrl: await generateUserUnsubscribeUrl(newOwner),
       blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
         newOwner.email
@@ -197,8 +197,8 @@ export const handleChangeOwner = async ({ token }: { token: string }) => {
       data: {
         targetName: oldOwner.firstName,
         teamName: team.name,
-        newRole: 'ADMIN',
-      } as NotifyNewRoleData,
+        newOwnerName: newOwner.firstName,
+      } as NotifyOldOwnerData,
       userUnsubscribeUrl: await generateUserUnsubscribeUrl(oldOwner),
       blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
         oldOwner.email
