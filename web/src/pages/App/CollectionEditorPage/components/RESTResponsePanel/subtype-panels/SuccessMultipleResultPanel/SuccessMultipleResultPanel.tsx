@@ -9,7 +9,7 @@ import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
-import { parseMessage } from 'src/test-manager/execution'
+import { parseGlobeTestMessage } from 'src/test-manager/utils'
 
 import { PanelLayout } from '../../../PanelLayout'
 import { ExecutionPanel } from '../../ExecutionPanel'
@@ -73,11 +73,15 @@ export const SuccessMultipleResultPanel = ({
     ])
 
     setStoredGlobeTestLogs(
-      (globeTestLogsResult.data ?? []).map((log: string) => parseMessage(log))
+      (globeTestLogsResult.data ?? []).map((log: string) =>
+        parseGlobeTestMessage(log)
+      )
     )
 
     setStoredMetrics(
-      (metricsResult.data ?? []).map((log: string) => parseMessage(log))
+      (metricsResult.data ?? []).map((log: string) =>
+        parseGlobeTestMessage(log)
+      )
     )
   }
 

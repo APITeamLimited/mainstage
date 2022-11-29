@@ -61,11 +61,8 @@ export const IsVerifiedDomainBadge = ({
           return
         }
 
-        // Check if the domain is localhost or in a private IP range
-        if (
-          extractedDomain === 'localhost' ||
-          isPrivateIp(url.hostname) === true
-        ) {
+        // Check if the domain is in a private IP range
+        if (isPrivateIp(url.hostname) === true) {
           setIsVerified('private')
           return
         }

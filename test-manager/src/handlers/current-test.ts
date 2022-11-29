@@ -1,6 +1,5 @@
 import { AuthenticatedSocket, GlobeTestMessage } from '@apiteam/types'
-import { Scope } from '@prisma/client'
-import type { Jwt } from 'jsonwebtoken'
+import type { Scope } from '@prisma/client'
 import { parse } from 'query-string'
 
 import {
@@ -20,7 +19,9 @@ export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
   }
 
   // Get job
-  const jobScopeId = await coreCacheReadRedis.get(`jobScopeId:${params.jobId}`)
+  const jobScopeId = await coreCacheReadRedis.get(
+    `jobScopeId:${socket.scope.variantTargetId}:${params.jobId}`
+  )
 
   if (!jobScopeId) {
     socket.emit('error', 'Invalid jobId')

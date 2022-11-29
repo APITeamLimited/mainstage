@@ -76,6 +76,7 @@ export const restCreateResponse = async (
     sourceName: data.sourceName,
     jobId: data.jobId,
     createdByUserId: data.createdByUserId,
+    executionAgent: data.executionAgent ?? 'Cloud',
   }
 
   const responseYMap = new Y.Map()
@@ -353,4 +354,37 @@ const configureGlobetestGraphs = async (
 
     graphsYMap.set(graph.id, graph)
   })
+}
+
+export const restDeleteResponse = async (
+  data: EntityEngineServersideMessages['rest-delete-response'],
+  projectYMap: Y.Map<any>,
+  socket: Socket
+) => {
+  const { branchId, collectionId, responseId } = data
+
+  const getResponseYMap = async (): Promise<Y.Map<any>> => {
+    const restResponsesYMap = projectYMap
+      ?.get('branches')
+      ?.get(branchId)
+      ?.get('collections')
+      ?.get(collectionId)
+      ?.get('restResponses') as Y.Map<any> | undefined
+
+    if (!restResponsesYMap) {
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      return getResponseYMap()
+    }
+
+    return restResponsesYMap
+  }
+
+  const restResponsesYMap = await getResponseYMap()
+
+  try {
+    restResponsesYMap.delete(responseId)
+  } catch (err) {
+    socket.emit('error', err)
+    console.warn(err)
+  }
 }

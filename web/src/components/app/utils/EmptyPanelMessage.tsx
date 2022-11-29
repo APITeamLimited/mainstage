@@ -1,19 +1,34 @@
-import { Stack, Typography, useTheme } from '@mui/material'
+import { createElement } from 'react'
+
+import { Stack, Typography, useTheme, SvgIconProps, Box } from '@mui/material'
 
 type EmptyPanelMessageProps = {
   icon?: React.ReactNode
+  iconComponent?: React.ComponentType
   primaryText: string
   children?: React.ReactNode
   secondaryMessages?: string[]
 }
 
 export const EmptyPanelMessage = ({
-  icon = <></>,
+  icon,
+  iconComponent,
   primaryText,
   secondaryMessages = [],
   children,
 }: EmptyPanelMessageProps) => {
   const theme = useTheme()
+
+  if (iconComponent) {
+    icon = createElement<SvgIconProps>(iconComponent, {
+      sx: {
+        marginBottom: 2,
+        width: 80,
+        height: 80,
+        color: theme.palette.action.disabled,
+      },
+    })
+  }
 
   return (
     <Stack
@@ -45,6 +60,13 @@ export const EmptyPanelMessage = ({
           {message}
         </Typography>
       ))}
+      {children && (
+        <Box
+          sx={{
+            mb: 2,
+          }}
+        />
+      )}
       {children}
     </Stack>
   )

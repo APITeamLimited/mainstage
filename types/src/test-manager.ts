@@ -1,7 +1,7 @@
 import type { RequestBody, ResponseType, RefinedParams } from 'k6/http'
 import { Options as K6Options } from 'k6/options'
 
-import { RESTRequest, RESTResponse } from './entities'
+import { RESTResponse } from './entities'
 import { GraphSeries } from './graph'
 
 export interface K6RequestConfig<RT extends ResponseType | undefined> {
@@ -34,15 +34,17 @@ export type ExecutionParams = {
   scope: {
     variant: 'USER' | 'TEAM'
     variantTargetId: string
+    userId: string
   }
   verifiedDomains: string[]
+  createdAt: string
 }
 
 /* Wrapper around the execution params that servers as user arguments to the
 test-manager agent */
 export type WrappedExecutionParams = Omit<
   ExecutionParams,
-  'id' | 'scope' | 'verifiedDomains'
+  'id' | 'scope' | 'verifiedDomains' | 'createdAt'
 > & {
   bearer: string
   scopeId: string
@@ -160,6 +162,10 @@ type MessageCombination =
       messageType: 'ENVIRONMENT_VARIABLES'
       message: Record<string, string>
     }
+  | {
+      messageType: 'LOCALHOST_FILE'
+      message: LocalhostFile
+    }
 
 export type GlobeTestMessage = {
   jobId: string
@@ -252,4 +258,9 @@ export type RunningTestInfo = {
 
 export type JobUserUpdateMessage = {
   updateType: 'CANCEL'
+}
+
+export type LocalhostFile = {
+  fileName: string
+  contents: string
 }

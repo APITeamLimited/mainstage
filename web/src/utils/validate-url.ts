@@ -40,9 +40,7 @@ export const validateURL = async (url: string): Promise<string | null> => {
   const strippedUrl = formattedUrl.replace(/(^\w+:|^)\/\//, '')
 
   // Remove trailing slash from url
-  const urlWithoutTrailingSlash = strippedUrl.endsWith('/')
-    ? strippedUrl.slice(0, -1)
-    : strippedUrl
+  const urlWithoutTrailingSlash = strippedUrl.split('/')[0]
 
   // Check if valid ip address or domain
   if (
@@ -54,5 +52,37 @@ export const validateURL = async (url: string): Promise<string | null> => {
     return null
   }
 
-  return formattedUrl
+  return substituteURLShortcuts(formattedUrl)
+}
+
+const privateIPRegex = new RegExp(
+  /(^127\.)|(^192\.168\.)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^::1$)|(^[fF][cCdD])/
+)
+
+export const determineIfLocalhost = async (url: string): Promise<boolean> => {
+  const isValidDomain = await import('is-valid-domain').then(
+    (module) => module.default
+  )
+
+  // Remove protocol from url
+  const strippedUrl = url.replace(/(^\w+:|^)\/\//, '')
+
+  // Remove trailing slash from url
+  const urlWithoutTrailingSlash = strippedUrl.split('/')[0]
+
+  if (isValidDomain(urlWithoutTrailingSlash)) return false
+
+  return privateIPRegex.test(urlWithoutTrailingSlash)
+}
+
+const substituteURLShortcuts = (rawURL: string): string => {
+  // If request url is localhost, replace with the local server url
+
+  const url = new URL(rawURL)
+
+  if (url.hostname === 'localhost') {
+    return `${url.protocol}//127.0.0.1:${url.port}${url.pathname}`
+  }
+
+  return rawURL
 }

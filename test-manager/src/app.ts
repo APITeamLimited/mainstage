@@ -6,7 +6,11 @@ import queryString from 'query-string'
 import { Server } from 'socket.io'
 
 import { checkValue } from './config'
-import { handleCurrentTest, handleNewTest } from './handlers'
+import {
+  handleCurrentTest,
+  handleNewLocalTest,
+  handleNewTest,
+} from './handlers'
 import { handleAuth } from './services'
 import { forwardGlobalTestStatistics } from './services/globetest-statistics'
 
@@ -42,7 +46,8 @@ io.use(async (socket, next) => {
 
   // Already checked query params, just execute
   if (endpoint === '/new-test') {
-    console.log('Client connected, /new-test')
+    console.log(`Client connected, ${endpoint}`)
+
     try {
       await handleNewTest(socket as AuthenticatedSocket)
     } catch (error) {
@@ -51,8 +56,20 @@ io.use(async (socket, next) => {
       socket.disconnect()
     }
   } else if (endpoint === '/current-test') {
+    console.log(`Client connected, ${endpoint}`)
+
     try {
       await handleCurrentTest(socket as AuthenticatedSocket)
+    } catch (error) {
+      console.log(error)
+      socket.emit('error', 'An unexpected error occurred')
+      socket.disconnect()
+    }
+  } else if (endpoint === '/new-local-test') {
+    console.log(`Client connected, ${endpoint}`)
+
+    try {
+      await handleNewLocalTest(socket as AuthenticatedSocket)
     } catch (error) {
       console.log(error)
       socket.emit('error', 'An unexpected error occurred')

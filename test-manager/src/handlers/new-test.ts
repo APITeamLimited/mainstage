@@ -1,0 +1,174 @@
+import {
+  WrappedExecutionParams,
+  GlobeTestMessage,
+  ExecutionParams,
+  AuthenticatedSocket,
+  RunningTestInfo,
+  JobUserUpdateMessage,
+} from '@apiteam/types'
+import type { Scope } from '@prisma/client'
+import { parse } from 'query-string'
+import { v4 as uuid } from 'uuid'
+
+import {
+  coreCacheReadRedis,
+  coreCacheSubscribeRedis,
+  orchestratorReadRedis,
+  orchestratorSubscribeRedis,
+} from '../redis'
+import { validateParams } from '../validator'
+
+import {
+  getEntityEngineSocket,
+  getVerifiedDomains,
+  parseMessage,
+  runningTestStates,
+  handleMessage,
+} from './helpers'
+
+// Creates a new test and streams the result
+export const handleNewTest = async (socket: AuthenticatedSocket) => {
+  let params = null as WrappedExecutionParams | null
+
+  try {
+    params = validateParams(parse(socket.request.url?.split('?')[1] || ''))
+    if (!params) throw new Error('Invalid params')
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
+    // Close the socket if the params are invalid
+    socket.emit('error', e.message)
+    socket.disconnect()
+    return
+  }
+
+  const runningTestKey = `workspace-cloud-tests:${socket.scope.variant}:${socket.scope.variantTargetId}`
+
+  // Check workspace hasn't already got too many tests already running
+  if ((await coreCacheReadRedis.hLen(runningTestKey)) >= 5) {
+    socket.emit('error', 'Your workspace can only run 5 tests at once')
+    socket.disconnect()
+    return
+  }
+
+  runningTestStates.set(socket, {
+    testType: 'undetermined',
+    responseExistence: 'none',
+  })
+
+  // Calling this first here seems to prevent the race condition
+  const [_, verifiedDomains] = await Promise.all([
+    getEntityEngineSocket(
+      socket,
+      socket.scope,
+      params.bearer,
+      params.projectId
+    ),
+    await getVerifiedDomains(
+      socket.scope.variant,
+      socket.scope.variantTargetId
+    ),
+  ])
+
+  const executionParams: ExecutionParams = {
+    id: uuid(),
+    source: params.source,
+    sourceName: params.sourceName,
+    environmentContext: params.environmentContext,
+    collectionContext: params.collectionContext,
+    finalRequest: params.finalRequest,
+    underlyingRequest: params.underlyingRequest,
+    scope: {
+      variant: socket.scope.variant as 'USER' | 'TEAM',
+      variantTargetId: socket.scope.variantTargetId,
+      userId: socket.scope.userId,
+    },
+    verifiedDomains,
+    createdAt: new Date().toISOString(),
+  }
+
+  // Start stream before scheduling to ensure all messages are received
+  orchestratorSubscribeRedis.subscribe(
+    `orchestrator:executionUpdates:${executionParams.id}`,
+    (message) => {
+      const messageObject = parseMessage(
+        JSON.parse(message)
+      ) as GlobeTestMessage
+
+      socket.emit('updates', messageObject)
+
+      handleMessage(
+        messageObject,
+        socket,
+        params as WrappedExecutionParams,
+        executionParams.id,
+        runningTestKey,
+        'Cloud'
+      )
+    }
+  )
+
+  const runningTestInfo: RunningTestInfo = {
+    jobId: executionParams.id,
+    sourceName: executionParams.sourceName,
+    createdByUserId: socket.scope.userId,
+    createdAt: executionParams.createdAt,
+    status: 'ASSIGNED',
+  }
+
+  // Set job info first to prevent race condition
+  await Promise.all([
+    orchestratorReadRedis.hSet(
+      executionParams.id,
+      'job',
+      JSON.stringify(executionParams)
+    ),
+    coreCacheReadRedis.hSet(
+      runningTestKey,
+      runningTestInfo.jobId,
+      JSON.stringify(runningTestInfo)
+    ),
+    // Listen for job updates
+    coreCacheSubscribeRedis.subscribe(
+      `jobUserUpdates:${socket.scope.variant}:${socket.scope.variantTargetId}:${runningTestInfo.jobId}`,
+      (message) =>
+        handleJobUserUpdates(
+          message,
+          socket.scope,
+          executionParams.id,
+          runningTestKey
+        )
+    ),
+  ])
+
+  // Broadcast the new job
+  await Promise.all([
+    orchestratorReadRedis.sAdd(
+      'orchestrator:executionHistory',
+      executionParams.id
+    ),
+    orchestratorReadRedis.publish('orchestrator:execution', executionParams.id),
+  ])
+}
+
+const handleJobUserUpdates = (
+  message: string,
+  scope: Scope,
+  jobId: string,
+  runningTestKey: string
+) => {
+  const parsedMessage = JSON.parse(message) as JobUserUpdateMessage
+
+  if (parsedMessage.updateType === 'CANCEL') {
+    orchestratorReadRedis.publish(
+      `jobUserUpdates:${scope.variant}:${scope.variantTargetId}:${jobId}`,
+      JSON.stringify({
+        updateType: 'CANCEL',
+      })
+    )
+
+    // In case of stray jobs cleanup
+    setTimeout(() => {
+      coreCacheReadRedis.hDel(runningTestKey, jobId)
+    }, 10000)
+  }
+}

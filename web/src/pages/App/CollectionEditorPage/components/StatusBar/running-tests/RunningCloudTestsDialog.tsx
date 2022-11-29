@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { MemberAwareness } from '@apiteam/types'
-import { useApolloClient } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import ReorderIcon from '@mui/icons-material/Reorder'
 import {
@@ -23,8 +22,8 @@ import {
 import {
   RunningTestsQuery,
   RunningTestsQueryVariables,
-  CancelRunningTestMutation,
-  CancelRunningTestMutationVariables,
+  CancelRunningCloudTestMutation,
+  CancelRunningCloudTestMutationVariables,
 } from 'types/graphql'
 
 import { useMutation, useQuery } from '@redwoodjs/web'
@@ -38,7 +37,7 @@ import {
   useWorkspaceInfo,
 } from 'src/entity-engine/EntityEngine'
 
-type RunningTestsDialogProps = {
+type RunningCloudTestsDialogProps = {
   open: boolean
   onClose: () => void
 }
@@ -55,16 +54,16 @@ const RUNNING_TESTS_QUERY = gql`
   }
 `
 
-const CANCEL_RUNNING_TEST_MUTATION = gql`
-  mutation CancelRunningTestMutation($teamId: String, $jobId: String!) {
+const CANCEL_RUNNING_CLOUD_TEST_MUTATION = gql`
+  mutation CancelRunningCloudTestMutation($teamId: String, $jobId: String!) {
     cancelRunningTest(teamId: $teamId, jobId: $jobId)
   }
 `
 
-export const RunningTestsDialog = ({
+export const RunningCloudTestsDialog = ({
   open,
   onClose,
-}: RunningTestsDialogProps) => {
+}: RunningCloudTestsDialogProps) => {
   const { default: SimpleBar } = useSimplebarReactModule()
 
   const theme = useTheme()
@@ -79,7 +78,7 @@ export const RunningTestsDialog = ({
     [workspaceInfo]
   )
 
-  const { data, loading } = useQuery<
+  const { data, loading, refetch } = useQuery<
     RunningTestsQuery,
     RunningTestsQueryVariables
   >(RUNNING_TESTS_QUERY, {
@@ -90,10 +89,16 @@ export const RunningTestsDialog = ({
     pollInterval: 1000,
   })
 
+  // Prevent loading state from showing up when the dialog is first opened
+  useEffect(() => {
+    refetch()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const [cancelRunningTest] = useMutation<
-    CancelRunningTestMutation,
-    CancelRunningTestMutationVariables
-  >(CANCEL_RUNNING_TEST_MUTATION, {
+    CancelRunningCloudTestMutation,
+    CancelRunningCloudTestMutationVariables
+  >(CANCEL_RUNNING_CLOUD_TEST_MUTATION, {
     refetchQueries: [
       {
         query: RUNNING_TESTS_QUERY,
@@ -187,16 +192,7 @@ export const RunningTestsDialog = ({
           <EmptyPanelMessage
             primaryText="No running tests"
             secondaryMessages={["When you run tests, they'll appear here."]}
-            icon={
-              <ReorderIcon
-                sx={{
-                  marginBottom: 2,
-                  width: 80,
-                  height: 80,
-                  color: theme.palette.action.disabled,
-                }}
-              />
-            }
+            iconComponent={ReorderIcon}
           />
         ) : (
           <SimpleBar
@@ -278,7 +274,7 @@ export const RunningTestsDialog = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" onClick={onClose}>
+        <Button variant="contained" onClick={onClose}>
           Close
         </Button>
       </DialogActions>

@@ -15,7 +15,7 @@ export const runningTests = async ({ teamId }: { teamId: string | null }) => {
 
   const runningTests = Object.values(
     await coreCacheReadRedis.hGetAll(
-      `workspace:${teamId ? 'TEAM' : 'USER'}:${
+      `workspace-cloud-tests:${teamId ? 'TEAM' : 'USER'}:${
         teamId ?? context.currentUser.id
       }`
     )
@@ -36,7 +36,9 @@ export const runningTestsCount = async ({
   }
 
   const runningTestsCount = await coreCacheReadRedis.hLen(
-    `workspace:${teamId ? 'TEAM' : 'USER'}:${teamId ?? context.currentUser.id}`
+    `workspace-cloud-tests:${teamId ? 'TEAM' : 'USER'}:${
+      teamId ?? context.currentUser.id
+    }`
   )
 
   return runningTestsCount
@@ -59,7 +61,7 @@ export const cancelRunningTest = async ({
   const scopeVariantTargetId = teamId ?? context.currentUser.id
 
   const runningTestInfoRaw = await coreCacheReadRedis.hGet(
-    `workspace:${scopeVariant}:${scopeVariantTargetId}`,
+    `workspace-cloud-tests:${scopeVariant}:${scopeVariantTargetId}`,
     jobId
   )
 
@@ -77,7 +79,7 @@ export const cancelRunningTest = async ({
   // In case a rogue test is still listed by error, we need to remove it from the running tests list
   setTimeout(() => {
     coreCacheReadRedis.hDel(
-      `workspace:${scopeVariant}:${scopeVariantTargetId}`,
+      `workspace-cloud-tests:${scopeVariant}:${scopeVariantTargetId}`,
       jobId
     )
   }, 10000)

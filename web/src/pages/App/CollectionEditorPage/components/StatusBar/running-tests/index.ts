@@ -1,1 +1,1 @@
-export * from './RunningTestsIndicator'
+export * from './RunningCloudTestsIndicator'

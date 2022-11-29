@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client'
 
 import { refetchRunningCountVar } from 'src/pages/App/CollectionEditorPage/components/StatusBar/running-tests'
 
-import { getUrl, parseMessage } from './execution'
+import { getTestManagerURL, parseGlobeTestMessage } from '../utils'
 
 export const streamExistingTest = ({
   jobId,
@@ -17,7 +17,7 @@ export const streamExistingTest = ({
   rawBearer: string
   onMessage: (message: GlobeTestMessage) => void
 }): Socket => {
-  const socket = io(getUrl(), {
+  const socket = io(getTestManagerURL(), {
     query: {
       jobId,
       scopeId,
@@ -31,7 +31,7 @@ export const streamExistingTest = ({
   // Messages will need to be parsed
   socket.on('updates', (data: any) => {
     if (data.jobId) {
-      const parsedMessage = parseMessage(data)
+      const parsedMessage = parseGlobeTestMessage(data)
 
       if (parsedMessage.messageType === 'STATUS') {
         if (

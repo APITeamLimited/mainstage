@@ -1,7 +1,8 @@
 import { Stack, Paper, useTheme, Box } from '@mui/material'
 
 import { OnlineIndicator } from './OnlineIndicator'
-import { RunningTestsIndicator } from './running-tests'
+import { RunningLocalTestsIndicator } from './running-local-tests'
+import { RunningCloudTestsIndicator } from './running-tests'
 
 export const STATUS_BAR_HEIGHT = 22
 
@@ -42,7 +43,8 @@ export const StatusBar = () => {
             <OnlineIndicator />
           </Stack>
           <Stack direction="row" spacing={1}>
-            <RunningTestsIndicator />
+            <RunningLocalTestsIndicator />
+            <RunningCloudTestsIndicator />
           </Stack>
         </Stack>
       </Paper>

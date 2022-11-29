@@ -97,6 +97,17 @@ export const TabController = () => {
     }
   }
 
+  // Show need save prompt when user leaves page with unsaved changes
+  // useEffect(() => {
+  //   const needsSave = openTabs.some((tab) => tab.needsSave)
+
+  //   if (needsSave) {
+  //     window.onbeforeunload = () => true
+  //   } else {
+  //     window.onbeforeunload = null
+  //   }
+  // }, [openTabs])
+
   // Ensure tab changes in response to the focused element
   useEffect(() => {
     const focusedElement =

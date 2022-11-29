@@ -3,7 +3,7 @@ import { Jwt, JwtPayload } from 'jsonwebtoken'
 
 import { TeamRole } from './team'
 
-import { ExecutionParams, GlobeTestOptions, RESTRequest, RESTResponse } from '.'
+import { GlobeTestOptions, RESTResponse } from '.'
 
 export type ClientAwareness = {
   publicBearer?: string
@@ -56,6 +56,7 @@ export type EntityEngineServersideMessages = {
     jobId: string
     createdByUserId: string
     finalRequestHeaders: Record<string, string>
+    executionAgent: RESTResponse['executionAgent']
   }
   'rest-add-options': {
     branchId: string
@@ -83,5 +84,10 @@ export type EntityEngineServersideMessages = {
     collectionId: string
     globeTestLogsStoreReceipt: string | null
     metricsStoreReceipt: string | null
+  }
+  'rest-delete-response': {
+    branchId: string
+    collectionId: string
+    responseId: string
   }
 }

@@ -20,14 +20,16 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useWorkspace } from 'src/entity-engine'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import {
   Bearer,
   GET_BEARER_PUBKEY__SCOPES_QUERY,
 } from 'src/entity-engine/utils'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { execute } from './execution'
+import { executeCloud, executeLocalCatchError } from './executors'
 import { jobQueueVar, updateFilterQueue } from './lib'
+import { useLocalTestManager } from './local-test-manager'
 
 export const GlobeTestProvider = () => {
   const Y = useYJSModule()
@@ -42,6 +44,10 @@ export const GlobeTestProvider = () => {
   const jobQueue = useReactiveVar(jobQueueVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
   const workspace = useWorkspace()
+
+  const workspaceInfo = useWorkspaceInfo()
+
+  const localTestManager = useLocalTestManager()
 
   useReactiveVar(activeEnvironmentVar)
   useYMap(environmentsYMap || new Y.Map())
@@ -76,8 +82,9 @@ export const GlobeTestProvider = () => {
 
   // Scan for pending requests and start executing them
   useEffect(() => {
-    if (rawBearer === '' || rawBearer === null) {
-      // No bearer token, skipping execution
+    if (rawBearer === '' || rawBearer === null || !workspaceInfo) {
+      // Skip execution, no bearer token or no workspace info yet
+      // these will be populated
       return
     }
 
@@ -92,16 +99,23 @@ export const GlobeTestProvider = () => {
           ])
         )
 
-        execute({
-          job,
-          rawBearer,
-          workspace: workspace as YDoc,
-          focusedResponseDict,
-          environmentContext,
-          collectionContext,
-          hashSumModule,
-          activeEnvironmentYMap,
-        })
+        job.agent === 'Cloud'
+          ? executeCloud({
+              job,
+              rawBearer,
+              workspace: workspace as YDoc,
+              focusedResponseDict,
+              environmentContext,
+              collectionContext,
+              hashSumModule,
+              activeEnvironmentYMap,
+            })
+          : executeLocalCatchError(
+              job,
+              localTestManager,
+              workspaceInfo.scope,
+              rawBearer
+            )
       }
 
       if (
@@ -113,14 +127,7 @@ export const GlobeTestProvider = () => {
       }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    collectionContext,
-    environmentContext,
-    focusedResponseDict,
-    jobQueue,
-    rawBearer,
-    workspace,
-  ])
+  }, [jobQueue])
 
   return <></>
 }

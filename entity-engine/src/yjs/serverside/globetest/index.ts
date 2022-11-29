@@ -10,6 +10,7 @@ import {
   restHandleFailure,
   restHandleSuccessMultiple,
   restHandleSuccessSingle,
+  restDeleteResponse,
 } from './rest'
 
 type GlobeTestState = {
@@ -77,6 +78,12 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
     'rest-handle-failure',
     (data: EntityEngineServersideMessages['rest-handle-failure']) =>
       restHandleFailure(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'rest-delete-response',
+    (data: EntityEngineServersideMessages['rest-delete-response']) =>
+      restDeleteResponse(data, projectYMap, socket)
   )
 }
 

@@ -59,6 +59,7 @@ export type RESTResponseBase = {
   name: string
   endpoint: string
   method: string
+  executionAgent?: 'Local' | 'Cloud'
 }
 
 export type RESTResponse = RESTResponseBase &

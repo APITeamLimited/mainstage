@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import { Tooltip, IconButton } from '@mui/material'
+import { Tooltip, IconButton, Skeleton } from '@mui/material'
 import { Response } from 'k6/http'
 
 import { MonacoEditor } from 'src/components/app/MonacoEditor'
@@ -28,7 +28,7 @@ export const BodyPanel = ({
 }: BodyPanelProps) => {
   const { default: hash } = useHashSumModule()
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [activeTab, setActiveTab] = useState<string>('')
   const [rawBody, setRawBody] = useState('')
   const [calculatedBody, setCalculatedBody] = useState(false)
 
@@ -47,7 +47,7 @@ export const BodyPanel = ({
   useEffect(() => {
     const customActions = []
 
-    if (activeTabIndex === 0 && prettifiedBody) {
+    if (activeTab.startsWith('Pretty') && prettifiedBody) {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
           <IconButton
@@ -57,10 +57,7 @@ export const BodyPanel = ({
           </IconButton>
         </Tooltip>
       )
-    } else if (
-      (activeTabIndex === 1 && prettifiedBody) ||
-      (activeTabIndex === 0 && !prettifiedBody)
-    ) {
+    } else if (activeTab === 'Raw') {
       customActions.push(
         <Tooltip title="Copy All" key="Copy All">
           <IconButton onClick={() => navigator.clipboard.writeText(rawBody)}>
@@ -72,7 +69,7 @@ export const BodyPanel = ({
 
     setActionArea(<QuickActionArea customActions={customActions} />)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTabIndex, prettifiedBody, rawBody])
+  }, [activeTab, prettifiedBody, rawBody])
 
   useEffect(() => {
     const rawBody = parseRESTResponseBody(response)
@@ -89,7 +86,6 @@ export const BodyPanel = ({
         setPrettifiedBody(await codeFormatter(rawBody, 'html'))
         setPrettyBodyName('HTML')
       } else {
-        setActiveTabIndex(1)
         setPrettifiedBody(null)
       }
 
@@ -101,18 +97,28 @@ export const BodyPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [response])
 
+  const chipNames = useMemo(() => {
+    const base =
+      prettifiedBody && prettyBodyName ? [`Pretty (${prettyBodyName})`] : []
+    base.push('Raw')
+
+    if (contentType === 'text/html') {
+      base.push('HTML Viewer')
+    }
+
+    setActiveTab(base[0])
+
+    return base
+  }, [prettifiedBody, prettyBodyName, contentType])
+
   return calculatedBody ? (
     <>
       <SecondaryChips
-        names={
-          prettifiedBody && prettyBodyName
-            ? [`Pretty (${prettyBodyName})`, 'Raw', 'Preview']
-            : ['Raw', 'Preview']
-        }
-        value={activeTabIndex}
-        onChange={setActiveTabIndex}
+        names={chipNames}
+        value={chipNames.indexOf(activeTab) ?? 0}
+        onChange={(newIndex) => setActiveTab(chipNames[newIndex])}
       />
-      {activeTabIndex === 0 && prettifiedBody && (
+      {activeTab === `Pretty (${prettyBodyName})` && prettifiedBody && (
         <MonacoEditor
           language={contentType}
           value={prettifiedBody}
@@ -122,10 +128,7 @@ export const BodyPanel = ({
           key={focusedResponseHash}
         />
       )}
-      {((activeTabIndex === 1 && prettifiedBody) ||
-        (activeTabIndex === 0 && !prettifiedBody)) && (
-        //<RawViewer rawBody={rawBody} />
-        // removed this as competitors are using monaco editor
+      {activeTab === 'Raw' && (
         <MonacoEditor
           language="plain"
           value={rawBody}
@@ -135,12 +138,9 @@ export const BodyPanel = ({
           key={focusedResponseHash}
         />
       )}
-      {((activeTabIndex === 2 && prettifiedBody) ||
-        (activeTabIndex === 1 && !prettifiedBody)) && (
-        <HTMLViewer html={rawBody} />
-      )}
+      {activeTab === 'HTML Viewer' && <HTMLViewer html={rawBody} />}
     </>
   ) : (
-    <></>
+    <Skeleton />
   )
 }

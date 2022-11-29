@@ -10,7 +10,7 @@ export type BaseJob = {
   // Don't trust end client to create UUIDs so these are clientside only
   localId: string
   createdAt: Date
-  agent: 'Browser' | 'GlobeTest'
+  agent: 'Cloud' | 'Local'
   scopeId: string
   source: string
   sourceName: string

@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types/src'
-import { Box, Skeleton } from '@mui/material'
+import { Skeleton } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
 import type { Map as YMap } from 'yjs'
 
@@ -10,7 +10,7 @@ import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
-import { parseMessage } from 'src/test-manager/execution'
+import { parseGlobeTestMessage } from 'src/test-manager/utils'
 
 import { PanelLayout } from '../../../PanelLayout'
 import { StatsSkeleton } from '../../../stats'
@@ -94,11 +94,15 @@ export const SuccessSingleResultPanel = ({
 
     setStoredResponse(responseResult.data)
     setStoredGlobeTestLogs(
-      (globeTestLogsResult.data ?? []).map((log: string) => parseMessage(log))
+      (globeTestLogsResult.data ?? []).map((log: string) =>
+        parseGlobeTestMessage(log)
+      )
     )
 
     setStoredMetrics(
-      (metricsResult.data ?? []).map((log: string) => parseMessage(log))
+      (metricsResult.data ?? []).map((log: string) =>
+        parseGlobeTestMessage(log)
+      )
     )
 
     setMappedCookies(

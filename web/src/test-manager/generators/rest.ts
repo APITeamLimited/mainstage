@@ -10,6 +10,7 @@ import type { Map as YMap } from 'yjs'
 
 import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
 import { getFinalRequest } from '../rest'
+import { determineGlobetestAgent } from '../utils'
 
 /** Creates a new single rest job and adds it to the queue. */
 export const singleRESTRequestGenerator = async ({
@@ -61,7 +62,7 @@ export const singleRESTRequestGenerator = async ({
   const job: BaseJob & PendingLocalJob = {
     __subtype: 'PendingLocalJob',
     localId: uuid(),
-    agent: 'GlobeTest',
+    agent: await determineGlobetestAgent(axiosConfig.url as string),
     createdAt: new Date(),
     jobStatus: 'LOCAL_CREATING',
     source: executionScript.script,

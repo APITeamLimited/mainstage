@@ -6,8 +6,8 @@ import {
   RunningTestInfo,
   StatusType,
 } from '@apiteam/types'
+import { Scope } from '@prisma/client'
 import type { VerifiedDomain } from '@prisma/client'
-import type { Scope } from '@prisma/client'
 import { Response } from 'k6/http'
 import { Socket } from 'socket.io'
 import { io } from 'socket.io-client'
@@ -16,7 +16,7 @@ import type { Socket as EntityEngineSocket } from 'socket.io-client'
 import { checkValue } from '../../config'
 import { coreCacheReadRedis } from '../../redis'
 
-import { TestRunningState, runningTestStates } from '.'
+import { RunningTestState, runningTestStates } from '.'
 
 const ENTITY_ENGINE_HOST = checkValue<string>('entity-engine.host')
 const ENTITY_ENGINE_PORT = checkValue<number>('entity-engine.port')
@@ -26,7 +26,7 @@ const ENTITY_ENGINE_URL = `http://${ENTITY_ENGINE_HOST}:${ENTITY_ENGINE_PORT}`
  * yet*/
 export const getEntityEngineSocket = async (
   clientSocket: Socket,
-  scopeId: string,
+  scope: Scope,
   bearer: string,
   projectId: string
 ): Promise<EntityEngineSocket> => {
@@ -42,7 +42,7 @@ export const getEntityEngineSocket = async (
   const entityEngineSocket = io(ENTITY_ENGINE_URL, {
     path: '/internal/entity-engine/test-manager',
     query: {
-      scopeId,
+      scopeId: scope.id,
       bearer,
       projectId,
     } as EntityEngineServersideMessages['connection-params'],
@@ -53,17 +53,19 @@ export const getEntityEngineSocket = async (
     clientSocket.emit('rest-create-response:success', data)
 
     runningTestStates.set(clientSocket, {
-      ...(runningTestStates.get(clientSocket) as TestRunningState),
+      ...(runningTestStates.get(clientSocket) as RunningTestState),
       testType: 'rest',
       responseId: data.responseId as string,
       responseExistence: 'created',
     })
 
+    const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}`
+
     // Create and delete a temporary id to enable streaming of tests by jobId
-    await coreCacheReadRedis.set(`jobScopeId:${data.jobId}`, scopeId)
+    await coreCacheReadRedis.set(jobScopeKey, scope.id)
 
     entityEngineSocket.on('disconnect', async () => {
-      await coreCacheReadRedis.del(`jobScopeId:${data.jobId}`)
+      await coreCacheReadRedis.del(jobScopeKey)
     })
   })
 
@@ -72,7 +74,7 @@ export const getEntityEngineSocket = async (
       runningTestStates.set(clientSocket, {
         ...runningTestStates.get(clientSocket),
         entityEngineSocket,
-      } as TestRunningState)
+      } as RunningTestState)
       resolve(entityEngineSocket)
     })
   })
@@ -116,9 +118,9 @@ export const getVerifiedDomains = async (
 }
 
 export const updateTestInfo = async (
-  scope: Scope,
   jobId: string,
-  status: StatusType
+  status: StatusType,
+  runningTestKey: string
 ) => {
   // Delete test info if completed
   if (
@@ -127,17 +129,11 @@ export const updateTestInfo = async (
     status === 'SUCCESS' ||
     status === 'FAILURE'
   ) {
-    await coreCacheReadRedis.hDel(
-      `workspace:${scope.variant}:${scope.variantTargetId}`,
-      jobId
-    )
+    await coreCacheReadRedis.hDel(runningTestKey, jobId)
     return
   }
 
-  const testInfo = await coreCacheReadRedis.hGet(
-    `workspace:${scope.variant}:${scope.variantTargetId}`,
-    jobId
-  )
+  const testInfo = await coreCacheReadRedis.hGet(runningTestKey, jobId)
 
   if (!testInfo) {
     console.warn('Test info not found')
@@ -147,7 +143,7 @@ export const updateTestInfo = async (
   const parsedTestInfo = JSON.parse(testInfo) as RunningTestInfo
 
   await coreCacheReadRedis.hSet(
-    `workspace:${scope.variant}:${scope.variantTargetId}`,
+    runningTestKey,
     jobId,
     JSON.stringify({
       ...parsedTestInfo,

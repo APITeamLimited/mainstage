@@ -3,13 +3,13 @@ import {
   NotifyOldOwnerData,
   NotifyNewOwnerData,
 } from '@apiteam/mailman'
-import { SafeUser, TeamRole } from '@apiteam/types'
+import { SafeUser } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { checkValue } from 'src/config'
-import { deleteMembership, updateMembership } from 'src/helpers'
+import { updateMembership } from 'src/helpers'
 import {
   changeOwnerAudience,
   generateBlanketUnsubscribeUrl,
@@ -192,7 +192,7 @@ export const handleChangeOwner = async ({ token }: { token: string }) => {
       ),
     }),
     dispatchEmail({
-      template: 'notify-removed-from-team',
+      template: 'notify-old-owner',
       to: oldOwner.email,
       data: {
         targetName: oldOwner.firstName,

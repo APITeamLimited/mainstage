@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { makeVar, useReactiveVar } from '@apollo/client'
+import { Skeleton } from '@mui/material'
 import {
-  RunningTestsCountQuery,
-  RunningTestsCountQueryVariables,
+  RunningCloudTestsCountQuery,
+  RunningCloudTestsCountQueryVariables,
 } from 'types/graphql'
 
 import { useQuery } from '@redwoodjs/web'
@@ -15,17 +16,17 @@ import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { StatusBarItem } from '../StatusBarItem'
 
-import { RunningTestsDialog } from './RunningTestsDialog'
+import { RunningCloudTestsDialog } from './RunningCloudTestsDialog'
 
-const RUNNING_TESTS_COUNT_QUERY = gql`
-  query RunningTestsCountQuery($teamId: String) {
+const RUNNING_CLOUD_TESTS_COUNT_QUERY = gql`
+  query RunningCloudTestsCountQuery($teamId: String) {
     runningTestsCount(teamId: $teamId)
   }
 `
 
 export const refetchRunningCountVar = makeVar(0)
 
-export const RunningTestsIndicator = () => {
+export const RunningCloudTestsIndicator = () => {
   const workspaceInfo = useWorkspaceInfo()
 
   const teamId = useMemo(
@@ -37,9 +38,9 @@ export const RunningTestsIndicator = () => {
   )
 
   const { data, refetch } = useQuery<
-    RunningTestsCountQuery,
-    RunningTestsCountQueryVariables
-  >(RUNNING_TESTS_COUNT_QUERY, {
+    RunningCloudTestsCountQuery,
+    RunningCloudTestsCountQueryVariables
+  >(RUNNING_CLOUD_TESTS_COUNT_QUERY, {
     variables: {
       teamId,
     },
@@ -55,17 +56,19 @@ export const RunningTestsIndicator = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  if (!data) return <></>
+  if (!data) {
+    return <Skeleton variant="rectangular" width={175.47} height={22} />
+  }
 
   return (
     <>
       <StatusBarItem
         icon={GlobeTestIcon}
         tooltip="Cloud tests"
-        text={`${data.runningTestsCount}/5 running cloud tests`}
+        text={`${data.runningTestsCount}/5 Running Cloud Tests`}
         onClick={() => setDialogOpen(true)}
       />
-      <RunningTestsDialog
+      <RunningCloudTestsDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
       />

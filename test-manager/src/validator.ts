@@ -3,7 +3,7 @@ import {
   RESTRequest,
   WrappedExecutionParams,
 } from '@apiteam/types'
-import Ajv, { JSONSchemaType } from 'ajv'
+import Ajv from 'ajv'
 import { ParsedQuery } from 'query-string'
 
 const ajv = new Ajv()

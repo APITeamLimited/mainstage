@@ -134,13 +134,11 @@ export const getFinalRequest = async (
     }
   }, {})
 
-  return substituteURLShortcuts(
-    makeEnvironmentAwareRequest(
-      environmentContext,
-      collectionContext,
-      withAuthRequest,
-      skipBodyEnvironmentSubstitution
-    )
+  return makeEnvironmentAwareRequest(
+    environmentContext,
+    collectionContext,
+    withAuthRequest,
+    skipBodyEnvironmentSubstitution
   )
 }
 
@@ -326,7 +324,9 @@ export const substitutePathVariables = (
 
   const formattedProtocolPart = protocol ? `${protocol}://` : ''
 
-  return `${formattedProtocolPart}${firstPart}/${pathSection}`
+  return `${formattedProtocolPart}${firstPart}${
+    pathSection.length > 0 ? '/' : ''
+  }${pathSection}`
 }
 
 const ensureValidUrl = async (url: string): Promise<string> => {
@@ -337,21 +337,4 @@ const ensureValidUrl = async (url: string): Promise<string> => {
   }
 
   return validUrl
-}
-
-const substituteURLShortcuts = (
-  config: AxiosRequestConfig
-): AxiosRequestConfig => {
-  // If request url is localhost, replace with the local server url
-
-  const url = new URL(config.url || '')
-
-  if (url.hostname === 'localhost') {
-    return {
-      ...config,
-      url: `${url.protocol}//127.0.0.1:${url.port}${url.pathname}`,
-    }
-  }
-
-  return config
 }

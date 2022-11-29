@@ -15,31 +15,18 @@ import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
 import { HashSumModule } from 'src/contexts/imports'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
 
-import type { BaseJob, PendingLocalJob } from './lib'
-
-export const getUrl = () => {
-  if (process.env.NODE_ENV === 'development') {
-    const host = process.env['TEST_MANAGER_HOST']
-    const port = process.env['TEST_MANAGER_PORT']
-
-    if (!(host && port)) {
-      throw new Error(
-        `TEST_MANAGER_HOST and TEST_MANAGER_PORT must be set, got ${host} and ${port}`
-      )
-    }
-
-    return `http://${host}:${port}`
-  } else {
-    // Get current domain
-    const domain = window.location.hostname
-    return `https://${domain}`
-  }
-}
+import type { BaseJob, PendingLocalJob } from '../lib'
+import {
+  testManagerWrappedQuery,
+  determineWrappedExecutionParams,
+  getTestManagerURL,
+  parseGlobeTestMessage,
+} from '../utils'
 
 /*
 Executes a queued job and updates the job queue on streamed messages
 */
-export const execute = ({
+export const executeCloud = ({
   job,
   rawBearer,
   workspace,
@@ -58,64 +45,23 @@ export const execute = ({
   hashSumModule: HashSumModule
   activeEnvironmentYMap: YMap<any> | null
 }): boolean => {
-  let params: WrappedExecutionParams | null = null
-
-  if (
-    job.finalRequest &&
-    job.underlyingRequest &&
-    job.underlyingRequest.__typename === 'RESTRequest'
-  ) {
-    params = {
-      bearer: rawBearer,
-      scopeId: job.scopeId,
-      projectId: job.projectId,
-      branchId: job.branchId,
-      testType: 'rest',
-      collectionId: job.collectionId,
-      underlyingRequest: job.underlyingRequest,
-      source: job.source,
-      sourceName: job.sourceName,
-      environmentContext: job.environmentContext,
-      collectionContext: job.collectionContext,
-      finalRequest: job.finalRequest,
-    }
-  } else {
-    throw new Error('Unknown test type')
-  }
+  const params = determineWrappedExecutionParams(job, rawBearer)
 
   try {
-    const socket = io(getUrl(), {
-      // JSON stringify objects
-      query: Object.entries(params).reduce(
-        (acc, [key, value]) => {
-          if (typeof value === 'object') {
-            return {
-              ...acc,
-              [key]: JSON.stringify(value),
-            }
-          } else {
-            return {
-              ...acc,
-              [key]: value,
-            }
-          }
-        },
-        {
-          endpoint: '/new-test',
-        }
-      ),
+    const socket = io(getTestManagerURL(), {
+      query: testManagerWrappedQuery(params, '/new-test'),
       path: '/api/test-manager',
       reconnection: false,
     })
 
     // Messages will need to be parsed
-    socket.on('updates', (message: any) => {
+    socket.on('updates', (message: GlobeTestMessage) => {
       if (
         message.messageType === 'COLLECTION_VARIABLES' ||
         message.messageType === 'ENVIRONMENT_VARIABLES'
       ) {
         handleVariableUpdates(
-          parseMessage(message) as GlobeTestVariablesMessage,
+          parseGlobeTestMessage(message) as GlobeTestVariablesMessage,
           workspace,
           params as WrappedExecutionParams,
           environmentContext,
@@ -193,7 +139,7 @@ const handleRESTAutoFocus = (
   )
 }
 
-type GlobeTestVariablesMessage = GlobeTestMessage & {
+export type GlobeTestVariablesMessage = GlobeTestMessage & {
   messageType: 'ENVIRONMENT_VARIABLES' | 'COLLECTION_VARIABLES'
 }
 
@@ -347,42 +293,4 @@ const handleVariableUpdates = (
       )
     )
   }
-}
-
-export const parseMessage = (message: any) => {
-  if (
-    message.messageType === 'SUMMARY_METRICS' ||
-    message.messageType === 'METRICS' ||
-    message.messageType === 'JOB_INFO' ||
-    message.messageType === 'CONSOLE' ||
-    message.messageType === 'OPTIONS' ||
-    message.messageType === 'ENVIRONMENT_VARIABLES' ||
-    message.messageType === 'COLLECTION_VARIABLES'
-  ) {
-    message.message = JSON.parse(message.message)
-    message.time = new Date(message.time)
-
-    if (message.messageType === 'CONSOLE') {
-      try {
-        message.message.msg = JSON.parse(message.message.msg)
-      } catch (error) {
-        // Do nothing
-      }
-    }
-  }
-
-  if (message.workerId === '' && message.orchestratorId !== '') {
-    delete message.workerId
-    delete message.childJobId
-  }
-
-  if (message.orchestratorId === '' && message.workerId !== '') {
-    delete message.orchestratorId
-  }
-
-  if (message.workerId && message.orchestratorId) {
-    delete message.orchestratorId
-  }
-
-  return message as GlobeTestMessage
 }

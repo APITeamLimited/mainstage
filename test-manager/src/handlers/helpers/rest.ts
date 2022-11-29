@@ -1,24 +1,58 @@
 import {
+  AuthenticatedSocket,
   EntityEngineServersideMessages,
   GlobeTestOptions,
+  RESTResponse,
   WrappedExecutionParams,
 } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
 import { Response } from 'k6/http'
-import { Socket } from 'socket.io'
 
-import { TestRunningState, runningTestStates } from '..'
-import { uploadScopedResource } from '../../../services/upload-scoped-resource'
-import { estimateRESTResponseSize, getEntityEngineSocket } from '../utils'
+import { uploadScopedResource } from '../../services/upload-scoped-resource'
+
+import { RunningTestState, runningTestStates } from './test-states'
+import { estimateRESTResponseSize, getEntityEngineSocket } from './utils'
+
+export const ensureRESTResponseExists = async (
+  socket: AuthenticatedSocket,
+  params: WrappedExecutionParams,
+  jobId: string,
+  executionAgent: RESTResponse['executionAgent']
+): Promise<void> => {
+  const testState = runningTestStates.get(socket)
+  if (!testState) throw new Error('Test state not found')
+
+  if (
+    testState.responseExistence === 'created' ||
+    testState.responseExistence === 'creating'
+  ) {
+    return
+  }
+
+  if (
+    jobId !== testState.jobId &&
+    testState.testType === 'undetermined' &&
+    testState.responseExistence === 'none'
+  ) {
+    runningTestStates.set(socket, {
+      ...(runningTestStates.get(socket) as RunningTestState),
+      responseExistence: 'creating',
+    })
+
+    return await restCreateResponse({ socket, params, jobId, executionAgent })
+  }
+}
 
 export const restCreateResponse = async ({
   socket,
   params,
   jobId,
+  executionAgent,
 }: {
-  socket: Socket
+  socket: AuthenticatedSocket
   params: WrappedExecutionParams
   jobId: string
+  executionAgent: RESTResponse['executionAgent']
 }) => {
   if (!params.finalRequest) {
     socket.emit('error', 'Missing finalRequest parameter')
@@ -28,7 +62,7 @@ export const restCreateResponse = async ({
 
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
-    params.scopeId,
+    socket.scope,
     params.bearer,
     params.projectId
   )
@@ -39,7 +73,7 @@ export const restCreateResponse = async ({
   }
 
   runningTestStates.set(socket, {
-    ...(runningTestStates.get(socket) as TestRunningState),
+    ...(runningTestStates.get(socket) as RunningTestState),
     testType: 'rest',
     jobId,
   })
@@ -54,6 +88,7 @@ export const restCreateResponse = async ({
     sourceName: params.sourceName,
     jobId,
     createdByUserId: userId,
+    executionAgent,
   }
 
   entityEngineSocket.emit('rest-create-response', eeParams)
@@ -64,7 +99,7 @@ export const restAddOptions = async ({
   params,
   options,
 }: {
-  socket: Socket
+  socket: AuthenticatedSocket
   params: WrappedExecutionParams
   options: GlobeTestOptions
 }) => {
@@ -76,7 +111,7 @@ export const restAddOptions = async ({
 
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
-    params.scopeId,
+    socket.scope,
     params.bearer,
     params.projectId
   )
@@ -90,7 +125,7 @@ export const restAddOptions = async ({
   entityEngineSocket.emit('rest-add-options', eeParams)
 
   runningTestStates.set(socket, {
-    ...(runningTestStates.get(socket) as TestRunningState),
+    ...(runningTestStates.get(socket) as RunningTestState),
     options,
   })
 }
@@ -108,11 +143,11 @@ export const restHandleSuccessSingle = async ({
   responseId: string
   globeTestLogsStoreReceipt: string
   metricsStoreReceipt: string
-  socket: Socket
+  socket: AuthenticatedSocket
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
-    params.scopeId,
+    socket.scope,
     params.bearer,
     params.projectId
   )
@@ -149,11 +184,11 @@ export const restHandleSuccessMultiple = async ({
   params: WrappedExecutionParams
   globeTestLogsStoreReceipt: string
   metricsStoreReceipt: string
-  socket: Socket
+  socket: AuthenticatedSocket
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
-    params.scopeId,
+    socket.scope,
     params.bearer,
     params.projectId
   )
@@ -177,12 +212,12 @@ export const restHandleFailure = async ({
 }: {
   params: WrappedExecutionParams
   globeTestLogsStoreReceipt: EntityEngineServersideMessages['rest-handle-failure']['globeTestLogsStoreReceipt']
-  socket: Socket
+  socket: AuthenticatedSocket
   metricsStoreReceipt: string | null
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
-    params.scopeId,
+    socket.scope,
     params.bearer,
     params.projectId
   )
@@ -195,4 +230,29 @@ export const restHandleFailure = async ({
   }
 
   entityEngineSocket.emit('rest-handle-failure', eeParams)
+}
+
+export const restDeleteResponse = async ({
+  params,
+  socket,
+  responseId,
+}: {
+  params: WrappedExecutionParams
+  socket: AuthenticatedSocket
+  responseId: string
+}) => {
+  const entityEngineSocket = await getEntityEngineSocket(
+    socket,
+    socket.scope,
+    params.bearer,
+    params.projectId
+  )
+
+  const eeParams: EntityEngineServersideMessages['rest-delete-response'] = {
+    branchId: params.branchId,
+    collectionId: params.collectionId,
+    responseId: responseId,
+  }
+
+  entityEngineSocket.emit('rest-delete-response', eeParams)
 }
