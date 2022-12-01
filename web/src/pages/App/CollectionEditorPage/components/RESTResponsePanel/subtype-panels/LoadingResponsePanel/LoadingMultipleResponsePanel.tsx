@@ -83,6 +83,8 @@ export const LoadingMultipleResponsePanel = ({
           globeTestLogsBuffer.current.push(message)
         }
       },
+      executionAgent:
+        focusedResponse.get('executionAgent') === 'Local' ? 'Local' : 'Cloud',
     })
 
     setTestSocket(newSocket)

@@ -2,7 +2,7 @@ import { IncomingMessage } from 'http'
 
 import queryString from 'query-string'
 
-import { orchestratorReadRedis } from './redis'
+import { getOrchestratorReadRedis } from './redis'
 
 /*
 Checks a running job is in scope
@@ -29,7 +29,9 @@ export const checkJobId = async (request: IncomingMessage) => {
   }
 
   // Get job from orchestratorReadRedis
-  const foundScopeId = await orchestratorReadRedis.hGet(jobId, 'scopeId')
+  const foundScopeId = await (
+    await getOrchestratorReadRedis()
+  ).hGet(jobId, 'scopeId')
 
   if (!foundScopeId) {
     return false

@@ -4,15 +4,19 @@ import {
   ExecutionParams,
   AuthenticatedSocket,
   RunningTestInfo,
+  parseAndValidateGlobeTestMessage,
+  parseGlobeTestMessage,
+  GLOBETEST_METRICS,
+  GLOBETEST_LOGS,
 } from '@apiteam/types'
 import type { Scope } from '@prisma/client'
 import { parse } from 'query-string'
 import { v4 as uuid } from 'uuid'
 
 import {
-  coreCacheReadRedis,
-  orchestratorReadRedis,
-  orchestratorSubscribeRedis,
+  getCoreCacheReadRedis,
+  getOrchestratorReadRedis,
+  getOrchestratorSubscribeRedis,
 } from '../redis'
 import { validateParams } from '../validator'
 
@@ -20,16 +24,19 @@ import {
   getEntityEngineSocket,
   runningTestStates,
   restDeleteResponse,
-  parseMessage,
   handleMessage,
 } from './helpers'
 
-export const getLocalTestLogsKey = (scope: Scope) =>
-  `workspace-local-test-logs:${scope.variant}:${scope.variantTargetId}${scope.userId}`
-export const getLocalTestUpdatesKey = (scope: Scope) =>
-  `workspace-local-test-updates:${scope.variant}:${scope.variantTargetId}${scope.userId}`
+export const getLocalTestLogsKey = (scope: Scope, jobId: string) =>
+  `workspace-local-test-logs:${scope.variant}:${scope.variantTargetId}:${jobId}`
+export const getLocalTestUpdatesKey = (scope: Scope, jobId: string) =>
+  `workspace-local-test-updates:${scope.variant}:${scope.variantTargetId}${jobId}`
 
 export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+  const orchestratorReadRedis = await getOrchestratorReadRedis()
+  const orchestratorSubscribeRedis = await getOrchestratorSubscribeRedis()
+
   let params = null as WrappedExecutionParams | null
 
   try {
@@ -61,7 +68,8 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    'Local'
   )
 
   const executionParams: ExecutionParams = {
@@ -81,16 +89,20 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     createdAt: new Date().toISOString(),
   }
 
-  const jobLogsKey = getLocalTestLogsKey(socket.scope)
-  const jobUpdatesKey = getLocalTestUpdatesKey(socket.scope)
+  const jobLogsKey = getLocalTestLogsKey(socket.scope, executionParams.id)
+  const jobUpdatesKey = getLocalTestUpdatesKey(socket.scope, executionParams.id)
 
   orchestratorSubscribeRedis.subscribe(jobUpdatesKey, (message) => {
-    const messageObject = parseMessage(JSON.parse(message)) as GlobeTestMessage
+    const parseResult = parseAndValidateGlobeTestMessage(message)
 
-    socket.emit('updates', messageObject)
+    if (!parseResult.success) {
+      return
+    }
+
+    socket.emit('updates', parseResult.data)
 
     handleMessage(
-      messageObject,
+      parseResult.data,
       socket,
       params as WrappedExecutionParams,
       executionParams.id,
@@ -99,17 +111,124 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     )
   })
 
+  let terminationMessage: string | null = null
+  let storedGlobeTestLogs = false
+  let storedMetrics = false
+
   // To enable compatability with cloud tests we need to store the test info in redis
-  socket.on('globeTestMessage', (msg: GlobeTestMessage) => {
-    const stringifiedMessage = JSON.stringify({
-      ...msg,
-      message: JSON.stringify(msg.message),
-    })
+  socket.on('globeTestMessage', async (msg: unknown) => {
+    const parseResult = parseAndValidateGlobeTestMessage(msg)
+
+    if (!parseResult.success) {
+      socket.emit('error', 'Invalid message')
+      socket.disconnect()
+
+      console.error(
+        'Invalid message',
+        parseGlobeTestMessage(msg),
+        parseResult.error
+      )
+
+      return
+    }
+
+    const parsedMessage = parseResult.data
+
+    const stringifiedMessage = correctCloudID(parsedMessage, executionParams.id)
     orchestratorReadRedis.sAdd(jobLogsKey, stringifiedMessage)
     orchestratorReadRedis.publish(jobUpdatesKey, stringifiedMessage)
+
+    if (
+      parsedMessage.messageType === 'STATUS' &&
+      parsedMessage.senderVariant === 'Orchestrator' &&
+      (parsedMessage.message === 'COMPLETED_SUCCESS' ||
+        parsedMessage.message === 'COMPLETED_FAILURE')
+    ) {
+      terminationMessage = correctCloudID(parsedMessage, executionParams.id)
+
+      if (storedGlobeTestLogs && storedMetrics) {
+        orchestratorReadRedis.set(jobLogsKey, terminationMessage)
+        orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
+      }
+    }
+
+    if (
+      parsedMessage.messageType === 'MARK' &&
+      parsedMessage.message.mark === GLOBETEST_LOGS
+    ) {
+      storedGlobeTestLogs = true
+    } else if (
+      parsedMessage.messageType === 'MARK' &&
+      parsedMessage.message.mark === GLOBETEST_METRICS
+    ) {
+      storedMetrics = true
+    }
+
+    if (terminationMessage && storedGlobeTestLogs && storedMetrics) {
+      orchestratorReadRedis.set(jobLogsKey, terminationMessage)
+      orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
+    }
+
+    //  if (
+    //    parsedMessage.messageType === 'LOCALHOST_FILE' &&
+    //    parsedMessage.senderVariant === 'Orchestrator'
+    //  ) {
+    //    if (
+    //      parsedMessage.message.kind === GLOBETEST_LOGS ||
+    //      parsedMessage.message.kind === GLOBETEST_METRICS
+    //    ) {
+    //      const responseStoreReceipt = await uploadScopedResource({
+    //        scopeId: socket.scope.id,
+    //        rawBearer: (params as WrappedExecutionParams).bearer as string,
+    //        resourceName: parsedMessage.message.fileName,
+    //        resource: Buffer.from(parsedMessage.message.contents),
+    //      }
+    //      const messageString = JSON.stringify({
+    //        jobId: executionParams.id,
+    //        time: parsedMessage.time,
+    //        messageType: 'MARK',
+    //        message: {
+    //          mark:
+    //            parsedMessage.message.kind === GLOBETEST_LOGS
+    //              ? 'MetricsStoreReceipt'
+    //              : 'GlobeTestLogsStoreReceipt',
+    //          message: responseStoreReceipt,
+    //        },
+    //        orchestratorId: parsedMessage.orchestratorId,
+    //      })
+
+    //      console.log('Sending message', messageString)
+
+    //      orchestratorReadRedis.set(jobLogsKey, messageString)
+    //      orchestratorReadRedis.publish(jobUpdatesKey, messageString)
+
+    //      if (parsedMessage.message.kind === GLOBETEST_LOGS) {
+    //        storedGlobeTestLogs = true
+
+    //        if (storedMetrics && terminationMessage) {
+    //          orchestratorReadRedis.set(jobLogsKey, terminationMessage)
+    //          orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
+    //        }
+    //      }
+    //    } else {
+    //      storedMetrics = true
+
+    //      if (storedGlobeTestLogs && terminationMessage) {
+    //        orchestratorReadRedis.set(jobLogsKey, terminationMessage)
+    //        orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
+    //      }
+    //    }
+    //  } else {
+    //    const stringifiedMessage = correctCloudID(
+    //      parsedMessage,
+    //      executionParams.id
+    //    )
+    //    orchestratorReadRedis.sAdd(jobLogsKey, stringifiedMessage)
+    //    orchestratorReadRedis.publish(jobUpdatesKey, stringifiedMessage)
+    //  }
   })
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     coreCacheReadRedis.hDel(runningTestKey, executionParams.id)
 
     const testState = runningTestStates.get(socket)
@@ -122,10 +241,11 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     // Delete the response if the test was abruptly stopped
     if (!testState.localCompleted) {
       if (testState.testType === 'rest' && testState.responseId) {
-        restDeleteResponse({
+        await restDeleteResponse({
           params: params as WrappedExecutionParams,
           socket,
           responseId: testState.responseId,
+          executionAgent: 'Local',
         })
       }
     }
@@ -152,3 +272,10 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     JSON.stringify(runningTestInfo)
   )
 }
+
+const correctCloudID = (msg: GlobeTestMessage, jobId: string): string =>
+  JSON.stringify({
+    ...msg,
+    // Override jobId to be that specified in cloud, not the localhost agent
+    jobId,
+  })

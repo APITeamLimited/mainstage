@@ -3,11 +3,10 @@ import {
   GlobeTestMessage,
   GlobeTestOptions,
   AuthenticatedSocket,
-  RESTResponse,
 } from '@apiteam/types'
 import { Response as K6Response } from 'k6/http'
 
-import { coreCacheReadRedis, coreCacheSubscribeRedis } from '../../redis'
+import { getCoreCacheReadRedis, getCoreCacheSubscribeRedis } from '../../redis'
 import {
   restAddOptions,
   restHandleFailure,
@@ -26,18 +25,21 @@ export const handleMessage = async (
   params: WrappedExecutionParams,
   jobId: string,
   runningTestKey: string,
-  executionAgent: RESTResponse['executionAgent']
+  executionAgent: 'Local' | 'Cloud'
 ) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+  const coreCacheSubscribeRedis = await getCoreCacheSubscribeRedis()
+
   if (params.testType === 'rest') {
-    await ensureRESTResponseExists(
-      socket,
-      params,
-      message.jobId,
-      executionAgent
-    )
+    await ensureRESTResponseExists(socket, params, jobId, executionAgent)
 
     if (message.messageType === 'OPTIONS') {
-      await restAddOptions({ socket, params, options: message.message })
+      await restAddOptions({
+        socket,
+        params,
+        options: message.message,
+        executionAgent,
+      })
     }
 
     if (message.messageType === 'MARK') {
@@ -132,6 +134,7 @@ export const handleMessage = async (
               metricsStoreReceipt: runningState.metricsStoreReceipt as string,
               responseId: runningState.responseId as string,
               response: runningState.markedResponse as K6Response,
+              executionAgent,
             })
 
             await coreCacheReadRedis.hDel(runningTestKey, jobId)
@@ -146,6 +149,7 @@ export const handleMessage = async (
               globeTestLogsStoreReceipt:
                 runningState.globeTestLogsStoreReceipt as string,
               metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+              executionAgent,
             })
 
             await coreCacheReadRedis.hDel(runningTestKey, jobId)
@@ -159,6 +163,7 @@ export const handleMessage = async (
             globeTestLogsStoreReceipt:
               runningState.globeTestLogsStoreReceipt ?? null,
             metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
+            executionAgent,
           })
 
           await coreCacheReadRedis.hDel(runningTestKey, jobId)

@@ -29,7 +29,10 @@ export const DescriptionPanel = ({
 
   useEffect(() => {
     const customActions = [
-      <Tooltip title="Show Preview" key={1}>
+      <Tooltip
+        title={showPreview ? 'Hide preview' : 'Show preview'}
+        key="preview"
+      >
         <Switch
           checked={showPreview}
           onChange={(_, value) => setShowPreview(value)}

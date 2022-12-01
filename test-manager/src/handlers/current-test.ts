@@ -1,15 +1,27 @@
-import { AuthenticatedSocket, GlobeTestMessage } from '@apiteam/types'
+import {
+  AuthenticatedSocket,
+  GlobeTestMessage,
+  parseAndValidateGlobeTestMessage,
+  parseGlobeTestMessage,
+} from '@apiteam/types'
 import type { Scope } from '@prisma/client'
 import { parse } from 'query-string'
 
 import {
-  coreCacheReadRedis,
-  orchestratorReadRedis,
-  orchestratorSubscribeRedis,
+  getCoreCacheReadRedis,
+  getOrchestratorReadRedis,
+  getOrchestratorSubscribeRedis,
 } from '../redis'
+
+import { getLocalTestLogsKey, getLocalTestUpdatesKey } from './new-local-test'
+import { getRemoteTestLogsKey, getRemoteTestUpdatesKey } from './new-test'
 
 // Streams an ongoing test
 export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+  const orchestratorReadRedis = await getOrchestratorReadRedis()
+  const orchestratorSubscribeRedis = await getOrchestratorSubscribeRedis()
+
   const params = parse(socket.request.url?.split('?')[1] || '')
 
   if (typeof params.jobId !== 'string') {
@@ -18,9 +30,15 @@ export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
     return
   }
 
+  if (typeof params.executionAgent !== 'string') {
+    socket.emit('error', 'Invalid executionAgent')
+    socket.disconnect()
+    return
+  }
+
   // Get job
   const jobScopeId = await coreCacheReadRedis.get(
-    `jobScopeId:${socket.scope.variantTargetId}:${params.jobId}`
+    `jobScopeId:${socket.scope.variantTargetId}:${params.jobId}:${params.executionAgent}`
   )
 
   if (!jobScopeId) {
@@ -46,11 +64,12 @@ export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
     return
   }
 
-  // Client now authorized to receive updates on this job
-  console.log(new Date(), 'Client authenticated, /current-test')
-
   const pastMessages = (
-    await orchestratorReadRedis.sMembers(`${params.jobId}:updates`)
+    await orchestratorReadRedis.sMembers(
+      params.executionAgent === 'Local'
+        ? getLocalTestLogsKey(userScope, params.jobId)
+        : getRemoteTestLogsKey(params.jobId)
+    )
   ).map((value) => JSON.parse(value) as GlobeTestMessage)
 
   // Send past messages
@@ -70,14 +89,27 @@ export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
 
   // Stream updates
   orchestratorSubscribeRedis.subscribe(
-    `orchestrator:executionUpdates:${params.jobId}`,
-    (message) => {
-      const messageObject = JSON.parse(message) as GlobeTestMessage
+    params.executionAgent === 'Local'
+      ? getLocalTestUpdatesKey(userScope, params.jobId)
+      : getRemoteTestUpdatesKey(params.jobId),
+    (message: unknown) => {
+      const parseResult = parseAndValidateGlobeTestMessage(message)
 
-      if (messageObject.messageType === 'STATUS') {
+      if (!parseResult.success) {
+        console.warn(
+          'Invalid globe test message',
+          JSON.stringify(parseGlobeTestMessage(message)),
+          parseResult.error
+        )
+        return
+      }
+
+      const parsedMessage = parseResult.data
+
+      if (parsedMessage.messageType === 'STATUS') {
         if (
-          messageObject.message === 'COMPLETED_SUCCESS' ||
-          messageObject.message === 'COMPLETED_FAILURE'
+          parsedMessage.message === 'COMPLETED_SUCCESS' ||
+          parsedMessage.message === 'COMPLETED_FAILURE'
         ) {
           // In case of linering client, force disconnect after 1 second
           setTimeout(() => {
@@ -86,19 +118,19 @@ export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
         }
       }
 
-      if (new Date(messageObject.time).getTime() > latestTimestamp) {
-        socket.emit('updates', messageObject)
+      if (new Date(parsedMessage.time).getTime() > latestTimestamp) {
+        socket.emit('updates', parsedMessage)
       } else {
         // Check not in past messages
         // This is an expensive operation, but should be a rare edge case
         if (
           !pastMessages.find(
             (message) =>
-              message.time === messageObject.time &&
-              message.message === messageObject.message
+              message.time === parsedMessage.time &&
+              message.message === parsedMessage.message
           )
         ) {
-          socket.emit('updates', messageObject)
+          socket.emit('updates', parsedMessage)
         }
       }
     }

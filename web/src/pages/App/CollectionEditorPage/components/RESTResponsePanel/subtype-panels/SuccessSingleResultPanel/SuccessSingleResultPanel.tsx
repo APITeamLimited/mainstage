@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types/src'
+import { GlobeTestMessage, parseGlobeTestMessage } from '@apiteam/types/src'
 import { Skeleton } from '@mui/material'
 import { Response, ResponseCookie } from 'k6/http'
 import type { Map as YMap } from 'yjs'
@@ -10,7 +10,6 @@ import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
-import { parseGlobeTestMessage } from 'src/test-manager/utils'
 
 import { PanelLayout } from '../../../PanelLayout'
 import { StatsSkeleton } from '../../../stats'

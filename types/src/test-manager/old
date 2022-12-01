@@ -206,7 +206,7 @@ export type DefaultMetric = {
   contains: 'data' | 'time' | 'default'
 } & (CounterMetric | TrendMetric | RateMetric)
 
-export type DefaultMetrics = {
+export type DefaultSummaryMetrics = {
   data_received: { contains: 'data' } & CounterMetric
   data_sent: { contains: 'data' } & CounterMetric
   http_req_blocked: { contains: 'time' } & TrendMetric

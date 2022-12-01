@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { GlobeTestMessage } from '@apiteam/types/src'
+import { parseGlobeTestMessage } from '@apiteam/types/src'
 import { Alert, Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
@@ -9,7 +10,6 @@ import { useYJSModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
-import { parseGlobeTestMessage } from 'src/test-manager/utils'
 
 import { PanelLayout } from '../../PanelLayout'
 import { ExecutionPanel } from '../ExecutionPanel'

@@ -1,7 +1,10 @@
-import { coreCacheReadRedis, orchestratorReadRedis } from '../redis'
+import { getCoreCacheReadRedis, getOrchestratorReadRedis } from '../redis'
 
 export const forwardGlobalTestStatistics = async () => {
   performStartupCleanup()
+
+  const orchestratorReadRedis = await getOrchestratorReadRedis()
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   setInterval(async () => {
     try {
@@ -111,6 +114,8 @@ export const forwardGlobalTestStatistics = async () => {
 }
 
 const performStartupCleanup = async () => {
+  const orchestratorReadRedis = await getOrchestratorReadRedis()
+
   const orchestratorKeys = await orchestratorReadRedis.keys(
     'orchestrator:*:info'
   )

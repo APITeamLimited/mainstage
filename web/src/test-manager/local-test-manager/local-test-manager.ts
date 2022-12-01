@@ -9,6 +9,7 @@ import {
   Optional,
   GlobeTestMessage,
   WrappedExecutionParams,
+  parseGlobeTestMessage,
 } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 
@@ -17,11 +18,7 @@ import {
   snackSuccessMessageVar,
 } from 'src/components/app/dialogs'
 
-import {
-  getTestManagerURL,
-  parseGlobeTestMessage,
-  testManagerWrappedQuery,
-} from '../utils'
+import { getTestManagerURL, testManagerWrappedQuery } from '../utils'
 
 export type LocalManagerInterface = {
   abortJob: (jobId: string) => void
@@ -39,6 +36,8 @@ type Upload = {
   socket: Socket | null
   queue: GlobeTestMessage[]
   wrappedExecutionParams: WrappedExecutionParams
+  storedGlobeTestLogs?: boolean
+  storedMetrics?: boolean
 }
 
 type LocalTestManagerConstructorArgs = {
@@ -223,6 +222,7 @@ export class LocalTestManager {
     })
 
     socket.on('error', (error) => {
+      snackErrorMessageVar('An error occurred while uploading the test result')
       console.log('Upload socket error', error)
     })
 
@@ -232,6 +232,8 @@ export class LocalTestManager {
   addToUploadQueue(message: GlobeTestMessage) {
     // Find upload
     const upload = this.uploads.find((upload) => upload.jobId === message.jobId)
+
+    const parseResult = parseGlobeTestMessage(message)
 
     if (!upload) {
       throw new Error('Could not find upload for already running job')
@@ -279,18 +281,20 @@ const processSocketMessage = (
       ],
     })
   } else if (parsedMessage.type === 'globeTestMessage') {
-    parsedMessage.message = parseGlobeTestMessage(
-      JSON.parse(parsedMessage.message as unknown as string)
-    )
+    parsedMessage.message = parseGlobeTestMessage(parsedMessage.message)
 
     if (parsedMessage.message.messageType === 'STATUS') {
+      console.log('Status message', parsedMessage.message)
+
       manager.updateJobStatus(
         parsedMessage.message.jobId,
         parsedMessage.message.message
       )
+    } else if (parsedMessage.message.messageType === 'MARK') {
+      manager.addToUploadQueue(parsedMessage.message)
     }
 
-    console.log('asdasd message', parsedMessage)
+    // TODO handle uplaod here
 
     manager.addToUploadQueue(parsedMessage.message)
   } else if (parsedMessage.type === 'displayableErrorMessage') {

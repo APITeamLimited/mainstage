@@ -1,6 +1,8 @@
-import { KeyValueItem, DefaultKV, FileFieldKV, StoredObject } from '..'
+import { z } from 'zod'
 
-import { BaseEntity } from '.'
+import { keyValueItemSchema, defaultKVSchema } from '../key-value-item'
+
+import { baseEntitySchema } from './base'
 
 export const knownContentTypes = {
   'application/json': 'JSON',
@@ -19,116 +21,185 @@ export const knownContentTypes = {
 export const getKnownContentTypes = () => Object.keys(knownContentTypes)
 export const getPrettyContentTypes = () => Object.values(knownContentTypes)
 
-export type ValidContentTypes = keyof typeof knownContentTypes
+const knownContentTypeSchema = z.enum([
+  'application/json',
+  'application/xml',
+  'application/x-www-form-urlencoded',
+  'multipart/form-data',
+  'text/html',
+  'text/plain',
+  'none',
+])
 
-type AuthBase = {
-  authType: string
-}
+export type ValidContentTypes = z.infer<typeof knownContentTypeSchema>
 
-export interface RESTAuthInherit extends AuthBase {
-  authType: 'inherit'
-}
+const restAuthInheritSchema = z.object({
+  authType: z.literal('inherit'),
+})
 
-export interface RESTAuthNone extends AuthBase {
-  authType: 'none'
-}
+export type RESTAuthInherit = z.infer<typeof restAuthInheritSchema>
 
-export interface RESTAuthBasic extends AuthBase {
-  authType: 'basic'
+const restAuthNoneSchema = z.object({
+  authType: z.literal('none'),
+})
 
-  username: string
-  password: string
-}
+export type RESTAuthNone = z.infer<typeof restAuthNoneSchema>
 
-export interface RESTAuthBearer extends AuthBase {
-  authType: 'bearer'
+const restAuthBasicSchema = z.object({
+  authType: z.literal('basic'),
+  username: z.string(),
+  password: z.string(),
+})
 
-  token: string
-}
+export type RESTAuthBasic = z.infer<typeof restAuthBasicSchema>
 
-export interface RESTAuthOAuth2 extends AuthBase {
-  authType: 'oauth-2'
+const restAuthBearerSchema = z.object({
+  authType: z.literal('bearer'),
+  token: z.string(),
+})
 
-  token: string
-  oidcDiscoveryURL: string
-  authURL: string
-  accessTokenURL: string
-  clientID: string
-  scope: string
-}
+export type RESTAuthBearer = z.infer<typeof restAuthBearerSchema>
 
-export interface RESTAuthAPIKey extends AuthBase {
-  authType: 'api-key'
+const restAuthOAuth2Schema = z.object({
+  authType: z.literal('oauth-2'),
+  token: z.string(),
+  oidcDiscoveryURL: z.string(),
+  authURL: z.string(),
+  accessTokenURL: z.string(),
+  clientID: z.string(),
+  scope: z.string(),
+})
 
-  key: string
-  value: string
-  addTo: 'header' | 'query'
-}
+export type RESTAuthOAuth2 = z.infer<typeof restAuthOAuth2Schema>
 
-export interface RESTInheritAuth extends AuthBase {
-  authType: 'inherit'
-}
+const restAuthAPIKeySchema = z.object({
+  authType: z.literal('api-key'),
+  key: z.string(),
+  value: z.string(),
+  addTo: z.enum(['header', 'query']),
+})
 
-export type RESTAuth =
-  | RESTAuthInherit
-  | RESTAuthNone
-  | RESTAuthBasic
-  | RESTAuthBearer
-  | RESTAuthOAuth2
-  | RESTAuthAPIKey
+export type RESTAuthAPIKey = z.infer<typeof restAuthAPIKeySchema>
 
-export type RESTReqBody =
-  | {
-      contentType: Exclude<
-        ValidContentTypes,
-        | 'multipart/form-data'
-        | 'application/x-www-form-urlencoded'
-        | 'application/octet-stream'
-      >
-      body: string
-    }
-  | {
-      contentType: 'none'
-      body: null
-    }
-  | {
-      contentType: 'application/x-www-form-urlencoded'
-      body: KeyValueItem<DefaultKV>[]
-    }
-  | {
-      contentType: 'multipart/form-data'
-      // TODO: may add support for files in the future
-      body: KeyValueItem<DefaultKV>[]
-    }
-// | {
-//     contentType: 'application/octet-stream'
-//     body: {
-//       data: StoredObject<string | ArrayBuffer>
-//       filename: string
-//     } | null
-//   }
+const restAuthSchema = z.union([
+  restAuthInheritSchema,
+  restAuthNoneSchema,
+  restAuthBasicSchema,
+  restAuthBearerSchema,
+  restAuthOAuth2Schema,
+  restAuthAPIKeySchema,
+])
 
-export type ExecutionScript = {
-  script: string
-  language: 'javascript'
-  name: string
-  builtIn?: boolean
-  description?: string
-}
+export type RESTAuth = z.infer<typeof restAuthSchema>
 
-export interface RESTRequest extends BaseEntity {
-  __typename: 'RESTRequest'
-  parentId: string
-  __parentTypename: 'Collection' | 'Folder'
-  name: string
-  orderingIndex: number
-  method: string
-  endpoint: string
-  params: KeyValueItem<DefaultKV>[]
-  headers: KeyValueItem<DefaultKV>[]
-  auth: RESTAuth
-  body: RESTReqBody
-  description: string
-  pathVariables: KeyValueItem<DefaultKV>[]
-  executionScripts: ExecutionScript[]
-}
+const restRequestBodySchema = z.union([
+  z.object({
+    contentType: z.literal('application/json'),
+    body: z.string(),
+  }),
+  z.object({
+    contentType: z.literal('application/xml'),
+    body: z.string(),
+  }),
+  z.object({
+    contentType: z.literal('text/html'),
+    body: z.string(),
+  }),
+  z.object({
+    contentType: z.literal('text/plain'),
+    body: z.string(),
+  }),
+  z.object({
+    contentType: z.literal('none'),
+    body: z.null(),
+  }),
+  z.object({
+    contentType: z.literal('application/x-www-form-urlencoded'),
+    body: keyValueItemSchema(defaultKVSchema),
+  }),
+  z.object({
+    contentType: z.literal('multipart/form-data'),
+    body: keyValueItemSchema(defaultKVSchema),
+  }),
+])
+
+export type RESTRequestBody = z.infer<typeof restRequestBodySchema>
+
+// export type RESTReqBody =
+//   | {
+//       contentType: Exclude<
+//         ValidContentTypes,
+//         | 'multipart/form-data'
+//         | 'application/x-www-form-urlencoded'
+//         | 'application/octet-stream'
+//       >
+//       body: string
+//     }
+//   | {
+//       contentType: 'none'
+//       body: null
+//     }
+//   | {
+//       contentType: 'application/x-www-form-urlencoded'
+//       body: KeyValueItem<DefaultKV>[]
+//     }
+//   | {
+//       contentType: 'multipart/form-data'
+//       // TODO: may add support for files in the future
+//       body: KeyValueItem<DefaultKV>[]
+//     }
+// // | {
+// //     contentType: 'application/octet-stream'
+// //     body: {
+// //       data: StoredObject<string | ArrayBuffer>
+// //       filename: string
+// //     } | null
+// //   }
+
+const executionScriptSchema = z.object({
+  script: z.string(),
+  language: z.literal('javascript'),
+  name: z.string(),
+  builtIn: z.boolean().optional(),
+  description: z.string().optional(),
+})
+
+export type ExecutionScript = z.infer<typeof executionScriptSchema>
+
+export const restRequestSchema = baseEntitySchema.merge(
+  z.object({
+    __typename: z.literal('RESTRequest'),
+    parentId: z.string().uuid(),
+    __parentTypename: z.enum(['Collection', 'Folder']),
+    name: z.string(),
+    orderingIndex: z.number(),
+    method: z.string(),
+    endpoint: z.string(),
+    params: z.array(keyValueItemSchema(defaultKVSchema)),
+    headers: z.array(keyValueItemSchema(defaultKVSchema)),
+    auth: restAuthSchema,
+    body: restRequestBodySchema,
+    description: z.string().optional(),
+    pathVariables: z.array(keyValueItemSchema(defaultKVSchema)),
+    executionScripts: z.array(executionScriptSchema),
+  })
+)
+
+export type RESTRequest = z.infer<typeof restRequestSchema>
+
+// export interface RESTRequest extends BaseEntity {
+//   __typename: 'RESTRequest'
+//   parentId: string
+//   __parentTypename: 'Collection' | 'Folder'
+//   name: string
+//   orderingIndex: number
+//   method: string
+//   endpoint: string
+//   params: KeyValueItem<DefaultKV>[]
+//   headers: KeyValueItem<DefaultKV>[]
+//   auth: RESTAuth
+//   body: RESTReqBody
+//   description: string
+//   pathVariables: KeyValueItem<DefaultKV>[]
+//   executionScripts: ExecutionScript[]
+// }

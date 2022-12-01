@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 
-import { CounterMetric, DefaultMetrics } from '@apiteam/types/src'
+import { CounterMetric, DefaultSummaryMetrics } from '@apiteam/types/src'
 import { Stack, Typography } from '@mui/material'
 
 type MetricsPanelProps = {
   setActionArea: (actionArea: React.ReactNode) => void
-  metrics: DefaultMetrics
+  metrics: DefaultSummaryMetrics
 }
 
 export const MetricsPanel = ({ setActionArea, metrics }: MetricsPanelProps) => {

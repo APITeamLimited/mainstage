@@ -1,6 +1,6 @@
+import { parseAndValidateGlobeTestMessage } from '@apiteam/types'
 import {
   WrappedExecutionParams,
-  GlobeTestMessage,
   ExecutionParams,
   AuthenticatedSocket,
   RunningTestInfo,
@@ -11,23 +11,32 @@ import { parse } from 'query-string'
 import { v4 as uuid } from 'uuid'
 
 import {
-  coreCacheReadRedis,
-  coreCacheSubscribeRedis,
-  orchestratorReadRedis,
-  orchestratorSubscribeRedis,
+  getCoreCacheReadRedis,
+  getCoreCacheSubscribeRedis,
+  getOrchestratorReadRedis,
+  getOrchestratorSubscribeRedis,
+  RedisClient,
 } from '../redis'
 import { validateParams } from '../validator'
 
 import {
   getEntityEngineSocket,
   getVerifiedDomains,
-  parseMessage,
   runningTestStates,
   handleMessage,
 } from './helpers'
 
+export const getRemoteTestLogsKey = (jobId: string) => `${jobId}:updates`
+export const getRemoteTestUpdatesKey = (jobId: string) =>
+  `orchestrator:executionUpdates:${jobId}`
+
 // Creates a new test and streams the result
 export const handleNewTest = async (socket: AuthenticatedSocket) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+  const coreCacheSubscribeRedis = await getCoreCacheSubscribeRedis()
+  const orchestratorReadRedis = await getOrchestratorReadRedis()
+  const orchestratorSubscribeRedis = await getOrchestratorSubscribeRedis()
+
   let params = null as WrappedExecutionParams | null
 
   try {
@@ -61,7 +70,8 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
       socket,
       socket.scope,
       params.bearer,
-      params.projectId
+      params.projectId,
+      'Cloud'
     ),
     await getVerifiedDomains(
       socket.scope.variant,
@@ -90,14 +100,16 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
   orchestratorSubscribeRedis.subscribe(
     `orchestrator:executionUpdates:${executionParams.id}`,
     (message) => {
-      const messageObject = parseMessage(
-        JSON.parse(message)
-      ) as GlobeTestMessage
+      const parseResult = parseAndValidateGlobeTestMessage(message)
 
-      socket.emit('updates', messageObject)
+      if (!parseResult.success) {
+        return
+      }
+
+      socket.emit('updates', parseResult.data)
 
       handleMessage(
-        messageObject,
+        parseResult.data,
         socket,
         params as WrappedExecutionParams,
         executionParams.id,
@@ -135,7 +147,9 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
           message,
           socket.scope,
           executionParams.id,
-          runningTestKey
+          runningTestKey,
+          coreCacheReadRedis,
+          orchestratorReadRedis
         )
     ),
   ])
@@ -154,7 +168,9 @@ const handleJobUserUpdates = (
   message: string,
   scope: Scope,
   jobId: string,
-  runningTestKey: string
+  runningTestKey: string,
+  coreCacheReadRedis: RedisClient,
+  orchestratorReadRedis: RedisClient
 ) => {
   const parsedMessage = JSON.parse(message) as JobUserUpdateMessage
 

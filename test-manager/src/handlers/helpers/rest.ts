@@ -2,7 +2,6 @@ import {
   AuthenticatedSocket,
   EntityEngineServersideMessages,
   GlobeTestOptions,
-  RESTResponse,
   WrappedExecutionParams,
 } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
@@ -17,7 +16,7 @@ export const ensureRESTResponseExists = async (
   socket: AuthenticatedSocket,
   params: WrappedExecutionParams,
   jobId: string,
-  executionAgent: RESTResponse['executionAgent']
+  executionAgent: 'Local' | 'Cloud'
 ): Promise<void> => {
   const testState = runningTestStates.get(socket)
   if (!testState) throw new Error('Test state not found')
@@ -52,7 +51,7 @@ export const restCreateResponse = async ({
   socket: AuthenticatedSocket
   params: WrappedExecutionParams
   jobId: string
-  executionAgent: RESTResponse['executionAgent']
+  executionAgent: 'Local' | 'Cloud'
 }) => {
   if (!params.finalRequest) {
     socket.emit('error', 'Missing finalRequest parameter')
@@ -64,7 +63,8 @@ export const restCreateResponse = async ({
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    executionAgent
   )
 
   // Decode bearer token, don't need to check if it's valid
@@ -98,10 +98,12 @@ export const restAddOptions = async ({
   socket,
   params,
   options,
+  executionAgent,
 }: {
   socket: AuthenticatedSocket
   params: WrappedExecutionParams
   options: GlobeTestOptions
+  executionAgent: 'Local' | 'Cloud'
 }) => {
   if (!params.finalRequest) {
     socket.emit('error', 'Missing finalRequest parameter')
@@ -113,7 +115,8 @@ export const restAddOptions = async ({
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    executionAgent
   )
 
   const eeParams: EntityEngineServersideMessages['rest-add-options'] = {
@@ -137,6 +140,7 @@ export const restHandleSuccessSingle = async ({
   globeTestLogsStoreReceipt,
   metricsStoreReceipt,
   socket,
+  executionAgent,
 }: {
   params: WrappedExecutionParams
   response: Response
@@ -144,12 +148,14 @@ export const restHandleSuccessSingle = async ({
   globeTestLogsStoreReceipt: string
   metricsStoreReceipt: string
   socket: AuthenticatedSocket
+  executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    executionAgent
   )
 
   const responseStoreReceipt = await uploadScopedResource({
@@ -180,17 +186,20 @@ export const restHandleSuccessMultiple = async ({
   globeTestLogsStoreReceipt,
   metricsStoreReceipt,
   socket,
+  executionAgent,
 }: {
   params: WrappedExecutionParams
   globeTestLogsStoreReceipt: string
   metricsStoreReceipt: string
   socket: AuthenticatedSocket
+  executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    executionAgent
   )
 
   const eeParams: EntityEngineServersideMessages['rest-handle-success-multiple'] =
@@ -209,17 +218,20 @@ export const restHandleFailure = async ({
   globeTestLogsStoreReceipt,
   socket,
   metricsStoreReceipt,
+  executionAgent,
 }: {
   params: WrappedExecutionParams
   globeTestLogsStoreReceipt: EntityEngineServersideMessages['rest-handle-failure']['globeTestLogsStoreReceipt']
   socket: AuthenticatedSocket
   metricsStoreReceipt: string | null
+  executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    executionAgent
   )
 
   const eeParams: EntityEngineServersideMessages['rest-handle-failure'] = {
@@ -236,16 +248,19 @@ export const restDeleteResponse = async ({
   params,
   socket,
   responseId,
+  executionAgent,
 }: {
   params: WrappedExecutionParams
   socket: AuthenticatedSocket
   responseId: string
+  executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
     socket.scope,
     params.bearer,
-    params.projectId
+    params.projectId,
+    executionAgent
   )
 
   const eeParams: EntityEngineServersideMessages['rest-delete-response'] = {

@@ -2,7 +2,6 @@ import { Buffer } from 'buffer'
 
 import {
   EntityEngineServersideMessages,
-  GlobeTestMessage,
   RunningTestInfo,
   StatusType,
 } from '@apiteam/types'
@@ -14,7 +13,7 @@ import { io } from 'socket.io-client'
 import type { Socket as EntityEngineSocket } from 'socket.io-client'
 
 import { checkValue } from '../../config'
-import { coreCacheReadRedis } from '../../redis'
+import { getCoreCacheReadRedis } from '../../redis'
 
 import { RunningTestState, runningTestStates } from '.'
 
@@ -28,8 +27,11 @@ export const getEntityEngineSocket = async (
   clientSocket: Socket,
   scope: Scope,
   bearer: string,
-  projectId: string
+  projectId: string,
+  executionAgent: 'Local' | 'Cloud'
 ): Promise<EntityEngineSocket> => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   if (!runningTestStates.has(clientSocket)) {
     throw new Error('No running test state found')
   }
@@ -59,7 +61,7 @@ export const getEntityEngineSocket = async (
       responseExistence: 'created',
     })
 
-    const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}`
+    const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}:${executionAgent}`
 
     // Create and delete a temporary id to enable streaming of tests by jobId
     await coreCacheReadRedis.set(jobScopeKey, scope.id)
@@ -96,6 +98,8 @@ export const getVerifiedDomains = async (
   variant: string,
   variantTargetId: string
 ) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   const verifiedDomainIds = (
     await coreCacheReadRedis.sMembers(
       `verifiedDomain__variant:${variant}__variantTargetId:${variantTargetId}`
@@ -122,6 +126,8 @@ export const updateTestInfo = async (
   status: StatusType,
   runningTestKey: string
 ) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   // Delete test info if completed
   if (
     status === 'COMPLETED_SUCCESS' ||
@@ -150,21 +156,4 @@ export const updateTestInfo = async (
       status,
     })
   )
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const parseMessage = (message: any) => {
-  if (
-    message.messageType === 'SUMMARY_METRICS' ||
-    message.messageType === 'METRICS' ||
-    message.messageType === 'MARK' ||
-    message.messageType === 'JOB_INFO' ||
-    message.messageType === 'CONSOLE' ||
-    message.messageType === 'OPTIONS'
-  ) {
-    message.message = JSON.parse(message.message)
-    message.time = new Date(message.time)
-  }
-
-  return message as GlobeTestMessage
 }

@@ -6,7 +6,7 @@ import { checkValue } from '../../config'
 
 import { OpenDoc } from './open-doc'
 
-type StoredTarget = Y.Map<unknown> | StoredObject<never>
+type StoredTarget = Y.Map<unknown> | StoredObject
 
 const internalAPIKey = checkValue<string>('api.internalAPIKey')
 const storeURL = `${checkValue<string>('store.host')}:${checkValue<number>(

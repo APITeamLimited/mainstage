@@ -2,8 +2,9 @@ import { Team } from '@prisma/client'
 import { Jwt, JwtPayload } from 'jsonwebtoken'
 
 import { TeamRole } from './team'
+import { GlobeTestOptions } from './test-manager/globe-test'
 
-import { GlobeTestOptions, RESTResponse } from '.'
+import { RESTResponse } from '.'
 
 export type ClientAwareness = {
   publicBearer?: string

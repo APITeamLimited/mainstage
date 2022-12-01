@@ -6,6 +6,7 @@ import {
   kvLegacyImporter,
   LocalValueKV,
   WrappedExecutionParams,
+  parseGlobeTestMessage,
 } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
@@ -20,7 +21,6 @@ import {
   testManagerWrappedQuery,
   determineWrappedExecutionParams,
   getTestManagerURL,
-  parseGlobeTestMessage,
 } from '../utils'
 
 /*

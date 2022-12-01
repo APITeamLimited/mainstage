@@ -3,8 +3,8 @@ import {
   RESTResponseBase,
   EntityEngineServersideMessages,
   LoadingResult,
-  GlobeTestOptions,
   Graph,
+  GlobeTestOptions,
 } from '@apiteam/types'
 import { Socket } from 'socket.io'
 import { v4 as uuid } from 'uuid'
@@ -57,7 +57,7 @@ export const restCreateResponse = async (
     method: underlyingRequest.method,
     endpoint: finalRequestEndpoint,
     __subtype: 'LoadingResponse',
-    createdAt: new Date(),
+    createdAt: new Date().toISOString(),
     updatedAt: null,
     options: null,
     underlyingRequest: {
@@ -81,13 +81,9 @@ export const restCreateResponse = async (
 
   const responseYMap = new Y.Map()
 
-  Array.from(Object.entries(restResponse)).forEach(([key, value]) => {
-    if (key === 'createdAt') {
-      responseYMap.set(key, (value as Date).toISOString())
-    } else {
-      responseYMap.set(key, value)
-    }
-  })
+  Array.from(Object.entries(restResponse)).forEach(([key, value]) =>
+    responseYMap.set(key, value)
+  )
 
   restResponsesYMap.set(restResponse.id as string, responseYMap)
 
