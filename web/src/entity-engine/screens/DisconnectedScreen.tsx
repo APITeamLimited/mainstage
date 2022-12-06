@@ -31,8 +31,7 @@ export const DisconnectedScreen = ({
         spacing={4}
         alignItems="center"
         sx={{
-          // Looks better slightly higher up on the screen
-          paddingBottom: '200px',
+          padding: 4,
         }}
       >
         <WarningAmberIcon
@@ -42,15 +41,27 @@ export const DisconnectedScreen = ({
             color: theme.palette.warning.main,
           }}
         />
-        <Typography variant="h6" color={theme.palette.text.secondary}>
+        <Typography
+          variant="h6"
+          color={theme.palette.text.secondary}
+          sx={{
+            textAlign: 'center',
+          }}
+        >
           You have been disconnected, we will try to reconnect you in a few
           seconds if an internet connection is detected.
         </Typography>
-        <Typography variant="h6" color={theme.palette.text.secondary}>
-          If you are still seeing this message, please refresh the page.
+        <Typography
+          variant="h6"
+          color={theme.palette.text.secondary}
+          sx={{
+            textAlign: 'center',
+          }}
+        >
+          If you are still seeing this message, please reload the page.
         </Typography>
         <Button variant="contained" onClick={() => window.location.reload()}>
-          Refresh
+          Reload
         </Button>
       </Stack>
     </Box>

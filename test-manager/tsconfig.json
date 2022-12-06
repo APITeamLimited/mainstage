@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "noEmit": false,
-    "outDir": "./dist",
+    "outDir": "src/handlers/dist",
     "allowJs": true,
     "esModuleInterop": true,
     "target": "esnext",

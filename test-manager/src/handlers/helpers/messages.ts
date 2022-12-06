@@ -3,6 +3,8 @@ import {
   GlobeTestMessage,
   GlobeTestOptions,
   AuthenticatedSocket,
+  GLOBETEST_LOGS_MARK,
+  METRICS_MARK,
 } from '@apiteam/types'
 import { Response as K6Response } from 'k6/http'
 
@@ -40,30 +42,51 @@ export const handleMessage = async (
         options: message.message,
         executionAgent,
       })
+    } else if (message.messageType === 'JOB_INFO') {
+      await restAddOptions({
+        socket,
+        params,
+        options: message.message.options,
+        executionAgent,
+      })
     }
 
     if (message.messageType === 'MARK') {
       if (message.message.mark === 'MarkedResponse') {
-        const testState = runningTestStates.get(socket)
-        if (!testState) throw new Error('Test state not found')
+        // Bad hack for race conditions on slow clients
 
-        if (testState.testType === 'rest' && !testState.markedResponse) {
-          runningTestStates.set(socket, {
-            ...(runningTestStates.get(socket) as RunningTestState),
-            testType: 'rest',
-            markedResponse: message.message.message as unknown as K6Response,
-          })
+        const waitForOptions = async (initial: boolean, count = 0) => {
+          if (!initial) {
+            await new Promise((resolve) => setTimeout(resolve, 20))
+          }
+
+          const testState = runningTestStates.get(socket)
+          if (!testState) throw new Error('Test state not found')
+
+          if (testState.testType === 'rest' && !testState.markedResponse) {
+            runningTestStates.set(socket, {
+              ...(runningTestStates.get(socket) as RunningTestState),
+              testType: 'rest',
+              markedResponse: message.message.message as K6Response,
+            })
+          } else if (testState.testType === 'undetermined') {
+            if (count < 10) {
+              waitForOptions(false, count + 1)
+            }
+          }
         }
+
+        waitForOptions(true)
       }
 
-      if (message.message.mark === 'GlobeTestLogsStoreReceipt') {
+      if (message.message.mark === GLOBETEST_LOGS_MARK) {
         runningTestStates.set(socket, {
           ...(runningTestStates.get(socket) as RunningTestState),
           globeTestLogsStoreReceipt: message.message.message as string,
         })
       }
 
-      if (message.message.mark === 'MetricsStoreReceipt') {
+      if (message.message.mark === METRICS_MARK) {
         runningTestStates.set(socket, {
           ...(runningTestStates.get(socket) as RunningTestState),
           metricsStoreReceipt: message.message.message as string,
@@ -72,27 +95,24 @@ export const handleMessage = async (
     }
 
     if (message.messageType === 'STATUS') {
-      updateTestInfo(jobId, message.message, runningTestKey)
-
-      // Cleaup running test state if the is finished
-      if (message.message === 'SUCCESS' || message.message === 'FAILURE') {
+      if (
+        message.message !== 'COMPLETED_SUCCESS' &&
+        message.message !== 'COMPLETED_FAILURE'
+      ) {
+        updateTestInfo(jobId, message.message, runningTestKey)
+      } else {
         coreCacheReadRedis.hDel(runningTestKey, jobId)
 
-        coreCacheSubscribeRedis.unsubscribe(
-          `jobUserUpdates:${socket.scope.variant}:${socket.scope.variantTargetId}:${jobId}`
-        )
+        if (executionAgent === 'Cloud') {
+          coreCacheSubscribeRedis.unsubscribe(
+            `jobUserUpdates:${socket.scope.variant}:${socket.scope.variantTargetId}:${jobId}`
+          )
+        }
 
-        setTimeout(() => {
-          runningTestStates.delete(socket)
-          socket.disconnect()
-        }, 10000)
-      }
+        const runningState = runningTestStates.get(socket)
 
-      if (
-        message.message === 'COMPLETED_SUCCESS' ||
-        message.message === 'COMPLETED_FAILURE'
-      ) {
-        const runningState = runningTestStates.get(socket) as RunningTestState
+        if (!runningState)
+          throw new Error(`Running state not found, ${JSON.stringify(message)}`)
 
         let wasSuccessful = true
 
@@ -112,8 +132,9 @@ export const handleMessage = async (
           }
 
           if (
-            (runningState.options as GlobeTestOptions).executionMode ===
-              'httpSingle' &&
+            wasSuccessful &&
+            runningState.options &&
+            runningState.options.executionMode === 'httpSingle' &&
             !runningState.markedResponse
           ) {
             wasSuccessful = false
@@ -157,6 +178,21 @@ export const handleMessage = async (
             throw new Error(`Invalid test type: ${runningState.testType}`)
           }
         } else {
+          // FInd why not
+          //console.log(
+          //  'FAILED',
+          //  runningState.testType === 'undetermined',
+          //  message.message === 'COMPLETED_FAILURE',
+          //  !runningState.globeTestLogsStoreReceipt,
+          //  !runningState.metricsStoreReceipt,
+          //  !runningState.options,
+          //  // @ts-ignore
+          //  !runningState.responseId,
+          //  !runningState.entityEngineSocket,
+          //  // @ts-ignore
+          //  !runningState.markedResponse
+          //)
+
           await restHandleFailure({
             socket,
             params,

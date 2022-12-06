@@ -1,18 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { RESTAuth } from '@apiteam/types/src'
+import { defaultOAuth2Config, RESTAuth } from '@apiteam/types/src'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
-import { Grid, Stack, useTheme, Typography, Chip, Box } from '@mui/material'
+import { useTheme } from '@mui/material'
 
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { SecondaryChips } from 'src/components/app/utils/SecondaryChips'
-import { useSimplebarReactModule } from 'src/contexts/imports'
 
 import { APIKeyAuthForm } from './APIKeyAuthForm'
 import { BasicAuthForm } from './BasicAuthForm'
 import { BearerAuthForm } from './BearerAuthForm'
-import { OAuth2AuthForm } from './OAuth2AuthForm'
+import { OAuth2AuthForm } from './OAuth2AuthForm/OAuth2AuthForm'
 
 const authMethodLabels = [
   {
@@ -31,11 +30,10 @@ const authMethodLabels = [
     authType: 'bearer',
     label: 'Bearer',
   },
-  // TODO: Add OAuth2 support and more auth methods
-  //{
-  //  authType: 'oauth-2',
-  //  label: 'OAuth 2',
-  //},
+  {
+    authType: 'oauth-2',
+    label: 'OAuth 2',
+  },
   {
     authType: 'api-key',
     label: 'API Key',
@@ -57,8 +55,6 @@ export const AuthPanel = ({
   namespace,
   disableInherit,
 }: AuthPanelProps) => {
-  const { default: SimpleBar } = useSimplebarReactModule()
-
   const theme = useTheme()
   const [unsavedAuths, setUnsavedAuths] = useState<RESTAuth[]>([auth])
 
@@ -123,15 +119,7 @@ export const AuthPanel = ({
       setAuth(
         unsavedAuths.find(
           (unsavedAuth) => unsavedAuth.authType === 'oauth-2'
-        ) || {
-          authType: 'oauth-2',
-          token: '',
-          oidcDiscoveryURL: '',
-          authURL: '',
-          accessTokenURL: '',
-          clientID: '',
-          scope: '',
-        }
+        ) ?? defaultOAuth2Config
       )
     } else if (newAuthType === 'api-key') {
       setAuth(
@@ -232,21 +220,9 @@ export const AuthPanel = ({
       {auth.authType === 'bearer' && (
         <BearerAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
       )}
-      {/*auth.authType === 'oauth-2' && (
-          <Stack
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              height: '100%',
-            }}
-          >
-            <OAuth2AuthForm
-              auth={auth}
-              setAuth={setAuth}
-              requestId={requestId}
-            />
-          </Stack>
-          )*/}
+      {auth.authType === 'oauth-2' && (
+        <OAuth2AuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+      )}
       {auth.authType === 'api-key' && (
         <APIKeyAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
       )}

@@ -10,6 +10,9 @@ import { metricsCombinationSchema } from './metrics'
 export const GLOBETEST_LOGS = 'GLOBETEST_LOGS' as const
 export const GLOBETEST_METRICS = 'GLOBETEST_METRICS' as const
 
+export const GLOBETEST_LOGS_MARK = 'GlobeTestLogsStoreReceipt' as const
+export const METRICS_MARK = 'MetricsStoreReceipt' as const
+
 const localhostFileSchema = z.object({
   fileName: z.string(),
   contents: z.string(),
@@ -114,6 +117,7 @@ const messageCombinationSchema = z.union([
     messageType: z.literal('SUMMARY_METRICS'),
     message: z.record(z.unknown()),
   }),
+  // METRICS
   metricsCombinationSchema,
   z.object({
     messageType: z.literal('ERROR'),
@@ -135,7 +139,7 @@ const messageCombinationSchema = z.union([
     messageType: z.literal('JOB_INFO'),
     message: z.object({
       id: z.string(),
-      options: globeTestOptionsSchema,
+      options: globeTestOptionsSchema.or(z.null()),
       scope: z.object({
         variant: z.union([z.literal('USER'), z.literal('TEAM')]),
         variantTargetId: z.string().uuid(),

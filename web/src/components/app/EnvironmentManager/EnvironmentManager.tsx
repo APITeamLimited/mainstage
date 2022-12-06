@@ -1,11 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import {
-  KeyValueItem,
-  kvExporter,
-  kvLegacyImporter,
-  LocalValueKV,
-} from '@apiteam/types/src'
+import { KeyValueItem, kvExporter, kvLegacyImporter } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import DeselectIcon from '@mui/icons-material/Deselect'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
@@ -69,9 +64,7 @@ export const EnvironmentManager = ({
   const branchYMap = useBranchYMap()
   const branchHook = useYMap(branchYMap ?? new Y.Map())
 
-  const [unsavedKeyValues, setUnsavedKeyValues] = useState(
-    [] as KeyValueItem<LocalValueKV>[]
-  )
+  const [unsavedKeyValues, setUnsavedKeyValues] = useState([] as KeyValueItem[])
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
@@ -80,6 +73,8 @@ export const EnvironmentManager = ({
   const [showCreateEnvironmentDialog, setShowCreateEnvironmentDialog] =
     useState(false)
   const [showQueryDeleteDialog, setShowQueryDeleteDialog] = useState(false)
+
+  const [querySwitchToId, setQueryquerySwitchToId] = useState('')
 
   const activeEnvironmentId = useMemo(
     () => activeEnvironmentDict[getBranchEnvironmentKey(branchYMap)] ?? null,
@@ -95,7 +90,7 @@ export const EnvironmentManager = ({
     }
 
     if (!needSave && activeEnvironmentYMap) {
-      const newKeyValues = kvLegacyImporter<LocalValueKV>(
+      const newKeyValues = kvLegacyImporter(
         'variables',
         activeEnvironmentYMap,
         'localvalue'
@@ -121,7 +116,7 @@ export const EnvironmentManager = ({
     }
 
     if (show && activeEnvironmentId && activeEnvironmentYMap) {
-      const newKeyValues = kvLegacyImporter<LocalValueKV>(
+      const newKeyValues = kvLegacyImporter(
         'variables',
         activeEnvironmentYMap,
         'localvalue'
@@ -138,13 +133,11 @@ export const EnvironmentManager = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, activeEnvironmentId, activeEnvironmentYMap])
 
-  const handleEnvironmentSave = (
-    newKeyValues: KeyValueItem<LocalValueKV>[]
-  ) => {
+  const handleEnvironmentSave = (newKeyValues: KeyValueItem[]) => {
     if (!activeEnvironmentYMap) throw 'No active environment'
     activeEnvironmentYMap.set(
       'variables',
-      kvExporter<LocalValueKV>(
+      kvExporter(
         newKeyValues,
         'localvalue',
         activeEnvironmentYMap.doc?.guid as string
@@ -209,6 +202,20 @@ export const EnvironmentManager = ({
         onDelete={handleEnvironmentDelete}
         title="Delete Environment"
         description="Are you sure you want to delete this environment?"
+      />
+      <QueryDeleteDialog
+        show={querySwitchToId !== ''}
+        onClose={() => setQueryquerySwitchToId('')}
+        onDelete={() =>
+          updateActiveEnvironmentId(
+            activeEnvironmentDict,
+            branchYMap,
+            querySwitchToId
+          )
+        }
+        title="Switch Environment"
+        description="Switching environment will discard any unsaved changes. Are you sure you want to switch?"
+        deleteButtonLabel="Switch"
       />
       <CustomDialog
         open={show}
@@ -318,11 +325,15 @@ export const EnvironmentManager = ({
                         : 'text'
                     }
                     onClick={() => {
-                      updateActiveEnvironmentId(
-                        activeEnvironmentDict,
-                        branchYMap,
-                        environment.get('id')
-                      )
+                      if (needSave) {
+                        setQueryquerySwitchToId(environment.get('id'))
+                      } else {
+                        updateActiveEnvironmentId(
+                          activeEnvironmentDict,
+                          branchYMap,
+                          environment.get('id')
+                        )
+                      }
                     }}
                   >
                     {environment.get('name')}
@@ -358,10 +369,10 @@ export const EnvironmentManager = ({
                     width: '100%',
                   }}
                 >
-                  <KeyValueEditor<LocalValueKV>
+                  <KeyValueEditor
                     items={unsavedKeyValues}
                     setItems={(newItems) =>
-                      handleFieldUpdate<KeyValueItem<LocalValueKV>[]>(
+                      handleFieldUpdate<KeyValueItem[]>(
                         setUnsavedKeyValues,
                         newItems
                       )

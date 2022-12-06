@@ -13,6 +13,7 @@ type QueryDeleteDialogProps = {
   onDelete: () => void
   title?: string
   description?: string
+  deleteButtonLabel?: string
 }
 
 export const QueryDeleteDialog = ({
@@ -21,6 +22,7 @@ export const QueryDeleteDialog = ({
   onDelete,
   title = 'Confirm Delete',
   description = 'Are you sure you want to delete this?',
+  deleteButtonLabel = 'Delete',
 }: QueryDeleteDialogProps) => (
   <Dialog
     open={show}
@@ -47,7 +49,7 @@ export const QueryDeleteDialog = ({
         autoFocus
         color="error"
       >
-        Delete
+        {deleteButtonLabel}
       </Button>
     </DialogActions>
   </Dialog>

@@ -60,17 +60,83 @@ const restAuthBearerSchema = z.object({
 
 export type RESTAuthBearer = z.infer<typeof restAuthBearerSchema>
 
-const restAuthOAuth2Schema = z.object({
-  authType: z.literal('oauth-2'),
-  token: z.string(),
-  oidcDiscoveryURL: z.string(),
-  authURL: z.string(),
-  accessTokenURL: z.string(),
-  clientID: z.string(),
-  scope: z.string(),
-})
+const restAuthOAuth2Schema = z.intersection(
+  z.object({
+    authType: z.literal('oauth-2'),
+    headerPrefix: z.string(),
+    existingAccessTokens: z.array(
+      z.object({
+        name: z.string(),
+        accessToken: z.string(),
+      })
+    ),
+  }),
+  z.union([
+    z.object({
+      grantType: z.literal('authorization-code'),
+      callbackURL: z.string(),
+      authorizationURL: z.string(),
+      accessTokenURL: z.string(),
+      clientID: z.string(),
+      clientSecret: z.string(),
+      scope: z.string(),
+      state: z.string(),
+      clientAuthentication: z.enum(['header', 'body']),
+    }),
+    z.object({
+      grantType: z.literal('implicit'),
+      callbackURL: z.string(),
+      authorizationURL: z.string(),
+      clientID: z.string(),
+      scope: z.string(),
+      state: z.string(),
+      clientAuthentication: z.enum(['header', 'body']),
+    }),
+    z.object({
+      grantType: z.literal('client-credentials'),
+      accessTokenURL: z.string(),
+      clientID: z.string(),
+      clientSecret: z.string(),
+      scope: z.string(),
+      clientAuthentication: z.enum(['header', 'body']),
+    }),
+    z.object({
+      grantType: z.literal('resource-owner-password-credentials'),
+      accessTokenURL: z.string(),
+      clientID: z.string(),
+      clientSecret: z.string(),
+      username: z.string(),
+      password: z.string(),
+      scope: z.string(),
+      clientAuthentication: z.enum(['header', 'body']),
+    }),
+  ])
+)
 
 export type RESTAuthOAuth2 = z.infer<typeof restAuthOAuth2Schema>
+
+export const defaultOAuth2Config = (
+  grantType: RESTAuthOAuth2['grantType']
+): RESTAuthOAuth2 => {
+  if (grantType === 'authorization-code') {
+    return {
+      authType: 'oauth-2',
+      existingAccessTokens: [],
+      headerPrefix: 'Bearer',
+      grantType: 'authorization-code',
+      callbackURL: '',
+      accessTokenURL: '',
+      authorizationURL: '',
+      clientID: '',
+      clientSecret: '',
+      scope: '',
+      state: '',
+      clientAuthentication: 'header',
+    }
+  }
+
+  throw new Error('Invalid grant type')
+}
 
 const restAuthAPIKeySchema = z.object({
   authType: z.literal('api-key'),

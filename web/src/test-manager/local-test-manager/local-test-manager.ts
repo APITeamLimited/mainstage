@@ -9,16 +9,23 @@ import {
   Optional,
   GlobeTestMessage,
   WrappedExecutionParams,
-  parseGlobeTestMessage,
 } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
+import type { Doc as YDoc } from 'yjs'
 
 import {
   snackErrorMessageVar,
   snackSuccessMessageVar,
 } from 'src/components/app/dialogs'
+import { FocusedElementDictionary } from 'src/contexts/reactives'
 
-import { getTestManagerURL, testManagerWrappedQuery } from '../utils'
+import {
+  getTestManagerURL,
+  handleRESTAutoFocus,
+  testManagerWrappedQuery,
+} from '../utils'
+
+import { processGlobeTestMessage } from './message-processing'
 
 export type LocalManagerInterface = {
   abortJob: (jobId: string) => void
@@ -31,17 +38,29 @@ export type LocalManagerInterface = {
   runningTests: RunningTestInfo[]
 } | null
 
-type Upload = {
+export type Upload = {
   jobId: string
   socket: Socket | null
   queue: GlobeTestMessage[]
   wrappedExecutionParams: WrappedExecutionParams
   storedGlobeTestLogs?: boolean
   storedMetrics?: boolean
+  terminationMessage?: GlobeTestMessage
+  storedOptions?: boolean
+  // Multiple simultaneous uploads can happen so we need to keep track of the total number of uploads
+  uploadCount: number
+}
+
+export type TerminationMessage = GlobeTestMessage & {
+  message: 'COMPLETED_SUCCESS' | 'COMPLETED_FAILURE'
 }
 
 type LocalTestManagerConstructorArgs = {
   onManagerUpdate: (update: LocalManagerInterface) => void
+  rawBearer: string | null
+  scopeId: string | null
+  focusedResponseDict: FocusedElementDictionary
+  workspace: YDoc
 }
 
 export class LocalTestManager {
@@ -52,9 +71,23 @@ export class LocalTestManager {
   uploads: Upload[] = []
   wasOpen = false
   spawnTime: number = new Date().getTime()
+  rawBearer: string | null
+  scopeId: string | null
+  focusedResponseDict: FocusedElementDictionary
+  workspace: YDoc
 
-  constructor({ onManagerUpdate }: LocalTestManagerConstructorArgs) {
+  constructor({
+    onManagerUpdate,
+    rawBearer,
+    scopeId,
+    focusedResponseDict,
+    workspace,
+  }: LocalTestManagerConstructorArgs) {
     this.onManagerUpdate = onManagerUpdate
+    this.rawBearer = rawBearer
+    this.scopeId = scopeId
+    this.focusedResponseDict = focusedResponseDict
+    this.workspace = workspace
 
     this.setupSocket()
 
@@ -100,6 +133,7 @@ export class LocalTestManager {
             socket: null,
             queue: [],
             wrappedExecutionParams,
+            uploadCount: 0,
           }
 
           this.uploads.push(upload)
@@ -192,7 +226,7 @@ export class LocalTestManager {
       throw new Error('Could not find upload for already running job')
     }
 
-    const socket = io(getTestManagerURL(), {
+    const uploadSocket = io(getTestManagerURL(), {
       query: testManagerWrappedQuery(
         upload.wrappedExecutionParams,
         '/new-local-test'
@@ -201,13 +235,13 @@ export class LocalTestManager {
       reconnection: false,
     })
 
-    socket.on('connect', () => {
+    uploadSocket.on('connect', () => {
       // FInd the upload with this job id and send the queued messages
 
       if (upload) {
-        upload.socket = socket
+        upload.socket = uploadSocket
         upload.queue.forEach((message) =>
-          socket.emit('globeTestMessage', message)
+          uploadSocket.emit('globeTestMessage', message)
         )
 
         upload.queue = []
@@ -216,34 +250,36 @@ export class LocalTestManager {
       }
     })
 
-    socket.on('disconnect', () => {
+    uploadSocket.on('disconnect', () => {
       // Remove the upload with this job id
       this.uploads = this.uploads.filter((upload) => upload.jobId !== job.id)
     })
 
-    socket.on('error', (error) => {
+    uploadSocket.on('error', (error) => {
       snackErrorMessageVar('An error occurred while uploading the test result')
       console.log('Upload socket error', error)
     })
 
-    upload.socket = socket
+    handleRESTAutoFocus(
+      this.focusedResponseDict,
+      this.workspace,
+      uploadSocket,
+      upload.wrappedExecutionParams
+    )
+
+    upload.socket = uploadSocket
   }
 
-  addToUploadQueue(message: GlobeTestMessage) {
-    // Find upload
-    const upload = this.uploads.find((upload) => upload.jobId === message.jobId)
+  setScopeId(scopeId: string | null) {
+    this.scopeId = scopeId
+  }
 
-    const parseResult = parseGlobeTestMessage(message)
+  setRawBearer(rawBearer: string | null) {
+    this.rawBearer = rawBearer
+  }
 
-    if (!upload) {
-      throw new Error('Could not find upload for already running job')
-    }
-
-    if (upload.socket && upload.socket.connected) {
-      upload.socket.emit('globeTestMessage', message)
-    } else {
-      upload.queue.push(message)
-    }
+  setFocusedResponseDict(focusedResponseDict: FocusedElementDictionary) {
+    this.focusedResponseDict = focusedResponseDict
   }
 }
 
@@ -281,27 +317,26 @@ const processSocketMessage = (
       ],
     })
   } else if (parsedMessage.type === 'globeTestMessage') {
-    parsedMessage.message = parseGlobeTestMessage(parsedMessage.message)
-
-    if (parsedMessage.message.messageType === 'STATUS') {
-      console.log('Status message', parsedMessage.message)
-
-      manager.updateJobStatus(
-        parsedMessage.message.jobId,
-        parsedMessage.message.message
-      )
-    } else if (parsedMessage.message.messageType === 'MARK') {
-      manager.addToUploadQueue(parsedMessage.message)
-    }
-
-    // TODO handle uplaod here
-
-    manager.addToUploadQueue(parsedMessage.message)
+    processGlobeTestMessage(parsedMessage, manager)
   } else if (parsedMessage.type === 'displayableErrorMessage') {
     snackErrorMessageVar(parsedMessage.message)
   } else if (parsedMessage.type === 'displayableSuccessMessage') {
     snackSuccessMessageVar(parsedMessage.message)
   } else if (parsedMessage.type === 'jobDeleted') {
+    // If upload exists, close it
+    const upload = manager.uploads.find(
+      (upload) => upload.jobId === parsedMessage.message
+    )
+
+    // Necessary for end of test lag
+    if (upload && upload.socket) {
+      setTimeout(() => {
+        if (upload.socket) {
+          upload.socket.disconnect()
+        }
+      }, 10000)
+    }
+
     // Find the job and remove it
     manager.updateManagerValues({
       runningTests: (manager.managerInterface?.runningTests || []).filter(

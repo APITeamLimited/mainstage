@@ -1,7 +1,7 @@
 import { RESTAuth, RESTAuthBasic } from '@apiteam/types/src'
 import { Box, Stack } from '@mui/material'
 
-import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
+import { FormEnvironmentTextField } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 
 type BasicAuthFormProps = {
@@ -36,30 +36,18 @@ export const BasicAuthForm = ({
             height: '100%',
           }}
         >
-          <div
-            style={{
-              width: '100%',
-            }}
-          >
-            <EnvironmentTextField
-              label="Username"
-              namespace={`${namespace}.username`}
-              onChange={(value) => setAuth({ ...auth, username: value })}
-              value={auth.username}
-            />
-          </div>
-          <div
-            style={{
-              width: '100%',
-            }}
-          >
-            <EnvironmentTextField
-              label="Password"
-              namespace={`${namespace}.password`}
-              onChange={(value) => setAuth({ ...auth, password: value })}
-              value={auth.password}
-            />
-          </div>
+          <FormEnvironmentTextField
+            label="Username"
+            namespace={`${namespace}.username`}
+            onChange={(value) => setAuth({ ...auth, username: value })}
+            value={auth.username}
+          />
+          <FormEnvironmentTextField
+            label="Password"
+            namespace={`${namespace}.password`}
+            onChange={(value) => setAuth({ ...auth, password: value })}
+            value={auth.password}
+          />
         </Stack>
       </SimpleBar>
     </Box>

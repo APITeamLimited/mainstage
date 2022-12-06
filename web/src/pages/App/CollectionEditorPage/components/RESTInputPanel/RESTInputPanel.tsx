@@ -78,15 +78,15 @@ export const RESTInputPanel = ({
   const [unsavedEndpoint, setUnsavedEndpoint] = useState<string>(
     requestYMap.get('endpoint')
   )
-  const [unsavedHeaders, setUnsavedHeaders] = useState<
-    KeyValueItem<DefaultKV>[]
-  >(kvLegacyImporter('headers', requestYMap, 'default'))
-  const [unsavedParameters, setUnsavedParameters] = useState<
-    KeyValueItem<DefaultKV>[]
-  >(kvLegacyImporter('params', requestYMap, 'default'))
+  const [unsavedHeaders, setUnsavedHeaders] = useState<KeyValueItem[]>(
+    kvLegacyImporter('headers', requestYMap, 'default')
+  )
+  const [unsavedParameters, setUnsavedParameters] = useState<KeyValueItem[]>(
+    kvLegacyImporter('params', requestYMap, 'default')
+  )
 
   const [unsavedPathVariables, setUnsavedPathVariables] = useState<
-    KeyValueItem<DefaultKV>[]
+    KeyValueItem[]
   >(kvLegacyImporter('pathVariables', requestYMap, 'default'))
 
   const [setInitalPathVariables, setSetInitalPathVariables] = useState(false)
@@ -168,28 +168,20 @@ export const RESTInputPanel = ({
     if (!needSave) {
       setUnsavedEndpoint(requestYMap.get('endpoint'))
 
-      const newHeaders = kvLegacyImporter<DefaultKV>(
-        'headers',
-        requestYMap,
-        'default'
-      )
+      const newHeaders = kvLegacyImporter('headers', requestYMap, 'default')
 
       // This is necessary to prevent a feedback loop
       if (hash(unsavedHeaders) !== hash(newHeaders)) {
         setUnsavedHeaders(newHeaders)
       }
 
-      const newParameters = kvLegacyImporter<DefaultKV>(
-        'params',
-        requestYMap,
-        'default'
-      )
+      const newParameters = kvLegacyImporter('params', requestYMap, 'default')
 
       if (hash(unsavedParameters) !== hash(newParameters)) {
         setUnsavedParameters(newParameters)
       }
 
-      const newPathVariables = kvLegacyImporter<DefaultKV>(
+      const newPathVariables = kvLegacyImporter(
         'pathVariables',
         requestYMap,
         'default'
@@ -303,9 +295,9 @@ export const RESTInputPanel = ({
       parentId: requestYMap.get('parentId'),
       __parentTypename: requestYMap.get('__parentTypename'),
       orderingIndex: requestYMap.get('orderingIndex'),
-      createdAt: new Date(requestYMap.get('createdAt')),
+      createdAt: requestYMap.get('createdAt'),
       updatedAt: requestYMap.get('updatedAt')
-        ? new Date(requestYMap.get('updatedAt'))
+        ? requestYMap.get('updatedAt')
         : null,
       name: requestYMap.get('name'),
       endpoint: unsavedEndpoint,
@@ -398,14 +390,11 @@ export const RESTInputPanel = ({
           <ParametersPanel
             queryParameters={unsavedParameters}
             setQueryParameters={(newParams) =>
-              handleFieldUpdate<KeyValueItem<DefaultKV>[]>(
-                setUnsavedParameters,
-                newParams
-              )
+              handleFieldUpdate<KeyValueItem[]>(setUnsavedParameters, newParams)
             }
             pathVariables={unsavedPathVariables}
             setPathVariables={(newPathVariables) =>
-              handleFieldUpdate<KeyValueItem<DefaultKV>[]>(
+              handleFieldUpdate<KeyValueItem[]>(
                 setUnsavedPathVariables,
                 newPathVariables
               )
@@ -425,13 +414,10 @@ export const RESTInputPanel = ({
           />
         )}
         {activeTabIndex === 2 && (
-          <KeyValueEditor<DefaultKV>
+          <KeyValueEditor
             items={unsavedHeaders}
             setItems={(newHeaders) =>
-              handleFieldUpdate<KeyValueItem<DefaultKV>[]>(
-                setUnsavedHeaders,
-                newHeaders
-              )
+              handleFieldUpdate<KeyValueItem[]>(setUnsavedHeaders, newHeaders)
             }
             namespace={`request:${requestId}:headers`}
             setActionArea={setActionArea}

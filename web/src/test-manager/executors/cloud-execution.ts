@@ -4,19 +4,18 @@ import {
   GlobeTestMessage,
   kvExporter,
   kvLegacyImporter,
-  LocalValueKV,
   WrappedExecutionParams,
   parseGlobeTestMessage,
 } from '@apiteam/types/src'
-import { io, Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
-import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
 import { HashSumModule } from 'src/contexts/imports'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
 
 import type { BaseJob, PendingLocalJob } from '../lib'
+import { handleRESTAutoFocus } from '../utils'
 import {
   testManagerWrappedQuery,
   determineWrappedExecutionParams,
@@ -97,48 +96,6 @@ export const executeCloud = ({
   return true
 }
 
-const handleRESTAutoFocus = (
-  focusedResponseDict: FocusedElementDictionary,
-  workspace: YDoc,
-  socket: Socket,
-  params: WrappedExecutionParams
-) => {
-  socket.on(
-    'rest-create-response:success',
-    async ({ responseId }: { responseId: string }) => {
-      const tryFindResponse = async (count = 0): Promise<YMap<any>> => {
-        const restResponseYMap = workspace
-          .getMap<any>('projects')
-          ?.get(params.projectId)
-          ?.get('branches')
-          ?.get(params.branchId)
-          ?.get('collections')
-          ?.get(params.collectionId)
-          ?.get('restResponses')
-          ?.get(responseId) as YMap<any>
-
-        if (!restResponseYMap) {
-          if (count >= 10) {
-            throw new Error(
-              `Couldn't find response with id ${responseId} after ${count} tries`
-            )
-          }
-
-          // Increasing backoff
-          await new Promise((resolve) => setTimeout(resolve, (count + 1) * 100))
-          return tryFindResponse(count + 1)
-        }
-
-        return restResponseYMap as YMap<any>
-      }
-
-      const restResponseYMap = await tryFindResponse()
-
-      updateFocusedRESTResponse(focusedResponseDict, restResponseYMap)
-    }
-  )
-}
-
 export type GlobeTestVariablesMessage = GlobeTestMessage & {
   messageType: 'ENVIRONMENT_VARIABLES' | 'COLLECTION_VARIABLES'
 }
@@ -172,7 +129,7 @@ const handleVariableUpdates = (
       return
     }
 
-    const collectionVariables = kvLegacyImporter<LocalValueKV>(
+    const collectionVariables = kvLegacyImporter(
       'variables',
       collectionYMap,
       'localvalue'
@@ -220,7 +177,7 @@ const handleVariableUpdates = (
 
     collectionYMap.set(
       'variables',
-      kvExporter<LocalValueKV>(
+      kvExporter(
         collectionVariables,
         'localvalue',
         collectionYMap.doc?.guid as string
@@ -238,7 +195,7 @@ const handleVariableUpdates = (
       )
     }
 
-    const environmentVariables = kvLegacyImporter<LocalValueKV>(
+    const environmentVariables = kvLegacyImporter(
       'variables',
       activeEnvironmentYMap,
       'localvalue'
@@ -286,7 +243,7 @@ const handleVariableUpdates = (
 
     activeEnvironmentYMap.set(
       'variables',
-      kvExporter<LocalValueKV>(
+      kvExporter(
         environmentVariables,
         'localvalue',
         activeEnvironmentYMap.doc?.guid as string

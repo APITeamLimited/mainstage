@@ -4,6 +4,7 @@ import { useReactiveVar } from '@apollo/client'
 
 import { useLocation } from '@redwoodjs/router'
 
+import { DesktopOnlyGuard } from 'src/components/app/DesktopOnlyGuard'
 import {
   getLexicalAddons,
   getLexicalModule,
@@ -126,7 +127,7 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   }, [onDashboard, pathname])
 
   return (
-    <>
+    <DesktopOnlyGuard>
       {displayLoading && <LoadingScreen />}
       <Lib0ModuleProvider>
         <HashSumModuleProvider>
@@ -158,6 +159,6 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
           </SimplebarReactModuleProvider>
         </HashSumModuleProvider>
       </Lib0ModuleProvider>
-    </>
+    </DesktopOnlyGuard>
   )
 }

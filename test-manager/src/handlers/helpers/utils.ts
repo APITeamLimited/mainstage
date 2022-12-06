@@ -142,7 +142,9 @@ export const updateTestInfo = async (
   const testInfo = await coreCacheReadRedis.hGet(runningTestKey, jobId)
 
   if (!testInfo) {
-    console.warn('Test info not found')
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Test info not found')
+    }
     return
   }
 

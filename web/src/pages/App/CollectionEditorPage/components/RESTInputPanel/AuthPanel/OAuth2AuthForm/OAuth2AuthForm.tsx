@@ -1,4 +1,4 @@
-import { RESTAuth, RESTAuthAPIKey } from '@apiteam/types/src'
+import { RESTAuth, RESTAuthOAuth2 } from '@apiteam/types/src'
 import {
   Box,
   FormControlLabel,
@@ -14,17 +14,22 @@ import {
 } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 
-type APIKeyAuthFormProps = {
-  auth: RESTAuthAPIKey
+import { AuthorizationCodeForm } from './AuthorizationCodeForm'
+import { ClientCredentialsForm } from './ClientCredentialsForm'
+import { ImplicitForm } from './ImplicitForm'
+import { ResourceOwnerPasswordCredentialsForm } from './ResourceOwnerPasswordCredentialsForm'
+
+type OAuth2AuthFormProps = {
+  auth: RESTAuthOAuth2
   setAuth: (auth: RESTAuth) => void
   namespace: string
 }
 
-export const APIKeyAuthForm = ({
+export const OAuth2AuthForm = ({
   auth,
   setAuth,
   namespace,
-}: APIKeyAuthFormProps) => {
+}: OAuth2AuthFormProps) => {
   const { default: SimpleBar } = useSimplebarReactModule()
 
   return (
@@ -44,7 +49,6 @@ export const APIKeyAuthForm = ({
           sx={{
             width: '100%',
             height: '100%',
-            display: 'flex',
           }}
         >
           <FormEnvironmentTextField
@@ -76,6 +80,30 @@ export const APIKeyAuthForm = ({
               <CustomFormControlLabel value="query" label="Query Parameters" />
             </RadioGroup>
           </div>
+          {auth.grantType === 'authorization-code' && (
+            <AuthorizationCodeForm
+              auth={auth}
+              setAuth={setAuth}
+              namespace={namespace}
+            />
+          )}
+          {auth.grantType === 'implicit' && (
+            <ImplicitForm auth={auth} setAuth={setAuth} namespace={namespace} />
+          )}
+          {auth.grantType === 'client-credentials' && (
+            <ClientCredentialsForm
+              auth={auth}
+              setAuth={setAuth}
+              namespace={namespace}
+            />
+          )}
+          {auth.grantType === 'resource-owner-password-credentials' && (
+            <ResourceOwnerPasswordCredentialsForm
+              auth={auth}
+              setAuth={setAuth}
+              namespace={namespace}
+            />
+          )}
         </Stack>
       </SimpleBar>
     </Box>

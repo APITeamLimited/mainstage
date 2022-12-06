@@ -127,8 +127,12 @@ export const restAddOptions = async ({
 
   entityEngineSocket.emit('rest-add-options', eeParams)
 
+  const testState = runningTestStates.get(socket)
+
+  if (!testState) throw new Error('Test state not found')
+
   runningTestStates.set(socket, {
-    ...(runningTestStates.get(socket) as RunningTestState),
+    ...testState,
     options,
   })
 }

@@ -1,5 +1,10 @@
-import { GlobeTestMessage, WrappedExecutionParams } from '@apiteam/types/src'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { WrappedExecutionParams } from '@apiteam/types/src'
+import { Socket } from 'socket.io-client'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
+import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
+import { FocusedElementDictionary } from 'src/contexts/reactives'
 import { determineIfLocalhost } from 'src/utils/validate-url'
 
 import { BaseJob, PendingLocalJob } from './lib'
@@ -82,3 +87,45 @@ export const testManagerWrappedQuery = (
       endpoint,
     }
   )
+
+export const handleRESTAutoFocus = (
+  focusedResponseDict: FocusedElementDictionary,
+  workspace: YDoc,
+  socket: Socket,
+  params: WrappedExecutionParams
+) => {
+  socket.on(
+    'rest-create-response:success',
+    async ({ responseId }: { responseId: string }) => {
+      const tryFindResponse = async (count = 0): Promise<YMap<any>> => {
+        const restResponseYMap = workspace
+          .getMap<any>('projects')
+          ?.get(params.projectId)
+          ?.get('branches')
+          ?.get(params.branchId)
+          ?.get('collections')
+          ?.get(params.collectionId)
+          ?.get('restResponses')
+          ?.get(responseId) as YMap<any>
+
+        if (!restResponseYMap) {
+          if (count >= 10) {
+            throw new Error(
+              `Couldn't find response with id ${responseId} after ${count} tries`
+            )
+          }
+
+          // Increasing backoff
+          await new Promise((resolve) => setTimeout(resolve, (count + 1) * 100))
+          return tryFindResponse(count + 1)
+        }
+
+        return restResponseYMap as YMap<any>
+      }
+
+      const restResponseYMap = await tryFindResponse()
+
+      updateFocusedRESTResponse(focusedResponseDict, restResponseYMap)
+    }
+  )
+}

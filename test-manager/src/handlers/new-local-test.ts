@@ -64,7 +64,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     responseExistence: 'none',
   })
 
-  await getEntityEngineSocket(
+  const eeSocket = await getEntityEngineSocket(
     socket,
     socket.scope,
     params.bearer,
@@ -168,68 +168,12 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
       orchestratorReadRedis.set(jobLogsKey, terminationMessage)
       orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
     }
-
-    //  if (
-    //    parsedMessage.messageType === 'LOCALHOST_FILE' &&
-    //    parsedMessage.senderVariant === 'Orchestrator'
-    //  ) {
-    //    if (
-    //      parsedMessage.message.kind === GLOBETEST_LOGS ||
-    //      parsedMessage.message.kind === GLOBETEST_METRICS
-    //    ) {
-    //      const responseStoreReceipt = await uploadScopedResource({
-    //        scopeId: socket.scope.id,
-    //        rawBearer: (params as WrappedExecutionParams).bearer as string,
-    //        resourceName: parsedMessage.message.fileName,
-    //        resource: Buffer.from(parsedMessage.message.contents),
-    //      }
-    //      const messageString = JSON.stringify({
-    //        jobId: executionParams.id,
-    //        time: parsedMessage.time,
-    //        messageType: 'MARK',
-    //        message: {
-    //          mark:
-    //            parsedMessage.message.kind === GLOBETEST_LOGS
-    //              ? 'MetricsStoreReceipt'
-    //              : 'GlobeTestLogsStoreReceipt',
-    //          message: responseStoreReceipt,
-    //        },
-    //        orchestratorId: parsedMessage.orchestratorId,
-    //      })
-
-    //      console.log('Sending message', messageString)
-
-    //      orchestratorReadRedis.set(jobLogsKey, messageString)
-    //      orchestratorReadRedis.publish(jobUpdatesKey, messageString)
-
-    //      if (parsedMessage.message.kind === GLOBETEST_LOGS) {
-    //        storedGlobeTestLogs = true
-
-    //        if (storedMetrics && terminationMessage) {
-    //          orchestratorReadRedis.set(jobLogsKey, terminationMessage)
-    //          orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
-    //        }
-    //      }
-    //    } else {
-    //      storedMetrics = true
-
-    //      if (storedGlobeTestLogs && terminationMessage) {
-    //        orchestratorReadRedis.set(jobLogsKey, terminationMessage)
-    //        orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
-    //      }
-    //    }
-    //  } else {
-    //    const stringifiedMessage = correctCloudID(
-    //      parsedMessage,
-    //      executionParams.id
-    //    )
-    //    orchestratorReadRedis.sAdd(jobLogsKey, stringifiedMessage)
-    //    orchestratorReadRedis.publish(jobUpdatesKey, stringifiedMessage)
-    //  }
   })
 
   socket.on('disconnect', async () => {
     coreCacheReadRedis.hDel(runningTestKey, executionParams.id)
+    orchestratorSubscribeRedis.unsubscribe(jobUpdatesKey)
+    orchestratorReadRedis.del(jobLogsKey)
 
     const testState = runningTestStates.get(socket)
 
@@ -250,10 +194,12 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
       }
     }
 
-    runningTestStates.delete(socket)
-
-    orchestratorSubscribeRedis.unsubscribe(jobUpdatesKey)
-    orchestratorReadRedis.del(jobLogsKey)
+    // Allow some time for final processing
+    setTimeout(() => {
+      socket.disconnect()
+      eeSocket.disconnect()
+      runningTestStates.delete(socket)
+    }, 10000)
 
     console.log('Test disconnected')
   })

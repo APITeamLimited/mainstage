@@ -1,6 +1,6 @@
 import { Box, Stack } from '@mui/material'
 
-import { EnvironmentTextField } from 'src/components/app/EnvironmentManager'
+import { FormEnvironmentTextField } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 import { RESTAuth, RESTAuthBearer } from 'src/contexts/reactives'
 
@@ -35,18 +35,12 @@ export const BearerAuthForm = ({
             width: '100%',
           }}
         >
-          <div
-            style={{
-              width: '100%',
-            }}
-          >
-            <EnvironmentTextField
-              label="Bearer"
-              namespace={`${namespace}.bearer`}
-              onChange={(value) => setAuth({ ...auth, token: value })}
-              value={auth.token}
-            />
-          </div>
+          <FormEnvironmentTextField
+            label="Bearer"
+            namespace={`${namespace}.bearer`}
+            onChange={(value) => setAuth({ ...auth, token: value })}
+            value={auth.token}
+          />
         </Stack>
       </SimpleBar>
     </Box>
