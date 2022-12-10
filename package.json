@@ -27,6 +27,7 @@
     "@types/md5": "^2.3.2",
     "@types/react": "^17.0.45",
     "@types/react-lazy-load-image-component": "^1.5.2",
+    "@types/simple-oauth2": "^4.1.1",
     "@types/split2": "3.2.1",
     "@types/use-double-click": "^1.0.1",
     "@types/uuid": "^8.3.4",
@@ -64,6 +65,7 @@
     "config": "^3.3.7",
     "create-fastify-ts": "^0.2.2",
     "graphql-scalars": "^1.17.0",
-    "react-router-dom": "^6.3.0"
+    "react-router-dom": "^6.3.0",
+    "simple-oauth2": "^5.0.0"
   }
 }

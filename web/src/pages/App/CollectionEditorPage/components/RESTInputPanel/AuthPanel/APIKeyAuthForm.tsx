@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 
 import {
-  CustomFormControlLabel,
+  CustomFormRadioGroup,
   FormEnvironmentTextField,
 } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
@@ -59,23 +59,21 @@ export const APIKeyAuthForm = ({
             onChange={(value) => setAuth({ ...auth, value })}
             value={auth.value}
           />
-          <div>
-            <FormLabel>Add To</FormLabel>
-            <RadioGroup
-              row
-              name="addTo"
-              onChange={(event) =>
-                setAuth({
-                  ...auth,
-                  addTo: event.target.value as 'header' | 'query',
-                })
-              }
-              value={auth.addTo}
-            >
-              <CustomFormControlLabel value="header" label="Headers" />
-              <CustomFormControlLabel value="query" label="Query Parameters" />
-            </RadioGroup>
-          </div>
+          <CustomFormRadioGroup
+            label="Add To"
+            name="addTo"
+            value={auth.addTo}
+            onChange={(event) =>
+              setAuth({
+                ...auth,
+                addTo: event.target.value as 'header' | 'query',
+              })
+            }
+            options={[
+              { label: 'Headers', value: 'header' },
+              { label: 'Query Parameters', value: 'query' },
+            ]}
+          />
         </Stack>
       </SimpleBar>
     </Box>

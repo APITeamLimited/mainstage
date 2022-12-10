@@ -1,6 +1,7 @@
 import { SignupWelcomeData } from '@apiteam/mailman'
 import { ROUTES } from '@apiteam/types'
 import { User } from '@prisma/client'
+import { APIGatewayProxyEvent, Context } from 'aws-lambda'
 import { url as gravatarUrl } from 'gravatar'
 
 import { DbAuthHandler, ServiceValidationError } from '@redwoodjs/api'
@@ -11,7 +12,6 @@ import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
 } from 'src/helpers/routing'
-import { getCorsOptions } from 'src/lib/cors'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
@@ -19,7 +19,10 @@ import { checkSlugAvailable } from 'src/validators/slug'
 
 const gatewayUrl = checkValue<string>('gateway.url')
 
-export const handler = async (event, context) => {
+export const handler = async (
+  event: APIGatewayProxyEvent,
+  context: Context
+) => {
   const forgotPasswordOptions = {
     // handler() is invoked after verifying that a user was found with the given
     // username. This is where you can send the user an email with a link to

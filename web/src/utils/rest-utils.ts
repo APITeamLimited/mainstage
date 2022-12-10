@@ -1,4 +1,4 @@
-import { RESTReqBody } from '@apiteam/types/src'
+import { RESTRequestBody } from '@apiteam/types/src'
 import { Response } from 'k6/http'
 
 export const parseRESTResponseBody = (response: Response): string => {
@@ -37,8 +37,8 @@ export const getBodyContentType = (response: Response) => {
 }
 
 export const stripBodyStoredObjectData = (
-  unfilteredBody: RESTReqBody
-): RESTReqBody => {
+  unfilteredBody: RESTRequestBody
+): RESTRequestBody => {
   return unfilteredBody
 
   // TODO: Re-enable if file uploads are re-enabled

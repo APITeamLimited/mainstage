@@ -37,7 +37,7 @@
     "dev": "NODE_ENV=development nodemon src/app.ts",
     "heapprofiler": "rm -rf ./dist && tsc -p tsconfig.json && NODE_ENV=development clinic heapprofiler -- node dist/app.js",
     "build": "rm -rf ./dist && tsc -p tsconfig.json",
-    "start": "NODE_CONFIG_DIR=/app/entity-engine/config/ NODE_ENV=production node ./dist/app.js"
+    "start": "NODE_CONFIG_DIR=/app/entity-engine/config/ NODE_ENV=production node --max-http-header-size=64000 ./dist/app.js"
   },
   "private": true
 }

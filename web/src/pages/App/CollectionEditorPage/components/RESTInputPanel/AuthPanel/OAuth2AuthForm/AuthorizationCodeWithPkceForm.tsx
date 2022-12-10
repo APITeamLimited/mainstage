@@ -1,24 +1,27 @@
 import { RESTAuth } from '@apiteam/types/src'
 
-import { FormEnvironmentTextField } from 'src/components/custom-mui'
+import {
+  CustomFormRadioGroup,
+  FormEnvironmentTextField,
+} from 'src/components/custom-mui'
 import { apiTeamOauth2CallbackURL } from 'src/utils/oauth2/backend-callbacks'
 
 import { ClientAuthenticationOption } from './ClientAuthenticationOption'
 
-type ImplicitFormProps = {
+type AuthorizationCodeWithPkceFormProps = {
   auth: RESTAuth & {
     authType: 'oauth2'
-    grantType: 'implicit'
+    grantType: 'authorization-code-with-pkce'
   }
   setAuth: (auth: RESTAuth) => void
   namespace: string
 }
 
-export const ImplicitForm = ({
+export const AuthorizationCodeWithPkceForm = ({
   auth,
   setAuth,
   namespace,
-}: ImplicitFormProps) => (
+}: AuthorizationCodeWithPkceFormProps) => (
   <>
     <FormEnvironmentTextField
       label="Redirect URI"
@@ -35,11 +38,45 @@ export const ImplicitForm = ({
       value={auth.authorizationURL}
     />
     <FormEnvironmentTextField
+      label="Access Token URL"
+      namespace={`${namespace}.accessTokenURL`}
+      onChange={(value) => setAuth({ ...auth, accessTokenURL: value })}
+      value={auth.accessTokenURL}
+    />
+    <FormEnvironmentTextField
       label="Client ID"
       namespace={`${namespace}.clientID`}
       onChange={(value) => setAuth({ ...auth, clientID: value })}
       value={auth.clientID}
     />
+    <FormEnvironmentTextField
+      label="Client Secret"
+      namespace={`${namespace}.clientSecret`}
+      onChange={(value) => setAuth({ ...auth, clientSecret: value })}
+      value={auth.clientSecret}
+    />
+    <CustomFormRadioGroup
+      label="Code Challenge Method"
+      name="codeChallengeMethod"
+      onChange={(event) =>
+        setAuth({
+          ...auth,
+          codeChallengeMethod: event.target.value as 'S256' | 'plain',
+        })
+      }
+      value={auth.codeChallengeMethod}
+      options={[
+        { label: 'SHA-256', value: 'S256' },
+        { label: 'Plain', value: 'plain' },
+      ]}
+    />
+    <FormEnvironmentTextField
+      label="Code Verifier"
+      namespace={`${namespace}.codeVerifier`}
+      onChange={(value) => setAuth({ ...auth, codeVerifier: value })}
+      value={auth.codeVerifier}
+    />
+
     <FormEnvironmentTextField
       label="Scope"
       namespace={`${namespace}.scope`}

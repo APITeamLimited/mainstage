@@ -42,7 +42,7 @@ export const handleMessage = async (
         options: message.message,
         executionAgent,
       })
-    } else if (message.messageType === 'JOB_INFO') {
+    } else if (message.messageType === 'JOB_INFO' && message.message.options) {
       await restAddOptions({
         socket,
         params,

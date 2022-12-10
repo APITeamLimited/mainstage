@@ -3,7 +3,7 @@ import { js2xml } from 'xml-js'
 
 import { checkValue } from 'src/config'
 
-export const handler = async (event, context) => {
+export const handler = async (_1: never, _2: never) => {
   return {
     statusCode: 200,
     headers: {

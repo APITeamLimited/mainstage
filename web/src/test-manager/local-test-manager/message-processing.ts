@@ -141,10 +141,14 @@ const checkBroadcastTermination = async (
   terminationMessage: TerminationMessage
 ) => {
   if (
+    // If failed may be missing options
+    (upload.terminationMessage !== undefined &&
+    upload.terminationMessage.message === 'COMPLETED_SUCCESS'
+      ? upload.storedOptions
+      : true) &&
+    upload.terminationMessage &&
     upload.storedGlobeTestLogs &&
     upload.storedMetrics &&
-    upload.terminationMessage &&
-    upload.storedOptions &&
     upload.uploadCount === 0
   ) {
     await new Promise((resolve) => setTimeout(resolve, 20))

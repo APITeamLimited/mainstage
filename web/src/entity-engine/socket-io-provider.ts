@@ -8,6 +8,7 @@ import { Observable } from 'lib0/observable'
 import { uuidv4 } from 'lib0/random'
 import * as time from 'lib0/time'
 import { io, protocol, Socket } from 'socket.io-client'
+import { GetPublicBearer, GetPublicBearerVariables } from 'types/graphql'
 import type { Awareness } from 'y-protocols/awareness'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
@@ -514,9 +515,15 @@ export class SocketIOProvider extends Observable<string> {
   async setPublicBearer() {
     if (!this.socketConnected) return
 
-    const result = await this.apolloClient.query({
+    const result = await this.apolloClient.query<
+      GetPublicBearer,
+      GetPublicBearerVariables
+    >({
       query: GET_PUBLIC_BEARER,
-      variables: { clientID: this.awareness?.clientID, scopeId: this.scopeId },
+      variables: {
+        clientID: (this.awareness?.clientID ?? '').toString(),
+        scopeId: this.scopeId,
+      },
       // Prevent using same token twice
       fetchPolicy: 'network-only',
     })

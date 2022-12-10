@@ -31,7 +31,7 @@ const authMethodLabels = [
     label: 'Bearer',
   },
   {
-    authType: 'oauth-2',
+    authType: 'oauth2',
     label: 'OAuth 2',
   },
   {
@@ -46,6 +46,7 @@ type AuthPanelProps = {
   namespace: string
   setActionArea: (actionArea: React.ReactNode) => void
   disableInherit?: boolean
+  activeId: string
 }
 
 export const AuthPanel = ({
@@ -54,6 +55,7 @@ export const AuthPanel = ({
   setAuth,
   namespace,
   disableInherit,
+  activeId,
 }: AuthPanelProps) => {
   const theme = useTheme()
   const [unsavedAuths, setUnsavedAuths] = useState<RESTAuth[]>([auth])
@@ -115,11 +117,10 @@ export const AuthPanel = ({
           token: '',
         }
       )
-    } else if (newAuthType === 'oauth-2') {
+    } else if (newAuthType === 'oauth2') {
       setAuth(
-        unsavedAuths.find(
-          (unsavedAuth) => unsavedAuth.authType === 'oauth-2'
-        ) ?? defaultOAuth2Config
+        unsavedAuths.find((unsavedAuth) => unsavedAuth.authType === 'oauth2') ??
+          defaultOAuth2Config('authorization-code')
       )
     } else if (newAuthType === 'api-key') {
       setAuth(
@@ -220,8 +221,8 @@ export const AuthPanel = ({
       {auth.authType === 'bearer' && (
         <BearerAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
       )}
-      {auth.authType === 'oauth-2' && (
-        <OAuth2AuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+      {auth.authType === 'oauth2' && (
+        <OAuth2AuthForm auth={auth} setAuth={setAuth} activeId={activeId} />
       )}
       {auth.authType === 'api-key' && (
         <APIKeyAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />

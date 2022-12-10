@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExecutionParams, RESTAuth, RESTRequest } from '@apiteam/types/src'
+import {
+  ExecutionParams,
+  OAuth2Token,
+  RESTAuth,
+  RESTRequest,
+  WrappedOAuth2Token,
+} from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import { stringify } from 'qs'
 import type { Map as YMap } from 'yjs'
@@ -242,11 +248,73 @@ const addAuthToRequest = (
     } else {
       throw `auth.addTo === "${auth.addTo}" invalid`
     }
-  } else if (auth.authType === 'oauth-2') {
-    throw 'oauth-2 auth not implemented'
+  } else if (auth.authType === 'oauth2') {
+    if (auth.existingAccessTokens.length === 0) {
+      throw 'No OAuth2 tokens found, generate one first in the UI'
+    }
+
+    const activeId = currentNode.get('id')
+
+    const activeWrappedTokenRaw = localStorage.getItem(
+      `apiteam:oauth2:${activeId}:active`
+    )
+
+    const activeWrappedToken = activeWrappedTokenRaw
+      ? (JSON.parse(activeWrappedTokenRaw) as WrappedOAuth2Token)
+      : null
+
+    let needFindToken = true
+
+    if (activeWrappedToken) {
+      // Ensure token is in auth
+      const tokenExistsInAuth = (auth.existingAccessTokens =
+        auth.existingAccessTokens.filter(
+          (wrappedToken) =>
+            wrappedToken.token.access_token !==
+            activeWrappedToken.token.access_token
+        ))
+
+      if (tokenExistsInAuth) {
+        needFindToken = false
+      }
+    }
+
+    let token: OAuth2Token | null = null
+
+    if (!needFindToken && activeWrappedToken) {
+      token = activeWrappedToken.token
+    } else {
+      // FInd newest token
+      const newestToken = auth.existingAccessTokens.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )[0]
+
+      token = newestToken.token
+    }
+
+    if (!token) {
+      throw 'No OAuth2 tokens found, generate one first in the UI'
+    }
+
+    // Check if token is expired
+    if (token.expires_at && new Date(token.expires_in).getTime() < Date.now()) {
+      // Throw error
+      throw 'OAuth2 token expired, generate a new one in the UI'
+    }
+
+    // Add token to header
+    return {
+      ...axiosConfig,
+      headers: {
+        ...axiosConfig.headers,
+        Authorization: `Bearer ${token.access_token}`,
+      },
+    }
   }
 
-  throw 'auth.authType invalid'
+  // Never reached
+  throw 'Invalid auth type'
 }
 
 const makeEnvironmentAwareRequest = (

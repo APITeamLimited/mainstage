@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { DefaultKV, KeyValueItem, kvLegacyImporter } from '@apiteam/types/src'
-import { RESTReqBody } from '@apiteam/types/src'
+import {
+  KeyValueItem,
+  kvLegacyImporter,
+  RESTRequestBody,
+} from '@apiteam/types/src'
 import { RESTAuth, RESTRequest } from '@apiteam/types/src'
 import { ExecutionScript } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
@@ -22,6 +25,10 @@ import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { singleRESTRequestGenerator } from 'src/test-manager'
 import { jobQueueVar } from 'src/test-manager/lib'
+import {
+  oauth2LoadLocal,
+  guardOAuth2Save,
+} from 'src/utils/oauth2/oauth2-guards'
 import { BUILTIN_REST_SCRIPTS } from 'src/utils/rest-scripts'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
@@ -109,14 +116,14 @@ export const RESTInputPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unsavedEndpoint])
 
-  const [unsavedBody, setUnsavedBody] = useState<RESTReqBody>(
+  const [unsavedBody, setUnsavedBody] = useState<RESTRequestBody>(
     requestYMap.get('body')
   )
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState<string>(
     requestYMap.get('method')
   )
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
-    requestYMap.get('auth')
+    oauth2LoadLocal(requestYMap.get('auth'), requestId)
   )
 
   const getSetDescription = () => {
@@ -194,7 +201,14 @@ export const RESTInputPanel = ({
 
       setUnsavedBody(requestYMap.get('body'))
       setUnsavedRequestMethod(requestYMap.get('method'))
-      setUnsavedAuth(requestYMap.get('auth'))
+
+      const newAuth = oauth2LoadLocal(requestYMap.get('auth'), requestId)
+
+      // This is necessary to prevent a feedback loop
+      if (hash(unsavedAuth) !== hash(newAuth)) {
+        setUnsavedAuth(newAuth)
+      }
+
       setUnsavedDescription(
         requestYMap.get('description') ?? getSetDescription()
       )
@@ -221,7 +235,7 @@ export const RESTInputPanel = ({
     requestYMap.set('params', unsavedParameters)
     requestYMap.set('body', stripBodyStoredObjectData(unsavedBody))
     requestYMap.set('method', unsavedRequestMethod)
-    requestYMap.set('auth', unsavedAuth)
+    requestYMap.set('auth', guardOAuth2Save(unsavedAuth, requestId))
     requestYMap.set('description', unsavedDescription)
     requestYMap.set('pathVariables', unsavedPathVariables)
     requestYMap.set(
@@ -273,7 +287,7 @@ export const RESTInputPanel = ({
     clone.set('params', unsavedParameters)
     clone.set('body', stripBodyStoredObjectData(unsavedBody))
     clone.set('method', unsavedRequestMethod)
-    clone.set('auth', unsavedAuth)
+    clone.set('auth', guardOAuth2Save(unsavedAuth, newId))
     clone.set('description', unsavedDescription)
     clone.set('pathVariables', unsavedPathVariables)
     clone.set(
@@ -327,7 +341,7 @@ export const RESTInputPanel = ({
         executionScript,
       })
     } catch (e) {
-      snackErrorMessageVar((e as Error).message)
+      snackErrorMessageVar(e)
     }
   }
 
@@ -408,7 +422,7 @@ export const RESTInputPanel = ({
             requestId={requestId}
             body={unsavedBody}
             setBody={(newBody) =>
-              handleFieldUpdate<RESTReqBody>(setUnsavedBody, newBody)
+              handleFieldUpdate<RESTRequestBody>(setUnsavedBody, newBody)
             }
             setActionArea={setActionArea}
           />
@@ -430,8 +444,9 @@ export const RESTInputPanel = ({
             setAuth={(newAuth) =>
               handleFieldUpdate<RESTAuth>(setUnsavedAuth, newAuth)
             }
-            namespace={requestId}
+            namespace={`request:${requestId}:auth`}
             setActionArea={setActionArea}
+            activeId={requestId}
           />
         )}
         {activeTabIndex === 4 && (
@@ -443,7 +458,7 @@ export const RESTInputPanel = ({
                 newScripts
               )
             }
-            namespace={spawnId}
+            namespace={`request:${requestId}:scripts`}
             setActionArea={setActionArea}
             onExecuteRef={handleSendRef}
           />

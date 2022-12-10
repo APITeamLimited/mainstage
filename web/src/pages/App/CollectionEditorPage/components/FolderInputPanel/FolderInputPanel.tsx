@@ -15,6 +15,10 @@ import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
 import { useYMap } from 'src/lib/zustand-yjs'
+import {
+  oauth2LoadLocal,
+  guardOAuth2Save,
+} from 'src/utils/oauth2/oauth2-guards'
 
 import { duplicateRecursive } from '../CollectionTree/Node/utils'
 import { DescriptionPanel } from '../DescriptionPanel'
@@ -59,7 +63,7 @@ export const FolderInputPanel = ({
   }
 
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
-    folderYMap.get('auth') ?? getSetAuth()
+    oauth2LoadLocal(folderYMap.get('auth'), folderId) ?? getSetAuth()
   )
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -83,7 +87,9 @@ export const FolderInputPanel = ({
       setUnsavedDescription(
         folderYMap.get('description') ?? getSetDescription()
       )
-      setUnsavedAuth(folderYMap.get('auth') ?? getSetAuth())
+      setUnsavedAuth(
+        oauth2LoadLocal(folderYMap.get('auth'), folderId) ?? getSetAuth()
+      )
 
       // This seems to be required to trigger re-render
       handleSetNeedSave(false)
@@ -107,7 +113,7 @@ export const FolderInputPanel = ({
 
   const handleSave = () => {
     folderYMap.set('description', unsavedDescription)
-    folderYMap.set('auth', unsavedAuth)
+    folderYMap.set('auth', guardOAuth2Save(unsavedAuth, folderId))
     folderYMap.set('updatedAt', new Date().toISOString())
     handleSetNeedSave(false)
   }
@@ -127,7 +133,7 @@ export const FolderInputPanel = ({
 
     const newFolder = foldersYMap.get(newId)
     newFolder.set('name', newName)
-    newFolder.set('auth', unsavedAuth)
+    newFolder.set('auth', guardOAuth2Save(unsavedAuth, newId))
     newFolder.set('description', unsavedDescription)
   }
 
@@ -191,8 +197,9 @@ export const FolderInputPanel = ({
             setAuth={(newValue) =>
               handleFieldUpdate<RESTAuth>(setUnsavedAuth, newValue)
             }
-            namespace={folderYMap.get('id')}
+            namespace={`folders.${folderId}.auth`}
             setActionArea={setActionArea}
+            activeId={folderId}
           />
         )}
         {activeTabIndex === 1 && (

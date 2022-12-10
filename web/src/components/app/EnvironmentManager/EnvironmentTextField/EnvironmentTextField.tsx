@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 
-import { Stack, Typography, useTheme } from '@mui/material'
+import { Stack, Tooltip, Typography, useTheme } from '@mui/material'
 
 import { InnerValues } from './InnerValues'
 import {
@@ -23,14 +23,16 @@ import { getPossibleVariableMatch } from './VariablePlugin'
 export type EnvironmentTextFieldProps = {
   placeholder?: string
   namespace: string
-  value?: string
-  onChange?: (value: string, namespace: string) => void
+  value: string
+  onChange: (value: string, namespace: string) => void
   contentEditableStyles?: React.CSSProperties
   wrapperStyles?: React.CSSProperties
   label?: string
   error?: boolean
   helperText?: string | false
   innerRightArea?: React.ReactNode
+  disabled?: boolean
+  tooltipMessage?: string
 }
 
 const onError = (error: Error) => {
@@ -93,7 +95,6 @@ const getEditorState = (
 }
 
 export const EnvironmentTextField = ({
-  placeholder = '',
   namespace,
   value = '',
   onChange,
@@ -103,6 +104,8 @@ export const EnvironmentTextField = ({
   error = false,
   helperText = '',
   innerRightArea,
+  disabled = false,
+  tooltipMessage = '',
 }: EnvironmentTextFieldProps) => {
   const [lexical, setLexical] = useState<LexicalModule | null>(null)
 
@@ -139,10 +142,11 @@ export const EnvironmentTextField = ({
         editorState: () => getEditorState(value, lexical, VariableNode),
         theme: PlaygroundEditorTheme,
         nodes: [VariableNode],
+        editable: !disabled,
       }
     }
     return null
-  }, [VariableNode, lexical, namespace, value])
+  }, [VariableNode, lexical, namespace, value, disabled])
 
   const theme = useTheme()
 
@@ -151,7 +155,6 @@ export const EnvironmentTextField = ({
     clipboardData: { setData: (arg0: string, arg1: string) => void }
     preventDefault: () => void
   }) => {
-    console.log('onCopy')
     event.clipboardData?.setData('text/plain', value)
     event.preventDefault()
   }
@@ -165,8 +168,59 @@ export const EnvironmentTextField = ({
       styles.borderStyle = 'solid'
     }
 
+    styles.color = disabled
+      ? theme.palette.text.disabled
+      : theme.palette.text.primary
+
+    // Set font
+
     return styles
-  }, [contentEditableStyles, error, theme])
+  }, [contentEditableStyles, error, theme, disabled])
+
+  const innerContent = (
+    <Stack
+      direction="row"
+      style={{
+        overflow: 'hidden',
+        maxWidth: '100%',
+        height: '100%',
+        borderRadius: theme.shape.borderRadius,
+        paddingLeft: '0.75rem',
+        paddingRight: '0.75rem',
+        backgroundColor: disabled
+          ? theme.palette.alternate.main
+          : theme.palette.alternate.dark,
+        borderColor: 'transparent',
+        ...wrapperStyles,
+      }}
+      justifyContent="space-between"
+      alignItems="center"
+      spacing={2}
+      onCopy={onCopy}
+    >
+      {lexical && initialConfig && lexicalAddons && VariableNode ? (
+        <lexicalAddons.LexicalComposer
+          initialConfig={initialConfig}
+          key={namespace}
+        >
+          <InnerValues
+            onChange={(newValue) => {
+              if (onChange && newValue !== value) {
+                onChange(newValue, namespace)
+              }
+            }}
+            namespace={namespace}
+            contentEditableStyles={reactiveStyles}
+            key={namespace}
+            lexical={lexical}
+            lexicalAddons={lexicalAddons}
+            VariableNodeClass={VariableNode}
+          />
+        </lexicalAddons.LexicalComposer>
+      ) : null}
+      {innerRightArea ?? null}
+    </Stack>
+  )
 
   return (
     <Stack
@@ -177,7 +231,12 @@ export const EnvironmentTextField = ({
       }}
     >
       {label !== '' && (
-        <Typography gutterBottom>
+        <Typography
+          gutterBottom
+          sx={{
+            color: theme.palette.text.secondary,
+          }}
+        >
           <span
             style={{
               userSelect: 'none',
@@ -187,42 +246,13 @@ export const EnvironmentTextField = ({
           </span>
         </Typography>
       )}
-      <Stack
-        direction="row"
-        style={{
-          overflow: 'hidden',
-          maxWidth: '100%',
-          height: '100%',
-          borderRadius: theme.shape.borderRadius,
-          paddingLeft: '1rem',
-          paddingRight: '1rem',
-          backgroundColor: theme.palette.alternate.dark,
-          borderColor: 'transparent',
-          ...wrapperStyles,
-        }}
-        justifyContent="space-between"
-        alignItems="center"
-        spacing={2}
-        onCopy={onCopy}
-      >
-        {lexical && initialConfig && lexicalAddons && VariableNode ? (
-          <lexicalAddons.LexicalComposer
-            initialConfig={initialConfig}
-            key={namespace}
-          >
-            <InnerValues
-              onChange={onChange}
-              namespace={namespace}
-              contentEditableStyles={reactiveStyles}
-              key={namespace}
-              lexical={lexical}
-              lexicalAddons={lexicalAddons}
-              VariableNodeClass={VariableNode}
-            />
-          </lexicalAddons.LexicalComposer>
-        ) : null}
-        {innerRightArea ?? null}
-      </Stack>
+      {tooltipMessage !== '' ? (
+        <Tooltip title={tooltipMessage} placement="top">
+          <span> {innerContent}</span>
+        </Tooltip>
+      ) : (
+        innerContent
+      )}
       {error && helperText && (
         <Typography
           sx={{

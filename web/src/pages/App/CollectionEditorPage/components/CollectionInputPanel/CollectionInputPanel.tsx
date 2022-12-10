@@ -5,7 +5,6 @@ import {
   KeyValueItem,
   kvExporter,
   kvLegacyImporter,
-  LocalValueKV,
   RESTAuth,
 } from '@apiteam/types/src'
 import {
@@ -21,6 +20,10 @@ import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { CollectionEditorIcon } from 'src/components/utils/Icons'
 import { useHashSumModule } from 'src/contexts/imports'
 import { useYMap } from 'src/lib/zustand-yjs'
+import {
+  oauth2LoadLocal,
+  guardOAuth2Save,
+} from 'src/utils/oauth2/oauth2-guards'
 
 import { DescriptionPanel } from '../DescriptionPanel'
 import { PanelLayout } from '../PanelLayout'
@@ -58,10 +61,11 @@ export const CollectionInputPanel = ({
   }
 
   const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
-    collectionYMap.get('auth') ?? getSetAuth()
+    oauth2LoadLocal(collectionYMap.get('auth'), collectionYMap.get('id')) ??
+      getSetAuth()
   )
   const [unsavedVariables, setUnsavedVariables] = useState(
-    kvLegacyImporter<LocalValueKV>('variables', collectionYMap, 'localvalue')
+    kvLegacyImporter('variables', collectionYMap, 'localvalue')
   )
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
@@ -82,9 +86,12 @@ export const CollectionInputPanel = ({
   useEffect(() => {
     if (!needSave) {
       setUnsavedDescription(collectionYMap.get('description') ?? '')
-      setUnsavedAuth(collectionYMap.get('auth') ?? getSetAuth())
+      setUnsavedAuth(
+        oauth2LoadLocal(collectionYMap.get('auth'), collectionYMap.get('id')) ??
+          getSetAuth()
+      )
 
-      const newVariables = kvLegacyImporter<LocalValueKV>(
+      const newVariables = kvLegacyImporter(
         'variables',
         collectionYMap,
         'localvalue'
@@ -116,10 +123,13 @@ export const CollectionInputPanel = ({
   }
 
   const handleSave = () => {
-    collectionYMap.set('auth', unsavedAuth)
+    collectionYMap.set(
+      'auth',
+      guardOAuth2Save(unsavedAuth, collectionYMap.get('id'))
+    )
     collectionYMap.set(
       'variables',
-      kvExporter<LocalValueKV>(
+      kvExporter(
         unsavedVariables,
         'localvalue',
         collectionYMap.doc?.guid as string
@@ -184,13 +194,10 @@ export const CollectionInputPanel = ({
         }
       >
         {activeTabIndex === 0 && (
-          <KeyValueEditor<LocalValueKV>
+          <KeyValueEditor
             items={unsavedVariables}
             setItems={(newItems) =>
-              handleFieldUpdate<KeyValueItem<LocalValueKV>[]>(
-                setUnsavedVariables,
-                newItems
-              )
+              handleFieldUpdate<KeyValueItem[]>(setUnsavedVariables, newItems)
             }
             namespace={`${collectionYMap.get('id')}}-variables`}
             setActionArea={setActionArea}
@@ -205,9 +212,10 @@ export const CollectionInputPanel = ({
             setAuth={(newAuth) =>
               handleFieldUpdate<RESTAuth>(setUnsavedAuth, newAuth)
             }
-            namespace={collectionYMap.get('id')}
+            namespace={`${collectionYMap.get('id')}}-auth`}
             setActionArea={setActionArea}
             disableInherit
+            activeId={collectionYMap.get('id')}
           />
         )}
         {activeTabIndex === 2 && (

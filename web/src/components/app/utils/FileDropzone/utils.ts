@@ -1,7 +1,7 @@
 import { StoredObject } from '@apiteam/types/src'
 
 export type StoredFileType = {
-  data: StoredObject<string | ArrayBuffer>
+  data: StoredObject
   filename: string
 }
 

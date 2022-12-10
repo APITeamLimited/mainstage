@@ -260,7 +260,6 @@ __metadata:
     mui-color: ^2.0.0-beta.2
     mui-markdown: ^0.5.5
     oas-validator: ^5.0.8
-    oauth4webapi: ^2.0.4
     postman-collection: ^4.1.5
     prettier: ^2.7.1
     prism-react-renderer: ^1.3.5
@@ -6072,6 +6071,56 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/boom@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@hapi/boom@npm:10.0.0"
+  dependencies:
+    "@hapi/hoek": 10.x.x
+  checksum: 0d7890b6c7772fad86c67f370660ee56c7079c8c07180a4cab1a2f74f2358c5f423f74e58b2348a7d81b632937f8ea75121ac0b634498774b341f11c7acfa44f
+  languageName: node
+  linkType: hard
+
+"@hapi/bourne@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@hapi/bourne@npm:3.0.0"
+  checksum: 2e2df62f6bc6f32b980ba5bbdc09200c93c55c8306399ec0f2781da088a82aab699498c89fe94fec4acf770210f9aee28c75bfc2f04044849ac01b034134e717
+  languageName: node
+  linkType: hard
+
+"@hapi/hoek@npm:10.x.x, @hapi/hoek@npm:^10.0.0, @hapi/hoek@npm:^10.0.1":
+  version: 10.0.1
+  resolution: "@hapi/hoek@npm:10.0.1"
+  checksum: 320d5dc7a4070fa29e6344a3af9e44854980c6606848f7b7f59715174880cc09a1fe1e8adf44cf887100bd8d6a8664e9dc415986b30dc91df13455f7114de549
+  languageName: node
+  linkType: hard
+
+"@hapi/hoek@npm:^9.0.0":
+  version: 9.3.0
+  resolution: "@hapi/hoek@npm:9.3.0"
+  checksum: a096063805051fb8bba4c947e293c664b05a32b47e13bc654c0dd43813a1cec993bdd8f29ceb838020299e1d0f89f68dc0d62a603c13c9cc8541963f0beca055
+  languageName: node
+  linkType: hard
+
+"@hapi/topo@npm:^5.0.0":
+  version: 5.1.0
+  resolution: "@hapi/topo@npm:5.1.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: b16b06d9357947149e032bdf10151eb71aea8057c79c4046bf32393cb89d0d0f7ca501c40c0f7534a5ceca078de0700d2257ac855c15e59fe4e00bba2f25c86f
+  languageName: node
+  linkType: hard
+
+"@hapi/wreck@npm:^18.0.0":
+  version: 18.0.0
+  resolution: "@hapi/wreck@npm:18.0.0"
+  dependencies:
+    "@hapi/boom": ^10.0.0
+    "@hapi/bourne": ^3.0.0
+    "@hapi/hoek": ^10.0.0
+  checksum: 45a25a73324067726dcf1ac544ea28c1e93491f1390058911d63a09ac19e03f1db68f5c39478f7a81c1e6a78bfbc6f94a4d4e6a71066ef295fa692058758268e
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.10.4":
   version: 0.10.5
   resolution: "@humanwhocodes/config-array@npm:0.10.5"
@@ -8717,6 +8766,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sideway/address@npm:^4.1.3":
+  version: 4.1.4
+  resolution: "@sideway/address@npm:4.1.4"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: c6fad7d87fb016053e9e9b69c2f2d1f23036d5f1696df141e64c3c58bcf8c7d2a4133348adc2d246682410364d5922c6271ae556122741025794fb7c19814aae
+  languageName: node
+  linkType: hard
+
+"@sideway/formula@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@sideway/formula@npm:3.0.0"
+  checksum: 129cbb01786f0560f58990ba34e352d0f890c5b49fcd27a0c34ccd44ee3c0d8fdc88772cd3e6465e4bc5acd5f7fdd81ad7467ee305f9b02c52f3f7af47354c89
+  languageName: node
+  linkType: hard
+
+"@sideway/pinpoint@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@sideway/pinpoint@npm:2.0.0"
+  checksum: d2ca75dacaf69b8fc0bb8916a204e01def3105ee44d8be16c355e5f58189eb94039e15ce831f3d544f229889ccfa35562a0ce2516179f3a7ee1bbe0b71e55b36
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.24.1":
   version: 0.24.20
   resolution: "@sinclair/typebox@npm:0.24.20"
@@ -11160,6 +11232,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 71a668ebd353deed2c0fccac7505c29e4b6b1cabde91ce9a1b2a9956dd8c91f82fd6b730dcb726a43e3a511c912b1f64e2f2dea32c4fec7b5ed7f950e6ea9a6d
+  languageName: node
+  linkType: hard
+
+"@types/simple-oauth2@npm:^4.1.1":
+  version: 4.1.1
+  resolution: "@types/simple-oauth2@npm:4.1.1"
+  checksum: ba8d9550fbfb8513bffba83a21fdced7d53deb7f976d6019395af9aa34cc406557ac1a48725d4189b6517012b72c0c866cad7f4556d011e9c7f74d299f65a1a6
   languageName: node
   linkType: hard
 
@@ -24264,6 +24343,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"joi@npm:^17.6.4":
+  version: 17.7.0
+  resolution: "joi@npm:17.7.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+    "@hapi/topo": ^5.0.0
+    "@sideway/address": ^4.1.3
+    "@sideway/formula": ^3.0.0
+    "@sideway/pinpoint": ^2.0.0
+  checksum: 7cf12839eeb200d935d969f2a2836df86e2e0e33bd0c1883487157990258b537d10e3b7d7b6048cdd1a046f1a276c562cd11482ecfd08f413c3a770b9a73709a
+  languageName: node
+  linkType: hard
+
 "jose@npm:^2.0.5":
   version: 2.0.5
   resolution: "jose@npm:2.0.5"
@@ -27741,13 +27833,6 @@ __metadata:
   version: 0.9.0
   resolution: "oauth-sign@npm:0.9.0"
   checksum: fc92a516f6ddbb2699089a2748b04f55c47b6ead55a77cd3a2cbbce5f7af86164cb9425f9ae19acfd066f1ad7d3a96a67b8928c6ea946426f6d6c29e448497c2
-  languageName: node
-  linkType: hard
-
-"oauth4webapi@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "oauth4webapi@npm:2.0.4"
-  checksum: 37cff2e6d4fc3ebd46437dd9d1606ff6de86c1f67e1c3bff0a51c715d0d7c75311b1e38590ab590c16aabd9914f7128fba903ac546e9fd1b1ceb1a57bbddb371
   languageName: node
   linkType: hard
 
@@ -31929,6 +32014,7 @@ __metadata:
     "@types/md5": ^2.3.2
     "@types/react": ^17.0.45
     "@types/react-lazy-load-image-component": ^1.5.2
+    "@types/simple-oauth2": ^4.1.1
     "@types/split2": 3.2.1
     "@types/use-double-click": ^1.0.1
     "@types/uuid": ^8.3.4
@@ -31943,6 +32029,7 @@ __metadata:
     prettier-eslint: ^15.0.1
     prettier-eslint-cli: ^7.1.0
     react-router-dom: ^6.3.0
+    simple-oauth2: ^5.0.0
   languageName: unknown
   linkType: soft
 
@@ -32747,6 +32834,18 @@ __metadata:
     once: ^1.3.1
     simple-concat: ^1.0.0
   checksum: 12747f008848e573a3d09c88d15fae37d4a359d1ef56a0bed36713952b1d236a3829cd77e862816cf32c7779f6800a0c4076ba7f71fe3684127eaccffb831aba
+  languageName: node
+  linkType: hard
+
+"simple-oauth2@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "simple-oauth2@npm:5.0.0"
+  dependencies:
+    "@hapi/hoek": ^10.0.1
+    "@hapi/wreck": ^18.0.0
+    debug: ^4.3.4
+    joi: ^17.6.4
+  checksum: 1cb5a4eb9022f656e1bb9a1f43d771dd058d4a4fa181b42d0e1e7ca7b5cfc42e35fad1c722be9bb6fa218398b3b0499010554a7367d2bd85eb9d7634f92546c1
   languageName: node
   linkType: hard
 

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   getKnownContentTypes,
   getPrettyContentTypes,
-  RESTReqBody,
+  RESTRequestBody,
   ValidContentTypes,
 } from '@apiteam/types/src/entities'
 import InventoryIcon from '@mui/icons-material/Inventory'
@@ -19,8 +19,8 @@ import { codeFormatter } from 'src/utils/codeFormatter'
 
 type BodyPanelProps = {
   requestId: string
-  body: RESTReqBody
-  setBody: (newBody: RESTReqBody) => void
+  body: RESTRequestBody
+  setBody: (newBody: RESTRequestBody) => void
   setActionArea: (actionArea: React.ReactNode) => void
 }
 
@@ -53,9 +53,9 @@ export const BodyPanel = ({
 }: BodyPanelProps) => {
   const theme = useTheme()
 
-  const [unsavedBodies, setUnsavedBodies] = useState<RESTReqBody[]>([body])
+  const [unsavedBodies, setUnsavedBodies] = useState<RESTRequestBody[]>([body])
 
-  const bodyRef = useRef<RESTReqBody | null>(null)
+  const bodyRef = useRef<RESTRequestBody | null>(null)
   const [tab, setTab] = useState<number>()
   bodyRef.current = body
   const [isBulkEditing, setIsBulkEditing] = useState(false)
