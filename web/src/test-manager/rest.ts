@@ -160,7 +160,7 @@ const addAuthToRequest = (
 
   if (auth.authType === 'inherit') {
     if (currentNode.get('__typename') === 'Collection') {
-      throw 'Inherit auth type not allowed on collectionYMap'
+      throw new Error('Inherit auth type not allowed on collectionYMap')
     }
 
     const parentFolder = (Array.from(folders.values()) as YMap<any>[]).find(
@@ -189,7 +189,7 @@ const addAuthToRequest = (
       )
     }
 
-    throw 'Could not find parent of RESTRequest'
+    throw new Error('Could not find parent of RESTRequest')
   } else if (auth.authType === 'none') {
     return axiosConfig
   } else if (auth.authType === 'basic') {
@@ -246,11 +246,11 @@ const addAuthToRequest = (
         },
       }
     } else {
-      throw `auth.addTo === "${auth.addTo}" invalid`
+      throw new Error(`auth.addTo === "${auth.addTo}" invalid`)
     }
   } else if (auth.authType === 'oauth2') {
     if (auth.existingAccessTokens.length === 0) {
-      throw 'No OAuth2 tokens found, generate one first in the UI'
+      throw new Error('No OAuth2 tokens found, generate one first in the UI')
     }
 
     const activeId = currentNode.get('id')
@@ -294,13 +294,13 @@ const addAuthToRequest = (
     }
 
     if (!token) {
-      throw 'No OAuth2 tokens found, generate one first in the UI'
+      throw new Error('No OAuth2 tokens found, generate one first in the UI')
     }
 
     // Check if token is expired
     if (token.expires_at && new Date(token.expires_in).getTime() < Date.now()) {
       // Throw error
-      throw 'OAuth2 token expired, generate a new one in the UI'
+      throw new Error('OAuth2 token expired, generate a new one in the UI')
     }
 
     // Add token to header
@@ -314,7 +314,7 @@ const addAuthToRequest = (
   }
 
   // Never reached
-  throw 'Invalid auth type'
+  throw new Error('Invalid auth type')
 }
 
 const makeEnvironmentAwareRequest = (

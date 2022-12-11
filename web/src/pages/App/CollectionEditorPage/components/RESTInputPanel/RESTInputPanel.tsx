@@ -2,7 +2,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
-  KeyValueItem,
+  DefaultKeyValueItem,
+  DefaultKV,
   kvLegacyImporter,
   RESTRequestBody,
 } from '@apiteam/types/src'
@@ -48,6 +49,7 @@ import { generatePathVariables } from './utils'
 const defaultExecutionScript =
   BUILTIN_REST_SCRIPTS.find((script) => script.name === 'request-single.js') ??
   BUILTIN_REST_SCRIPTS[0]
+
 if (!defaultExecutionScript) {
   throw new Error('Default rest execution script not found')
 }
@@ -85,16 +87,16 @@ export const RESTInputPanel = ({
   const [unsavedEndpoint, setUnsavedEndpoint] = useState<string>(
     requestYMap.get('endpoint')
   )
-  const [unsavedHeaders, setUnsavedHeaders] = useState<KeyValueItem[]>(
-    kvLegacyImporter('headers', requestYMap, 'default')
+  const [unsavedHeaders, setUnsavedHeaders] = useState<DefaultKeyValueItem[]>(
+    kvLegacyImporter<DefaultKV>('headers', requestYMap, 'default')
   )
-  const [unsavedParameters, setUnsavedParameters] = useState<KeyValueItem[]>(
-    kvLegacyImporter('params', requestYMap, 'default')
-  )
+  const [unsavedParameters, setUnsavedParameters] = useState<
+    DefaultKeyValueItem[]
+  >(kvLegacyImporter<DefaultKV>('params', requestYMap, 'default'))
 
   const [unsavedPathVariables, setUnsavedPathVariables] = useState<
-    KeyValueItem[]
-  >(kvLegacyImporter('pathVariables', requestYMap, 'default'))
+    DefaultKeyValueItem[]
+  >(kvLegacyImporter<DefaultKV>('pathVariables', requestYMap, 'default'))
 
   const [setInitalPathVariables, setSetInitalPathVariables] = useState(false)
 
@@ -175,20 +177,28 @@ export const RESTInputPanel = ({
     if (!needSave) {
       setUnsavedEndpoint(requestYMap.get('endpoint'))
 
-      const newHeaders = kvLegacyImporter('headers', requestYMap, 'default')
+      const newHeaders = kvLegacyImporter<DefaultKV>(
+        'headers',
+        requestYMap,
+        'default'
+      )
 
       // This is necessary to prevent a feedback loop
       if (hash(unsavedHeaders) !== hash(newHeaders)) {
         setUnsavedHeaders(newHeaders)
       }
 
-      const newParameters = kvLegacyImporter('params', requestYMap, 'default')
+      const newParameters = kvLegacyImporter<DefaultKV>(
+        'params',
+        requestYMap,
+        'default'
+      )
 
       if (hash(unsavedParameters) !== hash(newParameters)) {
         setUnsavedParameters(newParameters)
       }
 
-      const newPathVariables = kvLegacyImporter(
+      const newPathVariables = kvLegacyImporter<DefaultKV>(
         'pathVariables',
         requestYMap,
         'default'
@@ -245,8 +255,6 @@ export const RESTInputPanel = ({
     requestYMap.set('updatedAt', new Date().toISOString())
     setNeedSave(false)
     setObservedNeedsSave(false)
-
-    setSpawnId(uuid())
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)
@@ -295,8 +303,6 @@ export const RESTInputPanel = ({
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
     restRequestsYMap.set(newId, clone)
-
-    setSpawnId(uuid())
   }
 
   const environmentContext = useEnvironmentVariables()
@@ -340,15 +346,17 @@ export const RESTInputPanel = ({
         requestYMap,
         executionScript,
       })
-    } catch (e) {
-      snackErrorMessageVar(e)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+    } catch (e: {
+      message: string
+    }) {
+      snackErrorMessageVar(e.message)
     }
   }
 
   const handleSendRef = useRef<typeof handleSend>(handleSend)
   handleSendRef.current = handleSend
-
-  const [spawnId, setSpawnId] = useState(uuid())
 
   return (
     <>
@@ -404,11 +412,14 @@ export const RESTInputPanel = ({
           <ParametersPanel
             queryParameters={unsavedParameters}
             setQueryParameters={(newParams) =>
-              handleFieldUpdate<KeyValueItem[]>(setUnsavedParameters, newParams)
+              handleFieldUpdate<DefaultKeyValueItem[]>(
+                setUnsavedParameters,
+                newParams
+              )
             }
             pathVariables={unsavedPathVariables}
             setPathVariables={(newPathVariables) =>
-              handleFieldUpdate<KeyValueItem[]>(
+              handleFieldUpdate<DefaultKeyValueItem[]>(
                 setUnsavedPathVariables,
                 newPathVariables
               )
@@ -431,7 +442,10 @@ export const RESTInputPanel = ({
           <KeyValueEditor
             items={unsavedHeaders}
             setItems={(newHeaders) =>
-              handleFieldUpdate<KeyValueItem[]>(setUnsavedHeaders, newHeaders)
+              handleFieldUpdate<DefaultKeyValueItem[]>(
+                setUnsavedHeaders,
+                newHeaders
+              )
             }
             namespace={`request:${requestId}:headers`}
             setActionArea={setActionArea}

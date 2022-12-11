@@ -32,8 +32,6 @@ export const TokenManagerForm = ({
 }: TokenManagerFormProps) => {
   const theme = useTheme()
 
-  console.log('TokenManagerForm', auth)
-
   const changeActiveWrappedToken = useCallback(
     (access_token: string) => {
       const token = auth.existingAccessTokens.find(

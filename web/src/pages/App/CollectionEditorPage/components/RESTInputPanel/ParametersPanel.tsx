@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { DefaultKV, KeyValueItem } from '@apiteam/types/src'
+import { DefaultKV, DefaultKeyValueItem } from '@apiteam/types/src'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 
@@ -8,10 +8,10 @@ import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 
 type ParametersPanelProps = {
   namespace: string
-  queryParameters: KeyValueItem<DefaultKV>[]
-  pathVariables: KeyValueItem<DefaultKV>[]
-  setQueryParameters: (newItems: KeyValueItem<DefaultKV>[]) => void
-  setPathVariables: (newItems: KeyValueItem<DefaultKV>[]) => void
+  queryParameters: DefaultKeyValueItem[]
+  pathVariables: DefaultKeyValueItem[]
+  setQueryParameters: (newItems: DefaultKeyValueItem[]) => void
+  setPathVariables: (newItems: DefaultKeyValueItem[]) => void
   setActionArea?: (actionArea: React.ReactNode) => void
 }
 

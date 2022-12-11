@@ -52,17 +52,19 @@ module.exports = (config, { mode }) => {
   config.resolve.alias['react-dom'] = require.resolve('react-dom')
 
   // Redirect dev server to use different endpoint
-  config.devServer.proxy = {
-    '/api': {
-      target: `http://${process.env.API_HOST}:${process.env.API_PORT}`,
-      // Enable cors
-      changeOrigin: true,
+  if (mode === 'development') {
+    config.devServer.proxy = {
+      '/api': {
+        target: `http://${process.env.API_HOST}:${process.env.API_PORT}`,
+        // Enable cors
+        changeOrigin: true,
 
-      // Rewrite path
-      pathRewrite: { '^/api': '' },
+        // Rewrite path
+        pathRewrite: { '^/api': '' },
 
-      ws: true,
-    },
+        ws: true,
+      },
+    }
   }
 
   return config

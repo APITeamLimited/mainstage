@@ -58,7 +58,10 @@ export const OAuth2AuthForm = ({
 
   const handleGetToken = async () => {
     abortRef.current = 'run'
-    setShowAuthenticatingDialog(true)
+
+    // So doesn't flash if validation fails
+    setTimeout(() => setShowAuthenticatingDialog(true), 300)
+
     const result = await getOAuth2Token(auth, apolloClient, abortRef)
     setShowAuthenticatingDialog(false)
 

@@ -87,6 +87,10 @@ export const keyValueItemSchema = <T extends KVVariantTypes>(
 
 export type KeyValueItem = z.infer<ReturnType<typeof keyValueItemSchema>>
 
+export type DefaultKeyValueItem = KeyValueItem & DefaultKV
+export type FileFieldKeyValueItem = KeyValueItem & FileFieldKV
+export type LocalValueKeyValueItem = KeyValueItem & LocalValueKV
+
 // export type KeyValueItem<T extends KVVariantTypes> = {
 //   id: number
 //   keyString: string
@@ -166,11 +170,11 @@ export const validateKeyValueItem = (
   return null
 }
 
-export const kvLegacyImporter = (
+export const kvLegacyImporter = <T extends KVVariantTypes>(
   getterKey: string,
   parentYMap: YMap<any>,
-  variant: KeyValueItem['variant']
-): KeyValueItem[] => {
+  variant: T['variant']
+): (KeyValueItem & T)[] => {
   const data = parentYMap.get(getterKey)
 
   if (Array.isArray(data) && data.length === 0) {
