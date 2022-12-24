@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { SafeUser } from '@apiteam/types/src'
+import { ROUTES, SafeUser } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AddIcon from '@mui/icons-material/Add'
@@ -41,6 +41,11 @@ export const DropdownPopover = ({
   const workspaces = useReactiveVar(workspacesVar)
   const activeWorkspaceId = useReactiveVar(activeWorkspaceIdVar)
   const theme = useTheme()
+
+  const onDashboard = useMemo(
+    () => pathname.startsWith(ROUTES.dashboard),
+    [pathname]
+  )
 
   const inApp = useMemo(() => {
     return pathname.includes('/app')
@@ -130,8 +135,14 @@ export const DropdownPopover = ({
           <Box>
             {currentUser ? (
               <>
-                <MenuItem onClick={handleNavigateDashboard}>Dashboard</MenuItem>
-                <Divider />
+                {!onDashboard && (
+                  <>
+                    <MenuItem onClick={handleNavigateDashboard}>
+                      Dashboard
+                    </MenuItem>
+                    <Divider />
+                  </>
+                )}
                 {inApp && (
                   <>
                     <MenuItem onClick={() => setOpenCreateTeamDialog(true)}>

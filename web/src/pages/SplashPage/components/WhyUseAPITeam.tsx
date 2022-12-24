@@ -3,15 +3,9 @@ import type { ElementType } from 'react'
 import FastForwardIcon from '@mui/icons-material/FastForward'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PeopleIcon from '@mui/icons-material/People'
-import {
-  Card,
-  Grid,
-  Stack,
-  SvgIcon,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material'
+import { Typography, useTheme } from '@mui/material'
+
+import { OverviewPanel } from 'src/layouts/Landing/components/templates/OverviewPanel'
 
 type OverviewItem = {
   icon: ElementType
@@ -47,11 +41,10 @@ type WhyUseAPITeamProps = {
 export const WhyUseAPITeam = ({ locationRef }: WhyUseAPITeamProps) => {
   const theme = useTheme()
 
-  const isSmall = useMediaQuery(theme.breakpoints.down('md'))
   return (
-    <Stack spacing={4} id="why-use-apiteam">
-      <Stack spacing={2} alignItems="center">
-        <Typography variant="h2" sx={{ fontWeight: 600 }} ref={locationRef}>
+    <OverviewPanel
+      title={
+        <Typography variant="h2" fontWeight="bold" ref={locationRef}>
           Why use{' '}
           <span
             style={{
@@ -62,62 +55,10 @@ export const WhyUseAPITeam = ({ locationRef }: WhyUseAPITeamProps) => {
           </span>
           ?
         </Typography>
-        <Typography variant="h6" sx={{ color: theme.palette.text.secondary }}>
-          APITeam is an API development platform with integrated load testing.
-          Design, test and scale your APIs in real-time with your whole team.
-        </Typography>
-      </Stack>
-      <Grid
-        container
-        spacing={isSmall ? 0 : 4}
-        sx={{
-          width: '100%',
-          height: 'min-content',
-        }}
-      >
-        {overviewMessages.map((item, i) => (
-          <Grid
-            item
-            xs={12}
-            md={4}
-            key={i}
-            style={{
-              paddingLeft: i === 0 || isSmall ? 0 : undefined,
-            }}
-            sx={{
-              paddingBottom: isSmall ? 4 : undefined,
-            }}
-          >
-            <Card
-              sx={{
-                padding: 2,
-                // Make sure all cards are the same height
-                height: '80%',
-              }}
-            >
-              <Stack spacing={2}>
-                <Stack spacing={2} direction="row">
-                  <SvgIcon
-                    component={item.icon}
-                    width={40}
-                    height={40}
-                    sx={{ color: theme.palette.primary.main }}
-                  />
-                  <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                    {item.title}
-                  </Typography>
-                </Stack>
-                <Typography
-                  variant="body1"
-                  sx={{ color: theme.palette.text.secondary }}
-                >
-                  {item.description}
-                </Typography>
-              </Stack>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-    </Stack>
+      }
+      description="APITeam is an API development platform with integrated load testing.
+Design, test and scale your APIs in real-time with your whole team."
+      items={overviewMessages}
+    />
   )
 }

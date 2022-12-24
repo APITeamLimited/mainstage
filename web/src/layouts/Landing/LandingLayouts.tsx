@@ -1,6 +1,6 @@
 import { Container, useTheme, Box } from '@mui/material'
 
-import { largePanelSpacing } from './components/constants'
+import { panelSeparation } from './components/constants'
 import { FooterSplash, FOOTER_SPASH_HEIGHT } from './components/FooterSplash'
 import { LandingLayoutBase } from './LandingLayoutBase'
 
@@ -21,7 +21,7 @@ export const LandingLayoutSplash = ({
         },
       }}
       disableTop
-      backgroundColor="transparent"
+      backgroundColor={theme.palette.background.paper}
       overflowIntoAppBar
     >
       <Box
@@ -52,14 +52,7 @@ export const LandingLayoutSplash = ({
           }}
         />
       </Box>
-      <Box
-        sx={{
-          backgroundColor: theme.palette.background.paper,
-          overflow: 'visible',
-        }}
-      >
-        {children}
-      </Box>
+      {children}
     </LandingLayoutBase>
   )
 }
@@ -81,17 +74,16 @@ export const LandingLayoutContained = ({
         },
       }}
       disableTop
+      backgroundColor={theme.palette.background.paper}
     >
-      <Box sx={{ backgroundColor: theme.palette.background.paper }}>
-        <Container
-          sx={{
-            paddingY: largePanelSpacing,
-            minHeight: '94vh',
-          }}
-        >
-          {children}
-        </Container>
-      </Box>
+      <Container
+        sx={{
+          paddingY: panelSeparation,
+          minHeight: '94vh',
+        }}
+      >
+        {children}
+      </Container>
     </LandingLayoutBase>
   )
 }

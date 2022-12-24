@@ -62,10 +62,9 @@ export const FeatureOverviewPanel = ({
     <Stack spacing={largePanelSpacing}>
       <Box>
         <Typography
-          variant="h4"
-          sx={{ fontWeight: 700 }}
+          variant="h3"
+          fontWeight="bold"
           color={theme.palette.text.primary}
-          gutterBottom
         >
           {title}
         </Typography>

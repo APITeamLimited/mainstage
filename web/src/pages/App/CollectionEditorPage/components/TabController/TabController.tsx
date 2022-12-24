@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
-import { Paper, Divider, useTheme, Stack } from '@mui/material'
+import { Paper, Divider, useTheme, Stack, Skeleton } from '@mui/material'
+import { ErrorBoundary } from 'react-error-boundary'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
@@ -180,13 +181,15 @@ export const TabController = () => {
           {
             topYMap: focusedElement,
             topNode: (
-              <FolderInputPanel
-                folderId={focusedElement.get('id')}
-                collectionYMap={collectionYMap}
-                setObservedNeedsSave={(needsSave, saveCallback) =>
-                  handleSetNeedsSave(needsSave, tabId, saveCallback)
-                }
-              />
+              <ErrorBoundary FallbackComponent={Skeleton}>
+                <FolderInputPanel
+                  folderId={focusedElement.get('id')}
+                  collectionYMap={collectionYMap}
+                  setObservedNeedsSave={(needsSave, saveCallback) =>
+                    handleSetNeedsSave(needsSave, tabId, saveCallback)
+                  }
+                />
+              </ErrorBoundary>
             ),
             bottomYMap: null,
             bottomNode: null,

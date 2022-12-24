@@ -181,8 +181,10 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
     >
       <TableCell
         sx={{
-          // Provide row spacing on first cell
-          paddingY: '2px',
+          // Provide row spacing, looks better with bottom border if lower padding
+          // is 1px less
+          paddingTop: APITeam proudly supports open source software,
+          paddingBottom: APITeam proudly supports open source software,
           paddingX: rowSpacingX,
           whiteSpace: 'nowrap',
           width: 0,

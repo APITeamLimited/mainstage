@@ -156,7 +156,10 @@ const addAuthToRequest = (
   folders: YMap<any>,
   axiosConfig: AxiosRequestConfig
 ): AxiosRequestConfig => {
-  const auth = currentNode.get('auth') as RESTAuth
+  const authOriginal = currentNode.get('auth') as RESTAuth
+
+  // Make a copy of auth so we don't mutate the original
+  const auth = JSON.parse(JSON.stringify(authOriginal)) as RESTAuth
 
   if (auth.authType === 'inherit') {
     if (currentNode.get('__typename') === 'Collection') {

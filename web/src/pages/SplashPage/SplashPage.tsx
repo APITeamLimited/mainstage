@@ -1,13 +1,10 @@
 import { useRef } from 'react'
 
-import { Box, Container, Stack, useTheme } from '@mui/material'
+import { Container, Stack } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
 
-import {
-  largePanelSpacing,
-  panelSeparation,
-} from 'src/layouts/Landing/components/constants'
+import { panelSeparation } from 'src/layouts/Landing/components/constants'
 import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
 import GlobeTestOverview from 'src/pages/SplashPage/components/GlobeTestOverview'
 import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'
@@ -15,8 +12,6 @@ import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'
 import { WhyUseAPITeam } from './components/WhyUseAPITeam'
 
 const SplashPage = () => {
-  const theme = useTheme()
-
   const whyUseAPITeamRef = useRef<HTMLDivElement>(null)
 
   return (
@@ -26,32 +21,23 @@ const SplashPage = () => {
         description="APITeam is an all in one platform for designing, testing and scaling APIs collaboratively"
       />
       <TypedIntro whyUseAPITeamRef={whyUseAPITeamRef} />
-      <Box
+      <Container
         sx={{
-          backgroundColor: theme.palette.background.paper,
+          overflow: 'hidden',
           zIndex: 1,
-          position: 'relative',
         }}
       >
-        <Container
+        <Stack
+          spacing={panelSeparation}
           sx={{
-            overflow: 'hidden',
-            zIndex: 1,
-            backgroundColor: theme.palette.background.paper,
+            paddingY: panelSeparation,
           }}
         >
-          <Stack
-            spacing={panelSeparation}
-            sx={{
-              paddingY: panelSeparation,
-            }}
-          >
-            <WhyUseAPITeam locationRef={whyUseAPITeamRef} />
-            <EditorFeatures />
-            <GlobeTestOverview />
-          </Stack>
-        </Container>
-      </Box>
+          <WhyUseAPITeam locationRef={whyUseAPITeamRef} />
+          <EditorFeatures />
+          <GlobeTestOverview />
+        </Stack>
+      </Container>
       {/*
       <PublishOverview />
       <PricingOverview />

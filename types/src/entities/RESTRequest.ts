@@ -127,7 +127,7 @@ const grantTypeSchema = z.union([
   }),
 ])
 
-const restAuthOAuth2Schema = z.intersection(
+export const restAuthOAuth2Schema = z.intersection(
   z.object({
     authType: z.literal('oauth2'),
     headerPrefix: z.string(),
@@ -155,7 +155,7 @@ export type RESTAuthOAuth2GrantType = z.infer<
 
 export type RESTAuthOAuth2 = z.infer<typeof restAuthOAuth2Schema>
 
-export type WrappedOAuth2Token =  RESTAuthOAuth2['existingAccessTokens'][number]
+export type WrappedOAuth2Token = RESTAuthOAuth2['existingAccessTokens'][number]
 
 export const defaultOAuth2Config = (
   grantType: RESTAuthOAuth2['grantType']

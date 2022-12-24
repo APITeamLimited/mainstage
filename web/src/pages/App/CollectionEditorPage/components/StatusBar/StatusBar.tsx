@@ -43,7 +43,7 @@ export const StatusBar = () => {
             <OnlineIndicator />
           </Stack>
           <Stack direction="row" spacing={1}>
-            {/* <RunningLocalTestsIndicator /> */}
+            <RunningLocalTestsIndicator />
             <RunningCloudTestsIndicator />
           </Stack>
         </Stack>

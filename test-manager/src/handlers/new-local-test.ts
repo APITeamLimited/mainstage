@@ -87,6 +87,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     },
     verifiedDomains: [],
     createdAt: new Date().toISOString(),
+    funcModeInfo: null,
   }
 
   const jobLogsKey = getLocalTestLogsKey(socket.scope, executionParams.id)

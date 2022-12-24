@@ -15,7 +15,7 @@ export const executeLocalCatchError = (
   rawBearer: string
 ) => {
   if (testManager === null) {
-    snackErrorMessageVar("Can't run localhost test, agent is not connected")
+    snackErrorMessageVar("Can't run local test, agent isn't connected")
     return
   }
 

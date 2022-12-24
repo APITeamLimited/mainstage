@@ -58,7 +58,6 @@ export const AuthPanel = ({
   activeId,
 }: AuthPanelProps) => {
   const theme = useTheme()
-  const [unsavedAuths, setUnsavedAuths] = useState<RESTAuth[]>([auth])
 
   useEffect(() => {
     setActionArea(<></>)
@@ -73,66 +72,38 @@ export const AuthPanel = ({
       return
     }
 
-    setUnsavedAuths((prevAuths) => {
-      const newUnsavedauths = prevAuths.filter(
-        (prevAuth) => prevAuth.authType !== auth.authType
-      )
-      return [...newUnsavedauths, { ...auth, auth }]
-    })
-
     if (newAuthType === 'inherit') {
       if (disableInherit) {
         throw new Error('Inherit auth type is disabled')
       }
 
-      setAuth(
-        unsavedAuths.find(
-          (unsavedAuth) => unsavedAuth.authType === 'inherit'
-        ) || {
-          authType: 'inherit',
-        }
-      )
+      setAuth({
+        authType: 'inherit',
+      })
     } else if (newAuthType === 'none') {
-      setAuth(
-        unsavedAuths.find((unsavedAuth) => unsavedAuth.authType === 'none') || {
-          authType: 'none',
-        }
-      )
+      setAuth({
+        authType: 'none',
+      })
     } else if (newAuthType === 'basic') {
-      setAuth(
-        unsavedAuths.find(
-          (unsavedAuth) => unsavedAuth.authType === 'basic'
-        ) || {
-          authType: 'basic',
-          username: '',
-          password: '',
-        }
-      )
+      setAuth({
+        authType: 'basic',
+        username: '',
+        password: '',
+      })
     } else if (newAuthType === 'bearer') {
-      setAuth(
-        unsavedAuths.find(
-          (unsavedAuth) => unsavedAuth.authType === 'bearer'
-        ) || {
-          authType: 'bearer',
-          token: '',
-        }
-      )
+      setAuth({
+        authType: 'bearer',
+        token: '',
+      })
     } else if (newAuthType === 'oauth2') {
-      setAuth(
-        unsavedAuths.find((unsavedAuth) => unsavedAuth.authType === 'oauth2') ??
-          defaultOAuth2Config('authorization-code')
-      )
+      setAuth(defaultOAuth2Config('authorization-code'))
     } else if (newAuthType === 'api-key') {
-      setAuth(
-        unsavedAuths.find(
-          (unsavedAuth) => unsavedAuth.authType === 'api-key'
-        ) || {
-          authType: 'api-key',
-          key: '',
-          value: '',
-          addTo: 'header',
-        }
-      )
+      setAuth({
+        authType: 'api-key',
+        key: '',
+        value: '',
+        addTo: 'header',
+      })
     } else {
       throw `handleChangeAuthType unsupported authType: ${newAuthType}`
     }
@@ -216,16 +187,28 @@ export const AuthPanel = ({
         />
       )}
       {auth.authType === 'basic' && (
-        <BasicAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+        <BasicAuthForm
+          auth={auth}
+          setAuth={setAuth}
+          namespace={`${namespace}.basic`}
+        />
       )}
       {auth.authType === 'bearer' && (
-        <BearerAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+        <BearerAuthForm
+          auth={auth}
+          setAuth={setAuth}
+          namespace={`${namespace}.bearer`}
+        />
       )}
       {auth.authType === 'oauth2' && (
         <OAuth2AuthForm auth={auth} setAuth={setAuth} activeId={activeId} />
       )}
       {auth.authType === 'api-key' && (
-        <APIKeyAuthForm auth={auth} setAuth={setAuth} namespace={namespace} />
+        <APIKeyAuthForm
+          auth={auth}
+          setAuth={setAuth}
+          namespace={`${namespace}.apiKey`}
+        />
       )}
     </>
   )

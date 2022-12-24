@@ -1,3 +1,4 @@
+import { ROUTES } from '@apiteam/types/src'
 import { Stack } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
@@ -5,6 +6,7 @@ import { MetaTags } from '@redwoodjs/web'
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
 import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 import { ImageTextPanel } from 'src/layouts/Landing/components/templates/ImageTextPanel'
+import { LandingNextSectionLink } from 'src/layouts/Landing/components/templates/LandingNextSectionLink'
 import { extendedGlobeTestFeatures } from 'src/layouts/Landing/content/globe-test-features'
 
 const title = 'Load Testing'
@@ -27,32 +29,14 @@ const LoadTestingPage = () => (
           alignment={index % 2 === 0 ? 'left' : 'right'}
         />
       ))}
-      {/*
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{ fontWeight: 700 }}
-            color={theme.palette.text.primary}
-            gutterBottom
-          >
-            Integrated load testing of your APIs
-          </Typography>
-          <Typography
-            sx={{
-              color: theme.palette.text.secondary,
-              marginBottom: 2,
-            }}
-            variant="h6"
-          >
-            Load test your APIs with our integrated open source load testing tool GlobeTest.
-            Easily create and run load tests, and view the results in real-time.
-          </Typography>
-          <CallToClickLink
-            text="Load testing with APITeam"
-            link={ROUTES.loadTesting}
-          />
-        </Box>
-        */}
+      <LandingNextSectionLink
+        primaryText="Load testing from your local machine"
+        secondaryText="Load test your APIs as you develop them. Run load tests from your local machine with APITeam Agent and stream the results to the cloud."
+        callToClickLink={{
+          text: 'Learn more and download',
+          link: ROUTES.agent,
+        }}
+      />
     </Stack>
   </>
 )

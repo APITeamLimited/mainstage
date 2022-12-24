@@ -1,5 +1,6 @@
 import AppsIcon from '@mui/icons-material/Apps'
 import CompressIcon from '@mui/icons-material/Compress'
+import EqualizerIcon from '@mui/icons-material/Equalizer'
 import InsightsIcon from '@mui/icons-material/Insights'
 
 import type { FeatureOverviewElement } from '../components/templates/FeatureOverviewPanel'

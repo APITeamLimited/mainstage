@@ -44,7 +44,7 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
           }}
         >
           <Box
-            maxWidth={{ xs: 1, sm: '50%' }}
+            maxWidth="100%"
             sx={{
               // Overlaps with the preview images
               zIndex: 1,
@@ -101,7 +101,11 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
               }}
             >
               <SignUpOrContinueButton size="large" />
-              <div>
+              <div
+                style={{
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 <Button
                   // Scroll to the features section
                   onClick={() =>
@@ -143,7 +147,7 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
           fill={theme.palette.background.paper}
           opacity={1}
           d="M0,0c0,0,934.4,93.4,1920,0v100.1H0L0,0z"
-        ></path>
+        />
       </Box>
       <Box
         sx={{

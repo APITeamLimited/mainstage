@@ -16,6 +16,12 @@ const storeURL = `${checkValue<string>('store.host')}:${checkValue<number>(
 /* Searches for store receipts in a Y.Doc and asks Store to delete any not found
 in the doc */
 export const cleanupStoreReceipts = async (openDoc: OpenDoc) => {
+  console.log('Cleaning up store receipts disabled for now')
+
+  return
+
+  // TODO: FIx cleanup bug
+
   const receipts = findStoreReceipts(openDoc)
 
   // Tell Store to delete any receipts not found in the doc
@@ -34,7 +40,7 @@ export const cleanupStoreReceipts = async (openDoc: OpenDoc) => {
 }
 
 /* Recusively searches an open doc for store receipts */
-export const findStoreReceipts = (openDoc: OpenDoc): string[] => {
+const findStoreReceipts = (openDoc: OpenDoc): string[] => {
   const receipts: string[] = []
 
   const projectsYMap = openDoc.getMap('projects') as Y.Map<never>

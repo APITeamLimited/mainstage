@@ -44,7 +44,7 @@ export const ContactUs = () => {
       <Stack spacing={largePanelSpacing} direction={isMd ? 'row' : 'column'}>
         <Stack spacing={smallPanelSpacing}>
           <Typography
-            variant="h5"
+            variant="h4"
             color={theme.palette.text.primary}
             fontWeight="bold"
           >
@@ -100,7 +100,7 @@ export const ContactUs = () => {
         </Stack>
         <Stack spacing={smallPanelSpacing}>
           <Typography
-            variant="h5"
+            variant="h4"
             fontWeight="bold"
             color={theme.palette.text.primary}
           >

@@ -44,6 +44,9 @@ export const TopNavApp = () => {
           ) : (
             <APITeamLogo />
           )}
+          {/* {!isOnDashboard && (
+            <TopNavLink name="Dashboard" path={ROUTES.dashboard} />
+          )} */}
           <TopNavLink name="Docs" path={ROUTES.docs} />
           <TopNavLink name="Support" path={routes.support()} />
         </Stack>

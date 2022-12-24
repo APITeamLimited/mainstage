@@ -5,9 +5,10 @@ import { Link } from '@redwoodjs/router'
 type TopNavLinkProps = {
   name: string
   path: string
+  bold?: boolean
 }
 
-export const TopNavLink = ({ name, path }: TopNavLinkProps) => {
+export const TopNavLink = ({ name, path, bold }: TopNavLinkProps) => {
   const theme = useTheme()
 
   return (
@@ -20,6 +21,7 @@ export const TopNavLink = ({ name, path }: TopNavLinkProps) => {
             theme.palette.mode === 'dark'
               ? theme.palette.grey[300]
               : theme.palette.grey[800],
+          fontWeight: bold ? 'bold' : 'normal',
         }}
       >
         {name}

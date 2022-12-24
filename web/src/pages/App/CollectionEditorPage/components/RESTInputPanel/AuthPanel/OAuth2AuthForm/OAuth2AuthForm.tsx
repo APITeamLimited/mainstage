@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import {
   defaultOAuth2Config,
   OAuth2Token,
+  prettyZodError,
   RESTAuth,
   RESTAuthOAuth2,
   RESTAuthOAuth2GrantType,
@@ -10,13 +11,16 @@ import {
 import { useApolloClient } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 
-import { snackSuccessMessageVar } from 'src/components/app/dialogs'
+import {
+  snackErrorMessageVar,
+  snackSuccessMessageVar,
+} from 'src/components/app/dialogs'
 import {
   CustomFormSelect,
   FormEnvironmentTextField,
 } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
-import { getOAuth2Token } from 'src/utils/oauth2'
+import { getOAuth2Token, validateOAuth2Data } from 'src/utils/oauth2'
 
 import { AuthenticatingDialog } from './AuthenticatingDialog'
 import { AuthorizationCodeForm } from './AuthorizationCodeForm'
@@ -59,14 +63,30 @@ export const OAuth2AuthForm = ({
   const handleGetToken = async () => {
     abortRef.current = 'run'
 
-    // So doesn't flash if validation fails
-    setTimeout(() => setShowAuthenticatingDialog(true), 300)
+    const validationResult = await validateOAuth2Data(auth, apolloClient)
 
-    const result = await getOAuth2Token(auth, apolloClient, abortRef)
+    if (!validationResult.parseResult.success) {
+      snackErrorMessageVar(
+        prettyZodError(validationResult.parseResult.error).message
+      )
+      return
+    }
+
+    setShowAuthenticatingDialog(true)
+
+    const result = await getOAuth2Token(
+      validationResult.parseResult.data,
+      validationResult.apiteamCallbackCode,
+      apolloClient,
+      abortRef
+    ).catch((err) => {
+      snackErrorMessageVar(err.message)
+      return null
+    })
+
     setShowAuthenticatingDialog(false)
 
     if (!result) {
-      // Error already shown
       return
     }
 

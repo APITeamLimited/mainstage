@@ -1,9 +1,4 @@
-import {
-  OAuth2Token,
-  prettyZodError,
-  RESTAuth,
-  restAuthSchema,
-} from '@apiteam/types/src'
+import { OAuth2Token, RESTAuth, restAuthOAuth2Schema } from '@apiteam/types/src'
 import type { ApolloClient } from '@apollo/client/core'
 
 import {
@@ -13,14 +8,13 @@ import {
 } from '../backend-callbacks'
 import { getCallbackResult } from '../method-utils'
 
-export const handleAuthorizationCodeFlow = async (
+export const validateAuthorizationCodeFlow = async (
   inputAuth: RESTAuth & {
     authType: 'oauth2'
     grantType: 'authorization-code' | 'authorization-code-with-pkce'
   },
-  apolloClient: ApolloClient<object>,
-  abortRef?: React.MutableRefObject<null | 'run' | 'abort'>
-): Promise<OAuth2Token> => {
+  apolloClient: ApolloClient<object>
+) => {
   // Necessary to avoid mutating the inputAuth object and causing a re-render
   const restAuth = { ...inputAuth }
 
@@ -35,41 +29,52 @@ export const handleAuthorizationCodeFlow = async (
 
   restAuth.redirectURI = `${apiTeamOauth2CallbackURL()}?apiteamCallbackCode=${apiteamCallbackCode}`
 
-  const validationResult = restAuthSchema.safeParse(restAuth)
-
-  if (!validationResult.success) {
-    console.error(validationResult.error)
-    throw prettyZodError(validationResult.error)
+  return {
+    apiteamCallbackCode,
+    parseResult: restAuthOAuth2Schema.safeParse(restAuth),
   }
+}
 
-  const authorizationURLWithParams = new URL(restAuth.authorizationURL)
+export const handleAuthorizationCodeFlow = async (
+  validatedAuth: RESTAuth & {
+    authType: 'oauth2'
+    grantType: 'authorization-code' | 'authorization-code-with-pkce'
+  },
+  apiteamCallbackCode: string,
+  apolloClient: ApolloClient<object>,
+  abortRef?: React.MutableRefObject<null | 'run' | 'abort'>
+): Promise<OAuth2Token> => {
+  const authorizationURLWithParams = new URL(validatedAuth.authorizationURL)
 
   authorizationURLWithParams.searchParams.append('response_type', 'code')
-  authorizationURLWithParams.searchParams.append('client_id', restAuth.clientID)
-  authorizationURLWithParams.searchParams.append('state', restAuth.state)
+  authorizationURLWithParams.searchParams.append(
+    'client_id',
+    validatedAuth.clientID
+  )
+  authorizationURLWithParams.searchParams.append('state', validatedAuth.state)
   authorizationURLWithParams.searchParams.append(
     'redirect_uri',
-    restAuth.redirectURI
+    validatedAuth.redirectURI
   )
 
-  if (restAuth.scope && restAuth.scope !== '') {
-    authorizationURLWithParams.searchParams.append('scope', restAuth.scope)
+  if (validatedAuth.scope && validatedAuth.scope !== '') {
+    authorizationURLWithParams.searchParams.append('scope', validatedAuth.scope)
   }
 
-  if (restAuth.grantType === 'authorization-code-with-pkce') {
-    if (restAuth.codeVerifier === '') {
+  if (validatedAuth.grantType === 'authorization-code-with-pkce') {
+    if (validatedAuth.codeVerifier === '') {
       // Set code verifier to a random 140 character string with A-Z, a-z, 0-9, and
       // the punctuation characters -._~ (hyphen, period, underscore, and tilde)
-      restAuth.codeVerifier = generateRandomCodeVerifier()
+      validatedAuth.codeVerifier = generateRandomCodeVerifier()
     }
 
     authorizationURLWithParams.searchParams.append(
       'code_challenge_method',
-      restAuth.codeChallengeMethod
+      validatedAuth.codeChallengeMethod
     )
     authorizationURLWithParams.searchParams.append(
       'code_challenge',
-      await createCodeChallenge(restAuth)
+      await createCodeChallenge(validatedAuth)
     )
   }
 
@@ -87,7 +92,7 @@ export const handleAuthorizationCodeFlow = async (
     abortRef
   )
 
-  if (callbackResult.state !== restAuth.state) {
+  if (callbackResult.state !== validatedAuth.state) {
     throw new Error(
       'Incorrect state returned from callback, possible CSRF attack'
     )
@@ -95,16 +100,16 @@ export const handleAuthorizationCodeFlow = async (
 
   return await fetchToken({
     apolloClient,
-    grantType: restAuth.grantType,
+    grantType: validatedAuth.grantType,
     code: callbackResult.code,
-    accessTokenURL: restAuth.accessTokenURL,
-    clientID: restAuth.clientID,
-    clientSecret: restAuth.clientSecret,
-    redirectURI: restAuth.redirectURI,
-    clientAuthentication: restAuth.clientAuthentication,
+    accessTokenURL: validatedAuth.accessTokenURL,
+    clientID: validatedAuth.clientID,
+    clientSecret: validatedAuth.clientSecret,
+    redirectURI: validatedAuth.redirectURI,
+    clientAuthentication: validatedAuth.clientAuthentication,
     codeVerifier:
-      restAuth.grantType === 'authorization-code-with-pkce'
-        ? restAuth.codeVerifier
+      validatedAuth.grantType === 'authorization-code-with-pkce'
+        ? validatedAuth.codeVerifier
         : undefined,
   })
 }

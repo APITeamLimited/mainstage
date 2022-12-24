@@ -112,14 +112,17 @@ export const TokenManagerForm = ({
               const prettyExpiry = getPrettyExpiryDate(wrappedToken)
 
               return (
-                <MenuItem
-                  key={index}
-                  value={wrappedToken.token.access_token}
-                  color={prettyExpiry === 'Expired' ? 'error' : 'inherit'}
-                >
-                  {wrappedToken.token.access_token.slice(0, 10)}...{' '}
-                  {getPrettyExpiryDate(wrappedToken)} remaining (
-                  {wrappedToken.syncType === 'local' ? 'Local' : 'Workspace'})
+                <MenuItem key={index} value={wrappedToken.token.access_token}>
+                  <span
+                    style={{
+                      color: prettyExpiry === 'Expired' ? 'red' : 'inherit',
+                    }}
+                  >
+                    {wrappedToken.token.access_token.slice(0, 10)}...{' '}
+                    {prettyExpiry}{' '}
+                    {prettyExpiry !== 'Expired' ? 'Remaining' : ''} (
+                    {wrappedToken.syncType === 'local' ? 'Local' : 'Workspace'})
+                  </span>
                 </MenuItem>
               )
             })}

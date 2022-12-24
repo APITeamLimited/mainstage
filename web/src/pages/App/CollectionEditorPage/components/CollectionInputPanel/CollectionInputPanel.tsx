@@ -86,11 +86,17 @@ export const CollectionInputPanel = ({
   useEffect(() => {
     if (!needSave) {
       setUnsavedDescription(collectionYMap.get('description') ?? '')
-      setUnsavedAuth(
-        oauth2LoadLocal(collectionYMap.get('auth'), collectionYMap.get('id')) ??
-          getSetAuth()
+
+      const newAuth = oauth2LoadLocal(
+        collectionYMap.get('auth'),
+        collectionYMap.get('id')
       )
 
+      // This is necessary to prevent a feedback loop
+      //if (hash(unsavedAuth) !== hash(newAuth)) {
+      //  setUnsavedAuth(newAuth)
+      //}
+      setUnsavedAuth(newAuth)
       const newVariables = kvLegacyImporter(
         'variables',
         collectionYMap,

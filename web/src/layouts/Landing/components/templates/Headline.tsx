@@ -1,6 +1,6 @@
 import { Stack, useTheme, Typography, Box, Divider } from '@mui/material/'
 
-import { largePanelSpacing } from 'src/layouts/Landing/components/constants'
+import { panelSeparation } from 'src/layouts/Landing/components/constants'
 
 type HeadlineProps = {
   headline: string
@@ -19,8 +19,8 @@ export const Headline = ({
 
   return (
     <Stack
-      spacing={largePanelSpacing}
-      sx={{ paddingBottom: padBottom ? largePanelSpacing : undefined }}
+      spacing={panelSeparation}
+      sx={{ paddingBottom: padBottom ? panelSeparation : undefined }}
     >
       <Box position="relative" zIndex={2}>
         <Typography

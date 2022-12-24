@@ -216,7 +216,10 @@ export const RESTInputPanel = ({
 
       // This is necessary to prevent a feedback loop
       if (hash(unsavedAuth) !== hash(newAuth)) {
-        setUnsavedAuth(newAuth)
+        setUnsavedAuth(JSON.parse(JSON.stringify(newAuth)))
+
+        // TODO: This is a hack to force a re-render
+        setAuthKey(Math.random())
       }
 
       setUnsavedDescription(
@@ -259,6 +262,8 @@ export const RESTInputPanel = ({
 
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
+
+  const [authKey, setAuthKey] = useState<number>(Math.random())
 
   // TODO: Re-enable this if file upload is re-enabled
   // useEffect(() => {
@@ -461,6 +466,7 @@ export const RESTInputPanel = ({
             namespace={`request:${requestId}:auth`}
             setActionArea={setActionArea}
             activeId={requestId}
+            key={authKey}
           />
         )}
         {activeTabIndex === 4 && (

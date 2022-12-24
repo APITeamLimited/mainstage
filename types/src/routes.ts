@@ -18,6 +18,7 @@ export const ROUTES = {
   docs: '/docs',
   blog: '/blog',
   openSource: '/open-source',
+  agent: '/agent',
   dashboard: '/app/dashboard',
   settingsWorkspace: '/app/dashboard/settings',
   settingsWorkspaceMembers: '/app/dashboard/settings/members',
@@ -37,4 +38,5 @@ export const LINKS = {
   gitHub: 'https://github.com/APITeamLimited',
   linkedIn: 'https://www.linkedin.com/company/apiteamlimited',
   globeTestRepo: 'https://github.com/APITeamLimited/globe-test',
+  agentRepo: 'https://github.com/APITeamLimited/agent',
 } as const

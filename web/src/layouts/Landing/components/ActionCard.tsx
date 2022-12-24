@@ -27,7 +27,7 @@ export const ActionCard = ({
         backgroundColor: backgroundColor ?? theme.palette.background.paper,
       }}
     >
-      <Stack margin={2} spacing={2} alignItems="center">
+      <Stack margin={4} spacing={2} alignItems="center">
         <Typography
           variant="h5"
           color={
@@ -66,6 +66,11 @@ export const ActionCard = ({
               borderColor: invertFontColor
                 ? theme.palette.common.white
                 : undefined,
+              '&:hover': {
+                borderColor: invertFontColor
+                  ? theme.palette.common.white
+                  : undefined,
+              },
             }}
           >
             {buttonText}

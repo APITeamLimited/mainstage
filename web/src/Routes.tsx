@@ -31,6 +31,10 @@ export const brandedRoutes = [
         name: 'Load Testing',
       },
       {
+        path: ROUTES.agent,
+        name: 'APITeam Agent',
+      },
+      {
         path: ROUTES.plansAndPricing,
         name: 'Plans and Pricing',
       },
@@ -101,6 +105,7 @@ const Routes = () => {
         <Route path={ROUTES.cookiePolicy} page={CookiePolicyPage} name="cookiePolicy" />
         <Route path={ROUTES.support} page={SupportPage} name="support" />
         <Route path={ROUTES.blog} page={PrivacyPolicyPage} name="blog" />
+        <Route path={ROUTES.agent} page={AgentPage} name="agent" />
       </Set>
       <Set wrap={DocsLayout}>{generateDocRoutes()}</Set>
       <Private unauthenticated="login">

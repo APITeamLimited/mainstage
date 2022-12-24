@@ -5,11 +5,11 @@ import { Box, Button, Stack, Typography, useTheme } from '@mui/material'
 import { smallPanelSpacing } from 'src/layouts/Landing/components/constants'
 
 const messages = [
-  'To build our load testing tool, we built on top of the open source project K6. We have implemented a number of features that we believe will make load testing easier for developers and are proud to share them with the community.',
-  'We built GlobeTest to provide a simple way to run distributed load tests using the K6 runtime engine.',
+  'APITeam Agent allows you to send requests and run load tests from your local machine and stream the results to the APITeam platform.',
+  'APITeam Agent uses GlobeTest under the hood, enabling load testing from your local machine with minimal setup.',
 ]
 
-export const GlobeTestOSS = () => {
+export const AgentOSS = () => {
   const theme = useTheme()
 
   return (
@@ -19,7 +19,7 @@ export const GlobeTestOSS = () => {
         sx={{ fontWeight: 700 }}
         color={theme.palette.text.primary}
       >
-        GlobeTest
+        APITeam Agent
       </Typography>
       {messages.map((message, index) => (
         <Typography
@@ -35,10 +35,10 @@ export const GlobeTestOSS = () => {
       <Box>
         <Button
           variant="outlined"
-          onClick={() => window.open(LINKS.globeTestRepo, '_blank')}
+          onClick={() => window.open(LINKS.agentRepo, '_blank')}
           endIcon={<GitHubIcon />}
         >
-          View GlobeTest on GitHub
+          View APITeam Agent on GitHub
         </Button>
       </Box>
     </Stack>

@@ -55,6 +55,12 @@ const executionParamsSchema = z.object({
   }),
   verifiedDomains: z.array(z.string()),
   createdAt: z.string().regex(isoStringRegex),
+  funcModeInfo: z.union([
+    z.object({
+      instance100msUnitRate: z.number(),
+    }),
+    z.null(),
+  ]),
 })
 
 export type ExecutionParams = z.infer<typeof executionParamsSchema>
@@ -65,6 +71,7 @@ const wrappedExecutionParamsSchema = executionParamsSchema
     scope: true,
     verifiedDomains: true,
     createdAt: true,
+    funcModeInfo: true,
   })
   .extend({
     bearer: z.string(),

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Skeleton } from '@mui/material'
+import { ErrorBoundary } from 'react-error-boundary'
 import type { Map as YMap } from 'yjs'
 
 import { RESTInputPanel } from '../RESTInputPanel'
@@ -32,14 +34,20 @@ export const determineNewRestTab = ({
   const newOpenTab: OpenTab = {
     topYMap: focusedElement,
     topNode: (
-      <RESTInputPanel
-        requestYMap={focusedElement}
-        collectionYMap={collectionYMap}
-        setObservedNeedsSave={setObservedNeedsSave}
-      />
+      <ErrorBoundary FallbackComponent={Skeleton}>
+        <RESTInputPanel
+          requestYMap={focusedElement}
+          collectionYMap={collectionYMap}
+          setObservedNeedsSave={setObservedNeedsSave}
+        />
+      </ErrorBoundary>
     ),
     bottomYMap,
-    bottomNode: <RESTResponsePanel responseYMap={bottomYMap ?? undefined} />,
+    bottomNode: (
+      <ErrorBoundary FallbackComponent={Skeleton}>
+        <RESTResponsePanel responseYMap={bottomYMap ?? undefined} />
+      </ErrorBoundary>
+    ),
     orderingIndex,
     tabId,
     lastSaveCheckpoint: Date.now(),

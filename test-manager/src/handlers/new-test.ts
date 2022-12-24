@@ -1,10 +1,10 @@
-import { parseAndValidateGlobeTestMessage } from '@apiteam/types'
 import {
   WrappedExecutionParams,
   ExecutionParams,
   AuthenticatedSocket,
   RunningTestInfo,
   JobUserUpdateMessage,
+  parseAndValidateGlobeTestMessage,
 } from '@apiteam/types'
 import type { Scope } from '@prisma/client'
 import { parse } from 'query-string'
@@ -94,6 +94,9 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     },
     verifiedDomains,
     createdAt: new Date().toISOString(),
+    funcModeInfo: {
+      instance100msUnitRate: 1,
+    },
   }
 
   // Start stream before scheduling to ensure all messages are received
