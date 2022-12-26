@@ -1,7 +1,7 @@
 import { ElementType, ReactNode } from 'react'
 
 import {
-  Box,
+  Card,
   Grid,
   Stack,
   SvgIcon,
@@ -71,7 +71,7 @@ export const OverviewPanel = ({
               paddingLeft: i === 0 || isSmall ? 0 : undefined,
             }}
           >
-            <Box
+            <Card
               sx={{
                 padding: 2,
                 height: `calc(100% - ${theme.spacing(4)})`,
@@ -96,7 +96,7 @@ export const OverviewPanel = ({
                   {item.description}
                 </Typography>
               </Stack>
-            </Box>
+            </Card>
           </Grid>
         ))}
       </Grid>

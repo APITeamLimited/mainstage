@@ -15,7 +15,7 @@ import { MetaTags } from '@redwoodjs/web'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
 
-import PasswordSignupForm from './PasswordSignupForm'
+import { PasswordSignupForm } from './PasswordSignupForm'
 
 type SignupPageProps = {
   redirectTo?: string

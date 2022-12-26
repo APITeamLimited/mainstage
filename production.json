@@ -2,9 +2,6 @@
   "gateway": {
     "url": "${GATEWAY_URL}"
   },
-  "teams": {
-    "markedForDeletionExpiryHours": 24
-  },
   "api": {
     "host": "${API_HOST}",
     "port": "${API_PORT}",
@@ -28,6 +25,10 @@
         "email": "support@apiteam.cloud"
       },
       "sendgridAPIKey": "${SENDGRID_API_KEY}"
+    },
+    "stripe": {
+      "publishableKey": "${STRIPE_PUBLISHABLE_KEY}",
+      "secretKey": "${STRIPE_SECRET_KEY}"
     }
   },
   "coreCache": {
@@ -95,5 +96,9 @@
       "database": "${STORE_MONGO_DATABASE}"
     },
     "isMaster": "${IS_MASTER}"
+  },
+  "recaptcha": {
+    "siteKey": "${RECAPTCHA_SITE_KEY}",
+    "secretKey": "${RECAPTCHA_SECRET_KEY}"
   }
 }

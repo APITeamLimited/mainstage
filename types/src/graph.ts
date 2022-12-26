@@ -27,7 +27,7 @@ export const AVAILABLE_LOAD_ZONES = [
 
 export const availableLoadZonesSchema = z.enum(AVAILABLE_LOAD_ZONES)
 
-export type AvailableLoadZones = z.infer<typeof availableLoadZonesSchema>
+export type AvailableLoadZone = z.infer<typeof availableLoadZonesSchema>
 
 export const graphSeriesSchema = z.object({
   loadZone: availableLoadZonesSchema,

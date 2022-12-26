@@ -45,7 +45,6 @@ export const createPersonalScope = async (user: SafeUser) => {
             displayName,
             slug,
             profilePicture,
-            updatedAt: new Date(),
           },
         })
 
@@ -127,7 +126,6 @@ export const createTeamScope = async (
             displayName,
             profilePicture,
             slug,
-            updatedAt: new Date(),
           },
         })
 

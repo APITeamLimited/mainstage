@@ -186,7 +186,7 @@ export const updateTeam = async ({
 
   const updatedTeam = await db.team.update({
     where: { id: teamId },
-    data: { name, slug, shortBio, updatedAt: new Date() },
+    data: { name, slug, shortBio },
   })
 
   // Set in core cache

@@ -19,6 +19,7 @@ import {
 } from '@mui/material'
 import { useFormik } from 'formik'
 import * as queryString from 'query-string'
+import ReCAPTCHA from 'react-google-recaptcha'
 import {
   GetVerifyCodeMutation,
   GetVerifyCodeMutationVariables,
@@ -30,8 +31,16 @@ import { navigate, routes, useLocation } from '@redwoodjs/router'
 import { useMutation } from '@redwoodjs/web'
 
 const GET_VERIFY_CODE_MUTATION = gql`
-  mutation GetVerifyCodeMutation($firstName: String!, $email: String!) {
-    getVerificationCode(firstName: $firstName, email: $email)
+  mutation GetVerifyCodeMutation(
+    $firstName: String!
+    $email: String!
+    $recaptchaToken: String!
+  ) {
+    getVerificationCode(
+      firstName: $firstName
+      email: $email
+      recaptchaToken: $recaptchaToken
+    )
   }
 `
 
@@ -39,7 +48,15 @@ type PasswordSignupFormProps = {
   suggestedEmail?: string
 }
 
-const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
+const recaptchaSiteKey = process.env['RECAPTCHA_SITE_KEY']
+
+if (!recaptchaSiteKey) {
+  throw new Error('RECAPTCHA_SITE_KEY is not defined')
+}
+
+export const PasswordSignupForm = ({
+  suggestedEmail,
+}: PasswordSignupFormProps) => {
   const { isAuthenticated, signUp } = useAuth()
   const { search } = useLocation()
   const [isRedirecting, setIsRedirecting] = useState(false)
@@ -67,6 +84,7 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
           ? suggestedEmail
           : '',
       password: '',
+      recaptchaToken: '',
       verifyCode: '',
       emailMarketing: false,
       agreeTerms: false,
@@ -80,6 +98,9 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
         .max(255)
         .required('Email is required'),
       password: Yup.string().max(255).required('Password is required'),
+      recaptchaToken: Yup.string().required(
+        'Please complete the captcha challenge'
+      ),
       verifyCode: Yup.string()
         .min(6)
         .max(6)
@@ -131,6 +152,28 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
     GetVerifyCodeMutationVariables
   >(GET_VERIFY_CODE_MUTATION)
 
+  const handleRetrieveVerificationCode = async () => {
+    // Get verification code
+    const result = await getVerificationCode({
+      variables: {
+        firstName: formik.values.firstName,
+        email: formik.values.email,
+        recaptchaToken: formik.values.recaptchaToken,
+      },
+    }).catch((error) => {
+      formik.setErrors({ submit: error.message })
+      return null
+    })
+
+    if (!result) return
+
+    if (result.data?.getVerificationCode) {
+      setActiveStep(activeStep + 1)
+    } else {
+      formik.setErrors({ submit: 'An error occurred. Please contact support.' })
+    }
+  }
+
   const handleNext = async () => {
     if (activeStep === 0) {
       // Validate firstName and lastName fields only
@@ -138,6 +181,7 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
         ...(await formik.validateForm()),
         email: '',
         password: '',
+        recaptchaToken: '',
         verifyCode: '',
         emailMarketing: '',
         agreeTerms: '',
@@ -175,26 +219,7 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
       // Check if there are any errors
       if (errors.email || errors.password) return
 
-      // Get verification code
-      const { data, errors: submitErrors } = await getVerificationCode({
-        variables: {
-          firstName: formik.values.firstName,
-          email: formik.values.email,
-        },
-      })
-
-      if (submitErrors) {
-        formik.setErrors({ submit: 'Failed to get verification code' })
-        return
-      }
-
-      if (data?.getVerificationCode === true) {
-        setActiveStep(activeStep + 1)
-      } else if (data?.getVerificationCode === false) {
-        formik.setErrors({ submit: 'That email is already taken' })
-      } else {
-        formik.setErrors({ submit: 'Failed to get verification code' })
-      }
+      handleRetrieveVerificationCode()
     }
   }
 
@@ -308,11 +333,21 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
                   <Button
                     variant="contained"
                     onClick={handleNext}
-                    disabled={codeLoading}
+                    disabled={
+                      codeLoading || formik.values.recaptchaToken === ''
+                    }
                   >
                     Next
                   </Button>
                 </Stack>
+                <ReCAPTCHA
+                  sitekey={recaptchaSiteKey}
+                  theme={theme.palette.mode}
+                  onChange={(token) =>
+                    formik.setFieldValue('recaptchaToken', token)
+                  }
+                  onExpired={() => formik.setFieldValue('recaptchaToken', '')}
+                />
               </Stack>
             </StepContent>
           </Step>
@@ -330,25 +365,7 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
                   Please enter it below.
                 </Typography>
                 <Box>
-                  <Button
-                    onClick={async () => {
-                      const { data } = await getVerificationCode({
-                        variables: {
-                          firstName: formik.values.firstName,
-                          email: formik.values.email,
-                        },
-                      })
-                      if (data?.getVerificationCode === true) {
-                        setSnackSuccessMessage(
-                          'A new verification email has been sent'
-                        )
-                      } else if (data?.getVerificationCode === false) {
-                        setSnackErrorMessage('That email is already taken')
-                      } else {
-                        setSnackErrorMessage('Failed to get verification code')
-                      }
-                    }}
-                  >
+                  <Button onClick={handleRetrieveVerificationCode}>
                     Send Again
                   </Button>
                 </Box>
@@ -461,5 +478,3 @@ const PasswordSignupForm = ({ suggestedEmail }: PasswordSignupFormProps) => {
     </>
   )
 }
-
-export default PasswordSignupForm

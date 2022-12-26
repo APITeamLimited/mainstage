@@ -11,6 +11,14 @@ generator client {
 // Define your own datamodels here and run `yarn redwood prisma migrate dev`
 // to create migrations for them and apply to your dev DB.
 
+model EntityAuthKeyPair {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @updatedAt
+  publicKey  String
+  privateKey String
+}
+
 // Make user model with UUID as primary key
 model User {
   id             String       @id @default(uuid())
@@ -19,7 +27,7 @@ model User {
   slug           String
   email          String       @unique
   createdAt      DateTime     @default(now())
-  updatedAt      DateTime?
+  updatedAt      DateTime?    @updatedAt
   isAdmin        Boolean      @default(false)
   emailVerified  Boolean      @default(false)
   shortBio       String?
@@ -31,27 +39,40 @@ model User {
   salt                String
   resetToken          String?
   resetTokenExpiresAt DateTime?
-  Article             Article[]
-  emailMarketing      Boolean   @default(false)
+
+  emailMarketing Boolean @default(false)
+
+  articles Article[]
+
+  // Stripe and billing
+  customerId String?
+
+  planInfo   PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
+  planInfoId String?
 }
 
 model Team {
-  id             String       @id @default(uuid())
+  id             String    @id @default(uuid())
   name           String
-  slug           String       @unique
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime?
+  slug           String    @unique
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime? @updatedAt
   shortBio       String?
   profilePicture String?
-  maxMembers     Int          @default(10)
-  memberships    Membership[]
-  invitations    Invitation[]
+
+  memberships Membership[]
+  invitations Invitation[]
+
+  // Stripe and billing
+  customerId String?
+  planInfo   PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
+  planInfoId String?
 }
 
 model Membership {
   id              String    @id @default(uuid())
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime?
+  updatedAt       DateTime? @updatedAt
   user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          String
   team            Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
@@ -74,21 +95,13 @@ model Invitation {
   @@unique([email, teamId])
 }
 
-model EntityAuthKeyPair {
-  id         String    @id @default(uuid())
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime?
-  publicKey  String
-  privateKey String
-}
-
 model Scope {
   id              String    @id @default(uuid())
   variant         String
   variantTargetId String
   role            String?
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime?
+  updatedAt       DateTime? @updatedAt
   userId          String
   displayName     String
   profilePicture  String?
@@ -100,7 +113,7 @@ model Scope {
 model Tag {
   id        String           @id @default(uuid())
   createdAt DateTime         @default(now())
-  updatedAt DateTime?
+  updatedAt DateTime?        @updatedAt
   name      String
   articles  TagsOnArticles[]
 }
@@ -108,20 +121,21 @@ model Tag {
 model Article {
   id                      String           @id @default(uuid())
   createdAt               DateTime         @default(now())
-  updatedAt               DateTime?
+  updatedAt               DateTime?        @updatedAt
   title                   String
   markdown                String
   tags                    TagsOnArticles[]
   estimatedReadingMinutes Int
-  author                  User             @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  authorId                String
   previewImageSrc         String?
+
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId String?
 }
 
 model TagsOnArticles {
   id          String    @id @default(uuid())
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime?
+  updatedAt   DateTime? @updatedAt
   tag         Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
   tagId       String
   article     Article   @relation(fields: [blogEntryId], references: [id], onDelete: Cascade)
@@ -131,10 +145,59 @@ model TagsOnArticles {
 model VerifiedDomain {
   id              String    @id @default(uuid())
   createdAt       DateTime  @default(now())
-  updatedAt       DateTime?
+  updatedAt       DateTime? @updatedAt
   domain          String
   variant         String
   variantTargetId String
   txtRecord       String
   verified        Boolean   @default(false)
+}
+
+// Stripe and billing
+
+model PlanInfo {
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+  isActive    Boolean   @default(true)
+  name        String
+  verboseName String
+
+  // Plan Features
+  maxMembers              Int
+  maxConcurrentCloudTests Int
+  monthlyCredits          Int
+  loadZones               String[]
+  testSchedulingEnabled   Boolean
+  maxTestDurationMinutes  Int
+  dataRetentionMonths     Int
+  maxSimulatedUsers       Int
+
+  // Pricing and stripe
+  priceMonthlyCents Int
+  priceYearlyCents  Int
+  freeTrialDays     Int?
+  productId         String
+  yearlyPriceId     String
+  monthlyPriceId    String
+
+  teams Team[]
+  users User[]
+}
+
+model CreditsPricingOption {
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+  isActive    Boolean   @default(true)
+  name        String
+  verboseName String
+
+  // Purchase Features
+  credits Int
+
+  // Pricing and stripe
+  priceCents Int
+  productId  String
+  priceId    String
 }

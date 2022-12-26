@@ -2,9 +2,6 @@
   "gateway": {
       "url": "${GATEWAY_URL}"
   },
-  "teams": {
-    "markedForDeletionExpiryHours": 24
-  },
   "api": {
       "host": "${API_HOST}",
       "port": "${API_PORT}",

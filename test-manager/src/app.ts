@@ -104,7 +104,7 @@ if (process.env.NODE_ENV === 'development') {
 httpServer.listen(testManagerPort, testManagerHost, () => {
   console.log(
     Color(
-      `\n\nAPITeam Test Manager Listening at ${testManagerHost}:${testManagerPort}${io.path()}\n\n`,
+      `\n\nAPITeam Test Manager Listening at ${testManagerHost}:${testManagerPort}}\n\n`,
       '#f531ca'
     )
   )

@@ -118,8 +118,11 @@ __metadata:
     "@types/nodemailer": ^6.4.5
     "@types/yargs": ^17.0.12
     extract-domain: ^2.4.8
+    form-data: ^4.0.0
     gravatar: ^1.8.2
+    node-fetch: ^3.3.0
     nodemailer: ^6.7.8
+    stripe: ^11.5.0
     xml-js: ^1.6.11
     yup: ^0.32.11
   languageName: unknown
@@ -221,6 +224,7 @@ __metadata:
     "@types/mime-types": ^2.1.1
     "@types/postman-collection": ^3.5.7
     "@types/prettier": ^2.7.0
+    "@types/react-google-recaptcha": ^2.1.5
     "@unlimited-react-components/kernel": ^1.0.2
     "@xml-tools/parser": ^1.0.11
     add: ^2.0.6
@@ -279,6 +283,7 @@ __metadata:
     react-drag-drop-files: ^2.3.7
     react-error-boundary: ^3.1.4
     react-flip-toolkit: ^7.0.14
+    react-google-recaptcha: ^2.1.0
     react-hook-form: ^7.33.1
     react-hotkeys-hook: ^3.4.6
     react-lazy-load-image-component: ^1.5.5
@@ -11089,6 +11094,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-google-recaptcha@npm:^2.1.5":
+  version: 2.1.5
+  resolution: "@types/react-google-recaptcha@npm:2.1.5"
+  dependencies:
+    "@types/react": "*"
+  checksum: 97c89db661832408d3a7c6ce7135c1725c8b9a4bb935f63ade7425a49efac166b2dede962b78abf86bf3545653008d833c81f5aa5542dd8edc31f1f97eb702b0
+  languageName: node
+  linkType: hard
+
 "@types/react-html-email@npm:^3.0.1":
   version: 3.0.1
   resolution: "@types/react-html-email@npm:3.0.1"
@@ -17079,6 +17093,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"data-uri-to-buffer@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "data-uri-to-buffer@npm:4.0.0"
+  checksum: 940461017d78a15a01c9a3f7ba964c634c7b4d6db5cbb2547dc3c743395abe3e6ba582f05b3c259b150bf3715558641255f89afb704d94859a8505871d07618f
+  languageName: node
+  linkType: hard
+
 "data-urls@npm:^3.0.2":
   version: 3.0.2
   resolution: "data-urls@npm:3.0.2"
@@ -19915,6 +19936,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fetch-blob@npm:^3.1.2, fetch-blob@npm:^3.1.4":
+  version: 3.2.0
+  resolution: "fetch-blob@npm:3.2.0"
+  dependencies:
+    node-domexception: ^1.0.0
+    web-streams-polyfill: ^3.0.3
+  checksum: 60054bf47bfa10fb0ba6cb7742acec2f37c1f56344f79a70bb8b1c48d77675927c720ff3191fa546410a0442c998d27ab05e9144c32d530d8a52fbe68f843b69
+  languageName: node
+  linkType: hard
+
 "fetch-retry@npm:^5.0.2":
   version: 5.0.3
   resolution: "fetch-retry@npm:5.0.3"
@@ -20484,6 +20515,15 @@ __metadata:
     node-domexception: 1.0.0
     web-streams-polyfill: 4.0.0-beta.1
   checksum: 8fd70c642003b40ee23a77cc312a89c39ef27ccbf0d7fad57f157aeeab944c1fabd3402f7958de2c8694d1dbd1b273aefd8423eeaddc2ab442a45ba1d78f7f48
+  languageName: node
+  linkType: hard
+
+"formdata-polyfill@npm:^4.0.10":
+  version: 4.0.10
+  resolution: "formdata-polyfill@npm:4.0.10"
+  dependencies:
+    fetch-blob: ^3.1.2
+  checksum: 5392ec484f9ce0d5e0d52fb5a78e7486637d516179b0eb84d81389d7eccf9ca2f663079da56f761355c0a65792810e3b345dc24db9a8bbbcf24ef3c8c88570c6
   languageName: node
   linkType: hard
 
@@ -27350,7 +27390,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-domexception@npm:1.0.0":
+"node-domexception@npm:1.0.0, node-domexception@npm:^1.0.0":
   version: 1.0.0
   resolution: "node-domexception@npm:1.0.0"
   checksum: 5e5d63cda29856402df9472335af4bb13875e1927ad3be861dc5ebde38917aecbf9ae337923777af52a48c426b70148815e890a5d72760f1b4d758cc671b1a2b
@@ -27387,6 +27427,17 @@ __metadata:
     encoding:
       optional: true
   checksum: fcae80f5ac52fbf5012f5e19df2bd3915e67d3b3ad51cb5942943df2238d32ba15890fecabd0e166876a9f98a581ab50f3f10eb942b09405c49ef8da36b826c7
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "node-fetch@npm:3.3.0"
+  dependencies:
+    data-uri-to-buffer: ^4.0.0
+    fetch-blob: ^3.1.4
+    formdata-polyfill: ^4.0.10
+  checksum: aaacc95460358c56f17fdaa8e65dbe2a7afd26c0b0c0f72edb96cc55901e7d4eab4e7d2c922e91c41f1c442a469aad65d60782e2c3e3b12492742c06e741fbd1
   languageName: node
   linkType: hard
 
@@ -29913,7 +29964,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:15.8.1, prop-types@npm:^15.0.0, prop-types@npm:^15.5.10, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.0, prop-types@npm:^15.7.1, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:15.8.1, prop-types@npm:^15.0.0, prop-types@npm:^15.5.0, prop-types@npm:^15.5.10, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.1, prop-types@npm:^15.6.2, prop-types@npm:^15.7.0, prop-types@npm:^15.7.1, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:
@@ -30208,7 +30259,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"qs@npm:6.11.0, qs@npm:^6.10.0, qs@npm:^6.10.3, qs@npm:^6.9.4":
+"qs@npm:6.11.0, qs@npm:^6.10.0, qs@npm:^6.10.3, qs@npm:^6.11.0, qs@npm:^6.9.4":
   version: 6.11.0
   resolution: "qs@npm:6.11.0"
   dependencies:
@@ -30557,6 +30608,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-async-script@npm:^1.1.1":
+  version: 1.2.0
+  resolution: "react-async-script@npm:1.2.0"
+  dependencies:
+    hoist-non-react-statics: ^3.3.0
+    prop-types: ^15.5.0
+  peerDependencies:
+    react: ">=16.4.1"
+  checksum: 89450912110c380abc08258ce17d2fb18d31d6b7179a74f6bc504c0761a4ca271edb671e402fa8e5ea4250b5c17fa953af80a9f1c4ebb26c9e81caee8476c903
+  languageName: node
+  linkType: hard
+
 "react-content-loader@npm:^6.2.0":
   version: 6.2.0
   resolution: "react-content-loader@npm:6.2.0"
@@ -30707,6 +30770,18 @@ __metadata:
     react: ">= 16.x"
     react-dom: ">= 16.x"
   checksum: da2f4240f8a331dbd6bda8ffb62803900b0c611cc640db194f61cae5a088e99e7c084a26f7cb8c8d07a997302986561c9409d604342ef53c8a2b6139564e8eaa
+  languageName: node
+  linkType: hard
+
+"react-google-recaptcha@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "react-google-recaptcha@npm:2.1.0"
+  dependencies:
+    prop-types: ^15.5.0
+    react-async-script: ^1.1.1
+  peerDependencies:
+    react: ">=16.4.1"
+  checksum: c2f38cedd50ee90711e510cbc5c57e2810a9c5aa3c8508415fae635f9f66ad0ef571da30770b87bb6ab21dd9b5ccd69622624691ec2f26cdfc5f480d0e11d24b
   languageName: node
   linkType: hard
 
@@ -34047,6 +34122,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"stripe@npm:^11.5.0":
+  version: 11.5.0
+  resolution: "stripe@npm:11.5.0"
+  dependencies:
+    "@types/node": ">=8.1.0"
+    qs: ^6.11.0
+  checksum: d394317def6d5fb1c21bf38adb339a3b27475396df760cd55ba6aee3d51f0073b2055903a83e778128ccb43d09637851fb813ee38b2df5de8df706e11ddf7855
+  languageName: node
+  linkType: hard
+
 "stripe@npm:^9.11.0":
   version: 9.11.0
   resolution: "stripe@npm:9.11.0"
@@ -36503,7 +36588,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-streams-polyfill@npm:^3.2.0":
+"web-streams-polyfill@npm:^3.0.3, web-streams-polyfill@npm:^3.2.0":
   version: 3.2.1
   resolution: "web-streams-polyfill@npm:3.2.1"
   checksum: 70ed6b5708e14afa2ab699221ea197d7c68ec0c8274bbe0181aecc5ba636ca27cbd383d2049f0eb9d529e738f5c088825502b317f3df24d18a278e4cc9a10e8b

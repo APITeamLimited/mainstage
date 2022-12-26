@@ -7,6 +7,8 @@ export default async () => {
     email: { type: 'string', demandOption: true },
   }).argv
 
+  console.log(`Making user ${argv['email']} an admin...`)
+
   const user = await db.user.findFirst({
     where: { email: argv['email'] },
   })

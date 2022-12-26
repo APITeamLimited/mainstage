@@ -1,5 +1,5 @@
 import { SafeUser } from '@apiteam/types'
-import { User, Scope } from '@prisma/client'
+import { User } from '@prisma/client'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
@@ -21,6 +21,8 @@ export const setUserRedis = async (user: User) => {
     profilePicture: user.profilePicture,
     emailMarketing: user.emailMarketing,
     slug: user.slug,
+    customerId: user.customerId,
+    planInfoId: user.planInfoId,
   }
 
   await coreCacheReadRedis.set(`user__id:${user.id}`, JSON.stringify(safeUser))
