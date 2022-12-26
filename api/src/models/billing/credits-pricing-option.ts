@@ -1,4 +1,4 @@
-import { APITeamModel } from '@apiteam/types'
+import { APITeamModel, GetAllMixin } from '@apiteam/types'
 import { Prisma, CreditsPricingOption } from '@prisma/client'
 
 import { db } from 'src/lib/db'
@@ -23,74 +23,96 @@ export const CreditsPricingOptionModel: APITeamModel<
   AbstractCreditsPricingOptionCreateInput,
   AbstractCreditsPricingOptionUpdateInput,
   CreditsPricingOption
-> = {
+> &
+  GetAllMixin<CreditsPricingOption> = {
   create: async (input) => {
-    const newObject = await db.creditsPricingOption.create({
+    const newCreditsPricingOption = await db.creditsPricingOption.create({
       data: await createProductAndPrices(input),
     })
 
-    await setModelRedis('creditsPricingOption', coreCacheReadRedis, newObject)
+    await setModelRedis(
+      'creditsPricingOption',
+      coreCacheReadRedis,
+      newCreditsPricingOption
+    )
 
-    return newObject
+    return newCreditsPricingOption
   },
   update: async (id, input) => {
-    const originalObject = await db.creditsPricingOption.findUnique({
-      where: { id },
-    })
+    const originalCreditsPricingOption =
+      await db.creditsPricingOption.findUnique({
+        where: { id },
+      })
 
-    if (!originalObject) {
+    if (!originalCreditsPricingOption) {
       throw new Error(`CreditsPricingOption with id ${id} not found`)
     }
 
-    const updatedObject = await db.creditsPricingOption.update({
-      data: await updateProductAndPrices(originalObject, input),
+    const updatedCreditsPricingOption = await db.creditsPricingOption.update({
+      data: await updateProductAndPrices(originalCreditsPricingOption, input),
       where: { id },
     })
 
     await setModelRedis(
       'creditsPricingOption',
       coreCacheReadRedis,
-      updatedObject
+      updatedCreditsPricingOption
     )
 
-    return updatedObject
+    return updatedCreditsPricingOption
   },
   delete: async (id) => {
-    const deletedObject = await db.creditsPricingOption.delete({
+    const deletedCreditsPricingOption = await db.creditsPricingOption.delete({
       where: { id },
     })
 
     await coreCacheReadRedis.hDel('creditsPricingOption', id)
 
-    return deletedObject
+    return deletedCreditsPricingOption
+  },
+  exists: async (id) => {
+    const rawCreditsPricingOption = await coreCacheReadRedis.hGet(
+      'creditsPricingOption',
+      id
+    )
+    return !!rawCreditsPricingOption
   },
   get: async (id) => {
-    const rawObject = await coreCacheReadRedis.hGet('creditsPricingOption', id)
-    return rawObject ? (JSON.parse(rawObject) as CreditsPricingOption) : null
+    const rawCreditsPricingOption = await coreCacheReadRedis.hGet(
+      'creditsPricingOption',
+      id
+    )
+    return rawCreditsPricingOption ? JSON.parse(rawCreditsPricingOption) : null
   },
   getAll: async () => {
-    const rawObjects = await coreCacheReadRedis.hVals('creditsPricingOption')
-    return rawObjects.map(
-      (rawObject) => JSON.parse(rawObject) as CreditsPricingOption
+    const rawcreditsPricingOptions = await coreCacheReadRedis.hVals(
+      'creditsPricingOption'
+    )
+    return rawcreditsPricingOptions.map((rawCreditsPricingOption) =>
+      JSON.parse(rawCreditsPricingOption)
     )
   },
   rebuildCache: async () => {
     await coreCacheReadRedis.del('creditsPricingOption')
 
-    const count = await db.creditsPricingOption.count()
+    let skip = 0
+    let batchSize = 0
 
-    for (let i = 0; i < count; i += 100) {
-      const objects = await db.creditsPricingOption.findMany({
-        skip: i,
+    do {
+      const creditsPricingOptions = await db.creditsPricingOption.findMany({
+        skip,
         take: 100,
       })
 
-      await Promise.all(
-        objects.map((object) =>
-          setModelRedis('creditsPricingOption', coreCacheReadRedis, object)
-        )
+      skip += creditsPricingOptions.length
+      batchSize = creditsPricingOptions.length
+
+      await setModelRedis(
+        'creditsPricingOption',
+        coreCacheReadRedis,
+        creditsPricingOptions
       )
-    }
+    } while (batchSize > 0)
   },
 }
 
@@ -121,26 +143,26 @@ const createProductAndPrices = async (
 }
 
 const updateProductAndPrices = async (
-  originalObject: CreditsPricingOption,
+  originalCreditsPricingOption: CreditsPricingOption,
   updateInput: AbstractCreditsPricingOptionUpdateInput
 ): Promise<Prisma.CreditsPricingOptionUpdateInput> => {
   if (
     updateInput.verboseName &&
-    updateInput.verboseName !== originalObject.verboseName
+    updateInput.verboseName !== originalCreditsPricingOption.verboseName
   ) {
-    await stripe.products.update(originalObject.productId, {
+    await stripe.products.update(originalCreditsPricingOption.productId, {
       name: updateInput.verboseName,
     })
   }
 
-  let priceId = originalObject.priceId
+  let priceId = originalCreditsPricingOption.priceId
 
   if (
     updateInput.priceCents &&
-    updateInput.priceCents !== originalObject.priceCents
+    updateInput.priceCents !== originalCreditsPricingOption.priceCents
   ) {
     // Set the old price to inactive
-    await stripe.prices.update(originalObject.priceId, {
+    await stripe.prices.update(originalCreditsPricingOption.priceId, {
       active: false,
     })
 
@@ -149,7 +171,7 @@ const updateProductAndPrices = async (
       await stripe.prices.create({
         unit_amount: updateInput.priceCents,
         currency: 'usd',
-        product: originalObject.productId,
+        product: originalCreditsPricingOption.productId,
         tax_behavior: 'exclusive',
       })
     ).id

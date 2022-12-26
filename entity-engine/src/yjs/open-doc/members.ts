@@ -1,8 +1,9 @@
 import {
   getDisplayName,
-  SafeUser,
   ServerAwareness,
   TeamRole,
+  UserAsTeam,
+  userAsTeam,
 } from '@apiteam/types'
 import type { Membership } from '@prisma/client'
 
@@ -27,28 +28,31 @@ export const addMemberHandler = async (
   }
 
   const userRedisKey = `user__id:${member.userId}`
+  const coreCacheReadRedis = await getReadRedis()
 
-  const user = await (await getReadRedis()).get(userRedisKey)
-  if (!user) {
+  const userRaw = await coreCacheReadRedis.get(userRedisKey)
+  if (!userRaw) {
     console.warn(
       `Could not find user ${member.userId} in cache, skipping adding to team ${openDoc.serverAwareness.variantTargetId}`
     )
     return
   }
 
+  const user = userAsTeam(JSON.parse(userRaw))
+
   openDoc.activeSubscriptions.push(member.userId)
   handleAddSubscription(userRedisKey)
 
   const subscribeRedis = await getSubscribeRedis()
   subscribeRedis.subscribe(userRedisKey, (message) =>
-    openDoc.updateMemberUser(JSON.parse(message) as SafeUser)
+    openDoc.updateMemberUser(userAsTeam(JSON.parse(message)))
   )
 
   const newServerAwareness: ServerAwareness = {
     ...openDoc.serverAwareness,
     members: [
       ...openDoc.serverAwareness.members,
-      createMemberAwareness(JSON.parse(user) as SafeUser, member, []),
+      createMemberAwareness(user, member, []),
     ],
   }
 
@@ -76,7 +80,7 @@ export const changeRoleMemberHandler = (
   openDoc.setAndBroadcastServerAwareness(newServerAwareness)
 }
 
-export const updateMemberUserHandler = (openDoc: OpenDoc, user: SafeUser) => {
+export const updateMemberUserHandler = (openDoc: OpenDoc, user: UserAsTeam) => {
   if (openDoc.serverAwareness.variant !== 'TEAM') {
     console.warn(
       `Tried to update member from a ${openDoc.serverAwareness.variant} doc, ignoring`

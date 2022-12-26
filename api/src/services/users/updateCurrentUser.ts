@@ -1,11 +1,8 @@
-import type { SafeUser } from '@apiteam/types/src'
-import type { User } from '@prisma/client'
-import { url as gravatarUrl } from 'gravatar'
+import { UserAsPersonal } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { recreateAllScopes, setUserRedis } from 'src/helpers'
-import { db } from 'src/lib/db'
+import { UserModel } from 'src/models/user'
 
 export const updateCurrentUser = async ({
   firstName,
@@ -19,7 +16,7 @@ export const updateCurrentUser = async ({
   shortBio?: string | null
   emailMarketing?: boolean
   slug?: string
-}): Promise<SafeUser> => {
+}): Promise<UserAsPersonal> => {
   if (!context.currentUser) {
     throw new ServiceValidationError(
       'You must be logged in to update your profile.'
@@ -33,7 +30,7 @@ export const updateCurrentUser = async ({
     )
   }
 
-  // Validate first and last name max length of 50 characters each
+  // Validate first UserAsPersonal last name max length of 50 characters each
   if (firstName && firstName.length > 50) {
     throw new ServiceValidationError(
       'Your first name must be less than 50 characters.'
@@ -60,36 +57,11 @@ export const updateCurrentUser = async ({
     }
   }
 
-  const updatedUser = await db.user.update({
-    where: {
-      id: context.currentUser.id,
-    },
-    data: {
-      firstName,
-      lastName,
-      shortBio,
-      emailMarketing,
-      slug,
-    },
+  return UserModel.update(context.currentUser.id, {
+    firstName,
+    lastName,
+    shortBio,
+    emailMarketing,
+    slug,
   })
-
-  await setUserRedis(updatedUser)
-  await recreateAllScopes(updatedUser)
-
-  return {
-    id: updatedUser.id,
-    firstName: updatedUser.firstName,
-    lastName: updatedUser.lastName,
-    email: updatedUser.email,
-    createdAt: updatedUser.createdAt,
-    updatedAt: updatedUser.updatedAt,
-    isAdmin: updatedUser.isAdmin,
-    emailVerified: updatedUser.emailVerified,
-    shortBio: updatedUser.shortBio,
-    profilePicture: gravatarUrl(updatedUser.email, {
-      default: 'mp',
-    }),
-    emailMarketing: updatedUser.emailMarketing,
-    slug: updatedUser.slug,
-  }
 }

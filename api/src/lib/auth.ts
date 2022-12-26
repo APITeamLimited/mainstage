@@ -1,12 +1,6 @@
-import { ensureCorrectType, SafeUser } from '@apiteam/types'
-import { url as gravatarUrl } from 'gravatar'
-
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
-import { setUserRedis } from 'src/helpers'
-
-import { db } from './db'
-import { coreCacheReadRedis } from './redis'
+import { UserModel } from 'src/models/user'
 
 /**
  * The session object sent in as the first argument to getCurrentUser() will
@@ -27,26 +21,15 @@ import { coreCacheReadRedis } from './redis'
  */
 
 export const getCurrentUser = async (session: { id: string }) => {
-  const userCoreCache = ensureCorrectType(
-    await coreCacheReadRedis.get(`user__id:${session.id}`)
-  )
+  const user = await UserModel.get(session.id)
 
-  if (userCoreCache) {
-    const parsedUser = JSON.parse(userCoreCache) as SafeUser
-    return {
-      ...parsedUser,
-      profilePicture: gravatarUrl(parsedUser.email, {
-        default: 'mp',
-      }),
-    }
+  if (!user) {
+    throw new AuthenticationError(
+      'User not found, please contact support if this issue persits'
+    )
   }
 
-  const userDb = await db.user.findUnique({ where: { id: session.id } })
-  if (!userDb) return null
-
-  const safeUser = await setUserRedis(userDb)
-
-  return safeUser
+  return user
 }
 
 /**
@@ -73,7 +56,7 @@ type AllowedRoles = string | string[] | undefined
  * or when no roles are provided to check against. Otherwise returns false.
  */
 export const hasRole = (roles: AllowedRoles): boolean => {
-  if (!isAuthenticated()) {
+  if (!isAuthenticated() || !context.currentUser) {
     return false
   }
 

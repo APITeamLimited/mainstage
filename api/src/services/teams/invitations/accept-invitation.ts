@@ -1,5 +1,9 @@
 import { NotifyAcceptInvitationData } from '@apiteam/mailman'
-import { InvitationDecodedToken, SafeUser, TeamRole } from '@apiteam/types'
+import {
+  InvitationDecodedToken,
+  TeamRole,
+  UserAsPersonal,
+} from '@apiteam/types'
 import { Team, Scope, Membership } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 
@@ -7,7 +11,6 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { checkValue } from 'src/config'
 import { createMembership } from 'src/helpers'
-import { deleteInvitationRedis } from 'src/helpers/invitations'
 import {
   acceptInvitationAudience,
   generateBlanketUnsubscribeUrl,
@@ -16,6 +19,8 @@ import {
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { deleteInvitationRedis } from 'src/models/invitation'
+import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
 const issuer = checkValue<string>('api.bearer.issuer')
@@ -48,28 +53,26 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
     throw new ServiceValidationError('Invalid token')
   }
 
-  const [invitation, userRaw] = await Promise.all([
-    db.invitation.findUnique({
-      where: {
-        id: decodedToken?.payload.invitationId,
-      },
-    }),
-    coreCacheReadRedis.get(
-      `user__email:${decodedToken.payload.invitationEmail}`
-    ),
-  ])
-
-  if (!userRaw) {
-    throw new ServiceValidationError('User not found')
-  }
-
-  const user = (userRaw ? JSON.parse(userRaw) : null) as SafeUser
-
-  console.log(invitation, user)
+  const invitation = await db.invitation.findUnique({
+    where: {
+      id: decodedToken?.payload.invitationId,
+    },
+  })
 
   if (!invitation) {
     throw new ServiceValidationError(
       'Invitation not found, it may have been deleted, declined or already accepted'
+    )
+  }
+
+  const user = await UserModel.getIndexedField(
+    'email',
+    decodedToken.payload.invitationEmail
+  )
+
+  if (!user) {
+    throw new ServiceValidationError(
+      `User not found with email ${decodedToken.payload.invitationEmail}`
     )
   }
 
@@ -119,12 +122,12 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
   }
 
   const ownerAdminUsers = (
-    await coreCacheReadRedis.mGet(
-      ownerAdminMemberships.map((m) => `user__id:${m.userId}`)
+    await Promise.all(
+      ownerAdminMemberships.map((membership) =>
+        UserModel.get(membership.userId)
+      )
     )
-  )
-    .filter((u) => u !== null)
-    .map((u) => JSON.parse(u as string) as SafeUser)
+  ).filter((u) => u !== null) as UserAsPersonal[]
 
   await Promise.all(
     ownerAdminUsers.map(async (adminUser) =>

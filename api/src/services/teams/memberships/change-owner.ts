@@ -3,7 +3,6 @@ import {
   NotifyOldOwnerData,
   NotifyNewOwnerData,
 } from '@apiteam/mailman'
-import { SafeUser } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
@@ -18,10 +17,10 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
-import { checkOwner } from '../validators/check-owner'
+import { checkOwner } from '../validators'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 
@@ -39,12 +38,11 @@ export const sendChangeTeamOwnerEmail = async ({
   }
 
   // Ensure userId is admin in team
+  const user = await UserModel.get(userId)
 
-  const userRaw = await coreCacheReadRedis.get(`user__id:${userId}`)
-  if (!userRaw) {
+  if (!user) {
     throw new ServiceValidationError(`User does not exist with id '${userId}'`)
   }
-  const user = JSON.parse(userRaw) as SafeUser
 
   const team = await db.team.findUnique({
     where: { id: teamId },

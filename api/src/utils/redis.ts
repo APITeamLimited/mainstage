@@ -21,3 +21,23 @@ export const setModelRedis = async <T extends IdentifiableObjectType>(
     await redisInstance.hSet(key, data.id, JSON.stringify(data))
   }
 }
+
+export const scanPatternDelete = async (
+  pattern: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  redisInstance: RedisClientType<any, any, any>
+) => {
+  let keys: string[] = []
+
+  for await (const key of redisInstance.scanIterator({
+    MATCH: pattern,
+    COUNT: 100,
+  })) {
+    keys.push(key)
+
+    if (keys.length === 100) {
+      await redisInstance.del(keys)
+      keys = []
+    }
+  }
+}

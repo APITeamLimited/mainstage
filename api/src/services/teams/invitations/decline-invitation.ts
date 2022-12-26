@@ -1,12 +1,11 @@
 import { NotifyDeclineInvitationData } from '@apiteam/mailman'
-import { InvitationDecodedToken, SafeUser } from '@apiteam/types'
+import { InvitationDecodedToken, UserAsPersonal } from '@apiteam/types'
 import { Membership, Team } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { checkValue } from 'src/config'
-import { deleteInvitationRedis } from 'src/helpers/invitations'
 import {
   declineInvitationAudience,
   generateBlanketUnsubscribeUrl,
@@ -15,6 +14,8 @@ import {
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { deleteInvitationRedis } from 'src/models/invitation'
+import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
 const issuer = checkValue<string>('api.bearer.issuer')
@@ -64,7 +65,7 @@ export const declineInvitation = async ({ token }: { token: string }) => {
     `team:${invitation.teamId}`
   )
 
-  const teamRecord = Object.entries(allTeamInfo).find(([key, value]) =>
+  const teamRecord = Object.entries(allTeamInfo).find(([key, _]) =>
     key === 'team' ? true : false
   )
 
@@ -88,12 +89,12 @@ export const declineInvitation = async ({ token }: { token: string }) => {
   }
 
   const ownerAdminUsers = (
-    await coreCacheReadRedis.mGet(
-      ownerAdminMemberships.map((m) => `user__id:${m.userId}`)
+    await Promise.all(
+      ownerAdminMemberships.map((membershipm) =>
+        UserModel.get(membership.userId)
+      )
     )
-  )
-    .filter((u) => u !== null)
-    .map((u) => JSON.parse(u as string) as SafeUser)
+  ).filter((u) => u !== null) as UserAsPersonal[]
 
   await Promise.all(
     ownerAdminUsers.map(async (adminUser) =>

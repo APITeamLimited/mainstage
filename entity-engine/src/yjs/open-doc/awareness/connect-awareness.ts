@@ -1,7 +1,7 @@
 import {
-  SafeUser,
   ServerAwareness,
   RedisTeamPublishMessage,
+  userAsTeam,
 } from '@apiteam/types'
 import type { Team, Membership } from '@prisma/client'
 import { url as gravatarUrl } from 'gravatar'
@@ -80,8 +80,9 @@ export const connectAwarenessHandler = async (openDoc: OpenDoc) => {
       async (m) => {
         openDoc.activeSubscriptions.push(`user__id:${m.userId}`)
         handleAddSubscription(`user__id:${m.userId}`)
+
         return subscribeRedis.subscribe(`user__id:${m.userId}`, (message) =>
-          openDoc.updateMemberUser(JSON.parse(message) as SafeUser)
+          openDoc.updateMemberUser(userAsTeam(JSON.parse(message)))
         )
       }
     )
@@ -114,12 +115,13 @@ const createServerAwareness = async ({
       }
     })
 
-    const usersRaw =
+    const usersRaw = (
       memberships.length > 0
         ? await readRedis.mGet(memberships.map((m) => `user__id:${m.userId}`))
         : []
+    ).filter((userRaw) => userRaw !== null) as string[]
 
-    const users = usersRaw.map((u) => JSON.parse(u || '') as SafeUser)
+    const users = usersRaw.map((userRaw) => userAsTeam(JSON.parse(userRaw)))
 
     users.forEach((user) => {
       if (!user.profilePicture) {

@@ -1,11 +1,9 @@
 import * as Yup from 'yup'
 
-import { ServiceValidationError } from '@redwoodjs/api'
-
-import { deleteUser, recreateAllScopes, setUserRedis } from 'src/helpers'
 import { db } from 'src/lib/db'
+import { UserModel } from 'src/models/user'
+import { checkAdmin } from 'src/services/checkAdmin'
 
-import { checkAdmin } from '../../checkAdmin'
 import {
   CreateInput,
   DeleteInput,
@@ -119,15 +117,7 @@ export const adminUserUpdate = async ({
     await schema.validate(data.email)
   }
 
-  const updatedUser = await db.user.update({
-    where: {
-      id,
-    },
-    data,
-  })
-
-  await setUserRedis(updatedUser)
-  await recreateAllScopes(updatedUser)
+  const updatedUser = await UserModel.update(id, data)
 
   return {
     data: updatedUser,
@@ -145,20 +135,8 @@ export const adminUserUpdateMany = async (
 export const adminUserDelete = async ({ id }: DeleteInput) => {
   await checkAdmin()
 
-  const user = await db.user.findFirst({
-    where: {
-      id,
-    },
-  })
-
-  if (!user) {
-    throw new ServiceValidationError('User not found')
-  }
-
-  await deleteUser(user)
-
   return {
-    data: user,
+    data: await UserModel.delete(id),
   }
 }
 

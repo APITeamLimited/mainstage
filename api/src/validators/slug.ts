@@ -23,3 +23,22 @@ export const checkSlugAvailable = async (slug: string) => {
     )
   }
 }
+
+export const getSlug = async (
+  unformattedName: string,
+  i = 0
+): Promise<string> => {
+  // Remove any non alphanumeric characters
+  const name = unformattedName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+
+  const toCheck = `${name}${i > 0 ? i : ''}`
+
+  // Check slug is unique
+  try {
+    await checkSlugAvailable(toCheck)
+  } catch (e) {
+    return await getSlug(name, i + 1)
+  }
+
+  return toCheck
+}

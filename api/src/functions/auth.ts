@@ -1,4 +1,3 @@
-import { SignupWelcomeData } from '@apiteam/mailman'
 import { ROUTES } from '@apiteam/types'
 import { User } from '@prisma/client'
 import { APIGatewayProxyEvent, Context } from 'aws-lambda'
@@ -6,18 +5,16 @@ import { url as gravatarUrl } from 'gravatar'
 
 import { DbAuthHandler, ServiceValidationError } from '@redwoodjs/api'
 
-import { checkValue } from 'src/config'
-import { createPersonalScope, setUserRedis } from 'src/helpers'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
+import { gatewayUrl } from 'src/lib/environment'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
-import { checkSlugAvailable } from 'src/validators/slug'
-
-const gatewayUrl = checkValue<string>('gateway.url')
+import { UserModel } from 'src/models/user'
+import { getSlug } from 'src/validators/slug'
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -180,53 +177,15 @@ export const handler = async (
         )
       }
 
-      const getSlug = async (
-        unformattedName: string,
-        i = 0
-      ): Promise<string> => {
-        // Remove any non alphanumeric characters
-        const name = unformattedName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
-
-        const toCheck = `${name}${i > 0 ? i : ''}`
-
-        // Check slug is unique
-        try {
-          await checkSlugAvailable(toCheck)
-        } catch (e) {
-          return await getSlug(name, i + 1)
-        }
-
-        return toCheck
-      }
-
-      const slug = await getSlug(username.split('@')[0])
-
-      const user = await db.user.create({
-        data: {
-          email: username,
-          hashedPassword: hashedPassword,
-          salt: salt,
-          slug,
-          firstName: userAttributes.firstName,
-          lastName: userAttributes.lastName,
-          emailMarketing: userAttributes.emailMarketing,
-        },
+      return await UserModel.create({
+        email: username,
+        hashedPassword,
+        salt,
+        slug: await getSlug(username.split('@')[0]),
+        firstName: userAttributes.firstName,
+        lastName: userAttributes.lastName,
+        emailMarketing: userAttributes.emailMarketing,
       })
-
-      await dispatchEmail({
-        to: username,
-        template: 'signup-welcome',
-        data: {
-          firstName: userAttributes.firstName,
-          dashboardLink: `${gatewayUrl}${ROUTES.dashboard}`,
-        } as SignupWelcomeData,
-        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(username),
-        userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
-      })
-
-      await Promise.all([setUserRedis(user), createPersonalScope(user)])
-
-      return user
     },
 
     errors: {

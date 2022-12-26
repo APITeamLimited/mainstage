@@ -1,13 +1,9 @@
-import {
-  ConfirmAccountDeleteData,
-  NotifyAccountDeletedData,
-} from '@apiteam/mailman'
+import { ConfirmAccountDeleteData } from '@apiteam/mailman'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { checkValue } from 'src/config'
-import { deleteUser } from 'src/helpers'
 import {
   deleteAccountAudience,
   generateBlanketUnsubscribeUrl,
@@ -16,7 +12,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheSubscribeRedis } from 'src/lib/redis'
+import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
 const issuer = checkValue<string>('api.bearer.issuer')
@@ -87,26 +83,7 @@ export const handleAccountDelete = async ({ token }: { token: string }) => {
     throw new ServiceValidationError('Invalid token')
   }
 
-  const user = await db.user.findUnique({
-    where: { id: decodedToken.payload.userId },
-  })
-
-  if (!user) {
-    throw new ServiceValidationError('Invalid token')
-  }
-
-  await Promise.all([
-    deleteUser(user),
-    dispatchEmail({
-      to: user.email,
-      template: 'notify-account-deleted',
-      data: {
-        targetName: user.firstName,
-      } as NotifyAccountDeletedData,
-      userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
-      blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
-    }),
-  ])
+  await UserModel.delete(decodedToken.payload.userId)
 
   return true
 }

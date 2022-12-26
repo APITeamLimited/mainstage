@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { ROUTES, SafeUser } from '@apiteam/types/src'
+import { ROUTES, UserAsPersonal } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AddIcon from '@mui/icons-material/Add'
@@ -27,7 +27,7 @@ interface AccountPopoverProps {
   anchorEl: null | Element
   onClose?: () => void
   open?: boolean
-  currentUser: SafeUser | null
+  currentUser: UserAsPersonal | null
 }
 
 export const DropdownPopover = ({

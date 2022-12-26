@@ -32,11 +32,13 @@ export const SubscriptionModel: APITeamModel<
 
     return subscription
   },
+  exists: async (id) => {
+    const subscription = await stripe.subscriptions
+      .retrieve(id)
+      .catch(() => null)
+    return !!subscription
+  },
   get: async (id) => {
     return await stripe.subscriptions.retrieve(id)
   },
-  getAll: async () => {
-    return (await stripe.subscriptions.list()).data
-  },
-  rebuildCache: async () => {},
 }

@@ -1,4 +1,8 @@
-import { DecodedPublicBearer, SafeUser, ServerAwareness } from '@apiteam/types'
+import {
+  DecodedPublicBearer,
+  UserAsTeam,
+  ServerAwareness,
+} from '@apiteam/types'
 import type { Scope, Membership } from '@prisma/client'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
@@ -322,7 +326,7 @@ export class OpenDoc extends Y.Doc {
     changeRoleMemberHandler(this, member)
   }
 
-  updateMemberUser(user: SafeUser) {
+  updateMemberUser(user: UserAsTeam) {
     updateMemberUserHandler(this, user)
   }
 }

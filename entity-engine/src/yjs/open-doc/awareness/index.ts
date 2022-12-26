@@ -1,10 +1,10 @@
 import {
   getDisplayName,
-  SafeUser,
   ServerAwareness,
   MemberAwareness,
   RedisTeamPublishMessage,
   DecodedPublicBearer,
+  UserAsTeam,
 } from '@apiteam/types'
 import type { Membership, Scope } from '@prisma/client'
 import * as JWT from 'jsonwebtoken'
@@ -100,7 +100,7 @@ export const verifyAwarenessHandler = async (
 }
 
 export const createMemberAwareness = (
-  user: SafeUser,
+  user: UserAsTeam,
   membership: Membership,
   lastOnlineTimes: LastOnlineTime[]
 ) =>

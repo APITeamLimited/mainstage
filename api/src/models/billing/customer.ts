@@ -72,6 +72,10 @@ export const CustomerModel: APITeamModel<
 
     return customer
   },
+  exists: async (id) => {
+    const customer = await stripe.customers.retrieve(id).catch(() => null)
+    return !!customer && !customer.deleted
+  },
   get: async (id) => {
     const customer = await stripe.customers.retrieve(id)
 
@@ -81,8 +85,4 @@ export const CustomerModel: APITeamModel<
 
     return customer
   },
-  getAll: async () => {
-    return (await stripe.customers.list()).data
-  },
-  rebuildCache: async () => {},
 }

@@ -1,8 +1,9 @@
-import { SafeUser } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types'
 import { Membership } from '@prisma/client'
 import { url as gravatarUrl } from 'gravatar'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { UserModel } from 'src/models/user'
 
 import { checkOwnerAdmin } from '../validators'
 
@@ -21,16 +22,11 @@ export const memberships = async ({ teamId }: { teamId: string }) => {
     }
   })
 
-  const usersRaw =
-    memberships.length > 0
-      ? await coreCacheReadRedis.mGet(
-          memberships.map((membership) => `user__id:${membership.userId}`)
-        )
-      : []
-
-  const users = usersRaw
-    .filter((user) => user !== null)
-    .map((user) => JSON.parse(user || '') as SafeUser)
+  const users = (
+    await Promise.all(
+      memberships.map((membership) => UserModel.get(membership.userId))
+    )
+  ).filter((user) => user !== null) as UserAsPersonal[]
 
   return memberships.map((membership) => {
     const user = users.find((user) => user.id === membership.userId)

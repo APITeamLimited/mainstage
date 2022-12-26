@@ -1,21 +1,14 @@
-import { Team } from '@prisma/client'
-
 import { ServiceValidationError } from '@redwoodjs/api'
-import { context } from '@redwoodjs/graphql-server'
 
-import { createMembership, createTeamScope } from 'src/helpers'
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { TeamModel } from 'src/models/team'
 import { checkSlugAvailable } from 'src/validators/slug'
 
-import { checkOwnerAdmin } from '../validators/check-owner-admin'
+import { checkAuthenticated } from '../validators'
+import { checkOwnerAdmin } from '../validators'
 
 export const teams = async () => {
-  if (!context.currentUser) {
-    throw 'You must be logged in to access this resource.'
-  }
-
-  const userId = context.currentUser.id
+  const userId = (await checkAuthenticated()).id
 
   const teams = await db.team.findMany({
     where: {
@@ -27,7 +20,6 @@ export const teams = async () => {
     },
   })
 
-  // Remove markedForDeletionToken from each team object
   return teams
 }
 
@@ -35,11 +27,7 @@ export const teams = async () => {
 Retrieves team info of a team a user is in
 */
 export const team = async ({ id }: { id: string }) => {
-  if (!context.currentUser) {
-    throw 'You must be logged in to access this resource.'
-  }
-
-  const userId = context.currentUser.id
+  const userId = (await checkAuthenticated()).id
 
   return await db.team.findFirst({
     where: {
@@ -52,6 +40,7 @@ export const team = async ({ id }: { id: string }) => {
     },
   })
 }
+
 export const createTeam = async ({
   name,
   slug,
@@ -59,11 +48,7 @@ export const createTeam = async ({
   name: string
   slug: string
 }) => {
-  if (!context.currentUser) {
-    throw new ServiceValidationError(
-      'You must be logged in to access this resource.'
-    )
-  }
+  const userId = (await checkAuthenticated()).id
 
   // Check name not empty and length at least 5 chars
   if (!name || name.length < 5) {
@@ -79,45 +64,19 @@ export const createTeam = async ({
     )
   }
 
-  const userPromise = db.user.findUnique({
-    where: { id: context.currentUser.id },
+  const user = await db.user.findUnique({
+    where: { id: userId },
   })
-
-  const existingSlugPromise = await checkSlugAvailable(slug)
-
-  const [user] = await Promise.all([userPromise, existingSlugPromise])
 
   if (!user) {
     throw new ServiceValidationError('User creating team not found')
   }
 
-  const team = await db.team.create({
-    data: {
-      name,
-      slug,
-    },
+  return TeamModel.create({
+    name,
+    slug,
+    owner: user,
   })
-
-  await createMembership(team, user, 'OWNER')
-
-  // Set in core cache
-  const teamPromise = coreCacheReadRedis.hSet(
-    `team:${team.id}`,
-    'team',
-    JSON.stringify(team)
-  )
-
-  const teamPublishPromise = coreCacheReadRedis.publish(
-    `team:${team.id}`,
-    JSON.stringify({
-      type: 'CREATE',
-      payload: team,
-    })
-  )
-
-  await Promise.all([teamPromise, teamPublishPromise])
-
-  return team
 }
 
 export const updateTeam = async ({
@@ -184,60 +143,9 @@ export const updateTeam = async ({
     }
   }
 
-  const updatedTeam = await db.team.update({
-    where: { id: teamId },
-    data: { name, slug, shortBio },
+  return TeamModel.update(teamId, {
+    name,
+    slug,
+    shortBio,
   })
-
-  // Set in core cache
-  const teamPromise = coreCacheReadRedis.hSet(
-    `team:${updatedTeam.id}`,
-    'team',
-    JSON.stringify(updatedTeam)
-  )
-
-  const teamPublishPromise = coreCacheReadRedis.publish(
-    `team:${updatedTeam.id}`,
-    JSON.stringify({
-      type: 'UPDATE',
-      payload: updatedTeam,
-    })
-  )
-
-  await Promise.all([teamPromise, teamPublishPromise])
-
-  const memberships = await db.membership.findMany({
-    where: {
-      teamId,
-    },
-  })
-
-  const userIds = memberships.map((m) => m.userId)
-
-  const users = await db.user.findMany({
-    where: {
-      id: {
-        in: userIds,
-      },
-    },
-  })
-
-  // Call createTeamScope for each scope
-  await Promise.all(
-    memberships.map(async (membership) => {
-      const user = users.find((u) => u.id === membership.userId)
-
-      if (!user) {
-        throw new Error(`User not found with id '${membership.userId}'`)
-      }
-
-      if (!updatedTeam) {
-        throw new Error('Failed to update team')
-      }
-
-      return createTeamScope(updatedTeam, membership, user)
-    })
-  )
-
-  return updatedTeam
 }

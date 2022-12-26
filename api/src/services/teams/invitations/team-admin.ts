@@ -1,15 +1,11 @@
 import { MailmanInput, TeamInvitationData } from '@apiteam/mailman'
-import { SafeUser } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types'
 import { Invitation } from '@prisma/client'
 import { Team } from '@prisma/client'
 import * as Yup from 'yup'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import {
-  deleteInvitationRedis,
-  setInvitationRedis,
-} from 'src/helpers/invitations'
 import {
   generateAcceptInvitationUrl,
   generateBlanketUnsubscribeUrl,
@@ -19,8 +15,13 @@ import {
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import {
+  deleteInvitationRedis,
+  setInvitationRedis,
+} from 'src/models/invitation'
+import { UserModel } from 'src/models/user'
 
-import { checkOwnerAdmin } from '../validators'
+import { checkAuthenticated, checkOwnerAdmin } from '../validators'
 
 type InvitationInput = {
   email: string
@@ -43,12 +44,7 @@ export const createInvitations = async ({
   teamId: string
   invitations: InvitationInput[]
 }) => {
-  if (!context.currentUser) {
-    throw new ServiceValidationError(
-      'You must be logged in to create an invitation.'
-    )
-  }
-
+  const invitingUser = await checkAuthenticated()
   await checkOwnerAdmin({ teamId })
 
   await invitationCreateSchema.validate({ pairs: invitations }).catch((err) => {
@@ -83,26 +79,11 @@ export const createInvitations = async ({
     },
   })
 
-  const invitingUserRawPromise = coreCacheReadRedis.get(
-    `user__id:${context.currentUser.id}`
-  )
   const teamRawPromise = coreCacheReadRedis.hGet(`team:${teamId}`, 'team')
 
-  const [existingMemberships, existingInvitations, invitingUserRaw, teamRaw] =
-    await Promise.all([
-      existingMembershipsPromise,
-      existingInvitationsPromise,
-      invitingUserRawPromise,
-      teamRawPromise,
-    ])
-
-  if (!invitingUserRaw) {
-    throw new ServiceValidationError(
-      'Inviting user not found, contact support.'
-    )
-  }
-
-  const invitingUser: SafeUser = JSON.parse(invitingUserRaw)
+  const [existingMemberships, existingInvitations, teamRaw] = await Promise.all(
+    [existingMembershipsPromise, existingInvitationsPromise, teamRawPromise]
+  )
 
   if (!teamRaw) {
     throw new ServiceValidationError('Team not found, contact support.')
@@ -110,23 +91,13 @@ export const createInvitations = async ({
 
   const team = JSON.parse(teamRaw) as Team
 
-  const existingUserIds = existingMemberships.map((m) => m.userId)
+  const existingUsers = (
+    await Promise.all(
+      existingMemberships.map((membership) => UserModel.get(membership.id))
+    )
+  ).filter((user) => user !== null) as UserAsPersonal[]
 
   // Check if user exists for each invitation
-  const existingUsersRaw =
-    existingUserIds.length > 0
-      ? await coreCacheReadRedis.mGet(existingUserIds)
-      : []
-
-  const existingUsers = existingUsersRaw
-    .map((user) => {
-      if (user) {
-        return JSON.parse(user) as SafeUser
-      }
-      return null
-    })
-    .filter((user) => user !== null) as SafeUser[]
-
   const existingUserEmails = existingUsers.map((u) => u.email)
 
   // Check if any of the emails are already members of the team
@@ -164,16 +135,13 @@ export const createInvitations = async ({
     )
   )
 
-  const existingNonTeamUsersRaw =
-    newInvitations.length > 0
-      ? await coreCacheReadRedis.mGet(
-          newInvitations.map((i) => `user__email:${i.email}`)
-        )
-      : []
-
-  const existingNonTeamUsers = existingNonTeamUsersRaw
-    .filter((u) => u !== null)
-    .map((u) => JSON.parse(u || '') as SafeUser)
+  const existingNonTeamUsers = (
+    await Promise.all(
+      newInvitations.map((invitation) =>
+        UserModel.getIndexedField('email', invitation.email)
+      )
+    )
+  ).filter((user) => user !== null) as UserAsPersonal[]
 
   await Promise.all([
     ...newInvitations.map((invitation) => setInvitationRedis(invitation)),

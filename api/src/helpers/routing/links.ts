@@ -1,4 +1,4 @@
-import { SafeUser } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types'
 import { ROUTES } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
 
@@ -13,7 +13,7 @@ export const userUnsubscribeAudience = `${checkValue<string>(
   'api.bearer.audience'
 )}-user-unsubscribe`
 
-export const generateUserUnsubscribeUrl = async (user: SafeUser) => {
+export const generateUserUnsubscribeUrl = async (user: UserAsPersonal) => {
   const { privateKey } = await getKeyPair()
 
   const token = JWT.sign(

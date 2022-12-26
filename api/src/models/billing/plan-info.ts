@@ -1,4 +1,4 @@
-import { APITeamModel } from '@apiteam/types'
+import { APITeamModel, GetAllMixin } from '@apiteam/types'
 import { Prisma, PlanInfo } from '@prisma/client'
 
 import { db } from 'src/lib/db'
@@ -29,65 +29,73 @@ export const PlanInfoModel: APITeamModel<
   AbstractPlanInfoCreateInput,
   AbstractPlanInfoUpdateInput,
   PlanInfo
-> = {
+> &
+  GetAllMixin<PlanInfo> = {
   create: async (input) => {
-    const newObject = await db.planInfo.create({
+    const newPlanInfo = await db.planInfo.create({
       data: await createProductAndPrices(input),
     })
 
-    await setModelRedis('planInfo', coreCacheReadRedis, newObject)
+    await setModelRedis('planInfo', coreCacheReadRedis, newPlanInfo)
 
-    return newObject
+    return newPlanInfo
   },
   update: async (id, input) => {
-    const originalObject = await db.planInfo.findUnique({
+    const originalPlanInfo = await db.planInfo.findUnique({
       where: { id },
     })
 
-    if (!originalObject) {
+    if (!originalPlanInfo) {
       throw new Error(`PlanInfo with id ${id} not found`)
     }
 
-    const updatedObject = await db.planInfo.update({
-      data: await updateProductAndPrices(originalObject, input),
+    const updatedPlanInfo = await db.planInfo.update({
+      data: await updateProductAndPrices(originalPlanInfo, input),
       where: { id },
     })
 
-    await setModelRedis('planInfo', coreCacheReadRedis, updatedObject)
+    await setModelRedis('planInfo', coreCacheReadRedis, updatedPlanInfo)
 
-    return updatedObject
+    return updatedPlanInfo
   },
   delete: async (id) => {
-    const deletedObject = await db.planInfo.delete({
+    const deletedPlanInfo = await db.planInfo.delete({
       where: { id },
     })
 
     await coreCacheReadRedis.hDel('planInfo', id)
 
-    return deletedObject
+    return deletedPlanInfo
+  },
+  exists: async (id) => {
+    const rawPlanInfo = await coreCacheReadRedis.hGet('planInfo', id)
+    return !!rawPlanInfo
   },
   get: async (id) => {
-    const rawObject = await coreCacheReadRedis.hGet('planInfo', id)
-    return rawObject ? (JSON.parse(rawObject) as PlanInfo) : null
+    const rawPlanInfo = await coreCacheReadRedis.hGet('planInfo', id)
+    return rawPlanInfo ? JSON.parse(rawPlanInfo) : null
   },
   getAll: async () => {
-    const rawObjects = await coreCacheReadRedis.hVals('planInfo')
-    return rawObjects.map((rawObject) => JSON.parse(rawObject) as PlanInfo)
+    const rawPlanInfos = await coreCacheReadRedis.hVals('planInfo')
+    return rawPlanInfos.map((rawPlanInfo) => JSON.parse(rawPlanInfo))
   },
   rebuildCache: async () => {
     await coreCacheReadRedis.del('planInfo')
 
-    // Iterate over all planInfo and set them in redis in batches of 100
-    const count = await db.planInfo.count()
+    let skip = 0
+    let batchSize = 0
 
-    for (let i = 0; i < count; i += 100) {
-      const planInfo = await db.planInfo.findMany({
-        skip: i,
+    do {
+      const planInfos = await db.planInfo.findMany({
+        skip,
         take: 100,
       })
 
-      setModelRedis('planInfo', coreCacheReadRedis, planInfo)
-    }
+      setModelRedis('planInfo', coreCacheReadRedis, planInfos)
+
+      skip += planInfos.length
+      batchSize = planInfos.length
+    } while (batchSize > 0)
   },
 }
 
@@ -134,33 +142,33 @@ const createProductAndPrices = async (
 }
 
 const updateProductAndPrices = async (
-  originalObject: PlanInfo,
+  originalPlanInfo: PlanInfo,
   updateInput: AbstractPlanInfoUpdateInput
 ): Promise<Prisma.PlanInfoUpdateInput> => {
   if (
     updateInput.verboseName &&
-    updateInput.verboseName !== originalObject.verboseName
+    updateInput.verboseName !== originalPlanInfo.verboseName
   ) {
-    await stripe.products.update(originalObject.productId, {
+    await stripe.products.update(originalPlanInfo.productId, {
       name: updateInput.verboseName,
     })
   }
 
-  let monthlyPriceId = originalObject.monthlyPriceId
-  let yearlyPriceId = originalObject.yearlyPriceId
+  let monthlyPriceId = originalPlanInfo.monthlyPriceId
+  let yearlyPriceId = originalPlanInfo.yearlyPriceId
 
   if (
     updateInput.priceMonthlyCents &&
-    updateInput.priceMonthlyCents !== originalObject.priceMonthlyCents
+    updateInput.priceMonthlyCents !== originalPlanInfo.priceMonthlyCents
   ) {
     // Set the old price to inactive
-    await stripe.prices.update(originalObject.monthlyPriceId, {
+    await stripe.prices.update(originalPlanInfo.monthlyPriceId, {
       active: false,
     })
 
     monthlyPriceId = (
       await stripe.prices.create({
-        product: originalObject.productId,
+        product: originalPlanInfo.productId,
         currency: 'usd',
         unit_amount: updateInput.priceMonthlyCents,
         recurring: {
@@ -173,15 +181,15 @@ const updateProductAndPrices = async (
 
   if (
     updateInput.priceYearlyCents !== undefined &&
-    updateInput.priceYearlyCents !== originalObject.priceYearlyCents
+    updateInput.priceYearlyCents !== originalPlanInfo.priceYearlyCents
   ) {
-    await stripe.prices.update(originalObject.yearlyPriceId, {
+    await stripe.prices.update(originalPlanInfo.yearlyPriceId, {
       active: false,
     })
 
     yearlyPriceId = (
       await stripe.prices.create({
-        product: originalObject.productId,
+        product: originalPlanInfo.productId,
         currency: 'usd',
         unit_amount: updateInput.priceYearlyCents,
         recurring: {

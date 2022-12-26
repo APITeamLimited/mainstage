@@ -1,19 +1,20 @@
-import { SafeUser, TeamRole } from '@apiteam/types'
+import { TeamRole, UserAsPersonal } from '@apiteam/types'
 import { Team, Membership, Scope } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { ScopeModel } from 'src/models/scope'
 
-import { createTeamScope, deleteScope } from './scopes'
+import { createTeamScope } from './scopes'
 
 /*
 Creates a membership and scopes for a user in a team
 */
 export const createMembership = async (
   team: Team,
-  user: SafeUser,
+  user: UserAsPersonal,
   role: TeamRole
 ): Promise<Membership> => {
   // Create membership
@@ -64,7 +65,7 @@ export const deleteMembership = async (membership: Membership) => {
   )
 
   const scopeToDeletePromise = scopeToDelete
-    ? deleteScope(scopeToDelete.id)
+    ? ScopeModel.delete(scopeToDelete.id)
     : Promise.resolve()
 
   // Delete membership
@@ -100,7 +101,7 @@ export const updateMembership = async (
   membership: Membership,
   role: TeamRole,
   team: Team | null = null,
-  user: SafeUser | null = null
+  user: UserAsPersonal | null = null
 ) => {
   const { teamId, userId } = membership
 

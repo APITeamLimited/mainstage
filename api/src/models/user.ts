@@ -1,15 +1,244 @@
-import { APITeamModel } from '@apiteam/types'
+import { NotifyAccountDeletedData, SignupWelcomeData } from '@apiteam/mailman'
+import {
+  APITeamModel,
+  IndexedFieldMixin,
+  ROUTES,
+  UserAsPersonal,
+  userAsPersonal,
+} from '@apiteam/types'
 import { Prisma, User } from '@prisma/client'
+import { url as gravatarUrl } from 'gravatar'
+
+import { ServiceValidationError } from '@redwoodjs/api'
+
+import {
+  createPersonalScope,
+  createTeamScope,
+  deleteMembership,
+} from 'src/helpers'
+import {
+  generateBlanketUnsubscribeUrl,
+  generateUserUnsubscribeUrl,
+} from 'src/helpers/routing'
+import { db } from 'src/lib/db'
+import { gatewayUrl } from 'src/lib/environment'
+import { dispatchEmail } from 'src/lib/mailman'
+import { coreCacheReadRedis } from 'src/lib/redis'
+import { scanPatternDelete } from 'src/utils'
+
+import { ScopeModel } from './scope'
+
+type GetDangerousMixin<ObjectType> = {
+  getDangerous: (id: string) => Promise<ObjectType | null>
+}
 
 export const UserModel: APITeamModel<
   Prisma.UserCreateInput,
   Prisma.UserUpdateInput,
-  User
-> = {
-  create: async (input) => {},
-  update: async (id, input) => {},
-  delete: async (id) => {},
-  get: async (id) => {},
-  getAll: async () => {},
-  rebuildCache: async () => {},
+  UserAsPersonal
+> &
+  GetDangerousMixin<User> &
+  IndexedFieldMixin<UserAsPersonal, 'id' | 'email'> = {
+  create: async (input) => {
+    if (!input.profilePicture) {
+      input.profilePicture = gravatarUrl(input.email, {
+        default: 'mp',
+      })
+    }
+
+    const createdUser = await db.user.create({
+      data: input,
+    })
+
+    await Promise.all([
+      setUserRedis(createdUser),
+      createPersonalScope(userAsPersonal(createdUser)),
+
+      dispatchEmail({
+        to: createdUser.email,
+        template: 'signup-welcome',
+        data: {
+          firstName: createdUser.firstName,
+          dashboardLink: `${gatewayUrl}${ROUTES.dashboard}`,
+        } as SignupWelcomeData,
+        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
+          createdUser.email
+        ),
+        userUnsubscribeUrl: await generateUserUnsubscribeUrl(createdUser),
+      }),
+    ])
+
+    return createdUser
+  },
+  update: async (id, input) => {
+    const updatedUser = await db.user.update({
+      where: { id },
+      data: input,
+    })
+
+    const memberships = await db.membership.findMany({
+      where: {
+        userId: id,
+      },
+    })
+
+    const teams = await Promise.all(
+      memberships.map((membership) =>
+        db.team.findUnique({
+          where: {
+            id: membership.teamId,
+          },
+        })
+      )
+    )
+
+    await Promise.all([
+      setUserRedis(updatedUser),
+
+      // Personal and team scopes will need updating
+      createPersonalScope(userAsPersonal(updatedUser)),
+
+      teams.map((team) => {
+        if (!team) {
+          throw new ServiceValidationError(
+            `Team not found for user with id ${id}`
+          )
+        }
+
+        const membership = memberships.find(
+          (membership) => membership.teamId === team.id
+        )
+
+        if (!membership) {
+          throw new ServiceValidationError(
+            `Membership not found for user with id ${id} and team with id ${team.id}`
+          )
+        }
+
+        return createTeamScope(team, membership, updatedUser)
+      }),
+    ])
+
+    return updatedUser
+  },
+  delete: async (id) => {
+    // Delete all membewrships and scopes
+    const [scopes, memberships] = await Promise.all([
+      db.scope.findMany({
+        where: {
+          userId: id,
+        },
+      }),
+      db.membership.findMany({
+        where: {
+          userId: id,
+        },
+      }),
+    ])
+
+    // Delete memberships first
+    await Promise.all(memberships.map(deleteMembership))
+
+    const user = await db.user.delete({
+      where: { id },
+    })
+
+    await Promise.all([
+      // Broadcast team deletion to other services
+      coreCacheReadRedis.publish('USER_DELETED', user.id),
+
+      // Delete the personal scope, the team one was deleted with the membership
+      scopes.map((scope) => ScopeModel.delete(scope.id)),
+
+      coreCacheReadRedis.del(`user__id:${user.id}`),
+      coreCacheReadRedis.del(`user__email:${user.email}`),
+
+      dispatchEmail({
+        to: user.email,
+        template: 'notify-account-deleted',
+        data: {
+          targetName: user.firstName,
+        } as NotifyAccountDeletedData,
+        userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
+        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
+      }),
+    ])
+
+    return user
+  },
+  exists: async (id) => {
+    const rawUser = await coreCacheReadRedis.get(`user__id:${id}`)
+    return !!rawUser
+  },
+  get: async (id: string) => {
+    const rawUser = await coreCacheReadRedis.get(`user__id:${id}`)
+    return rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
+  },
+  rebuildCache: async () => {
+    await Promise.all([
+      coreCacheReadRedis.del('user'),
+      scanPatternDelete('user__id:*', coreCacheReadRedis),
+      scanPatternDelete('user__email:*', coreCacheReadRedis),
+    ])
+
+    let skip = 0
+    let batchSize = 0
+
+    do {
+      const users = await db.user.findMany({
+        skip,
+        take: 100,
+      })
+
+      await Promise.all(users.map(setUserRedis))
+
+      skip += users.length
+      batchSize = users.length
+    } while (batchSize > 0)
+  },
+
+  // Non-standard methods
+  getDangerous: async (id: string) => {
+    return db.user.findUnique({
+      where: {
+        id,
+      },
+    })
+  },
+  getIndexedField: async (field, key) => {
+    const rawUser = await coreCacheReadRedis.get(`user__${field}:${key}`)
+    return rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
+  },
+  indexedFieldExists: async (field, key) => {
+    const rawUser = await coreCacheReadRedis.get(`user__${field}:${key}`)
+    return !!rawUser
+  },
+}
+
+const setUserRedis = async (user: User) => {
+  const cachedUser = userAsPersonal(user)
+
+  await coreCacheReadRedis.hSet('user', user.id, JSON.stringify(cachedUser))
+
+  await coreCacheReadRedis.set(
+    `user__id:${user.id}`,
+    JSON.stringify(cachedUser)
+  )
+
+  await coreCacheReadRedis.publish(
+    `user__id:${user.id}`,
+    JSON.stringify(cachedUser)
+  )
+
+  await coreCacheReadRedis.set(
+    `user__email:${user.email}`,
+    JSON.stringify(cachedUser)
+  )
+
+  await coreCacheReadRedis.publish(
+    `user__email:${user.email}`,
+    JSON.stringify(cachedUser)
+  )
+
+  return cachedUser
 }

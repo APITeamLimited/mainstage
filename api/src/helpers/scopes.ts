@@ -1,4 +1,4 @@
-import { getDisplayName, SafeUser } from '@apiteam/types'
+import { getDisplayName, UserAsPersonal } from '@apiteam/types'
 import { Membership, Team } from '@prisma/client'
 import { Scope } from '@prisma/client'
 
@@ -8,7 +8,7 @@ import { coreCacheReadRedis } from 'src/lib/redis'
 /*
 Creates or updates an existing personal scope with latest user data.
 */
-export const createPersonalScope = async (user: SafeUser) => {
+export const createPersonalScope = async (user: UserAsPersonal) => {
   const role = null
   const displayName = getDisplayName(user)
   const profilePicture = user.profilePicture
@@ -93,7 +93,7 @@ Creates or updates an existing team scope with latest team data.
 export const createTeamScope = async (
   team: Team,
   membership: Membership,
-  user: SafeUser
+  user: UserAsPersonal
 ) => {
   const role = membership.role
   const displayName = team.name
@@ -168,31 +168,8 @@ export const createTeamScope = async (
   return scope
 }
 
-export const deleteScope = async (scopeId: string) => {
-  const scope = await db.scope.findFirst({
-    where: {
-      id: scopeId,
-    },
-  })
-
-  if (!scope) {
-    return
-  }
-
-  await db.scope.delete({
-    where: {
-      id: scopeId,
-    },
-  })
-
-  await coreCacheReadRedis.del(`scope__id:${scopeId}`)
-  await coreCacheReadRedis.hDel(`scope__userId:${scope.userId}`, scopeId)
-  await coreCacheReadRedis.publish(`scope__id:${scopeId}`, 'DELETED')
-  await coreCacheReadRedis.publish(`scope__userId:${scope.userId}`, 'DELETED')
-}
-
 // Recreates all scopes
-export const recreateAllScopes = async (user: SafeUser) => {
+export const recreateAllScopes = async (user: UserAsPersonal) => {
   const memberships = await db.membership.findMany({
     where: {
       userId: user.id,

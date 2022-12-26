@@ -7,6 +7,7 @@ import { checkValue } from 'src/config'
 import { generateBlanketUnsubscribeUrl } from 'src/helpers/routing'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { UserModel } from 'src/models/user'
 
 export const getVerificationCode = async ({
   firstName,
@@ -18,7 +19,7 @@ export const getVerificationCode = async ({
   recaptchaToken: string
 }): Promise<boolean> => {
   // Firsy check email is available
-  if (await coreCacheReadRedis.get(`user__email:${email}`)) {
+  if (await UserModel.indexedFieldExists('email', email)) {
     throw new ServiceValidationError('Email already in use.')
   }
 

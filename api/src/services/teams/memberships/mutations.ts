@@ -11,7 +11,7 @@ import {
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
 
-import { checkOwnerAdmin } from '../validators/check-owner-admin'
+import { checkOwnerAdmin } from '../validators'
 
 export const removeUserFromTeam = async ({
   userId,

@@ -1,3 +1,5 @@
+import type { User } from '@prisma/client'
+
 export type UserAsPersonal = {
   id: string
   firstName: string
@@ -32,4 +34,57 @@ export type UserAsPublic = {
   lastName: string
   slug: string
   profilePicture: string | null
+}
+
+export const userAsPersonal = (user: User): UserAsPersonal => ({
+  id: user.id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  slug: user.slug,
+  email: user.email,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+  isAdmin: user.isAdmin,
+  emailVerified: user.emailVerified,
+  shortBio: user.shortBio,
+  profilePicture: user.profilePicture,
+  emailMarketing: user.emailMarketing,
+  customerId: user.customerId,
+  planInfoId: user.planInfoId,
+})
+
+export const userAsTeam = (user: User): UserAsTeam => ({
+  id: user.id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  email: user.email,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+  shortBio: user.shortBio,
+  profilePicture: user.profilePicture,
+})
+
+export const userAsPublic = (user: User): UserAsPublic => ({
+  id: user.id,
+  firstName: user.firstName,
+  lastName: user.lastName,
+  slug: user.slug,
+  profilePicture: user.profilePicture,
+})
+
+export const getDisplayName = (user: {
+  firstName: string
+  lastName: string
+}) => {
+  const firstName = user.firstName
+    .slice(0, 1)
+    .toUpperCase()
+    .concat(user.firstName.slice(1))
+
+  const lastName = user.lastName
+    .slice(0, 1)
+    .toUpperCase()
+    .concat(user.lastName.slice(1))
+
+  return `${firstName} ${lastName}`
 }
