@@ -56,11 +56,13 @@ export const CreditsPricingOptionModel: APITeamModel<
     return updatedObject
   },
   delete: async (id) => {
-    await coreCacheReadRedis.hDel('creditsPricingOption', id)
-
-    return db.creditsPricingOption.delete({
+    const deletedObject = await db.creditsPricingOption.delete({
       where: { id },
     })
+
+    await coreCacheReadRedis.hDel('creditsPricingOption', id)
+
+    return deletedObject
   },
   get: async (id) => {
     const rawObject = await coreCacheReadRedis.hGet('creditsPricingOption', id)
