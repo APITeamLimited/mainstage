@@ -19,7 +19,7 @@ export const NotifyDeclineInvitation = (
   return (
     <BaseMessageLayout
       title={notifyDeclineInvitationTitle(input)}
-      messageType="MANDATORY"
+      messageType="OPTIONAL_TEAM_UPDATES"
     >
       <Typography
         variant="h6"

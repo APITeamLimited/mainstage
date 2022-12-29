@@ -8,13 +8,14 @@ import { BaseMessageLayout } from '../layouts'
 export type NotifyRemovedFromTeamData = {
   targetName: string
   teamName: string
+  requestedToLeave?: boolean
 }
 
 export const NotifyRemovedFromTeam = (
   input: MailmanInput<NotifyRemovedFromTeamData>
 ) => {
   const {
-    data: { targetName, teamName },
+    data: { targetName, teamName, requestedToLeave },
   } = input
 
   return (
@@ -38,17 +39,29 @@ export const NotifyRemovedFromTeam = (
           textAlign: 'center',
         }}
       >
-        Hi {targetName}, you have been removed from the team {teamName} by one
-        of its admins or owner. If you have any questions, please contact them.
+        {requestedToLeave ? (
+          <>
+            Hi {targetName}, you have been removed from the team {teamName} at
+            your request
+          </>
+        ) : (
+          <>
+            Hi {targetName}, you have been removed from the team {teamName} by
+            one of its admins or owner. If you have any questions, please
+            contact them.
+          </>
+        )}
       </Typography>
     </BaseMessageLayout>
   )
 }
 
 export const notifyRemovedFromTeamText = ({
-  data: { targetName, teamName },
+  data: { targetName, teamName, requestedToLeave },
 }: MailmanInput<NotifyRemovedFromTeamData>) =>
-  `Hi ${targetName}, you have been removed from the team ${teamName} by one of its admins or owner. If you have any questions, please contact them.`
+  requestedToLeave
+    ? `Hi ${targetName}, you have been removed from the team ${teamName} at your request`
+    : `Hi ${targetName}, you have been removed from the team ${teamName} by one of its admins or owner. If you have any questions, please contact them.`
 
 export const notifyRemovedFromTeamTitle = ({
   data: { teamName },

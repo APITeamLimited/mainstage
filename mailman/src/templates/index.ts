@@ -34,6 +34,11 @@ import {
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitation'
 import {
+  NotifyMemberLeft,
+  notifyMemberLeftText,
+  notifyMemberLeftTitle,
+} from './NotifyMemberLeft'
+import {
   NotifyNewOwner,
   NotifyNewOwnerText,
   NotifyNewOwnerTitle,
@@ -156,6 +161,11 @@ export const VALID_TEMPLATES = {
     text: NotifyOldOwnerText,
     title: NotifyOldOwnerTitle,
   },
+  'notify-member-left': {
+    html: NotifyMemberLeft,
+    text: notifyMemberLeftText,
+    title: notifyMemberLeftTitle,
+  },
 } as const
 
 export type TemplateIdentifier = keyof typeof VALID_TEMPLATES
@@ -176,3 +186,4 @@ export { NotifyRemovedFromTeamData } from './NotifyRemovedFromTeam'
 export { ConfirmChangeOwnerData } from './ConfirmChangeOwner'
 export { NotifyNewOwnerData } from './NotifyNewOwner'
 export { NotifyOldOwnerData } from './NotifyOldOwner'
+export { NotifyMemberLeftData } from './NotifyMemberLeft'

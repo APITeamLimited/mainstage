@@ -20,8 +20,7 @@ import {
   setInvitationRedis,
 } from 'src/models/invitation'
 import { UserModel } from 'src/models/user'
-
-import { checkAuthenticated, checkOwnerAdmin } from '../validators'
+import { checkAuthenticated, checkOwnerAdmin } from 'src/services/guards'
 
 type InvitationInput = {
   email: string
@@ -92,8 +91,8 @@ export const createInvitations = async ({
   const team = JSON.parse(teamRaw) as Team
 
   const existingUsers = (
-    await Promise.all(
-      existingMemberships.map((membership) => UserModel.get(membership.id))
+    await UserModel.getMany(
+      existingMemberships.map((membership) => membership.userId)
     )
   ).filter((user) => user !== null) as UserAsPersonal[]
 

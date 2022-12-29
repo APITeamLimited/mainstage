@@ -1,10 +1,12 @@
 import { NotifyAccountDeletedData, SignupWelcomeData } from '@apiteam/mailman'
 import {
   APITeamModel,
+  GetAllAsyncIteratorMixin,
   IndexedFieldMixin,
   ROUTES,
   UserAsPersonal,
   userAsPersonal,
+  GetOrCreateCustomerIdMixin,
 } from '@apiteam/types'
 import { Prisma, User } from '@prisma/client'
 import { url as gravatarUrl } from 'gravatar'
@@ -26,19 +28,26 @@ import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { scanPatternDelete } from 'src/utils'
 
+import { CustomerModel } from './billing'
 import { ScopeModel } from './scope'
 
 type GetDangerousMixin<ObjectType> = {
   getDangerous: (id: string) => Promise<ObjectType | null>
 }
 
+export type AbstractUserUpdateInput = Omit<Prisma.UserUpdateInput, 'email'> & {
+  email?: string
+}
+
 export const UserModel: APITeamModel<
   Prisma.UserCreateInput,
-  Prisma.UserUpdateInput,
+  AbstractUserUpdateInput,
   UserAsPersonal
 > &
   GetDangerousMixin<User> &
-  IndexedFieldMixin<UserAsPersonal, 'id' | 'email'> = {
+  IndexedFieldMixin<UserAsPersonal, 'id' | 'email'> &
+  GetAllAsyncIteratorMixin<User> &
+  GetOrCreateCustomerIdMixin = {
   create: async (input) => {
     if (!input.profilePicture) {
       input.profilePicture = gravatarUrl(input.email, {
@@ -75,6 +84,13 @@ export const UserModel: APITeamModel<
       where: { id },
       data: input,
     })
+
+    // If email has changed, update the email on the customer
+    if (updatedUser.customerId && input.email) {
+      await CustomerModel.update(updatedUser.customerId, {
+        email: input.email,
+      })
+    }
 
     const memberships = await db.membership.findMany({
       where: {
@@ -144,6 +160,11 @@ export const UserModel: APITeamModel<
     })
 
     await Promise.all([
+      // Delete the customer if it exists
+      user.customerId
+        ? CustomerModel.delete(user.customerId)
+        : Promise.resolve(),
+
       // Broadcast team deletion to other services
       coreCacheReadRedis.publish('USER_DELETED', user.id),
 
@@ -173,6 +194,14 @@ export const UserModel: APITeamModel<
   get: async (id: string) => {
     const rawUser = await coreCacheReadRedis.get(`user__id:${id}`)
     return rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
+  },
+  getMany: async (ids: string[]) => {
+    const rawUsers = await coreCacheReadRedis.mGet(
+      ids.map((id) => `user__id:${id}`)
+    )
+    return rawUsers.map((rawUser) =>
+      rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
+    )
   },
   rebuildCache: async () => {
     await Promise.all([
@@ -212,6 +241,48 @@ export const UserModel: APITeamModel<
   indexedFieldExists: async (field, key) => {
     const rawUser = await coreCacheReadRedis.get(`user__${field}:${key}`)
     return !!rawUser
+  },
+  getAllAsyncIterator: async function* () {
+    // Iterate over all users in the database
+    let skip = 0
+    let batchSize = 0
+
+    do {
+      const users = await db.user.findMany({
+        skip,
+        take: 100,
+      })
+
+      for (const user of users) {
+        yield user
+      }
+
+      skip += users.length
+      batchSize = users.length
+    } while (batchSize > 0)
+  },
+  getOrCreateCustomerId: async (id: string) => {
+    const user = await UserModel.get(id)
+
+    if (!user) {
+      throw new Error(`User with id ${id} not found`)
+    }
+
+    if (user.customerId) {
+      return user.customerId
+    }
+
+    const customer = await CustomerModel.create({
+      email: user.email,
+      variant: 'USER',
+      variantTargetId: user.id,
+    })
+
+    await UserModel.update(id, {
+      customerId: customer.id,
+    })
+
+    return customer.id
   },
 }
 

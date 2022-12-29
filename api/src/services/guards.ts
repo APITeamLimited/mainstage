@@ -112,6 +112,8 @@ export const checkMember = async ({
       'You do not have permission to access this resource.'
     )
   }
+
+  return currentUserMembership
 }
 
 export const checkAuthenticated = async () => {

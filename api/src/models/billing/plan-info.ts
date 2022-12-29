@@ -1,29 +1,15 @@
-import { APITeamModel, GetAllMixin } from '@apiteam/types'
+import {
+  APITeamModel,
+  GetAllMixin,
+  AbstractPlanInfoCreateInput,
+  AbstractPlanInfoUpdateInput,
+} from '@apiteam/types'
 import { Prisma, PlanInfo } from '@prisma/client'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { stripe } from 'src/lib/stripe'
 import { setModelRedis } from 'src/utils'
-
-export type AbstractPlanInfoCreateInput = Omit<
-  Prisma.PlanInfoCreateInput,
-  'productId' | 'monthlyPriceId' | 'yearlyPriceId'
->
-
-export type AbstractPlanInfoUpdateInput = Omit<
-  Prisma.PlanInfoUpdateInput,
-  | 'productId'
-  | 'monthlyPriceId'
-  | 'yearlyPriceId'
-  | 'verboseName'
-  | 'priceMonthlyCents'
-  | 'priceYearlyCents'
-> & {
-  verboseName?: string
-  priceMonthlyCents?: number
-  priceYearlyCents?: number
-}
 
 export const PlanInfoModel: APITeamModel<
   AbstractPlanInfoCreateInput,
@@ -74,6 +60,9 @@ export const PlanInfoModel: APITeamModel<
   get: async (id) => {
     const rawPlanInfo = await coreCacheReadRedis.hGet('planInfo', id)
     return rawPlanInfo ? JSON.parse(rawPlanInfo) : null
+  },
+  getMany: async (ids) => {
+    return Promise.all(ids.map(PlanInfoModel.get))
   },
   getAll: async () => {
     const rawPlanInfos = await coreCacheReadRedis.hVals('planInfo')

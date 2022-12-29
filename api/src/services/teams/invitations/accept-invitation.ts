@@ -122,10 +122,8 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
   }
 
   const ownerAdminUsers = (
-    await Promise.all(
-      ownerAdminMemberships.map((membership) =>
-        UserModel.get(membership.userId)
-      )
+    await UserModel.getMany(
+      ownerAdminMemberships.map((membership) => membership.userId)
     )
   ).filter((u) => u !== null) as UserAsPersonal[]
 

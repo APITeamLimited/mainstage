@@ -1,23 +1,15 @@
-import { APITeamModel, GetAllMixin } from '@apiteam/types'
+import {
+  APITeamModel,
+  GetAllMixin,
+  AbstractCreditsPricingOptionCreateInput,
+  AbstractCreditsPricingOptionUpdateInput,
+} from '@apiteam/types'
 import { Prisma, CreditsPricingOption } from '@prisma/client'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { stripe } from 'src/lib/stripe'
 import { setModelRedis } from 'src/utils'
-
-export type AbstractCreditsPricingOptionCreateInput = Omit<
-  Prisma.CreditsPricingOptionCreateInput,
-  'productId' | 'priceId'
->
-
-export type AbstractCreditsPricingOptionUpdateInput = Omit<
-  Prisma.CreditsPricingOptionUpdateInput,
-  'productId' | 'priceId' | 'verboseName' | 'priceCents'
-> & {
-  verboseName?: string
-  priceCents?: number
-}
 
 export const CreditsPricingOptionModel: APITeamModel<
   AbstractCreditsPricingOptionCreateInput,
@@ -83,6 +75,9 @@ export const CreditsPricingOptionModel: APITeamModel<
       id
     )
     return rawCreditsPricingOption ? JSON.parse(rawCreditsPricingOption) : null
+  },
+  getMany: async (ids) => {
+    return Promise.all(ids.map(CreditsPricingOptionModel.get))
   },
   getAll: async () => {
     const rawcreditsPricingOptions = await coreCacheReadRedis.hVals(

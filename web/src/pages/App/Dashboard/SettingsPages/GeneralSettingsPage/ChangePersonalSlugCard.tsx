@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 import { Workspace } from '@apiteam/types/src'
 import {
   Stack,
@@ -10,8 +8,6 @@ import {
   TextField,
   Button,
   Box,
-  Snackbar,
-  Alert,
 } from '@mui/material'
 import { useFormik } from 'formik'
 import { UpdatePersonalSlug, UpdatePersonalSlugVariables } from 'types/graphql'
@@ -19,6 +15,10 @@ import * as Yup from 'yup'
 
 import { useMutation } from '@redwoodjs/web'
 
+import {
+  snackErrorMessageVar,
+  snackSuccessMessageVar,
+} from 'src/components/app/dialogs'
 import { useRefetchScopesCallback } from 'src/entity-engine/EntityEngine'
 
 type ChangePersonalSlugCardProps = {
@@ -67,88 +67,60 @@ export const ChangePersonalSlugCard = ({
     UpdatePersonalSlugVariables
   >(UPDATE_TEAM_NAME_MUTATION, {
     onCompleted: (data) => {
-      setSnackSuccessMessage(
+      snackSuccessMessageVar(
         `Successfully updated personal slug to ${data.updateCurrentUser.slug}`
       )
       refetchScopes?.()
     },
-    onError: (error) => setSnackErrorMessage(error.message),
+    onError: (error) => snackErrorMessageVar(error.message),
   })
 
-  const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
-    null
-  )
-  const [snackSuccessMessage, setSnackSuccessMessage] = useState<string | null>(
-    null
-  )
-
   return (
-    <>
-      <form noValidate onSubmit={formik.handleSubmit}>
-        <Card>
-          <Stack spacing={2} p={2}>
-            <Typography variant="h6" fontWeight="bold">
-              Personal Slug
-            </Typography>
-            <Typography variant="body2">
-              This is your personal slug, it your unique identifier and personal
-              subdomain on the APITeam platform
-            </Typography>
-            <TextField
-              fullWidth
-              id="personalSlug"
-              name="personalSlug"
-              label="Personal Slug"
-              value={formik.values.personalSlug}
-              onChange={formik.handleChange}
-              size="small"
-              error={Boolean(
-                formik.touched.personalSlug && formik.errors.personalSlug
-              )}
-              helperText={
-                formik.touched.personalSlug && formik.errors.personalSlug
-              }
-            />
-            <Divider />
-            <Box
+    <form noValidate onSubmit={formik.handleSubmit}>
+      <Card>
+        <Stack spacing={2} p={2}>
+          <Typography variant="h6" fontWeight="bold">
+            Personal Slug
+          </Typography>
+          <Typography variant="body2">
+            This is your personal slug, it your unique identifier and personal
+            subdomain on the APITeam platform.
+          </Typography>
+          <TextField
+            fullWidth
+            id="personalSlug"
+            name="personalSlug"
+            value={formik.values.personalSlug}
+            onChange={formik.handleChange}
+            size="small"
+            error={Boolean(
+              formik.touched.personalSlug && formik.errors.personalSlug
+            )}
+            helperText={
+              formik.touched.personalSlug && formik.errors.personalSlug
+            }
+          />
+          <Divider />
+          <Box
+            sx={{
+              alignSelf: 'flex-end',
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
               sx={{
-                alignSelf: 'flex-end',
+                color: theme.palette.background.paper,
+                borderColor: theme.palette.background.paper,
               }}
+              type="submit"
+              disabled={formik.isSubmitting}
             >
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{
-                  color: theme.palette.background.paper,
-                  borderColor: theme.palette.background.paper,
-                }}
-                type="submit"
-                disabled={formik.isSubmitting}
-              >
-                Save
-              </Button>
-            </Box>
-          </Stack>
-        </Card>
-      </form>
-      <Snackbar
-        open={!!snackErrorMessage}
-        onClose={() => setSnackErrorMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="error" sx={{ width: '100%' }}>
-          {snackErrorMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={!!snackSuccessMessage}
-        onClose={() => setSnackSuccessMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="success" sx={{ width: '100%' }}>
-          {snackSuccessMessage}
-        </Alert>
-      </Snackbar>
-    </>
+              Save
+            </Button>
+          </Box>
+        </Stack>
+      </Card>
+    </form>
   )
 }

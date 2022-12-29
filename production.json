@@ -28,7 +28,8 @@
     },
     "stripe": {
       "publishableKey": "${STRIPE_PUBLISHABLE_KEY}",
-      "secretKey": "${STRIPE_SECRET_KEY}"
+      "secretKey": "${STRIPE_SECRET_KEY}",
+      "webhookSecret": "${STRIPE_WEBHOOK_SECRET}"
     }
   },
   "coreCache": {

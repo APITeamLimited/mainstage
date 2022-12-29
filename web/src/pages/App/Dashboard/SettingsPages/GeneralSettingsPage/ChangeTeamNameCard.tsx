@@ -99,7 +99,6 @@ export const ChangeTeamNameCard = ({
               fullWidth
               id="teamName"
               name="teamName"
-              label="Team Name"
               value={formik.values.teamName}
               onChange={formik.handleChange}
               size="small"

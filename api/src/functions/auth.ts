@@ -1,7 +1,6 @@
 import { ROUTES } from '@apiteam/types'
-import { User } from '@prisma/client'
-import { APIGatewayProxyEvent, Context } from 'aws-lambda'
-import { url as gravatarUrl } from 'gravatar'
+import type { User } from '@prisma/client'
+import type { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
 import { DbAuthHandler, ServiceValidationError } from '@redwoodjs/api'
 
@@ -13,8 +12,8 @@ import { db } from 'src/lib/db'
 import { gatewayUrl } from 'src/lib/environment'
 import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
-import { UserModel } from 'src/models/user'
-import { getSlug } from 'src/validators/slug'
+import { UserModel } from 'src/models'
+import { getSlug } from 'src/validators'
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -76,9 +75,6 @@ export const handler = async (
     handler: (user: User) => {
       return {
         ...user,
-        profilePicture: gravatarUrl(user.email, {
-          default: 'mp',
-        }),
       }
     },
 

@@ -51,7 +51,9 @@ export const addMemberHandler = async (
   const newServerAwareness: ServerAwareness = {
     ...openDoc.serverAwareness,
     members: [
-      ...openDoc.serverAwareness.members,
+      ...openDoc.serverAwareness.members.filter(
+        (m) => m.userId !== member.userId
+      ),
       createMemberAwareness(user, member, []),
     ],
   }
@@ -116,6 +118,10 @@ export const removeMemberHandler = async (
     )
     return
   }
+
+  // Tell the connected user client to redirect, it will be kicked from the team
+  // automatically if they refuse
+  openDoc.notifyKick(member.userId)
 
   const newServerAwareness: ServerAwareness = {
     ...openDoc.serverAwareness,

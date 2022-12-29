@@ -1,4 +1,4 @@
-import { ROUTES } from '@apiteam/types'
+import { DOCS_ROUTES, ROUTES } from '@apiteam/types'
 import { js2xml } from 'xml-js'
 
 import { checkValue } from 'src/config'
@@ -49,12 +49,27 @@ const bannedRoutes: string[] = [
   ROUTES.changeOwner,
 ]
 
-const getContent = () => {
-  const allowedRoutes = Object.values(ROUTES).filter(
+const generateStaticRoutes = (): string[] => {
+  const rawRoutes = [...Object.values(ROUTES), ...Object.values(DOCS_ROUTES)]
+
+  // Remove banned routes
+  const banCheckedRoutes = rawRoutes.filter(
     (route) => !bannedRoutes.includes(route)
   )
 
-  return Object.values(allowedRoutes).map((route) => ({
+  // Ensure routes are unique
+  const uniqueRoutes = [...new Set(banCheckedRoutes)]
+
+  // Alphabetically sort routes
+  return uniqueRoutes.sort()
+}
+
+const staticRoutes = generateStaticRoutes()
+
+const getContent = () => {
+  // This is dynamic so support for blog posts can be added and other dynamic routes
+  // can be added in the future
+  return staticRoutes.map((route) => ({
     type: 'element',
     name: 'url',
     elements: [

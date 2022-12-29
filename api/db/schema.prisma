@@ -162,6 +162,7 @@ model PlanInfo {
   isActive    Boolean   @default(true)
   name        String
   verboseName String
+  description String?
 
   // Plan Features
   maxMembers              Int

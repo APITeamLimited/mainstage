@@ -117,16 +117,22 @@ export const FooterSplash = () => {
               </Stack>
             </Stack>
             <Divider flexItem sx={{ marginBottom: 6 }} />
-            <Grid container justifyContent="flex-start" alignItems="baseline">
+            <Grid
+              container
+              justifyContent={isSmall ? 'center' : 'flex-start'}
+              alignItems="baseline"
+            >
               {brandedRoutes.map((route, index) => (
                 <Grid
                   item
                   key={index}
                   alignItems="center"
                   sx={{
-                    marginRight: 12,
+                    marginRight: isSmall ? 0 : 12,
                     marginBottom: 6,
                   }}
+                  // Only trigger strict spacing on small screens
+                  xs={isSmall ? 12 : undefined}
                 >
                   <Stack spacing={4}>
                     <Typography

@@ -17,6 +17,7 @@ import { navigatePersonalSettings } from 'src/utils/nav-utils'
 
 import { SETTINGS_TABS } from '..'
 
+import { ChangePersonalNameCard } from './ChangePersonalNameCard'
 import { ChangePersonalSlugCard } from './ChangePersonalSlugCard'
 import { ChangeTeamNameCard } from './ChangeTeamNameCard'
 import { ChangeTeamSlugCard } from './ChangeTeamSlugCard'
@@ -90,6 +91,7 @@ const GeneralSettingsTab = ({ workspaceInfo }: GeneralSettingsTabProps) => {
         </>
       ) : (
         <>
+          <ChangePersonalNameCard />
           <ChangePersonalSlugCard workspaceInfo={workspaceInfo} />
         </>
       )}

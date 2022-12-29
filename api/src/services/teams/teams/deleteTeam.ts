@@ -16,7 +16,7 @@ import { coreCacheReadRedis } from 'src/lib/redis'
 import { TeamModel } from 'src/models/team'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
-import { checkOwner } from '../validators'
+import { checkOwner } from 'src/services/guards'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 

@@ -23,6 +23,7 @@ export const ROUTES = {
   settingsWorkspace: '/app/dashboard/settings',
   settingsWorkspaceMembers: '/app/dashboard/settings/members',
   settingsWorkspaceDangerZone: '/app/dashboard/settings/danger-zone',
+  settingsWorkspaceBilling: '/app/dashboard/settings/billing',
   domains: '/app/dashboard/domains',
   collectionEditor: '/app/collection',
   admin: '/admin',

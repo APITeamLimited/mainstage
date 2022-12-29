@@ -60,6 +60,7 @@ export const verifyAwarenessHandler = async (
 
       if (decodedToken.payload.clientID !== clientID) {
         openDoc.disconnectClient(clientID)
+        console.log('Disconnect1')
         return
       }
 
@@ -71,6 +72,7 @@ export const verifyAwarenessHandler = async (
           : false
       if (!hasScope) {
         openDoc.disconnectClient(clientID)
+        console.log('Disconnect2')
         return
       }
 
@@ -84,11 +86,13 @@ export const verifyAwarenessHandler = async (
         e
       )
       openDoc.disconnectClient(clientID)
+      console.log('Disconnect3')
     }
   }
 
   if (finalChance) {
     openDoc.disconnectClient(clientID)
+    console.log('Disconnect4')
     return
   }
 

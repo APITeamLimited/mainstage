@@ -2,10 +2,8 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
 import { TeamModel } from 'src/models/team'
-import { checkSlugAvailable } from 'src/validators/slug'
-
-import { checkAuthenticated } from '../validators'
-import { checkOwnerAdmin } from '../validators'
+import { checkOwnerAdmin, checkAuthenticated } from 'src/services/guards'
+import { checkSlugAvailable } from 'src/validators'
 
 export const teams = async () => {
   const userId = (await checkAuthenticated()).id

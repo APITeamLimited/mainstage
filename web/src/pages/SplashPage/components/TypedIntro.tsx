@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import Typed from 'react-typed'
 
-import { SignUpOrContinueButton } from './SignUpOrContinueButton'
+import { SignUpOrContinueButton } from 'src/layouts/Landing/components/SignUpOrContinueButton'
 
 type TypedIntroProps = {
   whyUseAPITeamRef?: React.RefObject<HTMLDivElement>

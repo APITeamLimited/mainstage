@@ -1,17 +1,11 @@
-import {
-  Stack,
-  Typography,
-  Box,
-  Button,
-  useTheme,
-  Divider,
-} from '@mui/material'
+import { Stack, Typography, Box, useTheme, Divider } from '@mui/material'
 
 import { navigate } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
-import { SignUpOrContinueButton } from 'src/pages/SplashPage/components/SignUpOrContinueButton'
 import { brandedRoutes } from 'src/Routes'
+
+import { SignUpOrContinueButton } from '../../../SignUpOrContinueButton'
 
 type SidebarNavProps = {
   onClose: () => void

@@ -1,3 +1,4 @@
 export * from './scopes'
-export * from './user'
 export * from './memberships'
+export * from './routing'
+export * from './verified-domains'

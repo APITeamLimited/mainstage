@@ -1,13 +1,8 @@
-import { User } from '@prisma/client'
-import { url as gravatarUrl } from 'gravatar'
-
 import { ServiceValidationError } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
-
-import { checkAuthenticated } from '../teams/validators'
+import { checkAuthenticated } from 'src/services/guards'
 
 export const teamUsers = async ({ teamId }: { teamId: string }) => {
   // Ensure user is member of the team
@@ -78,15 +73,6 @@ export const teamUser = async ({
     throw new ServiceValidationError(
       `User does not exist with id '${id}' in team '${teamId}'`
     )
-  }
-
-  if (!user.profilePicture) {
-    return {
-      ...user,
-      profilePicture: gravatarUrl(user.email, {
-        default: 'mp',
-      }),
-    }
   }
 
   return user

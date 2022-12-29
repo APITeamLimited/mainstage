@@ -79,6 +79,7 @@ export const handleProviders = ({
     }
 
     return new SocketIOProvider({
+      userId: activeScope.userId,
       scopeId: activeScope.id,
       rawBearer: rawBearer || '',
       apolloClient,

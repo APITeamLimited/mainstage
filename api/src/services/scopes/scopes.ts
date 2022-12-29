@@ -4,8 +4,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { UserModel } from 'src/models/user'
-
-import { checkAuthenticated } from '../teams/validators'
+import { checkAuthenticated } from 'src/services/guards'
 
 /*
 Gets all scopes belonging to the current user.

@@ -35,20 +35,20 @@ export const DownloadLinkItem = ({
     >
       <Card
         sx={{
-          padding: 2,
+          padding: 4,
           backgroundColor: inverted ? theme.palette.primary.main : undefined,
-          height: `calc(100% - ${theme.spacing(4)})`,
+          height: `calc(100% - ${theme.spacing(8)})`,
         }}
         variant="outlined"
       >
         <Stack
-          spacing={2}
+          spacing={4}
           justifyContent="space-between"
           sx={{
             height: '100%',
           }}
         >
-          <Stack spacing={2}>
+          <Stack spacing={4}>
             <Stack spacing={2} direction="row">
               <SvgIcon
                 component={platformIcon}

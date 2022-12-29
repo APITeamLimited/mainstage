@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
 import { Workspace } from '@apiteam/types/src'
-import { Box, Divider, Stack } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -9,12 +9,12 @@ import { MetaTags } from '@redwoodjs/web'
 import { DashboardPageFrame } from 'src/components/app/dashboard/utils/DashboardPageFrame'
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 
 import { SETTINGS_TABS } from '..'
 
 import { DeleteAccountCard } from './DeleteAccountCard'
 import { DeleteTeamCard } from './DeleteTeamCard'
+import { LeaveTeamCard } from './LeaveTeamCard'
 import { TransferOwnershipCard } from './TransferOwnershipCard'
 
 type DangerZoneSettingsTabProps = {
@@ -33,8 +33,16 @@ const DangerZoneSettingsTab = ({
     <Stack spacing={4}>
       {isTeam ? (
         <>
-          <TransferOwnershipCard workspaceInfo={workspaceInfo} />
-          <DeleteTeamCard workspaceInfo={workspaceInfo} />
+          {workspaceInfo.scope.role === 'OWNER' ? (
+            <>
+              <TransferOwnershipCard workspaceInfo={workspaceInfo} />
+              <DeleteTeamCard workspaceInfo={workspaceInfo} />
+            </>
+          ) : (
+            <>
+              <LeaveTeamCard workspaceInfo={workspaceInfo} />
+            </>
+          )}
         </>
       ) : (
         <>
@@ -59,7 +67,6 @@ export const DangerZoneSettingsPage = () => {
   }, [workspaceInfo])
 
   if (!prettyType) return null
-
   if (!workspaceInfo) return null
 
   return (

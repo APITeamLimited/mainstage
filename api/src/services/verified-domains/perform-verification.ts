@@ -7,8 +7,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 import { setVerifiedDomainRedis } from 'src/helpers/verified-domains'
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
-
-import { checkOwnerAdmin } from '../teams/validators'
+import { checkOwnerAdmin } from 'src/services/guards'
 
 const resolver = new Resolver()
 resolver.setServers(['8.8.8.8', '8.8.4.4'])

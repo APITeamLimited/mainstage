@@ -30,15 +30,11 @@ import {
 
 import { useMutation } from '@redwoodjs/web'
 
+import {
+  snackErrorMessageVar,
+  snackSuccessMessageVar,
+} from 'src/components/app/dialogs'
 import { RoleChip } from 'src/components/team/RoleChip'
-
-type MemberRowProps = {
-  userRole: ScopeRole
-  membership: ListTeamMembers['memberships'][0]
-  setSnackSuccessMessage: (message: string | null) => void
-  setSnackErrorMessage: (message: string | null) => void
-  currentUserId: string
-}
 
 type AccessOptions = {
   showRemoveFromTeam: boolean
@@ -81,11 +77,15 @@ const REMOVE_USER_FROM_TEAM_MUTATION = gql`
   }
 `
 
+type MemberRowProps = {
+  userRole: ScopeRole
+  membership: ListTeamMembers['memberships'][0]
+  currentUserId: string
+}
+
 export const MemberRow = ({
   userRole,
   membership,
-  setSnackSuccessMessage,
-  setSnackErrorMessage,
   currentUserId,
 }: MemberRowProps) => {
   const [showPopover, setShowPopover] = useState(false)
@@ -154,13 +154,13 @@ export const MemberRow = ({
       teamId: membership.teamId,
     },
     onCompleted: () => {
-      setSnackSuccessMessage(
+      snackSuccessMessageVar(
         `Removed ${membership.user.firstName} from the team`
       )
       setShowPopover(false)
     },
     onError: (error) => {
-      setSnackErrorMessage(`Error removing user: ${error.message}`)
+      snackErrorMessageVar(`Error removing user: ${error.message}`)
     },
   })
 
@@ -168,7 +168,7 @@ export const MemberRow = ({
     CHANGE_USER_ROLE_MUTATION,
     {
       onCompleted: () => {
-        setSnackSuccessMessage(
+        snackSuccessMessageVar(
           `${membership.user.firstName} is now ${
             membership.role === 'ADMIN' ? 'an admin' : 'a member'
           }`
@@ -176,7 +176,7 @@ export const MemberRow = ({
         setShowPopover(false)
       },
       onError: (error) => {
-        setSnackErrorMessage(`Error changing user's role: ${error.message}`)
+        snackErrorMessageVar(`Error changing user's role: ${error.message}`)
       },
     }
   )

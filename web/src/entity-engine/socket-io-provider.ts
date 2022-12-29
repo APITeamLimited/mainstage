@@ -56,6 +56,7 @@ type MessageHandlersType = Array<
 
 type SocketIOProviderConstructorArgs = {
   scopeId: string
+  userId: string
   rawBearer: string
   doc: YDoc
   options: {
@@ -76,6 +77,7 @@ type SocketIOProviderConstructorArgs = {
 }
 
 export class SocketIOProvider extends Observable<string> {
+  userId: string
   updateAwarenessInterval: unknown
   apolloClient: ApolloClient<unknown>
   maxBackoffTime: number
@@ -121,6 +123,7 @@ export class SocketIOProvider extends Observable<string> {
   metaMap: YMap<unknown> | undefined
 
   constructor({
+    userId,
     scopeId,
     rawBearer,
     doc,
@@ -147,6 +150,7 @@ export class SocketIOProvider extends Observable<string> {
     this.rawBearer = rawBearer
     this.bcChannel = `${this.url}-${scopeId}`
     this.scopeId = scopeId
+    this.userId = userId
     this.doc = doc
     this.awareness = awareness
     this.socketConnected = false
@@ -369,6 +373,12 @@ export class SocketIOProvider extends Observable<string> {
           'doc-deleted',
           () => (window.location.href = window.location.origin)
         )
+
+        this.socket?.on('kicked', (userId) => {
+          if (userId === this.userId) {
+            window.location.href = window.location.origin
+          }
+        })
 
         const newAwareness = new this.Y.awarenessProtocol.Awareness(this.doc)
         newAwareness.setLocalState({})

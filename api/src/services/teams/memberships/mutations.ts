@@ -1,5 +1,10 @@
-import { NotifyNewRoleData, NotifyRemovedFromTeamData } from '@apiteam/mailman'
-import { TeamRole } from '@apiteam/types'
+import {
+  NotifyNewRoleData,
+  NotifyRemovedFromTeamData,
+  NotifyMemberLeftData,
+} from '@apiteam/mailman'
+import { TeamRole, UserAsPersonal } from '@apiteam/types'
+import { Membership } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
@@ -10,8 +15,13 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-
-import { checkOwnerAdmin } from '../validators'
+import { coreCacheReadRedis } from 'src/lib/redis'
+import { TeamModel, UserModel } from 'src/models'
+import {
+  checkAuthenticated,
+  checkMember,
+  checkOwnerAdmin,
+} from 'src/services/guards'
 
 export const removeUserFromTeam = async ({
   userId,
@@ -162,4 +172,84 @@ export const changeUserRole = async ({
   })
 
   return { ...updatedMembership, user }
+}
+
+export const leaveTeam = async ({ teamId }: { teamId: string }) => {
+  const user = await checkAuthenticated()
+  const membership = await checkMember({ teamId })
+
+  if (membership.role === 'OWNER') {
+    throw new ServiceValidationError(
+      "You can't leave a team you own. Please transfer ownership to another member first."
+    )
+  }
+
+  const team = await TeamModel.get(teamId)
+
+  if (!team) {
+    throw new ServiceValidationError(`Team not found with id '${teamId}'`)
+  }
+
+  await deleteMembership(membership)
+
+  await dispatchEmail({
+    template: 'notify-removed-from-team',
+    to: user.email,
+    data: {
+      targetName: user.firstName,
+      teamName: team.name,
+      requestedToLeave: true,
+    } as NotifyRemovedFromTeamData,
+    userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
+    blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
+  })
+
+  const adminOwners = await getAdminOwners(teamId)
+
+  await Promise.all(
+    adminOwners.map(async (adminOwner) =>
+      dispatchEmail({
+        template: 'notify-member-left',
+        to: adminOwner.email,
+        data: {
+          recipientFirstName: adminOwner.firstName,
+          targetFirstName: user.firstName,
+          targetLastName: user.lastName,
+          teamName: team.name,
+        } as NotifyMemberLeftData,
+        userUnsubscribeUrl: await generateUserUnsubscribeUrl(adminOwner),
+        blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
+          adminOwner.email
+        ),
+      })
+    )
+  )
+
+  return true
+}
+
+const getAdminOwners = async (teamId: string): Promise<UserAsPersonal[]> => {
+  // Tell owners and admins that user left the team
+  const allTeamInfo = await coreCacheReadRedis.hGetAll(`team:${teamId}`)
+
+  const ownerAdminMemberships = [] as Membership[]
+
+  Object.entries(allTeamInfo).forEach(([key, value]) => {
+    if (key.startsWith('membership:')) {
+      const membership = JSON.parse(value) as Membership
+      if (membership.role === 'OWNER' || membership.role === 'ADMIN') {
+        ownerAdminMemberships.push(membership)
+      }
+    }
+  })
+
+  if (ownerAdminMemberships.length === 0) {
+    throw new Error('Team has no owners or admins')
+  }
+
+  return (
+    await UserModel.getMany(
+      ownerAdminMemberships.map((membership) => membership.userId)
+    )
+  ).filter((u) => u !== null) as UserAsPersonal[]
 }

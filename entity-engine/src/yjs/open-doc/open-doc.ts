@@ -54,7 +54,9 @@ export class OpenDoc extends Y.Doc {
     scope: Scope,
     updateCallback: ((docName: string, update: Uint8Array) => void) | undefined
   ) {
-    super()
+    super({
+      gc: true,
+    })
 
     this.variant = scope.variant
     this.variantTargetId = scope.variantTargetId
@@ -293,6 +295,12 @@ export class OpenDoc extends Y.Doc {
   publishDeletion() {
     Array.from(this.sockets.keys()).forEach((socket) => {
       socket.emit('doc-deleted')
+    })
+  }
+
+  notifyKick(userId: string) {
+    Array.from(this.sockets.keys()).forEach((socket) => {
+      socket.emit('kicked', userId)
     })
   }
 

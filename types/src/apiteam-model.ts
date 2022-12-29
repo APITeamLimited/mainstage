@@ -20,6 +20,7 @@ export type ExistsMixin = {
 
 export type GetMixin<ObjectType> = {
   get: (id: string) => Promise<ObjectType | null>
+  getMany: (ids: string[]) => Promise<(ObjectType | null)[]>
 }
 
 export type GetAllMixin<ObjectType> = {
@@ -28,6 +29,10 @@ export type GetAllMixin<ObjectType> = {
 
 export type GetAllAsyncIteratorMixin<ObjectType> = {
   getAllAsyncIterator: () => AsyncIterableIterator<ObjectType>
+}
+
+export type GetOrCreateCustomerIdMixin = {
+  getOrCreateCustomerId: (modelId: string) => Promise<string>
 }
 
 export type IndexedFieldMixin<
@@ -42,6 +47,16 @@ export type IndexedFieldMixin<
     field: IndexedKeys,
     key: ObjectType[IndexedKeys]
   ) => Promise<boolean>
+}
+
+export type GetManyFilteredMixin<
+  ObjectType,
+  FilterKeys extends keyof ObjectType
+> = {
+  getManyFiltered: (
+    key: FilterKeys,
+    filterValue: ObjectType[FilterKeys]
+  ) => Promise<ObjectType[]>
 }
 
 export type APITeamModel<CreateInput, UpdateInput, ObjectType> = CreateMixin<

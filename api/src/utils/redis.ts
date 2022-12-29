@@ -11,12 +11,14 @@ export const setModelRedis = async <T extends IdentifiableObjectType>(
   data: T | T[]
 ) => {
   if (Array.isArray(data)) {
-    const records = data.reduce((acc, curr) => {
-      acc[curr.id] = JSON.stringify(curr)
-      return acc
-    }, {} as Record<string, string>)
+    // Can't figure out multi-hset, so this is a workaround
+    // TODO: Figure out multi-hset instead of setting each record individually
 
-    await redisInstance.hSet(key, records)
+    await Promise.all(
+      data.map((record) =>
+        redisInstance.hSet(key, record.id, JSON.stringify(record))
+      )
+    )
   } else {
     await redisInstance.hSet(key, data.id, JSON.stringify(data))
   }

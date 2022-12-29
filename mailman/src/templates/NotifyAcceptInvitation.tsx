@@ -20,7 +20,7 @@ export const NotifyAcceptInvitation = (
   return (
     <BaseMessageLayout
       title={notifyAcceptInvitationTitle(input)}
-      messageType="MANDATORY"
+      messageType="OPTIONAL_TEAM_UPDATES"
     >
       <Typography
         variant="h6"

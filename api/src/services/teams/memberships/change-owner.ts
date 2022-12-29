@@ -20,7 +20,7 @@ import { dispatchEmail } from 'src/lib/mailman'
 import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
 
-import { checkOwner } from '../validators'
+import { checkOwner } from 'src/services/guards'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 

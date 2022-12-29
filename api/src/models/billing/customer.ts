@@ -1,6 +1,8 @@
 import { APITeamModel } from '@apiteam/types'
 import type Stripe from 'stripe'
 
+import { ServiceValidationError } from '@redwoodjs/api'
+
 import { db } from 'src/lib/db'
 import { stripe } from 'src/lib/stripe'
 
@@ -37,7 +39,7 @@ export const CustomerModel: APITeamModel<
     const customer = await stripe.customers.retrieve(id)
 
     if (customer.deleted) {
-      throw new Error(`Customer with id ${id} deleted`)
+      throw new ServiceValidationError(`Customer with id ${id} deleted`)
     }
 
     return stripe.customers.update(id, {
@@ -48,7 +50,7 @@ export const CustomerModel: APITeamModel<
     const customer = await stripe.customers.retrieve(id)
 
     if (customer.deleted) {
-      throw new Error(`Customer with id ${id} already deleted`)
+      throw new ServiceValidationError(`Customer with id ${id} already deleted`)
     }
 
     await stripe.customers.del(id)
@@ -84,5 +86,8 @@ export const CustomerModel: APITeamModel<
     }
 
     return customer
+  },
+  getMany: async (ids) => {
+    return Promise.all(ids.map(CustomerModel.get))
   },
 }

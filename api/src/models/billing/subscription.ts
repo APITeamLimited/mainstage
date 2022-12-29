@@ -41,4 +41,7 @@ export const SubscriptionModel: APITeamModel<
   get: async (id) => {
     return await stripe.subscriptions.retrieve(id)
   },
+  getMany: async (ids) => {
+    return Promise.all(ids.map(SubscriptionModel.get))
+  },
 }

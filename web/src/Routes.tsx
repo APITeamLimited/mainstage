@@ -115,6 +115,7 @@ const Routes = () => {
           <Route path={ROUTES.settingsWorkspace} page={AppDashboardSettingsPagesGeneralSettingsPage} name="settingsWorkspace" />
           <Route path={ROUTES.settingsWorkspaceMembers} page={AppDashboardSettingsPagesMembersSettingsPage} name="settingsWorkspaceMembers" />
           <Route path={ROUTES.settingsWorkspaceDangerZone} page={AppDashboardSettingsPagesDangerZoneSettingsPage} name="settingsWorkspaceDangerZone" />
+          <Route path={ROUTES.settingsWorkspaceBilling} page={AppDashboardSettingsPagesBillingSettingsPage} name="settingsWorkspaceBilling" />
           <Route path={ROUTES.domains} page={AppDashboardDomainsPage} name="domains" />
           <Route path={ROUTES.collectionEditor} page={AppCollectionEditorPage} name="collectionEditor" />
         </Set>

@@ -1,4 +1,4 @@
-import { Team, Scope, Membership } from '@prisma/client'
+import { Membership } from '@prisma/client'
 
 export type RedisTeamPublishMessage =
   | {

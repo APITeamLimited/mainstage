@@ -1,3 +1,5 @@
+// Auth in handleChangeOwner done via JWT
+
 export const schema = gql`
   enum TeamRole {
     OWNER
@@ -42,5 +44,6 @@ export const schema = gql`
     sendChangeTeamOwnerEmail(teamId: String!, userId: String!): Boolean!
       @requireAuth
     handleChangeOwner(token: String!): Boolean! @skipAuth
+    leaveTeam(teamId: String!): Boolean! @requireAuth
   }
 `

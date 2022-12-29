@@ -2,24 +2,18 @@ import { useMemo } from 'react'
 
 import { LINKS } from '@apiteam/types/src'
 import AppleIcon from '@mui/icons-material/Apple'
-import DownloadIcon from '@mui/icons-material/Download'
 import {
   Button,
   ButtonProps,
   Grid,
   Link,
-  ListItem,
   Stack,
   Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material'
 
-import {
-  LinuxIcon,
-  SnapcraftIcon,
-  WindowsIcon,
-} from 'src/components/utils/Icons'
+import { LinuxIcon, WindowsIcon } from 'src/components/utils/Icons'
 import {
   mediumPanelSpacing,
   smallPanelSpacing,
@@ -92,7 +86,7 @@ export const DownloadLinks = () => {
           isSmall={isSmall}
           inverted={os === 'mac'}
         >
-          <Stack spacing={2} direction="row">
+          <Stack spacing={4} direction="row">
             <InvertedButton
               color="primary"
               size="large"

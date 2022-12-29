@@ -3,7 +3,7 @@ import { ROUTES } from '@apiteam/types/src'
 import { FeatureOverviewPanel } from 'src/layouts/Landing/components/templates/FeatureOverviewPanel'
 import { apiClientFeaturesMinimal } from 'src/layouts/Landing/content/api-client-features'
 
-const EditorFeatures = (): JSX.Element => {
+const EditorFeatures = () => {
   return (
     <FeatureOverviewPanel
       title="Real-time collaborative API Client"

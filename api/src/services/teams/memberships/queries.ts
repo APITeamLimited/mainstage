@@ -1,11 +1,9 @@
 import { UserAsPersonal } from '@apiteam/types'
 import { Membership } from '@prisma/client'
-import { url as gravatarUrl } from 'gravatar'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { UserModel } from 'src/models/user'
-
-import { checkOwnerAdmin } from '../validators'
+import { checkOwnerAdmin } from 'src/services/guards'
 
 export const memberships = async ({ teamId }: { teamId: string }) => {
   await checkOwnerAdmin({ teamId })
@@ -23,19 +21,11 @@ export const memberships = async ({ teamId }: { teamId: string }) => {
   })
 
   const users = (
-    await Promise.all(
-      memberships.map((membership) => UserModel.get(membership.userId))
-    )
+    await UserModel.getMany(memberships.map((membership) => membership.userId))
   ).filter((user) => user !== null) as UserAsPersonal[]
 
   return memberships.map((membership) => {
     const user = users.find((user) => user.id === membership.userId)
-
-    if (user && !user.profilePicture) {
-      user.profilePicture = gravatarUrl(user.email, {
-        default: 'mp',
-      })
-    }
 
     return {
       ...membership,

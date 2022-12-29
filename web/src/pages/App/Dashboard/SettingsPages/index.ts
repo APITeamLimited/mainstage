@@ -16,7 +16,6 @@ export const SETTINGS_TABS = [
   {
     label: 'danger-zone',
     displayName: 'Danger Zone',
-    requiredRole: 'OWNER',
     isDangerous: true,
   },
 ] as SideTab[]

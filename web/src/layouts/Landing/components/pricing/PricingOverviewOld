@@ -1,0 +1,281 @@
+import React, { useState } from 'react'
+
+import { ROUTES } from '@apiteam/types/src'
+import {
+  useTheme,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+  Card,
+  Skeleton,
+  Stack,
+  Box,
+  Grid,
+  Container,
+  CardContent,
+  useMediaQuery,
+  Divider,
+} from '@mui/material'
+import { PricingQuery, PricingQueryVariables } from 'types/graphql'
+
+import { useQuery } from '@redwoodjs/web'
+
+import { CallToClickLink } from 'src/layouts/Landing/components/CallToClickLink'
+
+import { panelSeparation, smallPanelSpacing } from '../constants'
+
+import { PlanInfoRow } from './PlanInfoRow'
+
+const currencyConverter = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+})
+
+const prettyPrintCents = (cents: number): string => {
+  if (cents === 0) {
+    return 'Free'
+  }
+
+  return currencyConverter.format(cents / 100)
+}
+
+const PRICING_QUERY = gql`
+  query PricingQuery {
+    planInfos {
+      id
+      createdAt
+      updatedAt
+      name
+      description
+      maxMembers
+      maxConcurrentCloudTests
+      monthlyCredits
+      loadZones
+      testSchedulingEnabled
+      maxTestDurationMinutes
+      dataRetentionMonths
+      maxSimulatedUsers
+
+      priceMonthlyCents
+      priceYearlyCents
+
+      freeTrialDays
+    }
+    creditsPricingOptions {
+      id
+      createdAt
+      updatedAt
+      name
+      credits
+      priceCents
+    }
+  }
+`
+
+export const PricingOverview = (): JSX.Element => {
+  const theme = useTheme()
+  const isMd = useMediaQuery(theme.breakpoints.up('md'), {
+    defaultMatches: true,
+  })
+
+  const { data: pricingData } = useQuery<PricingQuery, PricingQueryVariables>(
+    PRICING_QUERY
+  )
+
+  const [pricingOption, setPricingOption] = useState<'monthly' | 'annual'>(
+    'annual'
+  )
+
+  const renderToggler = () => (
+    <Box display={'flex'} justifyContent="center" marginBottom={4}>
+      <ToggleButtonGroup
+        value={pricingOption}
+        exclusive
+        onChange={(_, newPricingOption) => setPricingOption(newPricingOption)}
+      >
+        <ToggleButton
+          disabled={pricingOption === 'annual'}
+          value="annual"
+          size={isMd ? 'large' : 'small'}
+          sx={{
+            backgroundColor:
+              pricingOption === 'annual'
+                ? `${theme.palette.primary.light} !important`
+                : 'transparent',
+            border: `1px solid ${theme.palette.primary.main}`,
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 700,
+              color:
+                pricingOption === 'annual' ? 'common.white' : 'text.primary',
+            }}
+          >
+            Annual
+          </Typography>
+        </ToggleButton>
+        <ToggleButton
+          value="monthly"
+          size={isMd ? 'large' : 'small'}
+          disabled={pricingOption === 'monthly'}
+          sx={{
+            backgroundColor:
+              pricingOption === 'monthly'
+                ? `${theme.palette.primary.light} !important`
+                : 'transparent',
+            border: `1px solid ${theme.palette.primary.main}`,
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{
+              fontWeight: 700,
+              color:
+                pricingOption !== 'annual' ? 'common.white' : 'text.primary',
+            }}
+          >
+            Monthly
+          </Typography>
+        </ToggleButton>
+      </ToggleButtonGroup>
+    </Box>
+  )
+
+  return (
+    <Box
+      sx={{
+        backgroundColor: theme.palette.alternate.dark,
+        paddingBottom: panelSeparation,
+      }}
+    >
+      <Box
+        component={'svg'}
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+        x="0px"
+        y="0px"
+        viewBox="0 0 1920 100.1"
+        sx={{
+          width: '100%',
+          marginBottom: panelSeparation,
+          // Rotate 180 degrees
+          transform: 'rotate(180deg)',
+        }}
+      >
+        <path
+          fill={theme.palette.background.paper}
+          d="M0,0c0,0,934.4,93.4,1920,0v100.1H0L0,0z"
+        />
+      </Box>
+      <Container>
+        <Box
+          sx={{
+            position: 'relative',
+          }}
+        >
+          <Box marginBottom={6}>
+            <Typography
+              variant="h3"
+              gutterBottom
+              align="center"
+              color={theme.palette.text.primary}
+              sx={{
+                fontWeight: 900,
+              }}
+            >
+              Pricing
+            </Typography>
+            <Typography
+              variant="h6"
+              component="p"
+              color={theme.palette.text.secondary}
+              align="center"
+            >
+              Get great features for less
+            </Typography>
+          </Box>
+          {renderToggler()}
+        </Box>
+        <Stack spacing={4}>
+          <Grid container spacing={4} justifyContent="center">
+            {!pricingData ? (
+              <Skeleton />
+            ) : (
+              pricingData.planInfos.map((planInfo, index) => (
+                <Grid item xs={12} md={4} key={index}>
+                  <Box
+                    variant="outlined"
+                    sx={{
+                      padding: 2,
+                      background:
+                        'radial-gradient(circle, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+                      backdropBlur: '10px',
+                    }}
+                    component={Card}
+                    height={1}
+                  >
+                    <Stack spacing={2}>
+                      <Typography variant="h4" fontWeight={600}>
+                        {planInfo.name}
+                      </Typography>
+                      {planInfo.description && (
+                        <Typography color={theme.palette.text.secondary}>
+                          {planInfo.description}
+                        </Typography>
+                      )}
+                      <Divider />
+                      <Stack spacing={2} direction="row" alignItems="baseline">
+                        <Typography variant="h3" fontWeight={700}>
+                          {pricingOption === 'annual'
+                            ? prettyPrintCents(planInfo.priceYearlyCents)
+                            : prettyPrintCents(planInfo.priceMonthlyCents)}
+                        </Typography>
+                        {(pricingOption === 'annual'
+                          ? planInfo.priceYearlyCents
+                          : planInfo.priceMonthlyCents) > 0 && (
+                          <Typography color={theme.palette.text.secondary}>
+                            {pricingOption === 'annual' ? 'year' : 'month'}
+                          </Typography>
+                        )}
+                      </Stack>
+                      <Stack spacing={2}>
+                        <PlanInfoRow text="Unlimited users" />
+                      </Stack>
+                      <Box flexGrow={1} />
+                      {/* <CardActions sx={{ justifyContent: 'flex-end', padding: 4 }}>
+                    <Link
+                      to={item.callToAction.path}
+                      style={{
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <Button
+                        size={'large'}
+                        variant={'contained'}
+                        sx={{
+                          textDecoration: 'none',
+                        }}
+                      >
+                        {item.callToAction.text}
+                      </Button>
+                    </Link>
+                  </CardActions> */}
+                    </Stack>
+                  </Box>
+                </Grid>
+              ))
+            )}
+          </Grid>
+          <div>
+            <CallToClickLink
+              text="Full pricing and add-ons"
+              link={ROUTES.plansAndPricing}
+            />
+          </div>
+        </Stack>
+      </Container>
+    </Box>
+  )
+}

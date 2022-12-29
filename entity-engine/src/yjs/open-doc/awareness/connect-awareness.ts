@@ -4,7 +4,6 @@ import {
   userAsTeam,
 } from '@apiteam/types'
 import type { Team, Membership } from '@prisma/client'
-import { url as gravatarUrl } from 'gravatar'
 
 import { getReadRedis, getSubscribeRedis } from '../../../redis'
 import { handleAddSubscription, globalActiveSubscriptions } from '../../../yjs'
@@ -122,14 +121,6 @@ const createServerAwareness = async ({
     ).filter((userRaw) => userRaw !== null) as string[]
 
     const users = usersRaw.map((userRaw) => userAsTeam(JSON.parse(userRaw)))
-
-    users.forEach((user) => {
-      if (!user.profilePicture) {
-        user.profilePicture = gravatarUrl(user.email, {
-          default: 'mp',
-        })
-      }
-    })
 
     const lastOnlineTimes = [] as LastOnlineTime[]
 

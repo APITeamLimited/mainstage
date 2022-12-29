@@ -28,8 +28,8 @@ export const getSlug = async (
   unformattedName: string,
   i = 0
 ): Promise<string> => {
-  // Remove any non alphanumeric characters
-  const name = unformattedName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+  // Filter to only alphanumeric characters
+  const name = unformattedName.replaceAll(/[^a-zA-Z0-9]/g, '')
 
   const toCheck = `${name}${i > 0 ? i : ''}`
 

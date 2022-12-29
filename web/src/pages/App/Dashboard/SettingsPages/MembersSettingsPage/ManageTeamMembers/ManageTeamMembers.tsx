@@ -1,12 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import {
-  Alert,
   Box,
   Card,
   Divider,
   Skeleton,
-  Snackbar,
   Stack,
   Typography,
   useTheme,
@@ -24,10 +22,6 @@ import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { MEMBERS_CARD_HEIGHT } from '../MembersSettingsPage'
 
 import { MemberRow } from './MemberRow'
-
-type ManageTeamMembersProps = {
-  teamId: string
-}
 
 export const LIST_TEAM_MEMBERS = gql`
   query ListTeamMembers($teamId: String!) {
@@ -48,6 +42,10 @@ export const LIST_TEAM_MEMBERS = gql`
   }
 `
 
+type ManageTeamMembersProps = {
+  teamId: string
+}
+
 export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
   const theme = useTheme()
   const workspaceInfo = useWorkspaceInfo()
@@ -63,13 +61,6 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
       variables: { teamId },
       pollInterval: 5000,
     }
-  )
-
-  const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
-    null
-  )
-  const [snackSuccessMessage, setSnackSuccessMessage] = useState<string | null>(
-    null
   )
 
   if (!userRole) return null
@@ -106,52 +97,30 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
   if (workspaceInfo === null) return null
 
   return (
-    <>
-      <Snackbar
-        open={!!snackErrorMessage}
-        onClose={() => setSnackErrorMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="error" sx={{ width: '100%' }}>
-          {snackErrorMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={!!snackSuccessMessage}
-        onClose={() => setSnackSuccessMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="success" sx={{ width: '100%' }}>
-          {snackSuccessMessage}
-        </Alert>
-      </Snackbar>
-      <Card
+    <Card
+      sx={{
+        minHeight: MEMBERS_CARD_HEIGHT,
+      }}
+    >
+      <Stack
+        spacing={2}
         sx={{
-          minHeight: MEMBERS_CARD_HEIGHT,
+          p: 2,
         }}
       >
-        <Stack
-          spacing={2}
-          sx={{
-            p: 2,
-          }}
-        >
-          <Typography variant="h6" fontWeight="bold">
-            Team Members
-          </Typography>
-          <Divider />
-          {data.memberships.map((membership, index) => (
-            <MemberRow
-              key={index}
-              membership={membership}
-              userRole={userRole as ScopeRole}
-              currentUserId={workspaceInfo.scope.userId}
-              setSnackSuccessMessage={setSnackSuccessMessage}
-              setSnackErrorMessage={setSnackErrorMessage}
-            />
-          ))}
-        </Stack>
-      </Card>
-    </>
+        <Typography variant="h6" fontWeight="bold">
+          Team Members
+        </Typography>
+        <Divider />
+        {data.memberships.map((membership, index) => (
+          <MemberRow
+            key={index}
+            membership={membership}
+            userRole={userRole as ScopeRole}
+            currentUserId={workspaceInfo.scope.userId}
+          />
+        ))}
+      </Stack>
+    </Card>
   )
 }

@@ -105,8 +105,8 @@ export const DeleteAccountCard = ({
             Delete Account
           </Typography>
           <Typography variant="body2" color={theme.palette.background.paper}>
-            Deletes your APITeam account and all of its data. Make sure you do
-            not own any accounts before deleting your account.
+            Deletes your APITeam account and all of its data. Make sure
+            you&apos;re not the owner of any teams before deleting your account.
           </Typography>
           <Divider color={theme.palette.background.paper} />
           <Box

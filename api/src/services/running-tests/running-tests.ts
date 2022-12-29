@@ -3,8 +3,7 @@ import { RunningTestInfo } from '@apiteam/types'
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { coreCacheReadRedis } from 'src/lib/redis'
-
-import { checkMember } from '../teams/validators/check-member'
+import { checkMember } from 'src/services/guards'
 
 export const runningTests = async ({ teamId }: { teamId: string | null }) => {
   if (!context.currentUser) throw new ServiceValidationError('Not logged in.')

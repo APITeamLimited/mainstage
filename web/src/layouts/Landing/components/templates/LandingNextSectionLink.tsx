@@ -4,7 +4,7 @@ import { CallToClickLink } from '../CallToClickLink'
 
 type LandingNextSectionLinkProps = {
   primaryText: string
-  secondaryText: string
+  secondaryText?: string
   callToClickLink: {
     text: string
     link: string
@@ -28,15 +28,17 @@ export const LandingNextSectionLink = ({
       >
         {primaryText}
       </Typography>
-      <Typography
-        sx={{
-          color: theme.palette.text.secondary,
-          marginBottom: 2,
-        }}
-        variant="h6"
-      >
-        {secondaryText}
-      </Typography>
+      {secondaryText && (
+        <Typography
+          sx={{
+            color: theme.palette.text.secondary,
+            marginBottom: 2,
+          }}
+          variant="h6"
+        >
+          {secondaryText}
+        </Typography>
+      )}
       <CallToClickLink {...callToClickLink} />
     </Box>
   )
