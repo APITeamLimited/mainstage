@@ -1,0 +1,66 @@
+import { ServiceValidationError } from '@redwoodjs/api'
+
+import { getFreePlanInfo } from 'src/helpers/billing'
+import { PlanInfoModel, TeamModel, UserModel } from 'src/models'
+
+import { checkAuthenticated, checkMember } from '../guards'
+
+export const currentPlan = async ({ teamId }: { teamId: string }) => {
+  if (teamId) {
+    await checkMember({ teamId })
+  }
+
+  return teamId ? getPlanInfoTeam({ teamId }) : getPlanInfoUser()
+}
+
+const getPlanInfoTeam = async ({ teamId }: { teamId: string }) => {
+  const team = await TeamModel.get(teamId)
+
+  if (!team) {
+    throw new ServiceValidationError(`Team not found with id ${teamId}`)
+  }
+
+  if (team.planInfoId) {
+    const planInfo = await PlanInfoModel.get(team.planInfoId)
+
+    if (!planInfo) {
+      throw new Error('Plan info not found')
+    }
+
+    return planInfo
+  }
+
+  // Create new plan info assume on free plan
+  const freePlanInfo = await getFreePlanInfo()
+
+  // Set the plan info on the team
+  await TeamModel.update(teamId, {
+    planInfoId: freePlanInfo.id,
+  })
+
+  return freePlanInfo
+}
+
+const getPlanInfoUser = async () => {
+  const currentUser = await checkAuthenticated()
+
+  if (currentUser.planInfoId) {
+    const planInfo = await PlanInfoModel.get(currentUser.planInfoId)
+
+    if (!planInfo) {
+      throw new Error('Plan info not found')
+    }
+
+    return planInfo
+  }
+
+  // Create new plan info assume on free plan
+  const freePlanInfo = await getFreePlanInfo()
+
+  // Set the plan info on the user
+  await UserModel.update(currentUser.id, {
+    planInfoId: freePlanInfo.id,
+  })
+
+  return freePlanInfo
+}

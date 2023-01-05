@@ -25,11 +25,6 @@
         "email": "support@apiteam.cloud"
       },
       "sendgridAPIKey": "${SENDGRID_API_KEY}"
-    },
-    "stripe": {
-      "publishableKey": "${STRIPE_PUBLISHABLE_KEY}",
-      "secretKey": "${STRIPE_SECRET_KEY}",
-      "webhookSecret": "${STRIPE_WEBHOOK_SECRET}"
     }
   },
   "coreCache": {
@@ -101,5 +96,10 @@
   "recaptcha": {
     "siteKey": "${RECAPTCHA_SITE_KEY}",
     "secretKey": "${RECAPTCHA_SECRET_KEY}"
+  },
+  "stripe": {
+    "publishableKey": "${STRIPE_PUBLISHABLE_KEY}",
+    "secretKey": "${STRIPE_SECRET_KEY}",
+    "webhookSecret": "${STRIPE_WEBHOOK_SECRET}"
   }
 }

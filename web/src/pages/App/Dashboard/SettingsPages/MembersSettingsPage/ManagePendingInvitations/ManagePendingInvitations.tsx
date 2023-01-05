@@ -1,12 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import {
-  Alert,
   Box,
   Card,
   Divider,
   Skeleton,
-  Snackbar,
   Stack,
   Typography,
   useTheme,
@@ -58,14 +56,6 @@ export const ManagePendingInvitations = ({
     refetch()
   }, [invitionsSentCount, refetch])
 
-  const [snackSuccessMessage, setSnackSuccessMessage] = useState<string | null>(
-    null
-  )
-
-  const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
-    null
-  )
-
   if (error) {
     return (
       <Card
@@ -96,74 +86,52 @@ export const ManagePendingInvitations = ({
   if (!data) return <Skeleton width="100%" height={MEMBERS_CARD_HEIGHT} />
 
   return (
-    <>
-      <Snackbar
-        open={!!snackErrorMessage}
-        onClose={() => setSnackErrorMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="error" sx={{ width: '100%' }}>
-          {snackErrorMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={!!snackSuccessMessage}
-        onClose={() => setSnackSuccessMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="success" sx={{ width: '100%' }}>
-          {snackSuccessMessage}
-        </Alert>
-      </Snackbar>
-      <Card
-        sx={{
-          minHeight: MEMBERS_CARD_HEIGHT,
-        }}
-      >
-        {data.invitations.length === 0 ? (
-          <Box
-            sx={{
-              height: MEMBERS_CARD_HEIGHT,
-            }}
-          >
-            <Stack
-              spacing={2}
-              sx={{ p: 2, height: '100%' }}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Typography variant="h6" color="textPrimary">
-                No pending invitations yet
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                When you invite someone to your team, they will appear here
-              </Typography>
-            </Stack>
-          </Box>
-        ) : (
+    <Card
+      sx={{
+        minHeight: MEMBERS_CARD_HEIGHT,
+      }}
+    >
+      {data.invitations.length === 0 ? (
+        <Box
+          sx={{
+            height: MEMBERS_CARD_HEIGHT,
+          }}
+        >
           <Stack
             spacing={2}
-            sx={{
-              p: 2,
-            }}
+            sx={{ p: 2, height: '100%' }}
+            alignItems="center"
+            justifyContent="center"
           >
-            <Typography variant="h6" fontWeight="bold">
-              Pending Invitations
+            <Typography variant="h6" color="textPrimary">
+              No pending invitations yet
             </Typography>
-            <Divider />
-            {data.invitations.map((invitation, index) => (
-              <ManageInvitationRow
-                key={index}
-                invitation={invitation}
-                teamId={teamId}
-                refetch={refetch}
-                setSnackSuccessMessage={setSnackSuccessMessage}
-                setSnackErrorMessage={setSnackErrorMessage}
-              />
-            ))}
+            <Typography variant="body2" color="textSecondary">
+              When you invite someone to your team, they will appear here
+            </Typography>
           </Stack>
-        )}
-      </Card>
-    </>
+        </Box>
+      ) : (
+        <Stack
+          spacing={2}
+          sx={{
+            p: 2,
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold">
+            Pending Invitations
+          </Typography>
+          <Divider />
+          {data.invitations.map((invitation, index) => (
+            <ManageInvitationRow
+              key={index}
+              invitation={invitation}
+              teamId={teamId}
+              refetch={refetch}
+            />
+          ))}
+        </Stack>
+      )}
+    </Card>
   )
 }

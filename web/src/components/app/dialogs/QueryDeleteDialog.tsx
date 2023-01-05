@@ -1,11 +1,6 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-} from '@mui/material'
+import { Button, DialogContentText } from '@mui/material'
+
+import { CustomDialog } from 'src/components/custom-mui'
 
 type QueryDeleteDialogProps = {
   show: boolean
@@ -24,33 +19,34 @@ export const QueryDeleteDialog = ({
   description = 'Are you sure you want to delete this?',
   deleteButtonLabel = 'Delete',
 }: QueryDeleteDialogProps) => (
-  <Dialog
+  <CustomDialog
     open={show}
     onClose={onClose}
-    aria-labelledby={title}
-    aria-describedby={description}
     maxWidth="xs"
     fullWidth
+    shrinkable
+    title={title}
+    padBody
+    dialogActions={
+      <>
+        <Button onClick={onClose} variant="contained" color="secondary">
+          Cancel
+        </Button>
+        <Button
+          onClick={() => {
+            onClose()
+            onDelete()
+          }}
+          // eslint-disable-next-line jsx-a11y/no-autofocus
+          autoFocus
+          variant="contained"
+          color="error"
+        >
+          {deleteButtonLabel}
+        </Button>
+      </>
+    }
   >
-    <DialogTitle>{title}</DialogTitle>
-    <DialogContent>
-      <DialogContentText>{description}</DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <Button onClick={onClose} color="secondary">
-        Cancel
-      </Button>
-      <Button
-        onClick={() => {
-          onClose()
-          onDelete()
-        }}
-        // eslint-disable-next-line jsx-a11y/no-autofocus
-        autoFocus
-        color="error"
-      >
-        {deleteButtonLabel}
-      </Button>
-    </DialogActions>
-  </Dialog>
+    <DialogContentText>{description}</DialogContentText>
+  </CustomDialog>
 )

@@ -10,6 +10,8 @@ export type ForgotPasswordData = {
   resetLink: string
 }
 
+export const forgotPasswordMessageType = 'MANDATORY'
+
 export const ForgotPassword = (input: MailmanInput<ForgotPasswordData>) => {
   const {
     data: { firstName, resetLink },
@@ -18,7 +20,7 @@ export const ForgotPassword = (input: MailmanInput<ForgotPasswordData>) => {
   return (
     <BaseMessageLayout
       title={forgotPasswordTitle(input)}
-      messageType="MANDATORY"
+      messageType={forgotPasswordMessageType}
     >
       <Typography
         variant="h6"

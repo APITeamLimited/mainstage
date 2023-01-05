@@ -78,7 +78,6 @@ export const SideTabManager = ({
               }
             } else if (requiredRole === 'ADMIN') {
               if (role !== 'ADMIN' && role !== 'OWNER') {
-                console.log('not admin or owner', workspaceInfo)
                 isActive && navigate(basePath)
                 return null
               }

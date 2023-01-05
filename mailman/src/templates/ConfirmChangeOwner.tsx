@@ -14,6 +14,8 @@ export type ConfirmChangeOwnerData = {
   teamName: string
 }
 
+export const confirmChangeOwnerMessageType = 'MANDATORY'
+
 export const ConfirmChangeOwner = (
   input: MailmanInput<ConfirmChangeOwnerData>
 ) => {
@@ -31,7 +33,7 @@ export const ConfirmChangeOwner = (
   return (
     <BaseMessageLayout
       title={confirmChangeOwnerTitle(input)}
-      messageType="MANDATORY"
+      messageType={confirmChangeOwnerMessageType}
     >
       <Typography
         variant="h6"

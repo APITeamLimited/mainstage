@@ -41,6 +41,7 @@ export const TopBarDashboard = () => {
         activeSecondaryEndpoints: [
           routes.settingsWorkspaceMembers(),
           routes.settingsWorkspaceDangerZone(),
+          routes.settingsWorkspaceBilling(),
         ],
       },
     ]

@@ -1,4 +1,8 @@
-import { APITeamModel, GetManyFilteredMixin } from '@apiteam/types'
+import {
+  APITeamModel,
+  GetManyFilteredMixin,
+  IndexedFieldMixin,
+} from '@apiteam/types'
 import type Stripe from 'stripe'
 
 import { ServiceValidationError } from '@redwoodjs/api'
@@ -7,19 +11,24 @@ import { stripe } from 'src/lib/stripe'
 
 export type SetupIntentCreateInput = {
   customerId: string
+  paymentMethodId?: string
 }
 
 export type SetupIntent = Stripe.SetupIntent
+
+type SetupIntentIndexableFields = 'id' | 'payment_method' | 'customer'
 
 export const SetupIntentModel: Omit<
   APITeamModel<SetupIntentCreateInput, never, SetupIntent>,
   'update'
 > &
-  GetManyFilteredMixin<SetupIntent, 'customer'> = {
+  GetManyFilteredMixin<SetupIntent, SetupIntentIndexableFields> &
+  IndexedFieldMixin<SetupIntent, SetupIntentIndexableFields> = {
   create: async (input) => {
     return stripe.setupIntents.create({
       customer: input.customerId,
       payment_method_types: ['card'],
+      payment_method: input.paymentMethodId,
       confirm: true,
       usage: 'off_session',
     })
@@ -59,5 +68,39 @@ export const SetupIntentModel: Omit<
         [key]: filterValue,
       })
       .then((result) => result.data)
+  },
+  getIndexedField: async (key, value) => {
+    if (!value) {
+      throw new ServiceValidationError('Indexed field value required')
+    }
+
+    if (typeof value !== 'string') {
+      throw new ServiceValidationError(
+        `Indexed field value must be a string, received ${typeof value}`
+      )
+    }
+
+    return stripe.setupIntents
+      .list({
+        [key]: value,
+      })
+      .then((result) => result.data[0])
+  },
+  indexedFieldExists: async (key, value) => {
+    if (!value) {
+      throw new ServiceValidationError('Indexed field value required')
+    }
+
+    if (typeof value !== 'string') {
+      throw new ServiceValidationError(
+        `Indexed field value must be a string, received ${typeof value}`
+      )
+    }
+
+    return stripe.setupIntents
+      .list({
+        [key]: value,
+      })
+      .then((result) => result.data.length > 0)
   },
 }

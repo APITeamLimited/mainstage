@@ -5,21 +5,27 @@ export const baseThemeOptions: ThemeOptions = {
   typography: {
     // Old theme uses poppins, roboto maybe?
     // Reckon inter has an edge over the others
-    fontFamily:
-      'Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji',
-    //fontFamily: 'Manrope, sans-serif',
+    //fontFamily:
+    //  'Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,goe UI Symbol,Noto Color Emoji',
+    fontFamily: 'Roboto, Manrope, sans-serif',
     fontSize: 16,
+
+    // Maybe just on headings, but then it is inconsistent
+
     h1: {
+      fontFamily: 'Roboto',
       fontSize: '3.5rem',
       lineHeight: 3,
       fontWeight: 500,
     },
     h2: {
+      fontFamily: 'Roboto',
       fontSize: '2.625rem',
       lineHeight: 2.265,
       fontWeight: 500,
     },
     h3: {
+      fontFamily: 'Roboto',
       fontSize: `${28 / 16}rem`,
       lineHeight: 1.75,
       fontWeight: 500,

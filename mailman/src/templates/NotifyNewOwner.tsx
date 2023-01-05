@@ -11,6 +11,8 @@ export type NotifyNewOwnerData = {
   teamName: string
 }
 
+export const notifyNewOwnerMessageType = 'MANDATORY'
+
 export const NotifyNewOwner = (input: MailmanInput<NotifyNewOwnerData>) => {
   const {
     data: { teamName, targetName, oldOwnerName },
@@ -19,7 +21,7 @@ export const NotifyNewOwner = (input: MailmanInput<NotifyNewOwnerData>) => {
   return (
     <BaseMessageLayout
       title={NotifyNewOwnerTitle(input)}
-      messageType="MANDATORY"
+      messageType={notifyNewOwnerMessageType}
     >
       <Typography
         variant="h6"

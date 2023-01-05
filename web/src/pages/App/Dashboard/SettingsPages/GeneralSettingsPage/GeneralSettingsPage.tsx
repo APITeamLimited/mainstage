@@ -3,7 +3,8 @@ import { useMemo } from 'react'
 import { Workspace } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
-import { Button, Stack, useTheme } from '@mui/material'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { Button, Card, Stack, Typography, useTheme } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -52,6 +53,44 @@ const GeneralSettingsTab = ({ workspaceInfo }: GeneralSettingsTabProps) => {
             <>
               <ChangeTeamNameCard workspaceInfo={workspaceInfo} />
               <ChangeTeamSlugCard workspaceInfo={workspaceInfo} />
+              <Card>
+                <Stack
+                  direction="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Stack spacing={2} p={2}>
+                    <Typography variant="h6" fontWeight="bold">
+                      Personal Settings
+                    </Typography>
+                    <Typography variant="body2">
+                      Looking for your personal account settings?
+                    </Typography>
+                    <div>
+                      <Button
+                        variant="outlined"
+                        onClick={() => {
+                          navigatePersonalSettings({
+                            workspaces,
+                            activeWorkspaceId,
+                          })
+                        }}
+                        endIcon={<ChevronRightIcon />}
+                      >
+                        Go to your personal account settings
+                      </Button>
+                    </div>
+                  </Stack>
+                  <AccountCircleIcon
+                    sx={{
+                      marginRight: 2,
+                      width: 40,
+                      height: 40,
+                      color: theme.palette.action.disabled,
+                    }}
+                  />
+                </Stack>
+              </Card>
             </>
           ) : (
             <>

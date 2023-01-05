@@ -42,8 +42,6 @@ export const fetchToken = async ({
 
   const body: Record<string, string> = {
     grant_type: getCorrectGrantType(grantType),
-    client_id: clientID,
-    client_secret: clientSecret,
     redirect_uri: redirectURI,
     code,
   }
@@ -55,6 +53,8 @@ export const fetchToken = async ({
   if (clientAuthentication === 'body') {
     body['client_id'] = clientID
     body['client_secret'] = clientSecret
+
+    console.log('body', body)
   }
 
   const reponse = await axios({
@@ -67,11 +67,15 @@ export const fetchToken = async ({
       ...authHeaders,
     },
     data: new URLSearchParams(body).toString(),
+
+    // Allow all response codes to be handled by the catch block
+    validateStatus: () => true,
   }).catch((error) => {
     throw new ServiceValidationError(error)
   })
 
   if (reponse.status !== 200 && reponse.status !== 201) {
+    console.log('response', reponse)
     throw new ServiceValidationError(
       `Error getting access token: ${reponse.status} ${reponse.statusText}`
     )

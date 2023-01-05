@@ -4,8 +4,10 @@ import { AVAILABLE_LOAD_ZONES } from '../graph'
 
 export type AbstractPlanInfoCreateInput = Omit<
   Prisma.PlanInfoCreateInput,
-  'productId' | 'monthlyPriceId' | 'yearlyPriceId'
->
+  'productId' | 'monthlyPriceId' | 'yearlyPriceId' | 'loadZones'
+> & {
+  loadZones: string[]
+}
 
 export type AbstractPlanInfoUpdateInput = Omit<
   Prisma.PlanInfoUpdateInput,
@@ -32,9 +34,9 @@ export const DEFAULT_PRICING_PLANS: AbstractPlanInfoCreateInput[] = [
     priceYearlyCents: 0,
     maxMembers: 10,
     maxConcurrentCloudTests: 5,
+    maxConcurrentScheduledTests: 0,
     monthlyCredits: 10000,
     loadZones: ['europe-west2', 'us-west2'],
-    testSchedulingEnabled: false,
     maxTestDurationMinutes: 10,
     maxSimulatedUsers: 500,
     dataRetentionMonths: 1,
@@ -50,8 +52,8 @@ export const DEFAULT_PRICING_PLANS: AbstractPlanInfoCreateInput[] = [
     maxMembers: -1,
     loadZones: [...AVAILABLE_LOAD_ZONES],
     maxConcurrentCloudTests: 10,
+    maxConcurrentScheduledTests: 5,
     monthlyCredits: 50000,
-    testSchedulingEnabled: true,
     maxTestDurationMinutes: 50,
 
     maxSimulatedUsers: 10000,

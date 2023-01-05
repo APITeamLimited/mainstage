@@ -43,9 +43,9 @@ const PLAN_INFOS_QUERY = gql`
       description
       maxMembers
       maxConcurrentCloudTests
+      maxConcurrentScheduledTests
       monthlyCredits
       loadZones
-      testSchedulingEnabled
       maxTestDurationMinutes
       dataRetentionMonths
       maxSimulatedUsers
@@ -168,6 +168,9 @@ export const PricingOverview = ({
                     borderTopRightRadius: isPaid ? 0 : theme.shape.borderRadius,
 
                     height: `calc(100% - ${theme.spacing(16)})`,
+                    borderColor: planInfo.freeTrialDays
+                      ? theme.palette.success.light
+                      : undefined,
                   }}
                 >
                   <Stack spacing={mediumPanelSpacing}>
@@ -228,6 +231,9 @@ export const PricingOverview = ({
                         text={`${planInfo.maxConcurrentCloudTests} max concurrent cloud tests`}
                       />
                       <PlanInfoRow
+                        text={`${planInfo.loadZones.length} load zones`}
+                      />
+                      <PlanInfoRow
                         text={`${planInfo.maxTestDurationMinutes} minutes maximum test duration`}
                       />
                       <PlanInfoRow
@@ -237,11 +243,15 @@ export const PricingOverview = ({
                       />
                       <PlanInfoRow
                         text={
-                          planInfo.testSchedulingEnabled
-                            ? 'Test scheduling'
+                          planInfo.maxConcurrentScheduledTests
+                            ? `${planInfo.maxConcurrentScheduledTests} max concurrent scheduled tests`
                             : 'No test scheduling'
                         }
-                        icon={planInfo.testSchedulingEnabled ? 'tick' : 'cross'}
+                        icon={
+                          planInfo.maxConcurrentScheduledTests > 0
+                            ? 'tick'
+                            : 'cross'
+                        }
                       />
                     </Stack>
                   </Stack>
@@ -293,10 +303,11 @@ const formatPlanInfo = (
       maxSimulatedUsers: planInfo.maxSimulatedUsers,
       monthlyCredits: planInfo.monthlyCredits,
       maxConcurrentCloudTests: planInfo.maxConcurrentCloudTests,
+      maxConcurrentScheduledTests: planInfo.maxConcurrentScheduledTests,
       maxTestDurationMinutes: planInfo.maxTestDurationMinutes,
       dataRetentionMonths: planInfo.dataRetentionMonths,
-      testSchedulingEnabled: planInfo.testSchedulingEnabled,
       freeTrialDays: planInfo.freeTrialDays,
+      loadZones: planInfo.loadZones,
     }))
     .sort((a, b) => a.priceMonthlyCents - b.priceMonthlyCents)
 }

@@ -10,6 +10,8 @@ export type ConfirmAccountDeleteData = {
   targetName: string
 }
 
+export const confirmAccountDeleteMessageType = 'MANDATORY'
+
 export const ConfirmAccountDelete = (
   input: MailmanInput<ConfirmAccountDeleteData>
 ) => {
@@ -21,7 +23,7 @@ export const ConfirmAccountDelete = (
   return (
     <BaseMessageLayout
       title={confirmAccountDeleteTitle(input)}
-      messageType="MANDATORY"
+      messageType={confirmAccountDeleteMessageType}
     >
       <Typography
         variant="h6"

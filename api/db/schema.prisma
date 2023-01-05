@@ -46,9 +46,10 @@ model User {
 
   // Stripe and billing
   customerId String?
-
   planInfo   PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
   planInfoId String?
+
+  freeCreditsAddedAt DateTime?
 }
 
 model Team {
@@ -67,6 +68,8 @@ model Team {
   customerId String?
   planInfo   PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
   planInfoId String?
+
+  freeCreditsAddedAt DateTime?
 }
 
 model Membership {
@@ -165,14 +168,15 @@ model PlanInfo {
   description String?
 
   // Plan Features
-  maxMembers              Int
-  maxConcurrentCloudTests Int
-  monthlyCredits          Int
-  loadZones               String[]
-  testSchedulingEnabled   Boolean
-  maxTestDurationMinutes  Int
-  dataRetentionMonths     Int
-  maxSimulatedUsers       Int
+  maxMembers                  Int
+  maxConcurrentCloudTests     Int
+  maxConcurrentScheduledTests Int
+
+  monthlyCredits         Int
+  loadZones              String[]
+  maxTestDurationMinutes Int
+  dataRetentionMonths    Int
+  maxSimulatedUsers      Int
 
   // Pricing and stripe
   priceMonthlyCents Int

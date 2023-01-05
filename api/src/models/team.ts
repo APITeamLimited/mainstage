@@ -30,6 +30,13 @@ export type AbstractCreateTeamInput = {
   owner: UserAsPersonal
 }
 
+export type AbstractUpdateTeamInput = Omit<
+  Prisma.TeamUncheckedUpdateInput,
+  'name'
+> & {
+  name?: string
+}
+
 // Memberships aren't independent enough to justify their own model
 type MembershipsMixin = {
   getOwnerMembership: (teamId: string) => Promise<Membership>
@@ -40,7 +47,7 @@ type MembershipsMixin = {
 
 export const TeamModel: APITeamModel<
   AbstractCreateTeamInput,
-  Prisma.TeamUpdateInput,
+  AbstractUpdateTeamInput,
   Team
 > &
   GetOrCreateCustomerIdMixin &
@@ -63,6 +70,12 @@ export const TeamModel: APITeamModel<
     return createdTeam
   },
   update: async (id, input) => {
+    const oldTeam = await TeamModel.get(id)
+
+    if (!oldTeam) {
+      throw new ServiceValidationError(`Team not found with id '${id}'`)
+    }
+
     const updatedTeam = await db.team.update({
       where: {
         id,
@@ -74,7 +87,7 @@ export const TeamModel: APITeamModel<
 
     const memberships = await db.membership.findMany({
       where: {
-        teamId: id,
+        teamId: String,
       },
     })
 
@@ -101,6 +114,18 @@ export const TeamModel: APITeamModel<
       })
     )
 
+    const customerId = await TeamModel.getOrCreateCustomerId(updatedTeam.id)
+
+    const customer = await CustomerModel.get(customerId)
+
+    if (!customer) {
+      throw new Error(`Customer not found with id '${customerId}'`)
+    }
+
+    if (input.name && oldTeam.name === customer.name) {
+      await CustomerModel.update(customerId, { name: input.name })
+    }
+
     return updatedTeam
   },
   delete: async (id) => {
@@ -121,7 +146,7 @@ export const TeamModel: APITeamModel<
 
     const invitations = await db.invitation.findMany({
       where: {
-        teamId: id,
+        teamId: String,
       },
       select: {
         id: true,
@@ -134,7 +159,7 @@ export const TeamModel: APITeamModel<
 
     const memberships = await db.membership.findMany({
       where: {
-        teamId: id,
+        teamId: String,
       },
     })
 
@@ -236,8 +261,9 @@ export const TeamModel: APITeamModel<
 
     const customer = await CustomerModel.create({
       email: ownerUser.email,
-      variant: 'USER',
+      variant: 'TEAM',
       variantTargetId: team.id,
+      name: team.name,
     })
 
     await TeamModel.update(id, {

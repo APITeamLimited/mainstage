@@ -89,7 +89,8 @@ export const useRefetchScopesCallback = () =>
 const AwarenessContext = createContext<ServerAwareness | null>(null)
 export const useServerAwareness = () => useContext(AwarenessContext)
 
-const WorkspaceInfoContext = createContext<Workspace | null>(null)
+// @ts-ignore
+const WorkspaceInfoContext = createContext<Workspace>(null)
 export const useWorkspaceInfo = () => useContext(WorkspaceInfoContext)
 
 type SyncReadyStatus = {

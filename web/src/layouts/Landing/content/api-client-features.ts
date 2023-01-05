@@ -13,7 +13,7 @@ export const apiClientFeaturesMinimal: FeatureOverviewElement[] = [
     icon: CloudIcon,
     title: 'Fully Featured API Client',
     description:
-      'Our real-time, cross-platform web based editor is free to use for an unlimited number of users, with all work automatically being saved to the cloud.',
+      'Our real-time, cross-platform web based editor is free to use, with all work automatically being synced to the cloud.',
     image: {
       light: require('public/img/splash/collection-editor-light.png'),
       dark: require('public/img/splash/collection-editor-dark.png'),

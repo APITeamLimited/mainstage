@@ -53,8 +53,7 @@ const DangerZoneSettingsTab = ({
   )
 }
 
-export const DangerZoneSettingsPage = () => {
-  const basePath = useMemo(() => routes.settingsWorkspace(), [])
+const DangerZoneSettingsPage = () => {
   const workspaceInfo = useWorkspaceInfo()
 
   const prettyType = useMemo(() => {
@@ -73,7 +72,10 @@ export const DangerZoneSettingsPage = () => {
     <>
       <MetaTags title={prettyType} />
       <DashboardPageFrame title={prettyType}>
-        <SideTabManager basePath={basePath} possibleTabs={SETTINGS_TABS}>
+        <SideTabManager
+          basePath={routes.settingsWorkspace()}
+          possibleTabs={SETTINGS_TABS}
+        >
           <DangerZoneSettingsTab workspaceInfo={workspaceInfo} />
         </SideTabManager>
       </DashboardPageFrame>

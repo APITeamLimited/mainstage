@@ -1,4 +1,3 @@
-import { Workspace } from '@apiteam/types/src'
 import {
   Stack,
   Card,
@@ -129,10 +128,6 @@ export const ChangePersonalNameCard = () => {
             <Button
               variant="contained"
               color="primary"
-              sx={{
-                color: theme.palette.background.paper,
-                borderColor: theme.palette.background.paper,
-              }}
               type="submit"
               disabled={formik.isSubmitting}
             >

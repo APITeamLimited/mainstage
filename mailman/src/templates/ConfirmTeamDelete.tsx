@@ -11,6 +11,8 @@ export type ConfirmTeamDeleteData = {
   teamName: string
 }
 
+export const confirmTeamDeleteMessageType = 'MANDATORY'
+
 export const ConfirmTeamDelete = (
   input: MailmanInput<ConfirmTeamDeleteData>
 ) => {
@@ -21,7 +23,7 @@ export const ConfirmTeamDelete = (
   return (
     <BaseMessageLayout
       title={confirmTeamDeleteTitle(input)}
-      messageType="MANDATORY"
+      messageType={confirmTeamDeleteMessageType}
     >
       <Typography
         variant="h6"

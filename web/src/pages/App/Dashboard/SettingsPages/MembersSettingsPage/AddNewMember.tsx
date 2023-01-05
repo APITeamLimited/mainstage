@@ -225,7 +225,7 @@ export const AddNewMember = ({
             )}
             <Box>
               <Button
-                startIcon={<ControlPointIcon />}
+                endIcon={<ControlPointIcon />}
                 variant="outlined"
                 onClick={() => {
                   formik.setFieldValue('pairs', [

@@ -11,8 +11,8 @@ import { extendedApiClientFeatures } from 'src/layouts/Landing/content/api-clien
 
 const title = 'API Client'
 const descriptions = [
-  'Our real-time, cross-platform web based editor is free to use for an unlimited number of users.',
-  'All work is automatically saved to the cloud.',
+  'Our real-time, cross-platform web based editor is free to use.',
+  'All work is automatically synced to the cloud.',
 ]
 
 const APIClientPage = () => (

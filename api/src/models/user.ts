@@ -28,14 +28,17 @@ import { dispatchEmail } from 'src/lib/mailman'
 import { coreCacheReadRedis } from 'src/lib/redis'
 import { scanPatternDelete } from 'src/utils'
 
-import { CustomerModel } from './billing'
+import { CustomerModel, CustomerUpdateInput } from './billing'
 import { ScopeModel } from './scope'
 
 type GetDangerousMixin<ObjectType> = {
   getDangerous: (id: string) => Promise<ObjectType | null>
 }
 
-export type AbstractUserUpdateInput = Omit<Prisma.UserUpdateInput, 'email'> & {
+export type AbstractUserUpdateInput = Omit<
+  Prisma.UserUncheckedUpdateInput,
+  'email'
+> & {
   email?: string
 }
 
@@ -86,10 +89,37 @@ export const UserModel: APITeamModel<
     })
 
     // If email has changed, update the email on the customer
-    if (updatedUser.customerId && input.email) {
-      await CustomerModel.update(updatedUser.customerId, {
-        email: input.email,
-      })
+    if (updatedUser.customerId) {
+      const oldUser = await UserModel.get(id)
+
+      if (!oldUser) {
+        throw new Error(`User with id ${id} not found`)
+      }
+
+      const customer = await CustomerModel.get(updatedUser.customerId)
+
+      if (!customer) {
+        throw new Error(`Customer with id ${updatedUser.customerId} not found`)
+      }
+
+      const updatePayload = {} as CustomerUpdateInput
+
+      // Check not using custom invoice email
+      if (input.email && oldUser.email === customer.email) {
+        updatePayload['email'] = input.email
+      }
+
+      if (
+        ((input.firstName && oldUser.firstName !== input.firstName) ||
+          (input.lastName && oldUser.lastName !== input.lastName)) &&
+        customer.name === `${oldUser.firstName} ${oldUser.lastName}`
+      ) {
+        updatePayload['name'] = `${input.firstName} ${input.lastName}`
+      }
+
+      if (Object.keys(updatePayload).length > 0) {
+        await CustomerModel.update(updatedUser.customerId, updatePayload)
+      }
     }
 
     const memberships = await db.membership.findMany({
@@ -276,6 +306,7 @@ export const UserModel: APITeamModel<
       email: user.email,
       variant: 'USER',
       variantTargetId: user.id,
+      name: `${user.firstName} ${user.lastName}`,
     })
 
     await UserModel.update(id, {

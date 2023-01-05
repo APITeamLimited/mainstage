@@ -65,6 +65,8 @@ export const OAuth2AuthForm = ({
 
     const validationResult = await validateOAuth2Data(auth, apolloClient)
 
+    console.log(validationResult.parseResult)
+
     if (!validationResult.parseResult.success) {
       snackErrorMessageVar(
         prettyZodError(validationResult.parseResult.error).message

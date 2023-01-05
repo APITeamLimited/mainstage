@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import Typed from 'react-typed'
 
+import { mediumPanelSpacing } from 'src/layouts/Landing/components/constants'
 import { SignUpOrContinueButton } from 'src/layouts/Landing/components/SignUpOrContinueButton'
 
 type TypedIntroProps = {
@@ -43,20 +44,21 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
             minHeight: '80vh',
           }}
         >
-          <Box
-            maxWidth="100%"
+          <Stack
+            spacing={mediumPanelSpacing}
             sx={{
               // Overlaps with the preview images
               zIndex: 1,
+              maxWidth: '100%',
             }}
           >
             <Typography
               variant="h1"
               color={theme.palette.text.primary}
-              gutterBottom
               sx={{
-                fontWeight: 700,
+                fontWeight: 800,
                 lineHeight: 1.2,
+                fontSize: { xs: '3.5rem', sm: '5rem' },
               }}
             >
               Build APIs
@@ -84,17 +86,12 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
                 />
               </Typography>
             </Typography>
-            <Typography
-              variant="h6"
-              color="text.secondary"
-              sx={{ fontWeight: 400 }}
-            >
+            <Typography variant="h5" color={theme.palette.text.secondary}>
               APITeam is an all in one platform for designing, testing and
               scaling APIs collaboratively
             </Typography>
             <Stack
-              spacing={2}
-              marginTop={2}
+              spacing={mediumPanelSpacing}
               direction={{
                 xs: 'column',
                 sm: 'row',
@@ -122,7 +119,7 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
                 </Button>
               </div>
             </Stack>
-          </Box>
+          </Stack>
         </Stack>
       </Container>
       <Box

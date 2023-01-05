@@ -117,10 +117,6 @@ export const DeleteAccountCard = ({
             <Button
               variant="outlined"
               color="error"
-              sx={{
-                color: theme.palette.background.paper,
-                borderColor: theme.palette.background.paper,
-              }}
               onClick={() => setShowDeleteConfirmation(true)}
             >
               Delete Account

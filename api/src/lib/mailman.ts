@@ -24,6 +24,8 @@ sgMail.setApiKey(checkValue<string>('api.mail.sendgridAPIKey'))
 export const dispatchEmail = async (input: MailmanInput<unknown>) => {
   const jobId = uuid()
 
+  // TODO: Abort if user opted out of emails
+
   await Promise.all([
     mailmanReadRedis.hSet(jobId, 'id', jobId),
     mailmanReadRedis.hSet(jobId, 'input', JSON.stringify(input)),

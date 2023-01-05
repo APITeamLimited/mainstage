@@ -3,6 +3,8 @@ import {
   NotifyOldOwnerData,
   NotifyNewOwnerData,
 } from '@apiteam/mailman'
+import { UserAsPersonal } from '@apiteam/types'
+import { Team } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
@@ -17,9 +19,9 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
+import { CustomerModel } from 'src/models'
 import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
-
 import { checkOwner } from 'src/services/guards'
 
 const issuer = checkValue<string>('api.bearer.issuer')
@@ -171,6 +173,8 @@ export const handleChangeOwner = async ({ token }: { token: string }) => {
   }
 
   await Promise.all([
+    checkIfNeedChangeCustomerEmail(oldOwner, newOwner, team),
+
     updateMembership(oldOwnerMembership, 'ADMIN', team, oldOwner),
     updateMembership(newOwnerMembership, 'OWNER', team, newOwner),
   ])
@@ -205,4 +209,26 @@ export const handleChangeOwner = async ({ token }: { token: string }) => {
   ])
 
   return true
+}
+
+const checkIfNeedChangeCustomerEmail = async (
+  oldOwner: UserAsPersonal,
+  newOwner: UserAsPersonal,
+  team: Team
+) => {
+  if (!team.customerId) {
+    return
+  }
+
+  const customer = await CustomerModel.get(team.customerId)
+
+  if (!customer) {
+    throw new Error('Customer not found')
+  }
+
+  if (customer.email === oldOwner.email) {
+    await CustomerModel.update(team.customerId, {
+      email: newOwner.email,
+    })
+  }
 }

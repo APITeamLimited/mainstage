@@ -1,53 +1,87 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { TeamModel, UserModel } from 'src/models/'
+import { PaymentMethodModel } from 'src/models/billing/payment-method'
 import { SetupIntentModel } from 'src/models/billing/setup-intent'
 
 import { checkAuthenticated, checkOwnerAdmin } from '../guards'
 
-type SetupIntentResponse = {
-  setupIntentId?: string
-  redirectUri?: string
+export const setupIntents = async ({ teamId }: { teamId?: string }) => {
+  const user = await checkAuthenticated()
+
+  if (teamId) {
+    await checkOwnerAdmin({ teamId })
+  }
+
+  const customerId = await (teamId
+    ? TeamModel.getOrCreateCustomerId(teamId)
+    : UserModel.getOrCreateCustomerId(user.id))
+
+  return SetupIntentModel.getManyFiltered('customer', customerId)
 }
 
-export const createSetupIntent = async ({
+export const setupIntent = async ({
   teamId,
+  setupIntentId,
+}: {
+  teamId?: string
+  setupIntentId: string
+}) => {
+  const user = await checkAuthenticated()
+
+  if (teamId) {
+    await checkOwnerAdmin({ teamId })
+  }
+
+  const customerId = await (teamId
+    ? TeamModel.getOrCreateCustomerId(teamId)
+    : UserModel.getOrCreateCustomerId(user.id))
+
+  const setupIntent = await SetupIntentModel.get(setupIntentId)
+
+  if (!setupIntent || setupIntent.customer !== customerId) {
+    throw new ServiceValidationError(
+      `SetupIntent with id ${setupIntentId} not found on customer profile`
+    )
+  }
+
+  return setupIntent
+}
+
+export const createOrUpdateSetupIntent = async ({
+  teamId,
+  paymentMethodId,
 }: {
   teamId: string
-}): Promise<SetupIntentResponse> => {
+  paymentMethodId: string
+}) => {
   const userId = (await checkAuthenticated()).id
 
   if (teamId) {
     await checkOwnerAdmin({ teamId })
   }
 
-  const team = teamId ? await TeamModel.get(teamId) : null
-
-  if (teamId && !team) {
-    throw new ServiceValidationError(`Team with id ${teamId} not found`)
-  }
-
   const customerId = await (teamId
     ? TeamModel.getOrCreateCustomerId(teamId)
     : UserModel.getOrCreateCustomerId(userId))
 
-  const setupIntent = await SetupIntentModel.create({ customerId })
+  const paymentMethod = await PaymentMethodModel.get(paymentMethodId)
 
-  // Check for redirect status
-  if (
-    !setupIntent.next_action ||
-    !setupIntent.next_action.redirect_to_url ||
-    !setupIntent.next_action.redirect_to_url.url
-  ) {
-    return {
-      setupIntentId: setupIntent.id,
-    }
+  if (!paymentMethod || paymentMethod.customer !== customerId) {
+    throw new ServiceValidationError(
+      `PaymentMethod with id ${paymentMethodId} not found on customer profile`
+    )
   }
 
-  return {
-    setupIntentId: setupIntent.id,
-    redirectUri: setupIntent.next_action.redirect_to_url.url,
-  }
+  const existingSetupIntent = await SetupIntentModel.getIndexedField(
+    'payment_method',
+    paymentMethodId
+  )
+
+  return (
+    existingSetupIntent ??
+    SetupIntentModel.create({ customerId, paymentMethodId })
+  )
 }
 
 export const deleteSetupIntent = async ({
@@ -63,17 +97,15 @@ export const deleteSetupIntent = async ({
     await checkOwnerAdmin({ teamId })
   }
 
-  const team = teamId ? await TeamModel.get(teamId) : null
-
-  if (teamId && !team) {
-    throw new ServiceValidationError(`Team with id ${teamId} not found`)
-  }
+  const customerId = await (teamId
+    ? TeamModel.getOrCreateCustomerId(teamId)
+    : UserModel.getOrCreateCustomerId(user.id))
 
   // Ensure customer id matches the one on the setup intent
+
   const setupIntent = await SetupIntentModel.get(setupIntentId).catch(
     () => null
   )
-  const customerId = team ? team.customerId : user.customerId
 
   if (setupIntent === null || setupIntent.customer !== customerId) {
     throw new ServiceValidationError(
@@ -84,22 +116,4 @@ export const deleteSetupIntent = async ({
   await SetupIntentModel.delete(setupIntentId)
 
   return true
-}
-
-export const setupIntents = async ({ teamId }: { teamId?: string }) => {
-  const user = await checkAuthenticated()
-
-  if (teamId) {
-    await checkOwnerAdmin({ teamId })
-  }
-
-  const team = teamId ? await TeamModel.get(teamId) : null
-
-  if (teamId && !team) {
-    throw new ServiceValidationError(`Team with id ${teamId} not found`)
-  }
-
-  const customerId = team ? team.customerId : user.customerId
-
-  return SetupIntentModel.getManyFiltered('customer', customerId)
 }

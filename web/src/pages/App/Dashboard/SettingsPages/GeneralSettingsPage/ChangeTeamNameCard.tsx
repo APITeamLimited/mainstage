@@ -6,7 +6,6 @@ import {
   Card,
   Divider,
   Typography,
-  useTheme,
   TextField,
   Button,
   Box,
@@ -37,7 +36,6 @@ const UPDATE_TEAM_NAME_MUTATION = gql`
 export const ChangeTeamNameCard = ({
   workspaceInfo,
 }: ChangeTeamNameCardProps) => {
-  const theme = useTheme()
   const refetchScopes = useRefetchScopesCallback()
 
   const formik = useFormik({
@@ -114,10 +112,6 @@ export const ChangeTeamNameCard = ({
               <Button
                 variant="contained"
                 color="primary"
-                sx={{
-                  color: theme.palette.background.paper,
-                  borderColor: theme.palette.background.paper,
-                }}
                 type="submit"
                 disabled={formik.isSubmitting}
               >

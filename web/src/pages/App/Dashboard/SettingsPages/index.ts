@@ -8,6 +8,12 @@ export const SETTINGS_TABS = [
     teamOnly: false,
   },
   {
+    label: 'billing',
+    displayName: 'Billing',
+    requiredRole: 'ADMIN',
+    teamOnly: false,
+  },
+  {
     label: 'members',
     displayName: 'Members',
     requiredRole: 'ADMIN',

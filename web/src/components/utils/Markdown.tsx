@@ -68,6 +68,8 @@ export const defaultMarkdownOverrides = {
   },
 }
 
+export type MarkdownOverrides = typeof defaultMarkdownOverrides
+
 export const Markdown = (props: MuiMarkdownProps) => {
   const [markdownModule, setMarkdownModule] =
     useState<MuiMarkdownModule | null>(null)

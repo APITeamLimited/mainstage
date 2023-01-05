@@ -5,11 +5,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 import { coreCacheReadRedis } from 'src/lib/redis'
 
 export const checkOwner = async ({ teamId }: { teamId: string }) => {
-  if (!context.currentUser) {
-    throw new ServiceValidationError(
-      'You must be logged in to access this resource.'
-    )
-  }
+  const currentUser = await checkAuthenticated()
 
   const currentUserMembership = (
     Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
@@ -20,7 +16,7 @@ export const checkOwner = async ({ teamId }: { teamId: string }) => {
         return JSON.parse(value)
       }) as Membership[]
   )
-    .filter((membership) => membership.userId === context.currentUser?.id)
+    .filter((membership) => membership.userId === currentUser.id)
     .shift()
 
   if (!currentUserMembership) {
@@ -41,15 +37,7 @@ export const checkOwnerAdmin = async ({
 }: {
   teamId: string | undefined
 }) => {
-  if (!context.currentUser) {
-    throw new ServiceValidationError(
-      'You must be logged in to access this resource.'
-    )
-  }
-
-  if (!teamId) {
-    throw new ServiceValidationError('Team id is required.')
-  }
+  const currentUser = await checkAuthenticated()
 
   const currentUserMembership = (
     Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
@@ -60,7 +48,7 @@ export const checkOwnerAdmin = async ({
         return JSON.parse(value)
       }) as Membership[]
   )
-    .filter((membership) => membership.userId === context.currentUser?.id)
+    .filter((membership) => membership.userId === currentUser.id)
     .shift()
 
   if (!currentUserMembership) {
@@ -85,15 +73,7 @@ export const checkMember = async ({
 }: {
   teamId: string | undefined
 }) => {
-  if (!context.currentUser) {
-    throw new ServiceValidationError(
-      'You must be logged in to access this resource.'
-    )
-  }
-
-  if (!teamId) {
-    throw new ServiceValidationError('Team id is required.')
-  }
+  const currentUser = await checkAuthenticated()
 
   const currentUserMembership = (
     Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
@@ -104,7 +84,7 @@ export const checkMember = async ({
         return JSON.parse(value)
       }) as Membership[]
   )
-    .filter((membership) => membership.userId === context.currentUser?.id)
+    .filter((membership) => membership.userId === currentUser.id)
     .shift()
 
   if (!currentUserMembership) {

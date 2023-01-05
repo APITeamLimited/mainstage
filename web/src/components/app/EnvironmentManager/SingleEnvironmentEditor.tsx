@@ -155,7 +155,6 @@ export const SingleEnvironmentEditor = ({
         maxWidth="lg"
         title={`Environment - ${environmentYMap.get('name')}`}
         actionArea={actionArea}
-        disableScroll
         dialogActions={
           <>
             <Button

@@ -13,10 +13,15 @@ export type CustomerCreateInput = {
   variantTargetId: string
   variant: 'USER' | 'TEAM'
   email: string
+  address?: Stripe.AddressParam
+  name?: string
 }
 
 export type CustomerUpdateInput = {
-  email: string
+  email?: string
+  address?: Stripe.AddressParam
+  name?: string
+  defaultSourceId?: string
 }
 
 export type Customer = Stripe.Customer
@@ -29,6 +34,8 @@ export const CustomerModel: APITeamModel<
   create: async (input) => {
     return stripe.customers.create({
       email: input.email,
+      address: input.address ?? '',
+      name: input.name ?? '',
       metadata: {
         variant: input.variant,
         variantTargetId: input.variantTargetId,
@@ -44,6 +51,9 @@ export const CustomerModel: APITeamModel<
 
     return stripe.customers.update(id, {
       email: input.email,
+      address: input.address,
+      name: input.name,
+      default_source: input.defaultSourceId,
     })
   },
   delete: async (id) => {

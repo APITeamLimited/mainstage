@@ -9,9 +9,9 @@ export const schema = gql`
     description: String!
     maxMembers: Int!
     maxConcurrentCloudTests: Int!
+    maxConcurrentScheduledTests: Int!
     monthlyCredits: Int!
     loadZones: [String!]!
-    testSchedulingEnabled: Boolean!
     maxTestDurationMinutes: Int!
     dataRetentionMonths: Int!
     maxSimulatedUsers: Int!

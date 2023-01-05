@@ -4,7 +4,7 @@ import type Stripe from 'stripe'
 import { checkValue } from 'src/config'
 import { stripe } from 'src/lib/stripe'
 
-const webhookSecret = checkValue<string>('api.stripe.webhookSecret')
+const webhookSecret = checkValue<string>('stripe.webhookSecret')
 
 export const handler = async (event: APIGatewayProxyEvent, _: never) => {
   const error = await handleWebhookEvent(event)

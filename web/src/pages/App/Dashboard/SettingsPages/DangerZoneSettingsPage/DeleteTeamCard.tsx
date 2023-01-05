@@ -116,11 +116,15 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
             <Button
               variant="outlined"
               color="error"
-              sx={{
-                color: theme.palette.background.paper,
-                borderColor: theme.palette.background.paper,
-              }}
               onClick={() => setShowDeleteConfirmation(true)}
+              sx={{
+                borderColor: theme.palette.background.paper,
+                color: theme.palette.background.paper,
+                '&:hover': {
+                  borderColor: theme.palette.background.paper,
+                  color: theme.palette.background.paper,
+                },
+              }}
             >
               Delete Team
             </Button>
