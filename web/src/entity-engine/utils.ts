@@ -72,6 +72,7 @@ export const processAuthData = ({
           displayName: scope.displayName,
           profilePicture: scope.profilePicture ?? null,
           slug: scope.slug,
+          planName: scope.planName,
         },
         remote: true,
         isTeam: false,
@@ -95,6 +96,7 @@ export const processAuthData = ({
           displayName: scope.displayName,
           profilePicture: scope.profilePicture ?? null,
           slug: scope.slug,
+          planName: scope.planName,
         },
         remote: true,
         isTeam: true,
@@ -177,6 +179,7 @@ export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
       displayName
       profilePicture
       slug
+      planName
     }
   }
 `
@@ -196,6 +199,7 @@ export const GET_SCOPES_QUERY = gql`
       displayName
       profilePicture
       slug
+      planName
     }
   }
 `

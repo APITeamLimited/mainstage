@@ -58,7 +58,8 @@
     "start-store": "cd store && yarn start",
     "start-web": "yarn rw serve web",
     "start-api": "cd api && yarn start",
-    "lint": "prettier-eslint --write '**/*.ts'"
+    "lint": "prettier-eslint --write '**/*.ts'",
+    "stripe-dev": "stripe listen --forward-to http://localhost:1007/api/stripe-webhook"
   },
   "packageManager": "yarn@3.2.1",
   "dependencies": {

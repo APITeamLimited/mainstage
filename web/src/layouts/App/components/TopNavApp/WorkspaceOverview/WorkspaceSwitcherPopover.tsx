@@ -18,6 +18,7 @@ import {
 
 import { routes } from '@redwoodjs/router'
 
+import { PlanChip } from 'src/components/app/utils/PlanChip'
 import { activeWorkspaceIdVar, workspacesVar } from 'src/contexts/reactives'
 
 import { CreateTeamDialog } from './CreateTeamDialog'
@@ -196,6 +197,10 @@ export const WorkspaceSwitcherPopover = ({
                           >
                             {scope.displayName}
                           </Typography>
+                          <PlanChip
+                            name={workspace.scope.planName}
+                            hideIfFree
+                          />
                         </Stack>
                         {isActive && <CheckIcon fontSize="small" />}
                       </Stack>

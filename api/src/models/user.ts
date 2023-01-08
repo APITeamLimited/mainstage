@@ -8,7 +8,7 @@ import {
   userAsPersonal,
   GetOrCreateCustomerIdMixin,
 } from '@apiteam/types'
-import { Prisma, User } from '@prisma/client'
+import type { Prisma, User, PlanInfo } from '@prisma/client'
 import { url as gravatarUrl } from 'gravatar'
 
 import { ServiceValidationError } from '@redwoodjs/api'
@@ -18,6 +18,7 @@ import {
   createTeamScope,
   deleteMembership,
 } from 'src/helpers'
+import { getFreePlanInfo } from 'src/helpers/billing'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
@@ -25,25 +26,33 @@ import {
 import { db } from 'src/lib/db'
 import { gatewayUrl } from 'src/lib/environment'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { coreCacheReadRedis, creditsReadRedis } from 'src/lib/redis'
 import { scanPatternDelete } from 'src/utils'
 
-import { CustomerModel, CustomerUpdateInput } from './billing'
+import { CustomerModel, CustomerUpdateInput, PlanInfoModel } from './billing'
 import { ScopeModel } from './scope'
 
 type GetDangerousMixin<ObjectType> = {
   getDangerous: (id: string) => Promise<ObjectType | null>
 }
 
+export type AbstractUserCreateInput = Omit<
+  Prisma.UserUncheckedCreateInput,
+  'planInfoId'
+> & {
+  planInfoId?: string
+}
+
 export type AbstractUserUpdateInput = Omit<
   Prisma.UserUncheckedUpdateInput,
-  'email'
+  'email' | 'planInfoId'
 > & {
   email?: string
+  planInfoId?: string
 }
 
 export const UserModel: APITeamModel<
-  Prisma.UserCreateInput,
+  AbstractUserCreateInput,
   AbstractUserUpdateInput,
   UserAsPersonal
 > &
@@ -58,13 +67,23 @@ export const UserModel: APITeamModel<
       })
     }
 
+    const freePlanInfo = await getFreePlanInfo()
+    input.planInfoId = freePlanInfo.id
+
     const createdUser = await db.user.create({
       data: input,
     })
 
     await Promise.all([
       setUserRedis(createdUser),
-      createPersonalScope(userAsPersonal(createdUser)),
+      createPersonalScope(userAsPersonal(createdUser), freePlanInfo),
+
+      // Add initial free credits
+      await createFreeCredits(
+        createdUser.id,
+        freePlanInfo,
+        createdUser.pastDue
+      ),
 
       dispatchEmail({
         to: createdUser.email,
@@ -87,6 +106,19 @@ export const UserModel: APITeamModel<
       where: { id },
       data: input,
     })
+
+    if ('planInfoId' in input && input.planInfoId) {
+      const planInfo = await PlanInfoModel.get(input.planInfoId)
+
+      if (!planInfo) {
+        throw new ServiceValidationError(
+          `PlanInfo not found with id '${input.planInfoId}'`
+        )
+      }
+
+      // Update credits
+      await createFreeCredits(updatedUser.id, planInfo, updatedUser.pastDue)
+    }
 
     // If email has changed, update the email on the customer
     if (updatedUser.customerId) {
@@ -138,31 +170,51 @@ export const UserModel: APITeamModel<
       )
     )
 
+    const planInfo = updatedUser.planInfoId
+      ? await PlanInfoModel.get(updatedUser.planInfoId)
+      : await getFreePlanInfo()
+
+    if (!planInfo) {
+      throw new Error(`PlanInfo not found with id ${updatedUser.planInfoId}`)
+    }
+
     await Promise.all([
       setUserRedis(updatedUser),
 
       // Personal and team scopes will need updating
-      createPersonalScope(userAsPersonal(updatedUser)),
+      createPersonalScope(userAsPersonal(updatedUser), planInfo),
 
-      teams.map((team) => {
-        if (!team) {
-          throw new ServiceValidationError(
-            `Team not found for user with id ${id}`
+      Promise.all([
+        teams.map(async (team) => {
+          if (!team) {
+            throw new ServiceValidationError(
+              `Team not found for user with id ${id}`
+            )
+          }
+
+          const membership = memberships.find(
+            (membership) => membership.teamId === team.id
           )
-        }
 
-        const membership = memberships.find(
-          (membership) => membership.teamId === team.id
-        )
+          if (!membership) {
+            throw new ServiceValidationError(
+              `Membership not found for user with id ${id} and team with id ${team.id}`
+            )
+          }
 
-        if (!membership) {
-          throw new ServiceValidationError(
-            `Membership not found for user with id ${id} and team with id ${team.id}`
-          )
-        }
+          const planInfo = team.planInfoId
+            ? await PlanInfoModel.get(team.planInfoId)
+            : await getFreePlanInfo()
 
-        return createTeamScope(team, membership, updatedUser)
-      }),
+          if (!planInfo) {
+            throw new Error(
+              `PlanInfo not found with id ${updatedUser.planInfoId}`
+            )
+          }
+
+          return createTeamScope(team, membership, updatedUser, planInfo)
+        }),
+      ]),
     ])
 
     return updatedUser
@@ -185,6 +237,10 @@ export const UserModel: APITeamModel<
     // Delete memberships first
     await Promise.all(memberships.map(deleteMembership))
 
+    await creditsReadRedis.del(`user:${id}:freeCredits`)
+    await creditsReadRedis.del(`user:${id}:maxFreeCredits`)
+    await creditsReadRedis.del(`user:${id}:paidCredits`)
+
     const user = await db.user.delete({
       where: { id },
     })
@@ -203,6 +259,9 @@ export const UserModel: APITeamModel<
 
       coreCacheReadRedis.del(`user__id:${user.id}`),
       coreCacheReadRedis.del(`user__email:${user.email}`),
+
+      // Delete credits
+      await creditsReadRedis.del(`user:${id}`),
 
       dispatchEmail({
         to: user.email,
@@ -343,4 +402,29 @@ const setUserRedis = async (user: User) => {
   )
 
   return cachedUser
+}
+
+const createFreeCredits = async (
+  userId: string,
+  planInfo: PlanInfo,
+  pastDue: boolean
+) => {
+  if (pastDue) {
+    // If the team is past due, don't add free credits
+    return
+  }
+
+  await Promise.all([
+    // Reset free credits
+    creditsReadRedis.set(`user:${userId}:freeCredits`, planInfo.monthlyCredits),
+
+    creditsReadRedis.set(
+      `user:${userId}:maxFreeCredits`,
+      planInfo.monthlyCredits
+    ),
+
+    UserModel.update(userId, {
+      freeCreditsAddedAt: new Date(),
+    }),
+  ])
 }

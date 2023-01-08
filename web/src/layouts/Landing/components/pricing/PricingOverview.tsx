@@ -27,6 +27,7 @@ import {
   smallPanelSpacing,
 } from '../constants'
 import { SignUpOrContinueButton } from '../SignUpOrContinueButton'
+import { SignUpThenBuyButton } from '../SignUpThenBuyButton'
 
 import { PlanInfoRow } from './PlanInfoRow'
 
@@ -202,7 +203,11 @@ export const PricingOverview = ({
                       )}
                     </Stack>
                     {isPaid ? (
-                      <Typography>per user</Typography>
+                      <SignUpThenBuyButton
+                        size="medium"
+                        fullWidth
+                        buyRoute={ROUTES.settingsWorkspaceBilling}
+                      />
                     ) : (
                       <SignUpOrContinueButton size="medium" fullWidth />
                     )}

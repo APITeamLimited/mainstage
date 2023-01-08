@@ -15,6 +15,10 @@ export type UserAsPersonal = {
   emailMarketing: boolean
   customerId: string | null
   planInfoId: string | null
+  subscriptionId: string | null
+  hadFreeTrial: boolean
+  freeCreditsAddedAt: Date | null
+  pastDue: boolean
 }
 
 export type UserAsTeam = {
@@ -51,6 +55,10 @@ export const userAsPersonal = (user: User): UserAsPersonal => ({
   emailMarketing: user.emailMarketing,
   customerId: user.customerId,
   planInfoId: user.planInfoId,
+  subscriptionId: user.subscriptionId,
+  hadFreeTrial: user.hadFreeTrial,
+  freeCreditsAddedAt: user.freeCreditsAddedAt,
+  pastDue: user.pastDue,
 })
 
 export const userAsTeam = (user: User): UserAsTeam => ({

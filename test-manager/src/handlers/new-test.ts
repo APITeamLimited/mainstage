@@ -24,6 +24,8 @@ import {
   getVerifiedDomains,
   runningTestStates,
   handleMessage,
+  getPlanInfo,
+  getAvailableCredits,
 } from './helpers'
 
 export const getRemoteTestLogsKey = (jobId: string) => `${jobId}:updates`
@@ -32,10 +34,17 @@ export const getRemoteTestUpdatesKey = (jobId: string) =>
 
 // Creates a new test and streams the result
 export const handleNewTest = async (socket: AuthenticatedSocket) => {
-  const coreCacheReadRedis = await getCoreCacheReadRedis()
-  const coreCacheSubscribeRedis = await getCoreCacheSubscribeRedis()
-  const orchestratorReadRedis = await getOrchestratorReadRedis()
-  const orchestratorSubscribeRedis = await getOrchestratorSubscribeRedis()
+  const [
+    coreCacheReadRedis,
+    coreCacheSubscribeRedis,
+    orchestratorReadRedis,
+    orchestratorSubscribeRedis,
+  ] = await Promise.all([
+    getCoreCacheReadRedis(),
+    getCoreCacheSubscribeRedis(),
+    getOrchestratorReadRedis(),
+    getOrchestratorSubscribeRedis(),
+  ])
 
   let params = null as WrappedExecutionParams | null
 
@@ -52,9 +61,28 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
 
   const runningTestKey = `workspace-cloud-tests:${socket.scope.variant}:${socket.scope.variantTargetId}`
 
+  const [planinfo, runningCloudTestsCount, availableCredits] =
+    await Promise.all([
+      getPlanInfo(socket.scope),
+      coreCacheReadRedis.hLen(runningTestKey),
+      getAvailableCredits(socket.scope),
+    ])
+
   // Check workspace hasn't already got too many tests already running
-  if ((await coreCacheReadRedis.hLen(runningTestKey)) >= 5) {
-    socket.emit('error', 'Your workspace can only run 5 tests at once')
+  if (runningCloudTestsCount >= planinfo.maxConcurrentCloudTests) {
+    socket.emit(
+      'error',
+      `You can only run ${planinfo.maxConcurrentCloudTests} tests at once on your plan ${planinfo.verboseName}`
+    )
+    socket.disconnect()
+    return
+  }
+
+  if (availableCredits <= 0) {
+    socket.emit(
+      'error',
+      `You don't have any credits left to run tests. Please top up your account.`
+    )
     socket.disconnect()
     return
   }
@@ -97,6 +125,9 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     funcModeInfo: {
       instance100msUnitRate: 1,
     },
+    permittedLoadZones: planinfo.loadZones,
+    maxTestDurationMinutes: planinfo.maxTestDurationMinutes,
+    maxSimulatedUsers: planinfo.maxSimulatedUsers,
   }
 
   // Start stream before scheduling to ensure all messages are received

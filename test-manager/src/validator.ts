@@ -2,6 +2,7 @@ import {
   ExecutionParams,
   RESTRequest,
   WrappedExecutionParams,
+  wrappedExecutionParamsSchema,
 } from '@apiteam/types'
 import Ajv from 'ajv'
 import { ParsedQuery } from 'query-string'
@@ -88,6 +89,7 @@ const schema = {
 
 const validate = ajv.compile(schema)
 
+// TODO: Migrate to zod
 export const validateParams = (
   params: ParsedQuery<string>
 ): WrappedExecutionParams => {

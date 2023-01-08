@@ -12,6 +12,7 @@ import {
 import { useQuery } from '@redwoodjs/web'
 
 import { GlobeTestIcon } from 'src/components/utils/Icons'
+import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { StatusBarItem } from '../StatusBarItem'
@@ -28,6 +29,7 @@ export const refetchRunningCountVar = makeVar(0)
 
 export const RunningCloudTestsIndicator = () => {
   const workspaceInfo = useWorkspaceInfo()
+  const planInfo = usePlanInfo()
 
   const teamId = useMemo(
     () =>
@@ -44,7 +46,7 @@ export const RunningCloudTestsIndicator = () => {
     variables: {
       teamId,
     },
-    pollInterval: 2000,
+    pollInterval: 10000,
   })
 
   const refetchRunningCount = useReactiveVar(refetchRunningCountVar)
@@ -56,7 +58,7 @@ export const RunningCloudTestsIndicator = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false)
 
-  if (!data) {
+  if (!data || !planInfo) {
     return <Skeleton variant="rectangular" width={175.47} height={22} />
   }
 
@@ -65,7 +67,7 @@ export const RunningCloudTestsIndicator = () => {
       <StatusBarItem
         icon={GlobeTestIcon}
         tooltip="Cloud tests"
-        text={`${data.runningTestsCount}/5 Running Cloud Tests`}
+        text={`${data.runningTestsCount}/${planInfo.maxConcurrentCloudTests} Running Cloud Tests`}
         onClick={() => setDialogOpen(true)}
       />
       <RunningCloudTestsDialog

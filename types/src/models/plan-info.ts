@@ -45,7 +45,7 @@ export const DEFAULT_PRICING_PLANS: AbstractPlanInfoCreateInput[] = [
     name: 'Pro',
     verboseName: 'APITeam Pro',
     description:
-      'For temas that want to scale their projects with unlimited members and greater load testing capabilities',
+      'For teams that want to scale their projects with unlimited members and greater load testing capabilities',
     priceMonthlyCents: 2900,
     priceYearlyCents: 29000,
     freeTrialDays: 14,

@@ -1,5 +1,5 @@
-import { setUserRedis } from 'api/src/helpers/user'
 import { db } from 'api/src/lib/db'
+import { UserModel } from 'api/src/models'
 import yargs from 'yargs/yargs'
 
 export default async () => {
@@ -17,12 +17,7 @@ export default async () => {
     throw new Error(`User not found: ${argv['email']}`)
   }
 
-  const updatedUser = await db.user.update({
-    where: { id: user.id },
-    data: { isAdmin: true },
-  })
-
-  await setUserRedis(updatedUser)
+  await UserModel.update(user.id, { isAdmin: true })
 
   console.log(`User ${user.email} is now an admin.`)
 }

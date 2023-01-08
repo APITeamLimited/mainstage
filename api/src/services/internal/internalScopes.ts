@@ -2,7 +2,7 @@ import { validateWith } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
 
-import { checkInternal } from '../check-internal'
+import { checkInternal } from '../guards'
 
 export const internalScope = async ({
   id,

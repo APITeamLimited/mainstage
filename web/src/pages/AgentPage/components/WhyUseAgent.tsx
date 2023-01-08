@@ -15,9 +15,9 @@ type OverviewItem = {
 const overviewMessages: OverviewItem[] = [
   {
     icon: ComputerIcon,
-    title: 'Debug Locally',
+    title: 'Work Locally',
     description:
-      'Debug your API requests locally with the APITeam Agent. Send requests and run load tests from your local machine.',
+      'Debug your APIs locally with the APITeam Agent. Send requests and run load tests from your local machine.',
   },
   {
     icon: CloudSyncIcon,

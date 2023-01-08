@@ -1,4 +1,8 @@
-import { TemplateIdentifier } from './templates'
+import {
+  TemplateData,
+  TemplateIdentifier,
+  ValidTemplateData,
+} from './templates'
 
 export type MailmanJob = {
   id: string
@@ -7,7 +11,7 @@ export type MailmanJob = {
   output?: MailmanOutput
 }
 
-export type MailmanInput<T> = {
+export type MailmanInput<T extends TemplateData> = {
   data: T
   to: string
   template: TemplateIdentifier

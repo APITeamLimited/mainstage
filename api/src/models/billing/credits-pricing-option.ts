@@ -4,7 +4,7 @@ import {
   AbstractCreditsPricingOptionCreateInput,
   AbstractCreditsPricingOptionUpdateInput,
 } from '@apiteam/types'
-import { Prisma, CreditsPricingOption } from '@prisma/client'
+import type { Prisma, CreditsPricingOption } from '@prisma/client'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'

@@ -3,11 +3,7 @@ import type Stripe from 'stripe'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
 import { stripe } from 'src/lib/stripe'
-
-import { TeamModel } from '../team'
-import { UserModel } from '../user'
 
 export type CustomerCreateInput = {
   variantTargetId: string
@@ -65,22 +61,7 @@ export const CustomerModel: APITeamModel<
 
     await stripe.customers.del(id)
 
-    // Anywhere the customerId is used eg on Team and User, the customerId will remain
-    // so make sure the parent object is deleted first
-
-    const [users, teams] = await Promise.all([
-      db.user.findMany({
-        where: { customerId: id },
-      }),
-      db.team.findMany({
-        where: { customerId: id },
-      }),
-    ])
-
-    await Promise.all([
-      ...users.map((user) => UserModel.update(user.id, { customerId: null })),
-      ...teams.map((team) => TeamModel.update(team.id, { customerId: null })),
-    ])
+    // Customer object will already be deleted so don't update UserModel or TeamModel
 
     return customer
   },

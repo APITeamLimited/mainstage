@@ -101,5 +101,17 @@
     "publishableKey": "${STRIPE_PUBLISHABLE_KEY}",
     "secretKey": "${STRIPE_SECRET_KEY}",
     "webhookSecret": "${STRIPE_WEBHOOK_SECRET}"
+  },
+  "credits-redis": {
+    "userName": "default",
+    "password": "${CREDITS_REDIS_PASSWORD}",
+    "host": "${CREDITS_REDIS_HOST}",
+    "port": "${CREDITS_REDIS_PORT}"
+  },
+  "jobs-redis": {
+    "userName": "default",
+    "password": "${JOBS_REDIS_PASSWORD}",
+    "host": "${JOBS_REDIS_HOST}",
+    "port": "${JOBS_REDIS_PORT}"
   }
 }

@@ -4,7 +4,7 @@ import {
   AbstractPlanInfoCreateInput,
   AbstractPlanInfoUpdateInput,
 } from '@apiteam/types'
-import { Prisma, PlanInfo } from '@prisma/client'
+import type { Prisma, PlanInfo } from '@prisma/client'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'

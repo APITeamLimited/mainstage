@@ -1,6 +1,6 @@
 import { Stack, Paper, useTheme, Box } from '@mui/material'
 
-import { OnlineIndicator } from './OnlineIndicator'
+import { CreditsIndicator } from './credits'
 import { RunningLocalTestsIndicator } from './running-local-tests'
 import { RunningCloudTestsIndicator } from './running-tests'
 
@@ -40,7 +40,7 @@ export const StatusBar = () => {
           }}
         >
           <Stack direction="row" spacing={1}>
-            <OnlineIndicator />
+            <CreditsIndicator />
           </Stack>
           <Stack direction="row" spacing={1}>
             <RunningLocalTestsIndicator />

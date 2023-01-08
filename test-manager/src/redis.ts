@@ -71,3 +71,37 @@ export const getCoreCacheSubscribeRedis = async (): Promise<RedisClient> => {
 
   return coreCacheSubscribeRedis
 }
+
+const creditsUsername = checkValue<string>('credits-redis.userName')
+const creditsPassword = checkValue<string>('credits-redis.password')
+const creditsHost = checkValue<string>('credits-redis.host')
+const creditsPort = checkValue<number>('credits-redis.port')
+
+let creditsReadRedis: RedisClient | null = null
+let creditsSubscribeRedis: RedisClient | null = null
+
+const connectCreditsClient = async () => {
+  const client = createClient({
+    url: `redis://${creditsUsername}:${creditsPassword}@${creditsHost}:${creditsPort}`,
+  })
+
+  await client.connect()
+
+  return client
+}
+
+export const getCreditsReadRedis = async (): Promise<RedisClient> => {
+  if (!creditsReadRedis) {
+    creditsReadRedis = await connectCreditsClient()
+  }
+
+  return creditsReadRedis
+}
+
+export const getCreditsSubscribeRedis = async (): Promise<RedisClient> => {
+  if (!creditsSubscribeRedis) {
+    creditsSubscribeRedis = await connectCreditsClient()
+  }
+
+  return creditsSubscribeRedis
+}

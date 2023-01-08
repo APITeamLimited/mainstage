@@ -5,8 +5,10 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
 import { coreCacheReadRedis } from 'src/lib/redis'
+import { PlanInfoModel } from 'src/models/billing/plan-info'
 import { ScopeModel } from 'src/models/scope'
 
+import { getFreePlanInfo } from './billing'
 import { createTeamScope } from './scopes'
 
 /*
@@ -40,10 +42,18 @@ export const createMembership = async (
     })
   )
 
+  const planInfo = team.planInfoId
+    ? await PlanInfoModel.get(team.planInfoId)
+    : await getFreePlanInfo()
+
+  if (!planInfo) {
+    throw new Error('No plan info found')
+  }
+
   await Promise.all([
     setPromise,
     publishPromise,
-    createTeamScope(team, membership, user),
+    createTeamScope(team, membership, user, planInfo),
   ])
 
   return membership
@@ -138,7 +148,20 @@ export const updateMembership = async (
     })
   )
 
-  const updateTeamScopePromise = createTeamScope(team, updatedMembership, user)
+  const planInfo = team.planInfoId
+    ? await PlanInfoModel.get(team.planInfoId)
+    : await getFreePlanInfo()
+
+  if (!planInfo) {
+    throw new Error('No plan info found')
+  }
+
+  const updateTeamScopePromise = createTeamScope(
+    team,
+    updatedMembership,
+    user,
+    planInfo
+  )
 
   await Promise.all([setPromise, publishPromise, updateTeamScopePromise])
 

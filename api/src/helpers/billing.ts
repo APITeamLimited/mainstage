@@ -1,6 +1,6 @@
 import type Stripe from 'stripe'
 
-import { PlanInfoModel } from 'src/models'
+import { PlanInfoModel } from 'src/models/billing/plan-info'
 
 export const getCustomerBillingDetails = (
   customer: Stripe.Customer

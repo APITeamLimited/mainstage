@@ -1,5 +1,3 @@
-import { useRef } from 'react'
-
 import {
   useTheme,
   useScrollTrigger,
@@ -11,6 +9,7 @@ import {
 import { Head } from '@redwoodjs/web'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
+import { BillingInfoProvider } from 'src/contexts/billing-info'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
 import { LocalTestManagerProvider } from 'src/test-manager/local-test-manager/LocalTestManagerProvider'
@@ -57,49 +56,53 @@ export const AppLayoutBase = ({
         <link rel="icon" type="image/png" href="favicon.png" />
       </Head>
       <EntityEngine>
-        <LocalTestManagerProvider>
-          <DialogsProvider />
-          <ReactiveVarPersistor />
-          <Stack
-            sx={{
-              backgroundColor: theme.palette.background.default,
-              position: 'relative',
-              minHeight: '100vh',
-            }}
-          >
-            {appBar ? (
-              topNav
-            ) : (
-              <CustomAppBar trigger={trigger}>{topNav}</CustomAppBar>
-            )}
-            {appBar && <CustomAppBar trigger={trigger}>{appBar}</CustomAppBar>}
-            <Box
+        <BillingInfoProvider>
+          <LocalTestManagerProvider>
+            <DialogsProvider />
+            <ReactiveVarPersistor />
+            <Stack
               sx={{
-                paddingBottom: {
-                  xs: footer.height.xs,
-                  md: footer.height.md,
-                },
                 backgroundColor: theme.palette.background.default,
+                position: 'relative',
+                minHeight: '100vh',
               }}
             >
-              <main>
-                {onDashboard ? (
-                  <Container
-                    sx={{
-                      paddingY: 6,
-                      minHeight: '94vh',
-                    }}
-                  >
-                    {children}
-                  </Container>
-                ) : (
-                  children
-                )}
-              </main>
-            </Box>
-            {footer.element}
-          </Stack>
-        </LocalTestManagerProvider>
+              {appBar ? (
+                topNav
+              ) : (
+                <CustomAppBar trigger={trigger}>{topNav}</CustomAppBar>
+              )}
+              {appBar && (
+                <CustomAppBar trigger={trigger}>{appBar}</CustomAppBar>
+              )}
+              <Box
+                sx={{
+                  paddingBottom: {
+                    xs: footer.height.xs,
+                    md: footer.height.md,
+                  },
+                  backgroundColor: theme.palette.background.default,
+                }}
+              >
+                <main>
+                  {onDashboard ? (
+                    <Container
+                      sx={{
+                        paddingY: 6,
+                        minHeight: '94vh',
+                      }}
+                    >
+                      {children}
+                    </Container>
+                  ) : (
+                    children
+                  )}
+                </main>
+              </Box>
+              {footer.element}
+            </Stack>
+          </LocalTestManagerProvider>
+        </BillingInfoProvider>
       </EntityEngine>
     </>
   )

@@ -18,6 +18,7 @@ import { BillingAddressCard } from './BillingAddressCard'
 import { BillingAddressProvider } from './BillingAddressProvider'
 import { BillingEmailCard } from './BillingEmailCard'
 import { BillingNameCard } from './BillingNameCard'
+import { CreditsCard } from './CreditsCard'
 import { CurrentPlanCard } from './CurrentPlanCard'
 import { PaymentMethodCard } from './PaymentMethodCard'
 
@@ -59,6 +60,7 @@ const BillingSettingsPage = () => {
         >
           <Stack spacing={4}>
             <CurrentPlanCard />
+            <CreditsCard />
             <BillingAddressCard />
             <PaymentMethodCard />
             <BillingEmailCard />

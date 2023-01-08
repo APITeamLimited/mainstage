@@ -12,6 +12,7 @@ export const schema = gql`
     profilePicture: String
     emailMarketing: Boolean
     slug: String!
+    freeCreditsAddedAt: DateTime
   }
 
   fragment AllUserFields on User {

@@ -12,7 +12,7 @@ type SignUpThenBuyButtonProps = {
   params?: Record<string, string>
 }
 
-export const SignUoThenBuyButton = ({
+export const SignUpThenBuyButton = ({
   size,
   fullWidth,
   buyRoute,
@@ -34,7 +34,7 @@ export const SignUoThenBuyButton = ({
     >
       <Button
         variant="contained"
-        color="success"
+        color="primary"
         size={size}
         fullWidth={fullWidth}
       >
@@ -44,7 +44,7 @@ export const SignUoThenBuyButton = ({
             fontSize: 'normal',
           }}
         >
-          Purchase
+          Buy Now
         </span>
       </Button>
     </Link>

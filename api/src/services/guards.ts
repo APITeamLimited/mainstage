@@ -2,6 +2,7 @@ import { Membership } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
+import { checkValue } from 'src/config'
 import { coreCacheReadRedis } from 'src/lib/redis'
 
 export const checkOwner = async ({ teamId }: { teamId: string }) => {
@@ -104,4 +105,29 @@ export const checkAuthenticated = async () => {
   }
 
   return context.currentUser
+}
+
+/**
+ * Checks a user is an APITeam admin.
+ */
+export const checkAPITeamAdmin = async () => {
+  if (!context.currentUser) {
+    throw new ServiceValidationError(
+      'You must be logged in to access this resource.'
+    )
+  }
+
+  if (!context.currentUser.isAdmin) {
+    throw new ServiceValidationError(
+      'You must be an admin to access this resource.'
+    )
+  }
+}
+
+const INTERNAL_API_KEY = checkValue<string>('api.internalAPIKey')
+
+export const checkInternal = (internalAPIKey: string) => {
+  if (internalAPIKey !== INTERNAL_API_KEY) {
+    throw new Error('Invalid internal API key')
+  }
 }

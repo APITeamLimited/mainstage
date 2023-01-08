@@ -10,6 +10,7 @@ export const schema = gql`
     maxMembers: Int!
     memberships: [Membership!]!
     invitations: [Invitation!]!
+    freeCreditsAddedAt: DateTime
   }
 
   type Query {

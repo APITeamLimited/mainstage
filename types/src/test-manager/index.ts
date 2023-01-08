@@ -61,17 +61,23 @@ const executionParamsSchema = z.object({
     }),
     z.null(),
   ]),
+  permittedLoadZones: z.array(z.string()).optional(),
+  maxTestDurationMinutes: z.number().optional(),
+  maxSimulatedUsers: z.number().optional(),
 })
 
 export type ExecutionParams = z.infer<typeof executionParamsSchema>
 
-const wrappedExecutionParamsSchema = executionParamsSchema
+export const wrappedExecutionParamsSchema = executionParamsSchema
   .omit({
     id: true,
     scope: true,
     verifiedDomains: true,
     createdAt: true,
     funcModeInfo: true,
+    permittedLoadZones: true,
+    maxTestDurationMinutes: true,
+    maxSimulatedUsers: true,
   })
   .extend({
     bearer: z.string(),

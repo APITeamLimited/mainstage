@@ -34,18 +34,18 @@ coreCacheSubscribeRedis.connect()
 
 export { coreCacheReadRedis, coreCacheSubscribeRedis }
 
-// const creditsUsername = checkValue<string>('credits.redis.userName')
-// const creditsPassword = checkValue<string>('credits.redis.password')
-// const creditsHost = checkValue<string>('credits.redis.host')
-// const creditsPort = checkValue<number>('credits.redis.port')
+const creditsUsername = checkValue<string>('credits-redis.userName')
+const creditsPassword = checkValue<string>('credits-redis.password')
+const creditsHost = checkValue<string>('credits-redis.host')
+const creditsPort = checkValue<number>('credits-redis.port')
 
-// const creditsReadRedis = createClient({
-//   url: `redis://${creditsUsername}:${creditsPassword}@${creditsHost}:${creditsPort}`,
-// })
+const creditsReadRedis = createClient({
+  url: `redis://${creditsUsername}:${creditsPassword}@${creditsHost}:${creditsPort}`,
+})
 
-// const creditsSubscribeRedis = creditsReadRedis.duplicate()
+const creditsSubscribeRedis = creditsReadRedis.duplicate()
 
-// creditsReadRedis.connect()
-// creditsSubscribeRedis.connect()
+creditsReadRedis.connect()
+creditsSubscribeRedis.connect()
 
-// export { creditsReadRedis, creditsSubscribeRedis }
+export { creditsReadRedis, creditsSubscribeRedis }

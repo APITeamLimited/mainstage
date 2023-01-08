@@ -24,6 +24,7 @@ export const ROUTES = {
   settingsWorkspaceMembers: '/app/dashboard/settings/members',
   settingsWorkspaceDangerZone: '/app/dashboard/settings/danger-zone',
   settingsWorkspaceBilling: '/app/dashboard/settings/billing',
+  settingsWorkspaceInvoices: '/app/dashboard/settings/invoices',
   domains: '/app/dashboard/domains',
   collectionEditor: '/app/collection',
   admin: '/admin',

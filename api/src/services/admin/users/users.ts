@@ -2,7 +2,7 @@ import * as Yup from 'yup'
 
 import { db } from 'src/lib/db'
 import { UserModel } from 'src/models/user'
-import { checkAdmin } from 'src/services/checkAdmin'
+import { checkAPITeamAdmin } from 'src/services/guards'
 
 import {
   CreateInput,
@@ -28,7 +28,7 @@ type AdminUserCreateInputData = {
 type AdminUserUpdateInputData = Omit<AdminUserCreateInputData, 'isAdmin'>
 
 export const adminUserGetList = async ({ pagination }: GetListInput) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   const { page, perPage } = pagination
 
@@ -48,7 +48,7 @@ export const adminUserGetList = async ({ pagination }: GetListInput) => {
 }
 
 export const adminUserGetOne = async ({ id }: GetOneInput) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   const data = await db.user.findFirst({
     where: {
@@ -62,7 +62,7 @@ export const adminUserGetOne = async ({ id }: GetOneInput) => {
 }
 
 export const adminUserGetMany = async ({ ids }: GetManyInput) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   const data = await db.user.findMany({
     where: {
@@ -78,7 +78,7 @@ export const adminUserGetMany = async ({ ids }: GetManyInput) => {
 }
 
 export const adminUserGetManyReference = async (_: GetManyReferenceInput) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   throw new Error('Not implemented')
 }
@@ -86,7 +86,7 @@ export const adminUserGetManyReference = async (_: GetManyReferenceInput) => {
 export const adminUserCreate = async (
   _: CreateInput<AdminUserCreateInputData>
 ) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   throw new Error('Not implemented')
 }
@@ -95,7 +95,7 @@ export const adminUserUpdate = async ({
   id,
   data,
 }: UpdateInput<AdminUserUpdateInputData>) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   if (data.shortBio) {
     const schema = Yup.string().max(140, 'Must be 140 characters or less')
@@ -127,13 +127,13 @@ export const adminUserUpdate = async ({
 export const adminUserUpdateMany = async (
   _: UpdateInput<AdminUserUpdateInputData>
 ) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   throw new Error('Not implemented')
 }
 
 export const adminUserDelete = async ({ id }: DeleteInput) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   return {
     data: await UserModel.delete(id),
@@ -141,7 +141,7 @@ export const adminUserDelete = async ({ id }: DeleteInput) => {
 }
 
 export const adminUserDeleteMany = async (_: DeleteManyInput) => {
-  await checkAdmin()
+  await checkAPITeamAdmin()
 
   throw new Error('Not implemented')
 }

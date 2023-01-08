@@ -7,10 +7,10 @@ import { MailmanInput } from './lib'
 
 type MailmanProviderProps = {
   children?: React.ReactNode
-  input: MailmanInput<unknown>
+  input: MailmanInput<any>
 }
 
-const DataContext = createContext<MailmanInput<unknown>>(null)
+const DataContext = createContext<MailmanInput<any>>(null)
 export const useInput = () => useContext(DataContext)
 
 export const MailmanProvider = ({ children, input }: MailmanProviderProps) => {

@@ -6,7 +6,9 @@ import { Stack, Tooltip } from '@mui/material'
 import { routes, useLocation } from '@redwoodjs/router'
 
 import { APITeamLogo, LOGO_DEFAULT_HEIGHT } from 'src/components/APITeamLogo'
+import { PlanChip } from 'src/components/app/utils/PlanChip'
 import { TopNavLink } from 'src/components/utils/TopNavLink'
+import { usePlanInfo } from 'src/contexts/billing-info'
 import { TopNavBase } from 'src/layouts/TopNavBase'
 
 import { InviteButton } from './InviteButton'
@@ -20,6 +22,8 @@ export const TopNavApp = () => {
     [pathname]
   )
 
+  const planInfo = usePlanInfo()
+
   return (
     <TopNavBase
       leftZone={
@@ -31,19 +35,22 @@ export const TopNavApp = () => {
             height: '100%',
           }}
         >
-          {!isOnDashboard ? (
-            <Tooltip title="Dashboard">
-              <span
-                style={{
-                  height: LOGO_DEFAULT_HEIGHT,
-                }}
-              >
-                <APITeamLogo />
-              </span>
-            </Tooltip>
-          ) : (
-            <APITeamLogo />
-          )}
+          <Stack direction="row" alignItems="center" spacing={0.5}>
+            {!isOnDashboard ? (
+              <Tooltip title="Dashboard">
+                <span
+                  style={{
+                    height: LOGO_DEFAULT_HEIGHT,
+                  }}
+                >
+                  <APITeamLogo />
+                </span>
+              </Tooltip>
+            ) : (
+              <APITeamLogo />
+            )}
+            {planInfo && <PlanChip name={planInfo.name} hideIfFree />}
+          </Stack>
           {/* {!isOnDashboard && (
             <TopNavLink name="Dashboard" path={ROUTES.dashboard} />
           )} */}

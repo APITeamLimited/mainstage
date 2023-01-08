@@ -1,84 +1,147 @@
 import {
   ConfirmAccountDelete,
+  ConfirmAccountDeleteData,
   confirmAccountDeleteText,
   confirmAccountDeleteTitle,
 } from './ConfirmAccountDelete'
 import {
   ConfirmChangeOwner,
+  ConfirmChangeOwnerData,
   confirmChangeOwnerText,
   confirmChangeOwnerTitle,
 } from './ConfirmChangeOwner'
 import {
   ConfirmTeamDelete,
+  ConfirmTeamDeleteData,
   confirmTeamDeleteText,
   confirmTeamDeleteTitle,
 } from './ConfirmTeamDelete'
 import {
   ForgotPassword,
+  ForgotPasswordData,
   forgotPasswordText,
   forgotPasswordTitle,
 } from './ForgotPassword'
 import {
   NotifyAcceptInvitation,
+  NotifyAcceptInvitationData,
   notifyAcceptInvitationText,
   notifyAcceptInvitationTitle,
 } from './NotifyAcceptInvitation'
 import {
   NotifyAccountDeleted,
+  NotifyAccountDeletedData,
   notifyAccountDeletedText,
   notifyAccountDeletedTitle,
 } from './NotifyAccountDeleted'
 import {
   NotifyDeclineInvitation,
+  NotifyDeclineInvitationData,
   notifyDeclineInvitationText,
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitation'
 import {
+  NotifyDowngradeFreeTier,
+  NotifyDowngradeFreeTierData,
+  notifyDowngradeFreeTierText,
+  notifyDowngradeFreeTierTitle,
+} from './NotifyDowngradeFreeTier'
+import {
   NotifyMemberLeft,
+  NotifyMemberLeftData,
   notifyMemberLeftText,
   notifyMemberLeftTitle,
 } from './NotifyMemberLeft'
 import {
+  NotifyNewInvoice,
+  NotifyNewInvoiceData,
+  notifyNewInvoiceText,
+  notifyNewInvoiceTitle,
+} from './NotifyNewInvoice'
+import {
   NotifyNewOwner,
+  NotifyNewOwnerData,
   NotifyNewOwnerText,
   NotifyNewOwnerTitle,
 } from './NotifyNewOwner'
 import {
   NotifyNewRole,
+  NotifyNewRoleData,
   notifyNewRoleText,
   notifyNewRoleTitle,
 } from './NotifyNewRole'
 import {
   NotifyOldOwner,
+  NotifyOldOwnerData,
   NotifyOldOwnerText,
   NotifyOldOwnerTitle,
 } from './NotifyOldOwner'
 import {
   NotifyPasswordReset,
+  NotifyPasswordResetData,
   notifyPasswordResetText,
   notifyPasswordResetTitle,
 } from './NotifyPasswordReset'
 import {
+  NotifyPaymentActionRequired,
+  NotifyPaymentActionRequiredData,
+  notifyPaymentActionRequiredText,
+  notifyPaymentActionRequiredTitle,
+} from './NotifyPaymentActionRequired'
+import {
+  NotifyPaymentFailed,
+  NotifyPaymentFailedData,
+  notifyPaymentFailedText,
+  notifyPaymentFailedTitle,
+} from './NotifyPaymentFailed'
+import {
+  NotifyPaymentSuccessful,
+  NotifyPaymentSuccessfulData,
+  notifyPaymentSuccessfulText,
+  notifyPaymentSuccessfulTitle,
+} from './NotifyPaymentSuccessful'
+import {
   NotifyRemovedFromTeam,
+  NotifyRemovedFromTeamData,
   notifyRemovedFromTeamText,
   notifyRemovedFromTeamTitle,
 } from './NotifyRemovedFromTeam'
 import {
   NotifyTeamDeleted,
+  NotifyTeamDeletedData,
   notifyTeamDeletedText,
   notifyTeamDeletedTitle,
 } from './NotifyTeamDeleted'
 import {
+  NotifyTrialExpiring,
+  NotifyTrialExpiringData,
+  notifyTrialExpiringText,
+  notifyTrialExpiringTitle,
+} from './NotifyTrialExpiring'
+import {
+  NotifyWelcomeToPro,
+  NotifyWelcomeToProData,
+  notifyWelcomeToProText,
+  notifyWelcomeToProTitle,
+} from './NotifyWelcomeToPro'
+import {
   SignupWelcome,
+  SignupWelcomeData,
   signupWelcomeText,
   signupWelcomeTitle,
 } from './SignupWelcome'
 import {
   TeamInvitation,
+  TeamInvitationData,
   teamInvitationText,
   teamInvitationTitle,
 } from './TeamInvitation'
-import { VerifyEmail, verifyEmailText, verifyEmailTitle } from './VerifyEmail'
+import {
+  VerifyEmail,
+  VerifyEmailData,
+  verifyEmailText,
+  verifyEmailTitle,
+} from './VerifyEmail'
 
 export const VALID_TEMPLATES = {
   'verify-email': {
@@ -166,9 +229,73 @@ export const VALID_TEMPLATES = {
     text: notifyMemberLeftText,
     title: notifyMemberLeftTitle,
   },
+  'notify-trial-expiring': {
+    html: NotifyTrialExpiring,
+    text: notifyTrialExpiringText,
+    title: notifyTrialExpiringTitle,
+  },
+  'notify-downgrade-free-tier': {
+    html: NotifyDowngradeFreeTier,
+    text: notifyDowngradeFreeTierText,
+    title: notifyDowngradeFreeTierTitle,
+  },
+  'notify-welcome-to-pro': {
+    html: NotifyWelcomeToPro,
+    text: notifyWelcomeToProText,
+    title: notifyWelcomeToProTitle,
+  },
+  'notify-payment-failed': {
+    html: NotifyPaymentFailed,
+    text: notifyPaymentFailedText,
+    title: notifyPaymentFailedTitle,
+  },
+  'notify-payment-successful': {
+    html: NotifyPaymentSuccessful,
+    text: notifyPaymentSuccessfulText,
+    title: notifyPaymentSuccessfulTitle,
+  },
+  'notify-new-invoice': {
+    html: NotifyNewInvoice,
+    text: notifyNewInvoiceText,
+    title: notifyNewInvoiceTitle,
+  },
+  'notify-payment-action-required': {
+    html: NotifyPaymentActionRequired,
+    text: notifyPaymentActionRequiredText,
+    title: notifyPaymentActionRequiredTitle,
+  },
 } as const
 
-export type TemplateIdentifier = keyof typeof VALID_TEMPLATES
+export type ValidTemplateData = {
+  'verify-email': VerifyEmailData
+  'notify-accept-invitation': NotifyAcceptInvitationData
+  'notify-decline-invitation': NotifyDeclineInvitationData
+  'team-invitation': TeamInvitationData
+  'signup-welcome': SignupWelcomeData
+  'forgot-password': ForgotPasswordData
+  'notify-password-reset': NotifyPasswordResetData
+  'notify-new-role': NotifyNewRoleData
+  'confirm-team-delete': ConfirmTeamDeleteData
+  'notify-team-deleted': NotifyTeamDeletedData
+  'confirm-account-delete': ConfirmAccountDeleteData
+  'notify-account-deleted': NotifyAccountDeletedData
+  'notify-removed-from-team': NotifyRemovedFromTeamData
+  'confirm-change-owner': ConfirmChangeOwnerData
+  'notify-new-owner': NotifyNewOwnerData
+  'notify-old-owner': NotifyOldOwnerData
+  'notify-member-left': NotifyMemberLeftData
+  'notify-trial-expiring': NotifyTrialExpiringData
+  'notify-downgrade-free-tier': NotifyDowngradeFreeTierData
+  'notify-welcome-to-pro': NotifyWelcomeToProData
+  'notify-payment-failed': NotifyPaymentFailedData
+  'notify-payment-successful': NotifyPaymentSuccessfulData
+  'notify-new-invoice': NotifyNewInvoiceData
+  'notify-payment-action-required': NotifyPaymentActionRequiredData
+}
+
+export type TemplateIdentifier = keyof ValidTemplateData
+
+export type TemplateData = ValidTemplateData[TemplateIdentifier]
 
 export { TeamInvitationData } from './TeamInvitation'
 export { NotifyAcceptInvitationData } from './NotifyAcceptInvitation'
@@ -187,3 +314,10 @@ export { ConfirmChangeOwnerData } from './ConfirmChangeOwner'
 export { NotifyNewOwnerData } from './NotifyNewOwner'
 export { NotifyOldOwnerData } from './NotifyOldOwner'
 export { NotifyMemberLeftData } from './NotifyMemberLeft'
+export { NotifyTrialExpiringData } from './NotifyTrialExpiring'
+export { NotifyDowngradeFreeTierData } from './NotifyDowngradeFreeTier'
+export { NotifyWelcomeToProData } from './NotifyWelcomeToPro'
+export { NotifyPaymentFailedData } from './NotifyPaymentFailed'
+export { NotifyPaymentSuccessfulData } from './NotifyPaymentSuccessful'
+export { NotifyNewInvoiceData } from './NotifyNewInvoice'
+export { NotifyPaymentActionRequiredData } from './NotifyPaymentActionRequired'

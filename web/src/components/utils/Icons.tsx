@@ -1,3 +1,4 @@
+import BlurCircularIcon from '@mui/icons-material/BlurCircular'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import ImportExportIcon from '@mui/icons-material/ImportExport'
 import PublicIcon from '@mui/icons-material/Public'
@@ -96,4 +97,8 @@ export const SnapcraftIcon = (props: SvgIconProps) => (
       />
     </g>
   </SvgIcon>
+)
+
+export const CreditsIcon = (props: SvgIconProps) => (
+  <BlurCircularIcon {...props} />
 )

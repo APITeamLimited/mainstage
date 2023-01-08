@@ -21,6 +21,7 @@ export const schema = gql`
     displayName: String!
     profilePicture: String
     slug: String!
+    planName: String!
   }
 
   type Query {

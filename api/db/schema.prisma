@@ -45,11 +45,13 @@ model User {
   articles Article[]
 
   // Stripe and billing
-  customerId String?
-  planInfo   PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
-  planInfoId String?
-
+  customerId         String?
+  planInfo           PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
+  planInfoId         String?
+  subscriptionId     String?
+  hadFreeTrial       Boolean   @default(false)
   freeCreditsAddedAt DateTime?
+  pastDue            Boolean   @default(false)
 }
 
 model Team {
@@ -65,11 +67,13 @@ model Team {
   invitations Invitation[]
 
   // Stripe and billing
-  customerId String?
-  planInfo   PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
-  planInfoId String?
-
+  customerId         String?
+  planInfo           PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
+  planInfoId         String?
+  subscriptionId     String?
+  hadFreeTrial       Boolean   @default(false)
   freeCreditsAddedAt DateTime?
+  pastDue            Boolean   @default(false)
 }
 
 model Membership {
@@ -109,6 +113,7 @@ model Scope {
   displayName     String
   profilePicture  String?
   slug            String
+  planName        String
 
   @@unique([variant, variantTargetId, userId])
 }

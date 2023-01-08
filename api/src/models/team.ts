@@ -4,22 +4,23 @@ import {
   GetOrCreateCustomerIdMixin,
   UserAsPersonal,
 } from '@apiteam/types'
-import { Prisma, Team, Membership } from '@prisma/client'
+import type { Prisma, Team, Membership, PlanInfo } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { createMembership, createTeamScope } from 'src/helpers'
+import { getFreePlanInfo } from 'src/helpers/billing'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { coreCacheReadRedis, creditsReadRedis } from 'src/lib/redis'
 import { scanPatternDelete } from 'src/utils'
 import { checkSlugAvailable } from 'src/validators'
 
-import { CustomerModel } from './billing'
+import { CustomerModel, PlanInfoModel } from './billing'
 import { InvitationModel } from './invitation'
 import { ScopeModel } from './scope'
 import { UserModel } from './user'
@@ -32,9 +33,10 @@ export type AbstractCreateTeamInput = {
 
 export type AbstractUpdateTeamInput = Omit<
   Prisma.TeamUncheckedUpdateInput,
-  'name'
+  'name' | 'planInfoId'
 > & {
   name?: string
+  planInfoId?: string
 }
 
 // Memberships aren't independent enough to justify their own model
@@ -57,15 +59,23 @@ export const TeamModel: APITeamModel<
 
     await checkSlugAvailable(input.slug)
 
+    const freePlanInfo = await getFreePlanInfo()
+
     const createdTeam = await db.team.create({
       data: {
         name: input.name,
         slug: input.slug,
+        planInfoId: freePlanInfo.id,
       },
     })
 
-    await createMembership(createdTeam, input.owner, 'OWNER')
-    await setTeamRedis(createdTeam, 'CREATE')
+    await Promise.all([
+      createMembership(createdTeam, input.owner, 'OWNER'),
+      setTeamRedis(createdTeam, 'CREATE'),
+
+      // Add initial free credits
+      createFreeCredits(createdTeam.id, freePlanInfo, createdTeam.pastDue),
+    ])
 
     return createdTeam
   },
@@ -85,9 +95,25 @@ export const TeamModel: APITeamModel<
 
     await setTeamRedis(updatedTeam, 'UPDATE')
 
+    let planInfo = updatedTeam.planInfoId
+      ? await PlanInfoModel.get(updatedTeam.planInfoId)
+      : null
+
+    if ('planInfoId' in input && input.planInfoId) {
+      planInfo = await PlanInfoModel.get(input.planInfoId)
+
+      if (!planInfo) {
+        throw new ServiceValidationError(
+          `PlanInfo not found with id '${input.planInfoId}'`
+        )
+      }
+
+      await createFreeCredits(updatedTeam.id, planInfo, updatedTeam.pastDue)
+    }
+
     const memberships = await db.membership.findMany({
       where: {
-        teamId: String,
+        teamId: id,
       },
     })
 
@@ -110,7 +136,12 @@ export const TeamModel: APITeamModel<
           throw new Error(`User not found with id '${membership.userId}'`)
         }
 
-        return createTeamScope(updatedTeam, membership, user)
+        return createTeamScope(
+          updatedTeam,
+          membership,
+          user,
+          planInfo ?? (await getFreePlanInfo())
+        )
       })
     )
 
@@ -146,7 +177,7 @@ export const TeamModel: APITeamModel<
 
     const invitations = await db.invitation.findMany({
       where: {
-        teamId: String,
+        teamId: id,
       },
       select: {
         id: true,
@@ -159,9 +190,11 @@ export const TeamModel: APITeamModel<
 
     const memberships = await db.membership.findMany({
       where: {
-        teamId: String,
+        teamId: id,
       },
     })
+
+    const ownerMembership = await TeamModel.getOwnerMembership(id)
 
     const users = await db.user.findMany({
       where: {
@@ -171,9 +204,22 @@ export const TeamModel: APITeamModel<
       },
     })
 
+    const scopes = await db.scope.findMany({
+      where: {
+        variant: 'TEAM',
+        variantTargetId: id,
+      },
+    })
+
     await Promise.all(
       memberships.map((membership) => TeamModel.deleteMembership(membership.id))
     )
+
+    await Promise.all(scopes.map((scope) => ScopeModel.delete(scope.id)))
+
+    await creditsReadRedis.del(`team:${id}:freeCredits`)
+    await creditsReadRedis.del(`team:${id}:maxFreeCredits`)
+    await creditsReadRedis.del(`team:${id}:paidCredits`)
 
     await Promise.all([
       // Delete the customer if it exists
@@ -185,6 +231,9 @@ export const TeamModel: APITeamModel<
       coreCacheReadRedis.publish('TEAM_DELETED', id),
       coreCacheReadRedis.del(`team:${id}`),
 
+      // Delete credits
+      await creditsReadRedis.del(`team:${id}`),
+
       // Notify all members of team deletion
       ...users.map(async (user) =>
         dispatchEmail({
@@ -193,7 +242,7 @@ export const TeamModel: APITeamModel<
           data: {
             teamName: teamInfo.name,
             targetName: user.firstName,
-            wasOwner: user.id === context.currentUser?.id,
+            wasOwner: user.id === ownerMembership.userId,
           } as NotifyTeamDeletedData,
           userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
           blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(
@@ -395,4 +444,29 @@ const rebuildMembershipsCache = async () => {
     skip += memberships.length
     batchSize = memberships.length
   } while (batchSize > 0)
+}
+
+const createFreeCredits = async (
+  teamId: string,
+  planInfo: PlanInfo,
+  pastDue: boolean
+) => {
+  if (pastDue) {
+    // If the team is past due, don't add free credits
+    return
+  }
+
+  await Promise.all([
+    // Reset free credits
+    creditsReadRedis.set(`team:${teamId}:freeCredits`, planInfo.monthlyCredits),
+
+    creditsReadRedis.set(
+      `team:${teamId}:maxFreeCredits`,
+      planInfo.monthlyCredits
+    ),
+
+    TeamModel.update(teamId, {
+      freeCreditsAddedAt: new Date(),
+    }),
+  ])
 }
