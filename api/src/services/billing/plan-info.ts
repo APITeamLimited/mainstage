@@ -5,15 +5,12 @@ import { PlanInfoModel, TeamModel, UserModel } from 'src/models'
 
 import { checkAuthenticated, checkMember } from '../guards'
 
-export const currentPlan = async ({ teamId }: { teamId: string }) => {
-  if (teamId) {
-    await checkMember({ teamId })
-  }
-
-  return teamId ? getPlanInfoTeam({ teamId }) : getPlanInfoUser()
-}
+export const currentPlan = async ({ teamId }: { teamId?: string }) =>
+  teamId ? getPlanInfoTeam({ teamId }) : getPlanInfoUser()
 
 const getPlanInfoTeam = async ({ teamId }: { teamId: string }) => {
+  await checkMember({ teamId })
+
   const team = await TeamModel.get(teamId)
 
   if (!team) {

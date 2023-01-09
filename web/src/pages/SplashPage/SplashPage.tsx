@@ -5,7 +5,7 @@ import { Container, Stack } from '@mui/material'
 import { MetaTags } from '@redwoodjs/web'
 
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
-import { PricingOverview } from 'src/layouts/Landing/components/pricing/PricingOverview'
+import { PricingOverview } from 'src/layouts/Landing/components/pricing'
 import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
 import GlobeTestOverview from 'src/pages/SplashPage/components/GlobeTestOverview'
 import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'

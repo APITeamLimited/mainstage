@@ -156,23 +156,25 @@ const CustomDialogInner = ({
           </Stack>
         )}
       </DialogContent>
-      {dialogActions && <Divider />}
       {dialogActions && (
-        <Stack
-          spacing={2}
-          direction="row"
-          sx={{
-            padding: 2,
-          }}
-          alignItems="right"
-        >
-          <div
-            style={{
-              flex: 1,
+        <>
+          <Divider />
+          <Stack
+            spacing={2}
+            direction="row"
+            sx={{
+              padding: 2,
             }}
-          />
-          {dialogActions}
-        </Stack>
+            alignItems="right"
+          >
+            <div
+              style={{
+                flex: 1,
+              }}
+            />
+            {dialogActions}
+          </Stack>
+        </>
       )}
     </Dialog>
   )

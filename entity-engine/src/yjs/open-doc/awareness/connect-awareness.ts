@@ -105,8 +105,6 @@ const createServerAwareness = async ({
 
     const allTeamInfoRaw = await readRedis.hGetAll(`team:${variantTargetId}`)
 
-    console.log(allTeamInfoRaw)
-
     const team = JSON.parse(allTeamInfoRaw.team) as Team
     const memberships = [] as Membership[]
 

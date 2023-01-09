@@ -1,7 +1,16 @@
-import { Theme } from '@mui/material'
+import type { Theme } from '@mui/material'
 import { StripeElementsOptions } from '@stripe/stripe-js'
+import * as Yup from 'yup'
 
-export * from './CardFrame'
+import {
+  useBillingAddress,
+  usePaymentMethods,
+  useSetupIntents,
+} from '../BillingProvider'
+
+export const STRIPE_PUBLISHABLE_KEY = process.env[
+  'STRIPE_PUBLISHABLE_KEY'
+] as string
 
 export const getDefaultElementsOptions = (
   theme: Theme
@@ -12,7 +21,7 @@ export const getDefaultElementsOptions = (
 
     variables: {
       fontFamily: theme.typography.fontFamily,
-      colorBackground: 'transparent',
+      colorBackground: '#00FFFFFF',
 
       spacingUnit: theme.spacing(0.5),
       spacingGridRow: theme.spacing(2),
@@ -83,3 +92,98 @@ export const stripeCountries = [
 ] as const
 
 export const countryCodes = stripeCountries.map((c) => c.code)
+
+export const noPostcodeCountries = [
+  'AD',
+  'BO',
+  'BI',
+  'CF',
+  'TD',
+  'KM',
+  'CG',
+  'CD',
+  'DO',
+  'GQ',
+  'ER',
+  'ET',
+  'GN',
+  'GW',
+  'KI',
+  'LA',
+  'MG',
+  'MH',
+  'FM',
+  'NR',
+  'PW',
+  'PG',
+  'WS',
+  'ST',
+  'SB',
+  'SO',
+  'TJ',
+  'TO',
+  'TV',
+  'VU',
+  'YE',
+]
+
+export const billingAddressValidationSchema = Yup.object({
+  country: Yup.string().required('Please select a country').oneOf(countryCodes),
+
+  line1: Yup.string().required('Please enter a street address'),
+
+  // Required unless in noPostcodeCountries
+  postal_code: Yup.string().when('country', {
+    is: (country: string) => !noPostcodeCountries.includes(country),
+    then: Yup.string().required('Please enter a postcode'),
+  }),
+
+  city: Yup.string().required('Please enter your town/city'),
+})
+
+/**
+ * Checks if a workspace has a valid billing address
+ */
+export const useAddressStatus = () => {
+  const addressInfo = useBillingAddress()
+
+  if (!addressInfo) return null
+
+  // Validate against billingAddressValidationSchema
+  try {
+    billingAddressValidationSchema.validateSync(addressInfo.customerAddress, {
+      abortEarly: false,
+    })
+  } catch (err) {
+    return 'NOT_PROVIDED'
+  }
+
+  return 'PROVIDED'
+}
+
+/**
+ * Checks if a workspace has a payment method that has been confirmed
+ */
+export const usePaymentStatus = () => {
+  const { fetchedPaymentMethods, customer, paymentMethodsLoaded } =
+    usePaymentMethods()
+  const { fetchedSetupIntents, setupIntentsLoaded } = useSetupIntents()
+
+  if (!paymentMethodsLoaded || !setupIntentsLoaded || !customer) return null
+
+  const defaultPaymentMethodId =
+    customer?.invoice_settings?.default_payment_method ?? null
+
+  const defaultPaymentMethod = fetchedPaymentMethods.find(
+    (paymentMethod) => paymentMethod.id === defaultPaymentMethodId
+  )
+
+  if (!defaultPaymentMethod) return 'NOT_PROVIDED'
+
+  // Ensure the default payment method has a verified setup intent
+  const defaultSetupIntent = fetchedSetupIntents.find(
+    (setupIntent) => setupIntent.payment_method === defaultPaymentMethodId
+  )
+
+  return defaultSetupIntent ? 'PROVIDED' : 'NOT_PROVIDED'
+}

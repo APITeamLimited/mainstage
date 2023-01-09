@@ -35,7 +35,7 @@ export const DEFAULT_PRICING_PLANS: AbstractPlanInfoCreateInput[] = [
     maxMembers: 10,
     maxConcurrentCloudTests: 5,
     maxConcurrentScheduledTests: 0,
-    monthlyCredits: 10000,
+    monthlyCredits: 10000 * 1000,
     loadZones: ['europe-west2', 'us-west2'],
     maxTestDurationMinutes: 10,
     maxSimulatedUsers: 500,
@@ -45,7 +45,7 @@ export const DEFAULT_PRICING_PLANS: AbstractPlanInfoCreateInput[] = [
     name: 'Pro',
     verboseName: 'APITeam Pro',
     description:
-      'For teams that want to scale their projects with unlimited members and greater load testing capabilities',
+      'For teams that want to scale their projects and run more tests',
     priceMonthlyCents: 2900,
     priceYearlyCents: 29000,
     freeTrialDays: 14,
@@ -53,7 +53,7 @@ export const DEFAULT_PRICING_PLANS: AbstractPlanInfoCreateInput[] = [
     loadZones: [...AVAILABLE_LOAD_ZONES],
     maxConcurrentCloudTests: 10,
     maxConcurrentScheduledTests: 5,
-    monthlyCredits: 50000,
+    monthlyCredits: 50000 * 1000,
     maxTestDurationMinutes: 50,
 
     maxSimulatedUsers: 10000,

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   Button,
@@ -16,6 +16,7 @@ import { PlanChip } from 'src/components/app/utils/PlanChip'
 import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
+import { BuyPlanDialog } from './BuyPlanDialog'
 import { IndividualFeatures } from './IndividualFeatures'
 import { SupportedLoadZones } from './SupportedLoadZones'
 
@@ -25,14 +26,18 @@ const ALL_PLANS = gql`
       id
       name
       verboseName
-      loadZones
+      description
       maxMembers
       maxConcurrentCloudTests
       maxConcurrentScheduledTests
       monthlyCredits
+      loadZones
       maxTestDurationMinutes
       dataRetentionMonths
       maxSimulatedUsers
+      priceMonthlyCents
+      priceYearlyCents
+      freeTrialDays
     }
   }
 `
@@ -43,6 +48,11 @@ export const CurrentPlanCard = () => {
   const workspaceInfo = useWorkspaceInfo()
   const planInfo = usePlanInfo()
 
+  const [showDowngradeDialog, setShowDowngradeDialog] = useState(false)
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
+
+  const { data: allPlans } = useQuery<AllPlansQuery>(ALL_PLANS)
+
   const teamId = useMemo(
     () =>
       workspaceInfo.scope.variant === 'TEAM'
@@ -50,8 +60,6 @@ export const CurrentPlanCard = () => {
         : null,
     [workspaceInfo.scope]
   )
-
-  const { data: allPlans } = useQuery<AllPlansQuery>(ALL_PLANS)
 
   const nextPlan = useMemo(() => {
     if (!planInfo || !allPlans) {
@@ -67,35 +75,47 @@ export const CurrentPlanCard = () => {
     return nextPlanUpgrade ?? null
   }, [planInfo, allPlans])
 
-  return planInfo ? (
-    <Card>
-      <Stack spacing={2} p={2}>
-        <Typography variant="h6" fontWeight="bold">
-          Plan
-        </Typography>
-        <Typography variant="body2">
-          Your {teamId ? 'team' : 'account'} is currently on the{' '}
-          <PlanChip name={planInfo.name} />
-          plan.
-        </Typography>
-        <Divider />
-        <IndividualFeatures nextPlan={nextPlan} />
-        <SupportedLoadZones nextPlan={nextPlan} />
-        <Divider />
-        <Stack spacing={2} direction="row" justifyContent="flex-end">
-          {planInfo.priceMonthlyCents > 0 && (
-            <Button variant="outlined" color="error">
-              Downgrade Plan
-            </Button>
-          )}
-          {nextPlan && (
-            <Button variant="contained" color="primary" type="submit">
-              Upgrade to {nextPlan.name}
-            </Button>
-          )}
+  // Include allPlans to prevent flicker on load
+  return planInfo && allPlans ? (
+    <>
+      <Card>
+        <Stack spacing={2} p={2}>
+          <Typography variant="h6" fontWeight="bold">
+            Plan
+          </Typography>
+          <Typography variant="body2">
+            Your {teamId ? 'team' : 'account'} is currently on the{' '}
+            <PlanChip name={planInfo.name} />
+            plan.
+          </Typography>
+          <Divider />
+          <IndividualFeatures nextPlan={nextPlan} />
+          <SupportedLoadZones nextPlan={nextPlan} />
+          <Divider />
+          <Stack spacing={2} direction="row" justifyContent="flex-end">
+            {planInfo.priceMonthlyCents > 0 && (
+              <Button variant="outlined" color="error">
+                Downgrade Plan
+              </Button>
+            )}
+            {nextPlan && (
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setShowUpgradeDialog(true)}
+              >
+                Upgrade to {nextPlan.name}
+              </Button>
+            )}
+          </Stack>
         </Stack>
-      </Stack>
-    </Card>
+      </Card>
+      <BuyPlanDialog
+        open={showUpgradeDialog && !!nextPlan}
+        onClose={() => setShowUpgradeDialog(false)}
+        allPlans={allPlans.planInfos}
+      />
+    </>
   ) : (
     <Skeleton height={minCurrentPlanCardHeight} />
   )

@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import {
   AbstractCreditsPricingOptionCreateInput,
   DEFAULT_CREDITS_PRICING_OPTION,
+  ROUTES,
 } from '@apiteam/types/src'
 import { useTheme, Typography, Card, Stack } from '@mui/material'
 import {
@@ -12,7 +13,10 @@ import {
 
 import { useQuery } from '@redwoodjs/web'
 
+import { displayCorrectCredits } from 'src/utils/display-correct-credits'
+
 import { mediumPanelSpacing } from '../constants'
+import { SignUpThenBuyButton } from '../SignUpThenBuyButton'
 
 import { numberFormatter, prettyPrintCents } from '.'
 
@@ -55,8 +59,11 @@ export const CreditsPricingOptionCard = () => {
           {creditsPricingOption.name}
         </Typography>
         <Typography color={theme.palette.text.secondary}>
-          {numberFormatter.format(creditsPricingOption.credits)} credits that
-          never expire in case you need to run more tests than your plan allows
+          {numberFormatter.format(
+            displayCorrectCredits(creditsPricingOption.credits)
+          )}{' '}
+          credits that never expire in case you need to run more tests than your
+          plan allows
         </Typography>
         <Stack spacing={1} direction="row" alignItems="baseline">
           <Typography color={theme.palette.text.secondary}>$</Typography>
@@ -64,6 +71,11 @@ export const CreditsPricingOptionCard = () => {
             {prettyPrintCents(creditsPricingOption.priceCents)}
           </Typography>
         </Stack>
+        <SignUpThenBuyButton
+          size="medium"
+          fullWidth
+          buyRoute={ROUTES.settingsWorkspaceBilling}
+        />
       </Stack>
     </Card>
   )

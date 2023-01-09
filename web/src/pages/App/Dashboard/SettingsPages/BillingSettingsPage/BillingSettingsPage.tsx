@@ -1,9 +1,6 @@
 import { useMemo } from 'react'
 
-import { Workspace } from '@apiteam/types/src'
 import { Stack } from '@mui/material'
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
 
 import { routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -14,13 +11,13 @@ import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { SETTINGS_TABS } from '..'
 
-import { BillingAddressCard } from './BillingAddressCard'
-import { BillingAddressProvider } from './BillingAddressProvider'
+import { BillingAddressCard } from './billing-address/BillingAddressCard'
 import { BillingEmailCard } from './BillingEmailCard'
 import { BillingNameCard } from './BillingNameCard'
+import { BillingProvider } from './BillingProvider'
 import { CreditsCard } from './CreditsCard'
 import { CurrentPlanCard } from './CurrentPlanCard'
-import { PaymentMethodCard } from './PaymentMethodCard'
+import { PaymentMethodsCard } from './payment-methods/PaymentMethodsCard'
 
 export const STRIPE_PUBLISHABLE_KEY = process.env[
   'STRIPE_PUBLISHABLE_KEY'
@@ -42,16 +39,11 @@ const BillingSettingsPage = () => {
     }
   }, [workspaceInfo])
 
-  const isTeam = useMemo(
-    () => (workspaceInfo as Workspace).scope.variant === 'TEAM',
-    [workspaceInfo]
-  )
-
   if (!prettyType) return null
   if (!workspaceInfo) return null
 
   return (
-    <BillingAddressProvider>
+    <BillingProvider>
       <MetaTags title={prettyType} />
       <DashboardPageFrame title={prettyType}>
         <SideTabManager
@@ -62,13 +54,13 @@ const BillingSettingsPage = () => {
             <CurrentPlanCard />
             <CreditsCard />
             <BillingAddressCard />
-            <PaymentMethodCard />
+            <PaymentMethodsCard />
             <BillingEmailCard />
             <BillingNameCard />
           </Stack>
         </SideTabManager>
       </DashboardPageFrame>
-    </BillingAddressProvider>
+    </BillingProvider>
   )
 }
 

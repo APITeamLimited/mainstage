@@ -46,7 +46,7 @@ model User {
 
   // Stripe and billing
   customerId         String?
-  planInfo           PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
+  planInfo           PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: SetNull)
   planInfoId         String?
   subscriptionId     String?
   hadFreeTrial       Boolean   @default(false)
@@ -68,7 +68,7 @@ model Team {
 
   // Stripe and billing
   customerId         String?
-  planInfo           PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: NoAction)
+  planInfo           PlanInfo? @relation(fields: [planInfoId], references: [id], onDelete: SetNull)
   planInfoId         String?
   subscriptionId     String?
   hadFreeTrial       Boolean   @default(false)

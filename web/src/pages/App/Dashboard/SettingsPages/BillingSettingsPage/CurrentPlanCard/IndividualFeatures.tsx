@@ -3,6 +3,7 @@ import { AllPlansQuery } from 'types/graphql'
 
 import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
+import { displayCorrectCredits } from 'src/utils/display-correct-credits'
 
 // Format numbers as K or M
 const numberFormatter = Intl.NumberFormat('en-US', {
@@ -86,7 +87,9 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
           </Typography>
           <Stack direction="row" spacing={2} alignItems="flex-start">
             <Typography variant="body2">
-              {numberFormatter.format(planInfo.monthlyCredits)}
+              {numberFormatter.format(
+                displayCorrectCredits(planInfo.monthlyCredits)
+              )}
             </Typography>
             {nextPlan &&
               nextPlan.maxSimulatedUsers > planInfo.maxSimulatedUsers && (
@@ -95,7 +98,9 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
                   color={theme.palette.text.secondary}
                 >
                   Upgrade to {nextPlan.name} to access{' '}
-                  {numberFormatter.format(nextPlan.monthlyCredits)}
+                  {numberFormatter.format(
+                    displayCorrectCredits(nextPlan.monthlyCredits)
+                  )}
                 </Typography>
               )}
           </Stack>
@@ -126,7 +131,7 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
       <Grid item xs={12} sm={4}>
         <Stack spacing={2}>
           <Typography variant="body1" fontWeight="bold">
-            Max Concurrent Cloud Tests
+            Concurrent Cloud Tests
           </Typography>
           <Stack direction="row" spacing={2} alignItems="flex-start">
             <Typography variant="body2">
@@ -149,7 +154,7 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
       <Grid item xs={12} sm={4}>
         <Stack spacing={2}>
           <Typography variant="body1" fontWeight="bold">
-            Max Concurrent Scheduled Tests
+            Concurrent Scheduled Tests
           </Typography>
           <Stack direction="row" spacing={2} alignItems="flex-start">
             <Typography variant="body2">
