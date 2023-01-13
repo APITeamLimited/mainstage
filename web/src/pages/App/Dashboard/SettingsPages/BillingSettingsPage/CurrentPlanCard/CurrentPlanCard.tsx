@@ -112,7 +112,7 @@ export const CurrentPlanCard = () => {
       </Card>
       <BuyPlanDialog
         open={showUpgradeDialog && !!nextPlan}
-        onClose={() => setShowUpgradeDialog(false)}
+        setOpen={setShowUpgradeDialog}
         allPlans={allPlans.planInfos}
       />
     </>

@@ -11,7 +11,7 @@ import {
 import { db } from 'src/lib/db'
 import { gatewayUrl } from 'src/lib/environment'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { UserModel } from 'src/models'
 import { getSlug } from 'src/validators'
 
@@ -157,6 +157,8 @@ export const handler = async (
         emailMarketing?: boolean
       }
     }) => {
+      const coreCacheReadRedis = await getCoreCacheReadRedis()
+
       const verifyCodeFetchRaw = await coreCacheReadRedis.get(
         `verificationCode__email__code:${username}:${userAttributes.verifyCode}`
       )

@@ -18,7 +18,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { deleteInvitationRedis } from 'src/models/invitation'
 import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
@@ -75,6 +75,8 @@ export const acceptInvitation = async ({ token }: { token: string }) => {
       `User not found with email ${decodedToken.payload.invitationEmail}`
     )
   }
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   const teamRaw = await coreCacheReadRedis.hGet(
     `team:${invitation.teamId}`,

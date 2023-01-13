@@ -53,7 +53,13 @@ export const StatusBarItem = ({
             />
           )}
           {text && (
-            <Typography variant="caption" color={theme.palette.text.primary}>
+            <Typography
+              variant="caption"
+              color={theme.palette.text.primary}
+              sx={{
+                paddingTop: '2px',
+              }}
+            >
               {text}
             </Typography>
           )}

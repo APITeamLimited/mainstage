@@ -2,7 +2,7 @@ import { DeleteMixin } from '@apiteam/types'
 import { Scope } from '@prisma/client'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 export const ScopeModel: DeleteMixin<Scope> = {
   delete: async (id) => {
@@ -19,6 +19,8 @@ export const ScopeModel: DeleteMixin<Scope> = {
 }
 
 const deleteScopeRedis = async (scope: Scope) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
     coreCacheReadRedis.del(`scope__id:${scope.id}`),
     coreCacheReadRedis.hDel(`scope__userId:${scope.userId}`, scope.id),

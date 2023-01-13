@@ -15,7 +15,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { TeamModel, UserModel } from 'src/models'
 import {
   checkAuthenticated,
@@ -230,7 +230,9 @@ export const leaveTeam = async ({ teamId }: { teamId: string }) => {
 
 const getAdminOwners = async (teamId: string): Promise<UserAsPersonal[]> => {
   // Tell owners and admins that user left the team
-  const allTeamInfo = await coreCacheReadRedis.hGetAll(`team:${teamId}`)
+  const allTeamInfo = await (
+    await getCoreCacheReadRedis()
+  ).hGetAll(`team:${teamId}`)
 
   const ownerAdminMemberships = [] as Membership[]
 

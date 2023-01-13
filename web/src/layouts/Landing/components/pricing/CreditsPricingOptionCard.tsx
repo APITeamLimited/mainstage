@@ -20,7 +20,7 @@ import { SignUpThenBuyButton } from '../SignUpThenBuyButton'
 
 import { numberFormatter, prettyPrintCents } from '.'
 
-const CREDITS_PRICING_OPTIONS_QUERY = gql`
+export const CREDITS_PRICING_OPTIONS_QUERY = gql`
   query CreditsPricingOptionsQuery {
     creditsPricingOptions {
       id
@@ -75,6 +75,9 @@ export const CreditsPricingOptionCard = () => {
           size="medium"
           fullWidth
           buyRoute={ROUTES.settingsWorkspaceBilling}
+          params={{
+            showBuyCredits: 'true',
+          }}
         />
       </Stack>
     </Card>

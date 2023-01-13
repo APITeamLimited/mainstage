@@ -23,6 +23,7 @@ type HandleProvidersArgs = {
   lib0: Lib0Module
   socketioSyncStatus: PossibleSyncStatus
   setSpawnKey: (spawnKey: string) => void
+  logOut: () => void
 }
 
 export const handleProviders = ({
@@ -39,6 +40,7 @@ export const handleProviders = ({
   setSpawnKey,
   Y,
   lib0,
+  logOut,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady } = ready
 
@@ -108,6 +110,7 @@ export const handleProviders = ({
         // Doesn't always sync correctly the first time
         resyncInterval: 1000,
       },
+      logOut,
     })
   }
 

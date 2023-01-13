@@ -1,10 +1,14 @@
+import { AbstractPlanInfoCreateInput, ROUTES } from '@apiteam/types/src'
 import {
-  AbstractPlanInfoCreateInput,
-  DEFAULT_PRICING_PLANS,
-  ROUTES,
-} from '@apiteam/types/src'
-import { Typography, Card, Stack, useTheme, Grid, Box } from '@mui/material'
-import { PlanInfosQuery } from 'types/graphql'
+  Typography,
+  Card,
+  Stack,
+  useTheme,
+  Grid,
+  Box,
+  GridProps,
+  Button,
+} from '@mui/material'
 
 import { displayCorrectCredits } from 'src/utils/display-correct-credits'
 
@@ -20,12 +24,23 @@ type PricingCardProps = {
   planInfo: AbstractPlanInfoCreateInput
   pricingOption: 'monthly' | 'annual'
   alreadyHadTrial?: boolean
+  mdWidth?: number
+  gridStyles?: GridProps['style']
+  disableEmptyTrialPadding?: boolean
+  splitPricing?: {
+    onClickMonthly: () => void
+    onClickYearly: () => void
+  }
 }
 
 export const PricingCard = ({
   planInfo,
   pricingOption,
   alreadyHadTrial,
+  mdWidth = 4,
+  gridStyles,
+  disableEmptyTrialPadding,
+  splitPricing,
 }: PricingCardProps) => {
   const theme = useTheme()
 
@@ -37,7 +52,7 @@ export const PricingCard = ({
   const trialEnabled = planInfo.freeTrialDays && !alreadyHadTrial
 
   return (
-    <Grid item xs={12} md={4}>
+    <Grid item xs={12} md={mdWidth} style={gridStyles}>
       {trialEnabled ? (
         <Box
           sx={{
@@ -52,12 +67,14 @@ export const PricingCard = ({
             14 day free trial
           </Typography>
         </Box>
-      ) : (
+      ) : !disableEmptyTrialPadding ? (
         <Box
           sx={{
             minHeight: '36px',
           }}
         />
+      ) : (
+        <></>
       )}
       <Card
         variant="outlined"
@@ -79,31 +96,69 @@ export const PricingCard = ({
               {planInfo.description}
             </Typography>
           )}
-          <Stack spacing={1} direction="row" alignItems="baseline">
-            {isPaid && (
-              <Typography color={theme.palette.text.secondary}>$</Typography>
-            )}
-            <Typography variant="h3" fontWeight={700}>
-              {!isPaid
-                ? 'Free'
-                : pricingOption === 'annual'
-                ? prettyPrintCents(planInfo.priceYearlyCents)
-                : prettyPrintCents(planInfo.priceMonthlyCents)}
-            </Typography>
-            {isPaid && (
-              <Typography color={theme.palette.text.secondary}>
-                {pricingOption === 'annual' ? '/yr' : '/mo'}
+          {splitPricing ? (
+            <>
+              <Stack spacing={2} direction="row">
+                <Button
+                  variant="contained"
+                  onClick={splitPricing.onClickMonthly}
+                  sx={{
+                    width: '100%',
+                  }}
+                >
+                  Buy Monthly ${prettyPrintCents(planInfo.priceMonthlyCents)}
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={splitPricing.onClickYearly}
+                  sx={{
+                    width: '100%',
+                  }}
+                >
+                  Buy Yearly ${prettyPrintCents(planInfo.priceYearlyCents)}
+                </Button>
+              </Stack>
+              <Typography
+                color={theme.palette.text.secondary}
+                textAlign="center"
+              >
+                Get 2 months free with annual billing
               </Typography>
-            )}
-          </Stack>
-          {isPaid ? (
-            <SignUpThenBuyButton
-              size="medium"
-              fullWidth
-              buyRoute={ROUTES.settingsWorkspaceBilling}
-            />
+            </>
           ) : (
-            <SignUpOrContinueButton size="medium" fullWidth />
+            <>
+              <Stack spacing={1} direction="row" alignItems="baseline">
+                {isPaid && (
+                  <Typography color={theme.palette.text.secondary}>
+                    $
+                  </Typography>
+                )}
+                <Typography variant="h3" fontWeight={700}>
+                  {!isPaid
+                    ? 'Free'
+                    : pricingOption === 'annual'
+                    ? prettyPrintCents(planInfo.priceYearlyCents)
+                    : prettyPrintCents(planInfo.priceMonthlyCents)}
+                </Typography>
+                {isPaid && (
+                  <Typography color={theme.palette.text.secondary}>
+                    {pricingOption === 'annual' ? '/yr' : '/mo'}
+                  </Typography>
+                )}
+              </Stack>
+              {isPaid ? (
+                <SignUpThenBuyButton
+                  size="medium"
+                  fullWidth
+                  buyRoute={ROUTES.settingsWorkspaceBilling}
+                  params={{
+                    showPlans: 'true',
+                  }}
+                />
+              ) : (
+                <SignUpOrContinueButton size="medium" fullWidth />
+              )}
+            </>
           )}
           <Typography variant="h6" fontWeight="bold">
             Features
@@ -131,54 +186,24 @@ export const PricingCard = ({
             <PlanInfoRow
               text={`${planInfo.maxTestDurationMinutes} minutes maximum test duration`}
             />
-            <PlanInfoRow
+            {/* TODO: re-add when supported */}
+            {/* <PlanInfoRow
               text={`${planInfo.dataRetentionMonths} month${
                 planInfo.dataRetentionMonths > 0 ? 's' : ''
               } data retention`}
-            />
-            <PlanInfoRow
+            /> */}
+            {/* TODO: re-add when supported */}
+            {/* <PlanInfoRow
               text={
                 planInfo.maxConcurrentScheduledTests
                   ? `${planInfo.maxConcurrentScheduledTests} concurrent scheduled tests`
                   : 'No test scheduling'
               }
               icon={planInfo.maxConcurrentScheduledTests > 0 ? 'tick' : 'cross'}
-            />
+            /> */}
           </Stack>
         </Stack>
       </Card>
     </Grid>
   )
-}
-
-/**
- * Returns live pricing options from the pricing query, or the default pricing options if the query hasn't loaded yet
- */
-export const formatPlanInfo = (
-  planInfoData: PlanInfosQuery | undefined
-): AbstractPlanInfoCreateInput[] => {
-  if (!planInfoData) {
-    return DEFAULT_PRICING_PLANS.sort(
-      (a, b) => a.priceMonthlyCents - b.priceMonthlyCents
-    )
-  }
-
-  return planInfoData.planInfos
-    .map((planInfo) => ({
-      name: planInfo.name,
-      verboseName: planInfo.verboseName,
-      description: planInfo.description,
-      priceMonthlyCents: planInfo.priceMonthlyCents,
-      priceYearlyCents: planInfo.priceYearlyCents,
-      maxMembers: planInfo.maxMembers,
-      maxSimulatedUsers: planInfo.maxSimulatedUsers,
-      monthlyCredits: planInfo.monthlyCredits,
-      maxConcurrentCloudTests: planInfo.maxConcurrentCloudTests,
-      maxConcurrentScheduledTests: planInfo.maxConcurrentScheduledTests,
-      maxTestDurationMinutes: planInfo.maxTestDurationMinutes,
-      dataRetentionMonths: planInfo.dataRetentionMonths,
-      freeTrialDays: planInfo.freeTrialDays,
-      loadZones: planInfo.loadZones,
-    }))
-    .sort((a, b) => a.priceMonthlyCents - b.priceMonthlyCents)
 }

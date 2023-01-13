@@ -2,7 +2,7 @@ import { Scope } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { UserModel } from 'src/models/user'
 import { checkAuthenticated } from 'src/services/guards'
 
@@ -18,7 +18,9 @@ export const scopes = async () => {
     throw new ServiceValidationError(`User with id ${userId} not found`)
   }
 
-  const rawScopes = await coreCacheReadRedis.hGetAll(`scope__userId:${user.id}`)
+  const rawScopes = await (
+    await getCoreCacheReadRedis()
+  ).hGetAll(`scope__userId:${user.id}`)
 
   return Object.values(rawScopes).map(
     (rawScope) => JSON.parse(rawScope) as Scope

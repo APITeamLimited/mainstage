@@ -1,10 +1,12 @@
 import { VerifiedDomain } from '@prisma/client'
 
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 export const setVerifiedDomainRedis = async (
   verifiedDomain: VerifiedDomain
 ) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
     coreCacheReadRedis.set(
       `verifiedDomain__id:${verifiedDomain.id}`,
@@ -24,6 +26,8 @@ export const setVerifiedDomainRedis = async (
 export const deleteVerifiedDomainRedis = async (
   verifiedDomain: VerifiedDomain
 ) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
     coreCacheReadRedis.del(`verifiedDomain__id:${verifiedDomain.id}`),
     coreCacheReadRedis.sRem(

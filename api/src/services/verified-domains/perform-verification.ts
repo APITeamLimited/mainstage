@@ -6,7 +6,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { setVerifiedDomainRedis } from 'src/helpers/verified-domains'
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { checkOwnerAdmin } from 'src/services/guards'
 
 const resolver = new Resolver()
@@ -21,9 +21,9 @@ export const performVerification = async ({
 }) => {
   if (teamId) await checkOwnerAdmin({ teamId })
 
-  const verifiedDomainRaw = await coreCacheReadRedis.get(
-    `verifiedDomain__id:${verifiedDomainId}`
-  )
+  const verifiedDomainRaw = await (
+    await getCoreCacheReadRedis()
+  ).get(`verifiedDomain__id:${verifiedDomainId}`)
 
   if (!verifiedDomainRaw) {
     throw new ServiceValidationError('Domain not found in your workspace.')

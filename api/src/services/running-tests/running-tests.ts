@@ -2,7 +2,7 @@ import { RunningTestInfo } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { checkMember } from 'src/services/guards'
 
 export const runningTests = async ({ teamId }: { teamId: string | null }) => {
@@ -13,7 +13,9 @@ export const runningTests = async ({ teamId }: { teamId: string | null }) => {
   }
 
   const runningTests = Object.values(
-    await coreCacheReadRedis.hGetAll(
+    await (
+      await getCoreCacheReadRedis()
+    ).hGetAll(
       `workspace-cloud-tests:${teamId ? 'TEAM' : 'USER'}:${
         teamId ?? context.currentUser.id
       }`
@@ -34,7 +36,9 @@ export const runningTestsCount = async ({
     await checkMember({ teamId })
   }
 
-  const runningTestsCount = await coreCacheReadRedis.hLen(
+  const runningTestsCount = await (
+    await getCoreCacheReadRedis()
+  ).hLen(
     `workspace-cloud-tests:${teamId ? 'TEAM' : 'USER'}:${
       teamId ?? context.currentUser.id
     }`
@@ -58,6 +62,8 @@ export const cancelRunningTest = async ({
 
   const scopeVariant = teamId ? 'TEAM' : 'USER'
   const scopeVariantTargetId = teamId ?? context.currentUser.id
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   const runningTestInfoRaw = await coreCacheReadRedis.hGet(
     `workspace-cloud-tests:${scopeVariant}:${scopeVariantTargetId}`,

@@ -10,16 +10,17 @@ import {
 } from '@mui/material'
 
 import { CustomDialog } from 'src/components/custom-mui'
+import { CustomLoadingDialog } from 'src/components/custom-mui/CustomLoadingDialog'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
-import { BillingAddressForm } from './billing-address/BillingAddressForm'
-import { useBillingForm } from './billing-address/use-billing-form'
-import { usePaymentMethods } from './BillingProvider'
+import { BillingAddressForm } from '../billing-address/BillingAddressForm'
+import { useBillingForm } from '../billing-address/use-billing-form'
+import { usePaymentMethods } from '../BillingProvider'
 import {
   CardToDeleteDialogStatus,
   PaymentMethodsForm,
-} from './payment-methods/PaymentMethodsForm'
-import { useAddressStatus, usePaymentStatus } from './stripe'
+} from '../payment-methods/PaymentMethodsForm'
+import { useAddressStatus, usePaymentStatus } from '../stripe'
 
 type FinalStep = {
   stepName: string
@@ -54,7 +55,7 @@ export const PaymentOnboardingDialog = ({
   activeFinalStep,
 }: PaymentOnboardingDialogProps) => {
   const workspaceInfo = useWorkspaceInfo()
-  const { fetchedPaymentMethods } = usePaymentMethods()
+  const { fetchedPaymentMethods, paymentMethodsLoaded } = usePaymentMethods()
   const { formik: billingAddressFormik } = useBillingForm()
   const { step, activeStep, allSteps } = useSteps(finalSteps, activeFinalStep)
 
@@ -74,6 +75,10 @@ export const PaymentOnboardingDialog = ({
       paymentMethod: null,
     })
 
+  if (!paymentMethodsLoaded) {
+    return <CustomLoadingDialog open={open} onClose={onClose} title={title} />
+  }
+
   return (
     <CustomDialog
       open={open}
@@ -83,6 +88,7 @@ export const PaymentOnboardingDialog = ({
       fullWidth
       padBody
       shrinkable
+      scrollHeight={800}
       dialogActions={
         step === 'billingAddress' ? (
           <>
@@ -114,7 +120,7 @@ export const PaymentOnboardingDialog = ({
             )}
           </>
         ) : (
-          finalSteps[activeFinalStep].section
+          finalSteps[activeFinalStep].sectionButtons
         )
       }
     >
@@ -181,7 +187,7 @@ export const PaymentOnboardingDialog = ({
           </Stack>
         </form>
       ) : (
-        finalSteps[activeFinalStep].sectionButtons
+        finalSteps[activeFinalStep].section
       )}
     </CustomDialog>
   )

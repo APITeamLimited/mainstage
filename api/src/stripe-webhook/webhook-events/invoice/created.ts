@@ -1,21 +1,20 @@
-import type {
-  MailmanInput,
-  NotifyPaymentActionRequiredData,
-} from '@apiteam/mailman'
+import { NotifyInvoiceData } from '@apiteam/mailman'
 import { Team } from '@prisma/client'
-import type Stripe from 'stripe'
+import axios from 'axios'
+import type { Stripe } from 'stripe'
 
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
 } from 'src/helpers'
-import { dispatchEmail } from 'src/lib/mailman'
+import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
 import { CustomerModel } from 'src/models'
 
-import { getAdminOwnerSendInfo, getInvoiceLast4 } from '..'
-import { customerIdentificationSchema } from '../../customer'
+import { customerIdentificationSchema } from '../customer'
 
-export const handlePaymentActionRequired = async (event: Stripe.Event) => {
+import { getAdminOwnerSendInfo } from './helpers'
+
+export const handleInvoiceCreatedUpdated = async (event: Stripe.Event) => {
   const invoice = event.data.object as Stripe.Invoice
 
   // Get customer
@@ -35,12 +34,23 @@ export const handlePaymentActionRequired = async (event: Stripe.Event) => {
     variantTargetId
   )
 
+  if (!invoice.invoice_pdf) {
+    throw new Error('Invoice PDF not found')
+  }
+
+  if (!invoice.number) {
+    throw new Error('Invoice number not found')
+  }
+
+  // Download invoice pdf into a base64 string
+  const invoiceBase64 = await axios
+    .get(invoice.invoice_pdf, {
+      responseType: 'arraybuffer',
+    })
+    .then((response) => Buffer.from(response.data).toString('base64'))
+
   await Promise.all(
     users.map(async (user) => {
-      if (!user) {
-        return
-      }
-
       const role = adminOwnerMemberships.find(
         (membership) => membership.userId === user.id
       )?.role
@@ -49,8 +59,8 @@ export const handlePaymentActionRequired = async (event: Stripe.Event) => {
         return
       }
 
-      const mailmanInput: MailmanInput<NotifyPaymentActionRequiredData> = {
-        template: 'notify-payment-failed',
+      const mailmanInput: DispatchEmailInput<NotifyInvoiceData> = {
+        template: 'notify-new-invoice',
         to: user.email,
         userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
         blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
@@ -59,17 +69,22 @@ export const handlePaymentActionRequired = async (event: Stripe.Event) => {
             ? {
                 targetName: `${user.firstName} ${user.lastName}`,
                 invoice,
-                last4: await getInvoiceLast4(invoice),
-                role: role as string as 'ADMIN' | 'OWNER',
+                role: role as 'ADMIN' | 'OWNER',
                 workspaceName: (team as Team).name,
               }
             : {
                 targetName: `${user.firstName} ${user.lastName}`,
                 invoice,
-                last4: await getInvoiceLast4(invoice),
                 role: 'OWN-ACCOUNT',
                 workspaceName: undefined,
               },
+        attachments: [
+          {
+            filename: `invoice-${invoice.number}.pdf`,
+            contentBase64: invoiceBase64,
+            contentType: 'application/pdf',
+          },
+        ],
       }
 
       return dispatchEmail(mailmanInput)

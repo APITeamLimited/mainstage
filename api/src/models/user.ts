@@ -26,7 +26,7 @@ import {
 import { db } from 'src/lib/db'
 import { gatewayUrl } from 'src/lib/environment'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis, creditsReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis, getCreditsReadRedis } from 'src/lib/redis'
 import { scanPatternDelete } from 'src/utils'
 
 import { CustomerModel, CustomerUpdateInput, PlanInfoModel } from './billing'
@@ -70,8 +70,22 @@ export const UserModel: APITeamModel<
     const freePlanInfo = await getFreePlanInfo()
     input.planInfoId = freePlanInfo.id
 
-    const createdUser = await db.user.create({
+    let createdUser = await db.user.create({
       data: input,
+    })
+
+    const customer = await CustomerModel.create({
+      email: createdUser.email,
+      variant: 'USER',
+      variantTargetId: createdUser.id,
+      name: `${createdUser.firstName} ${createdUser.lastName}`,
+    })
+
+    createdUser = await db.user.update({
+      where: { id: createdUser.id },
+      data: {
+        customerId: customer.id,
+      },
     })
 
     await Promise.all([
@@ -220,6 +234,9 @@ export const UserModel: APITeamModel<
     return updatedUser
   },
   delete: async (id) => {
+    const coreCacheReadRedis = await getCoreCacheReadRedis()
+    const creditsReadRedis = await getCreditsReadRedis()
+
     // Delete all membewrships and scopes
     const [scopes, memberships] = await Promise.all([
       db.scope.findMany({
@@ -277,22 +294,24 @@ export const UserModel: APITeamModel<
     return user
   },
   exists: async (id) => {
-    const rawUser = await coreCacheReadRedis.get(`user__id:${id}`)
+    const rawUser = await (await getCoreCacheReadRedis()).get(`user__id:${id}`)
     return !!rawUser
   },
   get: async (id: string) => {
-    const rawUser = await coreCacheReadRedis.get(`user__id:${id}`)
+    const rawUser = await (await getCoreCacheReadRedis()).get(`user__id:${id}`)
     return rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
   },
   getMany: async (ids: string[]) => {
-    const rawUsers = await coreCacheReadRedis.mGet(
-      ids.map((id) => `user__id:${id}`)
-    )
+    const rawUsers = await (
+      await getCoreCacheReadRedis()
+    ).mGet(ids.map((id) => `user__id:${id}`))
     return rawUsers.map((rawUser) =>
       rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
     )
   },
   rebuildCache: async () => {
+    const coreCacheReadRedis = await getCoreCacheReadRedis()
+
     await Promise.all([
       coreCacheReadRedis.del('user'),
       scanPatternDelete('user__id:*', coreCacheReadRedis),
@@ -324,11 +343,15 @@ export const UserModel: APITeamModel<
     })
   },
   getIndexedField: async (field, key) => {
-    const rawUser = await coreCacheReadRedis.get(`user__${field}:${key}`)
+    const rawUser = await (
+      await getCoreCacheReadRedis()
+    ).get(`user__${field}:${key}`)
     return rawUser ? userAsPersonal(JSON.parse(rawUser)) : null
   },
   indexedFieldExists: async (field, key) => {
-    const rawUser = await coreCacheReadRedis.get(`user__${field}:${key}`)
+    const rawUser = await (
+      await getCoreCacheReadRedis()
+    ).get(`user__${field}:${key}`)
     return !!rawUser
   },
   getAllAsyncIterator: async function* () {
@@ -379,6 +402,8 @@ export const UserModel: APITeamModel<
 const setUserRedis = async (user: User) => {
   const cachedUser = userAsPersonal(user)
 
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await coreCacheReadRedis.hSet('user', user.id, JSON.stringify(cachedUser))
 
   await coreCacheReadRedis.set(
@@ -414,12 +439,14 @@ const createFreeCredits = async (
     return
   }
 
+  const creditsReadRedis = await getCreditsReadRedis()
+
   await Promise.all([
     // Reset free credits
-    creditsReadRedis.set(`user:${userId}:freeCredits`, planInfo.monthlyCredits),
+    creditsReadRedis.set(`USER:${userId}:freeCredits`, planInfo.monthlyCredits),
 
     creditsReadRedis.set(
-      `user:${userId}:maxFreeCredits`,
+      `USER:${userId}:maxFreeCredits`,
       planInfo.monthlyCredits
     ),
 

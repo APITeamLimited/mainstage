@@ -7,7 +7,7 @@ import {
 import type { Prisma, PlanInfo } from '@prisma/client'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { stripe } from 'src/lib/stripe'
 import { setModelRedis } from 'src/utils'
 
@@ -22,7 +22,7 @@ export const PlanInfoModel: APITeamModel<
       data: await createProductAndPrices(input),
     })
 
-    await setModelRedis('planInfo', coreCacheReadRedis, newPlanInfo)
+    await setModelRedis('planInfo', await getCoreCacheReadRedis(), newPlanInfo)
 
     return newPlanInfo
   },
@@ -40,7 +40,11 @@ export const PlanInfoModel: APITeamModel<
       where: { id },
     })
 
-    await setModelRedis('planInfo', coreCacheReadRedis, updatedPlanInfo)
+    await setModelRedis(
+      'planInfo',
+      await getCoreCacheReadRedis(),
+      updatedPlanInfo
+    )
 
     return updatedPlanInfo
   },
@@ -49,26 +53,32 @@ export const PlanInfoModel: APITeamModel<
       where: { id },
     })
 
-    await coreCacheReadRedis.hDel('planInfo', id)
+    await (await getCoreCacheReadRedis()).hDel('planInfo', id)
 
     return deletedPlanInfo
   },
   exists: async (id) => {
-    const rawPlanInfo = await coreCacheReadRedis.hGet('planInfo', id)
+    const rawPlanInfo = await (
+      await getCoreCacheReadRedis()
+    ).hGet('planInfo', id)
     return !!rawPlanInfo
   },
   get: async (id) => {
-    const rawPlanInfo = await coreCacheReadRedis.hGet('planInfo', id)
+    const rawPlanInfo = await (
+      await getCoreCacheReadRedis()
+    ).hGet('planInfo', id)
     return rawPlanInfo ? JSON.parse(rawPlanInfo) : null
   },
   getMany: async (ids) => {
     return Promise.all(ids.map(PlanInfoModel.get))
   },
   getAll: async () => {
-    const rawPlanInfos = await coreCacheReadRedis.hVals('planInfo')
+    const rawPlanInfos = await (await getCoreCacheReadRedis()).hVals('planInfo')
     return rawPlanInfos.map((rawPlanInfo) => JSON.parse(rawPlanInfo))
   },
   rebuildCache: async () => {
+    const coreCacheReadRedis = await getCoreCacheReadRedis()
+
     await coreCacheReadRedis.del('planInfo')
 
     let skip = 0

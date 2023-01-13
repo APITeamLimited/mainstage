@@ -12,7 +12,7 @@ import {
   generateUserUnsubscribeUrl,
 } from 'src/helpers/routing'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { TeamModel } from 'src/models/team'
 import { getKeyPair } from 'src/services/bearer/bearer'
 import { checkOwner } from 'src/services/guards'
@@ -28,7 +28,9 @@ export const sendDeleteTeamEmail = async ({ teamId }: { teamId: string }) => {
     )
   }
 
-  const teamRaw = await coreCacheReadRedis.hGet(`team:${teamId}`, 'team')
+  const teamRaw = await (
+    await getCoreCacheReadRedis()
+  ).hGet(`team:${teamId}`, 'team')
   if (!teamRaw) {
     throw new Error('Team not found')
   }

@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react'
 
-import { ROUTES } from '@apiteam/types/src'
+import {
+  AbstractPlanInfoCreateInput,
+  DEFAULT_PRICING_PLANS,
+  ROUTES,
+} from '@apiteam/types/src'
 import { useTheme, Typography, Stack, Grid, Switch, Alert } from '@mui/material'
 import { PlanInfosQuery, PlanInfosQueryVariables } from 'types/graphql'
 
@@ -14,7 +18,7 @@ import {
   smallPanelSpacing,
 } from '../constants'
 
-import { formatPlanInfo, PricingCard } from './PricingCard'
+import { PricingCard } from './PricingCard'
 
 import { CreditsPricingOptionCard } from '.'
 
@@ -126,8 +130,8 @@ export const PricingOverview = ({
           ))}
         </Grid>
         {showCreditsPricingOption && (
-          <Grid container spacing={mediumPanelSpacing} justifyContent="center">
-            <Grid item xs={12} md={6}>
+          <Grid container justifyContent="center">
+            <Grid xs={12} md={6}>
               <CreditsPricingOptionCard />
             </Grid>
           </Grid>
@@ -143,4 +147,36 @@ export const PricingOverview = ({
       )}
     </Stack>
   )
+}
+
+/**
+ * Returns live pricing options from the pricing query, or the default pricing options if the query hasn't loaded yet
+ */
+const formatPlanInfo = (
+  planInfoData: PlanInfosQuery | undefined
+): AbstractPlanInfoCreateInput[] => {
+  if (!planInfoData) {
+    return DEFAULT_PRICING_PLANS.sort(
+      (a, b) => a.priceMonthlyCents - b.priceMonthlyCents
+    )
+  }
+
+  return planInfoData.planInfos
+    .map((planInfo) => ({
+      name: planInfo.name,
+      verboseName: planInfo.verboseName,
+      description: planInfo.description,
+      priceMonthlyCents: planInfo.priceMonthlyCents,
+      priceYearlyCents: planInfo.priceYearlyCents,
+      maxMembers: planInfo.maxMembers,
+      maxSimulatedUsers: planInfo.maxSimulatedUsers,
+      monthlyCredits: planInfo.monthlyCredits,
+      maxConcurrentCloudTests: planInfo.maxConcurrentCloudTests,
+      maxConcurrentScheduledTests: planInfo.maxConcurrentScheduledTests,
+      maxTestDurationMinutes: planInfo.maxTestDurationMinutes,
+      dataRetentionMonths: planInfo.dataRetentionMonths,
+      freeTrialDays: planInfo.freeTrialDays,
+      loadZones: planInfo.loadZones,
+    }))
+    .sort((a, b) => a.priceMonthlyCents - b.priceMonthlyCents)
 }

@@ -16,7 +16,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis, creditsReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis, getCreditsReadRedis } from 'src/lib/redis'
 import { scanPatternDelete } from 'src/utils'
 import { checkSlugAvailable } from 'src/validators'
 
@@ -61,11 +61,27 @@ export const TeamModel: APITeamModel<
 
     const freePlanInfo = await getFreePlanInfo()
 
-    const createdTeam = await db.team.create({
+    let createdTeam = await db.team.create({
       data: {
         name: input.name,
         slug: input.slug,
         planInfoId: freePlanInfo.id,
+      },
+    })
+
+    const customer = await CustomerModel.create({
+      email: input.owner.email,
+      variant: 'TEAM',
+      variantTargetId: createdTeam.id,
+      name: createdTeam.name,
+    })
+
+    createdTeam = await db.team.update({
+      where: {
+        id: createdTeam.id,
+      },
+      data: {
+        customerId: customer.id,
       },
     })
 
@@ -217,6 +233,9 @@ export const TeamModel: APITeamModel<
 
     await Promise.all(scopes.map((scope) => ScopeModel.delete(scope.id)))
 
+    const creditsReadRedis = await getCreditsReadRedis()
+    const coreCacheReadRedis = await getCoreCacheReadRedis()
+
     await creditsReadRedis.del(`team:${id}:freeCredits`)
     await creditsReadRedis.del(`team:${id}:maxFreeCredits`)
     await creditsReadRedis.del(`team:${id}:paidCredits`)
@@ -259,18 +278,22 @@ export const TeamModel: APITeamModel<
     })
   },
   exists: async (id) => {
-    const rawTeam = await coreCacheReadRedis.hGet(`team:${id}`, 'team')
+    const rawTeam = await (
+      await getCoreCacheReadRedis()
+    ).hGet(`team:${id}`, 'team')
     return !!rawTeam
   },
   get: async (id) => {
-    const rawTeam = await coreCacheReadRedis.hGet(`team:${id}`, 'team')
+    const rawTeam = await (
+      await getCoreCacheReadRedis()
+    ).hGet(`team:${id}`, 'team')
     return rawTeam ? JSON.parse(rawTeam) : null
   },
   getMany: async (ids) => {
     return Promise.all(ids.map(TeamModel.get))
   },
   rebuildCache: async () => {
-    await scanPatternDelete('team:*', coreCacheReadRedis)
+    await scanPatternDelete('team:*', await getCoreCacheReadRedis())
 
     let skip = 0
     let batchSize = 0
@@ -321,9 +344,10 @@ export const TeamModel: APITeamModel<
 
     return customer.id
   },
-
   getAllMemberships: async (teamId) => {
-    const rawTeamAll = await coreCacheReadRedis.hGetAll(`team:${teamId}`)
+    const rawTeamAll = await (
+      await getCoreCacheReadRedis()
+    ).hGetAll(`team:${teamId}`)
 
     const memberships = [] as Membership[]
 
@@ -383,6 +407,8 @@ export const TeamModel: APITeamModel<
 }
 
 const setTeamRedis = async (team: Team, oppType: 'CREATE' | 'UPDATE') => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await coreCacheReadRedis.hSet(`team:${team.id}`, 'team', JSON.stringify(team))
 
   await coreCacheReadRedis.publish(
@@ -395,6 +421,8 @@ const setTeamRedis = async (team: Team, oppType: 'CREATE' | 'UPDATE') => {
 }
 
 const setMembershipRedis = async (membership: Membership) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
     coreCacheReadRedis.hSet(
       `team:${membership.teamId}`,
@@ -413,6 +441,8 @@ const setMembershipRedis = async (membership: Membership) => {
 }
 
 const deleteMembershipRedis = async (membership: Membership) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
     coreCacheReadRedis.hDel(
       `team:${membership.teamId}`,
@@ -456,12 +486,14 @@ const createFreeCredits = async (
     return
   }
 
+  const creditsReadRedis = await getCreditsReadRedis()
+
   await Promise.all([
     // Reset free credits
-    creditsReadRedis.set(`team:${teamId}:freeCredits`, planInfo.monthlyCredits),
+    creditsReadRedis.set(`TEAM:${teamId}:freeCredits`, planInfo.monthlyCredits),
 
     creditsReadRedis.set(
-      `team:${teamId}:maxFreeCredits`,
+      `TEAM:${teamId}:maxFreeCredits`,
       planInfo.monthlyCredits
     ),
 

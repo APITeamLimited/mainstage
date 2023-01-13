@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 export const createAPITeamOAuth2Code = async (): Promise<string> => {
   if (!context.currentUser) {
@@ -15,6 +15,8 @@ export const createAPITeamOAuth2Code = async (): Promise<string> => {
     apiteamOAuth2Code: uuid(),
     returnResult: null,
   }
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   await coreCacheReadRedis.set(
     `oauth2-callback:${data.apiteamOAuth2Code}`,
@@ -38,9 +40,9 @@ export const apiTeamOAuth2Result = async ({
     throw new ServiceValidationError('Not logged in')
   }
 
-  const rawData = await coreCacheReadRedis.get(
-    `oauth2-callback:${apiteamOAuth2Code}`
-  )
+  const rawData = await (
+    await getCoreCacheReadRedis()
+  ).get(`oauth2-callback:${apiteamOAuth2Code}`)
 
   if (!rawData) {
     throw new ServiceValidationError(

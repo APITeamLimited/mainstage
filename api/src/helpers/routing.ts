@@ -52,8 +52,6 @@ export const generateBlanketUnsubscribeUrl = async (email: string) => {
     }
   )
 
-  console.log('g')
-
   return `${gateway}${ROUTES.blanketUnsubscribe}?token=${token}`
 }
 

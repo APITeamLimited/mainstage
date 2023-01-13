@@ -26,6 +26,6 @@
   "include": [
     "src",
     "../.redwood/types/includes/all-*",
-    "../.redwood/types/includes/api-*",
+    "../.redwood/types/includes/api-*"
   ],
 }

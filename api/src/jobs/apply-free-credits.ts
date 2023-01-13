@@ -3,7 +3,7 @@ import type { Queue } from 'bullmq'
 
 import { getFreePlanInfo } from 'src/helpers/billing'
 import { db } from 'src/lib/db'
-import { creditsReadRedis } from 'src/lib/redis'
+import { getCreditsReadRedis } from 'src/lib/redis'
 import { TeamModel, UserModel } from 'src/models'
 
 type WorkspaceInfo =
@@ -36,7 +36,9 @@ export const registerRecurringCreditsJob = async (queue: Queue) => {
   )
 
   // Run immediately
-  applyFreeCredits()
+  applyFreeCredits().catch((e) => {
+    console.log(e)
+  })
 }
 
 export const applyFreeCredits = async (force = false, slow = false) => {
@@ -152,7 +154,7 @@ export const processFreeCredits = async (input: WorkspaceInfo) => {
   const planInfo = await getPlanInfo(input)
   const isTeam = 'team' in input
 
-  const workspaceName = `${isTeam ? 'team' : 'user'}:${
+  const workspaceName = `${isTeam ? 'TEAM' : 'USER'}:${
     isTeam ? input.team.id : input.user.id
   }`
 
@@ -165,6 +167,8 @@ export const processFreeCredits = async (input: WorkspaceInfo) => {
 
   // Prevent multiple jobs from running at the same time resulting in duplicate credits
   const lockName = `${workspaceName}:lock`
+
+  const creditsReadRedis = await getCreditsReadRedis()
 
   if (await creditsReadRedis.get(lockName)) {
     return

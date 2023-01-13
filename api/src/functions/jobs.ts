@@ -23,13 +23,17 @@ export const apiQueue = new Queue('api', {
 })
 
 // Register recurring jobs
-registerRecurringCreditsJob(apiQueue)
+registerRecurringCreditsJob(apiQueue).catch((err) => {
+  console.log(err)
+})
 
 const worker = new Worker(
   'api',
   async (job) => {
     if (job.name === 'applyFreeCredits') {
-      applyFreeCredits()
+      applyFreeCredits().catch((err) => {
+        console.log(err)
+      })
     }
   },
   {

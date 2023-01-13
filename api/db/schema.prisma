@@ -211,3 +211,12 @@ model CreditsPricingOption {
   productId  String
   priceId    String
 }
+
+model CustomerInvoice {
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+
+  name       String
+  customerId String
+}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import {
   Graph,
@@ -58,6 +58,26 @@ export const EditGraphDialog = ({
   setGraph,
   metrics,
 }: EditGraphDialogProps) => {
+  const loadZones = useMemo(() => {
+    if (!metrics) {
+      return [] as string[]
+    }
+
+    const foundLoadZones = [] as string[]
+
+    for (const metric of metrics) {
+      const loadZonesInMessage = Object.keys(metric.message)
+
+      for (const loadZone of loadZonesInMessage) {
+        if (!foundLoadZones.includes(loadZone)) {
+          foundLoadZones.push(loadZone)
+        }
+      }
+    }
+
+    return foundLoadZones
+  }, [metrics])
+
   const formik = useFormik({
     initialValues: {
       name: existingGraph?.graph?.name ?? 'New',
@@ -76,10 +96,7 @@ export const EditGraphDialog = ({
         Yup.object({
           loadZone: Yup.string()
             .required()
-            .oneOf(
-              AVAILABLE_LOAD_ZONES as unknown as string[],
-              'Invalid load zone'
-            ),
+            .oneOf(loadZones, 'Invalid load zone'),
           kind: Yup.string()
             .required('Required')
             .oneOf(['line', 'area', 'column']),
@@ -300,7 +317,7 @@ export const EditGraphDialog = ({
                             flex: 1,
                           }}
                         >
-                          {AVAILABLE_LOAD_ZONES.map((loadZone, index) => (
+                          {loadZones.map((loadZone, index) => (
                             <MenuItem value={loadZone} key={index}>
                               {loadZone}
                             </MenuItem>

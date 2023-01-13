@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
+import { ROUTES } from '@apiteam/types/src'
 import { Box, Stack, Button, useTheme } from '@mui/material'
 import { Container } from '@mui/system'
 
-import { navigate, routes, useLocation } from '@redwoodjs/router'
-
-import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
+import { navigate, useLocation } from '@redwoodjs/router'
 
 type PageEndpoint = {
   name: string
@@ -13,41 +12,30 @@ type PageEndpoint = {
   activeSecondaryEndpoints?: string[]
 }
 
+const pages = [
+  {
+    name: 'Overview',
+    endpoint: ROUTES.dashboard,
+  },
+  {
+    name: 'Domains',
+    endpoint: ROUTES.domains,
+  },
+  {
+    name: 'Settings',
+    endpoint: ROUTES.settingsWorkspace,
+    activeSecondaryEndpoints: [
+      ROUTES.settingsWorkspaceMembers,
+      ROUTES.settingsWorkspaceDangerZone,
+      ROUTES.settingsWorkspaceBilling,
+      ROUTES.settingsWorkspaceInvoices,
+    ],
+  },
+]
+
 export const TopBarDashboard = () => {
   const { pathname } = useLocation()
-  const workspaceInfo = useWorkspaceInfo()
   const theme = useTheme()
-
-  const pages = useMemo<PageEndpoint[]>(() => {
-    const isLeastAdmin =
-      workspaceInfo?.scope?.role === 'ADMIN' ||
-      workspaceInfo?.scope?.role === 'OWNER' ||
-      false
-
-    const isOwner = workspaceInfo?.scope?.role === 'OWNER' || false
-
-    const currentPages = [
-      {
-        name: 'Overview',
-        endpoint: routes.dashboard(),
-      },
-      {
-        name: 'Domains',
-        endpoint: routes.domains(),
-      },
-      {
-        name: 'Settings',
-        endpoint: routes.settingsWorkspace(),
-        activeSecondaryEndpoints: [
-          routes.settingsWorkspaceMembers(),
-          routes.settingsWorkspaceDangerZone(),
-          routes.settingsWorkspaceBilling(),
-        ],
-      },
-    ]
-
-    return currentPages
-  }, [workspaceInfo?.scope?.role])
 
   const getCurrentPage = useCallback(() => {
     const primaryPage = pages.find((page) => page.endpoint === pathname) || null
@@ -61,7 +49,7 @@ export const TopBarDashboard = () => {
         )
       }) || null
     )
-  }, [pages, pathname])
+  }, [pathname])
 
   const [currentEndpoint, setCurrentEndpoint] = useState<PageEndpoint | null>(
     getCurrentPage()

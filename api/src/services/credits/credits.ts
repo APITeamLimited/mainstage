@@ -1,4 +1,4 @@
-import { creditsReadRedis } from 'src/lib/redis'
+import { getCreditsReadRedis } from 'src/lib/redis'
 
 import { checkAuthenticated, checkMember } from '../guards'
 
@@ -19,7 +19,9 @@ export const credits = async ({
     await checkMember({ teamId })
   }
 
-  const workspaceName = teamId ? `team:${teamId}` : `user:${userId}`
+  const workspaceName = teamId ? `TEAM:${teamId}` : `USER:${userId}`
+
+  const creditsReadRedis = await getCreditsReadRedis()
 
   const [freeCredits, maxFreeCredits, paidCredits] = await Promise.all([
     creditsReadRedis.get(`${workspaceName}:freeCredits`),

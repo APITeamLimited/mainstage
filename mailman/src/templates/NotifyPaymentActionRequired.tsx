@@ -16,7 +16,7 @@ export type NotifyPaymentActionRequiredData = {
       workspaceName: undefined
     }
   | {
-      role: "OWNER" | 'ADMIN'
+      role: 'OWNER' | 'ADMIN'
       workspaceName: string
     }
 )
@@ -51,7 +51,7 @@ export const NotifyPaymentActionRequired = (
         }}
       >
         Hi {targetName}, payment action is required for{' '}
-        {role === "OWNER"
+        {role === 'OWNER'
           ? `your workspace ${workspaceName}`
           : role === 'ADMIN'
           ? `the workspace ${workspaceName} where you are admin`
@@ -103,7 +103,7 @@ export const notifyPaymentActionRequiredText = ({
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
   const line1 = `Hi ${targetName}, payment action is required for ${
-    role === "OWNER"
+    role === 'OWNER'
       ? `your workspace ${workspaceName}`
       : role === 'ADMIN'
       ? `the workspace ${workspaceName} where you are admin`

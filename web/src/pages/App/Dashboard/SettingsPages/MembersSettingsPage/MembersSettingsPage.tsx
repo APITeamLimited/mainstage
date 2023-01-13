@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { Stack, Typography, useTheme, Box, Divider } from '@mui/material'
+import { Stack, Typography, useTheme, Box } from '@mui/material'
 
 import { routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
@@ -9,7 +9,6 @@ import { CustomTabs } from 'src/components/app/CustomTabs'
 import { DashboardPageFrame } from 'src/components/app/dashboard/utils/DashboardPageFrame'
 import { SideTabManager } from 'src/components/app/dashboard/utils/SideTabManager'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 
 import { SETTINGS_TABS } from '..'
 

@@ -151,7 +151,8 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
           </Stack>
         </Stack>
       </Grid>
-      <Grid item xs={12} sm={4}>
+      {/* TODO: Re-add when supported */}
+      {/* <Grid item xs={12} sm={4}>
         <Stack spacing={2}>
           <Typography variant="body1" fontWeight="bold">
             Concurrent Scheduled Tests
@@ -175,7 +176,7 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
               )}
           </Stack>
         </Stack>
-      </Grid>
+      </Grid> */}
       <Grid item xs={12} sm={4}>
         <Stack spacing={2}>
           <Typography variant="body1" fontWeight="bold">
@@ -206,7 +207,8 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
           </Stack>
         </Stack>
       </Grid>
-      <Grid item xs={12} sm={4}>
+      {/* TODO: Re-add when supported */}
+      {/* <Grid item xs={12} sm={4}>
         <Stack spacing={2}>
           <Typography variant="body1" fontWeight="bold">
             Test Data Retention
@@ -230,7 +232,7 @@ export const IndividualFeatures = ({ nextPlan }: IndividualFeaturesProps) => {
               )}
           </Stack>
         </Stack>
-      </Grid>
+      </Grid> */}
     </Grid>
   ) : (
     <Skeleton variant="text" height={20} />

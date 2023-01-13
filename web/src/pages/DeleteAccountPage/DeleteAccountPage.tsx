@@ -19,10 +19,12 @@ import {
   HandleAccountDeleteVariables,
 } from 'types/graphql'
 
-import { Link, navigate, routes } from '@redwoodjs/router'
+import { useAuth } from '@redwoodjs/auth'
+import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
+import { handleLogout } from 'src/utils/nav-utils'
 
 type DeleteAccountPageProps = {
   token: string
@@ -36,6 +38,8 @@ const HANDLE_ACCOUNT_DELETE_MUTATION = gql`
 
 const DeleteAccountPage = ({ token }: DeleteAccountPageProps) => {
   const theme = useTheme()
+
+  const { logOut } = useAuth()
 
   const [handleAccountDelete] = useMutation<
     HandleAccountDelete,
@@ -137,7 +141,7 @@ const DeleteAccountPage = ({ token }: DeleteAccountPageProps) => {
                             setSnackSuccessMessage(
                               'Account deleted successfully'
                             )
-                            setTimeout(() => navigate(routes.splash()), 3000)
+                            setTimeout(() => handleLogout(logOut), 3000)
                           } else {
                             setSnackErrorMessage(
                               'Something went wrong while deleting your account'

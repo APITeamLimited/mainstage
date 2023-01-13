@@ -2,7 +2,7 @@ import { getDisplayName, UserAsPersonal } from '@apiteam/types'
 import type { Membership, Team, PlanInfo, Scope } from '@prisma/client'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 /*
 Creates or updates an existing personal scope with latest user data.
@@ -174,6 +174,8 @@ export const createTeamScope = async (
 }
 
 const setScopeRedis = async (scope: Scope) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await coreCacheReadRedis.set(`scope__id:${scope.id}`, JSON.stringify(scope))
   await coreCacheReadRedis.publish(
     `scope__id:${scope.id}`,

@@ -2,9 +2,11 @@ import { ensureCorrectType } from '@apiteam/types'
 import { Scope } from '@prisma/client'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 export const getScope = async (id: string): Promise<Scope> => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   const scopeRedis = ensureCorrectType(await coreCacheReadRedis.get(id))
   if (scopeRedis) {
     return JSON.parse(scopeRedis) as Scope

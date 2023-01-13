@@ -2,7 +2,7 @@ import { DeleteMixin } from '@apiteam/types'
 import { Invitation } from '@prisma/client'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 export const InvitationModel: DeleteMixin<Invitation> = {
   delete: async (id) => {
@@ -20,6 +20,8 @@ export const InvitationModel: DeleteMixin<Invitation> = {
 
 export const setInvitationRedis = async (invitation: Invitation) => {
   // Set invitation in redis by id, teamId, and email
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   await Promise.all([
     coreCacheReadRedis.sAdd(
@@ -40,6 +42,8 @@ export const setInvitationRedis = async (invitation: Invitation) => {
 }
 
 export const deleteInvitationRedis = async (invitation: Invitation) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
     coreCacheReadRedis.del(`invitation__id:${invitation.id}`),
 

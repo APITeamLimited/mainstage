@@ -7,7 +7,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { setVerifiedDomainRedis } from 'src/helpers/verified-domains'
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { checkOwnerAdmin } from 'src/services/guards'
 
 const verifiedDomainRegex = new RegExp(
@@ -41,6 +41,8 @@ export const addVerifiedDomain = async ({
   if (!isValidDomain(domain)) {
     throw new ServiceValidationError('Invalid domain.')
   }
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   // Check verifiedDomain is not already verified
   const verifiedDomainIds = await coreCacheReadRedis.sMembers(

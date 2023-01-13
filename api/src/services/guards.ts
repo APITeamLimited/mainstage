@@ -3,18 +3,20 @@ import { Membership } from '@prisma/client'
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { checkValue } from 'src/config'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 export const checkOwner = async ({ teamId }: { teamId: string }) => {
   const currentUser = await checkAuthenticated()
 
   const currentUserMembership = (
-    Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
+    Object.entries(
+      await (await getCoreCacheReadRedis()).hGetAll(`team:${teamId}`)
+    )
       .filter(([key, _]) => {
         return key.startsWith('membership:')
       })
       .map(([_, value]) => {
-        return JSON.parse(value)
+        return JSON.parse(value as string)
       }) as Membership[]
   )
     .filter((membership) => membership.userId === currentUser.id)
@@ -41,7 +43,9 @@ export const checkOwnerAdmin = async ({
   const currentUser = await checkAuthenticated()
 
   const currentUserMembership = (
-    Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
+    Object.entries(
+      await (await getCoreCacheReadRedis()).hGetAll(`team:${teamId}`)
+    )
       .filter(([key, _]) => {
         return key.startsWith('membership:')
       })
@@ -77,7 +81,9 @@ export const checkMember = async ({
   const currentUser = await checkAuthenticated()
 
   const currentUserMembership = (
-    Object.entries(await coreCacheReadRedis.hGetAll(`team:${teamId}`))
+    Object.entries(
+      await (await getCoreCacheReadRedis()).hGetAll(`team:${teamId}`)
+    )
       .filter(([key, _]) => {
         return key.startsWith('membership:')
       })

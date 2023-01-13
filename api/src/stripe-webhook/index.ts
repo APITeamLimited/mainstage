@@ -12,15 +12,21 @@ import { handlePaymentSucceeded } from './webhook-events/invoice/payment/succeed
 
 const webhookSecret = checkValue<string>('stripe.webhookSecret')
 
+const verifyWebhooks = process.env.NODE_ENV !== 'development'
+
 export const supportedStripeEvents = [
   'customer.subscription.updated',
   'customer.subscription.trial_will_end',
+  'invoice.created',
+  'invoice.updated',
   'invoice.payment_failed',
   'invoice.payment_succeeded',
 ] as Stripe.WebhookEndpointCreateParams.EnabledEvent[]
 
-export const handler = async (event: APIGatewayProxyEvent, _: never) => {
-  const error = await handleWebhookEvent(event)
+export const stripeHandler = async (event: APIGatewayProxyEvent, _: never) => {
+  const error = verifyWebhooks
+    ? await handleWebhookEvent(event)
+    : await handleWebhookEventNoVefify(event)
 
   return error
     ? {
@@ -53,6 +59,34 @@ const handleWebhookEvent = async (
 
   try {
     stripeEvent = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+  } catch (error: Error) {
+    return error
+  }
+
+  return processWebhookEvent(stripeEvent)
+    .catch((error: Error) => error)
+    .then(() => null)
+}
+
+/**
+ * When forwarding webhooks in dev, these webhooks are not signed
+ */
+const handleWebhookEventNoVefify = async (
+  event: APIGatewayProxyEvent
+): Promise<Error | null> => {
+  // Get body from event
+  const body = event.body
+
+  if (!body) {
+    return new Error('No body found')
+  }
+
+  let stripeEvent: Stripe.Event
+
+  try {
+    stripeEvent = JSON.parse(body)
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
   } catch (error: Error) {

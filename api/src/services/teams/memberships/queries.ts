@@ -1,7 +1,7 @@
 import { UserAsPersonal } from '@apiteam/types'
 import { Membership } from '@prisma/client'
 
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { UserModel } from 'src/models/user'
 import { checkOwnerAdmin } from 'src/services/guards'
 
@@ -10,7 +10,9 @@ export const memberships = async ({ teamId }: { teamId: string }) => {
 
   // TODO: Only query user field if asked for
 
-  const allTeamInfoRaw = await coreCacheReadRedis.hGetAll(`team:${teamId}`)
+  const allTeamInfoRaw = await (
+    await getCoreCacheReadRedis()
+  ).hGetAll(`team:${teamId}`)
 
   const memberships = [] as Membership[]
 

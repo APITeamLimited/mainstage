@@ -108,7 +108,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const lib0 = useLib0Module()
   const Y = useYJSModule()
 
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, logOut } = useAuth()
   const [publicKey, setPublicKey] = useState<string | null>(null)
   const [bearer, setBearer] = useState<Bearer | null>(null)
   const [rawBearer, setRawBearer] = useState<string | null>(null)
@@ -239,6 +239,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       Y,
       lib0,
       setSpawnKey,
+      logOut,
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [

@@ -13,7 +13,7 @@ const handleDeletion = async (
   const existingOpenDoc = openDocs.get(`${variant}:${variantTargetId}`)
 
   if (existingOpenDoc) {
-    existingOpenDoc.publishDeletion()
+    existingOpenDoc.publishDeletion(variant)
 
     await new Promise((resolve) => setTimeout(resolve, 500))
     await existingOpenDoc.closeDoc()

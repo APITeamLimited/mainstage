@@ -292,10 +292,16 @@ export class OpenDoc extends Y.Doc {
     return this.awareness.getLocalState() as ServerAwareness
   }
 
-  publishDeletion() {
-    Array.from(this.sockets.keys()).forEach((socket) => {
-      socket.emit('doc-deleted')
-    })
+  publishDeletion(variant: 'TEAM' | 'USER') {
+    if (variant === 'TEAM') {
+      Array.from(this.sockets.keys()).forEach((socket) => {
+        socket.emit('doc-deleted')
+      })
+    } else {
+      Array.from(this.sockets.keys()).forEach((socket) => {
+        socket.emit('doc-deleted-user')
+      })
+    }
   }
 
   notifyKick(userId: string) {

@@ -136,7 +136,7 @@ export const restAddOptions = async (
   if (options.executionMode === 'httpMultiple') {
     setTimeout(() => {
       configureGlobetestGraphs(responseYMap, options)
-    }, 1000)
+    }, 960)
   }
 }
 
@@ -321,37 +321,6 @@ export const restHandleFailure = async (
   cleanupSocket(socket)
 }
 
-const configureGlobetestGraphs = async (
-  responseYMap: Y.Map<any>,
-  options: GlobeTestOptions
-) => {
-  if (!responseYMap.has('graphs')) {
-    responseYMap.set('graphs', new Y.Map<Graph>())
-  }
-
-  const graphsYMap = responseYMap.get('graphs') as Y.Map<Graph>
-
-  if (!options.outputConfig?.graphs) return
-
-  options.outputConfig.graphs.forEach((graphConfig) => {
-    const graph: Graph = {
-      __typename: 'Graph',
-      id: uuid(),
-      name: graphConfig.name,
-      description: graphConfig.description ?? undefined,
-      series: graphConfig.series.map((seriesConfig) => ({
-        loadZone: seriesConfig.loadZone,
-        metric: seriesConfig.metric,
-        kind: seriesConfig.kind,
-        color: seriesConfig.color,
-      })),
-      desiredWidth: graphConfig.desiredWidth as 1 | 2 | 3,
-    }
-
-    graphsYMap.set(graph.id, graph)
-  })
-}
-
 export const restDeleteResponse = async (
   data: EntityEngineServersideMessages['rest-delete-response'],
   projectYMap: Y.Map<any>,
@@ -383,4 +352,43 @@ export const restDeleteResponse = async (
     socket.emit('error', err)
     console.warn(err)
   }
+}
+
+const configureGlobetestGraphs = async (
+  responseYMap: Y.Map<any>,
+  options: GlobeTestOptions
+) => {
+  if (!responseYMap.has('graphs')) {
+    responseYMap.set('graphs', new Y.Map<Graph>())
+  }
+
+  const graphsYMap = responseYMap.get('graphs') as Y.Map<Graph>
+
+  // If no graph options have been set return
+  if (!options.outputConfig?.graphs) {
+    return
+  }
+
+  // Don't configure graphs if they already exist
+  if (graphsYMap.size > 0) {
+    return
+  }
+
+  options.outputConfig.graphs.forEach((graphConfig) => {
+    const graph: Graph = {
+      __typename: 'Graph',
+      id: uuid(),
+      name: graphConfig.name,
+      description: graphConfig.description ?? undefined,
+      series: graphConfig.series.map((seriesConfig) => ({
+        loadZone: seriesConfig.loadZone,
+        metric: seriesConfig.metric,
+        kind: seriesConfig.kind,
+        color: seriesConfig.color,
+      })),
+      desiredWidth: graphConfig.desiredWidth as 1 | 2 | 3,
+    }
+
+    graphsYMap.set(graph.id, graph)
+  })
 }

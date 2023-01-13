@@ -2,9 +2,10 @@ import React from 'react'
 
 import { ROUTES } from '@apiteam/types'
 import { Box, Card, Divider, Typography, useTheme } from '@mui/material'
-import { Email, Box as EmailBox } from 'react-html-email'
+import { Box as EmailBox } from 'react-html-email'
 
 import { APITeamLogo } from '../components'
+import Email from '../components/Email'
 import { checkValue } from '../config'
 import { useInput } from '../MailmanProvider'
 

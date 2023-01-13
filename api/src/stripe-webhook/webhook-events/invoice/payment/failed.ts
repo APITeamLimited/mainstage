@@ -1,7 +1,4 @@
-import type {
-  MailmanInput,
-  NotifyPaymentSuccessfulData,
-} from '@apiteam/mailman'
+import type { MailmanInput, NotifyPaymentFailedData } from '@apiteam/mailman'
 import { Team } from '@prisma/client'
 import type Stripe from 'stripe'
 
@@ -12,10 +9,10 @@ import {
 import { dispatchEmail } from 'src/lib/mailman'
 import { CustomerModel } from 'src/models'
 
-import { getAdminOwnerSendInfo, getInvoiceLast4 } from '..'
 import { customerIdentificationSchema } from '../../customer'
+import { getAdminOwnerSendInfo, getInvoiceLast4 } from '../helpers'
 
-export const handlePaymentSucceeded = async (event: Stripe.Event) => {
+export const handlePaymentFailed = async (event: Stripe.Event) => {
   const invoice = event.data.object as Stripe.Invoice
 
   // Get customer
@@ -49,8 +46,8 @@ export const handlePaymentSucceeded = async (event: Stripe.Event) => {
         return
       }
 
-      const mailmanInput: MailmanInput<NotifyPaymentSuccessfulData> = {
-        template: 'notify-payment-successful',
+      const mailmanInput: MailmanInput<NotifyPaymentFailedData> = {
+        template: 'notify-payment-failed',
         to: user.email,
         userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
         blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),

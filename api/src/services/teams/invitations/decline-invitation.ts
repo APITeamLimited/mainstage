@@ -13,7 +13,7 @@ import {
 } from 'src/helpers/routing'
 import { db } from 'src/lib/db'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { deleteInvitationRedis } from 'src/models/invitation'
 import { UserModel } from 'src/models/user'
 import { getKeyPair } from 'src/services/bearer/bearer'
@@ -61,9 +61,9 @@ export const declineInvitation = async ({ token }: { token: string }) => {
   }
 
   // Tell owners and admins that the invitation was declined
-  const allTeamInfo = await coreCacheReadRedis.hGetAll(
-    `team:${invitation.teamId}`
-  )
+  const allTeamInfo = await (
+    await getCoreCacheReadRedis()
+  ).hGetAll(`team:${invitation.teamId}`)
 
   const teamRecord = Object.entries(allTeamInfo).find(([key, _]) =>
     key === 'team' ? true : false

@@ -10,6 +10,7 @@
     "@redwoodjs/graphql-server": "^3.0.3",
     "@redwoodjs/record": "^3.3.0",
     "@sendgrid/mail": "^7.7.0",
+    "aws-sdk": "^2.1292.0",
     "bullmq": "^3.5.2",
     "extract-domain": "^2.4.8",
     "form-data": "^4.0.0",

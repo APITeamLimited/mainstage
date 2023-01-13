@@ -7,7 +7,7 @@ import {
 import type { Prisma, CreditsPricingOption } from '@prisma/client'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { stripe } from 'src/lib/stripe'
 import { setModelRedis } from 'src/utils'
 
@@ -24,7 +24,7 @@ export const CreditsPricingOptionModel: APITeamModel<
 
     await setModelRedis(
       'creditsPricingOption',
-      coreCacheReadRedis,
+      await getCoreCacheReadRedis(),
       newCreditsPricingOption
     )
 
@@ -47,7 +47,7 @@ export const CreditsPricingOptionModel: APITeamModel<
 
     await setModelRedis(
       'creditsPricingOption',
-      coreCacheReadRedis,
+      await getCoreCacheReadRedis(),
       updatedCreditsPricingOption
     )
 
@@ -58,36 +58,36 @@ export const CreditsPricingOptionModel: APITeamModel<
       where: { id },
     })
 
-    await coreCacheReadRedis.hDel('creditsPricingOption', id)
+    await (await getCoreCacheReadRedis()).hDel('creditsPricingOption', id)
 
     return deletedCreditsPricingOption
   },
   exists: async (id) => {
-    const rawCreditsPricingOption = await coreCacheReadRedis.hGet(
-      'creditsPricingOption',
-      id
-    )
+    const rawCreditsPricingOption = await (
+      await getCoreCacheReadRedis()
+    ).hGet('creditsPricingOption', id)
     return !!rawCreditsPricingOption
   },
   get: async (id) => {
-    const rawCreditsPricingOption = await coreCacheReadRedis.hGet(
-      'creditsPricingOption',
-      id
-    )
+    const rawCreditsPricingOption = await (
+      await getCoreCacheReadRedis()
+    ).hGet('creditsPricingOption', id)
     return rawCreditsPricingOption ? JSON.parse(rawCreditsPricingOption) : null
   },
   getMany: async (ids) => {
     return Promise.all(ids.map(CreditsPricingOptionModel.get))
   },
   getAll: async () => {
-    const rawcreditsPricingOptions = await coreCacheReadRedis.hVals(
-      'creditsPricingOption'
-    )
+    const rawcreditsPricingOptions = await (
+      await getCoreCacheReadRedis()
+    ).hVals('creditsPricingOption')
     return rawcreditsPricingOptions.map((rawCreditsPricingOption) =>
       JSON.parse(rawCreditsPricingOption)
     )
   },
   rebuildCache: async () => {
+    const coreCacheReadRedis = await getCoreCacheReadRedis()
+
     await coreCacheReadRedis.del('creditsPricingOption')
 
     let skip = 0

@@ -81,7 +81,7 @@ We reserve the right to correct any errors or mistakes in pricing, even if we ha
 
 6. **FREE TRIAL**
 
-We offer a 28-day free trial to new users who register with the Site. The account will not be charged and the subscription will be suspended until upgraded to a paid version at the end of the free trial.
+We offer a 14-day free trial to new users who register with the Site. The account will be automatically charged at the end of the free trial period. You can cancel your subscription at any time by logging into your account or contacting us using the contact information provided below. Your cancellation will take effect at the end of the current paid term.
 
 7. **CANCELLATION**
 

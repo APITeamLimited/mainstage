@@ -6,7 +6,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 import { checkValue } from 'src/config'
 import { generateBlanketUnsubscribeUrl } from 'src/helpers/routing'
 import { dispatchEmail } from 'src/lib/mailman'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { UserModel } from 'src/models/user'
 
 export const getVerificationCode = async ({
@@ -32,6 +32,8 @@ export const getVerificationCode = async ({
 
   // Create 6 digit number
   const verifyCode = Math.floor(100000 + Math.random() * 900000).toString()
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   // Add verifyCode to set and expire in 15 minutes
   await coreCacheReadRedis.set(

@@ -34,6 +34,7 @@ type CustomDialogProps = {
   dialogActions?: ReactNode
   shrinkable?: boolean
   padBody?: boolean
+  scrollHeight?: number
 }
 
 export const CustomDialog = (props: CustomDialogProps) => (
@@ -58,6 +59,7 @@ const CustomDialogInner = ({
   dialogActions,
   shrinkable,
   padBody,
+  scrollHeight = customDialogContentHeight,
 }: CustomDialogProps) => {
   const { default: SimpleBar } = useSimplebarReactModule()
 
@@ -116,9 +118,7 @@ const CustomDialogInner = ({
       <Divider />
       <DialogContent
         sx={{
-          height: shrinkable
-            ? undefined
-            : `${customDialogContentHeight + 24}px`,
+          height: shrinkable ? undefined : `${scrollHeight + 24}px`,
           maxWidth: '100%',
           overflow: disableScroll ? 'hidden' : 'auto',
           padding: 0,
@@ -142,7 +142,13 @@ const CustomDialogInner = ({
               overflow: 'hidden',
             }}
           >
-            <SimpleBar style={{ height: '100%', flex: 1 }}>
+            <SimpleBar
+              style={{
+                height: '100%',
+                maxHeight: scrollHeight,
+                flex: 1,
+              }}
+            >
               <>
                 {padBody ? (
                   <Stack spacing={2} p={2}>

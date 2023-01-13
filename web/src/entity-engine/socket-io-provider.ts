@@ -13,6 +13,7 @@ import type { Awareness } from 'y-protocols/awareness'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { Lib0Module, YJSModule } from 'src/contexts/imports'
+import { handleLogout } from 'src/utils/nav-utils'
 
 import { entityEngineStatusVar } from './EntityEngine'
 import * as syncProtocol from './sync'
@@ -74,6 +75,7 @@ type SocketIOProviderConstructorArgs = {
   apolloClient: ApolloClient<unknown>
   Y: YJSModule
   lib0: Lib0Module
+  logOut: () => void
 }
 
 export class SocketIOProvider extends Observable<string> {
@@ -121,6 +123,7 @@ export class SocketIOProvider extends Observable<string> {
   onSyncMessage: ((newDoc: YDoc) => void) | undefined
   Y: YJSModule
   metaMap: YMap<unknown> | undefined
+  logOut: () => void
 
   constructor({
     userId,
@@ -130,6 +133,7 @@ export class SocketIOProvider extends Observable<string> {
     options,
     apolloClient,
     Y,
+    logOut,
   }: SocketIOProviderConstructorArgs) {
     const {
       connect = true,
@@ -166,6 +170,7 @@ export class SocketIOProvider extends Observable<string> {
     this.onStatusChange = onStatusChange
     this.onSyncMessage = onSyncMessage
     this.Y = Y
+    this.logOut = logOut
 
     // Whether to connect to other peers or not
     this.shouldConnect = connect
@@ -373,6 +378,8 @@ export class SocketIOProvider extends Observable<string> {
           'doc-deleted',
           () => (window.location.href = window.location.origin)
         )
+
+        this.socket?.on('doc-deleted-user', () => handleLogout(this.logOut))
 
         this.socket?.on('kicked', (userId) => {
           if (userId === this.userId) {

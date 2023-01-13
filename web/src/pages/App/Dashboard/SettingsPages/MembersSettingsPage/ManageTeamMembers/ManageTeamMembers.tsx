@@ -94,8 +94,6 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
 
   if (!data) return <Skeleton width="100%" height={MEMBERS_CARD_HEIGHT} />
 
-  if (workspaceInfo === null) return null
-
   return (
     <Card
       sx={{

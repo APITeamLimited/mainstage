@@ -5,7 +5,7 @@ import {
 } from '@apiteam/types'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 type OAuthReturnResult = {
   statusCode: number
@@ -36,6 +36,8 @@ export const handler = async (
       body: prettyZodError(parseResult.error).message,
     }
   }
+
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   const rawData = await coreCacheReadRedis.get(
     `oauth2-callback:${apiteamCallbackCode}`

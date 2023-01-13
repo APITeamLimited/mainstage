@@ -4,7 +4,7 @@ import { Team, Membership, Scope } from '@prisma/client'
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { PlanInfoModel } from 'src/models/billing/plan-info'
 import { ScopeModel } from 'src/models/scope'
 
@@ -28,20 +28,6 @@ export const createMembership = async (
     },
   })
 
-  const setPromise = coreCacheReadRedis.hSet(
-    `team:${team.id}`,
-    `membership:${membership.id}`,
-    JSON.stringify(membership)
-  )
-
-  const publishPromise = coreCacheReadRedis.publish(
-    `team:${team.id}`,
-    JSON.stringify({
-      type: 'ADD_MEMBER',
-      payload: membership,
-    })
-  )
-
   const planInfo = team.planInfoId
     ? await PlanInfoModel.get(team.planInfoId)
     : await getFreePlanInfo()
@@ -50,9 +36,21 @@ export const createMembership = async (
     throw new Error('No plan info found')
   }
 
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   await Promise.all([
-    setPromise,
-    publishPromise,
+    coreCacheReadRedis.hSet(
+      `team:${team.id}`,
+      `membership:${membership.id}`,
+      JSON.stringify(membership)
+    ),
+    coreCacheReadRedis.publish(
+      `team:${team.id}`,
+      JSON.stringify({
+        type: 'ADD_MEMBER',
+        payload: membership,
+      })
+    ),
     createTeamScope(team, membership, user, planInfo),
   ])
 
@@ -60,6 +58,8 @@ export const createMembership = async (
 }
 
 export const deleteMembership = async (membership: Membership) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   const oldScopesRaw = await coreCacheReadRedis.hGetAll(
     `scope__userId:${membership.userId}`
   )

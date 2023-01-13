@@ -20,7 +20,7 @@ export const getPlanInfo = async (scope: Scope) => {
     if (team.planInfoId) {
       const rawPlanInfo = await coreCacheReadRedis.hGet(
         'planInfo',
-        scope.variantTargetId
+        team.planInfoId
       )
 
       if (!rawPlanInfo) {
@@ -42,10 +42,10 @@ export const getPlanInfo = async (scope: Scope) => {
     throw new Error('User not found')
   }
 
-  if (!user.planInfoId) {
+  if (user.planInfoId) {
     const rawPlanInfo = await coreCacheReadRedis.hGet(
       'planInfo',
-      scope.variantTargetId
+      user.planInfoId
     )
 
     if (!rawPlanInfo) {

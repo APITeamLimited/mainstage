@@ -1,6 +1,6 @@
 import type { Prisma } from '@prisma/client'
 
-import { AVAILABLE_LOAD_ZONES } from '../graph'
+import { AVAILABLE_LOAD_ZONES } from '../test-manager/load-zones'
 
 export type AbstractPlanInfoCreateInput = Omit<
   Prisma.PlanInfoCreateInput,

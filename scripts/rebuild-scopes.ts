@@ -3,7 +3,7 @@ import { PlanInfo } from '@prisma/client'
 import { getFreePlanInfo } from 'api/src/helpers/billing'
 import { createPersonalScope, createTeamScope } from 'api/src/helpers/scopes'
 import { db } from 'api/src/lib/db'
-import { coreCacheReadRedis } from 'api/src/lib/redis'
+import { getCoreCacheReadRedis } from 'api/src/lib/redis'
 import { PlanInfoModel, TeamModel } from 'api/src/models'
 
 export default async () => {
@@ -22,7 +22,7 @@ export default async () => {
     batchSize = users.length
 
     for (const user of users) {
-      await coreCacheReadRedis.del(`scope__userId:${user.id}`)
+      await (await getCoreCacheReadRedis()).del(`scope__userId:${user.id}`)
 
       console.log('Rebuilding scopes for user: ' + user.email)
 

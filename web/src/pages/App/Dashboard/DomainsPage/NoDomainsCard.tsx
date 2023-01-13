@@ -30,8 +30,8 @@ export const NoDomainsCard = ({
           No Domains
         </Typography>
         <Typography variant="body1" color={theme.palette.text.secondary}>
-          Verify ownership of your domains to access the full load limits of
-          your plan.
+          Verify ownership of your domains to access greater load testing
+          limits.
         </Typography>
         {enableMutations ? (
           <Button

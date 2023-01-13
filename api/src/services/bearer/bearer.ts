@@ -7,7 +7,7 @@ import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 
 import { checkValue } from '../../config'
 
@@ -21,6 +21,8 @@ type KeyPair = {
 }
 
 export const getKeyPair = async (): Promise<KeyPair> => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
   // Filter by created in case second pair accidentally gets created
   const existingKeyPairCoreCache = ensureCorrectType(
     await coreCacheReadRedis.get(`authKeyPair`)
@@ -116,7 +118,7 @@ export const publicBearer = async ({
 
   // TODO: include a users role within a team in the payload
   const scopeRaw = ensureCorrectType(
-    await coreCacheReadRedis.get(`scope__id:${scopeId}`)
+    await (await getCoreCacheReadRedis()).get(`scope__id:${scopeId}`)
   )
 
   if (!scopeRaw) {

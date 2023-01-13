@@ -79,7 +79,7 @@ export const handleSubscriptionTrialWillEnd = async (event: Stripe.Event) => {
             ? {
                 targetName: `${user.firstName} ${user.lastName}`,
                 endTimeSeconds: subscription.trial_end as number,
-                role: role.toLowerCase() as 'ADMIN' | "OWNER",
+                role: role.toLowerCase() as 'ADMIN' | 'OWNER',
                 workspaceName: (team as Team).name,
               }
             : {

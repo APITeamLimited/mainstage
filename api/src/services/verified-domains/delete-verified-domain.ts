@@ -4,7 +4,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { deleteVerifiedDomainRedis } from 'src/helpers/verified-domains'
 import { db } from 'src/lib/db'
-import { coreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from 'src/lib/redis'
 import { checkOwnerAdmin } from 'src/services/guards'
 
 export const deleteVerifiedDomain = async ({
@@ -16,9 +16,9 @@ export const deleteVerifiedDomain = async ({
 }) => {
   if (teamId) await checkOwnerAdmin({ teamId })
 
-  const verifiedDomainRaw = await coreCacheReadRedis.get(
-    `verifiedDomain__id:${verifiedDomainId}`
-  )
+  const verifiedDomainRaw = await (
+    await getCoreCacheReadRedis()
+  ).get(`verifiedDomain__id:${verifiedDomainId}`)
 
   if (!verifiedDomainRaw) {
     throw new ServiceValidationError(

@@ -47,17 +47,17 @@ import {
   notifyDowngradeFreeTierTitle,
 } from './NotifyDowngradeFreeTier'
 import {
+  NotifyInvoice,
+  NotifyInvoiceData,
+  notifyInvoiceText,
+  notifyInvoiceTitle,
+} from './NotifyInvoice'
+import {
   NotifyMemberLeft,
   NotifyMemberLeftData,
   notifyMemberLeftText,
   notifyMemberLeftTitle,
 } from './NotifyMemberLeft'
-import {
-  NotifyNewInvoice,
-  NotifyNewInvoiceData,
-  notifyNewInvoiceText,
-  notifyNewInvoiceTitle,
-} from './NotifyNewInvoice'
 import {
   NotifyNewOwner,
   NotifyNewOwnerData,
@@ -255,9 +255,9 @@ export const VALID_TEMPLATES = {
     title: notifyPaymentSuccessfulTitle,
   },
   'notify-new-invoice': {
-    html: NotifyNewInvoice,
-    text: notifyNewInvoiceText,
-    title: notifyNewInvoiceTitle,
+    html: NotifyInvoice,
+    text: notifyInvoiceText,
+    title: notifyInvoiceTitle,
   },
   'notify-payment-action-required': {
     html: NotifyPaymentActionRequired,
@@ -289,7 +289,7 @@ export type ValidTemplateData = {
   'notify-welcome-to-pro': NotifyWelcomeToProData
   'notify-payment-failed': NotifyPaymentFailedData
   'notify-payment-successful': NotifyPaymentSuccessfulData
-  'notify-new-invoice': NotifyNewInvoiceData
+  'notify-new-invoice': NotifyInvoiceData
   'notify-payment-action-required': NotifyPaymentActionRequiredData
 }
 
@@ -319,5 +319,5 @@ export { NotifyDowngradeFreeTierData } from './NotifyDowngradeFreeTier'
 export { NotifyWelcomeToProData } from './NotifyWelcomeToPro'
 export { NotifyPaymentFailedData } from './NotifyPaymentFailed'
 export { NotifyPaymentSuccessfulData } from './NotifyPaymentSuccessful'
-export { NotifyNewInvoiceData } from './NotifyNewInvoice'
+export { NotifyInvoiceData } from './NotifyInvoice'
 export { NotifyPaymentActionRequiredData } from './NotifyPaymentActionRequired'

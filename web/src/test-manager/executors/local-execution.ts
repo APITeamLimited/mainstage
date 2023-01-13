@@ -44,4 +44,5 @@ const createExecutionParams = (
   },
   verifiedDomains: [],
   createdAt: new Date().toISOString(),
+  funcModeInfo: null,
 })
