@@ -11,6 +11,7 @@ import { ServiceValidationError } from '@redwoodjs/api'
 import { stripe } from 'src/lib/stripe'
 
 import { CouponModel } from './coupon'
+import { CustomerModel } from './customer'
 
 export type AbstractQuoteCreateParams = {
   customerId: string
@@ -18,7 +19,8 @@ export type AbstractQuoteCreateParams = {
   lineItems: Stripe.QuoteCreateParams.LineItem[]
   promotionCode?: string
   planId?: string
-  trialDays: number
+  trialDays?: number
+  isSubscription: boolean
 }
 
 export type AbstractQuoteUpdateParams = {
@@ -26,10 +28,10 @@ export type AbstractQuoteUpdateParams = {
   promotionCode?: string
   lineItems?: Stripe.QuoteCreateParams.LineItem[]
   trialDays?: number
+  isSubscription: boolean
 }
 
 type QuoteMixin = {
-  finalize: (id: string) => Promise<Stripe.Quote>
   accept: (id: string) => Promise<Stripe.Quote>
 }
 
@@ -52,6 +54,12 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
         promotionCode: input.promotionCode ?? null,
         planId: input.planId ?? null,
       },
+      subscription_data: input.isSubscription
+        ? {
+            trial_period_days: input.trialDays,
+            description: input.description,
+          }
+        : undefined,
     })
   },
   update: async (id, input) => {
@@ -78,6 +86,12 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
       description: input.description,
       line_items: input.lineItems,
       metadata: newMetadata,
+      subscription_data: input.isSubscription
+        ? {
+            trial_period_days: input.trialDays,
+            description: input.description,
+          }
+        : undefined,
     })
   },
   get: async (id) => {
@@ -96,10 +110,54 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
       })
       .then((result) => result.data)
   },
-  finalize: async (id) => {
-    return stripe.quotes.finalizeQuote(id)
-  },
   accept: async (id) => {
-    return stripe.quotes.accept(id)
+    await stripe.quotes.finalizeQuote(id)
+    const acceptedQuote = await stripe.quotes.accept(id)
+
+    if (!acceptedQuote.invoice) {
+      throw new Error('Quote invoice not found')
+    }
+
+    await markHadTrialIfApplicable(acceptedQuote)
+
+    const invoiceId =
+      typeof acceptedQuote.invoice === 'string'
+        ? acceptedQuote.invoice
+        : acceptedQuote.invoice.id
+
+    // Set invoice description to quote description
+    if (acceptedQuote.description) {
+      await stripe.invoices.update(invoiceId, {
+        description: acceptedQuote.description,
+      })
+    }
+
+    // Finalize the invoice
+    await stripe.invoices.finalizeInvoice(invoiceId)
+
+    // Pay the invoice
+    await stripe.invoices.pay(invoiceId)
+
+    return acceptedQuote
   },
+}
+
+const markHadTrialIfApplicable = async (quote: Stripe.Quote) => {
+  if (
+    !(
+      quote.subscription_data.trial_period_days &&
+      quote.subscription_data.trial_period_days > 0
+    )
+  ) {
+    return
+  }
+
+  if (!quote.customer) {
+    throw new Error('Quote customer not found')
+  }
+
+  const customerId =
+    typeof quote.customer === 'string' ? quote.customer : quote.customer.id
+
+  await CustomerModel.markHadTrial(customerId)
 }

@@ -32,16 +32,6 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        {updated ? 'Updated' : 'New'} APITeam invoice {invoice.number} for{' '}
-        {role === 'OWN-ACCOUNT' ? 'your account' : workspaceName}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',
@@ -51,14 +41,14 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
         {role === 'OWNER'
           ? `you have ${
               updated ? 'an updated' : 'a new'
-            } invoice for the subscription on your workspace ${workspaceName}.`
+            } invoice on your workspace ${workspaceName}.`
           : role === 'ADMIN'
           ? `you have ${
               updated ? 'an updated' : 'a new'
-            } invoice for the subscription of the workspace ${workspaceName} where you are admin.`
+            } invoice on the workspace ${workspaceName} where you are admin.`
           : `you have ${
               updated ? 'an updated' : 'a new'
-            } invoice for the subscription of your personal workspace.`}
+            } invoice on your personal workspace.`}
       </Typography>
       <Typography
         variant="body1"
@@ -66,7 +56,8 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
           textAlign: 'center',
         }}
       >
-        Invoice Date: {new Date(invoice.created * 1000).toLocaleDateString()}
+        Invoice Date:{' '}
+        <strong>{new Date(invoice.created * 1000).toLocaleDateString()}</strong>
       </Typography>
       <Typography
         variant="body1"
@@ -74,7 +65,7 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
           textAlign: 'center',
         }}
       >
-        Invoice Number: {invoice.number}
+        Invoice Number: <strong>{invoice.number}</strong>
       </Typography>
       <Typography
         variant="body1"
@@ -97,14 +88,14 @@ export const notifyInvoiceText = ({
     role === 'OWNER'
       ? `you have ${
           updated ? 'an updated' : 'a new'
-        } invoice for the subscription on your workspace ${workspaceName}.`
+        } invoice on your workspace ${workspaceName}.`
       : role === 'ADMIN'
       ? `you have ${
           updated ? 'an updated' : 'a new'
-        } invoice for the subscription of the workspace ${workspaceName} where you are admin.`
+        } invoice on the workspace ${workspaceName} where you are admin.`
       : `you have ${
           updated ? 'an updated' : 'a new'
-        } invoice for the subscription of your personal workspace.`
+        } invoice on your personal workspace.`
 
   const line3 = `Invoice Date: ${new Date(
     invoice.created * 1000
@@ -120,6 +111,6 @@ export const notifyInvoiceText = ({
 export const notifyInvoiceTitle = ({
   data: { role, workspaceName, invoice, updated },
 }: MailmanInput<NotifyInvoiceData>) =>
-  `${updated ? 'Updated' : 'New'} APITeam invoice ${invoice.number} for ${
+  `${updated ? 'Updated' : 'New'} APITeam Invoice ${invoice.number} for ${
     role === 'OWN-ACCOUNT' ? 'your account' : workspaceName
   }`

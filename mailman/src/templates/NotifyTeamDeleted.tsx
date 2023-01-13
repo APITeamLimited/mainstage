@@ -24,15 +24,6 @@ export const NotifyTeamDeleted = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Team {teamName} has been deleted
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',

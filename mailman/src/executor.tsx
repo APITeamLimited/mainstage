@@ -17,6 +17,8 @@ export const handleRenderRequest = async (
 
   console.log(`Received render request for template '${templateName}'`)
 
+  const startTime = Date.now()
+
   const template = VALID_TEMPLATES[templateName]
 
   if (!template) {
@@ -44,6 +46,12 @@ export const handleRenderRequest = async (
       inliner.inlineCSSAsync(rawHTML).then(resolve).catch(reject)
     })) as string
 
+    console.log(
+      `Render request for template '${templateName}' completed in ${
+        Date.now() - startTime
+      }ms`
+    )
+
     return {
       content: {
         html: inlinedHTML,
@@ -53,6 +61,9 @@ export const handleRenderRequest = async (
       error: null,
     }
   } catch (error) {
+    console.log(`Render request for template '${templateName}' failed
+    with error: ${error} in ${Date.now() - startTime}ms`)
+
     return {
       content: null,
       error: String(error),

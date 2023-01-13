@@ -24,15 +24,6 @@ export const NotifyRemovedFromTeam = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        You have been removed from the team {teamName}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

@@ -23,15 +23,6 @@ export const NotifyAccountDeleted = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Your APITeam account has been deleted
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,
@@ -49,7 +40,7 @@ export const NotifyAccountDeleted = (
           textAlign: 'center',
         }}
       >
-        Thanks for trying APITeam out!
+        Thanks for using APITeam!
       </Typography>
     </BaseMessageLayout>
   )

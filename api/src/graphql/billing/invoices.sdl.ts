@@ -19,9 +19,23 @@ export const schema = gql`
     period_start: DateTime!
     period_end: DateTime!
     created: Int!
+    description: String
+  }
+
+  type StripeUpcomingInvoice {
+    status: StripeInvoiceStatus!
+    next_payment_attempt: DateTime
+    total: Int!
+    currency: String!
+    period_start: Int!
+    period_end: Int!
+    created: Int!
+    description: String
+    planName: String!
   }
 
   type Query {
     invoices(teamId: String): [StripeInvoice!]! @requireAuth
+    upcomingInvoice(teamId: String): StripeUpcomingInvoice @requireAuth
   }
 `

@@ -64,6 +64,16 @@ export const BaseMessageLayout = ({
               marginBottom: mainSpacing,
             }}
           >
+            <Typography
+              variant="h6"
+              fontWeight="bold"
+              sx={{
+                marginBottom: 2,
+                textAlign: 'center',
+              }}
+            >
+              {title}
+            </Typography>
             {children}
             <Divider sx={{ marginY: mainSpacing }} />
             <Typography

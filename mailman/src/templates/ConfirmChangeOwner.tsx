@@ -36,15 +36,6 @@ export const ConfirmChangeOwner = (
       messageType={confirmChangeOwnerMessageType}
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Confirm ownership transfer for {targetName}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

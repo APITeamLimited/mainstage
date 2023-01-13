@@ -21,15 +21,6 @@ export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
       messageType="SIGNUP_CONFIRMATION"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Verify your email
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

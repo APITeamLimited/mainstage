@@ -1,9 +1,15 @@
 import { useMemo } from 'react'
 
-import { Button, TableCell, TableRow, Tooltip, useTheme } from '@mui/material'
+import {
+  Button,
+  Chip,
+  TableCell,
+  TableRow,
+  Tooltip,
+  useTheme,
+} from '@mui/material'
 import { InvoicesQuery } from 'types/graphql'
 
-import { CustomChip } from 'src/components/custom-mui'
 import { prettyPrintCents } from 'src/layouts/Landing/components/pricing'
 
 type InvoiceRowProps = {
@@ -24,7 +30,14 @@ export const InvoiceRow = ({ invoice }: InvoiceRowProps) => {
   )
 
   return (
-    <TableRow key={invoice.id}>
+    <TableRow>
+      <TableCell
+        sx={{
+          borderColor: theme.palette.divider,
+        }}
+      >
+        {invoice.description ?? 'No description'}
+      </TableCell>
       <TableCell
         sx={{
           borderColor: theme.palette.divider,
@@ -32,15 +45,55 @@ export const InvoiceRow = ({ invoice }: InvoiceRowProps) => {
       >
         {invoice.number}
       </TableCell>
-      <TableCell>{prettyDate}</TableCell>
-      <TableCell>{prettyTotal}</TableCell>
-      <TableCell>
-        <CustomChip
-          label={invoice.status}
+      <TableCell
+        sx={{
+          borderColor: theme.palette.divider,
+        }}
+      >
+        {prettyDate}
+      </TableCell>
+      <TableCell
+        sx={{
+          borderColor: theme.palette.divider,
+        }}
+      >
+        {prettyTotal}
+      </TableCell>
+      <TableCell
+        sx={{
+          borderColor: theme.palette.divider,
+        }}
+      >
+        <Chip
+          label={
+            invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)
+          }
           color={invoice.status === 'paid' ? 'success' : 'warning'}
+          size="small"
         />
       </TableCell>
-      <TableCell align="right">
+      <TableCell
+        align="right"
+        sx={{
+          borderColor: theme.palette.divider,
+        }}
+      >
+        {invoice.status === 'open' && invoice.hosted_invoice_url && (
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() =>
+              window.open(invoice.hosted_invoice_url as string, '_blank')
+            }
+            size="small"
+            sx={{
+              p: 0.5,
+              mr: 1,
+            }}
+          >
+            Pay
+          </Button>
+        )}
         {invoice.invoice_pdf ? (
           <Button
             variant="outlined"
@@ -49,10 +102,9 @@ export const InvoiceRow = ({ invoice }: InvoiceRowProps) => {
             size="small"
             sx={{
               p: 0.5,
-              mr: 1,
             }}
           >
-            Invoice
+            Download
           </Button>
         ) : (
           <Tooltip title="Invoice not available yet">
@@ -66,24 +118,9 @@ export const InvoiceRow = ({ invoice }: InvoiceRowProps) => {
                 mr: 1,
               }}
             >
-              Invoice
+              Download
             </Button>
           </Tooltip>
-        )}
-        {invoice.status === 'open' && invoice.hosted_invoice_url && (
-          <Button
-            variant="outlined"
-            color="primary"
-            onClick={() =>
-              window.open(invoice.hosted_invoice_url as string, '_blank')
-            }
-            size="small"
-            sx={{
-              p: 0.5,
-            }}
-          >
-            Pay
-          </Button>
         )}
       </TableCell>
     </TableRow>

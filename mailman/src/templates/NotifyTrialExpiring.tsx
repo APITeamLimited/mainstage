@@ -14,7 +14,7 @@ export type NotifyTrialExpiringData = {
       workspaceName: undefined
     }
   | {
-      role: "OWNER" | 'ADMIN'
+      role: 'OWNER' | 'ADMIN'
       workspaceName: string
     }
 )
@@ -38,22 +38,13 @@ export const NotifyTrialExpiring = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Your APITeam trial will expire soon
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',
         }}
       >
         Hi {targetName},{' '}
-        {role === "OWNER"
+        {role === 'OWNER'
           ? `your free trial for the workspace ${workspaceName} will expire in ${daysTillEnd} days`
           : role === 'ADMIN'
           ? `the free trial for the workspace ${workspaceName} where you are admin will expire in ${daysTillEnd} days`
@@ -94,7 +85,7 @@ export const notifyTrialExpiringText = ({
   )
 
   const line1 = `Hi ${targetName}, ${
-    role === "OWNER"
+    role === 'OWNER'
       ? `your free trial for the workspace ${workspaceName} will expire in ${daysTillEnd} days`
       : role === 'ADMIN'
       ? `the free trial for the workspace ${workspaceName} where you are admin will expire in ${daysTillEnd} days`

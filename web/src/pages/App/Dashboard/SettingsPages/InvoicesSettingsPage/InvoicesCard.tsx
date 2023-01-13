@@ -1,7 +1,6 @@
 import {
   Box,
   Card,
-  Divider,
   Skeleton,
   Stack,
   Table,
@@ -19,6 +18,7 @@ import { useQuery } from '@redwoodjs/web'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { InvoiceRow } from './InvoiceRow'
+import { UpcomingInvoiceRow } from './UpcomingInvoiceRow'
 
 const minInvoiceCardHeight = 400
 
@@ -34,6 +34,13 @@ const INVOICES_QUERY = gql`
       total
       currency
       created
+      description
+    }
+    upcomingInvoice(teamId: $teamId) {
+      description
+      period_end
+      total
+      planName
     }
   }
 `
@@ -125,10 +132,6 @@ export const InvoicesCard = () => {
           p: 2,
         }}
       >
-        <Typography variant="h6" fontWeight="bold">
-          Invoices
-        </Typography>
-        <Divider />
         <Table size="small" sx={{ width: '100%' }}>
           <TableHead
             sx={{
@@ -139,6 +142,15 @@ export const InvoicesCard = () => {
               <TableCell
                 sx={{
                   borderColor: theme.palette.divider,
+                  paddingTop: 0,
+                }}
+              >
+                Name
+              </TableCell>
+              <TableCell
+                sx={{
+                  borderColor: theme.palette.divider,
+                  paddingTop: 0,
                 }}
               >
                 Number
@@ -146,6 +158,7 @@ export const InvoicesCard = () => {
               <TableCell
                 sx={{
                   borderColor: theme.palette.divider,
+                  paddingTop: 0,
                 }}
               >
                 Date
@@ -153,13 +166,15 @@ export const InvoicesCard = () => {
               <TableCell
                 sx={{
                   borderColor: theme.palette.divider,
+                  paddingTop: 0,
                 }}
               >
-                Amount
+                Amount $
               </TableCell>
               <TableCell
                 sx={{
                   borderColor: theme.palette.divider,
+                  paddingTop: 0,
                 }}
               >
                 Status
@@ -167,13 +182,16 @@ export const InvoicesCard = () => {
               <TableCell
                 sx={{
                   borderColor: theme.palette.divider,
+                  paddingTop: 0,
                 }}
+                align="right"
               >
                 Actions
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
+            <UpcomingInvoiceRow upcomingInvoice={data.upcomingInvoice} />
             {data.invoices.map((invoice) => (
               <InvoiceRow key={invoice.id} invoice={invoice} />
             ))}

@@ -13,7 +13,7 @@ export type NotifyWelcomeToProData = {
       workspaceName: undefined
     }
   | {
-      role: "OWNER" | 'ADMIN'
+      role: 'OWNER' | 'ADMIN'
       workspaceName: string
     }
 )
@@ -31,22 +31,13 @@ export const NotifyWelcomeToPro = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Welcome to APITeam Pro!
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',
         }}
       >
         Hi {targetName},{' '}
-        {role === "OWNER"
+        {role === 'OWNER'
           ? `welcome to APITeam Pro! Your subscription for the workspace ${workspaceName} is now on the Pro plan`
           : role === 'ADMIN'
           ? `welcome to APITeam Pro! The subscription for the workspace ${workspaceName} where you are admin is now on the Pro plan`
@@ -76,7 +67,7 @@ export const notifyWelcomeToProText = ({
   data: { role, workspaceName, targetName },
 }: MailmanInput<NotifyWelcomeToProData>) => {
   const line1 = `Hi ${targetName}, ${
-    role === "OWNER"
+    role === 'OWNER'
       ? `welcome to APITeam Pro! Your subscription for the workspace ${workspaceName} is now on the Pro plan`
       : role === 'ADMIN'
       ? `welcome to APITeam Pro! The subscription for the workspace ${workspaceName} where you are admin is now on the Pro plan`

@@ -44,7 +44,6 @@ const ForgotPasswordForm = () => {
     }),
     onSubmit: async (values, helpers): Promise<void> => {
       const response = await forgotPassword(values.email)
-      console.log(response)
 
       if (response.error) {
         helpers.setStatus({ success: false })

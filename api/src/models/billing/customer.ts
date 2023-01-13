@@ -5,6 +5,9 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { stripe } from 'src/lib/stripe'
 
+import { TeamModel } from '../team'
+import { UserModel } from '../user'
+
 export type CustomerCreateInput = {
   variantTargetId: string
   variant: 'USER' | 'TEAM'
@@ -22,11 +25,16 @@ export type CustomerUpdateInput = {
 
 export type Customer = Stripe.Customer
 
+type CustomerMixin = {
+  markHadTrial: (customerId: string) => Promise<void>
+}
+
 export const CustomerModel: APITeamModel<
   CustomerCreateInput,
   CustomerUpdateInput,
   Customer
-> = {
+> &
+  CustomerMixin = {
   create: async (input) => {
     return stripe.customers.create({
       email: input.email,
@@ -80,5 +88,39 @@ export const CustomerModel: APITeamModel<
   },
   getMany: async (ids) => {
     return Promise.all(ids.map(CustomerModel.get))
+  },
+  markHadTrial: async (customerId) => {
+    const customer = await CustomerModel.get(customerId)
+
+    if (!customer || customer.deleted) {
+      throw new Error(`Customer with id ${customerId} found found`)
+    }
+
+    const variant = customer.metadata.variant
+    const variantTargetId = customer.metadata.variantTargetId
+
+    if (!variant || !variantTargetId) {
+      throw new Error(
+        `Customer with id ${customerId} has no variant or variantTargetId`
+      )
+    }
+
+    if (variant === 'USER') {
+      await UserModel.update(variantTargetId, {
+        hadFreeTrial: true,
+      })
+    } else if (variant === 'TEAM') {
+      await TeamModel.update(variantTargetId, {
+        hadFreeTrial: true,
+      })
+
+      const teamOwnerMembership = await TeamModel.getOwnerMembership(
+        variantTargetId
+      )
+
+      await UserModel.update(teamOwnerMembership.userId, {
+        hadFreeTrial: true,
+      })
+    }
   },
 }

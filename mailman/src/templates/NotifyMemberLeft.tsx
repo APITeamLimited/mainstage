@@ -21,15 +21,6 @@ export const NotifyMemberLeft = (input: MailmanInput<NotifyMemberLeftData>) => {
       messageType="OPTIONAL_TEAM_UPDATES"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        {data.targetFirstName} left your team
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

@@ -16,7 +16,7 @@ export type NotifyPaymentFailedData = {
       workspaceName: undefined
     }
   | {
-      role: "OWNER" | 'ADMIN'
+      role: 'OWNER' | 'ADMIN'
       workspaceName: string
     }
 )
@@ -36,22 +36,13 @@ export const NotifyPaymentFailed = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        APITeam Payment Failed
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',
         }}
       >
         Hi {targetName},{' '}
-        {role === "OWNER"
+        {role === 'OWNER'
           ? `a payment on your workspace ${workspaceName} has failed`
           : role === 'ADMIN'
           ? `a payment on the workspace ${workspaceName} where you are admin has failed`
@@ -111,7 +102,7 @@ export const notifyPaymentFailedText = ({
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
   const line1 = `Hi ${targetName}, ${
-    role === "OWNER"
+    role === 'OWNER'
       ? `a payment on your workspace ${workspaceName} has failed`
       : role === 'ADMIN'
       ? `a payment on the workspace ${workspaceName} where you are admin has failed`

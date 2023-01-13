@@ -4,6 +4,7 @@ export type CustomChipProps = ChipProps
 
 export const CustomChip = (props: CustomChipProps) => (
   <Chip
+    {...props}
     sx={{
       fontSize: '10px',
       padding: 0,
@@ -14,9 +15,7 @@ export const CustomChip = (props: CustomChipProps) => (
       },
       transistion: 'background-color 0',
       height: '20px',
-      marginRight: '4px',
       ...props.sx,
     }}
-    {...props}
   />
 )

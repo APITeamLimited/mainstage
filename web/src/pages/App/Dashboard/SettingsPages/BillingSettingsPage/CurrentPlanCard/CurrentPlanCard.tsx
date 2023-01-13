@@ -85,8 +85,7 @@ export const CurrentPlanCard = () => {
           </Typography>
           <Typography variant="body2">
             Your {teamId ? 'team' : 'account'} is currently on the{' '}
-            <PlanChip name={planInfo.name} />
-            plan.
+            <PlanChip name={planInfo.name} /> plan.
           </Typography>
           <Divider />
           <IndividualFeatures nextPlan={nextPlan} />

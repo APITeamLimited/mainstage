@@ -2,7 +2,6 @@ import {
   PlanInfoModel,
   CustomerModel,
   CreditsPricingOptionModel,
-  SubscriptionModel,
 } from './billing'
 import { TeamModel } from './team'
 import { UserModel } from './user'
@@ -22,5 +21,4 @@ export const Models = [
   PlanInfoModel,
   CreditsPricingOptionModel,
   CustomerModel,
-  SubscriptionModel,
 ] as const

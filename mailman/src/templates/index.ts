@@ -41,6 +41,12 @@ import {
   notifyDeclineInvitationTitle,
 } from './NotifyDeclineInvitation'
 import {
+  NotifyDowngradeAtPeriodEnd,
+  NotifyDowngradeAtPeriodEndData,
+  notifyDowngradeAtPeriodEndText,
+  notifyDowngradeAtPeriodEndTitle,
+} from './NotifyDowngradeAtPeriodEnd'
+import {
   NotifyDowngradeFreeTier,
   NotifyDowngradeFreeTierData,
   notifyDowngradeFreeTierText,
@@ -264,6 +270,11 @@ export const VALID_TEMPLATES = {
     text: notifyPaymentActionRequiredText,
     title: notifyPaymentActionRequiredTitle,
   },
+  'notify-downgrade-at-period-end': {
+    html: NotifyDowngradeAtPeriodEnd,
+    text: notifyDowngradeAtPeriodEndText,
+    title: notifyDowngradeAtPeriodEndTitle,
+  },
 } as const
 
 export type ValidTemplateData = {
@@ -291,6 +302,7 @@ export type ValidTemplateData = {
   'notify-payment-successful': NotifyPaymentSuccessfulData
   'notify-new-invoice': NotifyInvoiceData
   'notify-payment-action-required': NotifyPaymentActionRequiredData
+  'notify-downgrade-at-period-end': NotifyDowngradeAtPeriodEndData
 }
 
 export type TemplateIdentifier = keyof ValidTemplateData
@@ -321,3 +333,4 @@ export { NotifyPaymentFailedData } from './NotifyPaymentFailed'
 export { NotifyPaymentSuccessfulData } from './NotifyPaymentSuccessful'
 export { NotifyInvoiceData } from './NotifyInvoice'
 export { NotifyPaymentActionRequiredData } from './NotifyPaymentActionRequired'
+export { NotifyDowngradeAtPeriodEndData } from './NotifyDowngradeAtPeriodEnd'

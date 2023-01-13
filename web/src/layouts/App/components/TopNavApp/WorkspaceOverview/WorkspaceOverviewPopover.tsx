@@ -12,7 +12,9 @@ import {
   Button,
 } from '@mui/material'
 
+import { PlanChip } from 'src/components/app/utils/PlanChip'
 import { QuickUserSummary } from 'src/components/app/utils/QuickUserSummary'
+import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { CreateTeamDialog } from './CreateTeamDialog'
@@ -34,6 +36,7 @@ export const WorkspaceOverviewPopover = ({
   const theme = useTheme()
 
   const workspaceInfo = useWorkspaceInfo()
+  const planInfo = usePlanInfo()
 
   const [createTeamDialogOpen, setCreateTeamDialogOpen] = useState(false)
 
@@ -66,26 +69,33 @@ export const WorkspaceOverviewPopover = ({
           }}
           spacing={2}
         >
-          <Stack>
-            <Typography
-              variant="h6"
-              fontWeight="bold"
-              sx={{
-                userSelect: 'none',
-              }}
-            >
-              {workspaceInfo?.scope.displayName}
-            </Typography>
-            <Typography
-              color="textSecondary"
-              variant="body2"
-              sx={{
-                userSelect: 'none',
-              }}
-            >
-              {workspaceInfo?.scope.variant === 'TEAM' ? 'Team' : 'Personal'}{' '}
-              Workspace
-            </Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack>
+              <Typography
+                variant="h6"
+                fontWeight="bold"
+                sx={{
+                  userSelect: 'none',
+                }}
+              >
+                {workspaceInfo?.scope.displayName}
+              </Typography>
+              <Typography
+                color="textSecondary"
+                variant="body2"
+                sx={{
+                  userSelect: 'none',
+                }}
+              >
+                {workspaceInfo?.scope.variant === 'TEAM' ? 'Team' : 'Personal'}{' '}
+                Workspace
+              </Typography>
+            </Stack>
+            {planInfo && <PlanChip name={planInfo.name} hideIfFree />}
           </Stack>
           <Divider />
           {workspaceInfo?.scope.variant === 'TEAM' ? (

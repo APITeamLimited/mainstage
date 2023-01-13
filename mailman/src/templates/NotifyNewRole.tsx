@@ -25,15 +25,6 @@ export const NotifyNewRole = (input: MailmanInput<NotifyNewRoleData>) => {
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Your team role has been updated to {prettyRole}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',

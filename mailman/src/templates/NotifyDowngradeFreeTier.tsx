@@ -13,7 +13,7 @@ export type NotifyDowngradeFreeTierData = {
       workspaceName: undefined
     }
   | {
-      role: "OWNER" | 'ADMIN'
+      role: 'OWNER' | 'ADMIN'
       workspaceName: string
     }
 )
@@ -31,22 +31,13 @@ export const NotifyDowngradeFreeTier = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Your APITeam workspace has been downgraded
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',
         }}
       >
         Hi {targetName},{' '}
-        {role === "OWNER"
+        {role === 'OWNER'
           ? `your subscription for the workspace ${workspaceName} has been downgraded to the free plan`
           : role === 'ADMIN'
           ? `the subscription for the workspace ${workspaceName} where you are admin has been downgraded to the free plan`
@@ -68,7 +59,7 @@ export const notifyDowngradeFreeTierText = ({
   data: { role, workspaceName, targetName },
 }: MailmanInput<NotifyDowngradeFreeTierData>) => {
   const line1 = `Hi ${targetName}, ${
-    role === "OWNER"
+    role === 'OWNER'
       ? `your subscription for the workspace ${workspaceName} has been downgraded to the free plan`
       : role === 'ADMIN'
       ? `the subscription for the workspace ${workspaceName} where you are admin has been downgraded to the free plan`

@@ -1,5 +1,7 @@
 import { MailmanInput, MailmanOutput, TemplateData } from '@apiteam/mailman'
 import sgMail from '@sendgrid/mail'
+import { createTransport } from 'nodemailer'
+import { Options } from 'nodemailer/lib/mailer'
 import { v4 as uuid } from 'uuid'
 
 import { checkValue } from 'src/config'
@@ -7,6 +9,8 @@ import { checkValue } from 'src/config'
 import { getMailmanReadRedis, getMailmanSubscribeRedis } from './redis'
 
 sgMail.setApiKey(checkValue<string>('api.mail.sendgridAPIKey'))
+
+const smtpEnabled = checkValue<boolean>('api.mail.smtp.enabled')
 
 export type DispatchEmailInput<T extends TemplateData> = MailmanInput<T> & {
   attachments?: {
@@ -47,29 +51,36 @@ export const dispatchEmail = async <T extends TemplateData>(
     throw new Error('Failed to render email')
   }
 
-  // Use smtp for now until sendgrid api access
-  await Promise.all([
-    mailmanReadRedis.del(jobId),
-    mailmanReadRedis.sRem('queuedRenderJobs', jobId),
+  await mailmanReadRedis.del(jobId)
+  await mailmanReadRedis.sRem('queuedRenderJobs', jobId)
 
-    handleSendgridSend<T>({
-      to: input.to,
-      output,
-      attachments: input.attachments,
-    }),
-  ])
+  const dispatchArgs = {
+    to: input.to,
+    output,
+    attachments: input.attachments,
+  }
+
+  if (smtpEnabled) {
+    await handleSMTPSend(dispatchArgs)
+  } else {
+    await handleSendgridSend(dispatchArgs)
+  }
+}
+
+type DispatchArgs<T extends TemplateData> = {
+  to: string
+  output: MailmanOutput
+  attachments: DispatchEmailInput<T>['attachments']
 }
 
 const handleSendgridSend = async <T extends TemplateData>({
   to,
   output,
   attachments,
-}: {
-  to: string
-  output: MailmanOutput
-  attachments: DispatchEmailInput<T>['attachments']
-}) => {
+}: DispatchArgs<T>) => {
   if (!output.content) throw new Error('No content to send')
+
+  console.log(`Sending email to ${to} with subject ${output.content.title}`)
 
   const msg = {
     to,
@@ -98,4 +109,44 @@ const handleSendgridSend = async <T extends TemplateData>({
       }
     }
   )
+}
+
+const smtpTransport = smtpEnabled
+  ? createTransport({
+      host: checkValue<string>('api.mail.smtp.host'),
+      port: checkValue<number>('api.mail.smtp.port'),
+      auth: {
+        user: checkValue<string>('api.mail.smtp.username'),
+        pass: checkValue<string>('api.mail.smtp.password'),
+      },
+    })
+  : undefined
+
+const handleSMTPSend = async <T extends TemplateData>({
+  to,
+  output,
+  attachments,
+}: DispatchArgs<T>) => {
+  if (!output.content) throw new Error('No content to send')
+
+  if (!smtpTransport) throw new Error('SMTP not enabled')
+
+  const msg: Options = {
+    from: {
+      name: checkValue<string>('api.mail.from.name'),
+      address: checkValue<string>('api.mail.from.email'),
+    },
+    to,
+    subject: output.content.title,
+    html: output.content.html,
+    text: output.content.text,
+    attachments: attachments?.map((attachment) => ({
+      content: attachment.contentBase64,
+      filename: attachment.filename,
+      contentType: attachment.contentType ?? 'text/plain',
+      encoding: 'base64',
+    })),
+  }
+
+  await smtpTransport.sendMail(msg)
 }

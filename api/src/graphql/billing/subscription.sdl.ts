@@ -232,4 +232,9 @@ export const schema = gql`
   type StripeSubscriptionItemBillingThresholds {
     usage_gte: Int
   }
+
+  type Mutation {
+    downgradePlan(teamId: String): StripeSubscription! @requireAuth
+    cancelDowngradePlan(teamId: String): StripeSubscription! @requireAuth
+  }
 `

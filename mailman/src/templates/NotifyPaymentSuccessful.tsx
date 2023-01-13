@@ -16,7 +16,7 @@ export type NotifyPaymentSuccessfulData = {
       workspaceName: undefined
     }
   | {
-      role: "OWNER" | 'ADMIN'
+      role: 'OWNER' | 'ADMIN'
       workspaceName: string
     }
 )
@@ -36,22 +36,13 @@ export const NotifyPaymentSuccessful = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        APITeam Payment Successful
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',
         }}
       >
         Hi {targetName},{' '}
-        {role === "OWNER"
+        {role === 'OWNER'
           ? `payment on your workspace ${workspaceName} has succeeded`
           : role === 'ADMIN'
           ? `payment on the workspace ${workspaceName} where you are admin has succeeded`
@@ -65,8 +56,8 @@ export const NotifyPaymentSuccessful = (
       >
         Payment successful for <strong>{invoice.description}</strong>. We
         successfully charged your card ending in <strong>{last4}</strong> for{' '}
-        <strong>${prettyPrice}</strong>. Invoice number was{' '}
-        <strong>${invoice.number}</strong>.
+        <strong>{prettyPrice}</strong>. Invoice number was{' '}
+        <strong>{invoice.number}</strong>.
       </Typography>
       <Typography
         variant="body1"
@@ -86,7 +77,7 @@ export const notifyPaymentSuccessfulText = ({
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
   const line1 = `Hi ${targetName}, ${
-    role === "OWNER"
+    role === 'OWNER'
       ? `payment on your workspace ${workspaceName} has succeeded`
       : role === 'ADMIN'
       ? `payment on the workspace ${workspaceName} where you are admin has succeeded`

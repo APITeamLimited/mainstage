@@ -36,15 +36,6 @@ export const NotifyPaymentActionRequired = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Payment Action Required
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',

@@ -4,8 +4,11 @@ import type Stripe from 'stripe'
 import { checkValue } from 'src/config'
 import { stripe } from 'src/lib/stripe'
 
+import { handleSubscriptionCreated } from './webhook-events/customer/subscription/created'
+import { handleSubscriptionDeleted } from './webhook-events/customer/subscription/deleted'
 import { handleSubscriptionTrialWillEnd } from './webhook-events/customer/subscription/trial-will-end'
 import { handleSubscriptionUpdated } from './webhook-events/customer/subscription/updated'
+import { handleInvoiceCreatedUpdated } from './webhook-events/invoice/created'
 import { handlePaymentActionRequired } from './webhook-events/invoice/payment/action-required'
 import { handlePaymentFailed } from './webhook-events/invoice/payment/failed'
 import { handlePaymentSucceeded } from './webhook-events/invoice/payment/succeeded'
@@ -15,18 +18,30 @@ const webhookSecret = checkValue<string>('stripe.webhookSecret')
 const verifyWebhooks = process.env.NODE_ENV !== 'development'
 
 export const supportedStripeEvents = [
+  'customer.subscription.created',
   'customer.subscription.updated',
+  'customer.subscription.deleted',
   'customer.subscription.trial_will_end',
-  'invoice.created',
-  'invoice.updated',
+  'invoice.finalized',
+  'invoice.paid',
   'invoice.payment_failed',
-  'invoice.payment_succeeded',
+  'invoice.payment_action_required',
 ] as Stripe.WebhookEndpointCreateParams.EnabledEvent[]
 
-export const stripeHandler = async (event: APIGatewayProxyEvent, _: never) => {
+export const stripeHandler = async (
+  gatewayEvent: APIGatewayProxyEvent,
+  _: never
+) => {
   const error = verifyWebhooks
-    ? await handleWebhookEvent(event)
-    : await handleWebhookEventNoVefify(event)
+    ? await handleWebhookEvent(gatewayEvent)
+    : await handleWebhookEventNoVerify(gatewayEvent)
+
+  if (error) {
+    console.log(
+      'An error occurred while processing a Stripe webhook event:',
+      error.message
+    )
+  }
 
   return error
     ? {
@@ -73,7 +88,7 @@ const handleWebhookEvent = async (
 /**
  * When forwarding webhooks in dev, these webhooks are not signed
  */
-const handleWebhookEventNoVefify = async (
+const handleWebhookEventNoVerify = async (
   event: APIGatewayProxyEvent
 ): Promise<Error | null> => {
   // Get body from event
@@ -93,23 +108,36 @@ const handleWebhookEventNoVefify = async (
     return error
   }
 
-  return processWebhookEvent(stripeEvent)
-    .catch((error: Error) => error)
-    .then(() => null)
+  try {
+    await processWebhookEvent(stripeEvent)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+  } catch (error: Error) {
+    return error
+  }
+
+  return null
 }
 
 const processWebhookEvent = async (event: Stripe.Event): Promise<void> => {
-  if (event.type === 'customer.subscription.updated') {
+  if (event.type === 'customer.subscription.created') {
+    await handleSubscriptionCreated(event)
+  } else if (event.type === 'customer.subscription.updated') {
     await handleSubscriptionUpdated(event)
+  } else if (event.type === 'customer.subscription.deleted') {
+    await handleSubscriptionDeleted(event)
   } else if (event.type === 'customer.subscription.trial_will_end') {
     handleSubscriptionTrialWillEnd(event)
-  } else if (event.type === 'invoice.payment_action_required') {
-    // TODO: Figure out if this needs to be handled differently, if at all?
-    await handlePaymentActionRequired(event)
+  } else if (event.type === 'invoice.finalized') {
+    await handleInvoiceCreatedUpdated(event)
+    // 'invoice.payment_succeeded' could also be used here but we don't want to
+    // fire on partially paid invoices
+  } else if (event.type === 'invoice.paid') {
+    await handlePaymentSucceeded(event)
   } else if (event.type === 'invoice.payment_failed') {
     await handlePaymentFailed(event)
-  } else if (event.type === 'invoice.payment_succeeded') {
-    await handlePaymentSucceeded(event)
+  } else if (event.type === 'invoice.payment_action_required') {
+    await handlePaymentActionRequired(event)
   } else {
     throw new Error(`Unsupported event type: ${event.type}`)
   }

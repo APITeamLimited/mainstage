@@ -1,6 +1,6 @@
 import { checkValue } from 'api/src/config'
-import { supportedStripeEvents } from 'api/src/functions/stripe-webhook'
 import { stripe } from 'api/src/lib/stripe'
+import { supportedStripeEvents } from 'api/src/stripe-webhook'
 
 const gatewayUrl = checkValue<string>('gateway.url')
 

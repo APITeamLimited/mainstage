@@ -1,3 +1,5 @@
+import { useTheme } from '@mui/material'
+
 import { CustomChip } from 'src/components/custom-mui'
 
 type PlanChipProps = {
@@ -6,6 +8,8 @@ type PlanChipProps = {
 }
 
 export const PlanChip = ({ name, hideIfFree }: PlanChipProps) => {
+  const theme = useTheme()
+
   if (hideIfFree && name === 'Free') {
     return <></>
   }
@@ -16,6 +20,14 @@ export const PlanChip = ({ name, hideIfFree }: PlanChipProps) => {
       size="small"
       variant={name === 'Free' ? 'outlined' : 'filled'}
       color={name === 'Free' ? undefined : 'primary'}
+      sx={{
+        backgroundColor:
+          name === 'Free'
+            ? undefined
+            : theme.palette.mode === 'light'
+            ? theme.palette.grey[900]
+            : theme.palette.grey[100],
+      }}
     />
   )
 }

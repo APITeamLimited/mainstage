@@ -26,15 +26,6 @@ export const ConfirmTeamDelete = (
       messageType={confirmTeamDeleteMessageType}
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Confirm delete of team {teamName}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

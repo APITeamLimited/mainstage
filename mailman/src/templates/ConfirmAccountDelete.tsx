@@ -26,15 +26,6 @@ export const ConfirmAccountDelete = (
       messageType={confirmAccountDeleteMessageType}
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Confirm delete of your APITeam account
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

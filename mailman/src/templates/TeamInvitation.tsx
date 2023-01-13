@@ -35,15 +35,6 @@ export const TeamInvitation = (input: MailmanInput<TeamInvitationData>) => {
       messageType={isExistingUser ? 'MANDATORY' : 'NON_USER_INVITE'}
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        {inviterFirstName} invited you to join {teamName}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

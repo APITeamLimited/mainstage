@@ -22,15 +22,6 @@ export const NotifyDeclineInvitation = (
       messageType="OPTIONAL_TEAM_UPDATES"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        {data.targetEmail}, declined the invitation
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

@@ -1,4 +1,4 @@
-import { APITeamModel } from '@apiteam/types'
+import { APITeamModel, GetManyFilteredMixin } from '@apiteam/types'
 import type Stripe from 'stripe'
 
 import { stripe } from 'src/lib/stripe'
@@ -9,13 +9,16 @@ export type SubscriptionCreateInput = {
   freeTrialDays?: number
 }
 
-export type Subscription = Stripe.Subscription
+export type SubscriptionUpdateInput = {
+  cancelAtPeriodEnd?: boolean
+}
 
 export const SubscriptionModel: APITeamModel<
   SubscriptionCreateInput,
-  never,
-  Subscription
-> = {
+  SubscriptionUpdateInput,
+  Stripe.Subscription
+> &
+  GetManyFilteredMixin<Stripe.Subscription, 'customer'> = {
   create: async (input) => {
     return stripe.subscriptions.create({
       customer: input.customerId,
@@ -23,8 +26,10 @@ export const SubscriptionModel: APITeamModel<
       trial_period_days: input.freeTrialDays,
     })
   },
-  update: async (_1, _2) => {
-    throw new Error('Not implemented')
+  update: async (id, input) => {
+    return stripe.subscriptions.update(id, {
+      cancel_at_period_end: input.cancelAtPeriodEnd,
+    })
   },
   delete: async (id) => {
     const subscription = await stripe.subscriptions.retrieve(id)
@@ -43,5 +48,16 @@ export const SubscriptionModel: APITeamModel<
   },
   getMany: async (ids) => {
     return Promise.all(ids.map(SubscriptionModel.get))
+  },
+  getManyFiltered: async (key, value) => {
+    if (typeof value !== 'string') {
+      throw new Error(`Value for key ${key} must be a string`)
+    }
+
+    return stripe.subscriptions
+      .list({
+        [key]: value,
+      })
+      .then((result) => result.data)
   },
 }

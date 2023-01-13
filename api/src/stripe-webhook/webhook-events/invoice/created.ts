@@ -71,16 +71,18 @@ export const handleInvoiceCreatedUpdated = async (event: Stripe.Event) => {
                 invoice,
                 role: role as 'ADMIN' | 'OWNER',
                 workspaceName: (team as Team).name,
+                updated: event.type === 'invoice.updated',
               }
             : {
                 targetName: `${user.firstName} ${user.lastName}`,
                 invoice,
                 role: 'OWN-ACCOUNT',
                 workspaceName: undefined,
+                updated: event.type === 'invoice.updated',
               },
         attachments: [
           {
-            filename: `invoice-${invoice.number}.pdf`,
+            filename: `Invoice-${invoice.number}.pdf`,
             contentBase64: invoiceBase64,
             contentType: 'application/pdf',
           },

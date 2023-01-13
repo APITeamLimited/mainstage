@@ -22,15 +22,6 @@ export const NotifyPasswordReset = (
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        You password has been changed
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

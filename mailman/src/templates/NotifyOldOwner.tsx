@@ -22,15 +22,6 @@ export const NotifyOldOwner = (input: MailmanInput<NotifyOldOwnerData>) => {
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        You are no longer the owner of {teamName}
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           textAlign: 'center',

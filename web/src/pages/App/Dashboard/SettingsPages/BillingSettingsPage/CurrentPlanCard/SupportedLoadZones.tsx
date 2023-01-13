@@ -5,10 +5,10 @@ import {
   Tooltip,
   Typography,
   useTheme,
+  Chip,
 } from '@mui/material'
 import { AllPlansQuery } from 'types/graphql'
 
-import { CustomChip } from 'src/components/custom-mui/CustomChip'
 import { usePlanInfo } from 'src/contexts/billing-info'
 
 type SupportedLoadZonesProps = {
@@ -30,7 +30,7 @@ export const SupportedLoadZones = ({ nextPlan }: SupportedLoadZonesProps) => {
         }}
       >
         {planInfo.loadZones.map((lz) => (
-          <CustomChip
+          <Chip
             key={lz}
             label={lz}
             size="small"
@@ -53,7 +53,7 @@ export const SupportedLoadZones = ({ nextPlan }: SupportedLoadZonesProps) => {
                   placement="top"
                 >
                   <span>
-                    <CustomChip
+                    <Chip
                       label={lz}
                       size="small"
                       variant="filled"

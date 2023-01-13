@@ -21,15 +21,6 @@ export const SignupWelcome = (input: MailmanInput<SignupWelcomeData>) => {
       messageType="MANDATORY"
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Welcome to APITeam, {firstName}!
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

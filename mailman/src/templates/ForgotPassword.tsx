@@ -23,15 +23,6 @@ export const ForgotPassword = (input: MailmanInput<ForgotPasswordData>) => {
       messageType={forgotPasswordMessageType}
     >
       <Typography
-        variant="h6"
-        sx={{
-          marginBottom: 2,
-          textAlign: 'center',
-        }}
-      >
-        Reset your password
-      </Typography>
-      <Typography
         variant="body1"
         sx={{
           marginBottom: 2,

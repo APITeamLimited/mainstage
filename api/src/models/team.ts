@@ -1,6 +1,7 @@
 import { NotifyTeamDeletedData } from '@apiteam/mailman'
 import {
   APITeamModel,
+  GetAllAsyncIteratorMixin,
   GetOrCreateCustomerIdMixin,
   UserAsPersonal,
 } from '@apiteam/types'
@@ -52,6 +53,7 @@ export const TeamModel: APITeamModel<
   AbstractUpdateTeamInput,
   Team
 > &
+  GetAllAsyncIteratorMixin<Team> &
   GetOrCreateCustomerIdMixin &
   MembershipsMixin = {
   create: async (input) => {
@@ -371,6 +373,25 @@ export const TeamModel: APITeamModel<
     }
 
     return ownerMembership
+  },
+  getAllAsyncIterator: async function* () {
+    // Iterate over all users in the database
+    let skip = 0
+    let batchSize = 0
+
+    do {
+      const teams = await db.team.findMany({
+        skip,
+        take: 100,
+      })
+
+      for (const team of teams) {
+        yield team
+      }
+
+      skip += teams.length
+      batchSize = teams.length
+    } while (batchSize > 0)
   },
   getAdminOwnerMemberships: async (teamId) => {
     const allMemerships = await TeamModel.getAllMemberships(teamId)

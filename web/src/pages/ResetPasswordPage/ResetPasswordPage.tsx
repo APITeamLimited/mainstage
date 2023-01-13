@@ -51,7 +51,7 @@ const ResetPasswordPage = ({ resetToken }: ResetPasswordFormProps) => {
   useEffect(() => {
     const validateToken = async () => {
       const response = await validateResetToken(resetToken)
-      console.log(response)
+
       if (response.error) {
         setEnabled(false)
         setSnackErrorMessage(
@@ -86,7 +86,6 @@ const ResetPasswordPage = ({ resetToken }: ResetPasswordFormProps) => {
         resetToken,
         password: values.password,
       })
-      console.log(response)
 
       if (response.error) {
         helpers.setStatus({ success: false })

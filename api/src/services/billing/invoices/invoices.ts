@@ -1,7 +1,7 @@
 import { stripe } from 'src/lib/stripe'
 import { TeamModel } from 'src/models'
 
-import { checkAuthenticated, checkOwnerAdmin } from '../guards'
+import { checkAuthenticated, checkOwnerAdmin } from '../../guards'
 
 export const invoices = ({ teamId }: { teamId?: string }) =>
   teamId ? getInvoicesTeam({ teamId }) : getInvoicesUser()
