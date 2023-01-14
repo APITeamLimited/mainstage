@@ -71,7 +71,7 @@ const handleActivationTeam = async (
   const adminOwnerMemberships = await TeamModel.getAdminOwnerMemberships(teamId)
 
   const adminOwnerUsers = await UserModel.getMany(
-    adminOwnerMemberships.map((membership) => membership.id)
+    adminOwnerMemberships.map((membership) => membership.userId)
   ).then((users) => users.filter((user): user is UserAsPersonal => !!user))
 
   await Promise.all(

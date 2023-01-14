@@ -7,7 +7,6 @@ import {
   generateUserUnsubscribeUrl,
 } from 'src/helpers'
 import { getFreePlanInfo } from 'src/helpers/billing'
-import { processFreeCredits } from 'src/jobs/apply-free-credits'
 import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
 import { CustomerModel, TeamModel, UserModel } from 'src/models'
 
@@ -41,18 +40,10 @@ const handleDeactivationTeam = async (teamId: string) => {
     pastDue: false,
   })
 
-  await processFreeCredits({
-    team: {
-      id: teamId,
-      planInfo: freePlanInfo,
-      pastDue: false,
-    },
-  })
-
   const adminOwnerMemberships = await TeamModel.getAdminOwnerMemberships(teamId)
 
   const adminOwnerUsers = await UserModel.getMany(
-    adminOwnerMemberships.map((membership) => membership.id)
+    adminOwnerMemberships.map((membership) => membership.userId)
   ).then((users) => users.filter((user): user is UserAsPersonal => !!user))
 
   await Promise.all(
@@ -86,14 +77,6 @@ const handleDeactivationUser = async (userId: string) => {
   const updatedUser = await UserModel.update(userId, {
     planInfoId: freePlanInfo.id,
     pastDue: false,
-  })
-
-  await processFreeCredits({
-    user: {
-      id: updatedUser.id,
-      planInfo: freePlanInfo,
-      pastDue: false,
-    },
   })
 
   const mailmanInput: DispatchEmailInput<NotifyDowngradeFreeTierData> = {

@@ -17,7 +17,11 @@ export const UpcomingInvoiceRow = ({
   }
 
   return (
-    <TableRow>
+    <TableRow
+      sx={{
+        height: '45px',
+      }}
+    >
       <TableCell
         sx={{
           borderColor: theme.palette.divider,
@@ -46,7 +50,7 @@ export const UpcomingInvoiceRow = ({
           color: theme.palette.text.secondary,
         }}
       >
-        ${prettyPrintCents(upcomingInvoice.total)}
+        {prettyPrintCents(upcomingInvoice.total)}
       </TableCell>
       <TableCell
         sx={{

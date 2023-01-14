@@ -90,7 +90,7 @@ export const declineInvitation = async ({ token }: { token: string }) => {
 
   const ownerAdminUsers = (
     await UserModel.getMany(
-      ownerAdminMemberships.map((membership) => membership.id)
+      ownerAdminMemberships.map((membership) => membership.userId)
     )
   ).filter((u) => u !== null) as UserAsPersonal[]
 

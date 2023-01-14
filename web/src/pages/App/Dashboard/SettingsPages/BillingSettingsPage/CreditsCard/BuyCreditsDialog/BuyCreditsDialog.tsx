@@ -1,5 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { Button, Stack, Typography } from '@mui/material'
 import {
   CreditsPricingOptionsQuery,
   CreditsPricingOptionsQueryVariables,
@@ -10,7 +12,9 @@ import { useQuery } from '@redwoodjs/web'
 import { CustomLoadingDialog } from 'src/components/custom-mui/CustomLoadingDialog'
 import { CREDITS_PRICING_OPTIONS_QUERY } from 'src/layouts/Landing/components/pricing'
 
-import { PaymentOnboardingDialog } from '../../PaymentOnboardingDialog'
+import { PaymentOnboardingDialog } from '../../payment-components/PaymentOnboardingDialog'
+
+import { CreditsPaymentSection } from './CreditsPaymentSection'
 
 type BuyCreditsDialogProps = {
   open: boolean
@@ -21,6 +25,13 @@ export const BuyCreditsDialog = ({ open, setOpen }: BuyCreditsDialogProps) => {
   const [activeFinalStep, setActiveFinalStep] = useState(0)
 
   useAutoDialogOpen(setOpen)
+
+  useEffect(() => {
+    if (!open) {
+      // Prevents visual errors
+      setTimeout(() => setActiveFinalStep(0), 300)
+    }
+  }, [open])
 
   const { data } = useQuery<
     CreditsPricingOptionsQuery,
@@ -53,14 +64,70 @@ export const BuyCreditsDialog = ({ open, setOpen }: BuyCreditsDialogProps) => {
   }
 
   return (
-    <></>
-    // <PaymentOnboardingDialog
-    //   title="Buy Credits"
-    //   open={open}
-    //   onClose={() => setOpen(false)}
-    //   activeFinalStep={0}
-    //   finalSteps={[]}
-    // />
+    <PaymentOnboardingDialog
+      title="Buy Credits"
+      open={open}
+      onClose={() => setOpen(false)}
+      activeFinalStep={activeFinalStep}
+      finalSteps={[
+        {
+          stepName: 'confirm',
+          title: 'Confirm',
+          section: (
+            <CreditsPaymentSection
+              creditsPricingOption={creditsPricingOption}
+              onPurchaseComplete={() => setActiveFinalStep(activeFinalStep + 1)}
+            />
+          ),
+          sectionButtons: (
+            <Button
+              variant="outlined"
+              onClick={() => setOpen(false)}
+              color="error"
+            >
+              Cancel
+            </Button>
+          ),
+        },
+        {
+          stepName: 'success',
+          title: 'Success',
+          section: (
+            <Stack
+              spacing={2}
+              alignItems="center"
+              justifyContent="center"
+              sx={{
+                width: '100%',
+                height: 300,
+              }}
+            >
+              <CheckCircleIcon
+                color="success"
+                sx={{
+                  fontSize: 100,
+                }}
+              />
+              <Typography variant="h5" align="center">
+                Successfully Purchased Credits
+              </Typography>
+              <Typography variant="body2" align="center">
+                These are now available to use immediately.
+              </Typography>
+            </Stack>
+          ),
+          sectionButtons: (
+            <Button
+              variant="contained"
+              onClick={() => setOpen(false)}
+              color="primary"
+            >
+              Close
+            </Button>
+          ),
+        },
+      ]}
+    />
   )
 }
 

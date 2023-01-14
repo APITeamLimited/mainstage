@@ -53,7 +53,7 @@ const CREATE_PLAN_QUOTE_MUTATION = gql`
   }
 `
 
-const ACCEPT_QUOTE_MUTATION = gql`
+export const ACCEPT_QUOTE_MUTATION = gql`
   mutation AcceptQuoteMutation($quoteId: String!, $teamId: String) {
     acceptQuote(quoteId: $quoteId, teamId: $teamId) {
       id
@@ -79,18 +79,7 @@ export const PlanPaymentSection = ({
 }: PlanPaymentSectionProps) => {
   const theme = useTheme()
 
-  const { fetchedPaymentMethods, customer } = usePaymentMethods()
-
-  const paymentMethod = useMemo(() => {
-    if (!customer) {
-      return null
-    }
-
-    return fetchedPaymentMethods.find(
-      (paymentMethod) =>
-        paymentMethod.id === customer.invoice_settings?.default_payment_method
-    )
-  }, [customer, fetchedPaymentMethods])
+  const paymentMethod = useDefaultPaymentMethod()
 
   const {
     promotionCode,
@@ -98,6 +87,8 @@ export const PlanPaymentSection = ({
     quoteData,
     fetchQuoteError,
     handleAcceptQuote,
+    currentlyAccepting,
+    gettingNewQuote,
   } = useQuote(selectedPlan, onPurchaseComplete)
 
   const [editValuePromotionCode, setEditValuePromotionCode] =
@@ -124,7 +115,10 @@ export const PlanPaymentSection = ({
       : `Monthly starting on ${new Date().toLocaleDateString()}`
   }, [selectedPlan, trialEligibility])
 
-  return selectedPlan && quoteData ? (
+  return selectedPlan &&
+    quoteData &&
+    paymentMethod?.card &&
+    !gettingNewQuote ? (
     <Stack direction="row" justifyContent="space-evenly" spacing={2}>
       <Card sx={{ p: 2 }} variant="outlined">
         <Stack spacing={2}>
@@ -152,11 +146,11 @@ export const PlanPaymentSection = ({
           )}
           <PaymentSectionItem
             title="Card"
-            description={`**** **** **** ${paymentMethod?.card?.last4}`}
+            description={`**** **** **** ${paymentMethod.card.last4}`}
           />
         </Stack>
       </Card>
-      <Stack spacing={4} alignItems="flex-start">
+      <Stack spacing={4} alignItems="flex-start" justifyContent="space-between">
         <Stack
           direction="row"
           spacing={2}
@@ -205,6 +199,7 @@ export const PlanPaymentSection = ({
             variant="contained"
             color="primary"
             onClick={handleAcceptQuote}
+            disabled={currentlyAccepting}
           >
             Confirm Purchase
           </Button>
@@ -229,7 +224,7 @@ const useQuote = (
     CreatePlanQuoteMutation['createPlanQuote'] | null
   >(null)
 
-  const [createPlanQuote] = useMutation<
+  const [createPlanQuote, { loading: gettingNewQuote }] = useMutation<
     CreatePlanQuoteMutation,
     CreatePlanQuoteMutationVariables
   >(CREATE_PLAN_QUOTE_MUTATION, {
@@ -260,7 +255,7 @@ const useQuote = (
     workspaceInfo.scope.variantTargetId,
   ])
 
-  const [acceptQuote] = useMutation<
+  const [acceptQuote, { loading: currentlyAccepting }] = useMutation<
     AcceptQuoteMutation,
     AcceptQuoteMutationVariables
   >(ACCEPT_QUOTE_MUTATION, {
@@ -271,12 +266,12 @@ const useQuote = (
   return {
     promotionCode,
     setPromotionCode,
+    gettingNewQuote,
     quoteData,
     fetchQuoteError,
+    currentlyAccepting,
     handleAcceptQuote: () => {
-      if (!quoteData) {
-        return
-      }
+      if (!quoteData) return
 
       acceptQuote({
         variables: {
@@ -288,4 +283,21 @@ const useQuote = (
       })
     },
   }
+}
+
+export const useDefaultPaymentMethod = () => {
+  const { fetchedPaymentMethods, customer } = usePaymentMethods()
+
+  const paymentMethod = useMemo(() => {
+    if (!customer) {
+      return null
+    }
+
+    return fetchedPaymentMethods.find(
+      (paymentMethod) =>
+        paymentMethod.id === customer.invoice_settings?.default_payment_method
+    )
+  }, [customer, fetchedPaymentMethods])
+
+  return paymentMethod
 }

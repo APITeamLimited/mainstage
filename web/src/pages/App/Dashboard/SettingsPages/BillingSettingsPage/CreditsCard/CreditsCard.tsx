@@ -36,7 +36,11 @@ export const CreditsCard = () => {
           <CreditsStatistics />
           <Divider />
           <Stack spacing={2} direction="row" justifyContent="flex-end">
-            <Button variant="contained" color="primary" type="submit">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setShowBuyCreditsDialog(true)}
+            >
               Buy Credits
             </Button>
           </Stack>

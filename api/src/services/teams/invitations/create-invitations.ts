@@ -220,7 +220,9 @@ const checkTeamCapacity = async (
     planInfo.maxMembers
   ) {
     throw new ServiceValidationError(
-      `Adding ${invitationCount} invitations would exceed the team's capacity of ${planInfo.maxMembers}`
+      `Adding ${invitationCount} invitation${
+        invitationCount > 1 ? 's' : ''
+      } would exceed the team's capacity of ${planInfo.maxMembers}`
     )
   }
 }

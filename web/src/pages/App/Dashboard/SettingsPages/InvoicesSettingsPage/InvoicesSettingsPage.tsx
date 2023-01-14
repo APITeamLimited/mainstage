@@ -51,7 +51,8 @@ const InvoicesSettingsPage = () => {
                 Invoices
               </Typography>
               <Typography variant="body1" color={theme.palette.text.secondary}>
-                View your invoices.
+                View your {workspaceInfo.isTeam ? 'team' : 'personal'} invoices
+                and payment history.
               </Typography>
             </Box>
             <InvoicesCard />

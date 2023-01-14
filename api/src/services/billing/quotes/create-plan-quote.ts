@@ -20,11 +20,13 @@ export const createPlanQuote = async ({
 }) => {
   const workspaceContext = await authenticateAndGetContext(teamId)
 
-  const upgradePlanInfo = await PlanInfoModel.get(planId)
+  const upgradePlanInfo = await PlanInfoModel.get(planId).then((planInfo) => {
+    if (!planInfo) {
+      throw new ServiceValidationError(`Plan with id ${planId} not found`)
+    }
 
-  if (!upgradePlanInfo) {
-    throw new ServiceValidationError(`Plan with id ${planId} not found`)
-  }
+    return planInfo
+  })
 
   if (upgradePlanInfo.priceMonthlyCents === 0) {
     throw new ServiceValidationError('Cannot upgrade to a free plan')
@@ -59,8 +61,17 @@ export const createPlanQuote = async ({
     (quote) => quote.metadata['planId'] === planId && quote.status === 'draft'
   )
 
+  const metadata = {
+    planId,
+    pricingOption,
+  } as Record<string, string>
+
+  if (promotionCode) {
+    metadata['promotionCode'] = promotionCode
+  }
+
   if (existingQuote) {
-    const updated = await QuoteModel.update(existingQuote.id, {
+    return QuoteModel.update(existingQuote.id, {
       lineItems: [
         {
           price:
@@ -70,15 +81,13 @@ export const createPlanQuote = async ({
           quantity: 1,
         },
       ],
-      promotionCode,
       trialDays:
         isEligibleTrial && upgradePlanInfo.freeTrialDays
           ? upgradePlanInfo.freeTrialDays
           : 0,
+      metadata,
       isSubscription: true,
     })
-
-    return updated
   }
 
   const created = await QuoteModel.create({
@@ -93,12 +102,11 @@ export const createPlanQuote = async ({
         quantity: 1,
       },
     ],
-    promotionCode,
-    planId,
     trialDays:
       isEligibleTrial && upgradePlanInfo.freeTrialDays
         ? upgradePlanInfo.freeTrialDays
         : 0,
+    metadata,
     isSubscription: true,
   })
 

@@ -11,7 +11,7 @@ import { handleSubscriptionUpdated } from './webhook-events/customer/subscriptio
 import { handleInvoiceCreatedUpdated } from './webhook-events/invoice/created'
 import { handlePaymentActionRequired } from './webhook-events/invoice/payment/action-required'
 import { handlePaymentFailed } from './webhook-events/invoice/payment/failed'
-import { handlePaymentSucceeded } from './webhook-events/invoice/payment/succeeded'
+import { handleInvoicePaid } from './webhook-events/invoice/payment/paid'
 
 const webhookSecret = checkValue<string>('stripe.webhookSecret')
 
@@ -133,7 +133,7 @@ const processWebhookEvent = async (event: Stripe.Event): Promise<void> => {
     // 'invoice.payment_succeeded' could also be used here but we don't want to
     // fire on partially paid invoices
   } else if (event.type === 'invoice.paid') {
-    await handlePaymentSucceeded(event)
+    await handleInvoicePaid(event)
   } else if (event.type === 'invoice.payment_failed') {
     await handlePaymentFailed(event)
   } else if (event.type === 'invoice.payment_action_required') {

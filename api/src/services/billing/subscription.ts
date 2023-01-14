@@ -4,6 +4,23 @@ import { SubscriptionModel } from 'src/models/billing/subscription'
 
 import { authenticateAndGetContext, getCustomer } from './helpers'
 
+export const subscription = async ({ teamId }: { teamId?: string }) => {
+  const workspaceContext = await authenticateAndGetContext(teamId)
+
+  const customer = await getCustomer(workspaceContext)
+
+  const existingSubscriptions = await SubscriptionModel.getManyFiltered(
+    'customer',
+    customer.id
+  )
+
+  if (existingSubscriptions.length === 0) {
+    return null
+  }
+
+  return existingSubscriptions[0]
+}
+
 export const downgradePlan = async ({ teamId }: { teamId?: string }) => {
   const workspaceContext = await authenticateAndGetContext(teamId)
 

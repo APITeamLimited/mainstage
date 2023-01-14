@@ -197,15 +197,13 @@ export const BuyPlanDialog = ({
             </Stack>
           ),
           sectionButtons: (
-            <>
-              <Button
-                variant="contained"
-                onClick={() => setOpen(false)}
-                color="primary"
-              >
-                Close
-              </Button>
-            </>
+            <Button
+              variant="contained"
+              onClick={() => setOpen(false)}
+              color="primary"
+            >
+              Close
+            </Button>
           ),
         },
       ]}

@@ -58,7 +58,7 @@ const handleNotifyDowngradeAtPeriodEndTeam = async (
     team.id
   )
   const adminOwnerUsers = await UserModel.getMany(
-    adminOwnerMemberships.map((membership) => membership.id)
+    adminOwnerMemberships.map((membership) => membership.userId)
   ).then((users) => users.filter((user): user is UserAsPersonal => !!user))
 
   if (!team.planInfoId) {

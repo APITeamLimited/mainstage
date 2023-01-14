@@ -8,6 +8,8 @@ import {
   PaymentMethodsQueryVariables,
   SetupIntentsQuery,
   SetupIntentsQueryVariables,
+  SubscriptionQuery,
+  SubscriptionQueryVariables,
 } from 'types/graphql'
 
 import { useQuery } from '@redwoodjs/web'
@@ -64,6 +66,16 @@ const PAYMENT_METHODS_QUERY = gql`
   }
 `
 
+const SUBSCRIPTION_QUERY = gql`
+  query SubscriptionQuery($teamId: String) {
+    subscription(teamId: $teamId) {
+      id
+      cancel_at_period_end
+      current_period_end
+    }
+  }
+`
+
 const BillingAddressContext = createContext<null | {
   customerAddress: BillingAddressQuery['customer']['address'] | undefined
   refetchAddress: () => void
@@ -82,6 +94,12 @@ export const usePaymentMethods = () => useContext(PaymentMethodsContext)
 const SetupIntentsContext =
   createContext<ReturnType<typeof useSetupIntentsValue>>(null)
 export const useSetupIntents = () => useContext(SetupIntentsContext)
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+const SubscriptionContext =
+  createContext<ReturnType<typeof useSubscriptionValue>>(null)
+export const useSubscription = () => useContext(SubscriptionContext)
 
 export const BillingProvider = ({
   children,
@@ -112,12 +130,15 @@ export const BillingProvider = ({
 
   const paymentMethods = usePaymentMethodsValue()
   const setupIntents = useSetupIntentsValue()
+  const subscription = useSubscriptionValue()
 
   return (
     <BillingAddressContext.Provider value={billingAddress}>
       <PaymentMethodsContext.Provider value={paymentMethods}>
         <SetupIntentsContext.Provider value={setupIntents}>
-          {children}
+          <SubscriptionContext.Provider value={subscription}>
+            {children}
+          </SubscriptionContext.Provider>
         </SetupIntentsContext.Provider>
       </PaymentMethodsContext.Provider>
     </BillingAddressContext.Provider>
@@ -230,5 +251,29 @@ const useSetupIntentsValue = () => {
     fetchedSetupIntents,
     refetchSetupIntents,
     setupIntentsLoaded: !!setupIntentsData,
+  }
+}
+
+const useSubscriptionValue = () => {
+  const workspaceInfo = useWorkspaceInfo()
+
+  const { data: subscriptionData, refetch: refetchSubscription } = useQuery<
+    SubscriptionQuery,
+    SubscriptionQueryVariables
+  >(SUBSCRIPTION_QUERY, {
+    variables: {
+      teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
+    },
+    onError: (error) => {
+      snackErrorMessageVar(
+        `Failed to fetch payment data (subscription): ${error}`
+      )
+    },
+  })
+
+  return {
+    fetchedSubscription: subscriptionData?.subscription,
+    refetchSubscription,
+    subscriptionLoaded: !!subscriptionData,
   }
 }

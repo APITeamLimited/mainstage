@@ -113,6 +113,12 @@ import {
   notifyRemovedFromTeamTitle,
 } from './NotifyRemovedFromTeam'
 import {
+  NotifyRemovedFromTeamDowngrade,
+  NotifyRemovedFromTeamDowngradeData,
+  notifyRemovedFromTeamDowngradeText,
+  notifyRemovedFromTeamDowngradeTitle,
+} from './NotifyRemovedFromTeamDowngrade'
+import {
   NotifyTeamDeleted,
   NotifyTeamDeletedData,
   notifyTeamDeletedText,
@@ -275,6 +281,11 @@ export const VALID_TEMPLATES = {
     text: notifyDowngradeAtPeriodEndText,
     title: notifyDowngradeAtPeriodEndTitle,
   },
+  'notify-removed-from-team-downgrade': {
+    html: NotifyRemovedFromTeamDowngrade,
+    text: notifyRemovedFromTeamDowngradeText,
+    title: notifyRemovedFromTeamDowngradeTitle,
+  },
 } as const
 
 export type ValidTemplateData = {
@@ -303,6 +314,7 @@ export type ValidTemplateData = {
   'notify-new-invoice': NotifyInvoiceData
   'notify-payment-action-required': NotifyPaymentActionRequiredData
   'notify-downgrade-at-period-end': NotifyDowngradeAtPeriodEndData
+  'notify-removed-from-team-downgrade': NotifyRemovedFromTeamDowngradeData
 }
 
 export type TemplateIdentifier = keyof ValidTemplateData
@@ -334,3 +346,4 @@ export { NotifyPaymentSuccessfulData } from './NotifyPaymentSuccessful'
 export { NotifyInvoiceData } from './NotifyInvoice'
 export { NotifyPaymentActionRequiredData } from './NotifyPaymentActionRequired'
 export { NotifyDowngradeAtPeriodEndData } from './NotifyDowngradeAtPeriodEnd'
+export { NotifyRemovedFromTeamDowngradeData } from './NotifyRemovedFromTeamDowngrade'

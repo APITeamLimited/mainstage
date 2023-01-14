@@ -37,10 +37,18 @@ const getUpcomingInvoiceTeam = async ({ teamId }: { teamId: string }) => {
     return null
   }
 
-  return {
-    ...(await stripe.invoices.retrieveUpcoming({
+  const upcomingInvoice = await stripe.invoices
+    .retrieveUpcoming({
       customer: team.customerId,
-    })),
+    })
+    .catch(() => null)
+
+  if (!upcomingInvoice) {
+    return null
+  }
+
+  return {
+    ...upcomingInvoice,
     planName: planInfo.verboseName,
   }
 }
@@ -68,11 +76,18 @@ const getUpcomingInvoiceUser = async () => {
     return null
   }
 
-  const result = await stripe.invoices.retrieveUpcoming({
-    customer: user.customerId,
-  })
+  const upcomingInvoice = await stripe.invoices
+    .retrieveUpcoming({
+      customer: user.customerId,
+    })
+    .catch(() => null)
 
-  console.log('result', result)
+  if (!upcomingInvoice) {
+    return null
+  }
 
-  return result
+  return {
+    ...upcomingInvoice,
+    planName: planInfo.verboseName,
+  }
 }

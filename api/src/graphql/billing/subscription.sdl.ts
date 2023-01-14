@@ -5,8 +5,8 @@ export const schema = gql`
   type StripeSubscription {
     id: ID!
     cancel_at_period_end: Boolean
-    current_period_end: Timestamp
-    current_period_start: Timestamp
+    current_period_end: Int
+    current_period_start: Int
     customer: String
     default_payment_method: StripePaymentMethod
     description: String
@@ -231,6 +231,10 @@ export const schema = gql`
 
   type StripeSubscriptionItemBillingThresholds {
     usage_gte: Int
+  }
+
+  type Query {
+    subscription(teamId: String): StripeSubscription @requireAuth
   }
 
   type Mutation {

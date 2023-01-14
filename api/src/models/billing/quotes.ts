@@ -17,18 +17,25 @@ export type AbstractQuoteCreateParams = {
   customerId: string
   description: string
   lineItems: Stripe.QuoteCreateParams.LineItem[]
-  promotionCode?: string
-  planId?: string
+  metadata: Stripe.MetadataParam & {
+    planId?: string
+    promotionCode?: string
+    creditsPricingOptionId?: string
+  }
   trialDays?: number
   isSubscription: boolean
 }
 
 export type AbstractQuoteUpdateParams = {
   description?: string
-  promotionCode?: string
   lineItems?: Stripe.QuoteCreateParams.LineItem[]
   trialDays?: number
   isSubscription: boolean
+  metadata?: Stripe.MetadataParam & {
+    planId?: string
+    promotionCode?: string
+    creditsPricingOptionId?: string
+  }
 }
 
 type QuoteMixin = {
@@ -41,8 +48,8 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
   GetManyFilteredMixin<Stripe.Quote, 'customer'> &
   QuoteMixin = {
   create: async (input) => {
-    const coupon = input.promotionCode
-      ? await CouponModel.getViaPromotionCode(input.promotionCode)
+    const coupon = input.metadata.promotionCode
+      ? await CouponModel.getViaPromotionCode(input.metadata.promotionCode)
       : null
 
     return stripe.quotes.create({
@@ -50,10 +57,7 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
       description: input.description,
       line_items: input.lineItems,
       discounts: coupon ? [{ coupon: coupon.id }] : undefined,
-      metadata: {
-        promotionCode: input.promotionCode ?? null,
-        planId: input.planId ?? null,
-      },
+      metadata: input.metadata,
       subscription_data: input.isSubscription
         ? {
             trial_period_days: input.trialDays,
@@ -63,8 +67,8 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
     })
   },
   update: async (id, input) => {
-    const coupon = input.promotionCode
-      ? await CouponModel.getViaPromotionCode(input.promotionCode)
+    const coupon = input.metadata?.promotionCode
+      ? await CouponModel.getViaPromotionCode(input.metadata.promotionCode)
       : null
 
     const existingQuote = await QuoteModel.get(id)
@@ -73,13 +77,12 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
       throw new ServiceValidationError(`Quote with id ${id} not found`)
     }
 
-    const newMetadata = {
-      ...existingQuote.metadata,
-    }
-
-    if (input.promotionCode) {
-      newMetadata.promotionCode = input.promotionCode
-    }
+    const newMetadata = input.metadata
+      ? {
+          ...existingQuote.metadata,
+          ...input.metadata,
+        }
+      : existingQuote.metadata
 
     return stripe.quotes.update(id, {
       discounts: coupon ? [{ coupon: coupon.id }] : undefined,
@@ -135,8 +138,8 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
     // Finalize the invoice
     await stripe.invoices.finalizeInvoice(invoiceId)
 
-    // Pay the invoice
-    await stripe.invoices.pay(invoiceId)
+    // Try and pay straight away
+    await stripe.invoices.pay(invoiceId).catch(() => null)
 
     return acceptedQuote
   },

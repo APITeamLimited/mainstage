@@ -51,6 +51,12 @@ export const schema = gql`
       teamId: String
       promotionCode: String
     ): Quote! @requireAuth
+    createCreditsPricingQuote(
+      creditsPricingOptionId: String!
+      teamId: String
+      promotionCode: String
+      quantity: Int!
+    ): Quote! @requireAuth
     acceptQuote(quoteId: String!, teamId: String): Quote! @requireAuth
   }
 `

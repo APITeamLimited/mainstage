@@ -17,6 +17,7 @@ import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import { BuyPlanDialog } from './BuyPlanDialog'
+import { DowngradePlanDialog } from './DowngradePlanDialog'
 import { IndividualFeatures } from './IndividualFeatures'
 import { SupportedLoadZones } from './SupportedLoadZones'
 
@@ -93,7 +94,11 @@ export const CurrentPlanCard = () => {
           <Divider />
           <Stack spacing={2} direction="row" justifyContent="flex-end">
             {planInfo.priceMonthlyCents > 0 && (
-              <Button variant="outlined" color="error">
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setShowDowngradeDialog(true)}
+              >
                 Downgrade Plan
               </Button>
             )}
@@ -113,6 +118,10 @@ export const CurrentPlanCard = () => {
         open={showUpgradeDialog && !!nextPlan}
         setOpen={setShowUpgradeDialog}
         allPlans={allPlans.planInfos}
+      />
+      <DowngradePlanDialog
+        open={showDowngradeDialog}
+        setOpen={setShowDowngradeDialog}
       />
     </>
   ) : (

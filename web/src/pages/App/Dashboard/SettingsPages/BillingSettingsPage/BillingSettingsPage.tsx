@@ -17,6 +17,7 @@ import { BillingNameCard } from './BillingNameCard'
 import { BillingProvider } from './BillingProvider'
 import { CreditsCard } from './CreditsCard'
 import { CurrentPlanCard } from './CurrentPlanCard'
+import { MarkedForCancellationCard } from './MarkedForCancellationCard'
 import { PaymentMethodsCard } from './payment-methods/PaymentMethodsCard'
 
 export const STRIPE_PUBLISHABLE_KEY = process.env[
@@ -51,6 +52,7 @@ const BillingSettingsPage = () => {
           possibleTabs={SETTINGS_TABS}
         >
           <Stack spacing={4}>
+            <MarkedForCancellationCard />
             <CurrentPlanCard />
             <CreditsCard />
             <BillingAddressCard />
