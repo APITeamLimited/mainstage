@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useMutation } from '@apollo/client'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -15,14 +15,21 @@ import {
   Box,
   FormHelperText,
   IconButton,
-  Snackbar,
-  Alert,
+  Tooltip,
 } from '@mui/material'
 import { useFormik } from 'formik'
 import { CreateInvitations } from 'types/graphql'
 import * as Yup from 'yup'
 
+import {
+  snackErrorMessageVar,
+  snackSuccessMessageVar,
+} from 'src/components/app/dialogs'
+import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
+
+import { MemberLimitSection } from './MemberLimitSection'
+import { useMembersInfo } from './MembersInfoProvider'
 
 type InvitationInput = {
   email: string
@@ -40,17 +47,14 @@ const ADD_NEW_MEMBERS_QUERY = gql`
   }
 `
 
-type AddNewMemberProps = {
-  incrementInvitationsCount: () => void
-}
-
-export const AddNewMember = ({
-  incrementInvitationsCount,
-}: AddNewMemberProps) => {
+export const AddNewMember = () => {
   const workspaceInfo = useWorkspaceInfo()
   const theme = useTheme()
   const [addMemberFunction, { data, error, reset }] =
     useMutation<CreateInvitations>(ADD_NEW_MEMBERS_QUERY)
+
+  const planInfo = usePlanInfo()
+  const { refetchInvitations, invitationsData, membersData } = useMembersInfo()
 
   const teamId = useMemo(() => {
     if (!workspaceInfo?.scope) return null
@@ -61,23 +65,15 @@ export const AddNewMember = ({
     }
   }, [workspaceInfo])
 
-  const [snackSuccessMessage, setSnackSuccessMessage] = useState<string | null>(
-    null
-  )
-
-  const [snackErrorMessage, setSnackErrorMessage] = useState<string | null>(
-    null
-  )
-
   useEffect(() => {
     if (data) {
-      setSnackSuccessMessage('Invitation sent')
+      snackSuccessMessageVar('Invitation successfully sent')
     }
   }, [data])
 
   useEffect(() => {
     if (error) {
-      setSnackErrorMessage('Error sending invitation')
+      snackErrorMessageVar('Error sending invitation')
     }
   }, [error])
 
@@ -112,7 +108,7 @@ export const AddNewMember = ({
       })
 
       if (data) {
-        incrementInvitationsCount()
+        refetchInvitations()
         formik.resetForm()
         formik.setFieldValue('pairs', [
           {
@@ -134,34 +130,32 @@ export const AddNewMember = ({
     }
   }, [data, error, formik])
 
+  const teamFull = useMemo(() => {
+    if (!invitationsData || !membersData || !planInfo) return false
+
+    if (planInfo?.maxMembers === -1) {
+      return false
+    }
+
+    const currentCount =
+      membersData.memberships.length + invitationsData.invitations.length
+
+    const remainingCount = planInfo?.maxMembers - currentCount
+
+    return remainingCount <= 0
+  }, [invitationsData, membersData, planInfo])
+
   if (!teamId) return null
 
   return (
     <>
-      <Snackbar
-        open={!!snackErrorMessage}
-        onClose={() => setSnackErrorMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="error" sx={{ width: '100%' }}>
-          {snackErrorMessage}
-        </Alert>
-      </Snackbar>
-      <Snackbar
-        open={!!snackSuccessMessage}
-        onClose={() => setSnackSuccessMessage(null)}
-        autoHideDuration={5000}
-      >
-        <Alert severity="success" sx={{ width: '100%' }}>
-          {snackSuccessMessage}
-        </Alert>
-      </Snackbar>
       <Card>
         <form noValidate onSubmit={formik.handleSubmit}>
           <Stack spacing={2} p={2}>
             <Typography variant="h6" fontWeight="bold">
               Add New
             </Typography>
+            <MemberLimitSection />
             <Divider />
             <Typography variant="body1" color={theme.palette.text.secondary}>
               Invite new members to your team via email.
@@ -224,33 +218,70 @@ export const AddNewMember = ({
               <FormHelperText error>{formik.errors.submit}</FormHelperText>
             )}
             <Box>
-              <Button
-                endIcon={<ControlPointIcon />}
-                variant="outlined"
-                onClick={() => {
-                  formik.setFieldValue('pairs', [
-                    ...formik.values.pairs,
-                    {
-                      email: '',
-                      role: 'MEMBER',
-                    },
-                  ])
-                }}
-              >
-                Add Another
-              </Button>
+              {teamFull ? (
+                <Tooltip title="You have reached the maximum number of members for your plan.">
+                  <Button
+                    endIcon={<ControlPointIcon />}
+                    variant="outlined"
+                    onClick={() => {
+                      formik.setFieldValue('pairs', [
+                        ...formik.values.pairs,
+                        {
+                          email: '',
+                          role: 'MEMBER',
+                        },
+                      ])
+                    }}
+                    disabled={teamFull}
+                  >
+                    Add Another
+                  </Button>
+                </Tooltip>
+              ) : (
+                <Button
+                  endIcon={<ControlPointIcon />}
+                  variant="outlined"
+                  onClick={() => {
+                    formik.setFieldValue('pairs', [
+                      ...formik.values.pairs,
+                      {
+                        email: '',
+                        role: 'MEMBER',
+                      },
+                    ])
+                  }}
+                  disabled={teamFull}
+                >
+                  Add Another
+                </Button>
+              )}
             </Box>
             <Divider />
-            <Box alignSelf="flex-end">
-              <Button
-                variant="contained"
-                color="primary"
-                type="submit"
-                disabled={formik.isSubmitting}
-              >
-                Invite
-              </Button>
-            </Box>
+            {teamFull ? (
+              <Tooltip title="You have reached the maximum number of members for your plan.">
+                <Box alignSelf="flex-end">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    type="submit"
+                    disabled={formik.isSubmitting || teamFull}
+                  >
+                    Invite
+                  </Button>
+                </Box>
+              </Tooltip>
+            ) : (
+              <Box alignSelf="flex-end">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  disabled={formik.isSubmitting || teamFull}
+                >
+                  Invite
+                </Button>
+              </Box>
+            )}
           </Stack>
         </form>
       </Card>

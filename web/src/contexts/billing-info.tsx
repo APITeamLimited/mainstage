@@ -100,7 +100,7 @@ export const BillingInfoProvider = ({ children }: BillingInfoProviderProps) => {
     TeamCreditsDateQueryVariables
   >(TEAM_CREDITS_DATE_QUERY, {
     variables: {
-      teamId: workspaceInfo.scope.variantTargetId,
+      teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
     },
     skip:
       !workspaceInfo.isTeam ||

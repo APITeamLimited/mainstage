@@ -31,7 +31,7 @@ import * as Yup from 'yup'
 
 import { useMutation, useQuery } from '@redwoodjs/web'
 
-import { LIST_TEAM_MEMBERS } from '../MembersSettingsPage/ManageTeamMembers'
+import { LIST_TEAM_MEMBERS } from '../MembersSettingsPage/MembersInfoProvider'
 
 type TransferOwnershipCardProps = {
   workspaceInfo: Workspace
@@ -105,7 +105,9 @@ export const TransferOwnershipCard = ({
 
       await sendChangeOwnerEmail({
         variables: {
-          teamId: workspaceInfo.scope.variantTargetId,
+          teamId: workspaceInfo.isTeam
+            ? workspaceInfo.scope.variantTargetId
+            : null,
           userId,
         },
       })

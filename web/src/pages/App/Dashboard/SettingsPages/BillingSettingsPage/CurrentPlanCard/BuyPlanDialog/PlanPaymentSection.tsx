@@ -123,13 +123,6 @@ export const PlanPaymentSection = ({
       <Card sx={{ p: 2 }} variant="outlined">
         <Stack spacing={2}>
           <Typography variant="h6">Payment Summary</Typography>
-          <Typography variant="body2" color={theme.palette.text.secondary}>
-            You will be charged $
-            {selectedPlan.pricingOption === 'yearly'
-              ? prettyPrintCents(selectedPlan.planInfo.priceYearlyCents)
-              : prettyPrintCents(selectedPlan.planInfo.priceMonthlyCents)}{' '}
-            per {selectedPlan.pricingOption === 'yearly' ? 'year' : 'month'}.
-          </Typography>
           <PaymentSectionItem
             title="Plan"
             description={selectedPlan.planInfo.verboseName}
@@ -147,6 +140,14 @@ export const PlanPaymentSection = ({
           <PaymentSectionItem
             title="Card"
             description={`**** **** **** ${paymentMethod.card.last4}`}
+          />
+          <PaymentSectionItem
+            title="Subtotal"
+            description={`$${prettyPrintCents(quoteData.amount_subtotal)}`}
+          />
+          <PaymentSectionItem
+            title="Total (Including Tax)"
+            description={`$${prettyPrintCents(quoteData.amount_total)}`}
           />
         </Stack>
       </Card>
@@ -228,7 +229,10 @@ const useQuote = (
     CreatePlanQuoteMutation,
     CreatePlanQuoteMutationVariables
   >(CREATE_PLAN_QUOTE_MUTATION, {
-    onCompleted: (data) => setQuoteData(data.createPlanQuote),
+    onCompleted: (data) => {
+      setQuoteData(data.createPlanQuote)
+      setFetchQuoteError(null)
+    },
     onError: (error) => setFetchQuoteError(error.message),
   })
 

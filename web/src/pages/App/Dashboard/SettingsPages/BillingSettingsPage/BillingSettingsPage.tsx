@@ -19,6 +19,7 @@ import { CreditsCard } from './CreditsCard'
 import { CurrentPlanCard } from './CurrentPlanCard'
 import { MarkedForCancellationCard } from './MarkedForCancellationCard'
 import { PaymentMethodsCard } from './payment-methods/PaymentMethodsCard'
+import { TaxIdCard } from './TaxIdCard'
 
 export const STRIPE_PUBLISHABLE_KEY = process.env[
   'STRIPE_PUBLISHABLE_KEY'
@@ -57,6 +58,7 @@ const BillingSettingsPage = () => {
             <CreditsCard />
             <BillingAddressCard />
             <PaymentMethodsCard />
+            <TaxIdCard />
             <BillingEmailCard />
             <BillingNameCard />
           </Stack>

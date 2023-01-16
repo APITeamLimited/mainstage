@@ -53,7 +53,7 @@ export const LeaveTeamCard = ({ workspaceInfo }: LeaveTeamCardProps) => {
   const handleLeaveTeam = () =>
     leaveTeam({
       variables: {
-        teamId: workspaceInfo.scope.variantTargetId,
+        teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
       },
     })
 

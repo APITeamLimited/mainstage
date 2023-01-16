@@ -108,7 +108,11 @@
     "userName": "default",
     "password": "${CREDITS_REDIS_PASSWORD}",
     "host": "${CREDITS_REDIS_HOST}",
-    "port": "${CREDITS_REDIS_PORT}"
+    "port": "${CREDITS_REDIS_PORT}",
+    "isSecure": true,
+    "certHex": "${CREDITS_REDIS_CERT_HEX}",
+    "keyHex": "${CREDITS_REDIS_KEY_HEX}",
+    "caCertHex": "${CREDITS_REDIS_CA_CERT_HEX}"
   },
   "jobs-redis": {
     "userName": "default",

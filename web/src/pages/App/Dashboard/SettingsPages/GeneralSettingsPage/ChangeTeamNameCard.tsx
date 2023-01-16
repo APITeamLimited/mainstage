@@ -53,7 +53,7 @@ export const ChangeTeamNameCard = ({
     onSubmit: async () => {
       await updateTeamName({
         variables: {
-          teamId: workspaceInfo.scope.variantTargetId,
+          teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
           name: formik.values.teamName,
         },
       })

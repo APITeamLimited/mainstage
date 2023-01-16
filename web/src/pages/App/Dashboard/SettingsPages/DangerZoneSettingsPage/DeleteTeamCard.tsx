@@ -61,7 +61,7 @@ export const DeleteTeamCard = ({ workspaceInfo }: DeleteTeamCardProps) => {
     onSubmit: async () => {
       await sendDeleteTeamEmail({
         variables: {
-          teamId: workspaceInfo.scope.variantTargetId,
+          teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
         },
       })
       formik.setSubmitting(false)

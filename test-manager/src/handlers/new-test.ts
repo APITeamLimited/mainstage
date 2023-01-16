@@ -123,7 +123,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     verifiedDomains,
     createdAt: new Date().toISOString(),
     funcModeInfo: {
-      instance100msUnitRate: 1,
+      instance100msUnitRate: 100000,
     },
     permittedLoadZones: planinfo.loadZones,
     maxTestDurationMinutes: planinfo.maxTestDurationMinutes,

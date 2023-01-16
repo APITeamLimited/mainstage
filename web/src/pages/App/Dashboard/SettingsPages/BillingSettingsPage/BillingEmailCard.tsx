@@ -36,7 +36,7 @@ const CUSTOMER_EMAIL_QUERY = gql`
 `
 
 const CUSTOMER_EMAIL_MUTATION = gql`
-  mutation BillingEmailMutation($teamId: String!, $email: String!) {
+  mutation BillingEmailMutation($teamId: String, $email: String!) {
     updateCustomer(teamId: $teamId, input: { email: $email }) {
       email
     }
@@ -83,7 +83,9 @@ export const BillingEmailCard = () => {
     onSubmit: async () => {
       await updateBillingEmail({
         variables: {
-          teamId: workspaceInfo.scope.variantTargetId,
+          teamId: workspaceInfo.isTeam
+            ? workspaceInfo.scope.variantTargetId
+            : null,
           email: formik.values.customerEmail,
         },
       })

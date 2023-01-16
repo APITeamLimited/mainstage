@@ -1,5 +1,3 @@
-import { useEffect } from 'react'
-
 import {
   Box,
   Card,
@@ -9,54 +7,25 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import {
-  ListPendingInvitations,
-  ListPendingInvitationsVariables,
-} from 'types/graphql'
 
-import { useQuery } from '@redwoodjs/web'
-
+import { useMembersInfo } from '../MembersInfoProvider'
 import { MEMBERS_CARD_HEIGHT } from '../MembersSettingsPage'
 
 import { ManageInvitationRow } from './ManageInvitationRow'
 
 type ManagePendingInvitationsProps = {
   teamId: string
-  invitionsSentCount: number
 }
-
-const LIST_PENDING_INVITATIONS = gql`
-  query ListPendingInvitations($teamId: String!) {
-    invitations(teamId: $teamId) {
-      id
-      createdAt
-      updatedAt
-      email
-      teamId
-      role
-    }
-  }
-`
 
 export const ManagePendingInvitations = ({
   teamId,
-  invitionsSentCount,
 }: ManagePendingInvitationsProps) => {
   const theme = useTheme()
 
-  const { data, error, refetch } = useQuery<
-    ListPendingInvitations,
-    ListPendingInvitationsVariables
-  >(LIST_PENDING_INVITATIONS, {
-    variables: { teamId },
-    pollInterval: 5000,
-  })
+  const { invitationsData, invitationsError, refetchInvitations } =
+    useMembersInfo()
 
-  useEffect(() => {
-    refetch()
-  }, [invitionsSentCount, refetch])
-
-  if (error) {
+  if (invitationsError) {
     return (
       <Card
         sx={{
@@ -83,7 +52,8 @@ export const ManagePendingInvitations = ({
     )
   }
 
-  if (!data) return <Skeleton width="100%" height={MEMBERS_CARD_HEIGHT} />
+  if (!invitationsData)
+    return <Skeleton width="100%" height={MEMBERS_CARD_HEIGHT} />
 
   return (
     <Card
@@ -91,7 +61,7 @@ export const ManagePendingInvitations = ({
         minHeight: MEMBERS_CARD_HEIGHT,
       }}
     >
-      {data.invitations.length === 0 ? (
+      {invitationsData.invitations.length === 0 ? (
         <Box
           sx={{
             height: MEMBERS_CARD_HEIGHT,
@@ -122,12 +92,12 @@ export const ManagePendingInvitations = ({
             Pending Invitations
           </Typography>
           <Divider />
-          {data.invitations.map((invitation, index) => (
+          {invitationsData.invitations.map((invitation, index) => (
             <ManageInvitationRow
               key={index}
               invitation={invitation}
               teamId={teamId}
-              refetch={refetch}
+              refetch={refetchInvitations}
             />
           ))}
         </Stack>

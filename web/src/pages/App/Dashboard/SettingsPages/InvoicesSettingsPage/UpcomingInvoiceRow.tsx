@@ -58,7 +58,7 @@ export const UpcomingInvoiceRow = ({
           color: theme.palette.text.secondary,
         }}
       >
-        <Chip label="Pending" variant="outlined" size="small" />
+        <Chip label="Scheduled" variant="outlined" size="small" />
       </TableCell>
       <TableCell
         align="right"

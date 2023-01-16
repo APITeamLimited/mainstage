@@ -55,7 +55,7 @@ export const ChangeTeamSlugCard = ({
     onSubmit: async () => {
       await updateTeamSlug({
         variables: {
-          teamId: workspaceInfo.scope.variantTargetId,
+          teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
           slug: formik.values.teamSlug,
         },
       })

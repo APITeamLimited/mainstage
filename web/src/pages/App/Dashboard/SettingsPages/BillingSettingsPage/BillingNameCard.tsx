@@ -36,7 +36,7 @@ const CUSTOMER_NAME_QUERY = gql`
 `
 
 const CUSTOMER_NAME_MUTATION = gql`
-  mutation BillingNameMutation($teamId: String!, $name: String!) {
+  mutation BillingNameMutation($teamId: String, $name: String!) {
     updateCustomer(teamId: $teamId, input: { name: $name }) {
       name
     }
@@ -83,7 +83,9 @@ export const BillingNameCard = () => {
     onSubmit: async () => {
       await updateBillingName({
         variables: {
-          teamId: workspaceInfo.scope.variantTargetId,
+          teamId: workspaceInfo.isTeam
+            ? workspaceInfo.scope.variantTargetId
+            : null,
           name: formik.values.name,
         },
       })

@@ -97,7 +97,11 @@ export const CreditsPaymentSection = ({
             description={quantity.toString()}
           />
           <PaymentSectionItem
-            title="Total"
+            title="Subtotal"
+            description={`$${prettyPrintCents(quoteData.amount_subtotal)}`}
+          />
+          <PaymentSectionItem
+            title="Total (Including Tax)"
             description={`$${prettyPrintCents(quoteData.amount_total)}`}
           />
         </Stack>
@@ -219,7 +223,10 @@ const useQuote = (
     CreateCreditsQuoteMutation,
     CreateCreditsQuoteMutationVariables
   >(CREATE_CREDITS_QUOTE_MUTATION, {
-    onCompleted: (data) => setQuoteData(data.createCreditsPricingQuote),
+    onCompleted: (data) => {
+      setQuoteData(data.createCreditsPricingQuote)
+      setFetchQuoteError(null)
+    },
     onError: (error) => setFetchQuoteError(error.message),
   })
 

@@ -27,6 +27,12 @@ export type Customer = Stripe.Customer
 
 type CustomerMixin = {
   markHadTrial: (customerId: string) => Promise<void>
+  addTaxId: (
+    customerId: string,
+    taxIdObject: Stripe.TaxIdCreateParams
+  ) => Promise<Stripe.TaxId>
+  removeTaxId: (customerId: string) => Promise<Stripe.DeletedTaxId>
+  getTaxId: (customerId: string) => Promise<Stripe.TaxId | null>
 }
 
 export const CustomerModel: APITeamModel<
@@ -122,5 +128,61 @@ export const CustomerModel: APITeamModel<
         hadFreeTrial: true,
       })
     }
+  },
+  addTaxId: async (customerId, taxIdObject) => {
+    const customer = await CustomerModel.get(customerId)
+
+    if (!customer || customer.deleted) {
+      throw new Error(`Customer with id ${customerId} found found`)
+    }
+
+    // Only allow one tax id per customer
+    const taxIds = await stripe.customers.listTaxIds(customerId)
+
+    if (taxIds.data.length > 0) {
+      // Delete existing tax id
+      await stripe.customers.deleteTaxId(customerId, taxIds.data[0].id)
+    }
+
+    const taxId = await stripe.customers.createTaxId(customerId, taxIdObject)
+
+    // Verify tax id
+    if (!taxId.verification) {
+      await stripe.customers.deleteTaxId(customerId, taxId.id)
+
+      throw new ServiceValidationError('Tax ID cannot be verified')
+    }
+
+    return taxId
+  },
+  removeTaxId: async (customerId) => {
+    const customer = await CustomerModel.get(customerId)
+
+    if (!customer || customer.deleted) {
+      throw new Error(`Customer with id ${customerId} found found`)
+    }
+
+    const taxIds = await stripe.customers.listTaxIds(customerId)
+
+    if (taxIds.data.length === 0) {
+      throw new Error(`Customer with id ${customerId} has no tax id`)
+    }
+
+    return stripe.customers.deleteTaxId(customerId, taxIds.data[0].id)
+  },
+  getTaxId: async (customerId) => {
+    const customer = await CustomerModel.get(customerId)
+
+    if (!customer || customer.deleted) {
+      throw new Error(`Customer with id ${customerId} found found`)
+    }
+
+    const taxIds = await stripe.customers.listTaxIds(customerId)
+
+    if (taxIds.data.length === 0) {
+      return null
+    }
+
+    return taxIds.data[0]
   },
 }

@@ -9,44 +9,16 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import {
-  ListTeamMembers,
-  ListTeamMembersVariables,
-  ScopeRole,
-} from 'types/graphql'
-
-import { useQuery } from '@redwoodjs/web'
+import { ScopeRole } from 'types/graphql'
 
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
+import { useMembersInfo } from '../MembersInfoProvider'
 import { MEMBERS_CARD_HEIGHT } from '../MembersSettingsPage'
 
 import { MemberRow } from './MemberRow'
 
-export const LIST_TEAM_MEMBERS = gql`
-  query ListTeamMembers($teamId: String!) {
-    memberships(teamId: $teamId) {
-      id
-      user {
-        id
-        firstName
-        lastName
-        email
-        profilePicture
-      }
-      teamId
-      role
-      createdAt
-      updatedAt
-    }
-  }
-`
-
-type ManageTeamMembersProps = {
-  teamId: string
-}
-
-export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
+export const ManageTeamMembers = () => {
   const theme = useTheme()
   const workspaceInfo = useWorkspaceInfo()
 
@@ -55,17 +27,11 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
     [workspaceInfo]
   )
 
-  const { data, error } = useQuery<ListTeamMembers, ListTeamMembersVariables>(
-    LIST_TEAM_MEMBERS,
-    {
-      variables: { teamId },
-      pollInterval: 5000,
-    }
-  )
+  const { membersData, membersError } = useMembersInfo()
 
   if (!userRole) return null
 
-  if (error) {
+  if (membersError) {
     return (
       <Card
         sx={{
@@ -92,7 +58,8 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
     )
   }
 
-  if (!data) return <Skeleton width="100%" height={MEMBERS_CARD_HEIGHT} />
+  if (!membersData)
+    return <Skeleton width="100%" height={MEMBERS_CARD_HEIGHT} />
 
   return (
     <Card
@@ -110,7 +77,7 @@ export const ManageTeamMembers = ({ teamId }: ManageTeamMembersProps) => {
           Team Members
         </Typography>
         <Divider />
-        {data.memberships.map((membership, index) => (
+        {membersData.memberships.map((membership, index) => (
           <MemberRow
             key={index}
             membership={membership}

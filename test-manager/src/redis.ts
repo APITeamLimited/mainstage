@@ -76,13 +76,39 @@ const creditsUsername = checkValue<string>('credits-redis.userName')
 const creditsPassword = checkValue<string>('credits-redis.password')
 const creditsHost = checkValue<string>('credits-redis.host')
 const creditsPort = checkValue<number>('credits-redis.port')
+const creditsRedisIsSecure = checkValue<boolean>('credits-redis.isSecure')
 
 let creditsReadRedis: RedisClient | null = null
 let creditsSubscribeRedis: RedisClient | null = null
 
 const connectCreditsClient = async () => {
+  const getSocketTLSOptions = () => {
+    if (!creditsRedisIsSecure) {
+      return {
+        tls: false,
+      }
+    }
+
+    // If secure, use TLS
+    const creditsRedisCertHex = checkValue<string>('credits-redis.certHex')
+    const creditsRedisKeyHex = checkValue<string>('credits-redis.keyHex')
+    const creditsRedisCaHex = checkValue<string>('credits-redis.caHex')
+
+    const cert = Buffer.from(creditsRedisCertHex, 'hex').toString()
+    const key = Buffer.from(creditsRedisKeyHex, 'hex').toString()
+    const ca = Buffer.from(creditsRedisCaHex, 'hex').toString()
+
+    return {
+      tls: true,
+      cert,
+      key,
+      ca,
+    }
+  }
+
   const client = createClient({
     url: `redis://${creditsUsername}:${creditsPassword}@${creditsHost}:${creditsPort}`,
+    socket: getSocketTLSOptions(),
   })
 
   await client.connect()

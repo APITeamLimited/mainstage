@@ -248,6 +248,7 @@ export const schema = gql`
 
   type Query {
     customer(teamId: String): StripeCustomer! @requireAuth
+    taxId(teamId: String): StripeTaxId @requireAuth
   }
 
   type Mutation {
@@ -255,5 +256,11 @@ export const schema = gql`
       teamId: String
       input: UpdateCustomerInput!
     ): StripeCustomer! @requireAuth
+    addTaxId(
+      teamId: String
+      type: StripeTaxIdType!
+      value: String
+    ): StripeTaxId! @requireAuth
+    removeTaxId(teamId: String): StripeDeletedTaxId! @requireAuth
   }
 `

@@ -17,14 +17,16 @@ export const CouponModel: GetMixin<Stripe.Coupon> & GetCouponViaCodeMixin = {
     return Promise.all(ids.map(CouponModel.get))
   },
   getViaPromotionCode: async (code) => {
-    const promotionCode = await stripe.promotionCodes
-      .retrieve(code)
-      .catch(() => null)
+    const promotionCodes = await stripe.promotionCodes
+      .list({
+        code,
+      })
+      .then((response) => response.data)
 
-    if (!promotionCode) {
-      throw new ServiceValidationError('Promotion code not found')
+    if (promotionCodes.length === 0) {
+      throw new ServiceValidationError(`Promotion code ${code} not found`)
     }
 
-    return promotionCode.coupon
+    return promotionCodes[0].coupon
   },
 }

@@ -16,6 +16,7 @@ import { AddNewMember } from './AddNewMember'
 import { CallToCreateTeam } from './CallToCreateTeam'
 import { ManagePendingInvitations } from './ManagePendingInvitations'
 import { ManageTeamMembers } from './ManageTeamMembers'
+import { MembersInfoProvider } from './MembersInfoProvider'
 
 type MembersSettingsTabProps = {
   teamId: string
@@ -26,39 +27,31 @@ export const MEMBERS_CARD_HEIGHT = 400
 const MembersSettingsTab = ({ teamId }: MembersSettingsTabProps) => {
   const theme = useTheme()
   const [membersTabIndex, setMembersTabIndex] = useState(0)
-  const [invitionsSentCount, setInvitionsSentCount] = useState(0)
 
   return (
-    <Stack spacing={4}>
-      <Box>
-        <Typography variant="h4" gutterBottom>
-          Members
-        </Typography>
-        <Typography variant="body1" color={theme.palette.text.secondary}>
-          Manage your team members and their roles.
-        </Typography>
-      </Box>
-      <AddNewMember
-        incrementInvitationsCount={() =>
-          setInvitionsSentCount(invitionsSentCount + 1)
-        }
-      />
-      <Box>
-        <CustomTabs
-          value={membersTabIndex}
-          onChange={setMembersTabIndex}
-          names={['Members', 'Invites']}
-          borderBottom
-        />
-      </Box>
-      {membersTabIndex === 0 && <ManageTeamMembers teamId={teamId} />}
-      {membersTabIndex === 1 && (
-        <ManagePendingInvitations
-          invitionsSentCount={invitionsSentCount}
-          teamId={teamId}
-        />
-      )}
-    </Stack>
+    <MembersInfoProvider teamId={teamId}>
+      <Stack spacing={4}>
+        <Box>
+          <Typography variant="h4" gutterBottom>
+            Members
+          </Typography>
+          <Typography variant="body1" color={theme.palette.text.secondary}>
+            Manage your team members and their roles.
+          </Typography>
+        </Box>
+        <AddNewMember />
+        <Box>
+          <CustomTabs
+            value={membersTabIndex}
+            onChange={setMembersTabIndex}
+            names={['Members', 'Invites']}
+            borderBottom
+          />
+        </Box>
+        {membersTabIndex === 0 && <ManageTeamMembers />}
+        {membersTabIndex === 1 && <ManagePendingInvitations teamId={teamId} />}
+      </Stack>
+    </MembersInfoProvider>
   )
 }
 

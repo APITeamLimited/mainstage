@@ -5,7 +5,7 @@ import {
   UserModel,
 } from 'src/models'
 
-import { checkOwnerAdmin, checkAuthenticated } from '../guards'
+import { checkOwnerAdmin, checkAuthenticated } from '../../guards'
 
 export const customer = async ({ teamId }: { teamId?: string }) => {
   const userId = (await checkAuthenticated()).id

@@ -64,6 +64,9 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
             description: input.description,
           }
         : undefined,
+      automatic_tax: {
+        enabled: true,
+      },
     })
   },
   update: async (id, input) => {
@@ -95,6 +98,9 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
             description: input.description,
           }
         : undefined,
+      automatic_tax: {
+        enabled: true,
+      },
     })
   },
   get: async (id) => {
