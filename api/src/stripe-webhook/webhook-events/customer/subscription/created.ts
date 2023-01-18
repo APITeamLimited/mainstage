@@ -31,19 +31,11 @@ export const handleSubscriptionCreated = async (event: Stripe.Event) => {
   if (subscription.status === 'past_due') {
     // Update team or user status to pastDue
     await handlePastDue(variant, variantTargetId)
-  } else if (
-    subscription.status === 'active' ||
-    subscription.status === 'trialing'
-  ) {
-    if (variant === 'TEAM') {
-      await handleActivationTeam(variantTargetId, subscription)
-    } else {
-      await handleActivationUser(variantTargetId, subscription)
-    }
+    // Need to check succeful invoice payment if active instead of past_due
   }
 }
 
-const handleActivationTeam = async (
+export const handleActivationTeam = async (
   teamId: string,
   subscription: Stripe.Subscription
 ) => {
@@ -97,7 +89,7 @@ const handleActivationTeam = async (
   )
 }
 
-const handleActivationUser = async (
+export const handleActivationUser = async (
   userId: string,
   subscription: Stripe.Subscription
 ) => {

@@ -39,3 +39,44 @@ const getInvoicesUser = async () => {
 
   return invoices.data.filter((invoice) => invoice.number)
 }
+
+export const invoice = async ({
+  invoiceId,
+  teamId,
+}: {
+  invoiceId: string
+  teamId?: string
+}) =>
+  teamId ? getInvoiceTeam({ invoiceId, teamId }) : getInvoiceUser({ invoiceId })
+
+const getInvoiceTeam = async ({
+  invoiceId,
+  teamId,
+}: {
+  invoiceId: string
+  teamId: string
+}) => {
+  await checkOwnerAdmin({ teamId })
+
+  const team = await TeamModel.get(teamId)
+
+  if (!team) {
+    throw new Error(`Team not found with id ${teamId}`)
+  }
+
+  if (!team.customerId) {
+    throw new Error('Team does not have a customer id')
+  }
+
+  return stripe.invoices.retrieve(invoiceId).catch(() => null)
+}
+
+const getInvoiceUser = async ({ invoiceId }: { invoiceId: string }) => {
+  const user = await checkAuthenticated()
+
+  if (!user.customerId) {
+    throw new Error('User does not have a customer id')
+  }
+
+  return stripe.invoices.retrieve(invoiceId).catch(() => null)
+}

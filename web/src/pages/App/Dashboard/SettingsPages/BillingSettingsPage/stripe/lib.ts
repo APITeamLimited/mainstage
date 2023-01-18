@@ -135,7 +135,10 @@ export const billingAddressValidationSchema = Yup.object({
   // Required unless in noPostcodeCountries
   postal_code: Yup.string().when('country', {
     is: (country: string) => !noPostcodeCountries.includes(country),
-    then: Yup.string().required('Please enter a postcode'),
+    then: Yup.string()
+      .required('Please enter a postcode/zipcode')
+      .max(10, 'Please enter a valid postcode/zipcode')
+      .matches(/^[a-zA-Z0-9 ]+$/, 'Please enter a valid postcode/zipcode'),
   }),
 
   city: Yup.string().required('Please enter your town/city'),
@@ -185,5 +188,7 @@ export const usePaymentStatus = () => {
     (setupIntent) => setupIntent.payment_method === defaultPaymentMethodId
   )
 
-  return defaultSetupIntent ? 'PROVIDED' : 'NOT_PROVIDED'
+  return defaultSetupIntent && defaultSetupIntent.status === 'succeeded'
+    ? 'PROVIDED'
+    : 'NOT_PROVIDED'
 }

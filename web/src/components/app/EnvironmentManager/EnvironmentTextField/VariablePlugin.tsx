@@ -8,7 +8,6 @@ import { $createVariableNode, VariableNodeType } from './VariableNode'
 type VariableMatch = {
   leadOffset: number
   matchingString: string
-  replaceableString: string
 }
 
 type Resolution = {
@@ -63,7 +62,6 @@ export function getPossibleVariableMatch(text: string): VariableMatch[] {
   return filteredMatches.map((match) => ({
     leadOffset: match.index,
     matchingString: match[0],
-    replaceableString: match[0],
   }))
 }
 

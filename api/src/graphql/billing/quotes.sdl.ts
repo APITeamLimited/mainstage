@@ -39,6 +39,11 @@ export const schema = gql`
     description: String!
   }
 
+  type AcceptedQuoteResult {
+    acceptedQuote: Quote!
+    invoice: StripeInvoice!
+  }
+
   enum PricingOption {
     yearly
     monthly
@@ -57,6 +62,7 @@ export const schema = gql`
       promotionCode: String
       quantity: Int!
     ): Quote! @requireAuth
-    acceptQuote(quoteId: String!, teamId: String): Quote! @requireAuth
+    acceptQuote(quoteId: String!, teamId: String): AcceptedQuoteResult!
+      @requireAuth
   }
 `

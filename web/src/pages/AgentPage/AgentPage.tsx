@@ -3,7 +3,6 @@ import { Stack } from '@mui/material'
 import { MetaTags } from '@redwoodjs/web'
 
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
-import { Headline } from 'src/layouts/Landing/components/templates/Headline'
 import { LandingNextSectionLink } from 'src/layouts/Landing/components/templates/LandingNextSectionLink'
 
 import { DownloadLinks } from './components/DownloadLinks'

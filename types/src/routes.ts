@@ -42,3 +42,22 @@ export const LINKS = {
   globeTestRepo: 'https://github.com/APITeamLimited/globe-test',
   agentRepo: 'https://github.com/APITeamLimited/agent',
 } as const
+
+export const AGENT_LINKS = {
+  windows64: {
+    link: '/api/public-downloads?filename=agent-windows-amd64.exe',
+    isFullLink: false,
+  },
+  macIntel: {
+    link: '/api/public-downloads?filename=agent-darwin-amd64',
+    isFullLink: false,
+  },
+  macDarwin: {
+    link: '/api/public-downloads?filename=agent-darwin-arm64',
+    isFullLink: false,
+  },
+  linux64: {
+    link: 'https://snapcraft.io/apiteam',
+    isFullLink: true,
+  },
+} as const

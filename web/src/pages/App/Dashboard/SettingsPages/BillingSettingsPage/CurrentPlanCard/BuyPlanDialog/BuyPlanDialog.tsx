@@ -41,6 +41,8 @@ export const BuyPlanDialog = ({
   const [activeFinalStep, setActiveFinalStep] = useState(0)
   const [selectedPlan, setSelectedPlan] = useState<SelectedPlanInfo>(null)
 
+  const [paymentLink, setPaymentLink] = useState<string | null>(null)
+
   useAutoDialogOpen(setOpen)
 
   useEffect(() => {
@@ -147,7 +149,10 @@ export const BuyPlanDialog = ({
                     trialEligibility === 'eligible'
                   : false
               }
-              onPurchaseComplete={() => setActiveFinalStep(activeFinalStep + 1)}
+              onPurchaseComplete={(paymentLink) => {
+                setPaymentLink(paymentLink)
+                setActiveFinalStep(activeFinalStep + 1)
+              }}
             />
           ),
           sectionButtons: (
@@ -171,7 +176,7 @@ export const BuyPlanDialog = ({
         },
         {
           stepName: 'success',
-          title: 'Success',
+          title: paymentLink ? 'Final Step' : 'Success',
           section: (
             <Stack
               spacing={2}
@@ -182,18 +187,40 @@ export const BuyPlanDialog = ({
                 height: 300,
               }}
             >
-              <CheckCircleIcon
-                color="success"
-                sx={{
-                  fontSize: 100,
-                }}
-              />
-              <Typography variant="h5" align="center">
-                You have successfully upgraded your plan!
-              </Typography>
-              <Typography variant="body2" align="center">
-                Welcome to {selectedPlan?.planInfo.name}!
-              </Typography>
+              {paymentLink ? (
+                <>
+                  <Typography variant="h5" align="center">
+                    Further Action Required
+                  </Typography>
+                  <Typography variant="body2" align="center">
+                    One last step. We couldn&apos;t process your payment
+                    automatically. Please click the button below to complete
+                    your payment.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => window.open(paymentLink, '_blank')?.focus()}
+                  >
+                    Complete Payment
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <CheckCircleIcon
+                    color="success"
+                    sx={{
+                      fontSize: 100,
+                    }}
+                  />
+                  <Typography variant="h5" align="center">
+                    You have successfully upgraded your plan!
+                  </Typography>
+                  <Typography variant="body2" align="center">
+                    Welcome to {selectedPlan?.planInfo.name}!
+                  </Typography>
+                </>
+              )}
             </Stack>
           ),
           sectionButtons: (

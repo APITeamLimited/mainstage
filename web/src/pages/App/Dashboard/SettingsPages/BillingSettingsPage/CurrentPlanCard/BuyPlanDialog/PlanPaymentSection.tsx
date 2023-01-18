@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { ROUTES } from '@apiteam/types/src'
 import {
@@ -17,9 +17,11 @@ import {
   AllPlansQuery,
   CreatePlanQuoteMutation,
   CreatePlanQuoteMutationVariables,
+  InvoicePaidQuery,
+  InvoicePaidQueryVariables,
 } from 'types/graphql'
 
-import { useMutation } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
@@ -56,7 +58,20 @@ const CREATE_PLAN_QUOTE_MUTATION = gql`
 export const ACCEPT_QUOTE_MUTATION = gql`
   mutation AcceptQuoteMutation($quoteId: String!, $teamId: String) {
     acceptQuote(quoteId: $quoteId, teamId: $teamId) {
+      invoice {
+        id
+        status
+        hosted_invoice_url
+      }
+    }
+  }
+`
+
+export const INVOICE_PAID_QUERY = gql`
+  query InvoicePaidQuery($invoiceId: String!, $teamId: String) {
+    invoice(invoiceId: $invoiceId, teamId: $teamId) {
       id
+      status
     }
   }
 `
@@ -69,7 +84,7 @@ export type SelectedPlanInfo = {
 type PlanPaymentSectionProps = {
   selectedPlan: SelectedPlanInfo
   trialEligibility: boolean
-  onPurchaseComplete: () => void
+  onPurchaseComplete: (paymentLink: string | null) => void
 }
 
 export const PlanPaymentSection = ({
@@ -162,7 +177,7 @@ export const PlanPaymentSection = ({
         >
           <TextField
             label="Promotion Code"
-            value={editValuePromotionCode}
+            value={editValuePromotionCode ?? null}
             onChange={(e) => setEditValuePromotionCode(e.target.value)}
             onBlur={() => setPromotionCode(editValuePromotionCode)}
             size="small"
@@ -214,7 +229,7 @@ export const PlanPaymentSection = ({
 
 const useQuote = (
   selectedPlan: SelectedPlanInfo,
-  onPurchaseComplete: () => void
+  onPurchaseComplete: (paymentLink: string | null) => void
 ) => {
   const workspaceInfo = useWorkspaceInfo()
 
@@ -259,13 +274,90 @@ const useQuote = (
     workspaceInfo.scope.variantTargetId,
   ])
 
+  const pollInvoiceDataRef = useRef<{
+    uri: string
+    invoiceId: string
+  } | null>(null)
+
+  useEffect(() => {
+    pollInvoiceDataRef.current = null
+  }, [selectedPlan])
+
   const [acceptQuote, { loading: currentlyAccepting }] = useMutation<
     AcceptQuoteMutation,
     AcceptQuoteMutationVariables
   >(ACCEPT_QUOTE_MUTATION, {
-    onCompleted: () => onPurchaseComplete(),
+    onCompleted: ({ acceptQuote: { invoice } }) => {
+      if (invoice.status === 'paid') {
+        onPurchaseComplete(null)
+        return
+      }
+
+      if (invoice.status !== 'open') {
+        snackErrorMessageVar('Something went wrong. Please try again later.')
+        return
+      }
+
+      if (!invoice.hosted_invoice_url) {
+        snackErrorMessageVar('Something went wrong. Please try again later.')
+        return
+      }
+
+      pollInvoiceDataRef.current = {
+        uri: invoice.hosted_invoice_url,
+        invoiceId: invoice.id,
+      }
+
+      onPurchaseComplete(invoice.hosted_invoice_url)
+    },
     onError: (error) => snackErrorMessageVar(error.message),
   })
+
+  const { refetch: fetchInvoice } = useQuery<
+    InvoicePaidQuery,
+    InvoicePaidQueryVariables
+  >(INVOICE_PAID_QUERY, {
+    variables: {
+      invoiceId: pollInvoiceDataRef.current?.invoiceId as string,
+      teamId: workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
+    },
+    skip: !pollInvoiceDataRef.current,
+  })
+
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timer | null>(null)
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (!pollInvoiceDataRef.current) {
+        return
+      }
+
+      const { data: invoiceQuery } = await fetchInvoice({
+        invoiceId: pollInvoiceDataRef.current.invoiceId,
+        teamId: workspaceInfo.isTeam
+          ? workspaceInfo.scope.variantTargetId
+          : null,
+      })
+
+      if (!invoiceQuery.invoice) return
+      if (invoiceQuery.invoice.status === 'paid') {
+        onPurchaseComplete(null)
+        pollInvoiceDataRef.current = null
+      }
+    }, 2000)
+
+    if (pollInterval) {
+      clearInterval(pollInterval)
+    }
+    setPollInterval(interval)
+
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return {
     promotionCode,

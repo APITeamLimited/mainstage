@@ -67,5 +67,16 @@ module.exports = (config, { mode }) => {
     }
   }
 
+  // Go Webassembly
+
+  // config.module.rules.push({
+  //   test: /\.go/,
+  //   use: ['golang-wasm-async-loader'],
+  // })
+
+  // config.node = {
+  //   fs: 'empty',
+  // }
+
   return config
 }

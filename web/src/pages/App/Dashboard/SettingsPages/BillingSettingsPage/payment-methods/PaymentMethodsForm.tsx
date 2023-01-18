@@ -139,10 +139,14 @@ export const PaymentMethodsFormInner = ({
   const { fetchedPaymentMethods, customer, refetchPaymentMethods } =
     usePaymentMethods()
 
+  const [addCardError, setAddCardError] = useState<string | null>(null)
+
   const [addCard] = useMutation<AddCardMutation, AddCardMutationVariables>(
     ADD_CARD_MUTATION,
     {
       onCompleted: (data) => {
+        setAddCardError(null)
+
         setShowAddCardDialog(false)
         refetchSetupIntents()
         refetchPaymentMethods()
@@ -165,13 +169,15 @@ export const PaymentMethodsFormInner = ({
       },
       onError: (error) => {
         setIsSubmittingCard(false)
-        snackErrorMessageVar(error.message)
+
+        setAddCardError(error.message)
       },
     }
   )
 
   const handleSubmitNewCard = async () => {
     setIsSubmittingCard(true)
+    setAddCardError(null)
 
     if (!stripe || !elements) {
       snackErrorMessageVar('Stripe not loaded yet. Please try again.')
@@ -214,7 +220,7 @@ export const PaymentMethodsFormInner = ({
     onError: (error) => {
       snackErrorMessageVar(`Failed to verify card: ${error.message}`)
     },
-    onCompleted: ({ createOrUpdateSetupIntent }) => {
+    onCompleted: async ({ createOrUpdateSetupIntent }) => {
       refetchSetupIntents()
 
       if (createOrUpdateSetupIntent.status === 'succeeded') {
@@ -230,9 +236,17 @@ export const PaymentMethodsFormInner = ({
           return
         }
 
-        stripe.confirmCardSetup(clientSecret, {
+        const confirmResult = await stripe.confirmCardSetup(clientSecret, {
           return_url: `${window.location.origin}${ROUTES.settingsWorkspaceBilling}?showAddedCardMessage=true`,
         })
+
+        if (confirmResult.error) {
+          snackErrorMessageVar(confirmResult.error.message)
+          return
+        }
+
+        snackSuccessMessageVar('Card added successfully')
+        refetchSetupIntents()
       }
     },
   })
@@ -316,6 +330,11 @@ export const PaymentMethodsFormInner = ({
             <CardCvcElement />
           </CardElementFrame>
         </Stack>
+        {addCardError && (
+          <Typography variant="body1" color="error">
+            {addCardError}
+          </Typography>
+        )}
       </CustomDialog>
       {fetchedPaymentMethods.length > 0 && (
         <Table size="small" sx={{ width: '100%' }}>

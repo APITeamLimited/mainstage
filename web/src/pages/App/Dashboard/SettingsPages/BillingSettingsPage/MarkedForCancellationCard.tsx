@@ -59,7 +59,7 @@ export const MarkedForCancellationCard = () => {
       }
 
       snackSuccessMessageVar(
-        'Success! Your plan cancellation has been revoked.'
+        "Success! Your plan's cancellation has been revoked."
       )
       refetchSubscription()
     },

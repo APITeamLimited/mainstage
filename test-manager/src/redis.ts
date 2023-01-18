@@ -92,11 +92,11 @@ const connectCreditsClient = async () => {
     // If secure, use TLS
     const creditsRedisCertHex = checkValue<string>('credits-redis.certHex')
     const creditsRedisKeyHex = checkValue<string>('credits-redis.keyHex')
-    const creditsRedisCaHex = checkValue<string>('credits-redis.caHex')
+    const creditsRediscaCertHex = checkValue<string>('credits-redis.caCertHex')
 
     const cert = Buffer.from(creditsRedisCertHex, 'hex').toString()
     const key = Buffer.from(creditsRedisKeyHex, 'hex').toString()
-    const ca = Buffer.from(creditsRedisCaHex, 'hex').toString()
+    const ca = Buffer.from(creditsRediscaCertHex, 'hex').toString()
 
     return {
       tls: true,

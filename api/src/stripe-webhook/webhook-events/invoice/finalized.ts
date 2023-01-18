@@ -14,7 +14,7 @@ import { customerIdentificationSchema } from '../customer'
 
 import { getAdminOwnerSendInfo } from './helpers'
 
-export const handleInvoiceCreatedUpdated = async (event: Stripe.Event) => {
+export const handleInvoiceFinalized = async (event: Stripe.Event) => {
   const invoice = event.data.object as Stripe.Invoice
 
   // Get customer
@@ -71,14 +71,14 @@ export const handleInvoiceCreatedUpdated = async (event: Stripe.Event) => {
                 invoice,
                 role: role as 'ADMIN' | 'OWNER',
                 workspaceName: (team as Team).name,
-                updated: event.type === 'invoice.updated',
+                updated: false,
               }
             : {
                 targetName: `${user.firstName} ${user.lastName}`,
                 invoice,
                 role: 'OWN-ACCOUNT',
                 workspaceName: undefined,
-                updated: event.type === 'invoice.updated',
+                updated: false,
               },
         attachments: [
           {

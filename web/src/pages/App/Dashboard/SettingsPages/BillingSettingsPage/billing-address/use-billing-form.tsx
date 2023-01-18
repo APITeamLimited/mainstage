@@ -106,7 +106,7 @@ export const useBillingForm = () => {
               country: values.country,
               line1: values.line1,
               line2: values.line2,
-              postal_code: values.postal_code,
+              postal_code: values.postal_code.toUpperCase(),
               state: values.state,
             },
           },

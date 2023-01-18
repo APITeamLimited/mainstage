@@ -10,7 +10,8 @@
       "types",
       "mailman",
       "desktop",
-      "docs"
+      "docs",
+      "packages/"
     ]
   },
   "devDependencies": {

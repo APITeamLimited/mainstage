@@ -1,6 +1,6 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 
-import { getFileMetadata, s3, getOrCreateBucket } from '../lib/s3'
+import { getFileMetadata, s3 } from '../lib/s3'
 
 const publicDownloadsBucket = 'public-downloads' as const
 

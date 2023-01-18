@@ -3,7 +3,14 @@ import type { Team, PlanInfo } from '@prisma/client'
 
 import { getCoreCacheReadRedis } from '../../redis'
 
-export const getPlanInfo = async (scope: Scope) => {
+export const getPlanInfo = async (
+  scope:
+    | Scope
+    | {
+        variant: 'TEAM' | 'USER'
+        variantTargetId: string
+      }
+) => {
   const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   if (scope.variant === 'TEAM') {

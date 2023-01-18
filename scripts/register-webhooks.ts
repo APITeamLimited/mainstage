@@ -19,7 +19,7 @@ export default async () => {
     }
   }
 
-  console.log(`Creating webhook for ${webhookEndpoint}...`)
+  console.log(`Creating webhook for '${webhookEndpoint}'...`)
 
   await stripe.webhookEndpoints.create({
     url: webhookEndpoint,

@@ -8,14 +8,11 @@ import { handleSubscriptionCreated } from './webhook-events/customer/subscriptio
 import { handleSubscriptionDeleted } from './webhook-events/customer/subscription/deleted'
 import { handleSubscriptionTrialWillEnd } from './webhook-events/customer/subscription/trial-will-end'
 import { handleSubscriptionUpdated } from './webhook-events/customer/subscription/updated'
-import { handleInvoiceCreatedUpdated } from './webhook-events/invoice/created'
-import { handlePaymentActionRequired } from './webhook-events/invoice/payment/action-required'
+import { handleInvoiceFinalized } from './webhook-events/invoice/finalized'
 import { handlePaymentFailed } from './webhook-events/invoice/payment/failed'
 import { handleInvoicePaid } from './webhook-events/invoice/payment/paid'
 
 const webhookSecret = checkValue<string>('stripe.webhookSecret')
-
-const verifyWebhooks = process.env.NODE_ENV !== 'development'
 
 export const supportedStripeEvents = [
   'customer.subscription.created',
@@ -25,16 +22,15 @@ export const supportedStripeEvents = [
   'invoice.finalized',
   'invoice.paid',
   'invoice.payment_failed',
-  'invoice.payment_action_required',
+  // Disabled as triggers at same time as invoice.payment_failed
+  //'invoice.payment_action_required',
 ] as Stripe.WebhookEndpointCreateParams.EnabledEvent[]
 
 export const stripeHandler = async (
   gatewayEvent: APIGatewayProxyEvent,
   _: never
 ) => {
-  const error = verifyWebhooks
-    ? await handleWebhookEvent(gatewayEvent)
-    : await handleWebhookEventNoVerify(gatewayEvent)
+  const error = await handleWebhookEvent(gatewayEvent)
 
   if (error) {
     console.log(
@@ -85,40 +81,6 @@ const handleWebhookEvent = async (
     .then(() => null)
 }
 
-/**
- * When forwarding webhooks in dev, these webhooks are not signed
- */
-const handleWebhookEventNoVerify = async (
-  event: APIGatewayProxyEvent
-): Promise<Error | null> => {
-  // Get body from event
-  const body = event.body
-
-  if (!body) {
-    return new Error('No body found')
-  }
-
-  let stripeEvent: Stripe.Event
-
-  try {
-    stripeEvent = JSON.parse(body)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-  } catch (error: Error) {
-    return error
-  }
-
-  try {
-    await processWebhookEvent(stripeEvent)
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-  } catch (error: Error) {
-    return error
-  }
-
-  return null
-}
-
 const processWebhookEvent = async (event: Stripe.Event): Promise<void> => {
   if (event.type === 'customer.subscription.created') {
     await handleSubscriptionCreated(event)
@@ -129,16 +91,20 @@ const processWebhookEvent = async (event: Stripe.Event): Promise<void> => {
   } else if (event.type === 'customer.subscription.trial_will_end') {
     handleSubscriptionTrialWillEnd(event)
   } else if (event.type === 'invoice.finalized') {
-    await handleInvoiceCreatedUpdated(event)
+    await handleInvoiceFinalized(event)
     // 'invoice.payment_succeeded' could also be used here but we don't want to
     // fire on partially paid invoices
   } else if (event.type === 'invoice.paid') {
     await handleInvoicePaid(event)
   } else if (event.type === 'invoice.payment_failed') {
     await handlePaymentFailed(event)
-  } else if (event.type === 'invoice.payment_action_required') {
-    await handlePaymentActionRequired(event)
-  } else {
+  }
+
+  // Disabled as triggers at same time as invoice.payment_failed
+  //else if (event.type === 'invoice.payment_action_required') {
+  //  await handlePaymentActionRequired(event)
+  //}
+  else {
     throw new Error(`Unsupported event type: ${event.type}`)
   }
 }

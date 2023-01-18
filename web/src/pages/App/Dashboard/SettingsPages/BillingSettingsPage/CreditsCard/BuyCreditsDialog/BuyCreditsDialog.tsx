@@ -24,6 +24,8 @@ type BuyCreditsDialogProps = {
 export const BuyCreditsDialog = ({ open, setOpen }: BuyCreditsDialogProps) => {
   const [activeFinalStep, setActiveFinalStep] = useState(0)
 
+  const [paymentLink, setPaymentLink] = useState<string | null>(null)
+
   useAutoDialogOpen(setOpen)
 
   useEffect(() => {
@@ -76,7 +78,10 @@ export const BuyCreditsDialog = ({ open, setOpen }: BuyCreditsDialogProps) => {
           section: (
             <CreditsPaymentSection
               creditsPricingOption={creditsPricingOption}
-              onPurchaseComplete={() => setActiveFinalStep(activeFinalStep + 1)}
+              onPurchaseComplete={(paymentLink) => {
+                setPaymentLink(paymentLink)
+                setActiveFinalStep(activeFinalStep + 1)
+              }}
             />
           ),
           sectionButtons: (
@@ -91,7 +96,7 @@ export const BuyCreditsDialog = ({ open, setOpen }: BuyCreditsDialogProps) => {
         },
         {
           stepName: 'success',
-          title: 'Success',
+          title: paymentLink ? 'Final Step' : 'Success',
           section: (
             <Stack
               spacing={2}
@@ -102,18 +107,40 @@ export const BuyCreditsDialog = ({ open, setOpen }: BuyCreditsDialogProps) => {
                 height: 300,
               }}
             >
-              <CheckCircleIcon
-                color="success"
-                sx={{
-                  fontSize: 100,
-                }}
-              />
-              <Typography variant="h5" align="center">
-                Successfully Purchased Credits
-              </Typography>
-              <Typography variant="body2" align="center">
-                These are now available to use immediately.
-              </Typography>
+              {paymentLink ? (
+                <>
+                  <Typography variant="h5" align="center">
+                    Further Action Required
+                  </Typography>
+                  <Typography variant="body2" align="center">
+                    One last step. We couldn&apos;t process your payment
+                    automatically. Please click the button below to complete
+                    your payment.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => window.open(paymentLink, '_blank')?.focus()}
+                  >
+                    Complete Payment
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <CheckCircleIcon
+                    color="success"
+                    sx={{
+                      fontSize: 100,
+                    }}
+                  />
+                  <Typography variant="h5" align="center">
+                    Successfully Purchased Credits
+                  </Typography>
+                  <Typography variant="body2" align="center">
+                    These are now available to use immediately.
+                  </Typography>
+                </>
+              )}
             </Stack>
           ),
           sectionButtons: (

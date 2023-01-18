@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ROUTES } from '@apiteam/types/src'
 import {
@@ -17,15 +17,18 @@ import {
   CreateCreditsQuoteMutation,
   CreateCreditsQuoteMutationVariables,
   CreditsPricingOptionsQuery,
+  InvoicePaidQuery,
+  InvoicePaidQueryVariables,
 } from 'types/graphql'
 
-import { useMutation } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 import {
   ACCEPT_QUOTE_MUTATION,
+  INVOICE_PAID_QUERY,
   useDefaultPaymentMethod,
 } from '../../CurrentPlanCard/BuyPlanDialog/PlanPaymentSection'
 import { prettyPrintCents } from '../../CurrentPlanCard/IndividualFeatures'
@@ -58,7 +61,7 @@ const CREATE_CREDITS_QUOTE_MUTATION = gql`
 
 type CreditsPaymentSectionProps = {
   creditsPricingOption: CreditsPricingOptionsQuery['creditsPricingOptions'][0]
-  onPurchaseComplete: () => void
+  onPurchaseComplete: (paymentLink: string | null) => void
 }
 
 export const CreditsPaymentSection = ({
@@ -153,7 +156,7 @@ export const CreditsPaymentSection = ({
           >
             <TextField
               label="Promotion Code"
-              value={editValuePromotionCode}
+              value={editValuePromotionCode ?? null}
               onChange={(e) => setEditValuePromotionCode(e.target.value)}
               onBlur={() => setPromotionCode(editValuePromotionCode)}
               size="small"
@@ -206,7 +209,7 @@ export const CreditsPaymentSection = ({
 
 const useQuote = (
   creditsPricingOption: CreditsPricingOptionsQuery['creditsPricingOptions'][0],
-  onPurchaseComplete: () => void
+  onPurchaseComplete: (paymentLink: string | null) => void
 ) => {
   const workspaceInfo = useWorkspaceInfo()
 
@@ -250,13 +253,85 @@ const useQuote = (
     workspaceInfo.scope.variantTargetId,
   ])
 
+  const pollInvoiceDataRef = useRef<{
+    uri: string
+    invoiceId: string
+  } | null>(null)
+
+  useEffect(() => {
+    pollInvoiceDataRef.current = null
+  }, [creditsPricingOption])
+
   const [acceptQuote, { loading: currentlyAccepting }] = useMutation<
     AcceptQuoteMutation,
     AcceptQuoteMutationVariables
   >(ACCEPT_QUOTE_MUTATION, {
-    onCompleted: () => onPurchaseComplete(),
+    onCompleted: ({ acceptQuote: { invoice } }) => {
+      if (invoice.status === 'paid') {
+        onPurchaseComplete(null)
+      }
+
+      if (invoice.status !== 'open') {
+        snackErrorMessageVar('Something went wrong. Please try again later.')
+        return
+      }
+
+      if (!invoice.hosted_invoice_url) {
+        snackErrorMessageVar('Something went wrong. Please try again later.')
+        return
+      }
+
+      pollInvoiceDataRef.current = {
+        uri: invoice.hosted_invoice_url,
+        invoiceId: invoice.id,
+      }
+
+      onPurchaseComplete(invoice.hosted_invoice_url)
+    },
     onError: (error) => snackErrorMessageVar(error.message),
   })
+
+  const { refetch: fetchInvoice } = useQuery<
+    InvoicePaidQuery,
+    InvoicePaidQueryVariables
+  >(INVOICE_PAID_QUERY, {
+    skip: !pollInvoiceDataRef.current,
+  })
+
+  const [pollInterval, setPollInterval] = useState<NodeJS.Timer | null>(null)
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      if (!pollInvoiceDataRef.current) {
+        return
+      }
+
+      const { data: invoiceQuery } = await fetchInvoice({
+        invoiceId: pollInvoiceDataRef.current.invoiceId,
+        teamId: workspaceInfo.isTeam
+          ? workspaceInfo.scope.variantTargetId
+          : null,
+      })
+
+      if (!invoiceQuery.invoice) return
+      if (invoiceQuery.invoice.status === 'paid') {
+        onPurchaseComplete(null)
+        pollInvoiceDataRef.current = null
+      }
+    }, 2000)
+
+    if (pollInterval) {
+      clearInterval(pollInterval)
+    }
+    setPollInterval(interval)
+
+    return () => {
+      if (pollInterval) {
+        clearInterval(pollInterval)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return {
     gettingNewQuote,

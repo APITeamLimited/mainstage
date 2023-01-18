@@ -36,6 +36,7 @@ export const schema = gql`
 
   type Query {
     invoices(teamId: String): [StripeInvoice!]! @requireAuth
+    invoice(invoiceId: String!, teamId: String): StripeInvoice @requireAuth
     upcomingInvoice(teamId: String): StripeUpcomingInvoice @requireAuth
   }
 `

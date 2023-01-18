@@ -38,8 +38,13 @@ export type AbstractQuoteUpdateParams = {
   }
 }
 
+export type AcceptedQuoteResult = {
+  acceptedQuote: Stripe.Quote
+  invoice: Stripe.Invoice
+}
+
 type QuoteMixin = {
-  accept: (id: string) => Promise<Stripe.Quote>
+  accept: (id: string) => Promise<AcceptedQuoteResult>
 }
 
 export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
@@ -127,6 +132,17 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
       throw new Error('Quote invoice not found')
     }
 
+    if (!acceptedQuote.customer) {
+      throw new Error('Quote customer not found')
+    }
+
+    if (
+      typeof acceptedQuote.customer !== 'string' &&
+      'deleted' in acceptedQuote.customer
+    ) {
+      throw new Error('Quote customer is deleted')
+    }
+
     await markHadTrialIfApplicable(acceptedQuote)
 
     const invoiceId =
@@ -145,9 +161,12 @@ export const QuoteModel: CreateMixin<AbstractQuoteCreateParams, Stripe.Quote> &
     await stripe.invoices.finalizeInvoice(invoiceId)
 
     // Try and pay straight away
-    await stripe.invoices.pay(invoiceId).catch(() => null)
+    const paidInvoice = await stripe.invoices.pay(invoiceId).catch(() => null)
 
-    return acceptedQuote
+    return {
+      acceptedQuote,
+      invoice: paidInvoice ?? (await stripe.invoices.retrieve(invoiceId)),
+    }
   },
 }
 

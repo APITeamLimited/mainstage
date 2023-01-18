@@ -404,7 +404,7 @@ const ensureValidUrl = async (url: string): Promise<string> => {
   const validUrl = await validateURL(url)
 
   if (validUrl === null) {
-    throw new Error(`Invalid url: ${url}`)
+    throw new Error(`Invalid URL: ${url}`)
   }
 
   return validUrl

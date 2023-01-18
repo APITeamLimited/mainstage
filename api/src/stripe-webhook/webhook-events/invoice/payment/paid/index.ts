@@ -2,7 +2,8 @@ import type {
   MailmanInput,
   NotifyPaymentSuccessfulData,
 } from '@apiteam/mailman'
-import { Team } from '@prisma/client'
+import { UserAsPersonal } from '@apiteam/types'
+import { Team, Membership } from '@prisma/client'
 import type Stripe from 'stripe'
 
 import {
@@ -10,12 +11,13 @@ import {
   generateUserUnsubscribeUrl,
 } from 'src/helpers'
 import { dispatchEmail } from 'src/lib/mailman'
-import { getCreditsReadRedis } from 'src/lib/redis'
-import { CreditsPricingOptionModel, CustomerModel } from 'src/models'
-import { QuoteModel } from 'src/models/billing/quotes'
+import { CustomerModel } from 'src/models'
 
-import { customerIdentificationSchema } from '../../customer'
-import { getAdminOwnerSendInfo, getInvoiceLast4 } from '../helpers'
+import { customerIdentificationSchema } from '../../../customer'
+import { getAdminOwnerSendInfo, getInvoiceLast4 } from '../../helpers'
+
+import { checkForCreditsPurchase } from './credits-purchase'
+import { checkForPlanActivation } from './plan-activation'
 
 export const handleInvoicePaid = async (event: Stripe.Event) => {
   const invoice = event.data.object as Stripe.Invoice
@@ -32,16 +34,26 @@ export const handleInvoicePaid = async (event: Stripe.Event) => {
     customer.metadata
   )
 
-  if (await determineIfForCreditsPurchase(invoice, variant, variantTargetId)) {
-    return
-  }
+  await checkForCreditsPurchase(invoice, variant, variantTargetId)
 
   const { users, team, adminOwnerMemberships } = await getAdminOwnerSendInfo(
     variant,
     variantTargetId
   )
 
-  await Promise.all(
+  await checkForPlanActivation(invoice, team, users)
+
+  notifySuccessfulPayment(invoice, users, team, adminOwnerMemberships, variant)
+}
+
+const notifySuccessfulPayment = async (
+  invoice: Stripe.Invoice,
+  users: UserAsPersonal[],
+  team: Team | null,
+  adminOwnerMemberships: Membership[],
+  variant: 'TEAM' | 'USER'
+) =>
+  Promise.all(
     users.map(async (user) => {
       const role = adminOwnerMemberships.find(
         (membership) => membership.userId === user.id
@@ -77,55 +89,3 @@ export const handleInvoicePaid = async (event: Stripe.Event) => {
       return dispatchEmail(mailmanInput)
     })
   )
-}
-
-const determineIfForCreditsPurchase = async (
-  invoice: Stripe.Invoice,
-  variant: 'TEAM' | 'USER',
-  variantTargetId: string
-) => {
-  if (!invoice.quote) {
-    return false
-  }
-
-  const quote =
-    typeof invoice.quote === 'string'
-      ? await QuoteModel.get(invoice.quote).then((quote) => {
-          if (!quote) {
-            throw new Error(`Quote not found: ${invoice.quote}`)
-          }
-          return quote
-        })
-      : invoice.quote
-
-  if (!quote.metadata['creditsPricingOptionId']) {
-    return false
-  }
-
-  const creditsUnitAmount = await CreditsPricingOptionModel.get(
-    quote.metadata['creditsPricingOptionId']
-  ).then((creditsPricingOption) => {
-    if (!creditsPricingOption) {
-      throw new Error(
-        `Credits pricing option not found: ${quote.metadata['creditsPricingOptionId']}`
-      )
-    }
-    return creditsPricingOption.credits
-  })
-
-  const quantity = invoice.lines.data.reduce(
-    (acc, lineItem) => acc + (lineItem.quantity ?? 0),
-    0
-  )
-
-  const creditsReadRedis = await getCreditsReadRedis()
-
-  // Increment credits by the amount purchased
-
-  await creditsReadRedis.incrBy(
-    `${variant}:${variantTargetId}:paidCredits`,
-    quantity * creditsUnitAmount
-  )
-
-  return true
-}

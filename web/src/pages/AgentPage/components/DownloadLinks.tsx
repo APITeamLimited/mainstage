@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { LINKS } from '@apiteam/types/src'
+import { AGENT_LINKS, LINKS } from '@apiteam/types/src'
 import AppleIcon from '@mui/icons-material/Apple'
 import {
   Button,
@@ -74,6 +74,10 @@ export const DownloadLinks = () => {
               color="primary"
               size="large"
               inverted={os === 'windows'}
+              onClick={() => {
+                const url = `${window.location.origin}${AGENT_LINKS.windows64.link}`
+                window.open(url, '_blank')
+              }}
             >
               Windows 64-bit
             </InvertedButton>
@@ -91,6 +95,10 @@ export const DownloadLinks = () => {
               color="primary"
               size="large"
               inverted={os === 'mac'}
+              onClick={() => {
+                const url = `${window.location.origin}${AGENT_LINKS.macIntel.link}`
+                window.open(url, '_blank')
+              }}
             >
               Intel Chip
             </InvertedButton>
@@ -98,6 +106,10 @@ export const DownloadLinks = () => {
               color="primary"
               size="large"
               inverted={os === 'mac'}
+              onClick={() => {
+                const url = `${window.location.origin}${AGENT_LINKS.macDarwin.link}`
+                window.open(url, '_blank')
+              }}
             >
               Apple Chip
             </InvertedButton>
@@ -115,6 +127,7 @@ export const DownloadLinks = () => {
               color="primary"
               size="large"
               inverted={os === 'linux'}
+              onClick={() => window.open(AGENT_LINKS.linux64.link, '_blank')}
             >
               Get the Snap (64-bit)
             </InvertedButton>

@@ -5,8 +5,6 @@ import { ServiceValidationError } from '@redwoodjs/api'
 
 import { stripe } from 'src/lib/stripe'
 
-import { SetupIntentModel } from './setup-intent'
-
 export type AbstractCreatePaymentMethodInput = {
   type: 'card'
   customerId: string
@@ -50,18 +48,26 @@ export const PaymentMethodModel: APITeamModel<
       )
     }
 
-    const paymentMethod = await stripe.paymentMethods.create({
-      type: input.type,
-      billing_details: input.billingDetails,
-      card: {
-        token: input.tokenId,
-      },
-    })
+    const paymentMethod = await stripe.paymentMethods
+      .create({
+        type: input.type,
+        billing_details: input.billingDetails,
+        card: {
+          token: input.tokenId,
+        },
+      })
+      .catch((err) => {
+        throw new ServiceValidationError(err.message)
+      })
 
     // Attach payment method to customer
-    await stripe.paymentMethods.attach(paymentMethod.id, {
-      customer: input.customerId,
-    })
+    await stripe.paymentMethods
+      .attach(paymentMethod.id, {
+        customer: input.customerId,
+      })
+      .catch((err) => {
+        throw new ServiceValidationError(err.message)
+      })
 
     await addDefaultPaymentMethod(paymentMethod, input.customerId)
 

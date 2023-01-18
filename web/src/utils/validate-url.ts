@@ -26,7 +26,8 @@ export const validateURL = async (url: string): Promise<string | null> => {
     if (
       ipV4Regex.test(noTrailingUrl) ||
       ipV6Regex.test(noTrailingUrl) ||
-      extractLocalhost(noTrailingUrl) === 'localhost'
+      extractLocalhost(noTrailingUrl) === 'localhost' ||
+      extractLocalhost(noTrailingUrl) === '127.0.0.1'
     ) {
       formattedUrl = `http://${url}`
     } else if (isValidDomain(url.endsWith('/') ? url.slice(0, -1) : url)) {
@@ -44,7 +45,10 @@ export const validateURL = async (url: string): Promise<string | null> => {
 
   // Check if valid ip address or domain
   if (
-    !(extractLocalhost(urlWithoutTrailingSlash) === 'localhost') &&
+    !(
+      extractLocalhost(urlWithoutTrailingSlash) === 'localhost' ||
+      extractLocalhost(urlWithoutTrailingSlash) === '127.0.0.1'
+    ) &&
     !ipV4Regex.test(urlWithoutTrailingSlash) &&
     !ipV6Regex.test(urlWithoutTrailingSlash) &&
     !isValidDomain(urlWithoutTrailingSlash)

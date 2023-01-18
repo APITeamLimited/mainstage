@@ -82,6 +82,9 @@ const handleSendgridSend = async <T extends TemplateData>({
 
   console.log(`Sending email to ${to} with subject ${output.content.title}`)
 
+  // TODO: remove when not dev
+  return
+
   const msg = {
     to,
     from: {

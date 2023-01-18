@@ -16,6 +16,8 @@ import { PlanChip } from 'src/components/app/utils/PlanChip'
 import { usePlanInfo } from 'src/contexts/billing-info'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
+import { useSubscription } from '../BillingProvider'
+
 import { BuyPlanDialog } from './BuyPlanDialog'
 import { DowngradePlanDialog } from './DowngradePlanDialog'
 import { IndividualFeatures } from './IndividualFeatures'
@@ -48,6 +50,7 @@ const minCurrentPlanCardHeight = 522
 export const CurrentPlanCard = () => {
   const workspaceInfo = useWorkspaceInfo()
   const planInfo = usePlanInfo()
+  const canDowngrade = useCanDowngrade()
 
   const [showDowngradeDialog, setShowDowngradeDialog] = useState(false)
   const [showUpgradeDialog, setShowUpgradeDialog] = useState(false)
@@ -91,27 +94,31 @@ export const CurrentPlanCard = () => {
           <Divider />
           <IndividualFeatures nextPlan={nextPlan} />
           <SupportedLoadZones nextPlan={nextPlan} />
-          <Divider />
-          <Stack spacing={2} direction="row" justifyContent="flex-end">
-            {planInfo.priceMonthlyCents > 0 && (
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={() => setShowDowngradeDialog(true)}
-              >
-                Downgrade Plan
-              </Button>
-            )}
-            {nextPlan && (
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => setShowUpgradeDialog(true)}
-              >
-                Upgrade to {nextPlan.name}
-              </Button>
-            )}
-          </Stack>
+          {(canDowngrade || !!nextPlan) && (
+            <>
+              <Divider />
+              <Stack spacing={2} direction="row" justifyContent="flex-end">
+                {canDowngrade && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => setShowDowngradeDialog(true)}
+                  >
+                    Downgrade Plan
+                  </Button>
+                )}
+                {nextPlan && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setShowUpgradeDialog(true)}
+                  >
+                    Upgrade to {nextPlan.name}
+                  </Button>
+                )}
+              </Stack>
+            </>
+          )}
         </Stack>
       </Card>
       <BuyPlanDialog
@@ -127,4 +134,26 @@ export const CurrentPlanCard = () => {
   ) : (
     <Skeleton height={minCurrentPlanCardHeight} />
   )
+}
+
+const useCanDowngrade = () => {
+  const planInfo = usePlanInfo()
+  const { fetchedSubscription } = useSubscription()
+
+  if (!planInfo || !fetchedSubscription) {
+    return false
+  }
+
+  if (planInfo.priceMonthlyCents === 0) {
+    return false
+  }
+
+  if (
+    fetchedSubscription.cancel_at_period_end &&
+    fetchedSubscription.current_period_end
+  ) {
+    return false
+  }
+
+  return true
 }
