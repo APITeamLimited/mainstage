@@ -38,10 +38,10 @@ export const brandedRoutes = [
         path: ROUTES.plansAndPricing,
         name: 'Plans and Pricing',
       },
-      // {
-      //   path: ROUTES.docs,
-      //   name: 'Docs',
-      // },
+      {
+        path: ROUTES.docs,
+        name: 'Docs',
+      },
     ],
   },
   {
@@ -103,7 +103,7 @@ const Routes = () => {
         <Route path={ROUTES.termsOfService} page={TermsOfServicePage} name="termsOfService" />
         <Route path={ROUTES.privacyPolicy} page={PrivacyPolicyPage} name="privacyPolicy" />
         <Route path={ROUTES.cookiePolicy} page={CookiePolicyPage} name="cookiePolicy" />
-        <Route path={ROUTES.support} page={SupportPage} name="support" />
+        {/* <Route path={ROUTES.support} page={SupportPage} name="support" /> */}
         <Route path={ROUTES.blog} page={PrivacyPolicyPage} name="blog" />
         <Route path={ROUTES.agent} page={AgentPage} name="agent" />
       </Set>

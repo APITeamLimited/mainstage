@@ -309,13 +309,20 @@ export const ResponseHistory = ({
                     }}
                     fontSize="small"
                   >
-                    <span
+                    {/* <span
                       style={{
                         userSelect: 'none',
                       }}
                     >
                       Responses more than 100 deep are deleted automatically,
                       pin them to keep them
+                    </span> */}
+                    <span
+                      style={{
+                        userSelect: 'none',
+                      }}
+                    >
+                      Responses more than 100 deep are deleted automatically
                     </span>
                   </Typography>
                 </>

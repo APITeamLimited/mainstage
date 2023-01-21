@@ -39,6 +39,7 @@ export const NotifyPaymentSuccessful = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName},{' '}
@@ -52,6 +53,7 @@ export const NotifyPaymentSuccessful = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Payment successful for <strong>{invoice.description}</strong>. We

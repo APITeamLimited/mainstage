@@ -299,6 +299,7 @@ __metadata:
     react-reflex: ^4.0.9
     react-text-transition: ^3.0.2
     react-typed: ^1.2.0
+    react-xarrows: ^2.0.2
     sass-loader: ^13.0.2
     simplebar-react: ^2.4.3
     socket.io-client: ^4.5.1
@@ -11141,7 +11142,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:*, @types/prop-types@npm:^15.7.5":
+"@types/prop-types@npm:*, @types/prop-types@npm:^15.7.3, @types/prop-types@npm:^15.7.5":
   version: 15.7.5
   resolution: "@types/prop-types@npm:15.7.5"
   checksum: 648aae41423821c61c83823ae36116c8d0f68258f8b609bdbc257752dcd616438d6343d554262aa9a7edaee5a19aca2e028a74fa2d0f40fffaf2816bc7056857
@@ -31290,6 +31291,19 @@ __metadata:
     react: ^16.3.0
     react-dom: ^16.3.0
   checksum: d6a376c4855e63776e0a944ed49a918ee637b3b6d76e8f64404dcc915ca65b408f8103894e0cd455d0cbe804b24a297bc527dce9d53c17f7258da04d1a0ae65c
+  languageName: node
+  linkType: hard
+
+"react-xarrows@npm:^2.0.2":
+  version: 2.0.2
+  resolution: "react-xarrows@npm:2.0.2"
+  dependencies:
+    "@types/prop-types": ^15.7.3
+    lodash: ^4.17.21
+    prop-types: ^15.7.2
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: 5c3d097259eac9dcdad4bebcee507cd38b2df34df897651290cc5befc53391ceb5f96842c8bb2251fd8910352ae6cd001e61c07494d7c083af03bc0bb297b02a
   languageName: node
   linkType: hard
 

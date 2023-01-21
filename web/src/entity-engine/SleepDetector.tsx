@@ -10,6 +10,7 @@ export const SleepDetector = () => {
     const interval = setInterval(() => {
       const timeNow = Date.now()
       if (timeNow - lastChecked > 10000) {
+        console.log('Reloading page 4')
         window.location.reload()
       }
 

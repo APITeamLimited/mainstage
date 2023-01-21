@@ -324,6 +324,7 @@ const executionScriptSchema = z.object({
   script: z.string(),
   language: z.literal('javascript'),
   name: z.string(),
+  prettyName: z.string().optional(),
   builtIn: z.boolean().optional(),
   description: z.string().optional(),
 })

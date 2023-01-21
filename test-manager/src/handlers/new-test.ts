@@ -123,12 +123,15 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     verifiedDomains,
     createdAt: new Date().toISOString(),
     funcModeInfo: {
-      instance100msUnitRate: 100,
+      instance100msUnitRate: 5,
     },
     permittedLoadZones: planinfo.loadZones,
-    maxTestDurationMinutes: planinfo.maxTestDurationMinutes,
+    // Allow one more minute so user can get full length of max duration, ie enter 10 minutes and get 10 minutes without throwing an error
+    maxTestDurationMinutes: planinfo.maxTestDurationMinutes + 1,
     maxSimulatedUsers: planinfo.maxSimulatedUsers,
   }
+
+  let consoleLogCount = 0
 
   // Start stream before scheduling to ensure all messages are received
   orchestratorSubscribeRedis.subscribe(
@@ -138,6 +141,14 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
 
       if (!parseResult.success) {
         return
+      }
+
+      if (parseResult.data.messageType === 'CONSOLE') {
+        consoleLogCount += 1
+
+        if (consoleLogCount >= 100) {
+          return
+        }
       }
 
       socket.emit('updates', parseResult.data)
@@ -163,15 +174,15 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
 
   // Set job info first to prevent race condition
   await Promise.all([
-    orchestratorReadRedis.hSet(
-      executionParams.id,
-      'job',
-      JSON.stringify(executionParams)
-    ),
     coreCacheReadRedis.hSet(
       runningTestKey,
       runningTestInfo.jobId,
       JSON.stringify(runningTestInfo)
+    ),
+    orchestratorReadRedis.hSet(
+      executionParams.id,
+      'job',
+      JSON.stringify(executionParams)
     ),
     // Listen for job updates
     coreCacheSubscribeRedis.subscribe(
@@ -218,6 +229,7 @@ const handleJobUserUpdates = (
 
     // In case of stray jobs cleanup
     setTimeout(() => {
+      console.log('Delete 7')
       coreCacheReadRedis.hDel(runningTestKey, jobId)
     }, 10000)
   }

@@ -14,8 +14,8 @@ export type AbstractCreditsPricingOptionUpdateInput = Omit<
 }
 
 export const DEFAULT_CREDITS_PRICING_OPTION = {
-  credits: 50000 * 1000,
+  credits: 5 * 1000 * 1000,
   priceCents: 500,
-  name: '50K Credits',
-  verboseName: '50K Credits (pay as you go)',
+  name: '5K Credits',
+  verboseName: '5K Credits (pay as you go)',
 } as const as AbstractCreditsPricingOptionCreateInput

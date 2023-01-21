@@ -117,6 +117,19 @@ export const LoadingMultipleResponsePanel = ({
     [globeTestLogs]
   )
 
+  const logsThrottled = useMemo(
+    () =>
+      globeTestLogs?.find(
+        (log) =>
+          log.messageType === 'MESSAGE' &&
+          log.message === 'MAX_CONSOLE_LOGS_REACHED'
+      ) !== undefined
+        ? true
+        : // eslint-disable-next-line react-hooks/exhaustive-deps
+          false,
+    [globeTestLogs]
+  )
+
   return (
     <>
       <SendingRequestAnimation />
@@ -134,6 +147,7 @@ export const LoadingMultipleResponsePanel = ({
             }
             responseYMap={focusedResponse}
             wasLimited={wasLimited}
+            logsThrottled={logsThrottled}
           />
         }
       >

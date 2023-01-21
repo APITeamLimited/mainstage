@@ -41,6 +41,7 @@ export const NotifyTrialExpiring = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName},{' '}
@@ -56,6 +57,7 @@ export const NotifyTrialExpiring = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         This is just a heads up that we will bill the primary card in this

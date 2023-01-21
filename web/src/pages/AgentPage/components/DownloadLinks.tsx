@@ -8,6 +8,7 @@ import {
   Grid,
   Link,
   Stack,
+  Tooltip,
   Typography,
   useMediaQuery,
   useTheme,
@@ -90,48 +91,65 @@ export const DownloadLinks = () => {
           isSmall={isSmall}
           inverted={os === 'mac'}
         >
-          <Stack spacing={4} direction="row">
+          <Stack spacing={4} direction="row" alignItems="center">
             <InvertedButton
               color="primary"
               size="large"
               inverted={os === 'mac'}
               onClick={() => {
-                const url = `${window.location.origin}${AGENT_LINKS.macIntel.link}`
+                const url = `${window.location.origin}${AGENT_LINKS.macAMD64.link}`
                 window.open(url, '_blank')
               }}
             >
-              Intel Chip
+              Intel 64-bit
             </InvertedButton>
-            <InvertedButton
-              color="primary"
-              size="large"
-              inverted={os === 'mac'}
-              onClick={() => {
-                const url = `${window.location.origin}${AGENT_LINKS.macDarwin.link}`
-                window.open(url, '_blank')
-              }}
-            >
-              Apple Chip
-            </InvertedButton>
+            <Tooltip title="Coming soon">
+              <span>
+                <InvertedButton
+                  color="primary"
+                  size="large"
+                  inverted={os === 'mac'}
+                  disabled
+                  // onClick={() => {
+                  //   const url = `${window.location.origin}${AGENT_LINKS.macARM64.link}`
+                  //   window.open(url, '_blank')
+                  // }}
+                >
+                  Apple Silicon
+                </InvertedButton>
+              </span>
+            </Tooltip>
           </Stack>
         </DownloadLinkItem>
         <DownloadLinkItem
           platformName="Linux"
           platformIcon={LinuxIcon}
-          description="Download the latest version of the APITeam Agent for Linux from the Snap Store"
+          description="Download the latest version of the APITeam Agent for Linux"
           isSmall={isSmall}
           inverted={os === 'linux'}
         >
-          <span>
+          <Stack spacing={4} direction="row">
             <InvertedButton
               color="primary"
               size="large"
               inverted={os === 'linux'}
-              onClick={() => window.open(AGENT_LINKS.linux64.link, '_blank')}
+              onClick={() =>
+                window.open(AGENT_LINKS.linux64Debian.link, '_blank')
+              }
             >
-              Get the Snap (64-bit)
+              Debian 64-bit
             </InvertedButton>
-          </span>
+            <InvertedButton
+              color="primary"
+              size="large"
+              inverted={os === 'linux'}
+              onClick={() =>
+                window.open(AGENT_LINKS.linux64Binary.link, '_blank')
+              }
+            >
+              Binary 64-bit
+            </InvertedButton>
+          </Stack>
         </DownloadLinkItem>
       </Grid>
       <Typography variant="h6" color={theme.palette.text.secondary}>
@@ -164,6 +182,10 @@ const InvertedButton = (
         '&:hover': {
           borderColor: inverted ? theme.palette.common.white : undefined,
         },
+
+        // Dont break words, show on new line
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
       }}
     />
   )

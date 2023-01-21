@@ -8,7 +8,8 @@ export default async () => {
   for await (const user of UserModel.getAllAsyncIterator()) {
     userCount++
 
-    if (user.profilePicture === '') {
+    // This has previously been a bug, so we need to check for null as well
+    if (!user.profilePicture || user.profilePicture === 'null') {
       await UserModel.update(user.id, {
         profilePicture: gravatarUrl(user.email, {
           default: 'mp',

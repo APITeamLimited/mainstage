@@ -51,7 +51,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
   }
 
   const runningTestKey = `workspace-local-tests:${socket.scope.variant}:${socket.scope.variantTargetId}${socket.scope.userId}`
-  coreCacheReadRedis.del(runningTestKey)
+
   // Check workspace hasn't already got too many tests already running
   if ((await coreCacheReadRedis.hLen(runningTestKey)) > 5) {
     socket.emit('error', 'You can only run 5 tests at once in a workspace')
@@ -116,6 +116,8 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
   let storedGlobeTestLogs = false
   let storedMetrics = false
 
+  let consoleLogCount = 0
+
   // To enable compatability with cloud tests we need to store the test info in redis
   socket.on('globeTestMessage', async (msg: unknown) => {
     const parseResult = parseAndValidateGlobeTestMessage(msg)
@@ -131,6 +133,14 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
       )
 
       return
+    }
+
+    if (parseResult.data.messageType === 'CONSOLE') {
+      consoleLogCount += 1
+
+      if (consoleLogCount >= 100) {
+        return
+      }
     }
 
     const parsedMessage = parseResult.data

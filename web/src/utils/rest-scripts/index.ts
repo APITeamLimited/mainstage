@@ -1,5 +1,9 @@
 import { ExecutionScript } from '@apiteam/types/src'
 
+import { globalLoadTest } from './global-load-test'
 import { requestSingle } from './request-single'
 
-export const BUILTIN_REST_SCRIPTS = [requestSingle] as ExecutionScript[]
+export const BUILTIN_REST_SCRIPTS = [
+  requestSingle,
+  globalLoadTest,
+] as ExecutionScript[]

@@ -116,7 +116,11 @@ export type MarkType = z.infer<typeof markTypeSchema>
 const messageCombinationSchema = z.union([
   z.object({
     messageType: z.literal('MESSAGE'),
-    message: z.union([z.string(), z.literal('UNVERIFIED_DOMAIN_THROTTLED')]),
+    message: z.union([
+      z.string(),
+      z.literal('UNVERIFIED_DOMAIN_THROTTLED'),
+      z.literal('MAX_CONSOLE_LOGS_REACHED'),
+    ]),
   }),
   z.object({
     messageType: z.literal('CONSOLE'),

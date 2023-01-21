@@ -8,9 +8,20 @@ import {
   useSetupIntents,
 } from '../BillingProvider'
 
-export const STRIPE_PUBLISHABLE_KEY = process.env[
-  'STRIPE_PUBLISHABLE_KEY'
-] as string
+const isProduction = process.env.NODE_ENV === 'production'
+
+const devPublishableKey = process.env['DEV_STRIPE_PUBLISHABLE_KEY']
+const prodPublishableKey = process.env['PROD_STRIPE_PUBLISHABLE_KEY']
+
+const STRIPE_PUBLISHABLE_KEY = (
+  isProduction ? prodPublishableKey : devPublishableKey
+) as string
+
+if (!STRIPE_PUBLISHABLE_KEY) {
+  throw new Error('STRIPE_PUBLISHABLE_KEY is not defined')
+}
+
+export { STRIPE_PUBLISHABLE_KEY }
 
 export const getDefaultElementsOptions = (
   theme: Theme

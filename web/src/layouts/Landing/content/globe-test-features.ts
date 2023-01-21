@@ -1,53 +1,38 @@
-import AppsIcon from '@mui/icons-material/Apps'
 import CompressIcon from '@mui/icons-material/Compress'
-import EqualizerIcon from '@mui/icons-material/Equalizer'
 import InsightsIcon from '@mui/icons-material/Insights'
+import PublicIcon from '@mui/icons-material/Public'
 
 import type { FeatureOverviewElement } from '../components/templates/FeatureOverviewPanel'
 
 export const globeTestFeaturesMinimal: FeatureOverviewElement[] = [
-  /*
-
-  TODO: Re-enable when geographic insights is created
-
-  {
-    icon: PublicIcon,
-    title: 'Multi-Region Support',
-    description:
-      'Each load test is orchestrated globally from multiple servers in the APITeam Cloud, enabling geographic insights into your load test results.',
-    image: {
-      light: require('public/img/splash/environments-light.png'),
-      dark: require('public/img/splash/environments-dark.png'),
-    },
-  },*/
   {
     icon: CompressIcon,
     title: 'Integrated Load Testing',
     description:
       'Run load tests from the same platform you use to build and test your APIs, with no need to switch between tools.',
     image: {
-      light: require('public/img/splash/globe-test-panel-light.png'),
-      dark: require('public/img/splash/globe-test-panel-dark.png'),
+      light: require('public/img/splash/globe-test-graph-light.png'),
+      dark: require('public/img/splash/globe-test-graph-dark.png'),
     },
   },
   {
     icon: InsightsIcon,
     title: 'Detailed API Insights',
     description:
-      'Easily determine problems with your system at load, plot custom graphs, and compare results across multiple load tests.',
+      'Easily determine problems with your system at load, plot custom graphs, and compare results across multiple load zones.',
     image: {
-      light: require('public/img/splash/globe-test-graph-light.png'),
-      dark: require('public/img/splash/globe-test-graph-dark.png'),
+      light: require('public/img/splash/globe-test-panel-light.png'),
+      dark: require('public/img/splash/globe-test-panel-dark.png'),
     },
   },
   {
-    icon: AppsIcon,
-    title: 'Built-In Tests',
+    icon: PublicIcon,
+    title: 'Globally Distributed Load Testing',
     description:
-      'Get started with minimal configuration by running one of our many built-in tests that simulate a variety of real-world scenarios, or create your own.',
+      'Load tests can be run from 19 simultaneous locations around the world, including the US, Europe, and Asia, enabling geographic insights into your load test results.',
     image: {
-      light: require('public/img/splash/built-in-script-light.png'),
-      dark: require('public/img/splash/built-in-script-dark.png'),
+      light: require('public/img/splash/geographic-insights-light.png'),
+      dark: require('public/img/splash/geographic-insights-dark.png'),
     },
   },
 ]

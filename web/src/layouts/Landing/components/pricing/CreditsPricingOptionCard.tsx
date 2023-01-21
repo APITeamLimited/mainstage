@@ -65,6 +65,10 @@ export const CreditsPricingOptionCard = () => {
           credits that never expire in case you need to run more tests than your
           plan allows
         </Typography>
+        <Typography color={theme.palette.text.secondary}>
+          Enough for approximately 25 hours of load tests with 250 users or 100K
+          individual requests
+        </Typography>
         <Stack spacing={1} direction="row" alignItems="baseline">
           <Typography color={theme.palette.text.secondary}>$</Typography>
           <Typography variant="h3" fontWeight={700}>

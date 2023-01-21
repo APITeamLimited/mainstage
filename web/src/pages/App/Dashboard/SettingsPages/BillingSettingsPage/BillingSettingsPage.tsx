@@ -21,14 +21,6 @@ import { MarkedForCancellationCard } from './MarkedForCancellationCard'
 import { PaymentMethodsCard } from './payment-methods/PaymentMethodsCard'
 import { TaxIdCard } from './TaxIdCard'
 
-export const STRIPE_PUBLISHABLE_KEY = process.env[
-  'STRIPE_PUBLISHABLE_KEY'
-] as string
-
-if (!STRIPE_PUBLISHABLE_KEY) {
-  throw new Error('STRIPE_PUBLISHABLE_KEY is not defined')
-}
-
 const BillingSettingsPage = () => {
   const workspaceInfo = useWorkspaceInfo()
 

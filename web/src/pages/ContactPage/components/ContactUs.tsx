@@ -89,14 +89,14 @@ export const ContactUs = () => {
               }}
             />
           </ListItem>
-          <ActionCard
+          {/* <ActionCard
             title="Why not try our support center?"
             description="Our support center is a great place to find answers to your questions"
             buttonText="Support Center"
             buttonLink={ROUTES.support}
             backgroundColor={theme.palette.primary.main}
             invertFontColor
-          />
+          /> */}
         </Stack>
         <Stack spacing={smallPanelSpacing}>
           <Typography

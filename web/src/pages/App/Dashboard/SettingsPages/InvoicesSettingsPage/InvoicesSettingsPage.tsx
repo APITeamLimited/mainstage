@@ -13,14 +13,6 @@ import { SETTINGS_TABS } from '..'
 
 import { InvoicesCard } from './InvoicesCard'
 
-export const STRIPE_PUBLISHABLE_KEY = process.env[
-  'STRIPE_PUBLISHABLE_KEY'
-] as string
-
-if (!STRIPE_PUBLISHABLE_KEY) {
-  throw new Error('STRIPE_PUBLISHABLE_KEY is not defined')
-}
-
 const InvoicesSettingsPage = () => {
   const theme = useTheme()
   const workspaceInfo = useWorkspaceInfo()

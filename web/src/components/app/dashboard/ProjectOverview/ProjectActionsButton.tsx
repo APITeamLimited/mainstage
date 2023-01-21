@@ -60,6 +60,8 @@ export const ProjectActionsButton = ({
 
       projectYMap.get('branches')?.delete(branch.get('id'))
     })
+
+    projectYMap.parent?.delete(projectId)
   }
 
   if (!projectName) throw new Error('Project name is required')

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { ROUTES } from '@apiteam/types/src'
 import { Stack, Tooltip } from '@mui/material'
 
-import { routes, useLocation } from '@redwoodjs/router'
+import { useLocation } from '@redwoodjs/router'
 
 import { APITeamLogo, LOGO_DEFAULT_HEIGHT } from 'src/components/APITeamLogo'
 import { PlanChip } from 'src/components/app/utils/PlanChip'
@@ -55,7 +55,7 @@ export const TopNavApp = () => {
             <TopNavLink name="Dashboard" path={ROUTES.dashboard} />
           )} */}
           <TopNavLink name="Docs" path={ROUTES.docs} />
-          <TopNavLink name="Support" path={routes.support()} />
+          <TopNavLink name="Support" path={ROUTES.contact} />
         </Stack>
       }
       rightZone={

@@ -87,7 +87,6 @@ const CREATE_OR_UPDATE_SETUP_INTENT_MUTATION = gql`
     ) {
       id
       client_secret
-      redirect_uri
       status
     }
   }
@@ -228,17 +227,14 @@ export const PaymentMethodsFormInner = ({
       } else if (createOrUpdateSetupIntent.status === 'requires_action') {
         // Follow verification flow
         const clientSecret = createOrUpdateSetupIntent.client_secret
-        const redirectUri = createOrUpdateSetupIntent.redirect_uri
 
         // TODO: Handle redirectUri
-        if (!redirectUri || !clientSecret || !stripe) {
+        if (!clientSecret || !stripe) {
           snackErrorMessageVar('Failed to verify card')
           return
         }
 
-        const confirmResult = await stripe.confirmCardSetup(clientSecret, {
-          return_url: `${window.location.origin}${ROUTES.settingsWorkspaceBilling}?showAddedCardMessage=true`,
-        })
+        const confirmResult = await stripe.confirmCardSetup(clientSecret)
 
         if (confirmResult.error) {
           snackErrorMessageVar(confirmResult.error.message)

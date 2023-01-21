@@ -135,12 +135,7 @@ export const innerMetricSchema = z.object({
 
 const locationMetricsSchema = z.record(innerMetricSchema)
 
-export const globalLocationMetricsSchema = z.intersection(
-  z.object({
-    global: locationMetricsSchema,
-  }),
-  z.record(locationMetricsSchema)
-)
+export const globalLocationMetricsSchema = z.record(locationMetricsSchema)
 
 export type LoadDistribution = z.infer<typeof globalLocationMetricsSchema>
 

@@ -17,7 +17,7 @@ import { useQuery } from '@redwoodjs/web'
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
-import { STRIPE_PUBLISHABLE_KEY } from './BillingSettingsPage'
+import { STRIPE_PUBLISHABLE_KEY } from './stripe'
 
 const BILLING_ADDRESS_QUERY = gql`
   query BillingAddressQuery($teamId: String) {
@@ -39,7 +39,6 @@ const SETUP_INTENTS_QUERY = gql`
     setupIntents(teamId: $teamId) {
       id
       client_secret
-      redirect_uri
       status
     }
   }

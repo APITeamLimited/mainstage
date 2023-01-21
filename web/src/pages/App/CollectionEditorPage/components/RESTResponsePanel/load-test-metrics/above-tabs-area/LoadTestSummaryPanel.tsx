@@ -11,13 +11,16 @@ type LoadTestSummaryPanelProps = {
   metrics: (GlobeTestMessage & MetricsCombination)[] | null
   responseYMap: YMap<any>
   wasLimited?: boolean
+  logsThrottled?: boolean
 }
 
 export const LoadTestSummaryPanel = ({
   metrics,
   responseYMap,
   wasLimited,
+  logsThrottled,
 }: LoadTestSummaryPanelProps) => {
+  console.log('LoadTestSummaryPanel', metrics)
   return (
     <div key={responseYMap.get('id')}>
       {metrics ? (
@@ -27,6 +30,7 @@ export const LoadTestSummaryPanel = ({
               MetricsCombination)[]
           }
           wasLimited={wasLimited}
+          logsThrottled={logsThrottled}
         />
       ) : (
         <StatsSkeleton count={4} />

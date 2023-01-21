@@ -30,7 +30,7 @@ const overviewMessages: OverviewItem[] = [
     icon: InsightsIcon,
     title: 'Scale Confidently',
     description:
-      'Gain valuable performance insights on your APIs performance at scale with integrated load testing, analytics, and monitoring.',
+      'Gain valuable performance insights on your APIs performance at scale with integrated load testing and analytics.',
   },
 ]
 

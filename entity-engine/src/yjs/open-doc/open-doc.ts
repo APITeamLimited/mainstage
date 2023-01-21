@@ -150,14 +150,17 @@ export class OpenDoc extends Y.Doc {
 
   send(socket: Socket, m: Uint8Array) {
     if (!socket.connected) {
+      console.log('dc close 6')
       this.closeSocket(socket)
     }
     try {
       socket.send(m, (err: null) => {
+        console.log('dc close 7')
         err != null && this.closeSocket(socket)
       })
     } catch (e) {
       console.warn('failed to send message from OpenDoc', e)
+      console.log('dc close 8')
       this.closeSocket(socket)
     }
   }
@@ -181,6 +184,7 @@ export class OpenDoc extends Y.Doc {
     }
 
     this.scopes.delete(socket)
+    console.log('close socket')
     socket.disconnect()
   }
 
@@ -243,11 +247,13 @@ export class OpenDoc extends Y.Doc {
 
     // Remove all sockets
     this.sockets.forEach((_, socket) => {
+      console.log('dc close 9')
       this.closeSocket(socket)
     })
 
     // Remove all serverside sockets
     this.serversideSockets.forEach((socket) => {
+      console.log('dc close 10')
       this.closeSocket(socket)
     })
 
@@ -284,6 +290,7 @@ export class OpenDoc extends Y.Doc {
       return
     }
 
+    console.log('dc close 11')
     await this.closeSocket(socket)
     this.lastVerifiedClients.delete(clientID)
   }

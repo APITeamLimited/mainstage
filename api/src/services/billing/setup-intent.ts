@@ -1,5 +1,3 @@
-import type Stripe from 'stripe'
-
 import { ServiceValidationError } from '@redwoodjs/api'
 
 import { PaymentMethodModel } from 'src/models/billing/payment-method'
@@ -89,18 +87,7 @@ export const createOrUpdateSetupIntent = async ({
     id: setupIntent.id,
     status: setupIntent.status,
     client_secret: setupIntent.client_secret,
-    redirect_uri: getRedirectURI(setupIntent),
   }
-}
-
-const getRedirectURI = (setupIntent: Stripe.SetupIntent) => {
-  if (setupIntent.status === 'requires_action') {
-    if (setupIntent.next_action?.type === 'use_stripe_sdk') {
-      return setupIntent.next_action?.use_stripe_sdk?.stripe_js
-    }
-  }
-
-  return null
 }
 
 export const deleteSetupIntent = async ({

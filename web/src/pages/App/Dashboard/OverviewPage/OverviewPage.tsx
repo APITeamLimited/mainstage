@@ -80,10 +80,10 @@ export const OverviewPage = ({ requestedWorkspaceId }: OverviewPageProps) => {
         title={actveWorkspace?.scope.displayName}
         disableDivider
       >
-        {projectYMaps.length > 0 ? (
+        {projectsYMap.size > 0 ? (
           <>
             {workspaceDoc
-              ? projectYMaps.map((project, index) => {
+              ? Array.from(projectsYMap.values()).map((project, index) => {
                   return (
                     <ProjectOverview
                       key={index}

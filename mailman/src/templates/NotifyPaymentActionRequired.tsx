@@ -39,6 +39,7 @@ export const NotifyPaymentActionRequired = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName}, payment action is required for{' '}

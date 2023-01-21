@@ -76,9 +76,15 @@ const handleWebhookEvent = async (
     return error
   }
 
-  return processWebhookEvent(stripeEvent)
-    .catch((error: Error) => error)
-    .then(() => null)
+  try {
+    await processWebhookEvent(stripeEvent)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+  } catch (error: Error) {
+    return error
+  }
+
+  return null
 }
 
 const processWebhookEvent = async (event: Stripe.Event): Promise<void> => {

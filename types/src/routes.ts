@@ -14,7 +14,7 @@ export const ROUTES = {
   termsOfService: '/legal/terms-of-service',
   privacyPolicy: '/legal/privacy-policy',
   cookiePolicy: '/legal/cookie-policy',
-  support: '/support',
+  //support: '/support',
   docs: '/docs',
   blog: '/blog',
   openSource: '/open-source',
@@ -43,21 +43,27 @@ export const LINKS = {
   agentRepo: 'https://github.com/APITeamLimited/agent',
 } as const
 
+const agentVersion = 'v0.1.20'
+
 export const AGENT_LINKS = {
   windows64: {
-    link: '/api/public-downloads?filename=agent-windows-amd64.exe',
+    link: `/api/public-downloads?filename=apiteam-agent-windows-amd64-${agentVersion}%2Emsi`,
     isFullLink: false,
   },
-  macIntel: {
-    link: '/api/public-downloads?filename=agent-darwin-amd64',
+  macAMD64: {
+    link: `/api/public-downloads?filename=apiteam-agent-darwin-amd64-${agentVersion}%2Epkg`,
     isFullLink: false,
   },
-  macDarwin: {
-    link: '/api/public-downloads?filename=agent-darwin-arm64',
+  macARM64: {
+    link: `/api/public-downloads?filename=apiteam-agent-darwin-arm64-${agentVersion}%2Epkg`,
     isFullLink: false,
   },
-  linux64: {
-    link: 'https://snapcraft.io/apiteam',
-    isFullLink: true,
+  linux64Debian: {
+    link: `/api/public-downloads?filename=apiteam-agent-linux-amd64-${agentVersion}%2Edeb`,
+    isFullLink: false,
+  },
+  linux64Binary: {
+    link: `/api/public-downloads?filename=apiteam-agent-linux-amd64-${agentVersion}%2Etar%2Egz`,
+    isFullLink: false,
   },
 } as const

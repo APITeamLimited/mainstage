@@ -178,6 +178,11 @@ export const PricingCard = ({
               text={`${numberFormatter.format(
                 displayCorrectCredits(planInfo.monthlyCredits)
               )} complimentary credits per month`}
+              tooltipText={
+                planInfo.name === 'Free'
+                  ? 'Enough for approximately 5 hours of load tests with 250 simulated users or 20K individual requests'
+                  : 'Enough for approximately 500 hours of load tests with 250 simulated users or 2M individual requests'
+              }
             />
             <PlanInfoRow
               text={`${planInfo.maxConcurrentCloudTests} concurrent cloud tests`}

@@ -10,6 +10,7 @@ import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
 import GlobeTestOverview from 'src/pages/SplashPage/components/GlobeTestOverview'
 import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'
 
+import { GlobalTestingNetwork } from './components/GlobalTestingNetwork'
 import { WhyUseAPITeam } from './components/WhyUseAPITeam'
 
 const SplashPage = () => {
@@ -18,7 +19,7 @@ const SplashPage = () => {
   return (
     <>
       <MetaTags
-        title="Free Unlimited Team API Development"
+        title="Develop and Load Test APIs Collaboratively"
         description="APITeam is an all in one platform for designing, testing and scaling APIs collaboratively"
       />
       <TypedIntro whyUseAPITeamRef={whyUseAPITeamRef} />
@@ -36,6 +37,7 @@ const SplashPage = () => {
         >
           <WhyUseAPITeam locationRef={whyUseAPITeamRef} />
           <EditorFeatures />
+          <GlobalTestingNetwork />
           <GlobeTestOverview />
           <PricingOverview showLinkToPricingPage />
         </Stack>

@@ -1,31 +1,32 @@
 export const requestSingle = {
   name: 'request-single.js',
+  prettyName: 'Single Request',
   language: 'javascript',
   builtIn: true,
-  description: 'Default script on APITeam, sends a single request',
+  description: 'Sends a single request and stores the response',
   script: `// Sends a single request and stores the response
 
-import http from "apiteam/http";
-import { lifecycle } from "apiteam/context";
+import { lifecycle } from 'apiteam/context'
+import http from 'apiteam/http'
 
 export const options = {
-    executionMode: "httpSingle",
-};
+  executionMode: 'httpSingle',
+}
 
-export default function () {
-    // Access the final request object from the collection editor
-    const { method, url, body, params } = lifecycle.finalRequest;
+export default () => {
+  // Access the final request object from the collection editor
+  const { method, url, body, params } = lifecycle.finalRequest
 
-    // Run the request
-    const response = http.request(method, url, body, params);
+  // Run the request
+  const response = http.request(method, url, body, params)
 
-    // If the response has an error, throw an error to stop the test
-    if (response.error) {
-      throw new Error(response.error)
-    }
+  // If the response has an error, throw an error to stop the test
+  if (response.error) {
+    throw new Error(response.error)
+  }
 
-    // Create a marker to see the response in the collection editor
-    lifecycle.markResponse(response);
+  // Create a marker to see the response in the collection editor
+  lifecycle.markResponse(response)
 }
 `,
 }

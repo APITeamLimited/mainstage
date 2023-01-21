@@ -11,7 +11,6 @@ export const schema = gql`
   type SetupIntentResponse {
     id: String!
     client_secret: String!
-    redirect_uri: String
     status: SetupIntentStatus!
   }
 

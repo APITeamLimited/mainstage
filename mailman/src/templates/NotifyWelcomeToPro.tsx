@@ -34,6 +34,7 @@ export const NotifyWelcomeToPro = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName},{' '}
@@ -47,6 +48,7 @@ export const NotifyWelcomeToPro = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         You can now enjoy all the features of APITeam Pro.

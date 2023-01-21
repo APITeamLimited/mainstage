@@ -80,11 +80,6 @@ const handleSendgridSend = async <T extends TemplateData>({
 }: DispatchArgs<T>) => {
   if (!output.content) throw new Error('No content to send')
 
-  console.log(`Sending email to ${to} with subject ${output.content.title}`)
-
-  // TODO: remove when not dev
-  return
-
   const msg = {
     to,
     from: {

@@ -69,6 +69,7 @@ export const handleNewConnection = async (socket: Socket) => {
   const scopeSet = doc.scopes.get(socket)
 
   if (!scopeSet) {
+    console.log('dc close 1')
     doc.closeSocket(socket)
     console.warn('Could not find scope set for socket')
     return
@@ -84,6 +85,7 @@ export const handleNewConnection = async (socket: Socket) => {
     )
 
     if (!member) {
+      console.log('dc close 2')
       doc.closeSocket(socket)
       console.warn('Could not find member for socket')
       return
@@ -133,10 +135,14 @@ export const handleNewConnection = async (socket: Socket) => {
     doc.messageListener(socket, new Uint8Array(message))
   })
 
-  socket.on('forceDisconnect', () => doc.closeSocket(socket))
+  socket.on('forceDisconnect', () => {
+    console.log('dc close 3')
+    doc.closeSocket(socket)
+  })
 
   // On disconnect remove the connection from the doc
   socket.on('disconnect', () => {
+    console.log('dc close 4')
     doc.closeSocket(socket)
   })
 

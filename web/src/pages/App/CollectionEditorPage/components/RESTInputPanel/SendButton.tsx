@@ -4,10 +4,8 @@ import type { ExecutionScript } from '@apiteam/types/src'
 import CodeIcon from '@mui/icons-material/Code'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import {
-  Box,
   Button,
   ButtonGroup,
-  ListItem,
   ListItemIcon,
   ListItemText,
   MenuItem,
@@ -87,7 +85,7 @@ export const SendButton = ({
                 <CodeIcon />
               </ListItemIcon>
               <ListItemText
-                primary={executionScript.name}
+                primary={executionScript.prettyName || executionScript.name}
                 secondary={executionScript.description}
                 secondaryTypographyProps={{ sx: { whiteSpace: 'normal' } }}
                 sx={{

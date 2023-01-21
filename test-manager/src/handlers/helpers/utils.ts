@@ -135,6 +135,7 @@ export const updateTestInfo = async (
     status === 'SUCCESS' ||
     status === 'FAILURE'
   ) {
+    console.log('Delete 1')
     await coreCacheReadRedis.hDel(runningTestKey, jobId)
     return
   }

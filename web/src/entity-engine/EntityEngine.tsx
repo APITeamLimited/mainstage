@@ -268,9 +268,11 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
       if (socketioSyncStatus === 'disconnected') {
         // If connected to internet, but not connected to the server, reload the page
         if (window.navigator.onLine) {
+          console.log('Reloading page 1')
           window.location.reload()
         } else {
           const onlineCallback = () => {
+            console.log('Reloading page 2')
             window.location.reload()
             window.removeEventListener('online', onlineCallback)
           }
@@ -287,6 +289,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   if (error) {
     // Hack if auth context is old
+    console.log('Reloading page 3')
     window.location.reload()
   }
 

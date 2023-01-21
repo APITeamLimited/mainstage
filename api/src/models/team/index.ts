@@ -95,13 +95,9 @@ export const TeamModel: APITeamModel<
       },
     })
 
-    await Promise.all([
-      createMembership(createdTeam, input.owner, 'OWNER'),
-      setTeamRedis(createdTeam, 'CREATE'),
-
-      // Add initial free credits
-      createFreeCredits(createdTeam.id, freePlanInfo, createdTeam.pastDue),
-    ])
+    await createMembership(createdTeam, input.owner, 'OWNER')
+    await setTeamRedis(createdTeam, 'CREATE')
+    await createFreeCredits(createdTeam.id, freePlanInfo, createdTeam.pastDue)
 
     return createdTeam
   },

@@ -100,6 +100,7 @@
     "react-reflex": "^4.0.9",
     "react-text-transition": "^3.0.2",
     "react-typed": "^1.2.0",
+    "react-xarrows": "^2.0.2",
     "sass-loader": "^13.0.2",
     "simplebar-react": "^2.4.3",
     "socket.io-client": "^4.5.1",

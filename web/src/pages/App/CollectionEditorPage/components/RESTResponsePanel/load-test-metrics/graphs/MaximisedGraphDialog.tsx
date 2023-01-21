@@ -1,5 +1,5 @@
 import { Graph, MetricsCombination, GlobeTestMessage } from '@apiteam/types/src'
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, useTheme } from '@mui/material'
 
 import {
   CustomDialog,
@@ -24,36 +24,38 @@ export const MaximisedGraphDialog = ({
   onClose,
   graph,
   metrics,
-}: MaximisedGraphDialogProps) => (
-  <CustomDialog
-    open={open}
-    onClose={onClose}
-    fullWidth
-    maxWidth="xl"
-    title={graph.name}
-  >
-    <Box
-      sx={{
-        height: `${customDialogContentHeight}`,
-      }}
+}: MaximisedGraphDialogProps) => {
+  const theme = useTheme()
+
+  return (
+    <CustomDialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="xl"
+      title={graph.name}
+      shrinkable
+      scrollHeight={700}
+      padBody
     >
       <BaseGraph
         graph={graph}
         metrics={metrics ?? []}
-        height={customDialogContentHeight - (graph.description ? 20 : 0)}
+        height={customDialogContentHeight}
       />
       <Typography
         variant="caption"
         color="text.secondary"
         sx={{
-          px: 2,
-          pb: 2,
           textOverflow: 'ellipsis',
           overflow: 'hidden',
+        }}
+        style={{
+          marginTop: theme.spacing(-2),
         }}
       >
         {graph.description}
       </Typography>
-    </Box>
-  </CustomDialog>
-)
+    </CustomDialog>
+  )
+}

@@ -38,6 +38,7 @@ export const NotifyDowngradeAtPeriodEnd = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName},{' '}
@@ -51,6 +52,7 @@ export const NotifyDowngradeAtPeriodEnd = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Your subscription will remain active until the end of the billing period
@@ -60,6 +62,7 @@ export const NotifyDowngradeAtPeriodEnd = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         After this, you will be downgraded to the free plan.

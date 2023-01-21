@@ -362,10 +362,10 @@ const configureGlobetestGraphs = async (
     responseYMap.set('graphs', new Y.Map<Graph>())
   }
 
-  const graphsYMap = responseYMap.get('graphs') as Y.Map<Graph>
+  const graphsYMap = responseYMap.get('graphs') as Y.Map<Graph> | undefined
 
   // If no graph options have been set return
-  if (!options.outputConfig?.graphs) {
+  if (!options.outputConfig?.graphs || !graphsYMap) {
     return
   }
 

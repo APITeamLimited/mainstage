@@ -24,6 +24,7 @@ type MetricsStats = {
 type MetricsOverviewStatsProps = {
   metrics: (GlobeTestMessage & MetricsCombination)[]
   wasLimited?: boolean
+  logsThrottled?: boolean
 }
 
 const calculateStats = (
@@ -36,24 +37,29 @@ const calculateStats = (
   let meanDuration = 0
   let meanDurationCount = 0
 
-  metricsMessages.forEach((metricsMessage) =>
-    Object.entries(metricsMessage.message.global).forEach(
-      ([metricName, innerContent]) => {
-        if (metricName === 'http_reqs') {
-          totalRequests += innerContent.value
+  if (metricsMessages.length > 0) {
+    const findKey =
+      'global' in metricsMessages[0].message ? 'global' : 'localhost'
 
-          if (innerContent.value > peakRequests) {
-            peakRequests = innerContent.value
+    metricsMessages.forEach((metricsMessage) =>
+      Object.entries(metricsMessage.message[findKey]).forEach(
+        ([metricName, innerContent]) => {
+          if (metricName === 'http_reqs') {
+            totalRequests += innerContent.value
+
+            if (innerContent.value > peakRequests) {
+              peakRequests = innerContent.value
+            }
+          } else if (metricName === 'http_req_failed') {
+            failedRequests += innerContent.value
+          } else if (metricName === 'http_req_duration') {
+            meanDuration += innerContent.value
+            meanDurationCount += 1
           }
-        } else if (metricName === 'http_req_failed') {
-          failedRequests += innerContent.value
-        } else if (metricName === 'http_req_duration') {
-          meanDuration += innerContent.value
-          meanDurationCount += 1
         }
-      }
+      )
     )
-  )
+  }
 
   const finalDuration =
     meanDurationCount > 0 ? meanDuration / meanDurationCount : 0
@@ -73,6 +79,7 @@ const calculateStats = (
 export const MetricsOverviewStats = ({
   metrics,
   wasLimited,
+  logsThrottled,
 }: MetricsOverviewStatsProps) => {
   const theme = useTheme()
 
@@ -97,15 +104,17 @@ export const MetricsOverviewStats = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [metrics])
 
-  const [hiddenWarning, setHiddenWarning] = useState(false)
+  const [hiddenDomainThrottledWarning, setHiddenDomainThrottledWarning] =
+    useState(false)
+  const [hiddenMaxLogsWarning, setHiddenMaxLogsWarning] = useState(false)
 
   return (
     <Stack spacing={1}>
-      {wasLimited && !hiddenWarning && (
+      {wasLimited && !hiddenDomainThrottledWarning && (
         <Alert
           severity="warning"
           action={
-            <IconButton onClick={() => setHiddenWarning(true)}>
+            <IconButton onClick={() => setHiddenDomainThrottledWarning(true)}>
               <CloseIcon />
             </IconButton>
           }
@@ -113,6 +122,20 @@ export const MetricsOverviewStats = ({
           <AlertTitle>Warning</AlertTitle>
           An unverified domain was used in this test so requests per second are
           limited. Verify the domain to remove load limits.
+        </Alert>
+      )}
+      {logsThrottled && !hiddenMaxLogsWarning && (
+        <Alert
+          severity="warning"
+          action={
+            <IconButton onClick={() => setHiddenMaxLogsWarning(true)}>
+              <CloseIcon />
+            </IconButton>
+          }
+        >
+          <AlertTitle>Warning</AlertTitle>
+          Console logs are limited too 100 per test to prevent performance
+          issues.
         </Alert>
       )}
       <Grid container spacing={2}>

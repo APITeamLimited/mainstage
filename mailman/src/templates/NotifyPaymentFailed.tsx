@@ -39,6 +39,7 @@ export const NotifyPaymentFailed = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName},{' '}
@@ -52,6 +53,7 @@ export const NotifyPaymentFailed = (
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         We tried to charge your card ending in <strong>{last4}</strong> for{' '}

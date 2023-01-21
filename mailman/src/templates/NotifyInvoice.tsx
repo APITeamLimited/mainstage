@@ -35,6 +35,7 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Hi {targetName},{' '}
@@ -54,6 +55,7 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Invoice Date:{' '}
@@ -63,6 +65,7 @@ export const NotifyInvoice = (input: MailmanInput<NotifyInvoiceData>) => {
         variant="body1"
         sx={{
           textAlign: 'center',
+          marginBottom: 2,
         }}
       >
         Invoice Number: <strong>{invoice.number}</strong>

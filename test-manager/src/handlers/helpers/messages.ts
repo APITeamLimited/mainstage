@@ -101,6 +101,7 @@ export const handleMessage = async (
       ) {
         updateTestInfo(jobId, message.message, runningTestKey)
       } else {
+        console.log('Delete 6')
         coreCacheReadRedis.hDel(runningTestKey, jobId)
 
         if (executionAgent === 'Cloud') {
@@ -158,6 +159,7 @@ export const handleMessage = async (
               executionAgent,
             })
 
+            console.log('Delete 5')
             await coreCacheReadRedis.hDel(runningTestKey, jobId)
           } else if (
             (runningState.options as GlobeTestOptions).executionMode ===
@@ -173,6 +175,7 @@ export const handleMessage = async (
               executionAgent,
             })
 
+            console.log('Delete 4')
             await coreCacheReadRedis.hDel(runningTestKey, jobId)
           } else {
             throw new Error(`Invalid test type: ${runningState.testType}`)
@@ -202,6 +205,7 @@ export const handleMessage = async (
             executionAgent,
           })
 
+          console.log('Delete 3')
           await coreCacheReadRedis.hDel(runningTestKey, jobId)
         }
 
@@ -209,6 +213,7 @@ export const handleMessage = async (
         setTimeout(() => {
           socket.disconnect()
 
+          console.log('Delete 2')
           coreCacheReadRedis.hDel(runningTestKey, jobId)
         }, 5000)
       }

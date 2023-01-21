@@ -51,6 +51,8 @@ export const performVerification = async ({
     resolver.resolveTxt(verifiedDomain.domain, (err, records) =>
       err ? reject(err) : resolve(records)
     )
+  }).catch((err) => {
+    throw new ServiceValidationError(err.message)
   })
 
   const found = dnsRecords.some((record) =>

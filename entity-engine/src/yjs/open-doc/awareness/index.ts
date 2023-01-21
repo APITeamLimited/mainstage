@@ -41,6 +41,7 @@ export const verifyAwarenessHandler = async (
 
   // If pretending to be a server, disconnect
   if (bannedAwarenessKeys.some((k) => awareness[k])) {
+    console.log('dc close 5')
     openDoc.closeSocket(socket)
     return
   }
