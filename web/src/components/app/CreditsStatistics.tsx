@@ -33,7 +33,7 @@ export const CreditsStatistics = () => {
       <Typography variant="body2">
         Every month you get{' '}
         {numberFormatter.format(displayCorrectCredits(credits.maxFreeCredits))}{' '}
-        free credits to use. These will renew on{' '}
+        complimentary credits to use. These will renew on{' '}
         {new Date(credits.willUpdateFreeCreditsAt).toLocaleDateString()}.
       </Typography>
       <Typography variant="body1" fontWeight="bold">

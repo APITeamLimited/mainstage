@@ -1,28 +1,28 @@
-import CompressIcon from '@mui/icons-material/Compress'
 import InsightsIcon from '@mui/icons-material/Insights'
+import LaptopIcon from '@mui/icons-material/Laptop'
 import PublicIcon from '@mui/icons-material/Public'
 
 import type { FeatureOverviewElement } from '../components/templates/FeatureOverviewPanel'
 
 export const globeTestFeaturesMinimal: FeatureOverviewElement[] = [
   {
-    icon: CompressIcon,
-    title: 'Integrated Load Testing',
-    description:
-      'Run load tests from the same platform you use to build and test your APIs, with no need to switch between tools.',
-    image: {
-      light: require('public/img/splash/globe-test-graph-light.png'),
-      dark: require('public/img/splash/globe-test-graph-dark.png'),
-    },
-  },
-  {
     icon: InsightsIcon,
-    title: 'Detailed API Insights',
+    title: 'Integrated Load Testing',
     description:
       'Easily determine problems with your system at load, plot custom graphs, and compare results across multiple load zones.',
     image: {
       light: require('public/img/splash/globe-test-panel-light.png'),
       dark: require('public/img/splash/globe-test-panel-dark.png'),
+    },
+  },
+  {
+    icon: LaptopIcon,
+    title: 'Run on Localhost',
+    description:
+      "Run load tests on localhost or private networks and get real-time insights into your system's performance that your team can access from anywhere.",
+    image: {
+      light: require('public/img/splash/globe-test-localhost-light.png'),
+      dark: require('public/img/splash/globe-test-localhost-dark.png'),
     },
   },
   {

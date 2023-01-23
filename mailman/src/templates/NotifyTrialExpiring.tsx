@@ -6,7 +6,7 @@ import { MailmanInput } from '..'
 import { BaseMessageLayout } from '../layouts'
 
 export type NotifyTrialExpiringData = {
-  targetName: string
+  firstName: string
   endTimeSeconds: number
 } & (
   | {
@@ -23,7 +23,7 @@ export const NotifyTrialExpiring = (
   input: MailmanInput<NotifyTrialExpiringData>
 ) => {
   const {
-    data: { role, workspaceName, targetName, endTimeSeconds },
+    data: { role, workspaceName, firstName, endTimeSeconds },
   } = input
 
   const endDate = new Date(endTimeSeconds * 1000)
@@ -44,7 +44,7 @@ export const NotifyTrialExpiring = (
           marginBottom: 2,
         }}
       >
-        Hi {targetName},{' '}
+        Hi {firstName},{' '}
         {role === 'OWNER'
           ? `your free trial for the workspace ${workspaceName} will expire in ${daysTillEnd} days`
           : role === 'ADMIN'
@@ -78,7 +78,7 @@ export const NotifyTrialExpiring = (
 }
 
 export const notifyTrialExpiringText = ({
-  data: { role, workspaceName, targetName, endTimeSeconds },
+  data: { role, workspaceName, firstName, endTimeSeconds },
 }: MailmanInput<NotifyTrialExpiringData>) => {
   const endDate = new Date(endTimeSeconds * 1000)
 
@@ -86,7 +86,7 @@ export const notifyTrialExpiringText = ({
     (endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
   )
 
-  const line1 = `Hi ${targetName}, ${
+  const line1 = `Hi ${firstName}, ${
     role === 'OWNER'
       ? `your free trial for the workspace ${workspaceName} will expire in ${daysTillEnd} days`
       : role === 'ADMIN'

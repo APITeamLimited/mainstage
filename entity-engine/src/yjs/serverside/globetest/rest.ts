@@ -134,9 +134,7 @@ export const restAddOptions = async (
   responseYMap.set('options', options)
 
   if (options.executionMode === 'httpMultiple') {
-    setTimeout(() => {
-      configureGlobetestGraphs(responseYMap, options)
-    }, 960)
+    configureGlobetestGraphs(responseYMap, options)
   }
 }
 
@@ -357,24 +355,34 @@ export const restDeleteResponse = async (
 const configureGlobetestGraphs = async (
   responseYMap: Y.Map<any>,
   options: GlobeTestOptions
-) => {
+): Promise<void> => {
+  if (!responseYMap) {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    return configureGlobetestGraphs(responseYMap, options)
+  }
+
+  // Don't configure graphs if they already exist
+  if (responseYMap.get('configuredGraphs') === true) {
+    return
+  }
+
   if (!responseYMap.has('graphs')) {
     responseYMap.set('graphs', new Y.Map<Graph>())
   }
 
   const graphsYMap = responseYMap.get('graphs') as Y.Map<Graph> | undefined
 
-  // If no graph options have been set return
-  if (!options.outputConfig?.graphs || !graphsYMap) {
+  if (!graphsYMap) {
+    await new Promise((resolve) => setTimeout(resolve, 300))
+    return configureGlobetestGraphs(responseYMap, options)
+  }
+
+  if (!options.outputConfig?.graphs) {
+    responseYMap.set('configuredGraphs', true)
     return
   }
 
-  // Don't configure graphs if they already exist
-  if (graphsYMap.size > 0) {
-    return
-  }
-
-  options.outputConfig.graphs.forEach((graphConfig) => {
+  options.outputConfig?.graphs.forEach((graphConfig) => {
     const graph: Graph = {
       __typename: 'Graph',
       id: uuid(),
@@ -391,4 +399,6 @@ const configureGlobetestGraphs = async (
 
     graphsYMap.set(graph.id, graph)
   })
+
+  responseYMap.set('configuredGraphs', true)
 }

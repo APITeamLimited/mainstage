@@ -401,6 +401,10 @@ export const substitutePathVariables = (
 }
 
 const ensureValidUrl = async (url: string): Promise<string> => {
+  if (!url) {
+    throw new Error('Please provide a URL')
+  }
+
   const validUrl = await validateURL(url)
 
   if (validUrl === null) {

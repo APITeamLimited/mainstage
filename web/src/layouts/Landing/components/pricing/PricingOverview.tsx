@@ -5,7 +5,16 @@ import {
   DEFAULT_PRICING_PLANS,
   ROUTES,
 } from '@apiteam/types/src'
-import { useTheme, Typography, Stack, Grid, Switch, Alert } from '@mui/material'
+import {
+  useTheme,
+  Typography,
+  Stack,
+  Grid,
+  Switch,
+  Alert,
+  Container,
+  alpha,
+} from '@mui/material'
 import { PlanInfosQuery, PlanInfosQueryVariables } from 'types/graphql'
 
 import { useQuery } from '@redwoodjs/web'
@@ -15,6 +24,7 @@ import { CallToClickLink } from 'src/layouts/Landing/components/CallToClickLink'
 import {
   largePanelSpacing,
   mediumPanelSpacing,
+  panelSeparation,
   smallPanelSpacing,
 } from '../constants'
 
@@ -74,78 +84,106 @@ export const PricingOverview = ({
   const planInfos = useMemo(() => formatPlanInfo(data), [data])
 
   return (
-    <Stack spacing={largePanelSpacing}>
-      <Stack spacing={smallPanelSpacing} alignItems="center">
-        <Typography
-          variant="h2"
-          fontWeight="bold"
-          align="center"
-          color={theme.palette.text.primary}
-        >
-          Get the right plan{' '}
-          <span
-            style={{
-              color: theme.palette.primary.main,
-            }}
-          >
-            for your team
-          </span>
-        </Typography>
-        <Typography
-          variant="h6"
-          component="p"
-          color={theme.palette.text.secondary}
-          align="center"
-        >
-          Choose the plan that best fits your needs.
-        </Typography>
-      </Stack>
-      <Stack spacing={smallPanelSpacing} alignItems="center">
+    <Container
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <Stack spacing={largePanelSpacing} sx={{ width: '100%' }}>
         <Stack
           spacing={smallPanelSpacing}
-          direction="row"
           alignItems="center"
-          justifyContent="center"
+          sx={{ width: '100%' }}
         >
-          <Typography>Monthly</Typography>
-          <Switch
-            checked={pricingOption === 'annual'}
-            onChange={(event) =>
-              setPricingOption(event.target.checked ? 'annual' : 'monthly')
-            }
-            size="medium"
-          />
-          <Typography>Annual</Typography>
+          <Typography
+            variant="h2"
+            fontWeight="bold"
+            align="center"
+            color={theme.palette.text.primary}
+          >
+            Get the right plan{' '}
+            <span
+              style={{
+                color: theme.palette.primary.main,
+                background: `linear-gradient(180deg, transparent 82%, ${alpha(
+                  theme.palette.secondary.main,
+                  0.3
+                )} 0%)`,
+              }}
+            >
+              for your team
+            </span>
+          </Typography>
+          <Typography
+            variant="h6"
+            component="p"
+            color={theme.palette.text.secondary}
+            align="center"
+          >
+            Choose the plan that best fits your needs.
+          </Typography>
         </Stack>
-        <Alert severity="info">Get 2 months free with annual billing</Alert>
-      </Stack>
-      <Stack spacing={mediumPanelSpacing}>
-        <Grid container spacing={mediumPanelSpacing} justifyContent="center">
-          {planInfos.map((planInfo, index) => (
-            <PricingCard
-              planInfo={planInfo}
-              pricingOption={pricingOption}
-              key={index}
+        <Stack
+          spacing={smallPanelSpacing}
+          alignItems="center"
+          sx={{
+            width: '100%',
+          }}
+        >
+          <Stack
+            spacing={smallPanelSpacing}
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+          >
+            <Typography>Monthly</Typography>
+            <Switch
+              checked={pricingOption === 'annual'}
+              onChange={(event) =>
+                setPricingOption(event.target.checked ? 'annual' : 'monthly')
+              }
+              size="medium"
             />
-          ))}
-        </Grid>
-        {showCreditsPricingOption && (
-          <Grid container justifyContent="center">
-            <Grid xs={12} md={6}>
-              <CreditsPricingOptionCard />
-            </Grid>
+            <Typography>Annual</Typography>
+          </Stack>
+          <Alert severity="info">Get 2 months free with annual billing</Alert>
+        </Stack>
+        <Stack spacing={mediumPanelSpacing} sx={{ width: '100%' }}>
+          <Grid
+            container
+            spacing={mediumPanelSpacing}
+            justifyContent="center"
+            sx={{
+              width: '100%',
+            }}
+          >
+            {planInfos.map((planInfo, index) => (
+              <PricingCard
+                planInfo={planInfo}
+                pricingOption={pricingOption}
+                key={index}
+              />
+            ))}
           </Grid>
+          {showCreditsPricingOption && (
+            <Grid container justifyContent="center">
+              <Grid xs={12} md={6}>
+                <CreditsPricingOptionCard />
+              </Grid>
+            </Grid>
+          )}
+        </Stack>
+        {showLinkToPricingPage && (
+          <Stack spacing={mediumPanelSpacing} alignItems="center">
+            <CallToClickLink
+              text="Full pricing and add-ons"
+              link={ROUTES.plansAndPricing}
+            />
+          </Stack>
         )}
       </Stack>
-      {showLinkToPricingPage && (
-        <Stack spacing={mediumPanelSpacing} alignItems="center">
-          <CallToClickLink
-            text="Full pricing and add-ons"
-            link={ROUTES.plansAndPricing}
-          />
-        </Stack>
-      )}
-    </Stack>
+    </Container>
   )
 }
 

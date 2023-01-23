@@ -20,7 +20,6 @@ export const LoadTestSummaryPanel = ({
   wasLimited,
   logsThrottled,
 }: LoadTestSummaryPanelProps) => {
-  console.log('LoadTestSummaryPanel', metrics)
   return (
     <div key={responseYMap.get('id')}>
       {metrics ? (

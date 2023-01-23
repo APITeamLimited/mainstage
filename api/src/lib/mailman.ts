@@ -8,9 +8,11 @@ import { checkValue } from 'src/config'
 
 import { getMailmanReadRedis, getMailmanSubscribeRedis } from './redis'
 
-sgMail.setApiKey(checkValue<string>('api.mail.sendgridAPIKey'))
+const isDev = process.env.NODE_ENV === 'development'
 
-const smtpEnabled = checkValue<boolean>('api.mail.smtp.enabled')
+if (!isDev) {
+  sgMail.setApiKey(checkValue<string>('api.mail.sendgridAPIKey'))
+}
 
 export type DispatchEmailInput<T extends TemplateData> = MailmanInput<T> & {
   attachments?: {
@@ -60,11 +62,12 @@ export const dispatchEmail = async <T extends TemplateData>(
     attachments: input.attachments,
   }
 
-  if (smtpEnabled) {
-    await handleSMTPSend(dispatchArgs)
-  } else {
-    await handleSendgridSend(dispatchArgs)
+  if (isDev) {
+    await handleDevSend(dispatchArgs)
+    return
   }
+
+  await handleSendgridSend(dispatchArgs)
 }
 
 type DispatchArgs<T extends TemplateData> = {
@@ -109,25 +112,21 @@ const handleSendgridSend = async <T extends TemplateData>({
   )
 }
 
-const smtpTransport = smtpEnabled
-  ? createTransport({
-      host: checkValue<string>('api.mail.smtp.host'),
-      port: checkValue<number>('api.mail.smtp.port'),
-      auth: {
-        user: checkValue<string>('api.mail.smtp.username'),
-        pass: checkValue<string>('api.mail.smtp.password'),
-      },
-    })
-  : undefined
-
-const handleSMTPSend = async <T extends TemplateData>({
+const handleDevSend = async <T extends TemplateData>({
   to,
   output,
   attachments,
 }: DispatchArgs<T>) => {
   if (!output.content) throw new Error('No content to send')
 
-  if (!smtpTransport) throw new Error('SMTP not enabled')
+  const smtpTransport = createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+      user: 'fritz15@ethereal.email',
+      pass: 'pb4vvcB3dPmYBDbfhZ',
+    },
+  })
 
   const msg: Options = {
     from: {
@@ -145,6 +144,8 @@ const handleSMTPSend = async <T extends TemplateData>({
       encoding: 'base64',
     })),
   }
+
+  console.log('Sending email to', to)
 
   await smtpTransport.sendMail(msg)
 }

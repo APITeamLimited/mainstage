@@ -1,5 +1,4 @@
 import {
-  Box,
   alpha,
   useTheme,
   Container,
@@ -20,140 +19,97 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
   const theme = useTheme()
 
   return (
-    <Box
+    <Container
       sx={{
-        backgroundImage: `linear-gradient(to bottom, ${alpha(
-          theme.palette.background.paper,
-          0
-        )}, ${alpha(theme.palette.alternate.dark, 1)} 100%)`,
-        backgroundRepeat: 'repeat-x',
-        position: 'relative',
         overflow: 'hidden',
+        paddingBottom: '15vh',
       }}
     >
-      <Container
+      <Stack
+        alignItems="baseline"
         sx={{
-          overflow: 'hidden',
+          minHeight: '80vh',
+          justifyContent: 'center',
         }}
       >
         <Stack
-          paddingY={{ xs: '4rem', md: '8rem' }}
-          alignItems="baseline"
-          direction={{ xs: 'column', md: 'row' }}
+          spacing={mediumPanelSpacing}
           sx={{
-            minHeight: '80vh',
+            // Overlaps with the preview images
+            zIndex: 1,
+            maxWidth: '100%',
           }}
         >
-          <Stack
-            spacing={mediumPanelSpacing}
+          <Typography
+            variant="h1"
+            color={theme.palette.text.primary}
             sx={{
-              // Overlaps with the preview images
-              zIndex: 1,
-              maxWidth: '100%',
+              fontWeight: 800,
+              lineHeight: 1.2,
+              fontSize: { xs: '3.5rem', sm: '5rem' },
             }}
           >
+            Build APIs
+            <br />
             <Typography
-              variant="h1"
-              color={theme.palette.text.primary}
+              color="primary"
+              component="span"
+              variant="inherit"
               sx={{
-                fontWeight: 800,
-                lineHeight: 1.2,
-                fontSize: { xs: '3.5rem', sm: '5rem' },
+                background: `linear-gradient(180deg, transparent 82%, ${alpha(
+                  theme.palette.secondary.main,
+                  0.3
+                )} 0%)`,
               }}
             >
-              Build APIs
-              <br />
-              <Typography
-                color="primary"
-                component="span"
-                variant="inherit"
-                sx={{
-                  background: `linear-gradient(180deg, transparent 82%, ${alpha(
-                    theme.palette.secondary.main,
-                    0.3
-                  )} 0%)`,
-                }}
-              >
-                <Typed
-                  strings={[
-                    'as a team',
-                    'quickly',
-                    'with load testing',
-                    'that scale',
-                  ]}
-                  typeSpeed={150}
-                  loop
-                />
-              </Typography>
+              <Typed
+                strings={[
+                  'as a team',
+                  'quickly',
+                  'with load testing',
+                  'that scale',
+                ]}
+                typeSpeed={150}
+                loop
+              />
             </Typography>
-            <Typography variant="h5" color={theme.palette.text.secondary}>
-              APITeam is an all in one platform for designing, testing and
-              scaling APIs collaboratively
-            </Typography>
-            <Stack
-              spacing={mediumPanelSpacing}
-              direction={{
-                xs: 'column',
-                sm: 'row',
+          </Typography>
+          <Typography variant="h5" color={theme.palette.text.secondary}>
+            APITeam is an all in one platform for designing, testing and scaling
+            APIs collaboratively
+          </Typography>
+          <Stack
+            spacing={mediumPanelSpacing}
+            direction={{
+              xs: 'column',
+              sm: 'row',
+            }}
+          >
+            <SignUpOrContinueButton size="large" />
+            <div
+              style={{
+                whiteSpace: 'nowrap',
               }}
             >
-              <SignUpOrContinueButton size="large" />
-              <div
-                style={{
-                  whiteSpace: 'nowrap',
-                }}
+              <Button
+                // Scroll to the features section
+                onClick={() =>
+                  whyUseAPITeamRef?.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                  })
+                }
+                variant="outlined"
+                color="secondary"
+                size="large"
               >
-                <Button
-                  // Scroll to the features section
-                  onClick={() =>
-                    whyUseAPITeamRef?.current?.scrollIntoView({
-                      behavior: 'smooth',
-                      block: 'center',
-                    })
-                  }
-                  variant="outlined"
-                  color="secondary"
-                  size="large"
-                >
-                  See Features
-                </Button>
-              </div>
-            </Stack>
+                See Features
+              </Button>
+            </div>
           </Stack>
         </Stack>
-      </Container>
-      <Box
-        sx={{
-          height: '15vh',
-        }}
-      />
-      <Box
-        component="svg"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-        x="0px"
-        y="0px"
-        viewBox="0 0 1920 100.1"
-        sx={{
-          width: '100%',
-          zIndex: 1,
-          marginBottom: -2,
-        }}
-      >
-        <path
-          fill={theme.palette.background.paper}
-          opacity={1}
-          d="M0,0c0,0,934.4,93.4,1920,0v100.1H0L0,0z"
-        />
-      </Box>
-      <Box
-        sx={{
-          height: '5vh',
-          backgroundColor: theme.palette.background.paper,
-          zIndex: 1,
-        }}
-      />
-    </Box>
+      </Stack>
+    </Container>
   )
 }
 

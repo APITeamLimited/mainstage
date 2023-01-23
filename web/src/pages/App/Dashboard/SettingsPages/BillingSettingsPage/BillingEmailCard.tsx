@@ -30,6 +30,7 @@ import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 const CUSTOMER_EMAIL_QUERY = gql`
   query BillingEmailQuery($teamId: String) {
     customer(teamId: $teamId) {
+      id
       email
     }
   }
@@ -38,6 +39,7 @@ const CUSTOMER_EMAIL_QUERY = gql`
 const CUSTOMER_EMAIL_MUTATION = gql`
   mutation BillingEmailMutation($teamId: String, $email: String!) {
     updateCustomer(teamId: $teamId, input: { email: $email }) {
+      id
       email
     }
   }

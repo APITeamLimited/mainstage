@@ -51,8 +51,8 @@ export const CustomTabs = ({
         }}
       >
         {names.map((name, index) => {
-          const endIcon =
-            icons?.find((icon) => icon.name === name)?.icon ?? undefined
+          // const endIcon =
+          //   icons?.find((icon) => icon.name === name)?.icon ?? undefined
 
           return (
             <Typography

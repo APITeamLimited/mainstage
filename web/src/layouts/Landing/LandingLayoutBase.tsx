@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { useTheme, Box, useScrollTrigger } from '@mui/material'
+import { useTheme, Box, useScrollTrigger, alpha } from '@mui/material'
 
 import { Head } from '@redwoodjs/web'
 
@@ -9,6 +9,7 @@ import { TopNavLanding } from 'src/layouts/Landing/components/TopNavLanding'
 import { CustomAppBar } from '../CustomAppBar'
 
 import { LandingTopBar, Sidebar } from './components'
+import { Blur } from './components/BlurProvider'
 
 type SplashLayoutProps = {
   children?: React.ReactNode

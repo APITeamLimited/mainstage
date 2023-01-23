@@ -88,6 +88,7 @@ export const RequestListItem = ({
                 fontSize="0.75rem"
                 color={theme.palette.text.secondary}
                 variant="body2"
+                component="span"
               >
                 {secondaryText}
               </Typography>

@@ -65,7 +65,7 @@ export const EditNameInput = memo(
     )*/
 
     return (
-      <div
+      <span
         style={{
           zIndex: 2000,
         }}
@@ -113,7 +113,7 @@ export const EditNameInput = memo(
             {name}
           </span>
         )}
-      </div>
+      </span>
     )
   }
 )

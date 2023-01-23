@@ -6,7 +6,7 @@ import { MailmanInput } from '..'
 import { BaseMessageLayout } from '../layouts'
 
 export type NotifyWelcomeToProData = {
-  targetName: string
+  firstName: string
 } & (
   | {
       role: 'OWN-ACCOUNT'
@@ -22,7 +22,7 @@ export const NotifyWelcomeToPro = (
   input: MailmanInput<NotifyWelcomeToProData>
 ) => {
   const {
-    data: { role, workspaceName, targetName },
+    data: { role, workspaceName, firstName },
   } = input
 
   return (
@@ -37,7 +37,7 @@ export const NotifyWelcomeToPro = (
           marginBottom: 2,
         }}
       >
-        Hi {targetName},{' '}
+        Hi {firstName},{' '}
         {role === 'OWNER'
           ? `welcome to APITeam Pro! Your subscription for the workspace ${workspaceName} is now on the Pro plan`
           : role === 'ADMIN'
@@ -66,9 +66,9 @@ export const NotifyWelcomeToPro = (
 }
 
 export const notifyWelcomeToProText = ({
-  data: { role, workspaceName, targetName },
+  data: { role, workspaceName, firstName },
 }: MailmanInput<NotifyWelcomeToProData>) => {
-  const line1 = `Hi ${targetName}, ${
+  const line1 = `Hi ${firstName}, ${
     role === 'OWNER'
       ? `welcome to APITeam Pro! Your subscription for the workspace ${workspaceName} is now on the Pro plan`
       : role === 'ADMIN'

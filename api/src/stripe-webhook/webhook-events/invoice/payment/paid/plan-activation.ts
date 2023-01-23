@@ -28,7 +28,10 @@ export const checkForPlanActivation = async (
       ? await SubscriptionModel.get(invoice.subscription)
       : invoice.subscription
 
-  if (!subscription || subscription.status !== 'active') {
+  if (
+    !subscription ||
+    (subscription.status !== 'active' && subscription.status !== 'trialing')
+  ) {
     return
   }
 

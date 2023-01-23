@@ -106,7 +106,7 @@ export class LocalTestManager {
     this.socket.onopen = () => {
       // Show success message if spawn time more than 5 seconds ago
       if (new Date().getTime() - this.spawnTime > 5000) {
-        snackSuccessMessageVar('Connected to localhost agent')
+        snackSuccessMessageVar('Connected to APITeam Agent')
       }
 
       this.wasOpen = true

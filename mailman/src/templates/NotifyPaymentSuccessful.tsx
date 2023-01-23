@@ -9,7 +9,7 @@ import { BaseMessageLayout } from '../layouts'
 export type NotifyPaymentSuccessfulData = {
   targetName: string
   invoice: Stripe.Invoice
-  last4: string
+  last4: string | null
 } & (
   | {
       role: 'OWN-ACCOUNT'
@@ -56,10 +56,19 @@ export const NotifyPaymentSuccessful = (
           marginBottom: 2,
         }}
       >
-        Payment successful for <strong>{invoice.description}</strong>. We
-        successfully charged your card ending in <strong>{last4}</strong> for{' '}
-        <strong>{prettyPrice}</strong>. Invoice number was{' '}
-        <strong>{invoice.number}</strong>.
+        {last4 ? (
+          <>
+            Payment successful for <strong>{invoice.description}</strong>. We
+            successfully charged your card ending in <strong>{last4}</strong>{' '}
+            for <strong>{prettyPrice}</strong>. Invoice number was{' '}
+            <strong>{invoice.number}</strong>.
+          </>
+        ) : (
+          <>
+            Payment successful for <strong>{invoice.description}</strong>.
+            Invoice number was <strong>{invoice.number}</strong>.
+          </>
+        )}
       </Typography>
       <Typography
         variant="body1"
@@ -67,7 +76,7 @@ export const NotifyPaymentSuccessful = (
           textAlign: 'center',
         }}
       >
-        Thanks for your payment and using APITeam!
+        Thanks for using APITeam!
       </Typography>
     </BaseMessageLayout>
   )
@@ -86,13 +95,15 @@ export const notifyPaymentSuccessfulText = ({
       : `payment on your personal workspace has succeeded`
   }`
 
-  const line2 = `Payment successful for ${invoice.description}. We successfully charged your card ending in ${last4} for ${prettyPrice}. Invoice number was ${invoice.number}.`
+  const line2 = last4
+    ? `Payment successful for ${invoice.description}. We successfully charged your card ending in ${last4} for ${prettyPrice}. Invoice number was ${invoice.number}.`
+    : `Payment successful for ${invoice.description}. Invoice number was ${invoice.number}.`
 
-  const line3 = 'Thanks for your payment and using APITeam!'
+  const line3 = 'Thanks for using APITeam!'
 
   return [line1, line2, line3].join('\n\n')
 }
 
 export const notifyPaymentSuccessfulTitle = (
   _: MailmanInput<NotifyPaymentSuccessfulData>
-) => 'APITeam Payment Successful'
+) => 'Payment Successful'

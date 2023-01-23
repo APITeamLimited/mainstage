@@ -129,12 +129,7 @@ export const updateTestInfo = async (
   const coreCacheReadRedis = await getCoreCacheReadRedis()
 
   // Delete test info if completed
-  if (
-    status === 'COMPLETED_SUCCESS' ||
-    status === 'COMPLETED_FAILURE' ||
-    status === 'SUCCESS' ||
-    status === 'FAILURE'
-  ) {
+  if (status === 'COMPLETED_SUCCESS' || status === 'COMPLETED_FAILURE') {
     console.log('Delete 1')
     await coreCacheReadRedis.hDel(runningTestKey, jobId)
     return

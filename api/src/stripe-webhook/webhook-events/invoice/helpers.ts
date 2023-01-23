@@ -5,14 +5,16 @@ import type { Stripe } from 'stripe'
 import { stripe } from 'src/lib/stripe'
 import { UserModel, TeamModel } from 'src/models'
 
-export const getInvoiceLast4 = async (invoice: Stripe.Invoice) => {
+export const getInvoiceLast4 = async (
+  invoice: Stripe.Invoice
+): Promise<string | null> => {
   const paymentIntent =
     typeof invoice.payment_intent === 'string'
       ? await stripe.paymentIntents.retrieve(invoice.payment_intent)
       : invoice.payment_intent
 
-  if (!paymentIntent) {
-    throw new Error(`Payment intent not found: ${invoice.payment_intent}`)
+  if (!paymentIntent || !paymentIntent.payment_method) {
+    return null
   }
 
   const paymentMethod = await stripe.paymentMethods.retrieve(

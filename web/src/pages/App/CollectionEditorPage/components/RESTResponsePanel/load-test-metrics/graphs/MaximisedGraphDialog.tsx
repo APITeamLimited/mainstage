@@ -43,19 +43,21 @@ export const MaximisedGraphDialog = ({
         metrics={metrics ?? []}
         height={customDialogContentHeight}
       />
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={{
-          textOverflow: 'ellipsis',
-          overflow: 'hidden',
-        }}
-        style={{
-          marginTop: theme.spacing(-2),
-        }}
-      >
-        {graph.description}
-      </Typography>
+      {graph.description && (
+        <Typography
+          variant="caption"
+          color={theme.palette.text.secondary}
+          sx={{
+            textOverflow: 'ellipsis',
+            overflow: 'hidden',
+          }}
+          style={{
+            marginTop: theme.spacing(-2),
+          }}
+        >
+          {graph.description}
+        </Typography>
+      )}
     </CustomDialog>
   )
 }

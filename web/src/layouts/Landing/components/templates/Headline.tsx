@@ -19,7 +19,7 @@ export const Headline = ({
 
   return (
     <Stack
-      spacing={panelSeparation}
+      spacing={panelSeparation / 2}
       sx={{ paddingBottom: padBottom ? panelSeparation : undefined }}
     >
       <Box position="relative" zIndex={2}>

@@ -18,10 +18,7 @@
         "name": "APITeam Support",
         "email": "support@apiteam.cloud"
       },
-      "sendgridAPIKey": "${SENDGRID_API_KEY}",
-      "smtp": {
-        "enabled": false
-      }
+      "sendgridAPIKey": "${SENDGRID_API_KEY}"
     },
     "s3": {
       "endpoint": "${API_S3_ENDPOINT}",

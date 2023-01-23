@@ -267,40 +267,42 @@ export const GlobeTestLogsPanel = ({
               />
             </Box>
           )}
-          <Box>
-            <Typography
-              color={theme.palette.text.secondary}
-              fontSize="0.8rem"
-              gutterBottom
-            >
-              Workers
-            </Typography>
-            {workerIds.map((workerId) => (
-              <FormControlLabel
-                key={workerId}
-                control={
-                  <Checkbox
-                    checked={checkedWorkerIds[workerId]}
-                    onChange={(e) => {
-                      setCheckedWorkerIds({
-                        ...checkedWorkerIds,
-                        [workerId]: e.target.checked,
-                      })
-                    }}
-                  />
-                }
-                label={
-                  <span
-                    style={{
-                      userSelect: 'none',
-                    }}
-                  >
-                    {workerId}
-                  </span>
-                }
-              />
-            ))}
-          </Box>
+          {workerIds.length > 0 && (
+            <Box>
+              <Typography
+                color={theme.palette.text.secondary}
+                fontSize="0.8rem"
+                gutterBottom
+              >
+                Workers
+              </Typography>
+              {workerIds.map((workerId) => (
+                <FormControlLabel
+                  key={workerId}
+                  control={
+                    <Checkbox
+                      checked={checkedWorkerIds[workerId]}
+                      onChange={(e) => {
+                        setCheckedWorkerIds({
+                          ...checkedWorkerIds,
+                          [workerId]: e.target.checked,
+                        })
+                      }}
+                    />
+                  }
+                  label={
+                    <span
+                      style={{
+                        userSelect: 'none',
+                      }}
+                    >
+                      {workerId}
+                    </span>
+                  }
+                />
+              ))}
+            </Box>
+          )}
           <Box>
             <Typography
               color={theme.palette.text.secondary}

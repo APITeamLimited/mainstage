@@ -164,6 +164,7 @@ export const PricingCard = ({
             Features
           </Typography>
           <Stack spacing={2}>
+            <PlanInfoRow text="Realtime collaboration with unlimited projects, collections, and requests" />
             <PlanInfoRow
               text={`${
                 planInfo.maxMembers === -1 ? 'Unlimited' : planInfo.maxMembers

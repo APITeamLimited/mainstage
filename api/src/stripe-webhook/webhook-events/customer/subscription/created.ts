@@ -69,7 +69,7 @@ export const handleActivationTeam = async (
   await Promise.all(
     adminOwnerUsers.map(async (user) => {
       const role = adminOwnerMemberships.find(
-        (membership) => membership.id === user.id
+        (membership) => membership.userId === user.id
       )?.role as 'ADMIN' | 'OWNER'
 
       const input: DispatchEmailInput<NotifyWelcomeToProData> = {
@@ -78,7 +78,7 @@ export const handleActivationTeam = async (
         userUnsubscribeUrl: await generateUserUnsubscribeUrl(user),
         blanketUnsubscribeUrl: await generateBlanketUnsubscribeUrl(user.email),
         data: {
-          targetName: `${user.firstName} ${user.lastName}`,
+          firstName: user.firstName,
           role,
           workspaceName: updatedTeam.name,
         },

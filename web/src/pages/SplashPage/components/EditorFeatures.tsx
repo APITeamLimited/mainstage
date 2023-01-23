@@ -1,5 +1,5 @@
 import { ROUTES } from '@apiteam/types/src'
-import { useTheme } from '@mui/material'
+import { alpha, useTheme } from '@mui/material'
 
 import { FeatureOverviewPanel } from 'src/layouts/Landing/components/templates/FeatureOverviewPanel'
 import { apiClientFeaturesMinimal } from 'src/layouts/Landing/content/api-client-features'
@@ -14,6 +14,10 @@ const EditorFeatures = () => {
           <span
             style={{
               color: theme.palette.primary.main,
+              background: `linear-gradient(180deg, transparent 82%, ${alpha(
+                theme.palette.secondary.main,
+                0.3
+              )} 0%)`,
             }}
           >
             Real-time

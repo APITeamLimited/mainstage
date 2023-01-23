@@ -161,6 +161,8 @@ export const EditGraphDialog = ({
         maxWidth="sm"
         fullWidth
         title={formik.values.name}
+        padBody
+        shrinkable
         dialogActions={
           <>
             <Button
@@ -187,212 +189,197 @@ export const EditGraphDialog = ({
           </>
         }
       >
-        <Stack
-          spacing={2}
+        <Box
           sx={{
-            padding: 2,
-            overflow: 'hidden',
-            height: 'calc(100% - 1.5rem)',
+            height: 250,
+            marginTop: -2,
           }}
         >
-          <Box
+          <BaseGraph graph={displayedGraph} metrics={metrics} />
+        </Box>
+        <Stack
+          spacing={2}
+          direction="row"
+          alignItems="center"
+          sx={{ width: '100%' }}
+        >
+          <TextField
+            label="Name"
+            name="name"
+            value={formik.values.name}
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            error={Boolean(formik.touched.name && formik.errors.name)}
+            helperText={formik.touched.name && formik.errors.name}
+            variant="outlined"
+            size="small"
+          />
+          <TextField
+            label="Description (optional)"
+            name="description"
+            value={formik.values.description}
+            onBlur={formik.handleBlur}
+            onChange={formik.handleChange}
+            error={Boolean(
+              formik.touched.description && formik.errors.description
+            )}
+            helperText={formik.touched.description && formik.errors.description}
+            variant="outlined"
+            size="small"
             sx={{
-              height: 250,
-              marginTop: -2,
+              width: '100%',
             }}
-          >
-            <BaseGraph graph={displayedGraph} metrics={metrics} />
-          </Box>
-          <Stack
-            spacing={2}
-            direction="row"
-            alignItems="center"
-            sx={{ width: '100%' }}
-          >
-            <TextField
-              label="Name"
-              name="name"
-              value={formik.values.name}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={Boolean(formik.touched.name && formik.errors.name)}
-              helperText={formik.touched.name && formik.errors.name}
-              variant="outlined"
-              size="small"
-            />
-            <TextField
-              label="Description (optional)"
-              name="description"
-              value={formik.values.description}
-              onBlur={formik.handleBlur}
-              onChange={formik.handleChange}
-              error={Boolean(
-                formik.touched.description && formik.errors.description
-              )}
-              helperText={
-                formik.touched.description && formik.errors.description
-              }
-              variant="outlined"
-              size="small"
-              sx={{
-                width: '100%',
-              }}
-            />
-          </Stack>
-          <FormHelperText>Series</FormHelperText>
-          <div style={{ height: '100%' }}>
-            {formik.values.series.map((series, index) => (
-              <Box key={`${series.metric}-${series.loadZone}-${index}`}>
+          />
+        </Stack>
+        <FormHelperText>Series</FormHelperText>
+        {formik.values.series.map((series, index) => (
+          <Box key={`${series.metric}-${series.loadZone}-${index}`}>
+            <Stack
+              direction="row"
+              spacing={2}
+              alignItems="center"
+              justifyContent="space-between"
+              paddingTop={index === 0 ? 1 : 3}
+              paddingBottom={index === formik.values.series.length - 1 ? 1 : 3}
+            >
+              <Stack
+                spacing={2}
+                sx={{
+                  width: '100%',
+                }}
+              >
                 <Stack
                   direction="row"
                   spacing={2}
-                  alignItems="center"
-                  justifyContent="space-between"
-                  paddingTop={index === 0 ? 1 : 3}
-                  paddingBottom={
-                    index === formik.values.series.length - 1 ? 1 : 3
-                  }
+                  sx={{
+                    width: '100%',
+                  }}
                 >
                   <Stack
+                    direction="row"
+                    alignItems="center"
                     spacing={2}
                     sx={{
                       width: '100%',
                     }}
                   >
-                    <Stack
-                      direction="row"
-                      spacing={2}
+                    <InputLabel id="metric-label">Metric</InputLabel>
+                    <Select
+                      labelId="series-metric-label"
+                      id="series-metric"
+                      name={`series.${index}.metric`}
+                      value={series.metric}
+                      onBlur={formik.handleBlur}
+                      onChange={formik.handleChange}
+                      variant="outlined"
+                      size="small"
                       sx={{
-                        width: '100%',
+                        flex: 1,
                       }}
                     >
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={2}
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        <InputLabel id="metric-label">Metric</InputLabel>
-                        <Select
-                          labelId="series-metric-label"
-                          id="series-metric"
-                          name={`series.${index}.metric`}
-                          value={series.metric}
-                          onBlur={formik.handleBlur}
-                          onChange={formik.handleChange}
-                          variant="outlined"
-                          size="small"
-                          sx={{
-                            flex: 1,
-                          }}
-                        >
-                          {BUILT_IN_METRICS.map((metric, index) => (
-                            <MenuItem value={metric} key={index}>
-                              {metric}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </Stack>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        spacing={2}
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        <InputLabel id="loadZone-label">Load Zone</InputLabel>
-                        <Select
-                          labelId="series-loadZone-label"
-                          id="series-loadZone"
-                          name={`series.${index}.loadZone`}
-                          value={series.loadZone}
-                          onBlur={formik.handleBlur}
-                          onChange={formik.handleChange}
-                          variant="outlined"
-                          size="small"
-                          sx={{
-                            flex: 1,
-                          }}
-                        >
-                          {loadZones.map((loadZone, index) => (
-                            <MenuItem value={loadZone} key={index}>
-                              {loadZone}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </Stack>
-                    </Stack>
-                    <Stack
-                      direction="row"
-                      alignItems="center"
-                      spacing={2}
-                      sx={{
-                        width: '100%',
-                      }}
-                    >
-                      <Stack direction="row" alignItems="center" spacing={2}>
-                        <InputLabel id="series-color-label">Color</InputLabel>
-                        <ColorPicker
-                          value={series.color}
-                          onChange={(color) => {
-                            console.log(color)
-                            formik.setFieldValue(
-                              `series.${index}.color`,
-                              `#${(color as { hex: string }).hex}`
-                            )
-                          }}
-                          hideTextfield
-                          disableAlpha
-                        />
-                      </Stack>
-                      <Stack direction="row" alignItems="center" spacing={2}>
-                        <InputLabel id="series-kind-label">Kind</InputLabel>
-                        <Select
-                          labelId="series-kind-label"
-                          id="series-kind"
-                          name={`series.${index}.kind`}
-                          value={series.kind}
-                          onBlur={formik.handleBlur}
-                          onChange={formik.handleChange}
-                          variant="outlined"
-                          size="small"
-                        >
-                          <MenuItem value="line">Line</MenuItem>
-                          <MenuItem value="area">Area</MenuItem>
-                          <MenuItem value="column">Column</MenuItem>
-                        </Select>
-                      </Stack>
-                    </Stack>
-                    {formik.touched.series?.[index] &&
-                      formik.errors.series?.[index] && (
-                        <FormHelperText error>
-                          {Object.values(formik.errors.series?.[index])}
-                        </FormHelperText>
-                      )}
+                      {BUILT_IN_METRICS.map((metric, index) => (
+                        <MenuItem value={metric} key={index}>
+                          {metric}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </Stack>
-                  <div>
-                    <Tooltip title="Remove series">
-                      <IconButton
-                        onClick={() => {
-                          formik.setFieldValue(
-                            'series',
-                            formik.values.series.filter((_, i) => i !== index)
-                          )
-                        }}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{
+                      width: '100%',
+                    }}
+                  >
+                    <InputLabel id="loadZone-label">Load Zone</InputLabel>
+                    <Select
+                      labelId="series-loadZone-label"
+                      id="series-loadZone"
+                      name={`series.${index}.loadZone`}
+                      value={series.loadZone}
+                      onBlur={formik.handleBlur}
+                      onChange={formik.handleChange}
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        flex: 1,
+                      }}
+                    >
+                      {loadZones.map((loadZone, index) => (
+                        <MenuItem value={loadZone} key={index}>
+                          {loadZone}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Stack>
                 </Stack>
-                {index !== formik.values.series.length - 1 && <Divider />}
-              </Box>
-            ))}
-          </div>
-        </Stack>
+                <Stack
+                  direction="row"
+                  alignItems="center"
+                  spacing={2}
+                  sx={{
+                    width: '100%',
+                  }}
+                >
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <InputLabel id="series-color-label">Color</InputLabel>
+                    <ColorPicker
+                      value={series.color}
+                      onChange={(color) => {
+                        console.log(color)
+                        formik.setFieldValue(
+                          `series.${index}.color`,
+                          `#${(color as { hex: string }).hex}`
+                        )
+                      }}
+                      hideTextfield
+                      disableAlpha
+                    />
+                  </Stack>
+                  <Stack direction="row" alignItems="center" spacing={2}>
+                    <InputLabel id="series-kind-label">Kind</InputLabel>
+                    <Select
+                      labelId="series-kind-label"
+                      id="series-kind"
+                      name={`series.${index}.kind`}
+                      value={series.kind}
+                      onBlur={formik.handleBlur}
+                      onChange={formik.handleChange}
+                      variant="outlined"
+                      size="small"
+                    >
+                      <MenuItem value="line">Line</MenuItem>
+                      <MenuItem value="area">Area</MenuItem>
+                      <MenuItem value="column">Column</MenuItem>
+                    </Select>
+                  </Stack>
+                </Stack>
+                {formik.touched.series?.[index] &&
+                  formik.errors.series?.[index] && (
+                    <FormHelperText error>
+                      {Object.values(formik.errors.series?.[index])}
+                    </FormHelperText>
+                  )}
+              </Stack>
+              <div>
+                <Tooltip title="Remove series">
+                  <IconButton
+                    onClick={() => {
+                      formik.setFieldValue(
+                        'series',
+                        formik.values.series.filter((_, i) => i !== index)
+                      )
+                    }}
+                  >
+                    <ClearIcon />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </Stack>
+            {index !== formik.values.series.length - 1 && <Divider />}
+          </Box>
+        ))}
       </CustomDialog>
     </form>
   ) : (

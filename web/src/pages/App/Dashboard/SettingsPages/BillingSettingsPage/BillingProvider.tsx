@@ -22,6 +22,7 @@ import { STRIPE_PUBLISHABLE_KEY } from './stripe'
 const BILLING_ADDRESS_QUERY = gql`
   query BillingAddressQuery($teamId: String) {
     customer(teamId: $teamId) {
+      id
       address {
         city
         country

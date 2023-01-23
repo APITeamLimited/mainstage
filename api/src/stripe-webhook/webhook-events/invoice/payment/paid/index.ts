@@ -43,7 +43,13 @@ export const handleInvoicePaid = async (event: Stripe.Event) => {
 
   await checkForPlanActivation(invoice, team, users)
 
-  notifySuccessfulPayment(invoice, users, team, adminOwnerMemberships, variant)
+  await notifySuccessfulPayment(
+    invoice,
+    users,
+    team,
+    adminOwnerMemberships,
+    variant
+  )
 }
 
 const notifySuccessfulPayment = async (

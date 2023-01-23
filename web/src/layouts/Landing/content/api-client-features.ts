@@ -57,7 +57,7 @@ export const extendedApiClientFeatures: FeatureOverviewElement[] = [
     icon: IntegrationInstructionsIcon,
     title: 'Automatic Code Generation',
     description:
-      "Automatically generate example code based off your APIs and and any dynamic variables you've set.",
+      "Automatically generate example code based off your APIs and any dynamic variables you've set.",
     image: {
       light: require('public/img/splash/code-generator-light.png'),
       dark: require('public/img/splash/code-generator-dark.png'),

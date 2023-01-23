@@ -20,6 +20,7 @@ const BILLING_ADDRESS_MUTATION = gql`
     $input: UpdateCustomerInput!
   ) {
     updateCustomer(teamId: $teamId, input: $input) {
+      id
       address {
         city
         country

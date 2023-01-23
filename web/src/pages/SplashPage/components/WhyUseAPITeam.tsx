@@ -3,7 +3,7 @@ import type { ElementType } from 'react'
 import FastForwardIcon from '@mui/icons-material/FastForward'
 import InsightsIcon from '@mui/icons-material/Insights'
 import PeopleIcon from '@mui/icons-material/People'
-import { Typography, useTheme } from '@mui/material'
+import { alpha, Typography, useTheme } from '@mui/material'
 
 import { OverviewPanel } from 'src/layouts/Landing/components/templates/OverviewPanel'
 
@@ -15,16 +15,16 @@ type OverviewItem = {
 
 const overviewMessages: OverviewItem[] = [
   {
-    icon: FastForwardIcon,
-    title: 'Get started in minutes',
-    description:
-      'Import existing collections and API resources from Postman, Insomnia, and K6 and get started instantly.',
-  },
-  {
     icon: PeopleIcon,
     title: 'Develop Collaboratively',
     description:
       'Collaborate in real time with unlimited users on the same team. Develop and share collections, API resources, and load tests with your team, all in one place.',
+  },
+  {
+    icon: FastForwardIcon,
+    title: 'Get started in minutes',
+    description:
+      'Import existing collections and API resources from Postman, Insomnia, and K6 and get started instantly.',
   },
   {
     icon: InsightsIcon,
@@ -49,6 +49,10 @@ export const WhyUseAPITeam = ({ locationRef }: WhyUseAPITeamProps) => {
           <span
             style={{
               color: theme.palette.primary.main,
+              background: `linear-gradient(180deg, transparent 82%, ${alpha(
+                theme.palette.secondary.main,
+                0.3
+              )} 0%)`,
             }}
           >
             APITeam

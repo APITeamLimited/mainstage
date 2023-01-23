@@ -118,7 +118,8 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
           <Stack
             direction="row"
             sx={{
-              paddingLeft: isSmall ? 0 : `${docsAsideWidth}px`,
+              overflow: 'hidden',
+              height: '100%',
             }}
           >
             <DocsAside

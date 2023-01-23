@@ -46,6 +46,7 @@ export const handleProviders = ({
 
   // Close the providers if they should not be operational
   if (!socketioProviderReady && socketioProvider) {
+    console.log('closing existing providers', socketioProviderReady)
     socketioProvider.disconnect()
     socketioProvider.destroy()
   }
@@ -115,6 +116,7 @@ export const handleProviders = ({
   }
 
   if (socketioProviderReady && (!socketioProvider || guidChanged)) {
+    console.log('guid changed', guidChanged)
     socketioProvider?.disconnect()
     socketioProvider?.destroy()
     socketioProvider = null

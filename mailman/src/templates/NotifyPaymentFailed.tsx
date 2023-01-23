@@ -9,7 +9,7 @@ import { BaseMessageLayout } from '../layouts'
 export type NotifyPaymentFailedData = {
   targetName: string
   invoice: Stripe.Invoice
-  last4: string
+  last4: string | null
 } & (
   | {
       role: 'OWN-ACCOUNT'
@@ -56,10 +56,21 @@ export const NotifyPaymentFailed = (
           marginBottom: 2,
         }}
       >
-        We tried to charge your card ending in <strong>{last4}</strong> for{' '}
-        <strong>{invoice.description}</strong> but the payment failed. The
-        charge was for <strong>{prettyPrice}</strong>. Invoice number was{' '}
-        <strong>{invoice.number}</strong>.
+        {last4 ? (
+          <>
+            We tried to charge your card ending in <strong>{last4}</strong> for{' '}
+            <strong>{invoice.description}</strong> but the payment failed. The
+            charge was for <strong>{prettyPrice}</strong>. Invoice number was{' '}
+            <strong>{invoice.number}</strong>.
+          </>
+        ) : (
+          <>
+            We tried to charge your card for{' '}
+            <strong>{invoice.description}</strong> but the payment failed. The
+            charge was for <strong>{prettyPrice}</strong>. Invoice number was{' '}
+            <strong>{invoice.number}</strong>.
+          </>
+        )}
       </Typography>
       <Typography
         variant="body1"
@@ -111,7 +122,9 @@ export const notifyPaymentFailedText = ({
       : `a payment on your personal workspace has failed`
   }`
 
-  const line2 = `We tried to charge your card ending in ${last4} for ${invoice.description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
+  const line2 = last4
+    ? `We tried to charge your card ending in ${last4} for ${invoice.description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
+    : `We tried to charge your card for ${invoice.description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
 
   const line3 = invoice.subscription
     ? `Please update your payment method on the billing dashboard to continue using your current plan's features. We will retry the payment in 3 days.`
@@ -136,4 +149,4 @@ export const notifyPaymentFailedText = ({
 
 export const notifyPaymentFailedTitle = (
   _: MailmanInput<NotifyPaymentFailedData>
-) => 'APITeam Payment Failed'
+) => 'Payment Failed'

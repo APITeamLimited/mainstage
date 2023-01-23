@@ -64,12 +64,7 @@ export const DocsAside = ({ open, setOpen }: DocsAsideProps) => {
         borderRadius: 0,
         width: docsAsideWidth - 1,
         borderRight: `1px solid ${theme.palette.divider}`,
-        position: 'absolute',
-        left: 0,
-        height: {
-          xs: `calc(100% - ${FOOTER_SPASH_HEIGHT.xs})`,
-          md: `calc(100% - ${FOOTER_SPASH_HEIGHT.md})`,
-        },
+        minHeight: '100%',
       }}
     >
       {innerContent}

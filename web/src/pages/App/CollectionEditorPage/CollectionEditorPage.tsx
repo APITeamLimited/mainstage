@@ -57,15 +57,15 @@ export const CollectionEditorPage = ({
 
   // Escape hatch in case project is deleted
   const projectHook = useYMap(projectYMap ?? new Y.Map())
-  const [fistLoadedProject, setFirstLoadedProject] = useState(false)
+  const [firstLoadedProject, setFirstLoadedProject] = useState(false)
 
   useEffect(() => {
-    if (projectYMap?.get('__typename') === 'Project' && !fistLoadedProject) {
+    if (projectYMap?.get('__typename') === 'Project' && !firstLoadedProject) {
       setFirstLoadedProject(true)
       console.log('Project loaded')
     }
 
-    if (!fistLoadedProject) {
+    if (!firstLoadedProject) {
       return
     }
 
@@ -76,7 +76,7 @@ export const CollectionEditorPage = ({
     }, 100)
 
     return () => clearInterval(interval)
-  }, [projectYMap, projectHook, fistLoadedProject])
+  }, [projectYMap, projectHook, firstLoadedProject])
 
   // Escape hatch in case branch is deleted
   const branchHook = useYMap(branchYMap ?? new Y.Map())
