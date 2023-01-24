@@ -3,6 +3,7 @@
 .env
 .env-staging
 .env-production
+web-env.json
 .netlify
 .redwood
 dev.db*

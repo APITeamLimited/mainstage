@@ -64,6 +64,13 @@ export const AsideContent = ({
               variant: 'body1',
               color: theme.palette.text.primary,
               fontWeight: 'bold',
+
+              sx: {
+                // Prevent text from wrapping
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              },
             }}
           />
         </ListItemButton>

@@ -31,10 +31,10 @@ export const NextPageLink = () => {
         <CallToClickLink
           link={foundPart.link}
           text={
-            <Typography variant="h6" fontWeight="bold" color="primary">
+            <>
               {foundPart.part.title}{' '}
               {foundPart.part.variant === 'chapter' ? '📚' : '📄'}
-            </Typography>
+            </>
           }
         />
       </span>
