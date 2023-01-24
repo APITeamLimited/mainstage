@@ -44,7 +44,7 @@ export const WhyUseAPITeam = ({ locationRef }: WhyUseAPITeamProps) => {
   return (
     <OverviewPanel
       title={
-        <Typography variant="h2" fontWeight="bold" ref={locationRef}>
+        <Typography variant="h1" fontWeight="bold" ref={locationRef}>
           Why use{' '}
           <span
             style={{

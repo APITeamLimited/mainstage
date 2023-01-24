@@ -39,7 +39,7 @@ export const OverviewPanel = ({
     <Stack spacing={mediumPanelSpacing} id="why-use-apiteam">
       <Stack spacing={smallPanelSpacing} alignItems="center">
         {typeof title === 'string' ? (
-          <Typography variant="h2" fontWeight="bold">
+          <Typography variant="h1" fontWeight="bold">
             {title}
           </Typography>
         ) : (

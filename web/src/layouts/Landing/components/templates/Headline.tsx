@@ -24,8 +24,8 @@ export const Headline = ({
     >
       <Box position="relative" zIndex={2}>
         <Typography
-          fontWeight={600}
-          variant="h2"
+          fontWeight="bold"
+          variant="h1"
           gutterBottom={sublines.length > 0}
           align="center"
         >

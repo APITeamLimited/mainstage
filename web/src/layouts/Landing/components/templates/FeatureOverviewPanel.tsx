@@ -68,7 +68,7 @@ export const FeatureOverviewPanel = ({
     <Stack spacing={largePanelSpacing}>
       <Stack spacing={smallPanelSpacing} alignItems="flex-start">
         <Typography
-          variant="h2"
+          variant="h1"
           fontWeight="bold"
           color={theme.palette.text.primary}
         >
@@ -83,7 +83,11 @@ export const FeatureOverviewPanel = ({
           {description}
         </Typography>
         {moreInfo && (
-          <CallToClickLink text={moreInfo.text} link={moreInfo.link} />
+          <CallToClickLink
+            text={moreInfo.text}
+            link={moreInfo.link}
+            secondary
+          />
         )}
         {moreInfoElement}
       </Stack>

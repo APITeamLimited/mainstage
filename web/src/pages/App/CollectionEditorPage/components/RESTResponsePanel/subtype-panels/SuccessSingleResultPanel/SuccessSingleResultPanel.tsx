@@ -106,7 +106,7 @@ export const SuccessSingleResultPanel = ({
 
     setMappedCookies(
       Object.values(
-        (responseResult.data.request as Response | null)?.cookies ?? []
+        (responseResult.data as Response | null)?.cookies ?? []
       ).flat()
     )
 

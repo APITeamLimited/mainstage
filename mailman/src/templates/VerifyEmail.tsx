@@ -27,7 +27,7 @@ export const VerifyEmail = (input: MailmanInput<VerifyEmailData>) => {
           textAlign: 'center',
         }}
       >
-        Hi {firstName}, thanks for signing up to APITeam. Please enter the
+        Hi {firstName}, thanks for signing up to APITeam! Please enter the
         following code to verify your email address. This code will expire in 15
         minutes.
       </Typography>

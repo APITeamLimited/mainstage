@@ -87,6 +87,14 @@ export const cancelRunningTest = async ({
       `workspace-cloud-tests:${scopeVariant}:${scopeVariantTargetId}`,
       jobId
     )
+
+    // Publish once more in case orchestrator went down before receiving the first message
+    coreCacheReadRedis.publish(
+      `jobUserUpdates:${scopeVariant}:${scopeVariantTargetId}:${jobId}`,
+      JSON.stringify({
+        updateType: 'CANCEL',
+      })
+    )
   }, 10000)
 
   return true

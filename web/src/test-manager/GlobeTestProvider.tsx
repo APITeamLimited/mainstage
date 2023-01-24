@@ -114,7 +114,8 @@ export const GlobeTestProvider = () => {
               job,
               localTestManager,
               workspaceInfo.scope,
-              rawBearer
+              rawBearer,
+              activeEnvironmentYMap
             )
       }
 

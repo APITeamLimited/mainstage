@@ -49,7 +49,7 @@ const GlobalTestingNetworkInner = () => {
           <Stack spacing={mediumPanelSpacing} alignItems="center">
             <Stack spacing={smallPanelSpacing} alignItems="center">
               <Typography
-                variant="h2"
+                variant="h1"
                 fontWeight="bold"
                 sx={{ color: theme.palette.text.primary }}
               >

@@ -100,7 +100,7 @@ export type GlobeTestVariablesMessage = GlobeTestMessage & {
   messageType: 'ENVIRONMENT_VARIABLES' | 'COLLECTION_VARIABLES'
 }
 
-const handleVariableUpdates = (
+export const handleVariableUpdates = (
   message: GlobeTestVariablesMessage,
   workspace: YDoc,
   params: WrappedExecutionParams,

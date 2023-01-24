@@ -4,17 +4,13 @@ import { db } from 'src/lib/db'
 
 export const checkSlugAvailable = async (slug: string) => {
   // Check slug not taken by another team or user
-  const existingUserPromise = db.user.findFirst({
-    where: { slug },
-  })
-
-  const existingTeamPromise = db.team.findFirst({
-    where: { slug },
-  })
-
   const [existingUser, existingTeam] = await Promise.all([
-    existingUserPromise,
-    existingTeamPromise,
+    db.user.findFirst({
+      where: { slug },
+    }),
+    db.team.findFirst({
+      where: { slug },
+    }),
   ])
 
   if (existingUser || existingTeam) {

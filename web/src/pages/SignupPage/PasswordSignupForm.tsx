@@ -48,7 +48,14 @@ type PasswordSignupFormProps = {
   suggestedEmail?: string
 }
 
-const recaptchaSiteKey = process.env['RECAPTCHA_SITE_KEY']
+const isProduction = process.env.NODE_ENV === 'production'
+
+const devRecaptchaPublicKey = process.env['RECAPTCHA_SITE_KEY_DEV']
+const prodRecaptchaPublicKey = process.env['RECAPTCHA_SITE_KEY_PROD']
+
+const recaptchaSiteKey = isProduction
+  ? prodRecaptchaPublicKey
+  : devRecaptchaPublicKey
 
 if (!recaptchaSiteKey) {
   throw new Error('RECAPTCHA_SITE_KEY is not defined')

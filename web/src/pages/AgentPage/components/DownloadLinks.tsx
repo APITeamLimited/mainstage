@@ -47,7 +47,7 @@ export const DownloadLinks = () => {
   return (
     <Stack spacing={mediumPanelSpacing} alignItems="center">
       <Stack spacing={smallPanelSpacing} alignItems="center">
-        <Typography variant="h2" fontWeight="bold">
+        <Typography variant="h1" fontWeight="bold">
           Download APITeam Agent
         </Typography>
         <Typography variant="h6" color={theme.palette.text.secondary}>

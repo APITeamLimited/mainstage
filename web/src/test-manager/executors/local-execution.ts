@@ -1,6 +1,7 @@
 import { ExecutionParams, WrappedExecutionParams } from '@apiteam/types/src'
 import { Scope } from '@prisma/client'
 import { v4 as uuid } from 'uuid'
+import type { Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 
@@ -12,7 +13,8 @@ export const executeLocalCatchError = (
   job: BaseJob & PendingLocalJob,
   testManager: LocalManagerInterface,
   scope: Scope,
-  rawBearer: string
+  rawBearer: string,
+  activeEnvironmentYMap: YMap<any> | null
 ) => {
   if (testManager === null) {
     snackErrorMessageVar("Can't run local test, agent isn't connected")
@@ -22,7 +24,11 @@ export const executeLocalCatchError = (
   const wrappedExecutionParams = determineWrappedExecutionParams(job, rawBearer)
   const executionParams = createExecutionParams(wrappedExecutionParams, scope)
 
-  testManager.submitNewJob(executionParams, wrappedExecutionParams)
+  testManager.submitNewJob(
+    executionParams,
+    wrappedExecutionParams,
+    activeEnvironmentYMap
+  )
 }
 
 // In cloud this is done in the test-manager

@@ -97,7 +97,7 @@ export const PricingOverview = ({
           sx={{ width: '100%' }}
         >
           <Typography
-            variant="h2"
+            variant="h1"
             fontWeight="bold"
             align="center"
             color={theme.palette.text.primary}
@@ -154,9 +154,7 @@ export const PricingOverview = ({
             container
             spacing={mediumPanelSpacing}
             justifyContent="center"
-            sx={{
-              width: '100%',
-            }}
+            alignItems="stretch"
           >
             {planInfos.map((planInfo, index) => (
               <PricingCard

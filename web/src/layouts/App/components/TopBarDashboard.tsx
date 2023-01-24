@@ -91,6 +91,7 @@ export const TopBarDashboard = () => {
               sx={{
                 textTransform: 'none',
                 fontSize: '1rem',
+                fontWeight: 'bold',
                 color:
                   currentEndpoint.name === page.name
                     ? theme.palette.primary.main

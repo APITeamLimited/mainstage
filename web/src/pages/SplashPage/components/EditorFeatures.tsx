@@ -22,7 +22,7 @@ const EditorFeatures = () => {
           >
             Real-time
           </span>{' '}
-          collaborative API Client
+          Collaborative API Client
         </>
       }
       description="Design, debug and test your APIs in real-time with your whole team

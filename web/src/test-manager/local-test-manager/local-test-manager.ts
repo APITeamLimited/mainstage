@@ -11,7 +11,7 @@ import {
   WrappedExecutionParams,
 } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
-import type { Doc as YDoc } from 'yjs'
+import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import {
   snackErrorMessageVar,
@@ -32,7 +32,8 @@ export type LocalManagerInterface = {
   abortAllJobs: () => void
   submitNewJob: (
     executionParams: ExecutionParams,
-    wrappedExecutionParams: WrappedExecutionParams
+    wrappedExecutionParams: WrappedExecutionParams,
+    activeEnvironmentYMap: YMap<any> | null
   ) => void
   sendJobUpdate: (jobId: string, update: JobUserUpdateMessage) => void
   runningTests: RunningTestInfo[]
@@ -49,6 +50,7 @@ export type Upload = {
   storedOptions?: boolean
   // Multiple simultaneous uploads can happen so we need to keep track of the total number of uploads
   uploadCount: number
+  activeEnvironmentYMap: YMap<any> | null
 }
 
 export type TerminationMessage = GlobeTestMessage & {
@@ -127,13 +129,18 @@ export class LocalTestManager {
             } as LocalTestManagerClientMessage)
           )
         },
-        submitNewJob: (executionParams, wrappedExecutionParams) => {
+        submitNewJob: (
+          executionParams,
+          wrappedExecutionParams,
+          activeEnvironmentYMap
+        ) => {
           const upload: Upload = {
             jobId: executionParams.id,
             socket: null,
             queue: [],
             wrappedExecutionParams,
             uploadCount: 0,
+            activeEnvironmentYMap,
           }
 
           this.uploads.push(upload)

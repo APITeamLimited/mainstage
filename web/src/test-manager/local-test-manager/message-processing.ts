@@ -12,6 +12,8 @@ import {
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { uploadScopedResource } from 'src/store'
 
+import { handleVariableUpdates } from '../executors'
+
 import {
   LocalTestManager,
   TerminationMessage,
@@ -19,7 +21,9 @@ import {
 } from './local-test-manager'
 
 export const processGlobeTestMessage = async (
-  agentMessage: LocalTestManagerServerMessage,
+  agentMessage: LocalTestManagerServerMessage & {
+    type: 'globeTestMessage'
+  },
   manager: LocalTestManager
 ) => {
   const parseResult = parseAndValidateGlobeTestMessage(agentMessage.message)
@@ -67,6 +71,21 @@ export const processGlobeTestMessage = async (
 
   if (parsedMessage.messageType === 'OPTIONS') {
     upload.storedOptions = true
+  }
+
+  if (
+    parsedMessage.messageType === 'ENVIRONMENT_VARIABLES' ||
+    parsedMessage.messageType === 'COLLECTION_VARIABLES'
+  ) {
+    handleVariableUpdates(
+      parsedMessage,
+      manager.workspace,
+      upload.wrappedExecutionParams,
+      upload.wrappedExecutionParams.environmentContext,
+      upload.wrappedExecutionParams.collectionContext,
+      await import('hash-sum'),
+      upload.activeEnvironmentYMap
+    )
   }
 
   if (

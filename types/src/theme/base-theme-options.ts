@@ -14,7 +14,7 @@ export const baseThemeOptions: ThemeOptions = {
 
     h1: {
       fontSize: '3.5rem',
-      lineHeight: 3,
+      lineHeight: 2,
       fontWeight: 500,
     },
     h2: {

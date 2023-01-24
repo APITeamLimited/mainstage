@@ -2,7 +2,9 @@ import { UserAsPersonal } from '@apiteam/types'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
+import { db } from 'src/lib/db'
 import { UserModel } from 'src/models/user'
+import { checkSlugAvailable } from 'src/validators'
 
 export const updateCurrentUser = async ({
   firstName,
@@ -55,6 +57,8 @@ export const updateCurrentUser = async ({
     if (slug === context.currentUser.slug) {
       throw new ServiceValidationError('Slug must be new')
     }
+
+    await checkSlugAvailable(slug)
   }
 
   return UserModel.update(context.currentUser.id, {
