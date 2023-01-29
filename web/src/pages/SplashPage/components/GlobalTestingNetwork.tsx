@@ -15,7 +15,6 @@ import {
 import { ThemeInverter } from 'src/utils/ThemeInverter'
 
 const darkImage = require('public/img/splash/global-testing-network-dark.png')
-const lightImage = require('public/img/splash/global-testing-network-light.png')
 
 export const GlobalTestingNetwork = () => {
   return (
@@ -70,12 +69,12 @@ const GlobalTestingNetworkInner = () => {
                 variant="h6"
                 sx={{ color: theme.palette.text.secondary }}
               >
-                Send requests and run distributed load tests from 19 locations
+                Send requests and run distributed load tests from 29 locations
                 around the world with our global testing network.
               </Typography>
             </Stack>
             <img
-              src={theme.palette.mode === 'dark' ? darkImage : lightImage}
+              src={darkImage}
               style={{ width: '100%' }}
               alt="Global Testing Network"
             />

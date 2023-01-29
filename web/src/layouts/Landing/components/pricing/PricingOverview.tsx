@@ -14,6 +14,7 @@ import {
   Alert,
   Container,
   alpha,
+  Box,
 } from '@mui/material'
 import { PlanInfosQuery, PlanInfosQueryVariables } from 'types/graphql'
 
@@ -61,11 +62,12 @@ const PLAN_INFOS_QUERY = gql`
 type PricingOverviewProps = {
   showLinkToPricingPage?: boolean
   showCreditsPricingOption?: boolean
+  pricingRef: React.RefObject<HTMLDivElement>
 }
 
 export const PricingOverview = ({
   showLinkToPricingPage,
-  showCreditsPricingOption,
+  showCreditsPricingOption,pricingRef
 }: PricingOverviewProps) => {
   const theme = useTheme()
 
@@ -90,6 +92,7 @@ export const PricingOverview = ({
         justifyContent: 'center',
       }}
     >
+      <Box position="relative" top={-100} ref={pricingRef} />
       <Stack spacing={largePanelSpacing} sx={{ width: '100%' }}>
         <Stack
           spacing={smallPanelSpacing}

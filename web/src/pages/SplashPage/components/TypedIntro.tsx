@@ -12,10 +12,10 @@ import { mediumPanelSpacing } from 'src/layouts/Landing/components/constants'
 import { SignUpOrContinueButton } from 'src/layouts/Landing/components/SignUpOrContinueButton'
 
 type TypedIntroProps = {
-  whyUseAPITeamRef?: React.RefObject<HTMLDivElement>
+  pricingRef?: React.RefObject<HTMLDivElement>
 }
 
-const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
+const TypedIntro = ({ pricingRef }: TypedIntroProps): JSX.Element => {
   const theme = useTheme()
 
   return (
@@ -94,16 +94,16 @@ const TypedIntro = ({ whyUseAPITeamRef }: TypedIntroProps): JSX.Element => {
               <Button
                 // Scroll to the features section
                 onClick={() =>
-                  whyUseAPITeamRef?.current?.scrollIntoView({
+                  pricingRef?.current?.scrollIntoView({
                     behavior: 'smooth',
-                    block: 'center',
+                    block: 'start',
                   })
                 }
                 variant="outlined"
                 color="secondary"
                 size="large"
               >
-                See Features
+                See Pricing
               </Button>
             </div>
           </Stack>

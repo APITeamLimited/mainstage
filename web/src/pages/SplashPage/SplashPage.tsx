@@ -4,7 +4,6 @@ import { alpha, Box, Container, Stack, useTheme } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
 
-import { Blur } from 'src/layouts/Landing/components/BlurProvider'
 import { panelSeparation } from 'src/layouts/Landing/components/constants'
 import { PricingOverview } from 'src/layouts/Landing/components/pricing'
 import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
@@ -16,7 +15,7 @@ import { GlobalTestingNetwork } from './components/GlobalTestingNetwork'
 import { WhyUseAPITeam } from './components/WhyUseAPITeam'
 
 const SplashPage = () => {
-  const whyUseAPITeamRef = useRef<HTMLDivElement>(null)
+  const pricingRef = useRef<HTMLDivElement>(null)
 
   const theme = useTheme()
 
@@ -26,7 +25,7 @@ const SplashPage = () => {
         title="Develop and Load Test APIs Collaboratively"
         description="APITeam is an all in one platform for designing, testing and scaling APIs collaboratively"
       />
-      <TypedIntro whyUseAPITeamRef={whyUseAPITeamRef} />
+      <TypedIntro pricingRef={pricingRef} />
       <Stack
         spacing={panelSeparation}
         sx={{
@@ -36,7 +35,7 @@ const SplashPage = () => {
         alignItems="center"
       >
         <Container>
-          <WhyUseAPITeam locationRef={whyUseAPITeamRef} />
+          <WhyUseAPITeam  />
         </Container>
         <Container>
           <EditorFeatures />
@@ -53,7 +52,7 @@ const SplashPage = () => {
           }}
         > */}
         <GlobeTestOverview />
-        <PricingOverview showLinkToPricingPage />
+        <PricingOverview showLinkToPricingPage pricingRef={pricingRef} />
       </Stack>
     </>
   )

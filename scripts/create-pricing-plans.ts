@@ -27,25 +27,39 @@ export default async () => {
         options.map((option) => CreditsPricingOptionModel.delete(option.id))
       )
     )
-  }
-
-  // Check if plans already exist
-  const existingPlanCount = await db.planInfo.count()
-  if (existingPlanCount === 0) {
-    await Promise.all(
-      DEFAULT_PRICING_PLANS.map((plan) => PlanInfoModel.create(plan))
+  } else if (argv['updateExisting']) {
+    console.log('Updating existing pricing plans...')
+    await PlanInfoModel.getAll().then((plans) =>
+      Promise.all(
+        plans.map((plan) => {
+          const newPlan = DEFAULT_PRICING_PLANS.find(
+            (p) => p.name === plan.name
+          )
+          if (newPlan) {
+            return PlanInfoModel.update(plan.id, newPlan)
+          }
+        })
+      )
     )
   } else {
-    console.log('Pricing plans already exist, skipping')
-  }
+    // Check if plans already exist
+    const existingPlanCount = await db.planInfo.count()
+    if (existingPlanCount === 0) {
+      await Promise.all(
+        DEFAULT_PRICING_PLANS.map((plan) => PlanInfoModel.create(plan))
+      )
+    } else {
+      console.log('Pricing plans already exist, skipping')
+    }
 
-  // Check if credits pricing option already exists
-  const existingCreditsPricingOptionCount =
-    await db.creditsPricingOption.count()
-  if (existingCreditsPricingOptionCount === 0) {
-    CreditsPricingOptionModel.create(DEFAULT_CREDITS_PRICING_OPTION)
-  } else {
-    console.log('Credits pricing option already exists, skipping')
+    // Check if credits pricing option already exists
+    const existingCreditsPricingOptionCount =
+      await db.creditsPricingOption.count()
+    if (existingCreditsPricingOptionCount === 0) {
+      CreditsPricingOptionModel.create(DEFAULT_CREDITS_PRICING_OPTION)
+    } else {
+      console.log('Credits pricing option already exists, skipping')
+    }
   }
 
   console.log('Finished creating pricing plans')

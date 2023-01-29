@@ -34,17 +34,13 @@ const overviewMessages: OverviewItem[] = [
   },
 ]
 
-type WhyUseAPITeamProps = {
-  locationRef?: React.RefObject<HTMLDivElement>
-}
-
-export const WhyUseAPITeam = ({ locationRef }: WhyUseAPITeamProps) => {
+export const WhyUseAPITeam = () => {
   const theme = useTheme()
 
   return (
     <OverviewPanel
       title={
-        <Typography variant="h1" fontWeight="bold" ref={locationRef}>
+        <Typography variant="h1" fontWeight="bold">
           Why use{' '}
           <span
             style={{
