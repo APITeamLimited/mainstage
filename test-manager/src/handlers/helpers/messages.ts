@@ -57,7 +57,7 @@ export const handleMessage = async (
 
         const waitForOptions = async (initial: boolean, count = 0) => {
           if (!initial) {
-            await new Promise((resolve) => setTimeout(resolve, 20))
+            await new Promise((resolve) => setTimeout(resolve, 50))
           }
 
           const testState = runningTestStates.get(socket)
@@ -70,7 +70,7 @@ export const handleMessage = async (
               markedResponse: message.message.message as K6Response,
             })
           } else if (testState.testType === 'undetermined') {
-            if (count < 10) {
+            if (count < 20) {
               waitForOptions(false, count + 1)
             }
           }
@@ -129,85 +129,48 @@ export const handleMessage = async (
             !runningState.responseId ||
             !runningState.entityEngineSocket
           ) {
+            console.log('Failed because of missing data:', {
+              globeTestLogsStoreReceipt:
+                !!runningState.globeTestLogsStoreReceipt,
+              metricsStoreReceipt: !!runningState.metricsStoreReceipt,
+              options: !!runningState.options,
+              responseId: !!runningState.responseId,
+              entityEngineSocket: !!runningState.entityEngineSocket,
+            })
+
             wasSuccessful = false
           }
+        }
 
-          if (
-            wasSuccessful &&
-            runningState.options &&
-            runningState.options.executionMode === 'httpSingle' &&
+        await handleResult({
+          wasSuccessful,
+          runningState,
+          socket,
+          params,
+          executionAgent,
+          runningTestKey,
+          jobId,
+        })
+
+        if (!wasSuccessful) {
+          //FInd why not
+          console.log(
+            'FAILED',
+            runningState.testType === 'undetermined',
+            message.message === 'COMPLETED_FAILURE',
+            !runningState.globeTestLogsStoreReceipt,
+            !runningState.metricsStoreReceipt,
+            !runningState.options,
+            // @ts-ignore
+            !runningState.responseId,
+            !runningState.entityEngineSocket,
+            // @ts-ignore
             !runningState.markedResponse
-          ) {
-            wasSuccessful = false
-          }
+          )
         }
 
-        if (wasSuccessful) {
-          if (
-            (runningState.options as GlobeTestOptions).executionMode ===
-              'httpSingle' &&
-            runningState.testType === 'rest'
-          ) {
-            await restHandleSuccessSingle({
-              params,
-              socket,
-              globeTestLogsStoreReceipt:
-                runningState.globeTestLogsStoreReceipt as string,
-              metricsStoreReceipt: runningState.metricsStoreReceipt as string,
-              responseId: runningState.responseId as string,
-              response: runningState.markedResponse as K6Response,
-              executionAgent,
-            })
-
-            console.log('Delete 5')
-            await coreCacheReadRedis.hDel(runningTestKey, jobId)
-          } else if (
-            (runningState.options as GlobeTestOptions).executionMode ===
-              'httpMultiple' &&
-            runningState.testType === 'rest'
-          ) {
-            await restHandleSuccessMultiple({
-              params,
-              socket,
-              globeTestLogsStoreReceipt:
-                runningState.globeTestLogsStoreReceipt as string,
-              metricsStoreReceipt: runningState.metricsStoreReceipt as string,
-              executionAgent,
-            })
-
-            console.log('Delete 4')
-            await coreCacheReadRedis.hDel(runningTestKey, jobId)
-          } else {
-            throw new Error(`Invalid test type: ${runningState.testType}`)
-          }
-        } else {
-          // FInd why not
-          //console.log(
-          //  'FAILED',
-          //  runningState.testType === 'undetermined',
-          //  message.message === 'COMPLETED_FAILURE',
-          //  !runningState.globeTestLogsStoreReceipt,
-          //  !runningState.metricsStoreReceipt,
-          //  !runningState.options,
-          //  // @ts-ignore
-          //  !runningState.responseId,
-          //  !runningState.entityEngineSocket,
-          //  // @ts-ignore
-          //  !runningState.markedResponse
-          //)
-
-          await restHandleFailure({
-            socket,
-            params,
-            globeTestLogsStoreReceipt:
-              runningState.globeTestLogsStoreReceipt ?? null,
-            metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
-            executionAgent,
-          })
-
-          console.log('Delete 3')
-          await coreCacheReadRedis.hDel(runningTestKey, jobId)
-        }
+        console.log('delete 3')
+        await coreCacheReadRedis.hDel(runningTestKey, jobId)
 
         // In case of linering client, force disconnect after 1 second
         setTimeout(() => {
@@ -218,5 +181,74 @@ export const handleMessage = async (
         }, 5000)
       }
     }
+  }
+}
+
+const handleResult = async ({
+  wasSuccessful,
+  runningState,
+  socket,
+  params,
+  executionAgent,
+  runningTestKey,
+  jobId,
+}: {
+  wasSuccessful: boolean
+  runningState: RunningTestState
+  socket: AuthenticatedSocket
+  params: WrappedExecutionParams
+  executionAgent: 'Local' | 'Cloud'
+  runningTestKey: string
+  jobId: string
+}) => {
+  const coreCacheReadRedis = await getCoreCacheReadRedis()
+
+  if (!wasSuccessful) {
+    await restHandleFailure({
+      socket,
+      params,
+      globeTestLogsStoreReceipt: runningState.globeTestLogsStoreReceipt ?? null,
+      metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
+      executionAgent,
+    })
+
+    return
+  }
+
+  if (
+    (runningState.options as GlobeTestOptions).executionMode === 'httpSingle' &&
+    runningState.testType === 'rest'
+  ) {
+    await restHandleSuccessSingle({
+      params,
+      socket,
+      globeTestLogsStoreReceipt:
+        runningState.globeTestLogsStoreReceipt as string,
+      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+      responseId: runningState.responseId as string,
+      response: runningState.markedResponse as K6Response,
+      executionAgent,
+    })
+
+    console.log('Delete 5')
+    await coreCacheReadRedis.hDel(runningTestKey, jobId)
+  } else if (
+    (runningState.options as GlobeTestOptions).executionMode ===
+      'httpMultiple' &&
+    runningState.testType === 'rest'
+  ) {
+    await restHandleSuccessMultiple({
+      params,
+      socket,
+      globeTestLogsStoreReceipt:
+        runningState.globeTestLogsStoreReceipt as string,
+      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+      executionAgent,
+    })
+
+    console.log('Delete 4')
+    await coreCacheReadRedis.hDel(runningTestKey, jobId)
+  } else {
+    throw new Error(`Invalid test type: ${runningState.testType}`)
   }
 }
