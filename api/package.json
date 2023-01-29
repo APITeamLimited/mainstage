@@ -5,9 +5,9 @@
   "dependencies": {
     "@apiteam/mailman": "*",
     "@apiteam/web": "*",
-    "@redwoodjs/api": "^3.0.3",
-    "@redwoodjs/api-server": "^3.0.3",
-    "@redwoodjs/graphql-server": "^3.0.3",
+    "@redwoodjs/api": "^3.8.0",
+    "@redwoodjs/api-server": "^3.8.0",
+    "@redwoodjs/graphql-server": "^3.8.0",
     "@redwoodjs/record": "^3.3.0",
     "@sendgrid/mail": "^7.7.0",
     "aws-sdk": "^2.1292.0",

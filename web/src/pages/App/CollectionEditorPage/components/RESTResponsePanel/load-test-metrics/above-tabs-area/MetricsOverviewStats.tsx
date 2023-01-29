@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
+import { navigate} from '@redwoodjs/router'
 
-import { GlobeTestMessage, MetricsCombination } from '@apiteam/types/src'
+import { GlobeTestMessage, MetricsCombination, ROUTES } from '@apiteam/types/src'
 import CloseIcon from '@mui/icons-material/Close'
 import {
   Alert,
@@ -9,6 +10,7 @@ import {
   AlertTitle,
   Stack,
   IconButton,
+  Link,
 } from '@mui/material'
 
 import { StatsItem } from '../../../stats'
@@ -121,7 +123,11 @@ export const MetricsOverviewStats = ({
         >
           <AlertTitle>Warning</AlertTitle>
           An unverified domain was used in this test so requests per second are
-          limited. Verify the domain to remove load limits.
+          limited. <Link onClick={() =>
+            navigate(ROUTES.domains)
+          } sx={{
+            cursor: 'pointer',
+          }}>Verify the domain</Link> to remove load limits.
         </Alert>
       )}
       {logsThrottled && !hiddenMaxLogsWarning && (

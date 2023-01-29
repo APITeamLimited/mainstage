@@ -21,6 +21,8 @@ import {
   getNewOrderingIndex,
 } from './utils'
 import { DropSpace } from './utils'
+import { useTestCancel } from 'src/contexts/cancel-running-test-provider'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 export type NodeProps = {
   collectionYMap: YMap<any>
@@ -32,6 +34,8 @@ export type DropSpaceType = 'Top' | 'Bottom' | 'Inner' | null
 
 export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
   const Y = useYJSModule()
+  const cancelRunningTest = useTestCancel()
+  const workspaceInfo = useWorkspaceInfo()
 
   if (!nodeYMap) {
     nodeYMap = new Y.Map()
@@ -168,7 +172,7 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
       nodeYMap,
       foldersYMap,
       restRequestsYMap,
-      restResponsesYMap,
+      restResponsesYMap,cancelRunningTest, workspaceInfo
     })
   }
 

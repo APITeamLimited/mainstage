@@ -49,7 +49,7 @@ module.exports = (config, { mode }) => {
   // Override redwood react dom with root react dom
   // Drastically reduces bundle size and prevents 2 versions of react-dom from
   // incorrectly being loaded
-  config.resolve.alias['react-dom'] = require.resolve('react-dom')
+  //config.resolve.alias['react-dom'] = require.resolve('react-dom')
 
   // Redirect dev server to use different endpoint
   if (mode === 'development') {

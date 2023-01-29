@@ -16,6 +16,7 @@ import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
 import { GlobeTestIcon } from 'src/components/utils/Icons'
+import { Workspace } from '@apiteam/types/src'
 
 export const getNewOrderingIndex = ({
   folderYMaps,
@@ -108,6 +109,8 @@ type DeleteRecursiveArgs = {
   foldersYMap: YMap<any>
   restRequestsYMap: YMap<any>
   restResponsesYMap: YMap<any>
+  cancelRunningTest: ((teamId: string | null, jobId: string) => void) | null
+  workspaceInfo: Workspace
 }
 
 export const deleteRecursive = ({
@@ -115,6 +118,7 @@ export const deleteRecursive = ({
   foldersYMap,
   restRequestsYMap,
   restResponsesYMap,
+  cancelRunningTest, workspaceInfo
 }: DeleteRecursiveArgs) => {
   const nodeId = nodeYMap.get('id')
   if (nodeYMap.get('__typename') === 'Folder') {
@@ -127,6 +131,7 @@ export const deleteRecursive = ({
           foldersYMap,
           restRequestsYMap,
           restResponsesYMap,
+          cancelRunningTest, workspaceInfo
         })
       }
     })
@@ -137,7 +142,7 @@ export const deleteRecursive = ({
           nodeYMap: restRequest,
           foldersYMap,
           restRequestsYMap,
-          restResponsesYMap,
+          restResponsesYMap, cancelRunningTest, workspaceInfo
         })
       }
     })
@@ -151,10 +156,15 @@ export const deleteRecursive = ({
           foldersYMap,
           restRequestsYMap,
           restResponsesYMap,
+          cancelRunningTest,
+          workspaceInfo
         })
       }
     })
   } else if (nodeYMap.get('__typename') === 'RESTResponse') {
+    if (nodeYMap.get('__subtype') === 'LoadingResponse') {
+      cancelRunningTest?.(workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null, nodeYMap.get('jobId'))
+    }
     restResponsesYMap.delete(nodeId)
   } else {
     console.warn(

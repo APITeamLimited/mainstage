@@ -148,16 +148,22 @@ export class OpenDoc extends Y.Doc {
     populateOpenDoc(this)
   }
 
-  send(socket: Socket, m: Uint8Array) {
+  async send(socket: Socket, m: Uint8Array, acknowledge = false) {
     if (!socket.connected) {
       console.log('dc close 6')
       this.closeSocket(socket)
+      return
     }
+
     try {
-      socket.send(m, (err: null) => {
-        console.log('dc close 7')
-        err != null && this.closeSocket(socket)
-      })
+      if (acknowledge) {
+        await new Promise((resolve) => {
+          socket.once('acknowledge-data', resolve)
+          socket.send(m)
+        })
+      } else {
+        socket.send(m)
+      }
     } catch (e) {
       console.warn('failed to send message from OpenDoc', e)
       console.log('dc close 8')
@@ -177,15 +183,17 @@ export class OpenDoc extends Y.Doc {
         Array.from(controlledIds),
         null
       )
-      // Close doc if no more connections
-      if (this.sockets.size === 0 && this.serversideSockets.size === 0) {
-        await this.closeDoc()
-      }
     }
 
     this.scopes.delete(socket)
     console.log('close socket')
+
     socket.disconnect()
+
+    // Close doc if no more connections
+    if (this.sockets.size === 0 && this.serversideSockets.size === 0) {
+      await this.closeDoc()
+    }
   }
 
   messageListener(socket: Socket, message: Uint8Array) {

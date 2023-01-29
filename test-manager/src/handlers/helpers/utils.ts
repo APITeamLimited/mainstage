@@ -71,8 +71,17 @@ export const getEntityEngineSocket = async (
     })
   })
 
-  return await new Promise<EntityEngineSocket>((resolve) => {
-    entityEngineSocket.on('connect', () => {
+  // Delete entity engine socket after 1 hour if test is not completed
+  const eeSocketTimeout = setTimeout(() => {
+    entityEngineSocket.disconnect()
+  }, 60 * 60 * 1000)
+
+  entityEngineSocket.on('disconnect', () =>
+    clearTimeout(eeSocketTimeout)
+  )
+
+  return new Promise<EntityEngineSocket>((resolve) => {
+    entityEngineSocket.on('serverside-ready', () => {
       runningTestStates.set(clientSocket, {
         ...runningTestStates.get(clientSocket),
         entityEngineSocket,

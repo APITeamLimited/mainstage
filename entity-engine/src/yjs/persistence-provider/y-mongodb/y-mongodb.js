@@ -47,7 +47,7 @@ export class MongodbPersistence {
 
       const updates = getUpdates(docs)
 
-      const ydoc = new Y.Doc({ guid: docName })
+      const ydoc = new Y.Doc({ guid: docName, gc: true })
       ydoc.transact(() => {
         for (let i = 0; i < updates.length; i++) {
           Y.applyUpdate(ydoc, updates[i])

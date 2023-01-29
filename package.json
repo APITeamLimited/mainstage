@@ -20,7 +20,7 @@
     "@clerk/clerk-js": "4.3.1",
     "@clerk/types": "3.4.1",
     "@nhost/nhost-js": "1.4.10",
-    "@redwoodjs/core": "^3.0.3",
+    "@redwoodjs/core": "^3.8.0",
     "@supabase/supabase-js": "^1.35.6",
     "@types/config": "^0.0.41",
     "@types/crypto-js": "4.1.1",

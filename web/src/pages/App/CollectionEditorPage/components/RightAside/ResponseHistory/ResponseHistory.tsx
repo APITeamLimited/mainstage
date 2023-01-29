@@ -19,6 +19,8 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { RightAsideLayout } from '../RightAsideLayout'
 
 import { ResponseHistoryItem } from './ResponseHistoryItem'
+import { useTestCancel } from 'src/contexts/cancel-running-test-provider'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 type GroupedResponses = {
   [key: string]: YMap<any>[]
@@ -37,6 +39,9 @@ export const ResponseHistory = ({
 }: ResponseHistoryProps) => {
   const Y = useYJSModule()
   const { default: SimpleBar } = useSimplebarReactModule()
+
+  const cancelRunningTest = useTestCancel()
+  const workspaceInfo = useWorkspaceInfo()
 
   const theme = useTheme()
 
@@ -164,6 +169,13 @@ export const ResponseHistory = ({
 
   const handleDeleteResponse = (responseId: string) => {
     const restResponse = restResponsesYMap.get(responseId) as YMap<any>
+
+    // If response is for a running request, cancel the request
+
+    if (restResponse.get('__subtype') === 'LoadingResponse') {
+      cancelRunningTest?.(workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null, restResponse.get('jobId'))
+    }
+
     clearFocusedRESTResponse(focusedElementDict, restResponse)
     deleteRestResponse([restResponse])
 
@@ -194,6 +206,9 @@ export const ResponseHistory = ({
 
     Object.values(groupedResponses).forEach((responses) =>
       responses.forEach((responseYMap) => {
+        if (responseYMap.get('__subtype') === 'LoadingResponse') {
+          cancelRunningTest?.(workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null, responseYMap.get('jobId'))
+        }
         restResponsesYMap.delete(responseYMap.get('id'))
       })
     )

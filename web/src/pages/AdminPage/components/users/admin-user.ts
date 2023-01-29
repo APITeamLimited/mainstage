@@ -4,7 +4,7 @@ import { UserEdit } from './UserEdit'
 import { UserList } from './UserList'
 
 export const USER_ADMIN_GET_LIST_QUERY = gql`
-  query AdminUserGetList(input: AdminUserGetListInput!) {
+  query AdminUserGetList($input: AdminUserGetListInput!) {
     adminUserGetList(input: $input) {
       data {
         ...AllUserFields
@@ -15,7 +15,7 @@ export const USER_ADMIN_GET_LIST_QUERY = gql`
 `
 
 export const ADMIN_USER_GET_ONE_QUERY = gql`
-  query AdminUserGetOne(input: AdminUserGetOneInput!) {
+  query AdminUserGetOne($input: AdminUserGetOneInput!) {
     adminUserGetOne(input: $input) {
       data {
         ...AllUserFields
@@ -25,7 +25,7 @@ export const ADMIN_USER_GET_ONE_QUERY = gql`
 `
 
 export const ADMIN_USER_GET_MANY_QUERY = gql`
-  query AdminUserGetMany(input: AdminUserGetManyInput!) {
+  query AdminUserGetMany($input: AdminUserGetManyInput!) {
     adminUserGetMany(input: $input) {
       data {
         ...AllUserFields
@@ -36,7 +36,7 @@ export const ADMIN_USER_GET_MANY_QUERY = gql`
 
 export const ADMIN_USER_GET_MANY_REFERENCE_QUERY = gql`
   query AdminUserGetManyReference(
-    input: AdminUserGetManyReferenceInput!
+    $input: AdminUserGetManyReferenceInput!
   ) {
     adminUsersReference(input: $input) {
       data {

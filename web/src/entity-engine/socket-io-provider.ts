@@ -341,6 +341,9 @@ export class SocketIOProvider extends Observable<string> {
         if (encoding.length(encoder) > 1) {
           this.socket?.send(encoding.toUint8Array(encoder))
         }
+
+        // Acknowledge message
+        this.socket?.emit('acknowledge-data')
       })
 
       newSocket.on('error', (error) => {

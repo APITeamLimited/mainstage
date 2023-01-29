@@ -1,6 +1,6 @@
 import { Stack, Typography, Box, useTheme, Divider } from '@mui/material'
 
-import { navigate } from '@redwoodjs/router'
+import { navigate, useLocation } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
 import { brandedRoutes } from 'src/Routes'
@@ -19,6 +19,8 @@ const SidebarNav = ({ onClose }: SidebarNavProps) => {
     onClose()
   }
 
+  const { pathname } = useLocation()
+
   return (
     <Stack
       spacing={2}
@@ -28,17 +30,10 @@ const SidebarNav = ({ onClose }: SidebarNavProps) => {
       }}
     >
       <APITeamLogo />
-      <Divider flexItem />
       {Object.values(brandedRoutes).map((value, indexCategory) => {
         if (!value.hideInAppBar) {
           return (
-            <Stack
-              spacing={2}
-              key={indexCategory}
-              sx={{
-                pl: 2,
-              }}
-            >
+            <Stack spacing={2} key={indexCategory}>
               <Typography variant="h6" color={theme.palette.text.secondary}>
                 {value.name}
               </Typography>
@@ -53,7 +48,11 @@ const SidebarNav = ({ onClose }: SidebarNavProps) => {
                   <Typography
                     key={indexSublink}
                     variant="h6"
-                    color={theme.palette.text.primary}
+                    color={
+                      pathname === sublink.path
+                        ? theme.palette.primary.main
+                        : theme.palette.text.primary
+                    }
                     onClick={() => handleLinkClick(sublink.path)}
                     sx={{
                       cursor: 'pointer',

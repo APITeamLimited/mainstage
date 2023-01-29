@@ -58,11 +58,13 @@ const handleNewServersideConnection = async (
     return
   }
 
-  const { scope } = postAuth
-
-  const doc = await getOpenDoc(scope)
+  const doc = await getOpenDoc(postAuth.scope)
   doc.serversideSockets.add(socket)
+
   socket.on('disconnect', () => doc.deleteServersideSocket(socket))
 
+  // Connect event handlers
   manager(socket, doc)
+
+  socket.emit('serverside-ready')
 }

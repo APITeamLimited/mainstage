@@ -55,7 +55,6 @@ export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
 
   if (postAuth === null) {
-    console.error('Failed to carry out post-auth')
     socket.disconnect()
     return
   }
@@ -111,24 +110,24 @@ export const handleNewConnection = async (socket: Socket) => {
 
     const readRedis = await getReadRedis()
 
-    const setPromise = readRedis.hSet(
-      `team:${doc.variantTargetId}`,
-      `lastOnlineTime:${scope.userId}`,
-      member.lastOnline.getTime()
-    )
+    await Promise.all([
+      readRedis.hSet(
+        `team:${doc.variantTargetId}`,
+        `lastOnlineTime:${scope.userId}`,
+        member.lastOnline.getTime()
+      ),
 
-    const publishPromise = readRedis.publish(
-      `team:${doc.variantTargetId}`,
-      JSON.stringify({
-        type: 'LAST_ONLINE_TIME',
-        payload: {
-          userId: scope.userId,
-          lastOnline: member.lastOnline,
-        },
-      } as RedisTeamPublishMessage)
-    )
-
-    await Promise.all([setPromise, publishPromise])
+      readRedis.publish(
+        `team:${doc.variantTargetId}`,
+        JSON.stringify({
+          type: 'LAST_ONLINE_TIME',
+          payload: {
+            userId: scope.userId,
+            lastOnline: member.lastOnline,
+          },
+        } as RedisTeamPublishMessage)
+      ),
+    ])
   }
 
   socket.on('message', (message: ArrayBuffer) => {
@@ -146,34 +145,33 @@ export const handleNewConnection = async (socket: Socket) => {
     doc.closeSocket(socket)
   })
 
-  {
-    // send sync step 1
+  const awarenessStates = doc.awareness.getStates()
+
+  if (awarenessStates.size > 0) {
     const encoder = encoding.createEncoder()
-    encoding.writeVarUint(encoder, messageSyncType)
 
-    syncProtocol.writeSyncStep1(encoder, doc)
-    doc.send(socket, encoding.toUint8Array(encoder))
-
-    const awarenessStates = doc.awareness.getStates()
-
-    if (awarenessStates.size > 0) {
-      const encoder = encoding.createEncoder()
-
-      encoding.writeVarUint(encoder, messageAwarenessType)
-      encoding.writeVarUint8Array(
-        encoder,
-        awarenessProtocol.encodeAwarenessUpdate(
-          doc.awareness,
-          Array.from(awarenessStates.keys())
-        )
+    encoding.writeVarUint(encoder, messageAwarenessType)
+    encoding.writeVarUint8Array(
+      encoder,
+      awarenessProtocol.encodeAwarenessUpdate(
+        doc.awareness,
+        Array.from(awarenessStates.keys())
       )
+    )
 
-      doc.send(socket, encoding.toUint8Array(encoder))
-    }
-
-    // Tell socket synced
-    socket.emit('synced')
+    await doc.send(socket, encoding.toUint8Array(encoder))
   }
+
+  // send sync step 1
+  const encoder = encoding.createEncoder()
+  encoding.writeVarUint(encoder, messageSyncType)
+
+  syncProtocol.writeSyncStep1(encoder, doc)
+
+  await doc.send(socket, encoding.toUint8Array(encoder), true)
+
+  // Tell socket synced
+  socket.emit('synced')
 }
 
 export const handleAddSubscription = (name: string) => {

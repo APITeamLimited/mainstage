@@ -262,29 +262,43 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   useEffect(() => {
     if (socketioSyncStatus === 'connected' && activeWorkspace?.scope) {
       entityEngineStatusVar(socketioSyncStatus)
-    } else {
-      entityEngineStatusVar('disabled')
-
-      if (socketioSyncStatus === 'disconnected') {
-        // If connected to internet, but not connected to the server, reload the page
-        if (window.navigator.onLine) {
-          console.log('Reloading page 1')
-          window.location.reload()
-        } else {
-          const onlineCallback = () => {
-            console.log('Reloading page 2')
-            window.location.reload()
-            window.removeEventListener('online', onlineCallback)
-          }
-
-          window.addEventListener('online', onlineCallback)
-
-          return () => {
-            window.removeEventListener('online', onlineCallback)
-          }
-        }
-      }
+      return
     }
+
+    if (
+      !(
+        socketioSyncStatus === 'disconnected' &&
+        socketioProvider &&
+        !socketioProvider?.socket?.connected &&
+        !socketioProvider.socketConnecting
+      )
+    ) {
+      return
+    }
+
+    entityEngineStatusVar('disabled')
+
+    // If connected to internet, but not connected to the server, reload the page
+    if (window.navigator.onLine) {
+      console.log(
+        'Reloading page 1',
+        activeWorkspace?.scope,
+        socketioSyncStatus
+      )
+      window.location.reload()
+      return
+    }
+
+    const onlineCallback = () => {
+      console.log('Reloading page 2')
+      window.location.reload()
+      window.removeEventListener('online', onlineCallback)
+    }
+
+    window.addEventListener('online', onlineCallback)
+
+    return () => window.removeEventListener('online', onlineCallback)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socketioSyncStatus, activeWorkspace])
 
   if (error) {

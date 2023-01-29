@@ -42,16 +42,18 @@ export const handleMessage = async (
         options: message.message,
         executionAgent,
       })
-    } else if (message.messageType === 'JOB_INFO' && message.message.options) {
-      await restAddOptions({
-        socket,
-        params,
-        options: message.message.options,
-        executionAgent,
-      })
     }
 
-    if (message.messageType === 'MARK') {
+    // } else if (message.messageType === 'JOB_INFO' && message.message.options) {
+    //   await restAddOptions({
+    //     socket,
+    //     params,
+    //     options: message.message.options,
+    //     executionAgent,
+    //   })
+    // }
+
+    else if (message.messageType === 'MARK') {
       if (message.message.mark === 'MarkedResponse') {
         // Bad hack for race conditions on slow clients
 

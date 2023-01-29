@@ -51,10 +51,7 @@ export const NavItem = ({
           setOpenedPopoverId(id)
         }}
       >
-        <Typography
-          fontWeight={openedPopoverId === id || hasActiveLink() ? 700 : 400}
-          color={linkColor}
-        >
+        <Typography fontWeight="bold" color={linkColor}>
           {title}
         </Typography>
         <ExpandMoreIcon
@@ -101,11 +98,7 @@ export const NavItem = ({
                         pathname === p.path
                           ? theme.palette.primary.main
                           : theme.palette.text.primary,
-                      backgroundColor:
-                        pathname === p.path
-                          ? alpha(theme.palette.primary.main, 0.1)
-                          : 'transparent',
-                      fontWeight: pathname === p.path ? 600 : 400,
+                      fontWeight: 'bold',
                     }}
                     fullWidth
                     onClick={handleClose}

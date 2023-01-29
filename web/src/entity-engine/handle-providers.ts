@@ -116,7 +116,7 @@ export const handleProviders = ({
   }
 
   if (socketioProviderReady && (!socketioProvider || guidChanged)) {
-    console.log('guid changed', guidChanged)
+    console.log('guid changed', guidChanged, socketioProviderReady)
     socketioProvider?.disconnect()
     socketioProvider?.destroy()
     socketioProvider = null

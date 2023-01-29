@@ -100,7 +100,7 @@ export const verifyAwarenessHandler = async (
   // Get client awareness again
   setTimeout(
     async () => await openDoc.verifyAwareness(socket, clientID, true),
-    5000
+    20000
   )
 }
 

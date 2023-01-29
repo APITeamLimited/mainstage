@@ -10,6 +10,7 @@ import { Head } from '@redwoodjs/web'
 
 import { DialogsProvider } from 'src/components/app/dialogs'
 import { BillingInfoProvider } from 'src/contexts/billing-info'
+import { CancelRunningTestProvider } from 'src/contexts/cancel-running-test-provider'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
 import { LocalTestManagerProvider } from 'src/test-manager/local-test-manager/LocalTestManagerProvider'
@@ -58,6 +59,7 @@ export const AppLayoutBase = ({
       <EntityEngine>
         <BillingInfoProvider>
           <LocalTestManagerProvider>
+            <CancelRunningTestProvider>
             <DialogsProvider />
             <ReactiveVarPersistor />
             <Stack
@@ -100,7 +102,7 @@ export const AppLayoutBase = ({
                 </main>
               </Box>
               {footer.element}
-            </Stack>
+            </Stack></CancelRunningTestProvider>
           </LocalTestManagerProvider>
         </BillingInfoProvider>
       </EntityEngine>
