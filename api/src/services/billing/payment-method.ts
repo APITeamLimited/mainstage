@@ -1,3 +1,4 @@
+import { ServiceValidationError } from '@redwoodjs/api'
 import { getCustomerBillingDetails } from 'src/helpers/billing'
 import { CustomerModel, TeamModel, UserModel } from 'src/models'
 import {
@@ -102,4 +103,36 @@ export const deletePaymentMethod = async ({
   }
 
   return PaymentMethodModel.delete(paymentMethodId)
+}
+
+export const setDefaultPaymentMethod = async ({
+  teamId,
+  paymentMethodId,
+}: {
+  teamId?: string
+  paymentMethodId: string
+}) => {
+  const userId = (await checkAuthenticated()).id
+
+  if (teamId) {
+    await checkOwnerAdmin({ teamId })
+  }
+
+  const customerId = await (teamId
+    ? TeamModel.getOrCreateCustomerId(teamId)
+    : UserModel.getOrCreateCustomerId(userId))
+
+  const paymentMethod = await PaymentMethodModel.get(paymentMethodId)
+
+  if (!paymentMethod || paymentMethod.customer !== customerId) {
+    throw new ServiceValidationError(`Payment method with id ${paymentMethodId} not found`)
+  }
+
+  await CustomerModel.update(customerId, {
+    invoiceSettings: {
+      defaultPaymentMethod: paymentMethodId,
+    },
+  })
+
+  return paymentMethod
 }

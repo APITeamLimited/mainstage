@@ -160,11 +160,15 @@ export const schema = gql`
       teamId: String
       type: StripePaymentMethodTypeEnum
       tokenId: String!
-    ): StripePaymentMethod @requireAuth
+    ): StripePaymentMethod! @requireAuth
     deletePaymentMethod(
       teamId: String
       paymentMethodId: String!
-    ): StripePaymentMethod @requireAuth
+    ): StripePaymentMethod! @requireAuth
+    setDefaultPaymentMethod(
+      teamId: String
+      paymentMethodId: String!
+    ): StripePaymentMethod! @requireAuth
   }
 `
 

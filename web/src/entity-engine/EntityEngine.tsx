@@ -299,7 +299,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
     return () => window.removeEventListener('online', onlineCallback)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socketioSyncStatus, activeWorkspace])
+  }, [socketioSyncStatus])
 
   if (error) {
     // Hack if auth context is old

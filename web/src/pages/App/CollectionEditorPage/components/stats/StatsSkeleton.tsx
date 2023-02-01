@@ -6,10 +6,12 @@ type StatsSkeletonProps = {
 
 export const StatsSkeleton = ({ count = 4 }: StatsSkeletonProps) => {
   return (
-    <Grid container spacing={2}>
+    <Grid container>
       {Array.from({ length: count }).map((_, index) => (
-        <Grid item key={index}>
-          <Skeleton width={123.44} height={72.38} />
+        <Grid sx={{
+          marginRight: 2, marginBottom: 2
+        }} key={index}>
+          <Skeleton width={123.44} height={74.38} />
         </Grid>
       ))}
     </Grid>

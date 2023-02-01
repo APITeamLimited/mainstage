@@ -29,7 +29,7 @@ const overviewMessages: OverviewItem[] = [
     icon: DoneAllIcon,
     title: 'No Usage Limits',
     description:
-      'Theres no usage limit on the number of requests or load tests you can run as they are from your local machine.',
+      'Theres no usage limit on the number of requests or load tests you can run as they are sent from your local machine.',
   },
 ]
 

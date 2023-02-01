@@ -374,7 +374,7 @@ const configureGlobetestGraphs = async (
 
   // This pause is a really bad hack to make sure the graphsYMap is ready
   // TODO: Figure out why this is necessary
-  //await new Promise((resolve) => setTimeout(resolve, 1000))
+  await new Promise((resolve) => setTimeout(resolve, 2000))
 
   const graphsYMap = new Y.Map<Graph>()
 

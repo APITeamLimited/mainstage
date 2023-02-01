@@ -139,8 +139,6 @@ const addDefaultPaymentMethod = async (
     return null
   }
 
-  console.log('Adding default payment method', paymentMethod.id, customerId)
-
   await stripe.customers.update(customerId, {
     invoice_settings: {
       default_payment_method: paymentMethod.id,

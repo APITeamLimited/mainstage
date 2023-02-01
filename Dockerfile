@@ -6,4 +6,5 @@ RUN mkdir /app
 WORKDIR /app
 COPY . .
 # Needed as fails first time as prisma is not installed
-RUN yarn install --inline-builds || true && yarn install --inline-builds
+RUN yarn install --inline-builds; exit 0
+RUN yarn install --inline-builds; exit 0

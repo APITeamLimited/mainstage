@@ -8,25 +8,6 @@ import {
   useSetupIntents,
 } from '../BillingProvider'
 
-const environment = process.env.NODE_ENV
-
-const devPublishableKey = process.env['DEV_STRIPE_PUBLISHABLE_KEY']
-const stagingPublishableKey = process.env['STAGING_STRIPE_PUBLISHABLE_KEY']
-const prodPublishableKey = process.env['PROD_STRIPE_PUBLISHABLE_KEY']
-
-const STRIPE_PUBLISHABLE_KEY =
-  environment === 'production'
-    ? prodPublishableKey
-    : environment === 'staging'
-    ? stagingPublishableKey
-    : devPublishableKey
-
-if (!STRIPE_PUBLISHABLE_KEY) {
-  throw new Error('STRIPE_PUBLISHABLE_KEY is not defined')
-}
-
-export { STRIPE_PUBLISHABLE_KEY }
-
 export const getDefaultElementsOptions = (
   theme: Theme
 ): StripeElementsOptions => ({

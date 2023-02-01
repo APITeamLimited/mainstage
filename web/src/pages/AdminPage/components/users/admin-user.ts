@@ -3,6 +3,23 @@ import { ValidAdmin } from '../data-provider'
 import { UserEdit } from './UserEdit'
 import { UserList } from './UserList'
 
+export const ALL_USER_FIELDS_FRAGMENT = gql`
+  fragment AllUserFields on User {
+    id
+    firstName
+    lastName
+    email
+    createdAt
+    updatedAt
+    isAdmin
+    emailVerified
+    shortBio
+    profilePicture
+    emailMarketing
+    slug
+  }
+`
+
 export const USER_ADMIN_GET_LIST_QUERY = gql`
   query AdminUserGetList($input: AdminUserGetListInput!) {
     adminUserGetList(input: $input) {
@@ -38,7 +55,7 @@ export const ADMIN_USER_GET_MANY_REFERENCE_QUERY = gql`
   query AdminUserGetManyReference(
     $input: AdminUserGetManyReferenceInput!
   ) {
-    adminUsersReference(input: $input) {
+    adminUserGetManyReference(input: $input) {
       data {
         ...AllUserFields
       }
@@ -70,9 +87,7 @@ export const ADMIN_USER_UPDATE_MUTATION = gql`
 export const ADMIN_USER_UPDATE_MANY_MUTATION = gql`
   mutation AdminUserUpdateMany($input: AdminUserUpdateManyInput!) {
     adminUserUpdateMany(input: $input) {
-      data {
-        id
-      }
+      data
     }
   }
 `
@@ -90,9 +105,7 @@ export const ADMIN_USER_DELETE_MUTATION = gql`
 const ADMIN_USER_DELETE_MANY_MUTATION = gql`
   mutation AdminUserDeleteMany($input: AdminUserDeleteManyInput!) {
     adminUserDeleteMany(input: $input) {
-      data {
-        id
-      }
+      data
     }
   }
 `

@@ -23,7 +23,9 @@ export const StatsItem = ({
   const theme = useTheme()
 
   return (
-    <Grid item>
+    <Grid sx={{
+      marginRight: 2, marginBottom: 2
+    }}>
       <Card sx={{ p: 2 }} variant="outlined">
         <Stack spacing={1}>
           <Typography variant="body2" color={theme.palette.text.secondary}>

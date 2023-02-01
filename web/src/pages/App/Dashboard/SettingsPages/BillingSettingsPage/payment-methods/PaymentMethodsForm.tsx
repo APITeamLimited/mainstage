@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { ROUTES } from '@apiteam/types/src'
 import CreditCardIcon from '@mui/icons-material/CreditCard'
 import {
   Stack,
@@ -31,6 +30,8 @@ import {
   DeleteCardMutation,
   DeleteCardMutationVariables,
   PaymentMethodsQuery,
+  SetDefaultPaymentMethodMutation,
+  SetDefaultPaymentMethodMutationVariables,
 } from 'types/graphql'
 
 import { useMutation } from '@redwoodjs/web'
@@ -43,12 +44,12 @@ import { QueryDeleteDialog } from 'src/components/app/dialogs/QueryDeleteDialog'
 import { CustomDialog } from 'src/components/custom-mui'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
-import { usePaymentMethods, useSetupIntents } from '../BillingProvider'
 import {
-  CardElementFrame,
-  getDefaultElementsOptions,
-  STRIPE_PUBLISHABLE_KEY,
-} from '../stripe'
+  usePaymentMethods,
+  usePublishableKey,
+  useSetupIntents,
+} from '../BillingProvider'
+import { CardElementFrame, getDefaultElementsOptions } from '../stripe'
 
 const ADD_CARD_MUTATION = gql`
   mutation AddCardMutation(
@@ -92,6 +93,23 @@ const CREATE_OR_UPDATE_SETUP_INTENT_MUTATION = gql`
   }
 `
 
+const SET_DEFAULT_PAYMENT_METHOD_MUTATION = gql`
+  mutation SetDefaultPaymentMethodMutation(
+    $teamId: String
+    $paymentMethodId: String!
+  ) {
+    setDefaultPaymentMethod(
+      teamId: $teamId
+      paymentMethodId: $paymentMethodId
+    ) {
+      id
+      card {
+        last4
+      }
+    }
+  }
+`
+
 export type CardToDeleteDialogStatus =
   | {
       show: true
@@ -111,7 +129,16 @@ type PaymentMethodsFormProps = {
 
 export const PaymentMethodsForm = (props: PaymentMethodsFormProps) => {
   const theme = useTheme()
-  const [stripePromise] = useState(() => loadStripe(STRIPE_PUBLISHABLE_KEY))
+
+  const publishableKey = usePublishableKey()
+
+  const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null)
+
+  useEffect(() => {
+    if (publishableKey) {
+      setStripePromise(loadStripe(publishableKey))
+    }
+  }, [publishableKey])
 
   return (
     <Elements stripe={stripePromise} options={getDefaultElementsOptions(theme)}>
@@ -244,6 +271,22 @@ export const PaymentMethodsFormInner = ({
         snackSuccessMessageVar('Card added successfully')
         refetchSetupIntents()
       }
+    },
+  })
+
+  const [setDefaultPaymentMethod] = useMutation<
+    SetDefaultPaymentMethodMutation,
+    SetDefaultPaymentMethodMutationVariables
+  >(SET_DEFAULT_PAYMENT_METHOD_MUTATION, {
+    onCompleted: (data) => {
+      snackSuccessMessageVar(
+        `Default card set to ${data.setDefaultPaymentMethod?.card?.last4}`
+      )
+      refetchPaymentMethods()
+      refetchSetupIntents()
+    },
+    onError: (error) => {
+      snackErrorMessageVar(`Failed to set default card: ${error.message}`)
     },
   })
 
@@ -466,7 +509,16 @@ export const PaymentMethodsFormInner = ({
                       <Button
                         variant="outlined"
                         color="primary"
-                        onClick={() => {}}
+                        onClick={() =>
+                          setDefaultPaymentMethod({
+                            variables: {
+                              teamId: workspaceInfo.isTeam
+                                ? workspaceInfo.scope.variantTargetId
+                                : null,
+                              paymentMethodId: paymentMethod.id,
+                            },
+                          })
+                        }
                         size="small"
                         sx={{
                           p: 0.5,

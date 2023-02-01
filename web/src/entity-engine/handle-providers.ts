@@ -41,6 +41,7 @@ export const handleProviders = ({
   Y,
   lib0,
   logOut,
+  socketioSyncStatus,
 }: HandleProvidersArgs) => {
   const { socketioProviderReady } = ready
 
@@ -115,14 +116,21 @@ export const handleProviders = ({
     })
   }
 
-  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
-    console.log('guid changed', guidChanged, socketioProviderReady)
-    socketioProvider?.disconnect()
-    socketioProvider?.destroy()
-    socketioProvider = null
-
+  if (!socketioProvider || socketioSyncStatus === 'disconnected') {
     setSpawnKey(Math.random().toString(36).substring(10))
     setSocketioProvider(newSocketIOInstance(newDoc, Y))
     setSocketioSyncStatus('connecting')
   }
+
+  //  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
+  //    console.log('guid changed', guidChanged, socketioProviderReady)
+
+  //   socketioProvider?.disconnect()
+  //   socketioProvider?.destroy()
+  //   socketioProvider = null
+
+  //   setSpawnKey(Math.random().toString(36).substring(10))
+  //   setSocketioProvider(newSocketIOInstance(newDoc, Y))
+  //   setSocketioSyncStatus('connecting')
+  // }
 }

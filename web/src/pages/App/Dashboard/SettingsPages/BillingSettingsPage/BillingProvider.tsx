@@ -6,6 +6,7 @@ import {
   BillingAddressQueryVariables,
   PaymentMethodsQuery,
   PaymentMethodsQueryVariables,
+  PublishableKeyQuery,
   SetupIntentsQuery,
   SetupIntentsQueryVariables,
   SubscriptionQuery,
@@ -16,8 +17,6 @@ import { useQuery } from '@redwoodjs/web'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-
-import { STRIPE_PUBLISHABLE_KEY } from './stripe'
 
 const BILLING_ADDRESS_QUERY = gql`
   query BillingAddressQuery($teamId: String) {
@@ -76,6 +75,12 @@ const SUBSCRIPTION_QUERY = gql`
   }
 `
 
+const PUBLISHABLE_KEY_QUERY = gql`
+  query PublishableKeyQuery {
+    publishableKey
+  }
+`
+
 const BillingAddressContext = createContext<null | {
   customerAddress: BillingAddressQuery['customer']['address'] | undefined
   refetchAddress: () => void
@@ -101,12 +106,17 @@ const SubscriptionContext =
   createContext<ReturnType<typeof useSubscriptionValue>>(null)
 export const useSubscription = () => useContext(SubscriptionContext)
 
+const PublishableKeyContext = createContext<null | string>(null)
+export const usePublishableKey = () => useContext(PublishableKeyContext)
+
 export const BillingProvider = ({
   children,
 }: {
   children: React.ReactNode
 }) => {
   const workspaceInfo = useWorkspaceInfo()
+
+  const { data: publishableKeyData } = useQuery<PublishableKeyQuery>(PUBLISHABLE_KEY_QUERY)
 
   const { data: customerAddressData, refetch: refetchAddress } = useQuery<
     BillingAddressQuery,
@@ -129,7 +139,7 @@ export const BillingProvider = ({
   )
 
   const paymentMethods = usePaymentMethodsValue()
-  const setupIntents = useSetupIntentsValue()
+  const setupIntents = useSetupIntentsValue(publishableKeyData?.publishableKey ?? null)
   const subscription = useSubscriptionValue()
 
   return (
@@ -137,7 +147,9 @@ export const BillingProvider = ({
       <PaymentMethodsContext.Provider value={paymentMethods}>
         <SetupIntentsContext.Provider value={setupIntents}>
           <SubscriptionContext.Provider value={subscription}>
+            <PublishableKeyContext.Provider value={publishableKeyData?.publishableKey ?? null}>
             {children}
+            </PublishableKeyContext.Provider>
           </SubscriptionContext.Provider>
         </SetupIntentsContext.Provider>
       </PaymentMethodsContext.Provider>
@@ -170,16 +182,20 @@ const usePaymentMethodsValue = () => {
   }
 }
 
-const useSetupIntentsValue = () => {
+const useSetupIntentsValue = (publishableKey: string | null) => {
   const [stripe, setStripe] = useState<Stripe | null>(null)
 
   useEffect(() => {
+    if (!publishableKey) {
+      return
+    }
+
     const loadStripePromise = async () => {
-      setStripe(await loadStripe(STRIPE_PUBLISHABLE_KEY))
+      setStripe(await loadStripe(publishableKey))
     }
 
     loadStripePromise()
-  }, [])
+  }, [publishableKey])
 
   const workspaceInfo = useWorkspaceInfo()
 

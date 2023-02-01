@@ -25,11 +25,12 @@ export const globeTestFeaturesMinimal: FeatureOverviewElement[] = [
       dark: require('public/img/splash/globe-test-localhost-dark.png'),
     },
   },
+
   {
     icon: PublicIcon,
     title: 'Globally Distributed Load Testing',
     description:
-      'Load tests can be run from 19 simultaneous locations around the world, including the US, Europe, and Asia, enabling geographic insights into your load test results.',
+      'Load tests can be run from 29 simultaneous locations around the world, including the US, Europe, and Asia, enabling geographic insights into your load test results.',
     image: {
       light: require('public/img/splash/geographic-insights-light.png'),
       dark: require('public/img/splash/geographic-insights-dark.png'),

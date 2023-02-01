@@ -41,6 +41,50 @@ export default async () => {
         })
       )
     )
+
+    await CreditsPricingOptionModel.getAll().then((options) =>
+        Promise.all(
+          options.map((option) => {
+              const newOption = DEFAULT_CREDITS_PRICING_OPTION.name === option.name ? DEFAULT_CREDITS_PRICING_OPTION : null
+
+              if (newOption) {
+                return CreditsPricingOptionModel.update(option.id, newOption)
+              }
+          })
+        )
+      )
+  } else if (argv['ensureOriginalOnly']) {
+    // Ensure only first object instance with a given name exists
+    // Sort so oldest object appears first
+    const existingPlans = await PlanInfoModel.getAll().then((plans) => plans.sort((a, b) =>
+      new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    ))
+
+    const existingPlanNames = new Set<string>()
+
+    for (const plan of existingPlans) {
+      if (existingPlanNames.has(plan.name)) {
+        await PlanInfoModel.delete(plan.id)
+      } else {
+        existingPlanNames.add(plan.name)
+      }
+    }
+
+    const existingOptions = await CreditsPricingOptionModel.getAll().then((options) => options.sort((a, b) =>
+    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    ))
+
+    const existingOptionNames = new Set<string>()
+
+    for (const option of existingOptions) {
+      if (existingOptionNames.has(option.name)) {
+        await CreditsPricingOptionModel.delete(option.id)
+      } else {
+        existingOptionNames.add(option.name)
+      }
+    }
+
+    console.log('Finished ensuring original only')
   } else {
     // Check if plans already exist
     const existingPlanCount = await db.planInfo.count()

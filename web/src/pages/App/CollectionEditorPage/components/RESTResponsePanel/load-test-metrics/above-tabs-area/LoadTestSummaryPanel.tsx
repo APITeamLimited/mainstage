@@ -22,7 +22,7 @@ export const LoadTestSummaryPanel = ({
 }: LoadTestSummaryPanelProps) => {
   return (
     <div key={responseYMap.get('id')}>
-      {metrics ? (
+      {metrics && responseYMap.get("configuredGraphs") === true ? (
         <MetricsOverviewStats
           metrics={
             (metrics ?? []) as unknown as (GlobeTestMessage &

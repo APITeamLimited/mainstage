@@ -71,7 +71,7 @@ export const QuickSuccessSingleStats = ({
   )
 
   return (
-    <Grid container spacing={2}>
+    <Grid container>
       <StatsItem
         name="Status"
         value={`${statusCode} ${reasonPhrase}`}

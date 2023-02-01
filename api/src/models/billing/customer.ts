@@ -20,7 +20,9 @@ export type CustomerUpdateInput = {
   email?: string
   address?: Stripe.AddressParam
   name?: string
-  defaultSourceId?: string
+  invoiceSettings?: {
+    defaultPaymentMethod?: string
+  }
 }
 
 export type Customer = Stripe.Customer
@@ -63,7 +65,9 @@ export const CustomerModel: APITeamModel<
       email: input.email,
       address: input.address,
       name: input.name,
-      default_source: input.defaultSourceId,
+      invoice_settings: input.invoiceSettings ? {
+        default_payment_method: input.invoiceSettings.defaultPaymentMethod,
+      } : undefined,
     })
   },
   delete: async (id) => {

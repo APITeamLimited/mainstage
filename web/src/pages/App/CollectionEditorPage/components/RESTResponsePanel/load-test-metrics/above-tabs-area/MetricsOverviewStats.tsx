@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { navigate} from '@redwoodjs/router'
+import { navigate } from '@redwoodjs/router'
 
 import { GlobeTestMessage, MetricsCombination, ROUTES } from '@apiteam/types/src'
 import CloseIcon from '@mui/icons-material/Close'
@@ -111,7 +111,7 @@ export const MetricsOverviewStats = ({
   const [hiddenMaxLogsWarning, setHiddenMaxLogsWarning] = useState(false)
 
   return (
-    <Stack spacing={1}>
+    <Stack spacing={2}>
       {wasLimited && !hiddenDomainThrottledWarning && (
         <Alert
           severity="warning"
@@ -144,7 +144,7 @@ export const MetricsOverviewStats = ({
           issues.
         </Alert>
       )}
-      <Grid container spacing={2}>
+      <Grid container>
         <StatsItem
           name="Total Requests"
           value={stats.totalRequests}
