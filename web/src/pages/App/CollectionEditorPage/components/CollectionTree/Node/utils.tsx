@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { Workspace } from '@apiteam/types/src'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ErrorIcon from '@mui/icons-material/Error'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
@@ -16,7 +17,6 @@ import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
 import { GlobeTestIcon } from 'src/components/utils/Icons'
-import { Workspace } from '@apiteam/types/src'
 
 export const getNewOrderingIndex = ({
   folderYMaps,
@@ -109,7 +109,14 @@ type DeleteRecursiveArgs = {
   foldersYMap: YMap<any>
   restRequestsYMap: YMap<any>
   restResponsesYMap: YMap<any>
-  cancelRunningTest: ((teamId: string | null, jobId: string) => void) | null
+  cancelRunningTest:
+    | ((
+        teamId: string | null,
+        jobId: string,
+        executionAgent: 'Cloud' | 'Local',
+        localJobId?: string
+      ) => void)
+    | null
   workspaceInfo: Workspace
 }
 
@@ -118,7 +125,8 @@ export const deleteRecursive = ({
   foldersYMap,
   restRequestsYMap,
   restResponsesYMap,
-  cancelRunningTest, workspaceInfo
+  cancelRunningTest,
+  workspaceInfo,
 }: DeleteRecursiveArgs) => {
   const nodeId = nodeYMap.get('id')
   if (nodeYMap.get('__typename') === 'Folder') {
@@ -131,7 +139,8 @@ export const deleteRecursive = ({
           foldersYMap,
           restRequestsYMap,
           restResponsesYMap,
-          cancelRunningTest, workspaceInfo
+          cancelRunningTest,
+          workspaceInfo,
         })
       }
     })
@@ -142,7 +151,9 @@ export const deleteRecursive = ({
           nodeYMap: restRequest,
           foldersYMap,
           restRequestsYMap,
-          restResponsesYMap, cancelRunningTest, workspaceInfo
+          restResponsesYMap,
+          cancelRunningTest,
+          workspaceInfo,
         })
       }
     })
@@ -157,13 +168,18 @@ export const deleteRecursive = ({
           restRequestsYMap,
           restResponsesYMap,
           cancelRunningTest,
-          workspaceInfo
+          workspaceInfo,
         })
       }
     })
   } else if (nodeYMap.get('__typename') === 'RESTResponse') {
     if (nodeYMap.get('__subtype') === 'LoadingResponse') {
-      cancelRunningTest?.(workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null, nodeYMap.get('jobId'))
+      cancelRunningTest?.(
+        workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
+        nodeYMap.get('jobId'),
+        nodeYMap.get('executionAgent'),
+        nodeYMap.get('localJobId')
+      )
     }
     restResponsesYMap.delete(nodeId)
   } else {

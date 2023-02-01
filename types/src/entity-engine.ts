@@ -1,10 +1,9 @@
 import { Team } from '@prisma/client'
 import { Jwt, JwtPayload } from 'jsonwebtoken'
 
+import type { UnderlyingRequest } from './entities'
 import { TeamRole } from './team'
 import { GlobeTestOptions } from './test-manager/globe-test'
-
-import { RESTResponse } from '.'
 
 export type ClientAwareness = {
   publicBearer?: string
@@ -40,6 +39,26 @@ export type ServerAwareness = {
     }
 )
 
+type RestCreateResponse = {
+  branchId: string
+  collectionId: string
+  underlyingRequest: UnderlyingRequest
+  finalRequestEndpoint: string
+  source: string
+  sourceName: string
+  jobId: string
+  createdByUserId: string
+  finalRequestHeaders: Record<string, string>
+} & (
+  | {
+      executionAgent: 'Cloud'
+    }
+  | {
+      executionAgent: 'Local'
+      localJobId?: string
+    }
+)
+
 export type EntityEngineServersideMessages = {
   'connection-params': {
     scopeId: string
@@ -47,18 +66,7 @@ export type EntityEngineServersideMessages = {
     projectId: string
     testType: 'rest'
   }
-  'rest-create-response': {
-    branchId: string
-    collectionId: string
-    underlyingRequest: RESTResponse['underlyingRequest']
-    finalRequestEndpoint: string
-    source: string
-    sourceName: string
-    jobId: string
-    createdByUserId: string
-    finalRequestHeaders: Record<string, string>
-    executionAgent: RESTResponse['executionAgent']
-  }
+  'rest-create-response': RestCreateResponse
   'rest-add-options': {
     branchId: string
     collectionId: string

@@ -23,10 +23,9 @@ export default async () => {
     }
   }
 
-  console.log('Uploading files to S3...')
-
+  console.log('Uploading files to public downloads...')
   for (const file of files) {
-    console.log(`Uploading ${file}...`)
+    console.log(`Uploading ${file}`)
     await s3
       .upload({
         Bucket: 'public-downloads',
@@ -36,5 +35,5 @@ export default async () => {
       .promise()
   }
 
-  console.log('Done!')
+  console.log('Successfully uploaded public downloads!')
 }

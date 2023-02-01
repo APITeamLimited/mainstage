@@ -93,6 +93,8 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
   const jobLogsKey = getLocalTestLogsKey(socket.scope, executionParams.id)
   const jobUpdatesKey = getLocalTestUpdatesKey(socket.scope, executionParams.id)
 
+  let localJobId = undefined as string | undefined
+
   orchestratorSubscribeRedis.subscribe(jobUpdatesKey, (message) => {
     const parseResult = parseAndValidateGlobeTestMessage(message)
 
@@ -108,7 +110,8 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
       params as WrappedExecutionParams,
       executionParams.id,
       runningTestKey,
-      'Local'
+      'Local',
+      localJobId
     )
   })
 
@@ -144,6 +147,10 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     }
 
     const parsedMessage = parseResult.data
+
+    if (!localJobId && typeof parsedMessage.jobId === 'string') {
+      localJobId = parsedMessage.jobId
+    }
 
     const stringifiedMessage = correctCloudID(parsedMessage, executionParams.id)
     orchestratorReadRedis.sAdd(jobLogsKey, stringifiedMessage)

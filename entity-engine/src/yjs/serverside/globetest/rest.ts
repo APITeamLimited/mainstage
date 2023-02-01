@@ -34,6 +34,7 @@ export const restCreateResponse = async (
     underlyingRequest,
     finalRequestEndpoint,
     finalRequestHeaders,
+    executionAgent,
   } = data
 
   const restResponsesYMap = projectYMap
@@ -76,14 +77,17 @@ export const restCreateResponse = async (
     sourceName: data.sourceName,
     jobId: data.jobId,
     createdByUserId: data.createdByUserId,
-    executionAgent: data.executionAgent ?? 'Cloud',
+    executionAgent,
+    localJobId: 'localJobId' in data ? data.localJobId : undefined,
   }
 
   const responseYMap = new Y.Map()
 
-  Array.from(Object.entries(restResponse)).forEach(([key, value]) =>
-    responseYMap.set(key, value)
-  )
+  Array.from(Object.entries(restResponse)).forEach(([key, value]) => {
+    if (value !== undefined) {
+      responseYMap.set(key, value)
+    }
+  })
 
   restResponsesYMap.set(restResponse.id as string, responseYMap)
 

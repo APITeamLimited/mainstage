@@ -92,6 +92,7 @@ export const DropdownPopover = ({
           sx={{
             padding: 1,
             backgroundColor: theme.palette.background.paper,
+            minWidth: 260,
           }}
           spacing={1}
         >

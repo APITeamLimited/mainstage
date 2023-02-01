@@ -5,8 +5,10 @@ import { Box } from '@mui/material'
 import { useThrottle } from '@react-hook/throttle'
 import type { Map as YMap } from 'yjs'
 
+import { useTestCancel } from 'src/contexts/cancel-running-test-provider'
 import { useYJSModule } from 'src/contexts/imports'
 import { createFolder, createRestRequest } from 'src/entity-engine/creators'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { useDragDropManager } from 'src/lib/dnd/react-dnd'
 import { useYMap } from 'src/lib/zustand-yjs'
 
@@ -21,8 +23,6 @@ import {
   getNewOrderingIndex,
 } from './utils'
 import { DropSpace } from './utils'
-import { useTestCancel } from 'src/contexts/cancel-running-test-provider'
-import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 export type NodeProps = {
   collectionYMap: YMap<any>
@@ -172,7 +172,9 @@ export const Node = ({ collectionYMap, nodeYMap, parentIndex }: NodeProps) => {
       nodeYMap,
       foldersYMap,
       restRequestsYMap,
-      restResponsesYMap,cancelRunningTest, workspaceInfo
+      restResponsesYMap,
+      cancelRunningTest,
+      workspaceInfo,
     })
   }
 

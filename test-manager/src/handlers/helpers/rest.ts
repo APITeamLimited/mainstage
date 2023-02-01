@@ -16,7 +16,8 @@ export const ensureRESTResponseExists = async (
   socket: AuthenticatedSocket,
   params: WrappedExecutionParams,
   jobId: string,
-  executionAgent: 'Local' | 'Cloud'
+  executionAgent: 'Local' | 'Cloud',
+  localJobId?: string
 ): Promise<void> => {
   const testState = runningTestStates.get(socket)
   if (!testState) throw new Error('Test state not found')
@@ -38,7 +39,13 @@ export const ensureRESTResponseExists = async (
       responseExistence: 'creating',
     })
 
-    return await restCreateResponse({ socket, params, jobId, executionAgent })
+    return await restCreateResponse({
+      socket,
+      params,
+      jobId,
+      executionAgent,
+      localJobId,
+    })
   }
 }
 
@@ -47,11 +54,13 @@ export const restCreateResponse = async ({
   params,
   jobId,
   executionAgent,
+  localJobId,
 }: {
   socket: AuthenticatedSocket
   params: WrappedExecutionParams
   jobId: string
   executionAgent: 'Local' | 'Cloud'
+  localJobId?: string
 }) => {
   if (!params.finalRequest) {
     socket.emit('error', 'Missing finalRequest parameter')
@@ -89,6 +98,7 @@ export const restCreateResponse = async ({
     jobId,
     createdByUserId: userId,
     executionAgent,
+    localJobId,
   }
 
   entityEngineSocket.emit('rest-create-response', eeParams)

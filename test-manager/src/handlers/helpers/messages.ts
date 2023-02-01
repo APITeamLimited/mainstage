@@ -27,13 +27,21 @@ export const handleMessage = async (
   params: WrappedExecutionParams,
   jobId: string,
   runningTestKey: string,
-  executionAgent: 'Local' | 'Cloud'
+  executionAgent: 'Local' | 'Cloud',
+  localJobId?: string
 ) => {
+  console.log('Message', localJobId)
   const coreCacheReadRedis = await getCoreCacheReadRedis()
   const coreCacheSubscribeRedis = await getCoreCacheSubscribeRedis()
 
   if (params.testType === 'rest') {
-    await ensureRESTResponseExists(socket, params, jobId, executionAgent)
+    await ensureRESTResponseExists(
+      socket,
+      params,
+      jobId,
+      executionAgent,
+      localJobId
+    )
 
     if (message.messageType === 'OPTIONS') {
       await restAddOptions({
@@ -52,7 +60,6 @@ export const handleMessage = async (
     //     executionAgent,
     //   })
     // }
-
     else if (message.messageType === 'MARK') {
       if (message.message.mark === 'MarkedResponse') {
         // Bad hack for race conditions on slow clients
@@ -112,7 +119,7 @@ export const handleMessage = async (
           )
         }
 
-        const runningState = runningTestStates.get(socket)
+        let runningState = runningTestStates.get(socket)
 
         if (!runningState)
           throw new Error(`Running state not found, ${JSON.stringify(message)}`)
@@ -124,24 +131,35 @@ export const handleMessage = async (
         } else if (message.message === 'COMPLETED_FAILURE') {
           wasSuccessful = false
         } else if (message.message === 'COMPLETED_SUCCESS') {
-          if (
-            !runningState.globeTestLogsStoreReceipt ||
-            !runningState.metricsStoreReceipt ||
-            !runningState.options ||
-            !runningState.responseId ||
-            !runningState.entityEngineSocket
-          ) {
-            console.log('Failed because of missing data:', {
-              globeTestLogsStoreReceipt:
-                !!runningState.globeTestLogsStoreReceipt,
-              metricsStoreReceipt: !!runningState.metricsStoreReceipt,
-              options: !!runningState.options,
-              responseId: !!runningState.responseId,
-              entityEngineSocket: !!runningState.entityEngineSocket,
-            })
+          const ensureAllData = async (count = 0): Promise<boolean> => {
+            // Keep updating the running state
+            runningState = runningTestStates.get(socket)
 
-            wasSuccessful = false
+            if (!runningState || runningState.testType !== 'rest') {
+              return false
+            }
+
+            const gotAllData =
+              !!runningState.globeTestLogsStoreReceipt &&
+              !!runningState.metricsStoreReceipt &&
+              !!runningState.options &&
+              !!runningState.responseId &&
+              !!runningState.entityEngineSocket &&
+              !!runningState.markedResponse
+
+            console.log('gotAllData', gotAllData)
+
+            if (!gotAllData) {
+              if (count < 15) {
+                await new Promise((resolve) => setTimeout(resolve, 500))
+                return await ensureAllData(count + 1)
+              }
+            }
+
+            return gotAllData
           }
+
+          wasSuccessful = await ensureAllData(0)
         }
 
         await handleResult({

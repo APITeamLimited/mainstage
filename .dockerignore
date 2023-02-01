@@ -7,3 +7,5 @@
 
 # Don't ignore webpack.config.js
 !web/config/webpack.config.js
+
+scripts/public-downloads/

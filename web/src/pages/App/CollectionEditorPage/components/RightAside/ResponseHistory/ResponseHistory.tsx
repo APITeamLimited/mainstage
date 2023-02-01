@@ -6,6 +6,7 @@ import { useReactiveVar } from '@apollo/client'
 import { Stack, Typography, Box, useTheme, Button } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { useTestCancel } from 'src/contexts/cancel-running-test-provider'
 import {
   clearFocusedRESTResponse,
   focusedResponseVar,
@@ -13,14 +14,13 @@ import {
 } from 'src/contexts/focused-response'
 import { useSimplebarReactModule, useYJSModule } from 'src/contexts/imports'
 import { focusedElementVar, getFocusedElementKey } from 'src/contexts/reactives'
+import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import { deleteRestResponse } from 'src/entity-engine/handlers/rest-response'
 import { useYMap } from 'src/lib/zustand-yjs'
 
 import { RightAsideLayout } from '../RightAsideLayout'
 
 import { ResponseHistoryItem } from './ResponseHistoryItem'
-import { useTestCancel } from 'src/contexts/cancel-running-test-provider'
-import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 
 type GroupedResponses = {
   [key: string]: YMap<any>[]
@@ -173,7 +173,12 @@ export const ResponseHistory = ({
     // If response is for a running request, cancel the request
 
     if (restResponse.get('__subtype') === 'LoadingResponse') {
-      cancelRunningTest?.(workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null, restResponse.get('jobId'))
+      cancelRunningTest?.(
+        workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
+        restResponse.get('jobId'),
+        restResponse.get('executionAgent'),
+        restResponse.get('localJobId')
+      )
     }
 
     clearFocusedRESTResponse(focusedElementDict, restResponse)
@@ -207,7 +212,12 @@ export const ResponseHistory = ({
     Object.values(groupedResponses).forEach((responses) =>
       responses.forEach((responseYMap) => {
         if (responseYMap.get('__subtype') === 'LoadingResponse') {
-          cancelRunningTest?.(workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null, responseYMap.get('jobId'))
+          cancelRunningTest?.(
+            workspaceInfo.isTeam ? workspaceInfo.scope.variantTargetId : null,
+            responseYMap.get('jobId'),
+            responseYMap.get('executionAgent'),
+            responseYMap.get('localJobId')
+          )
         }
         restResponsesYMap.delete(responseYMap.get('id'))
       })
