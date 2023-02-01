@@ -1,13 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { ApolloClient } from '@apollo/client'
-import * as bc from 'lib0/broadcastchannel'
 import * as decoding from 'lib0/decoding'
 import * as encoding from 'lib0/encoding'
-import * as math from 'lib0/math'
 import { Observable } from 'lib0/observable'
-import { uuidv4 } from 'lib0/random'
 import * as time from 'lib0/time'
-import { io, protocol, Socket } from 'socket.io-client'
+import { io, Socket } from 'socket.io-client'
 import { GetPublicBearer, GetPublicBearerVariables } from 'types/graphql'
 import type { Awareness } from 'y-protocols/awareness'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
@@ -15,7 +12,6 @@ import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { Lib0Module, YJSModule } from 'src/contexts/imports'
 import { handleLogout } from 'src/utils/nav-utils'
 
-import { entityEngineStatusVar } from './EntityEngine'
 import * as syncProtocol from './sync'
 import { GET_PUBLIC_BEARER, PossibleSyncStatus } from './utils'
 
@@ -359,19 +355,25 @@ export class SocketIOProvider extends Observable<string> {
       })
 
       newSocket.on('disconnect', async (error) => {
-        this.emit('connection-close', [error, this])
-        this.socket = null
-        this.socketConnecting = false
-
-        if (this.socketConnected) {
-          this.socketConnected = false
-          this.synced = false
-          this.onStatusChange('disconnected', this.doc)
-        } else {
-          this.socketUnsuccessfulReconnects++
+        // Reconnect
+        if (this.shouldConnect) {
+          console.log('setupSocket: websocket disconnect', error)
+          this.setupSocket()
         }
 
-        newSocket?.close()
+        // this.emit('connection-close', [error, this])
+        // this.socket = null
+        // this.socketConnecting = false
+
+        // if (this.socketConnected) {
+        //   this.socketConnected = false
+        //   this.synced = false
+        //   this.onStatusChange('disconnected', this.doc)
+        // } else {
+        //   this.socketUnsuccessfulReconnects++
+        // }
+
+        // newSocket?.close()
       })
 
       newSocket.on('connect', () => {
@@ -472,6 +474,7 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   destroy() {
+    console.log('called destroy')
     this.shouldConnect = false
     this.awareness?.setLocalState(null)
 
@@ -496,6 +499,7 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   disconnect() {
+    console.log('called disconnect')
     this.socket?.emit('forceDisconnect')
     this.socket?.disconnect()
     this.destroy()

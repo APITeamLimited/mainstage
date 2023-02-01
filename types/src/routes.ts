@@ -42,28 +42,3 @@ export const LINKS = {
   globeTestRepo: 'https://github.com/APITeamLimited/globe-test',
   agentRepo: 'https://github.com/APITeamLimited/agent',
 } as const
-
-const agentVersion = 'v0.1.20'
-
-export const AGENT_LINKS = {
-  windows64: {
-    link: `/api/public-downloads?filename=apiteam-agent-windows-amd64-${agentVersion}%2Emsi`,
-    isFullLink: false,
-  },
-  macAMD64: {
-    link: `/api/public-downloads?filename=apiteam-agent-darwin-amd64-${agentVersion}%2Epkg`,
-    isFullLink: false,
-  },
-  macARM64: {
-    link: `/api/public-downloads?filename=apiteam-agent-darwin-arm64-${agentVersion}%2Epkg`,
-    isFullLink: false,
-  },
-  linux64Debian: {
-    link: `/api/public-downloads?filename=apiteam-agent-linux-amd64-${agentVersion}%2Edeb`,
-    isFullLink: false,
-  },
-  linux64Binary: {
-    link: `/api/public-downloads?filename=apiteam-agent-linux-amd64-${agentVersion}%2Etar%2Egz`,
-    isFullLink: false,
-  },
-} as const

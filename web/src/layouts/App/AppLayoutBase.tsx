@@ -60,49 +60,50 @@ export const AppLayoutBase = ({
         <BillingInfoProvider>
           <LocalTestManagerProvider>
             <CancelRunningTestProvider>
-            <DialogsProvider />
-            <ReactiveVarPersistor />
-            <Stack
-              sx={{
-                backgroundColor: theme.palette.background.default,
-                position: 'relative',
-                minHeight: '100vh',
-              }}
-            >
-              {appBar ? (
-                topNav
-              ) : (
-                <CustomAppBar trigger={trigger}>{topNav}</CustomAppBar>
-              )}
-              {appBar && (
-                <CustomAppBar trigger={trigger}>{appBar}</CustomAppBar>
-              )}
-              <Box
+              <DialogsProvider />
+              <ReactiveVarPersistor />
+              <Stack
                 sx={{
-                  paddingBottom: {
-                    xs: footer.height.xs,
-                    md: footer.height.md,
-                  },
                   backgroundColor: theme.palette.background.default,
+                  position: 'relative',
+                  minHeight: '100vh',
                 }}
               >
-                <main>
-                  {onDashboard ? (
-                    <Container
-                      sx={{
-                        paddingY: 6,
-                        minHeight: '94vh',
-                      }}
-                    >
-                      {children}
-                    </Container>
-                  ) : (
-                    children
-                  )}
-                </main>
-              </Box>
-              {footer.element}
-            </Stack></CancelRunningTestProvider>
+                {appBar ? (
+                  topNav
+                ) : (
+                  <CustomAppBar trigger={trigger}>{topNav}</CustomAppBar>
+                )}
+                {appBar && (
+                  <CustomAppBar trigger={trigger}>{appBar}</CustomAppBar>
+                )}
+                <Box
+                  sx={{
+                    paddingBottom: {
+                      xs: footer.height.xs,
+                      md: footer.height.md,
+                    },
+                    backgroundColor: theme.palette.background.default,
+                  }}
+                >
+                  <main>
+                    {onDashboard ? (
+                      <Container
+                        sx={{
+                          paddingY: 6,
+                          minHeight: '94vh',
+                        }}
+                      >
+                        {children}
+                      </Container>
+                    ) : (
+                      children
+                    )}
+                  </main>
+                </Box>
+                {footer.element}
+              </Stack>
+            </CancelRunningTestProvider>
           </LocalTestManagerProvider>
         </BillingInfoProvider>
       </EntityEngine>

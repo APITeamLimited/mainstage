@@ -62,7 +62,6 @@ export const CollectionEditorPage = ({
   useEffect(() => {
     if (projectYMap?.get('__typename') === 'Project' && !firstLoadedProject) {
       setFirstLoadedProject(true)
-      console.log('Project loaded')
     }
 
     if (!firstLoadedProject) {

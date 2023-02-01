@@ -20,7 +20,10 @@ export const DocProviderGuard = ({
   children: React.ReactNode
   socketioSyncStatus: PossibleSyncStatus
 }) => {
-  if (!doc || socketioSyncStatus !== 'connected') {
+  if (
+    !doc ||
+    (socketioSyncStatus !== 'connected' && socketioSyncStatus !== 'connecting')
+  ) {
     return <></>
   }
 

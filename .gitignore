@@ -30,3 +30,5 @@ desktop/Webapp*
 !web/config/webpack.config.js
 
 .clinic/
+
+scripts/public-downloads/

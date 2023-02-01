@@ -302,7 +302,7 @@ __metadata:
     react-xarrows: ^2.0.2
     sass-loader: ^13.0.2
     simplebar-react: ^2.4.3
-    socket.io-client: ^4.5.1
+    socket.io-client: ^4.5.4
     stripe: ^9.11.0
     swagger2openapi: ^7.0.8
     use-async-memo: ^1.2.4
@@ -18165,6 +18165,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"engine.io-client@npm:~6.2.3":
+  version: 6.2.3
+  resolution: "engine.io-client@npm:6.2.3"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.1
+    engine.io-parser: ~5.0.3
+    ws: ~8.2.3
+    xmlhttprequest-ssl: ~2.0.0
+  checksum: f0f336627c26ba2712480f247e50273c717b13969970c6abc633c26ef993f9aa69584636605f18c4ca1e853408ab7add430d73053193e41af451665cf615f7da
+  languageName: node
+  linkType: hard
+
 "engine.io-parser@npm:~5.0.3":
   version: 5.0.4
   resolution: "engine.io-parser@npm:5.0.4"
@@ -33360,7 +33373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"socket.io-client@npm:^4.5.1, socket.io-client@npm:^4.5.2":
+"socket.io-client@npm:^4.5.2":
   version: 4.5.2
   resolution: "socket.io-client@npm:4.5.2"
   dependencies:
@@ -33369,6 +33382,18 @@ __metadata:
     engine.io-client: ~6.2.1
     socket.io-parser: ~4.2.0
   checksum: 722d3df1a677450ff8d1190fbb222f1473ed892813388a3e2115e18365abc6870291c192d2bd23a0495593868702d4388527138aa0d4ce75c9e2c1e6b3a6e8d9
+  languageName: node
+  linkType: hard
+
+"socket.io-client@npm:^4.5.4":
+  version: 4.5.4
+  resolution: "socket.io-client@npm:4.5.4"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.2
+    engine.io-client: ~6.2.3
+    socket.io-parser: ~4.2.1
+  checksum: 3ac19b94da6ee75c830c2c07c844bacc0b07c905625f8c8bba0403ebef185ecfc1af4fa1c1ee3bf0ae78e3428eb593301e0bd40850f938a336254a425a461971
   languageName: node
   linkType: hard
 
@@ -33390,6 +33415,16 @@ __metadata:
     "@socket.io/component-emitter": ~3.1.0
     debug: ~4.3.1
   checksum: d59530de3fe1d0e5ce680e266940eef60a4a8faa9a8036914ab05760ba9efb4a05e3f44ede1be37f2698ffa2fad8860f2ba46cf69c64a9e52fb6a0ec11252dfd
+  languageName: node
+  linkType: hard
+
+"socket.io-parser@npm:~4.2.1":
+  version: 4.2.2
+  resolution: "socket.io-parser@npm:4.2.2"
+  dependencies:
+    "@socket.io/component-emitter": ~3.1.0
+    debug: ~4.3.1
+  checksum: 463d8aa73ee877adb2047e2e590fb5f3db562d99dbe6dcb32ea08fc756f0654345476e326287645b8a43bc1c137018f7525fc4d0291828749fb7445bcc56631b
   languageName: node
   linkType: hard
 

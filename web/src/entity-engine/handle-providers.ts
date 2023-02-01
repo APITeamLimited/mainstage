@@ -93,6 +93,7 @@ export const handleProviders = ({
       options: {
         onStatusChange: (status, doc) => {
           doc.load()
+          console.log('status change', status)
           setSocketioSyncStatus(status)
         },
         onAwarenessUpdate: (awareness) => {

@@ -26,6 +26,7 @@ import { DocProviderGuard } from './DocProviderGuard'
 import { handleProviders } from './handle-providers'
 import { ScopeUpdater } from './ScopeUpdater'
 import { DisconnectedScreen } from './screens/DisconnectedScreen'
+import { OfflineDialog } from './screens/OfflineDialog'
 import { SleepDetector } from './SleepDetector'
 import { SocketIOManager } from './socket-io-manager'
 import { SocketIOProvider } from './socket-io-provider'
@@ -279,7 +280,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
     entityEngineStatusVar('disabled')
 
     // If connected to internet, but not connected to the server, reload the page
-    if (window.navigator.onLine) {
+    if (window.navigator.onLine && socketioSyncStatus === 'disconnected') {
       console.log(
         'Reloading page 1',
         activeWorkspace?.scope,
@@ -311,11 +312,12 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   return (
     <>
+      <OfflineDialog />
       <SleepDetector />
       <SocketIOManager
         key={`${socketioProvider?.doc.guid.toString()}${inApp.toString()}${spawnKey}${(
-          socketioSyncStatus === 'disconnected'
-        ).toString()}${(socketioSyncStatus === 'disabled').toString()}`}
+          socketioSyncStatus === 'disabled'
+        ).toString()}`}
         socketioProvider={socketioProvider}
       />
       <div key={socketioSyncStatusRef.current}>
