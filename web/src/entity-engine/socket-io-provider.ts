@@ -360,20 +360,6 @@ export class SocketIOProvider extends Observable<string> {
           console.log('setupSocket: websocket disconnect', error)
           this.setupSocket()
         }
-
-        // this.emit('connection-close', [error, this])
-        // this.socket = null
-        // this.socketConnecting = false
-
-        // if (this.socketConnected) {
-        //   this.socketConnected = false
-        //   this.synced = false
-        //   this.onStatusChange('disconnected', this.doc)
-        // } else {
-        //   this.socketUnsuccessfulReconnects++
-        // }
-
-        // newSocket?.close()
       })
 
       newSocket.on('connect', () => {
@@ -502,7 +488,6 @@ export class SocketIOProvider extends Observable<string> {
     console.log('called disconnect')
     this.socket?.emit('forceDisconnect')
     this.socket?.disconnect()
-    this.destroy()
   }
 
   connect() {

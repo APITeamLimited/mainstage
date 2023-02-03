@@ -30,7 +30,6 @@ export const handleMessage = async (
   executionAgent: 'Local' | 'Cloud',
   localJobId?: string
 ) => {
-  console.log('Message', localJobId)
   const coreCacheReadRedis = await getCoreCacheReadRedis()
   const coreCacheSubscribeRedis = await getCoreCacheSubscribeRedis()
 

@@ -7,11 +7,11 @@ type TopNavLinkProps = {
   path: string
 }
 
-export const TopNavLink = ({ name, path, }: TopNavLinkProps) => {
+export const TopNavLink = ({ name, path }: TopNavLinkProps) => {
   const theme = useTheme()
 
   return (
-    <Typography fontWeight="bold">
+    <Typography>
       <Link
         to={path}
         style={{
