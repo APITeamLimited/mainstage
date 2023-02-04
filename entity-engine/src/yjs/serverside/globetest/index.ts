@@ -27,7 +27,7 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
 
   if (!projectId || projectId.length === 0) {
     socket.emit('error', 'No projectId provided')
-    socket.disconnect()
+    socket.disconnect(true)
     return
   }
 
@@ -38,7 +38,7 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
 
   if (!projectYMap) {
     socket.emit('error', 'Project not found')
-    socket.disconnect()
+    socket.disconnect(true)
     return
   }
 
@@ -88,6 +88,6 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
 }
 
 export const cleanupSocket = (socket: Socket) => {
-  socket.disconnect()
+  socket.disconnect(true)
   globeTestState.delete(socket)
 }

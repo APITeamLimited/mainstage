@@ -52,29 +52,29 @@ const handleInit = async () => {
   // Support intrnal serverside connections
   const serversideServers = createServersideHandlers(httpServer)
 
-  if (process.env.NODE_ENV === 'development') {
-    // Every minute print memory usage and number of connections
-    setInterval(() => {
-      let serversideConnections = 0
+  // if (process.env.NODE_ENV === 'development') {
+  // Every minute print memory usage and number of connections
+  setInterval(() => {
+    let serversideConnections = 0
 
-      serversideServers.forEach((server) => {
-        serversideConnections += server.engine.clientsCount
-      })
+    serversideServers.forEach((server) => {
+      serversideConnections += server.engine.clientsCount
+    })
 
-      console.log(
-        Color(
-          `${new Date().toISOString()} Connections: ${
-            clientIoServer.engine.clientsCount
-          } Serverside Connections ${serversideConnections} Memory: ${(
-            process.memoryUsage().heapUsed /
-            1000 /
-            1000
-          ).toFixed(2)}MB`,
-          '#70c289'
-        )
+    console.log(
+      Color(
+        `${new Date().toISOString()} Connections: ${
+          clientIoServer.engine.clientsCount
+        } Serverside Connections ${serversideConnections} Memory: ${(
+          process.memoryUsage().heapUsed /
+          1000 /
+          1000
+        ).toFixed(2)}MB`,
+        '#70c289'
       )
-    }, 60000)
-  }
+    )
+  }, 60000)
+  // }
 
   httpServer.listen(entityEnginePort, entityEngineHost, () => {
     console.log(

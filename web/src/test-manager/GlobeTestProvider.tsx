@@ -23,7 +23,7 @@ import { useWorkspace } from 'src/entity-engine'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
 import {
   Bearer,
-  GET_BEARER_PUBKEY__SCOPES_QUERY,
+  GET_BEARER_PUBKEY_SCOPES_QUERY,
 } from 'src/entity-engine/utils'
 import { useYMap } from 'src/lib/zustand-yjs'
 
@@ -58,7 +58,7 @@ export const GlobeTestProvider = () => {
 
   // Get bearer token from gql query
   const { data } = useQuery<GetBearerPubkeyScopes>(
-    GET_BEARER_PUBKEY__SCOPES_QUERY,
+    GET_BEARER_PUBKEY_SCOPES_QUERY,
     {
       skip: bearerExpiry > Date.now() || !isAuthenticated,
     }

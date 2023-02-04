@@ -164,7 +164,7 @@ export const processAuthData = ({
   setActiveWorkspace(activeWorkspace)
 }
 
-export const GET_BEARER_PUBKEY__SCOPES_QUERY = gql`
+export const GET_BEARER_PUBKEY_SCOPES_QUERY = gql`
   query GetBearerPubkeyScopes {
     bearer
     publicKey

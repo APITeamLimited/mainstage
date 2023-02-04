@@ -188,7 +188,7 @@ export class OpenDoc extends Y.Doc {
     this.scopes.delete(socket)
     console.log('close socket')
 
-    socket.disconnect()
+    socket.disconnect(true)
 
     // Close doc if no more connections
     if (this.sockets.size === 0 && this.serversideSockets.size === 0) {
@@ -276,7 +276,7 @@ export class OpenDoc extends Y.Doc {
 
   deleteServersideSocket(socket: Socket) {
     this.serversideSockets.delete(socket)
-    socket.disconnect()
+    socket.disconnect(true)
 
     if (this.serversideSockets.size === 0 && this.sockets.size === 0) {
       this.closeDoc()

@@ -2,7 +2,7 @@
 import { GlobeTestMessage, parseGlobeTestMessage } from '@apiteam/types/src'
 import { io, Socket } from 'socket.io-client'
 
-import { refetchRunningCountVar } from 'src/pages/App/CollectionEditorPage/components/StatusBar/running-tests'
+import { refetchRunningCountVar } from 'src/pages/App/EditorPage/components/StatusBar/running-tests'
 
 import { getTestManagerURL } from '../utils'
 

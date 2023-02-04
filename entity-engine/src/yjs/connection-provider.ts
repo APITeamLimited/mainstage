@@ -55,7 +55,7 @@ export const handleNewConnection = async (socket: Socket) => {
   const postAuth = await handlePostAuth(socket)
 
   if (postAuth === null) {
-    socket.disconnect()
+    socket.disconnect(true)
     return
   }
 

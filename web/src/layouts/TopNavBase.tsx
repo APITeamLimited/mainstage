@@ -60,7 +60,9 @@ export const TopNavBase = ({
             height: '100%',
           }}
         >
-          {leftZone}
+          <Stack direction="row" alignItems="center" spacing={2}>
+            {leftZone}
+          </Stack>
         </Box>
         <Box>
           <Stack direction="row" alignItems="center" spacing={2}>

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { makeVar } from '@apollo/client'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
+import type { Map as YMap } from 'yjs'
 
 type ActiveEnvironmentDictionary = {
   [WorkspaceId_ProjectId_BranchId: string]: string | null

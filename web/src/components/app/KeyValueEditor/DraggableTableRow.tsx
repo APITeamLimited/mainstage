@@ -2,7 +2,6 @@ import { useRef } from 'react'
 
 import {
   FileFieldKeyValueItem,
-  FileFieldKV,
   KeyValueItem,
   KVVariantTypes,
 } from '@apiteam/types/src'
@@ -134,9 +133,11 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
       id: item.id,
       type: 'DraggableType',
     },
-    collect: (monitor) => ({
-      isBeingDragged: monitor.isDragging(),
-    }),
+    collect: (monitor) => {
+      return {
+        isBeingDragged: monitor.isDragging(),
+      }
+    },
   })
 
   const handleIsFileChange = (fileEnabled: boolean) => {
@@ -318,6 +319,11 @@ export const DraggableTableRow = <T extends KVVariantTypes>({
             maxWidth: '200px',
             minWidth: '200px',
             borderColor: theme.palette.divider,
+          }}
+          onSelect={(e) => e.stopPropagation()}
+          onDragStart={(e) => {
+            console.log('drag start')
+            e.preventDefault()
           }}
         >
           {enableEnvironmentVariables ? (

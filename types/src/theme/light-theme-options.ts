@@ -192,6 +192,8 @@ export const lightThemeOptions = {
     alternate: {
       main: '#f7faff',
       dark: '#edf1f7',
+      // Make a really light shade of blue
+      accentBlue: '#f4f6fa',
     },
   },
   shadows: [

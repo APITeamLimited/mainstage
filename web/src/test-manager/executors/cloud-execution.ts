@@ -2,8 +2,6 @@
 import {
   ExecutionParams,
   GlobeTestMessage,
-  kvExporter,
-  kvLegacyImporter,
   WrappedExecutionParams,
   parseGlobeTestMessage,
 } from '@apiteam/types/src'
@@ -13,6 +11,7 @@ import type { Doc as YDoc, Map as YMap } from 'yjs'
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { HashSumModule } from 'src/contexts/imports'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
+import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 
 import type { BaseJob, PendingLocalJob } from '../lib'
 import { handleRESTAutoFocus } from '../utils'

@@ -167,9 +167,32 @@ export const BillingInfoProvider = ({ children }: BillingInfoProviderProps) => {
     workspaceInfo.isTeam,
   ])
 
+  // Prevents flicker, apollo not caching data?
+  // TODO: Figure out why apollo is not caching data
+
+  const [previousPlanInfoData, setPreviousPlanInfoData] =
+    useState<PlanInfoQuery | null>(null)
+
+  useEffect(() => {
+    if (!planInfoData) {
+      return
+    }
+
+    if (
+      !previousPlanInfoData ||
+      previousPlanInfoData.currentPlan?.id !== planInfoData.currentPlan?.id
+    ) {
+      setPreviousPlanInfoData(planInfoData)
+    }
+  }, [planInfoData, previousPlanInfoData])
+
   return (
     <PlanInfoContex.Provider
-      value={planInfoData ? planInfoData.currentPlan : null}
+      value={
+        planInfoData
+          ? planInfoData.currentPlan
+          : previousPlanInfoData?.currentPlan ?? null
+      }
     >
       <CreditsContex.Provider value={credits}>
         {children}

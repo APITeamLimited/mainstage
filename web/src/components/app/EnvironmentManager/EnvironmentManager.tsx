@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { KeyValueItem, kvExporter, kvLegacyImporter } from '@apiteam/types/src'
+import { KeyValueItem } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import DeselectIcon from '@mui/icons-material/Deselect'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
@@ -32,6 +32,7 @@ import {
 } from 'src/contexts/reactives'
 import { createEnvironment } from 'src/entity-engine/creators'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 import { KeyValueEditor } from '../KeyValueEditor'

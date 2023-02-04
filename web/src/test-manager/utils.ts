@@ -110,6 +110,13 @@ export const handleRESTAutoFocus = (
 
         if (!restResponseYMap) {
           if (count >= 10) {
+            alert(
+              `Couldn't find response with id ${responseId} after ${count} tries`
+            )
+
+            // TODO: Find a better way to handle this that doesnt involve just reloading the page
+            window.location.reload()
+
             throw new Error(
               `Couldn't find response with id ${responseId} after ${count} tries`
             )

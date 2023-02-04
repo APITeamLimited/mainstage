@@ -118,7 +118,7 @@ const Routes = () => {
           <Route path={ROUTES.settingsWorkspaceBilling} page={AppDashboardSettingsPagesBillingSettingsPage} name="settingsWorkspaceBilling" />
           <Route path={ROUTES.settingsWorkspaceInvoices} page={AppDashboardSettingsPagesInvoicesSettingsPage} name="settingsWorkspaceInvoices" />
           <Route path={ROUTES.domains} page={AppDashboardDomainsPage} name="domains" />
-          <Route path={ROUTES.collectionEditor} page={AppCollectionEditorPage} name="collectionEditor" />
+          <Route path={ROUTES.editor} page={AppEditorPage} name="editor" />
         </Set>
       </Private>
       <Private unauthenticated="login">

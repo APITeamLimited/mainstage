@@ -35,7 +35,8 @@ export function QuickstartDialog() {
   const { isOpen, project } = useReactiveVar(quickstartDialogStateVar)
 
   const handleClose = () => {
-    quickstartDialogStateVar({ isOpen: false, project: null })
+    // Needed for creating sub resources
+    quickstartDialogStateVar({ project, isOpen: false })
   }
 
   const items = [
@@ -51,7 +52,7 @@ export function QuickstartDialog() {
     {
       primary: 'New Environment',
       secondary:
-        'Store frequently used variables for use in requests and tests',
+        'Store frequently used variables for use in requests and scripts',
       icon: ListAltIcon,
       onClick: () => {
         handleClose()

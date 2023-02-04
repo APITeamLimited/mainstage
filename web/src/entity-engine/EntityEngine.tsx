@@ -33,7 +33,7 @@ import { SocketIOProvider } from './socket-io-provider'
 import {
   Bearer,
   determineIfReady,
-  GET_BEARER_PUBKEY__SCOPES_QUERY,
+  GET_BEARER_PUBKEY_SCOPES_QUERY,
   initialReadyStatus,
   processAuthData,
   ReadyStatus,
@@ -139,7 +139,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   // Get bearer token from gql query
   const { data, error } = useQuery<GetBearerPubkeyScopes>(
-    GET_BEARER_PUBKEY__SCOPES_QUERY,
+    GET_BEARER_PUBKEY_SCOPES_QUERY,
     {
       skip: bearerExpiry > Date.now() || !isAuthenticated,
     }
@@ -174,7 +174,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
   const refetchScopes = useCallback(
     async (teamId?: string) => {
       const { data } = await apolloClient.query<GetBearerPubkeyScopes>({
-        query: GET_BEARER_PUBKEY__SCOPES_QUERY,
+        query: GET_BEARER_PUBKEY_SCOPES_QUERY,
         fetchPolicy: 'network-only',
       })
 
@@ -312,7 +312,7 @@ export const EntityEngine = ({ children }: EntityEngineProps) => {
 
   return (
     <>
-      <OfflineDialog />
+      <OfflineDialog socketioSyncStatus={socketioSyncStatus} />
       <SleepDetector />
       <SocketIOManager
         key={`${socketioProvider?.doc.guid.toString()}${inApp.toString()}${spawnKey}${(

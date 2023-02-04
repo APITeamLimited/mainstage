@@ -101,7 +101,7 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         }),
 
         // Import pages so app is snappy
-        import('src/pages/App/CollectionEditorPage'),
+        import('src/pages/App/EditorPage'),
         import('src/pages/App/Dashboard/OverviewPage'),
         import('src/pages/App/Dashboard/DomainsPage'),
         import('src/pages/App/Dashboard/SettingsPages/GeneralSettingsPage'),

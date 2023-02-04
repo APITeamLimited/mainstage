@@ -195,6 +195,8 @@ export const darkThemeOptions = {
     alternate: {
       main: '#1a2138',
       dark: '#151a30',
+      // Dark compliment of #f4f6fa
+      accentBlue: '#1a2138',
     },
     primary,
     secondary,

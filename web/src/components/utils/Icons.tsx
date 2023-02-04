@@ -1,4 +1,5 @@
 import BlurCircularIcon from '@mui/icons-material/BlurCircular'
+import CodeIcon from '@mui/icons-material/Code'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import ImportExportIcon from '@mui/icons-material/ImportExport'
 import PublicIcon from '@mui/icons-material/Public'
@@ -11,6 +12,8 @@ export const GlobeTestIcon = (props: SvgIconProps) => <PublicIcon {...props} />
 export const CollectionEditorIcon = (props: SvgIconProps) => (
   <FeaturedPlayListIcon {...props} />
 )
+
+export const EnvironmentIcon = (props: SvgIconProps) => <CodeIcon {...props} />
 
 export const ImporterIcon = (props: SvgIconProps) => (
   <ImportExportIcon {...props} />

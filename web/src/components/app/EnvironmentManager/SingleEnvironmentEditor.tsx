@@ -1,12 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import {
-  KeyValueItem,
-  kvExporter,
-  kvLegacyImporter,
-  LocalValueKV,
-} from '@apiteam/types/src'
+import { KeyValueItem, LocalValueKV } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Button } from '@mui/material'
 import type { Map as YMap } from 'yjs'
@@ -18,6 +13,7 @@ import {
   updateActiveEnvironmentId,
 } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 
 import { QueryDeleteDialog } from '../dialogs/QueryDeleteDialog'
 import { KeyValueEditor } from '../KeyValueEditor'

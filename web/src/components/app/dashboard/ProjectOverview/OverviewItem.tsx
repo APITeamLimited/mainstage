@@ -124,7 +124,7 @@ export function OverviewItem({ overviewYMap }: OverviewItemProps) {
         }
       }
 
-      return navigate(routes.collectionEditor(params))
+      return navigate(routes.editor(params))
     } else if (displayType === 'Environment') {
       setShowEnvironmentManager(true)
     }

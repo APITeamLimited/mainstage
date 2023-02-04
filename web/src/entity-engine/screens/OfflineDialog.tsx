@@ -7,9 +7,16 @@ import {
   DialogContentText,
   DialogTitle,
   Box,
+  CircularProgress,
 } from '@mui/material'
 
-export const OfflineDialog = () => {
+import { PossibleSyncStatus } from '../utils'
+
+type OfflineDialogProps = {
+  socketioSyncStatus: PossibleSyncStatus
+}
+
+export const OfflineDialog = ({ socketioSyncStatus }: OfflineDialogProps) => {
   const [offline, setOffline] = useState(false)
 
   useEffect(() => {
@@ -26,7 +33,13 @@ export const OfflineDialog = () => {
   }, [])
 
   return (
-    <Dialog open={offline}>
+    <Dialog
+      open={
+        offline ||
+        socketioSyncStatus === 'disconnected' ||
+        socketioSyncStatus === 'connecting'
+      }
+    >
       <DialogTitle>Offline</DialogTitle>
       <DialogContent
         sx={{
@@ -34,10 +47,21 @@ export const OfflineDialog = () => {
         }}
       >
         <DialogContentText>
-          You are currently offline. Please check your internet connection.
+          {offline
+            ? 'You are currently offline. Please check your internet connection.'
+            : 'Disconnected from APITeam servers, we are attempting to reconnect. If this persists, please reload the page.'}
         </DialogContentText>
         <Box sx={{ display: 'flex', justifyContent: 'center', padding: 4 }}>
-          <WifiOffIcon color="action" sx={{ fontSize: 100 }} />
+          {offline ? (
+            <WifiOffIcon color="action" sx={{ fontSize: 100 }} />
+          ) : (
+            <CircularProgress
+              sx={{
+                height: 100,
+                width: 100,
+              }}
+            />
+          )}
         </Box>
       </DialogContent>
     </Dialog>

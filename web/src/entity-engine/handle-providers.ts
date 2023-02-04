@@ -45,18 +45,9 @@ export const handleProviders = ({
 }: HandleProvidersArgs) => {
   const { socketioProviderReady } = ready
 
-  // Close the providers if they should not be operational
-  if (!socketioProviderReady && socketioProvider) {
-    console.log('closing existing providers', socketioProviderReady)
-    socketioProvider.disconnect()
-    socketioProvider.destroy()
-  }
-
   if (!socketioProviderReady) return
 
   const activeGUID = `${activeScope.variant}:${activeScope.variantTargetId}`
-
-  const guidChanged = doc?.guid !== activeGUID
 
   const getNewDoc = (
     oldDoc: YDoc | null,
@@ -105,7 +96,13 @@ export const handleProviders = ({
             (client) => 'variant' in client
           ) as ServerAwareness[]
 
-          if (serverAwareness.length === 0) throw 'No server awareness found'
+          if (activeScope.variant === 'USER') {
+            return
+          }
+
+          if (serverAwareness.length === 0) {
+            throw new Error('No server awareness found')
+          }
 
           setAwareness(serverAwareness[0])
         },
@@ -122,16 +119,4 @@ export const handleProviders = ({
     setSocketioProvider(newSocketIOInstance(newDoc, Y))
     setSocketioSyncStatus('connecting')
   }
-
-  //  if (socketioProviderReady && (!socketioProvider || guidChanged)) {
-  //    console.log('guid changed', guidChanged, socketioProviderReady)
-
-  //   socketioProvider?.disconnect()
-  //   socketioProvider?.destroy()
-  //   socketioProvider = null
-
-  //   setSpawnKey(Math.random().toString(36).substring(10))
-  //   setSocketioProvider(newSocketIOInstance(newDoc, Y))
-  //   setSocketioSyncStatus('connecting')
-  // }
 }

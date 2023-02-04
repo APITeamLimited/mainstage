@@ -21,6 +21,7 @@ type RequestListItemProps = {
   renaming?: boolean
   listItemTextSx?: SxProps
   showActionsNotHovered?: boolean
+  primaryTypographyProps?: SxProps
 }
 
 export const RequestListItem = ({
@@ -34,6 +35,7 @@ export const RequestListItem = ({
   secondaryAction,
   listItemTextSx,
   showActionsNotHovered,
+  primaryTypographyProps,
 }: RequestListItemProps) => {
   const theme = useTheme()
 
@@ -50,6 +52,16 @@ export const RequestListItem = ({
         cursor: 'pointer',
         height: '42px',
         paddingY: 0,
+        '.MuiListItemSecondaryAction-root': {
+          backgroundColor: isInFocus
+            ? theme.palette.alternate.accentBlue
+            : theme.palette.background.paper,
+        },
+      }}
+      style={{
+        backgroundColor: isInFocus
+          ? theme.palette.alternate.accentBlue
+          : undefined,
       }}
       onClick={(event) => {
         event.stopPropagation()
@@ -62,6 +74,8 @@ export const RequestListItem = ({
       <ListItemText
         primary={
           <EditNameInput
+            // Needed for the EditNameInput to work
+            key={primaryText}
             name={primaryText}
             setNameCallback={setPrimaryText || (() => {})}
             isRenaming={renaming ?? false}
@@ -70,6 +84,7 @@ export const RequestListItem = ({
         primaryTypographyProps={{
           variant: 'body1',
           fontWeight: isInFocus ? 'bold' : 'normal',
+          ...primaryTypographyProps,
         }}
         secondary={
           <>

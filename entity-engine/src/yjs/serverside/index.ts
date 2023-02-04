@@ -54,9 +54,21 @@ const handleNewServersideConnection = async (
 
   if (postAuth === null) {
     console.error('Failed to carry out post-auth')
-    socket.disconnect()
+    socket.disconnect(true)
     return
   }
+
+  // Disconnect after 60 seconds of inactivity
+  let timeoutId = setTimeout(() => {
+    socket.disconnect(true)
+  }, 60 * 1000)
+
+  socket.on('message', () => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => {
+      socket.disconnect(true)
+    }, 60 * 1000)
+  })
 
   const doc = await getOpenDoc(postAuth.scope)
   doc.serversideSockets.add(socket)

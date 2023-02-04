@@ -464,8 +464,10 @@ export class SocketIOProvider extends Observable<string> {
     this.shouldConnect = false
     this.awareness?.setLocalState(null)
 
+    this.socket?.close()
+    this.socket?.disconnect()
+
     if (this._resyncInterval !== 0) {
-      this.socket?.emit('forceDisconnect')
       clearInterval(this._resyncInterval)
     }
     clearInterval(this._checkInterval)

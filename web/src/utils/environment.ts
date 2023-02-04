@@ -3,7 +3,6 @@ import {
   ExecutionParams,
   FileFieldKV,
   FinalVariable,
-  getLocalObject,
   KeyValueItem,
   KVVariantTypes,
   LocalValueKV,
@@ -15,6 +14,8 @@ import {
   BRACED_REGEX,
   getPossibleVariableMatch,
 } from 'src/components/app/EnvironmentManager/EnvironmentTextField/VariablePlugin'
+
+import { getLocalObject } from './key-values'
 
 export const findVariablesInString = (
   environmentContext: ExecutionParams['environmentContext'],

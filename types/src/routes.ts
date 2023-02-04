@@ -26,7 +26,7 @@ export const ROUTES = {
   settingsWorkspaceBilling: '/app/dashboard/settings/billing',
   settingsWorkspaceInvoices: '/app/dashboard/settings/invoices',
   domains: '/app/dashboard/domains',
-  collectionEditor: '/app/collection',
+  editor: '/app/editor',
   admin: '/admin',
   acceptInvitation: '/accept-invitation',
   declineInvitation: '/decline-invitation',

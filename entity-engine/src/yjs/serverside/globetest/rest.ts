@@ -199,6 +199,7 @@ export const restHandleSuccessSingle = async (
     storeReceipt: data.globeTestLogsStoreReceipt,
     data: null,
   })
+  responseYMap.set('updatedAt', new Date().toISOString())
 
   cleanupSocket(socket)
 }
@@ -250,6 +251,8 @@ export const restHandleSuccessMultiple = async (
     storeReceipt: data.globeTestLogsStoreReceipt,
     data: null,
   })
+
+  responseYMap.set('updatedAt', new Date().toISOString())
 
   cleanupSocket(socket)
 }
@@ -319,6 +322,8 @@ export const restHandleFailure = async (
   if (responseYMap.get('options') === undefined) {
     responseYMap.set('options', null)
   }
+
+  responseYMap.set('updatedAt', new Date().toISOString())
 
   cleanupSocket(socket)
 }
