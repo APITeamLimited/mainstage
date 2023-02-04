@@ -5,9 +5,9 @@ import {
   RunningTestInfo,
   JobUserUpdateMessage,
   parseAndValidateGlobeTestMessage,
+  wrappedExecutionParamsSchema,
 } from '@apiteam/types'
 import type { Scope } from '@prisma/client'
-import { parse } from 'query-string'
 import { v4 as uuid } from 'uuid'
 
 import {
@@ -17,7 +17,6 @@ import {
   getOrchestratorSubscribeRedis,
   RedisClient,
 } from '../redis'
-import { validateParams } from '../validator'
 
 import {
   getEntityEngineSocket,
@@ -46,16 +45,31 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     getOrchestratorSubscribeRedis(),
   ])
 
-  let params = null as WrappedExecutionParams | null
+  const params = await new Promise<WrappedExecutionParams | null>(
+    (resolve, reject) => {
+      socket.once('params', async (params: WrappedExecutionParams) => {
+        socket.emit('paramsAcknowledged')
+        // TODO: Figure out why importing the schema from @apiteam/types doesn't work
 
-  try {
-    params = validateParams(parse(socket.request.url?.split('?')[1] || ''))
-    if (!params) throw new Error('Invalid params')
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    // Close the socket if the params are invalid
+        resolve(params)
+
+        // const result = wrappedExecutionParamsSchema.safeParse(params)
+
+        // if (!result.success) {
+        //   reject(new Error('Invalid execution params'))
+        //   return
+        // }
+
+        // resolve(result.data)
+      })
+    }
+  ).catch((e) => {
     socket.emit('error', e.message)
-    socket.disconnect()
+    return null
+  })
+
+  if (!params) {
+    socket.disconnect(true)
     return
   }
 

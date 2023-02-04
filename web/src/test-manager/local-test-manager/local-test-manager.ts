@@ -19,11 +19,7 @@ import {
 } from 'src/components/app/dialogs'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
 
-import {
-  getTestManagerURL,
-  handleRESTAutoFocus,
-  testManagerWrappedQuery,
-} from '../utils'
+import { getTestManagerURL, handleRESTAutoFocus } from '../utils'
 
 import { processGlobeTestMessage } from './message-processing'
 
@@ -42,6 +38,7 @@ export type LocalManagerInterface = {
 export type Upload = {
   jobId: string
   socket: Socket | null
+  acknowledgedParams?: boolean
   queue: GlobeTestMessage[]
   wrappedExecutionParams: WrappedExecutionParams
   storedGlobeTestLogs?: boolean
@@ -234,16 +231,47 @@ export class LocalTestManager {
     }
 
     const uploadSocket = io(getTestManagerURL(), {
-      query: testManagerWrappedQuery(
-        upload.wrappedExecutionParams,
-        '/new-local-test'
-      ),
+      query: {
+        bearer: this.rawBearer,
+        scopeId: this.scopeId,
+        endpoint: '/new-local-test',
+      },
       path: '/api/test-manager',
       reconnection: false,
     })
 
-    uploadSocket.on('connect', () => {
-      // FInd the upload with this job id and send the queued messages
+    uploadSocket.on('connect', async () => {
+      let acknowledged = false
+
+      uploadSocket.once('paramsAcknowledged', () => {
+        acknowledged = true
+      })
+
+      while (!acknowledged) {
+        if (!uploadSocket.connected) {
+          return
+        }
+
+        uploadSocket.emit('params', upload.wrappedExecutionParams)
+
+        await new Promise((resolve) => setTimeout(resolve, 200))
+      }
+
+      console.log('params acknowledged')
+
+      // Find upload and declare that acknowledgedParams
+      const updatedUpload = this.uploads.find(
+        (upload) => upload.jobId === job.id
+      )
+      if (updatedUpload) {
+        updatedUpload.acknowledgedParams = true
+        this.uploads = [
+          ...this.uploads.filter((upload) => upload.jobId !== job.id),
+          updatedUpload,
+        ]
+      }
+
+      // Find the upload with this job id and send the queued messages
 
       if (upload) {
         upload.socket = uploadSocket

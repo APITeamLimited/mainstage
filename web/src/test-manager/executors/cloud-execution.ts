@@ -15,11 +15,7 @@ import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 
 import type { BaseJob, PendingLocalJob } from '../lib'
 import { handleRESTAutoFocus } from '../utils'
-import {
-  testManagerWrappedQuery,
-  determineWrappedExecutionParams,
-  getTestManagerURL,
-} from '../utils'
+import { determineWrappedExecutionParams, getTestManagerURL } from '../utils'
 
 /*
 Executes a queued job and updates the job queue on streamed messages
@@ -47,9 +43,31 @@ export const executeCloud = ({
 
   try {
     const socket = io(getTestManagerURL(), {
-      query: testManagerWrappedQuery(params, '/new-test'),
+      query: {
+        bearer: rawBearer,
+        scopeId: params.scopeId,
+        endpoint: '/new-test',
+      },
       path: '/api/test-manager',
       reconnection: false,
+    })
+
+    socket.on('connect', async () => {
+      let acknowledged = false
+
+      socket.once('paramsAcknowledged', () => {
+        acknowledged = true
+      })
+
+      while (!acknowledged) {
+        if (!socket.connected) {
+          return
+        }
+
+        socket.emit('params', params)
+
+        await new Promise((resolve) => setTimeout(resolve, 200))
+      }
     })
 
     // Messages will need to be parsed

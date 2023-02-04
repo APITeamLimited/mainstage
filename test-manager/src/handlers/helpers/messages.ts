@@ -127,9 +127,7 @@ export const handleMessage = async (
 
         if (runningState.testType === 'undetermined') {
           wasSuccessful = false
-        } else if (message.message === 'COMPLETED_FAILURE') {
-          wasSuccessful = false
-        } else if (message.message === 'COMPLETED_SUCCESS') {
+        } else {
           const ensureAllData = async (count = 0): Promise<boolean> => {
             // Keep updating the running state
             runningState = runningTestStates.get(socket)
@@ -138,13 +136,19 @@ export const handleMessage = async (
               return false
             }
 
-            const gotAllData =
+            let gotAllData =
               !!runningState.globeTestLogsStoreReceipt &&
               !!runningState.metricsStoreReceipt &&
               !!runningState.options &&
               !!runningState.responseId &&
-              !!runningState.entityEngineSocket &&
-              !!runningState.markedResponse
+              !!runningState.entityEngineSocket
+
+            if (
+              runningState.options?.executionMode === 'httpSingle' &&
+              !runningState.markedResponse
+            ) {
+              gotAllData = false
+            }
 
             console.log('gotAllData', gotAllData)
 
@@ -169,6 +173,7 @@ export const handleMessage = async (
           executionAgent,
           runningTestKey,
           jobId,
+          abortedEarly: message.message === 'COMPLETED_FAILURE',
         })
 
         if (!wasSuccessful) {
@@ -211,6 +216,7 @@ const handleResult = async ({
   executionAgent,
   runningTestKey,
   jobId,
+  abortedEarly,
 }: {
   wasSuccessful: boolean
   runningState: RunningTestState
@@ -219,6 +225,7 @@ const handleResult = async ({
   executionAgent: 'Local' | 'Cloud'
   runningTestKey: string
   jobId: string
+  abortedEarly: boolean
 }) => {
   const coreCacheReadRedis = await getCoreCacheReadRedis()
 
@@ -263,6 +270,7 @@ const handleResult = async ({
         runningState.globeTestLogsStoreReceipt as string,
       metricsStoreReceipt: runningState.metricsStoreReceipt as string,
       executionAgent,
+      abortedEarly,
     })
 
     console.log('Delete 4')

@@ -252,6 +252,8 @@ export const restHandleSuccessMultiple = async (
     data: null,
   })
 
+  responseYMap.set('abortedEarly', data.abortedEarly)
+
   responseYMap.set('updatedAt', new Date().toISOString())
 
   cleanupSocket(socket)

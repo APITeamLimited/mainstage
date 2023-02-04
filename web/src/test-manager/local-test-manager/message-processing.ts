@@ -180,7 +180,7 @@ const checkBroadcastTermination = async (
 }
 
 const addToUploadQueue = (upload: Upload, message: GlobeTestMessage) => {
-  if (upload.socket && upload.socket.connected) {
+  if (upload.socket && upload.acknowledgedParams) {
     upload.socket.emit('globeTestMessage', message)
   } else {
     upload.queue.push(message)

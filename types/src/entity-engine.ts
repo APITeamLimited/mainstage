@@ -87,6 +87,7 @@ export type EntityEngineServersideMessages = {
     collectionId: string
     metricsStoreReceipt: string
     globeTestLogsStoreReceipt: string
+    abortedEarly: boolean
   }
   'rest-handle-failure': {
     branchId: string

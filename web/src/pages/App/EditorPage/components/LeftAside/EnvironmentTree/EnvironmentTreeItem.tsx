@@ -3,11 +3,8 @@
 import { useState } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
 import {
   Stack,
-  Chip,
   ListItemIcon,
   useTheme,
   Tooltip,
@@ -17,7 +14,11 @@ import type { Map as YMap } from 'yjs'
 
 import { QueryDeleteDialog } from 'src/components/app/dialogs/QueryDeleteDialog'
 import { RequestListItem } from 'src/components/app/utils/RequestListItem'
-import { EnvironmentIcon } from 'src/components/utils/Icons'
+import {
+  ActivateEnvironmentIcon,
+  DeactivateEnvironmentIcon,
+  EnvironmentIcon,
+} from 'src/components/utils/Icons'
 import {
   activeEnvironmentVar,
   focusedElementVar,
@@ -96,7 +97,29 @@ export const EnvironmentTreeItem = ({
         secondaryAction={
           !renaming && (
             <Stack spacing={1} direction="row" alignItems="center">
-              {!environment.active && (
+              {environment.active ? (
+                <Tooltip title="Deactivate">
+                  <IconButton
+                    edge="end"
+                    aria-label={`environment ${environment.yMap.get(
+                      'name'
+                    )} actions`}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      updateActiveEnvironmentId(
+                        activeEnvironmentDict,
+                        branchYMap,
+                        null
+                      )
+                    }}
+                    size="medium"
+                  >
+                    <DeactivateEnvironmentIcon />
+                  </IconButton>
+                </Tooltip>
+              ) : (
                 <Tooltip title="Activate">
                   <IconButton
                     edge="end"
@@ -115,7 +138,7 @@ export const EnvironmentTreeItem = ({
                     }}
                     size="medium"
                   >
-                    <CheckCircleIcon />
+                    <ActivateEnvironmentIcon />
                   </IconButton>
                 </Tooltip>
               )}

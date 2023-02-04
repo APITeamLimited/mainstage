@@ -11,6 +11,7 @@ export const StatsSkeleton = ({ count = 4 }: StatsSkeletonProps) => {
         <Grid
           sx={{
             marginRight: 2,
+            marginBottom: 2,
           }}
           key={index}
         >

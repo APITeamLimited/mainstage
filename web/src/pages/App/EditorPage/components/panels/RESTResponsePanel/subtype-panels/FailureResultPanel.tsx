@@ -122,7 +122,7 @@ export const FailureResultPanel = ({
 
   const errorMessage = useMemo(() => {
     if (!storedGlobeTestLogs) {
-      return 'Request failed to execute, please examine the logs for more info.'
+      return 'Request failed to execute, an unknown error occurred.'
     }
 
     // Find last message with messageType ERROR and find most recent
@@ -134,7 +134,7 @@ export const FailureResultPanel = ({
       sortedErrors.length === 0 ||
       typeof sortedErrors[0].message !== 'string'
     ) {
-      return 'Request failed to execute, please examine the logs for more info.'
+      return 'Request failed to execute, an unknown error occurred.'
     }
 
     if (sortedErrors[0].message.length > 200) {

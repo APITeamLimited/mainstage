@@ -8,6 +8,7 @@ import type { Map as YMap } from 'yjs'
 import {
   CollectionEditorIcon,
   EnvironmentIcon,
+  MonitorIcon,
 } from 'src/components/utils/Icons'
 import { useActiveEnvironmentYMap } from 'src/contexts/EnvironmentProvider'
 import {
@@ -18,21 +19,24 @@ import { useYMap } from 'src/lib/zustand-yjs'
 
 import { CollectionTree } from './CollectionTree'
 import { EnvironmentTree } from './EnvironmentTree'
+import { TestSuiteTree } from './TestSuiteTree'
 
 type LeftAsideProps = {
   setShowLeftAside: (showLeftAside: boolean) => void
   showLeftAside: boolean
   collectionYMap: YMap<any>
   environmentsYMap: YMap<any>
+  testSuitesYMap: YMap<any>
 }
 
-type AsideType = null | 'collections' | 'environments'
+type AsideType = null | 'collections' | 'environments' | 'testSuites'
 
 export const LeftAside = ({
   setShowLeftAside,
   collectionYMap,
   showLeftAside,
   environmentsYMap,
+  testSuitesYMap,
 }: LeftAsideProps) => {
   const theme = useTheme()
   const focusedElementDict = useReactiveVar(focusedElementVar)
@@ -80,16 +84,6 @@ export const LeftAside = ({
     }
   }
 
-  const handleCloseAside = () => {
-    setActiveLeftAside(null)
-    setShowLeftAside(false)
-  }
-
-  // const prettyInfoName = useMemo(
-  //   () => (focusedElement ? getPrettyInfoTitle(focusedElement) : undefined),
-  //   [focusedElement]
-  // )
-
   return (
     <Box
       sx={{
@@ -122,7 +116,7 @@ export const LeftAside = ({
           }}
         >
           <Stack spacing={2}>
-            <Tooltip title="Collections" placement="left">
+            <Tooltip title="Collections" placement="right">
               <IconButton
                 size="large"
                 color={
@@ -133,7 +127,7 @@ export const LeftAside = ({
                 <CollectionEditorIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Environments" placement="left">
+            <Tooltip title="Environments" placement="right">
               <IconButton
                 size="large"
                 color={
@@ -142,6 +136,15 @@ export const LeftAside = ({
                 onClick={() => handleButtonClick('environments')}
               >
                 <EnvironmentIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Test Suites" placement="right">
+              <IconButton
+                size="large"
+                color={activeLeftAside === 'testSuites' ? 'primary' : 'inherit'}
+                onClick={() => handleButtonClick('testSuites')}
+              >
+                <MonitorIcon />
               </IconButton>
             </Tooltip>
           </Stack>
@@ -156,23 +159,10 @@ export const LeftAside = ({
           show={activeLeftAside === 'environments'}
           environmentsYMap={environmentsYMap}
         />
-        {/*
-        {showLeftAside &&
-          focusedElement?.get('__typename') === 'RESTRequest' &&
-          activeLeftAside === 'code' && (
-            <RESTCodeGenerator
-              requestYMap={focusedElement}
-              onCloseAside={handleCloseAside}
-              activeEnvironmentYMap={activeEnvironmentYMap}
-              collectionYMap={collectionYMap}
-            />
-          )}
-        {focusedElement && showLeftAside && activeLeftAside === 'info' && (
-          <AboutAside
-            onCloseAside={handleCloseAside}
-            itemYMap={focusedElement}
-          />
-        )} */}
+        <TestSuiteTree
+          show={activeLeftAside === 'testSuites'}
+          testSuitesYMap={testSuitesYMap}
+        />
       </Stack>
     </Box>
   )

@@ -32,6 +32,7 @@ type MetricsOverviewStatsProps = {
   metrics: (GlobeTestMessage & MetricsCombination)[]
   wasLimited?: boolean
   logsThrottled?: boolean
+  errorMessage: string | null
 }
 
 const calculateStats = (
@@ -87,6 +88,7 @@ export const MetricsOverviewStats = ({
   metrics,
   wasLimited,
   logsThrottled,
+  errorMessage,
 }: MetricsOverviewStatsProps) => {
   const theme = useTheme()
 
@@ -117,6 +119,7 @@ export const MetricsOverviewStats = ({
 
   return (
     <Stack spacing={2}>
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       {wasLimited && !hiddenDomainThrottledWarning && (
         <Alert
           severity="warning"

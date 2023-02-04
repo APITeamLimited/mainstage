@@ -2,9 +2,12 @@ import BlurCircularIcon from '@mui/icons-material/BlurCircular'
 import CodeIcon from '@mui/icons-material/Code'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import ImportExportIcon from '@mui/icons-material/ImportExport'
+import LayersClearIcon from '@mui/icons-material/LayersClear'
 import PublicIcon from '@mui/icons-material/Public'
-import WifiTetheringIcon from '@mui/icons-material/WifiTethering'
-import WifiTetheringOffIcon from '@mui/icons-material/WifiTetheringOff'
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked'
+import ScreenShareIcon from '@mui/icons-material/ScreenShare'
+import StackedLineChartIcon from '@mui/icons-material/StackedLineChart'
+import StopScreenShareIcon from '@mui/icons-material/StopScreenShare'
 import { SvgIcon, SvgIconProps } from '@mui/material'
 
 export const GlobeTestIcon = (props: SvgIconProps) => <PublicIcon {...props} />
@@ -27,9 +30,9 @@ export const LocalAgentIcon = (
   const { connected = true, ...rest } = props
 
   return connected ? (
-    <WifiTetheringIcon {...rest} />
+    <ScreenShareIcon {...rest} />
   ) : (
-    <WifiTetheringOffIcon {...rest} />
+    <StopScreenShareIcon {...rest} />
   )
 }
 
@@ -104,4 +107,16 @@ export const SnapcraftIcon = (props: SvgIconProps) => (
 
 export const CreditsIcon = (props: SvgIconProps) => (
   <BlurCircularIcon {...props} />
+)
+
+export const MonitorIcon = (props: SvgIconProps) => (
+  <StackedLineChartIcon {...props} />
+)
+
+export const ActivateEnvironmentIcon = (props: SvgIconProps) => (
+  <RadioButtonCheckedIcon {...props} />
+)
+
+export const DeactivateEnvironmentIcon = (props: SvgIconProps) => (
+  <LayersClearIcon {...props} />
 )

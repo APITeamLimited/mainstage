@@ -201,12 +201,14 @@ export const restHandleSuccessMultiple = async ({
   metricsStoreReceipt,
   socket,
   executionAgent,
+  abortedEarly,
 }: {
   params: WrappedExecutionParams
   globeTestLogsStoreReceipt: string
   metricsStoreReceipt: string
   socket: AuthenticatedSocket
   executionAgent: 'Local' | 'Cloud'
+  abortedEarly: boolean
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
@@ -222,6 +224,7 @@ export const restHandleSuccessMultiple = async ({
       collectionId: params.collectionId,
       metricsStoreReceipt,
       globeTestLogsStoreReceipt,
+      abortedEarly,
     }
 
   entityEngineSocket.emit('rest-handle-success-multiple', eeParams)

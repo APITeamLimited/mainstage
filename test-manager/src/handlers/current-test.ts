@@ -18,9 +18,15 @@ import { getRemoteTestLogsKey, getRemoteTestUpdatesKey } from './new-test'
 
 // Streams an ongoing test
 export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
-  const coreCacheReadRedis = await getCoreCacheReadRedis()
-  const orchestratorReadRedis = await getOrchestratorReadRedis()
-  const orchestratorSubscribeRedis = await getOrchestratorSubscribeRedis()
+  const [
+    coreCacheReadRedis,
+    orchestratorReadRedis,
+    orchestratorSubscribeRedis,
+  ] = await Promise.all([
+    getCoreCacheReadRedis(),
+    getOrchestratorReadRedis(),
+    getOrchestratorSubscribeRedis(),
+  ])
 
   const params = parse(socket.request.url?.split('?')[1] || '')
 

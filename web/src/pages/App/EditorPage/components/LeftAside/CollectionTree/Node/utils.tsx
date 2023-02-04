@@ -5,6 +5,7 @@ import ErrorIcon from '@mui/icons-material/Error'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import FolderIcon from '@mui/icons-material/Folder'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
+import PriorityHighIcon from '@mui/icons-material/PriorityHigh'
 import {
   Box,
   CircularProgress,
@@ -13,6 +14,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
+import zIndex from '@mui/material/styles/zIndex'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
@@ -64,7 +66,28 @@ export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
           ) : nodeYMap.get('__subtype') === 'FailureResult' ? (
             <ErrorIcon sx={{ color: 'error.main' }} />
           ) : nodeYMap.get('__subtype') === 'SuccessMultipleResult' ? (
-            <GlobeTestIcon sx={{ color: 'primary.light' }} />
+            <>
+              {nodeYMap.get('abortedEarly') ? (
+                <Stack direction="row" alignItems="center" spacing={-1}>
+                  <GlobeTestIcon
+                    sx={{
+                      color: 'primary.light',
+                      height: '16px',
+                      width: '16px',
+                    }}
+                  />
+                  <PriorityHighIcon
+                    sx={{
+                      color: 'error.main',
+                      height: '16px',
+                      width: '16px',
+                    }}
+                  />
+                </Stack>
+              ) : (
+                <GlobeTestIcon sx={{ color: 'primary.light' }} />
+              )}
+            </>
           ) : (
             <>
               <Typography

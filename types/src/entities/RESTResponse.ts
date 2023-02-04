@@ -36,6 +36,7 @@ export const successMultipleResultSchema = z.object({
   metrics: storedObjectSchema(defaultSummaryMetricsSchema),
   options: z.record(z.unknown()),
   graphs: z.any(), // YMap<Graph>
+  abortedEarly: z.boolean().optional(),
 })
 
 export const failureResultSchema = z.object({

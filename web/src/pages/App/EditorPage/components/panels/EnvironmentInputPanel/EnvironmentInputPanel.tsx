@@ -1,20 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { KeyValueItem } from '@apiteam/types/src'
+import { useReactiveVar } from '@apollo/client'
 import {
+  IconButton,
   ListItem,
   ListItemIcon,
   ListItemText,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
-import { EnvironmentIcon } from 'src/components/utils/Icons'
+import {
+  ActivateEnvironmentIcon,
+  DeactivateEnvironmentIcon,
+  EnvironmentIcon,
+} from 'src/components/utils/Icons'
 import { useHashSumModule } from 'src/contexts/imports'
+import {
+  activeEnvironmentVar,
+  getBranchEnvironmentKey,
+  updateActiveEnvironmentId,
+} from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 
@@ -41,6 +53,18 @@ export const EnvironmentInputPanel = ({
   const [needSave, setNeedSave] = useState(false)
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
+
+  const activeEnvironmentDict = useReactiveVar(activeEnvironmentVar)
+
+  const environmentActive = useMemo(
+    () =>
+      environmentYMap.get('id') ===
+      activeEnvironmentDict[
+        getBranchEnvironmentKey(environmentYMap.parent?.parent as YMap<any>)
+      ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [activeEnvironmentDict, environmentHook]
+  )
 
   const handleSetNeedSave = (needSave: boolean) => {
     setNeedSave(needSave)
@@ -180,11 +204,59 @@ export const EnvironmentInputPanel = ({
                 }}
               />
             </ListItem>
-            <SaveButton
-              needSave={needSave}
-              onSave={handleSave}
-              onSaveAs={() => setShowSaveAsDialog(true)}
-            />
+            {/* 4 spacing looks better due to small icons */}
+            <Stack direction="row" spacing={4} alignItems="center">
+              {environmentActive ? (
+                <Tooltip title="Deactivate">
+                  <IconButton
+                    edge="end"
+                    aria-label={`environment ${environmentYMap.get(
+                      'name'
+                    )} actions`}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      updateActiveEnvironmentId(
+                        activeEnvironmentDict,
+                        environmentYMap.parent?.parent as YMap<any>,
+                        null
+                      )
+                    }}
+                    size="medium"
+                  >
+                    <DeactivateEnvironmentIcon />
+                  </IconButton>
+                </Tooltip>
+              ) : (
+                <Tooltip title="Activate">
+                  <IconButton
+                    edge="end"
+                    aria-label={`environment ${environmentYMap.get(
+                      'name'
+                    )} actions`}
+                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                    // @ts-ignore
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      updateActiveEnvironmentId(
+                        activeEnvironmentDict,
+                        environmentYMap.parent?.parent as YMap<any>,
+                        environmentYMap.get('id')
+                      )
+                    }}
+                    size="medium"
+                  >
+                    <ActivateEnvironmentIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+              <SaveButton
+                needSave={needSave}
+                onSave={handleSave}
+                onSaveAs={() => setShowSaveAsDialog(true)}
+              />
+            </Stack>
           </Stack>
         }
       >

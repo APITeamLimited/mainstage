@@ -150,6 +150,46 @@ export const SuccessMultipleResultPanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedResponseHook, globeTestLogsStoreReceipt, metricsStoreReceipt])
 
+  useEffect(() => {
+    if (activeTabIndex === 0) {
+      setActionArea(null)
+    }
+  }, [activeTabIndex])
+
+  const errorMessage = useMemo(() => {
+    if (!focusedResponse.get('abortedEarly')) {
+      return null
+    }
+
+    if (!storedGlobeTestLogs) {
+      return 'Load test aborted early due to error, an unknown error occurred.'
+    }
+
+    // Find last message with messageType ERROR and find most recent
+    const sortedErrors = storedGlobeTestLogs
+      .filter((message) => message.messageType === 'ERROR')
+      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+
+    if (
+      sortedErrors.length === 0 ||
+      typeof sortedErrors[0].message !== 'string'
+    ) {
+      return 'Load test aborted early due to error, an unknown error occurred.'
+    }
+
+    if (sortedErrors[0].message.length > 200) {
+      return `Load test aborted early due to error: ${sortedErrors[0].message.slice(
+        0,
+        200
+      )}... Message truncated, an unknown error occurred.`
+    }
+
+    return `Load test aborted early due to error: ${
+      sortedErrors[0].message as string
+    }`
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusedResponseHook, storedGlobeTestLogs])
+
   const aboveTabsArea = useMemo(
     () => (
       <LoadTestSummaryPanel
@@ -163,17 +203,12 @@ export const SuccessMultipleResultPanel = ({
         responseYMap={focusedResponse}
         wasLimited={wasLimited}
         logsThrottled={logsThrottled}
+        errorMessage={errorMessage}
       />
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [focusedResponseHook, storedMetrics]
   )
-
-  useEffect(() => {
-    if (activeTabIndex === 0) {
-      setActionArea(null)
-    }
-  }, [activeTabIndex])
 
   return (
     <PanelLayout

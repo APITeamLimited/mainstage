@@ -18,6 +18,7 @@ import {
   focusedResponseVar,
   updateFocusedRESTResponse,
 } from 'src/contexts/focused-response'
+import { useSimplebarReactModule } from 'src/contexts/imports'
 import {
   clearFocusedElement,
   focusedElementVar,
@@ -51,6 +52,8 @@ export type OpenTab = {
 
 export const TabController = () => {
   const theme = useTheme()
+
+  const { default: SimpleBar } = useSimplebarReactModule()
 
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
@@ -674,7 +677,6 @@ export const TabController = () => {
                     {/* This needs a seperate node to be able to resize properly */}
                     <ReflexElement
                       style={{
-                        minWidth: '200px',
                         overflow: 'hidden',
                       }}
                     >

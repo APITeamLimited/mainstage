@@ -65,29 +65,6 @@ export const determineWrappedExecutionParams = (
   return params
 }
 
-export const testManagerWrappedQuery = (
-  params: WrappedExecutionParams,
-  endpoint: string
-) =>
-  Object.entries(params).reduce(
-    (acc, [key, value]) => {
-      if (typeof value === 'object') {
-        return {
-          ...acc,
-          [key]: JSON.stringify(value),
-        }
-      } else {
-        return {
-          ...acc,
-          [key]: value,
-        }
-      }
-    },
-    {
-      endpoint,
-    }
-  )
-
 export const handleRESTAutoFocus = (
   focusedResponseDict: FocusedElementDictionary,
   workspace: YDoc,
@@ -110,9 +87,9 @@ export const handleRESTAutoFocus = (
 
         if (!restResponseYMap) {
           if (count >= 10) {
-            alert(
-              `Couldn't find response with id ${responseId} after ${count} tries`
-            )
+            // alert(
+            //   `Couldn't find response with id ${responseId} after ${count} tries`
+            // )
 
             // TODO: Find a better way to handle this that doesnt involve just reloading the page
             window.location.reload()

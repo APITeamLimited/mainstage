@@ -11,7 +11,7 @@ import { MetaTags } from '@redwoodjs/web'
 
 import { CollectionContext } from 'src/contexts/collection'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
-import { useYJSModule } from 'src/contexts/imports'
+import { useYJSModule, YJSModule } from 'src/contexts/imports'
 import { VariablesProvider } from 'src/contexts/VariablesProvider'
 import { VerifiedDomainsProvider } from 'src/contexts/verified-domains-provider'
 import { useWorkspace } from 'src/entity-engine'
@@ -173,9 +173,16 @@ export const EditorPage = ({
                       showLeftAside={showLeftAside}
                       setShowLeftAside={setShowLeftAside}
                       collectionYMap={collectionYMap}
-                      environmentsYMap={
-                        branchYMap.get('environments') ?? new Y.Map()
-                      }
+                      environmentsYMap={getOrCreateSubMap(
+                        Y,
+                        branchYMap,
+                        'environments'
+                      )}
+                      testSuitesYMap={getOrCreateSubMap(
+                        Y,
+                        branchYMap,
+                        'testSuites'
+                      )}
                     />
                   </ReflexElement>
                   <ReflexSplitter
@@ -198,6 +205,24 @@ export const EditorPage = ({
       </EnvironmentProvider>
     </>
   )
+}
+
+const getOrCreateSubMap = (
+  Y: YJSModule,
+  branchYMap: YMap<any>,
+  key: string
+): YMap<any> => {
+  const subMap = branchYMap.get(key) as YMap<any> | undefined
+
+  if (subMap) {
+    return subMap
+  }
+
+  const newSubMap = new Y.Map()
+
+  branchYMap.set(key, newSubMap)
+
+  return newSubMap
 }
 
 export default EditorPage
