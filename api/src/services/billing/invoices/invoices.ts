@@ -1,5 +1,6 @@
 import { stripe } from 'src/lib/stripe'
 import { TeamModel } from 'src/models'
+import { ensureCorrectDescriptionInvoice } from 'src/utils/ensure-correct-description-invoice'
 
 import { checkAuthenticated, checkOwnerAdmin } from '../../guards'
 
@@ -23,7 +24,9 @@ const getInvoicesTeam = async ({ teamId }: { teamId: string }) => {
     customer: team.customerId,
   })
 
-  return invoices.data.filter((invoice) => invoice.number)
+  const numberedInvoices = invoices.data.filter((invoice) => invoice.number)
+
+  return numberedInvoices.map(ensureCorrectDescriptionInvoice)
 }
 
 const getInvoicesUser = async () => {
@@ -37,7 +40,9 @@ const getInvoicesUser = async () => {
     customer: user.customerId,
   })
 
-  return invoices.data.filter((invoice) => invoice.number)
+  const numberedInvoices = invoices.data.filter((invoice) => invoice.number)
+
+  return numberedInvoices.map(ensureCorrectDescriptionInvoice)
 }
 
 export const invoice = async ({
@@ -68,7 +73,11 @@ const getInvoiceTeam = async ({
     throw new Error('Team does not have a customer id')
   }
 
-  return stripe.invoices.retrieve(invoiceId).catch(() => null)
+  const invoice = await stripe.invoices.retrieve(invoiceId).catch(() => null)
+
+  return invoice && invoice.number
+    ? ensureCorrectDescriptionInvoice(invoice)
+    : null
 }
 
 const getInvoiceUser = async ({ invoiceId }: { invoiceId: string }) => {
@@ -78,5 +87,9 @@ const getInvoiceUser = async ({ invoiceId }: { invoiceId: string }) => {
     throw new Error('User does not have a customer id')
   }
 
-  return stripe.invoices.retrieve(invoiceId).catch(() => null)
+  const invoice = await stripe.invoices.retrieve(invoiceId).catch(() => null)
+
+  return invoice && invoice.number
+    ? ensureCorrectDescriptionInvoice(invoice)
+    : null
 }

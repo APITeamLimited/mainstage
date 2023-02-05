@@ -30,6 +30,10 @@ export const NotifyPaymentSuccessful = (
 
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
+  const description = invoice.description
+    ? invoice.description
+    : invoice.lines.data[0].description
+
   return (
     <BaseMessageLayout
       title={notifyPaymentSuccessfulTitle(input)}
@@ -58,15 +62,15 @@ export const NotifyPaymentSuccessful = (
       >
         {last4 ? (
           <>
-            Payment successful for <strong>{invoice.description}</strong>. We
+            Payment successful for <strong>{description}</strong>. We
             successfully charged your card ending in <strong>{last4}</strong>{' '}
             for <strong>{prettyPrice}</strong>. Invoice number was{' '}
             <strong>{invoice.number}</strong>.
           </>
         ) : (
           <>
-            Payment successful for <strong>{invoice.description}</strong>.
-            Invoice number was <strong>{invoice.number}</strong>.
+            Payment successful for <strong>{description}</strong>. Invoice
+            number was <strong>{invoice.number}</strong>.
           </>
         )}
       </Typography>
@@ -87,6 +91,10 @@ export const notifyPaymentSuccessfulText = ({
 }: MailmanInput<NotifyPaymentSuccessfulData>) => {
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
+  const description = invoice.description
+    ? invoice.description
+    : invoice.lines.data[0].description
+
   const line1 = `Hi ${targetName}, ${
     role === 'OWNER'
       ? `payment on your workspace ${workspaceName} has succeeded`
@@ -96,8 +104,8 @@ export const notifyPaymentSuccessfulText = ({
   }`
 
   const line2 = last4
-    ? `Payment successful for ${invoice.description}. We successfully charged your card ending in ${last4} for ${prettyPrice}. Invoice number was ${invoice.number}.`
-    : `Payment successful for ${invoice.description}. Invoice number was ${invoice.number}.`
+    ? `Payment successful for ${description}. We successfully charged your card ending in ${last4} for ${prettyPrice}. Invoice number was ${invoice.number}.`
+    : `Payment successful for ${description}. Invoice number was ${invoice.number}.`
 
   const line3 = 'Thanks for using APITeam!'
 

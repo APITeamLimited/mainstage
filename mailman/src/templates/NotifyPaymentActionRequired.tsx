@@ -30,6 +30,10 @@ export const NotifyPaymentActionRequired = (
 
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
+  const description = invoice.description
+    ? invoice.description
+    : invoice.lines.data[0].description
+
   return (
     <BaseMessageLayout
       title={notifyPaymentActionRequiredTitle(input)}
@@ -58,15 +62,15 @@ export const NotifyPaymentActionRequired = (
         {last4 ? (
           <>
             We tried to charge your card ending in <strong>{last4}</strong> for{' '}
-            <strong>{invoice.description}</strong> but the payment failed. The
-            charge was for <strong>{prettyPrice}</strong>. Invoice number was{' '}
+            <strong>{description}</strong> but the payment failed. The charge
+            was for <strong>{prettyPrice}</strong>. Invoice number was{' '}
             <strong>{invoice.number}</strong>.
           </>
         ) : (
           <>
-            We tried to charge your card for{' '}
-            <strong>{invoice.description}</strong> but the payment failed. The
-            charge was for <strong>{prettyPrice}</strong>. Invoice number was{' '}
+            We tried to charge your card for <strong>{description}</strong> but
+            the payment failed. The charge was for{' '}
+            <strong>{prettyPrice}</strong>. Invoice number was{' '}
             <strong>{invoice.number}</strong>.
           </>
         )}
@@ -105,6 +109,10 @@ export const notifyPaymentActionRequiredText = ({
 }: MailmanInput<NotifyPaymentActionRequiredData>) => {
   const prettyPrice = `$${(invoice.amount_due / 100).toFixed(2)}`
 
+  const description = invoice.description
+    ? invoice.description
+    : invoice.lines.data[0].description
+
   const line1 = `Hi ${targetName}, payment action is required for ${
     role === 'OWNER'
       ? `your workspace ${workspaceName}`
@@ -114,8 +122,8 @@ export const notifyPaymentActionRequiredText = ({
   }`
 
   const line2 = last4
-    ? `We tried to charge your card ending in ${last4} for ${invoice.description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
-    : `We tried to charge your card for ${invoice.description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
+    ? `We tried to charge your card ending in ${last4} for ${description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
+    : `We tried to charge your card for ${description} but the payment failed. The charge was for ${prettyPrice}. Invoice number was ${invoice.number}.`
 
   const line3 = invoice.subscription
     ? "Please update your payment method on the billing dashboard to continue using your current plan's features. We will retry the payment in 3 days."

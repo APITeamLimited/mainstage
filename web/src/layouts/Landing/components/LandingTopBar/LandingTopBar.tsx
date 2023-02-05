@@ -44,7 +44,7 @@ export const LandingTopBar = ({
       <Stack
         display="flex"
         justifyContent="space-between"
-        alignItems="baseline"
+        alignItems="center"
         width="100%"
         direction="row"
         spacing={landingTopBarXSpacing}

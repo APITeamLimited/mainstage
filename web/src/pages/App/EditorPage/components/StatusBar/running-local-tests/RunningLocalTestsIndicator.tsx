@@ -22,7 +22,7 @@ export const RunningLocalTestsIndicator = () => {
   return (
     <>
       <StatusBarItem
-        icon={LocalAgentIcon}
+        iconNode={<LocalAgentIcon connected={connectedCount !== null} />}
         tooltip="Local tests"
         text={
           connectedCount === null

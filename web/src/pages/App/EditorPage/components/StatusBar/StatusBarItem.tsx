@@ -12,7 +12,8 @@ import {
 import { STATUS_BAR_HEIGHT } from './StatusBar'
 
 type StatusBarItemProps = {
-  icon: React.ElementType
+  icon?: React.ElementType
+  iconNode?: React.ReactNode
   tooltip?: string
   onClick?: () => void
   text?: string
@@ -20,6 +21,7 @@ type StatusBarItemProps = {
 
 export const StatusBarItem = ({
   icon,
+  iconNode,
   tooltip,
   onClick,
   text,
@@ -33,8 +35,8 @@ export const StatusBarItem = ({
           paddingY: 0,
           paddingX: 1,
           margin: 0,
-          height: STATUS_BAR_HEIGHT,
-          maxHeight: STATUS_BAR_HEIGHT,
+          height: STATUS_BAR_HEIGHT - 1,
+          maxHeight: STATUS_BAR_HEIGHT - 1,
           cursor: onClick ? 'pointer' : 'default',
         }}
         disableRipple={!onClick}
@@ -45,12 +47,23 @@ export const StatusBarItem = ({
           {icon && (
             <SvgIcon
               sx={{
-                width: STATUS_BAR_HEIGHT - 3,
-                height: STATUS_BAR_HEIGHT - 3,
+                width: STATUS_BAR_HEIGHT - 4,
+                height: STATUS_BAR_HEIGHT - 4,
                 color: theme.palette.text.primary,
               }}
               component={icon}
             />
+          )}
+          {iconNode && (
+            <SvgIcon
+              sx={{
+                width: STATUS_BAR_HEIGHT - 4,
+                height: STATUS_BAR_HEIGHT - 4,
+                color: theme.palette.text.primary,
+              }}
+            >
+              {iconNode}
+            </SvgIcon>
           )}
           {text && (
             <Typography
@@ -66,7 +79,7 @@ export const StatusBarItem = ({
         </Stack>
       </MenuItem>
     ),
-    [icon, text, theme, onClick]
+    [onClick, icon, theme.palette.text.primary, iconNode, text]
   )
 
   return tooltip ? (

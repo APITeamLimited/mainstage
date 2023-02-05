@@ -39,10 +39,10 @@ export const StatusBar = () => {
             paddingX: 1,
           }}
         >
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center">
             <CreditsIndicator />
           </Stack>
-          <Stack direction="row" spacing={1}>
+          <Stack direction="row" spacing={1} alignItems="center">
             <RunningLocalTestsIndicator />
             <RunningCloudTestsIndicator />
           </Stack>

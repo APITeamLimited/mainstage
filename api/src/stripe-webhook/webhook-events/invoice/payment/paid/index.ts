@@ -12,6 +12,7 @@ import {
 } from 'src/helpers'
 import { dispatchEmail } from 'src/lib/mailman'
 import { CustomerModel } from 'src/models'
+import { ensureCorrectDescriptionInvoice } from 'src/utils/ensure-correct-description-invoice'
 
 import { customerIdentificationSchema } from '../../../customer'
 import { getAdminOwnerSendInfo, getInvoiceLast4 } from '../../helpers'
@@ -20,7 +21,9 @@ import { checkForCreditsPurchase } from './credits-purchase'
 import { checkForPlanActivation } from './plan-activation'
 
 export const handleInvoicePaid = async (event: Stripe.Event) => {
-  const invoice = event.data.object as Stripe.Invoice
+  const invoice = await ensureCorrectDescriptionInvoice(
+    event.data.object as Stripe.Invoice
+  )
 
   // Get customer
   const customer = await CustomerModel.get(invoice.customer as string)

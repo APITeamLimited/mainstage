@@ -3,6 +3,7 @@ import {
   GetAllMixin,
   AbstractPlanInfoCreateInput,
   AbstractPlanInfoUpdateInput,
+  IndexedFieldMixin,
 } from '@apiteam/types'
 import type { Prisma, PlanInfo } from '@prisma/client'
 
@@ -16,7 +17,8 @@ export const PlanInfoModel: APITeamModel<
   AbstractPlanInfoUpdateInput,
   PlanInfo
 > &
-  GetAllMixin<PlanInfo> = {
+  GetAllMixin<PlanInfo> &
+  IndexedFieldMixin<PlanInfo, 'id' | 'monthlyPriceId' | 'yearlyPriceId'> = {
   create: async (input) => {
     const newPlanInfo = await db.planInfo.create({
       data: await createProductAndPrices(input),
@@ -95,6 +97,18 @@ export const PlanInfoModel: APITeamModel<
       skip += planInfos.length
       batchSize = planInfos.length
     } while (batchSize > 0)
+  },
+  indexedFieldExists: async (field, value) => {
+    const allPlanInfos = await PlanInfoModel.getAll()
+
+    return allPlanInfos.some((planInfo) => planInfo[field] === value)
+  },
+  getIndexedField: async (field, value) => {
+    const allPlanInfos = await PlanInfoModel.getAll()
+
+    console.log('allPlanInfos', allPlanInfos)
+
+    return allPlanInfos.find((planInfo) => planInfo[field] === value) ?? null
   },
 }
 
