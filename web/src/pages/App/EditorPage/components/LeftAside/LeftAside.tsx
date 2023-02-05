@@ -1,9 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
+import { ROUTES } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
-import { IconButton, Box, Stack, Tooltip, useTheme } from '@mui/material'
+import GridViewIcon from '@mui/icons-material/GridView'
+import {
+  IconButton,
+  Box,
+  Stack,
+  Tooltip,
+  useTheme,
+  Divider,
+} from '@mui/material'
 import type { Map as YMap } from 'yjs'
+
+import { navigate } from '@redwoodjs/router'
 
 import {
   CollectionEditorIcon,
@@ -109,13 +120,22 @@ export const LeftAside = ({
           justifyContent="space-between"
           spacing={2}
           sx={{
-            paddingY: 1,
             width: '50px',
             borderRight: `1px solid ${theme.palette.divider}`,
             minWidth: '50px',
+            paddingY: 1,
           }}
         >
           <Stack spacing={2}>
+            <Tooltip title="Dashboard" placement="right">
+              <IconButton
+                size="large"
+                color="inherit"
+                onClick={() => navigate(ROUTES.dashboard)}
+              >
+                <GridViewIcon />
+              </IconButton>
+            </Tooltip>
             <Tooltip title="Collections" placement="right">
               <IconButton
                 size="large"

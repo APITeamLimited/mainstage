@@ -184,6 +184,10 @@ export const SuccessMultipleResultPanel = ({
       )}... Message truncated, an unknown error occurred.`
     }
 
+    if (sortedErrors[0].message === 'job cancelled by user') {
+      return `Load test aborted early, job cancelled by user.`
+    }
+
     return `Load test aborted early due to error: ${
       sortedErrors[0].message as string
     }`

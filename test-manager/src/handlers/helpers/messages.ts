@@ -33,10 +33,15 @@ export const handleMessage = async (
   const coreCacheReadRedis = await getCoreCacheReadRedis()
   const coreCacheSubscribeRedis = await getCoreCacheSubscribeRedis()
 
-  if (params.testType === 'rest') {
+  if (
+    params.testData.rootNode.variant === 'httpRequest' &&
+    'subVariant' in params.testData.rootNode &&
+    params.testData.rootNode.subVariant === 'rest'
+  ) {
     await ensureRESTResponseExists(
       socket,
       params,
+      params.testData.rootNode,
       jobId,
       executionAgent,
       localJobId
@@ -185,11 +190,14 @@ export const handleMessage = async (
             !runningState.globeTestLogsStoreReceipt,
             !runningState.metricsStoreReceipt,
             !runningState.options,
-            // @ts-ignore
-            !runningState.responseId,
+
+            'responseId' in runningState ? !runningState.responseId : false,
+
             !runningState.entityEngineSocket,
-            // @ts-ignore
-            !runningState.markedResponse
+
+            'markedResponse' in runningState
+              ? !runningState.markedResponse
+              : false
           )
         }
 

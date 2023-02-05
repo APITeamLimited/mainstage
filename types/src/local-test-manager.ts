@@ -1,8 +1,5 @@
-import {
-  ExecutionParams,
-  GlobeTestMessage,
-  JobUserUpdateMessage,
-} from './test-manager'
+import type { ExecutionParams } from './execution-params'
+import { GlobeTestMessage, JobUserUpdateMessage } from './test-manager'
 
 export const LOCAL_AGENT_PORT = 59125
 export const LOCAL_AGENT_MAX_JOBS = 5

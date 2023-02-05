@@ -2,6 +2,7 @@ import {
   AuthenticatedSocket,
   EntityEngineServersideMessages,
   GlobeTestOptions,
+  HTTPRequestNode,
   WrappedExecutionParams,
 } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
@@ -15,6 +16,7 @@ import { estimateRESTResponseSize, getEntityEngineSocket } from './utils'
 export const ensureRESTResponseExists = async (
   socket: AuthenticatedSocket,
   params: WrappedExecutionParams,
+  httpRequestNode: HTTPRequestNode,
   jobId: string,
   executionAgent: 'Local' | 'Cloud',
   localJobId?: string
@@ -42,6 +44,7 @@ export const ensureRESTResponseExists = async (
     return await restCreateResponse({
       socket,
       params,
+      httpRequestNode,
       jobId,
       executionAgent,
       localJobId,
@@ -52,20 +55,25 @@ export const ensureRESTResponseExists = async (
 export const restCreateResponse = async ({
   socket,
   params,
+  httpRequestNode,
   jobId,
   executionAgent,
   localJobId,
 }: {
   socket: AuthenticatedSocket
   params: WrappedExecutionParams
+  httpRequestNode: HTTPRequestNode
   jobId: string
   executionAgent: 'Local' | 'Cloud'
   localJobId?: string
 }) => {
-  if (!params.finalRequest) {
-    socket.emit('error', 'Missing finalRequest parameter')
-    socket.disconnect()
-    return
+  if (
+    !('subVariant' in httpRequestNode) ||
+    httpRequestNode.subVariant !== 'rest'
+  ) {
+    throw new Error(
+      'Internal error, expected httpRequestNode to be rest subvariant'
+    )
   }
 
   const entityEngineSocket = await getEntityEngineSocket(
@@ -90,11 +98,11 @@ export const restCreateResponse = async ({
   const eeParams: EntityEngineServersideMessages['rest-create-response'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
-    underlyingRequest: params.underlyingRequest,
-    finalRequestEndpoint: params.finalRequest.url,
-    finalRequestHeaders: params.finalRequest.params?.headers ?? {},
-    source: params.source,
-    sourceName: params.sourceName,
+    underlyingRequest: httpRequestNode.underlyingRequest,
+    finalRequestEndpoint: httpRequestNode.finalRequest.url,
+    finalRequestHeaders: httpRequestNode.finalRequest.params?.headers ?? {},
+    sourceName: params.testData.rootScript.name,
+    source: params.testData.rootScript.contents,
     jobId,
     createdByUserId: userId,
     executionAgent,
@@ -115,12 +123,6 @@ export const restAddOptions = async ({
   options: GlobeTestOptions
   executionAgent: 'Local' | 'Cloud'
 }) => {
-  if (!params.finalRequest) {
-    socket.emit('error', 'Missing finalRequest parameter')
-    socket.disconnect()
-    return
-  }
-
   const entityEngineSocket = await getEntityEngineSocket(
     socket,
     socket.scope,

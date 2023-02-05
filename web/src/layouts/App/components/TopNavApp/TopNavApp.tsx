@@ -1,11 +1,7 @@
-import { useMemo } from 'react'
-
 import { ROUTES } from '@apiteam/types/src'
-import { Stack, Tooltip } from '@mui/material'
+import { Stack } from '@mui/material'
 
-import { useLocation } from '@redwoodjs/router'
-
-import { APITeamLogo, LOGO_DEFAULT_HEIGHT } from 'src/components/APITeamLogo'
+import { APITeamLogo } from 'src/components/APITeamLogo'
 import { PlanChip } from 'src/components/app/utils/PlanChip'
 import { TopNavLink } from 'src/components/utils/TopNavLink'
 import { usePlanInfo } from 'src/contexts/billing-info'
@@ -15,13 +11,6 @@ import { InviteButton } from './InviteButton'
 import { WorkspaceSwitcher } from './WorkspaceOverview'
 
 export const TopNavApp = () => {
-  const { pathname } = useLocation()
-
-  const isOnDashboard = useMemo(
-    () => pathname.startsWith('/app/dashboard'),
-    [pathname]
-  )
-
   const planInfo = usePlanInfo()
 
   return (
@@ -36,19 +25,7 @@ export const TopNavApp = () => {
           }}
         >
           <Stack direction="row" alignItems="center" spacing={0.5}>
-            {!isOnDashboard ? (
-              <Tooltip title="Dashboard">
-                <span
-                  style={{
-                    height: LOGO_DEFAULT_HEIGHT,
-                  }}
-                >
-                  <APITeamLogo />
-                </span>
-              </Tooltip>
-            ) : (
-              <APITeamLogo />
-            )}
+            <APITeamLogo />
             {planInfo && <PlanChip name={planInfo.name} hideIfFree />}
           </Stack>
           {/* {!isOnDashboard && (

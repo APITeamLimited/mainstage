@@ -47,18 +47,14 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
       socket.once('params', async (params: WrappedExecutionParams) => {
         socket.emit('paramsAcknowledged')
 
-        // TODO: Figure out why importing the schema from @apiteam/types doesn't work
+        const result = wrappedExecutionParamsSchema.safeParse(params)
 
-        resolve(params)
+        if (!result.success) {
+          reject(new Error('Invalid execution params'))
+          return
+        }
 
-        // const result = wrappedExecutionParamsSchema.safeParse(params)
-
-        // if (!result.success) {
-        //   reject(new Error('Invalid execution params'))
-        //   return
-        // }
-
-        // resolve(result.data)
+        resolve(result.data)
       })
     }
   ).catch((e) => {
@@ -95,12 +91,8 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
 
   const executionParams: ExecutionParams = {
     id: uuid(),
-    source: params.source,
-    sourceName: params.sourceName,
     environmentContext: params.environmentContext,
     collectionContext: params.collectionContext,
-    finalRequest: params.finalRequest,
-    underlyingRequest: params.underlyingRequest,
     scope: {
       variant: socket.scope.variant as 'USER' | 'TEAM',
       variantTargetId: socket.scope.variantTargetId,
@@ -109,6 +101,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     verifiedDomains: [],
     createdAt: new Date().toISOString(),
     funcModeInfo: null,
+    testData: params.testData,
   }
 
   const jobLogsKey = getLocalTestLogsKey(socket.scope, executionParams.id)
@@ -245,7 +238,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
 
   const runningTestInfo: RunningTestInfo = {
     jobId: executionParams.id,
-    sourceName: executionParams.sourceName,
+    sourceName: executionParams.testData.rootScript.name,
     createdByUserId: socket.scope.userId,
     createdAt: executionParams.createdAt,
     status: 'ASSIGNED',

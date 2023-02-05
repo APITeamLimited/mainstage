@@ -21,9 +21,7 @@ export const APITeamLogo = ({
   const { pathname } = useLocation()
   const isInApp = pathname.includes('/app')
 
-  const actualDisableLinks = disableLinks
-    ? true
-    : pathname === ROUTES.splash || pathname === ROUTES.dashboard
+  const actualDisableLinks = disableLinks ? true : pathname === ROUTES.splash
 
   const inner = (
     <svg
@@ -228,7 +226,13 @@ export const APITeamLogo = ({
     inner
   ) : (
     <Box
-      onClick={() => navigate(isInApp ? ROUTES.dashboard : ROUTES.splash)}
+      onClick={() =>
+        navigate(
+          isInApp && pathname !== ROUTES.dashboard
+            ? ROUTES.dashboard
+            : ROUTES.splash
+        )
+      }
       sx={{
         textDecoration: 'none',
         color: theme.palette.text.primary,

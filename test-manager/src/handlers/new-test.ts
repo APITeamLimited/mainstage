@@ -49,18 +49,15 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     (resolve, reject) => {
       socket.once('params', async (params: WrappedExecutionParams) => {
         socket.emit('paramsAcknowledged')
-        // TODO: Figure out why importing the schema from @apiteam/types doesn't work
 
-        resolve(params)
+        const result = wrappedExecutionParamsSchema.safeParse(params)
 
-        // const result = wrappedExecutionParamsSchema.safeParse(params)
+        if (!result.success) {
+          reject(new Error('Invalid execution params'))
+          return
+        }
 
-        // if (!result.success) {
-        //   reject(new Error('Invalid execution params'))
-        //   return
-        // }
-
-        // resolve(result.data)
+        resolve(result.data)
       })
     }
   ).catch((e) => {
@@ -123,12 +120,8 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
 
   const executionParams: ExecutionParams = {
     id: uuid(),
-    source: params.source,
-    sourceName: params.sourceName,
     environmentContext: params.environmentContext,
     collectionContext: params.collectionContext,
-    finalRequest: params.finalRequest,
-    underlyingRequest: params.underlyingRequest,
     scope: {
       variant: socket.scope.variant as 'USER' | 'TEAM',
       variantTargetId: socket.scope.variantTargetId,
@@ -143,6 +136,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     // Allow one more minute so user can get full length of max duration, ie enter 10 minutes and get 10 minutes without throwing an error
     maxTestDurationMinutes: planinfo.maxTestDurationMinutes + 1,
     maxSimulatedUsers: planinfo.maxSimulatedUsers,
+    testData: params.testData,
   }
 
   let consoleLogCount = 0
@@ -180,7 +174,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
 
   const runningTestInfo: RunningTestInfo = {
     jobId: executionParams.id,
-    sourceName: executionParams.sourceName,
+    sourceName: executionParams.testData.rootScript.name,
     createdByUserId: socket.scope.userId,
     createdAt: executionParams.createdAt,
     status: 'ASSIGNED',
