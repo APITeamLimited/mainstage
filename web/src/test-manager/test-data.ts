@@ -4,13 +4,12 @@ import {
   ExecutionScript,
   RESTRequest,
 } from '@apiteam/types/src'
-import * as queryString from 'query-string'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
-import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from '../lib'
-import { getFinalRequest } from '../rest'
-import { determineGlobetestAgent } from '../utils'
+import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from './lib'
+import { getFinalRequest } from './rest'
+import { determineGlobetestAgent } from './utils'
 
 /** Creates a new single rest job and adds it to the queue. */
 export const singleRESTRequestGenerator = async ({
@@ -57,8 +56,6 @@ export const singleRESTRequestGenerator = async ({
     collectionContext
   )
 
-  const queryEncoded = `?${queryString.stringify(axiosConfig.params)}`
-
   const job: BaseJob & PendingLocalJob = {
     __subtype: 'PendingLocalJob',
     localId: uuid(),
@@ -74,38 +71,6 @@ export const singleRESTRequestGenerator = async ({
     collectionId: collectionId,
     environmentContext,
     collectionContext,
-    finalRequest: {
-      method: axiosConfig.method as string,
-      url: `${axiosConfig.url}${
-        queryEncoded.length > 1 ? queryEncoded : ''
-      }` as string,
-      body: axiosConfig.data,
-      params: {
-        headers: Object.entries(axiosConfig.headers ?? {}).reduce(
-          (acc, [key, value]) => ({
-            ...acc,
-            [key]: value.toString(),
-          }),
-          {}
-        ),
-      },
-    },
-    underlyingRequest: {
-      id: request.id,
-      createdAt: request.createdAt,
-      updatedAt: request.updatedAt,
-      __typename: 'RESTRequest',
-      parentId: request.parentId,
-      __parentTypename: request.__parentTypename,
-      name: request.name,
-      method: request.method,
-      endpoint: request.endpoint,
-      params: request.params,
-      headers: request.headers,
-      auth: request.auth,
-      body: request.body,
-      pathVariables: request.pathVariables,
-    },
   }
 
   jobQueueVar([...jobQueue, job])

@@ -14,7 +14,7 @@ import {
 } from './rest'
 
 type GlobeTestState = {
-  testType: 'rest'
+  testType: 'RESTRequest'
   responseId?: string
 }
 
@@ -43,7 +43,7 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
   }
 
   globeTestState.set(socket, {
-    testType: 'rest',
+    testType: 'RESTRequest',
   })
 
   socket.on('disconnect', () => {

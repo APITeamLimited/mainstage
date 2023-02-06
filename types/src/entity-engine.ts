@@ -64,7 +64,7 @@ export type EntityEngineServersideMessages = {
     scopeId: string
     bearer: string
     projectId: string
-    testType: 'rest'
+    testType: 'RESTRequest'
   }
   'rest-create-response': RestCreateResponse
   'rest-add-options': {

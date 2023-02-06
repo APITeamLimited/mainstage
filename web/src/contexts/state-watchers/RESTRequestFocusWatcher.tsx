@@ -11,9 +11,9 @@ import {
 } from 'src/contexts/reactives'
 
 import {
-  clearFocusedRESTResponse,
+  clearFocusedResponse,
   focusedResponseVar,
-  updateFocusedRESTResponse,
+  updateFocusedResponse,
 } from '../focused-response'
 
 type RESTRequestFocusWatcherProps = {
@@ -67,7 +67,7 @@ export const RESTRequestFocusWatcher = ({
     ] as YMap<any> | undefined
 
     if (focusedRequest.get('__typename') !== 'RESTRequest' && focusedResponse) {
-      clearFocusedRESTResponse(focusedResponseDict, focusedResponse)
+      clearFocusedResponse(focusedResponseDict, focusedResponse)
       return
     }
 
@@ -89,13 +89,13 @@ export const RESTRequestFocusWatcher = ({
 
     if (!latestResponse) {
       if (!focusedResponse) return
-      clearFocusedRESTResponse(focusedResponseDict, focusedResponse)
+      clearFocusedResponse(focusedResponseDict, focusedResponse)
       return
     }
 
     if (focusedResponse?.get('id') === latestResponse.get('id')) return
 
-    updateFocusedRESTResponse(focusedResponseDict, latestResponse)
+    updateFocusedResponse(focusedResponseDict, latestResponse)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [focusedElementDict])
 

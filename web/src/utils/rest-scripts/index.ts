@@ -7,3 +7,5 @@ export const BUILTIN_REST_SCRIPTS = [
   requestSingle,
   globalLoadTest,
 ] as ExecutionScript[]
+
+export const BULTIN_MULTI_SCRIPTS = [globalLoadTest]

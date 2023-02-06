@@ -11,8 +11,7 @@ import {
   snackErrorMessageVar,
   snackSuccessMessageVar,
 } from 'src/components/app/dialogs'
-import { useLocalTestManager } from 'src/test-manager/local-test-manager'
-
+import { useLocalTestManager } from 'src/test-manager/executors'
 const CANCEL_RESPONSE_TEST_MUTATION = gql`
   mutation CancelResponseTestMutation($teamId: String, $jobId: String!) {
     cancelRunningTest(teamId: $teamId, jobId: $jobId)

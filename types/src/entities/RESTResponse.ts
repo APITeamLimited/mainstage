@@ -7,13 +7,12 @@ import { defaultSummaryMetricsSchema } from '../test-manager/metrics'
 
 import { baseEntitySchema } from './base'
 import { restRequestSchema } from './RESTRequest'
-
-export const loadingResultSchema = z.object({
-  __subtype: z.literal('LoadingResponse'),
-  options: z.union([z.record(z.unknown()), z.null()]),
-})
-
-export type LoadingResult = z.infer<typeof loadingResultSchema>
+import {
+  failureResultSchema,
+  loadingResultSchema,
+  successMultipleResultSchema,
+  executionAgentSchema,
+} from './shared'
 
 export const successSingleResultSchema = z.object({
   __subtype: z.literal('SuccessSingleResult'),
@@ -28,28 +27,6 @@ export const successSingleResultSchema = z.object({
   options: z.record(z.unknown()),
 })
 
-export type SuccessSingleResult = z.infer<typeof successSingleResultSchema>
-
-export const successMultipleResultSchema = z.object({
-  __subtype: z.literal('SuccessMultipleResult'),
-  globeTestLogs: storedObjectSchema(z.array(globeTestMessageSchema)),
-  metrics: storedObjectSchema(defaultSummaryMetricsSchema),
-  options: z.record(z.unknown()),
-  graphs: z.any(), // YMap<Graph>
-  abortedEarly: z.boolean().optional(),
-})
-
-export const failureResultSchema = z.object({
-  __subtype: z.literal('FailureResult'),
-  globeTestLogs: storedObjectSchema(z.array(globeTestMessageSchema)),
-
-  // Running test may have failed so these fields may exist
-  metrics: z.union([storedObjectSchema(defaultSummaryMetricsSchema), z.null()]),
-  options: z.union([z.record(z.unknown()), z.null()]),
-})
-
-export type FailureResult = z.infer<typeof failureResultSchema>
-
 export const underlyingRequestSchema = restRequestSchema.omit({
   executionScripts: true,
   description: true,
@@ -58,33 +35,27 @@ export const underlyingRequestSchema = restRequestSchema.omit({
 
 export type UnderlyingRequest = z.infer<typeof underlyingRequestSchema>
 
-const executionAgentSchema = z.enum(['Cloud', 'Local'])
-export type ExecutionAgent = z.infer<typeof executionAgentSchema>
-
-export const restResponseBaseSchema = baseEntitySchema.merge(
-  z.object({
-    __typename: z.literal('RESTResponse'),
-    parentId: z.string().uuid(),
-    __parentTypename: z.literal('RESTRequest'),
-    underlyingRequest: underlyingRequestSchema,
-    source: z.string(),
-    sourceName: z.string(),
-    jobId: z.string().uuid(),
-    createdByUserId: string(),
-
-    // Keep name, endpoint, and method for backwards compatibility
-    name: z.string(),
-    endpoint: z.string(),
-    method: z.string(),
-    executionAgent: executionAgentSchema,
-    localJobId: z.string().uuid().optional(),
-  })
-)
-
-export type RESTResponseBase = z.infer<typeof restResponseBaseSchema>
-
 export const restResponseSchema = z.intersection(
-  restResponseBaseSchema,
+  baseEntitySchema.merge(
+    z.object({
+      __typename: z.literal('RESTResponse'),
+      parentId: z.string().uuid(),
+      __parentTypename: z.literal('RESTRequest'),
+      underlyingRequest: underlyingRequestSchema,
+      source: z.string(),
+      sourceName: z.string(),
+      jobId: z.string().uuid(),
+      createdByUserId: string(),
+
+      // Keep name, endpoint, and method for backwards compatibility
+      name: z.string(),
+      endpoint: z.string(),
+      method: z.string(),
+
+      executionAgent: executionAgentSchema,
+      localJobId: z.string().uuid().optional(),
+    })
+  ),
   z.union([
     loadingResultSchema,
     successSingleResultSchema,
@@ -94,6 +65,3 @@ export const restResponseSchema = z.intersection(
 )
 
 export type RESTResponse = z.infer<typeof restResponseSchema>
-
-// export type RESTResponse = RESTResponseBase &
-//   (LoadingResult | SuccessSingleResult | FailureResult)

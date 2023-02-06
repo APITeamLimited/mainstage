@@ -13,7 +13,7 @@ import { BillingInfoProvider } from 'src/contexts/billing-info'
 import { CancelRunningTestProvider } from 'src/contexts/cancel-running-test-provider'
 import { ReactiveVarPersistor } from 'src/contexts/reactives/ReactiveVarPersistor'
 import { EntityEngine } from 'src/entity-engine'
-import { LocalTestManagerProvider } from 'src/test-manager/local-test-manager/LocalTestManagerProvider'
+import { LocalTestManagerProvider } from 'src/test-manager/executors/local-test-manager/LocalTestManagerProvider'
 
 import { CustomAppBar } from '../CustomAppBar'
 

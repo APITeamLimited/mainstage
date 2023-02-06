@@ -12,7 +12,7 @@ import {
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { uploadScopedResource } from 'src/store'
 
-import { handleVariableUpdates } from '../executors'
+import { handleVariableUpdates } from '../../variable-updates'
 
 import {
   LocalTestManager,

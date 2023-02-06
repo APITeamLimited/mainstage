@@ -25,7 +25,7 @@ type RightAsideProps = {
   collectionYMap: YMap<any>
 }
 
-type AsideType = 'code' | 'restHistory' | null | 'info'
+type AsideType = 'code' | 'history' | 'info' | null
 
 export const RightAside = ({
   setShowRightAside,
@@ -81,10 +81,8 @@ export const RightAside = ({
     // Todo: Add support for folders and collections execution
     // (ie remove them frm here)
     if (
-      (focusedTypename === 'Collection' ||
-        focusedTypename === 'Folder' ||
-        focusedTypename === 'Environment') &&
-      (activeRightAside === 'code' || activeRightAside === 'restHistory')
+      focusedTypename === 'Environment' &&
+      (activeRightAside === 'code' || activeRightAside === 'history')
     ) {
       if (showRightAside) {
         setActiveRightAside(null)
@@ -107,6 +105,8 @@ export const RightAside = ({
     () => (focusedElement ? getPrettyInfoTitle(focusedElement) : undefined),
     [focusedElement]
   )
+
+  const focusedTypename = focusedElement?.get('__typename')
 
   return (
     <Paper
@@ -140,29 +140,29 @@ export const RightAside = ({
           }}
         >
           <Stack spacing={2}>
-            {focusedElement?.get('__typename') === 'RESTRequest' && (
-              <>
-                <Tooltip title="Response History" placement="left">
-                  <IconButton
-                    size="large"
-                    color={
-                      activeRightAside === 'restHistory' ? 'primary' : 'inherit'
-                    }
-                    onClick={() => handleButtonClick('restHistory')}
-                  >
-                    <ReorderIcon />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="Generate Code" placement="left">
-                  <IconButton
-                    size="large"
-                    color={activeRightAside === 'code' ? 'primary' : 'inherit'}
-                    onClick={() => handleButtonClick('code')}
-                  >
-                    <CodeIcon />
-                  </IconButton>
-                </Tooltip>
-              </>
+            {(focusedTypename === 'RESTRequest' ||
+              focusedTypename === 'Folder' ||
+              focusedTypename === 'Collection') && (
+              <Tooltip title="Response History" placement="left">
+                <IconButton
+                  size="large"
+                  color={activeRightAside === 'history' ? 'primary' : 'inherit'}
+                  onClick={() => handleButtonClick('history')}
+                >
+                  <ReorderIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            {focusedTypename === 'RESTRequest' && (
+              <Tooltip title="Generate Code" placement="left">
+                <IconButton
+                  size="large"
+                  color={activeRightAside === 'code' ? 'primary' : 'inherit'}
+                  onClick={() => handleButtonClick('code')}
+                >
+                  <CodeIcon />
+                </IconButton>
+              </Tooltip>
             )}
             {prettyInfoName && (
               <Tooltip title={prettyInfoName} placement="left">
@@ -179,15 +179,18 @@ export const RightAside = ({
           <Stack spacing={2}></Stack>
         </Stack>
         {showRightAside &&
-          focusedElement?.get('__typename') === 'RESTRequest' &&
-          activeRightAside === 'restHistory' && (
+          (focusedTypename === 'RESTRequest' ||
+            focusedTypename === 'Folder' ||
+            focusedTypename === 'Collection') &&
+          activeRightAside === 'history' && (
             <ResponseHistory
               onCloseAside={handleCloseAside}
               collectionYMap={collectionYMap}
             />
           )}
         {showRightAside &&
-          focusedElement?.get('__typename') === 'RESTRequest' &&
+          focusedElement &&
+          focusedTypename === 'RESTRequest' &&
           activeRightAside === 'code' && (
             <RESTCodeGenerator
               requestYMap={focusedElement}

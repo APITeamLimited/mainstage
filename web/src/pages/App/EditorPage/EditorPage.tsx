@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useEffect, useState } from 'react'
 
 import { ROUTES } from '@apiteam/types/src'
@@ -11,12 +10,13 @@ import { MetaTags } from '@redwoodjs/web'
 
 import { CollectionContext } from 'src/contexts/collection'
 import { EnvironmentProvider } from 'src/contexts/EnvironmentProvider'
-import { useYJSModule, YJSModule } from 'src/contexts/imports'
+import { useYJSModule } from 'src/contexts/imports'
 import { VariablesProvider } from 'src/contexts/VariablesProvider'
 import { VerifiedDomainsProvider } from 'src/contexts/verified-domains-provider'
 import { useWorkspace } from 'src/entity-engine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { GlobeTestProvider } from 'src/test-manager'
+import { getOrCreateSubYMap } from 'src/utils/get-or-create-sub-ymap'
 
 import { LeftAside } from './components/LeftAside/LeftAside'
 import { StatusBar } from './components/StatusBar'
@@ -173,12 +173,12 @@ export const EditorPage = ({
                       showLeftAside={showLeftAside}
                       setShowLeftAside={setShowLeftAside}
                       collectionYMap={collectionYMap}
-                      environmentsYMap={getOrCreateSubMap(
+                      environmentsYMap={getOrCreateSubYMap(
                         Y,
                         branchYMap,
                         'environments'
                       )}
-                      testSuitesYMap={getOrCreateSubMap(
+                      testSuitesYMap={getOrCreateSubYMap(
                         Y,
                         branchYMap,
                         'testSuites'
@@ -194,7 +194,7 @@ export const EditorPage = ({
                     }}
                   />
                   <ReflexElement flex={1} minSize={600}>
-                    <TabController />
+                    <TabController showLeftAside={showLeftAside} />
                   </ReflexElement>
                 </ReflexContainer>
               </div>
@@ -205,24 +205,6 @@ export const EditorPage = ({
       </EnvironmentProvider>
     </>
   )
-}
-
-const getOrCreateSubMap = (
-  Y: YJSModule,
-  branchYMap: YMap<any>,
-  key: string
-): YMap<any> => {
-  const subMap = branchYMap.get(key) as YMap<any> | undefined
-
-  if (subMap) {
-    return subMap
-  }
-
-  const newSubMap = new Y.Map()
-
-  branchYMap.set(key, newSubMap)
-
-  return newSubMap
 }
 
 export default EditorPage

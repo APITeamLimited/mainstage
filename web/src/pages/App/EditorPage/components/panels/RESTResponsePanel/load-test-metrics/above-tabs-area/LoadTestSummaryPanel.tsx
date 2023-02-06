@@ -3,7 +3,7 @@
 import type { MetricsCombination, GlobeTestMessage } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
-import { StatsSkeleton } from '../../../../utils/stats'
+import { StatsSkeleton } from '../../../components/stats'
 
 import { MetricsOverviewStats } from './MetricsOverviewStats'
 

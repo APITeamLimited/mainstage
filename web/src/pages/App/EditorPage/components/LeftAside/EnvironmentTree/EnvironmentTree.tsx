@@ -18,7 +18,7 @@ import {
 } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { EmptyAside } from '../../utils/EmptyAside'
+import { EmptyAside } from '../../shared/EmptyAside'
 import { LeftAsideLayout } from '../LeftAsideLayout'
 
 import { EnvironmentTreeItem } from './EnvironmentTreeItem'

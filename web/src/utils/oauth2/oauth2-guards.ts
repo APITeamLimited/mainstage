@@ -1,6 +1,6 @@
-import { RESTAuth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { Auth, WrappedOAuth2Token } from '@apiteam/types/src'
 
-export const guardOAuth2Save = (auth: RESTAuth, activeId: string) => {
+export const guardOAuth2Save = (auth: Auth, activeId: string) => {
   if (auth.authType !== 'oauth2') {
     return auth
   }
@@ -20,7 +20,7 @@ export const guardOAuth2Save = (auth: RESTAuth, activeId: string) => {
   }
 }
 
-export const oauth2LoadLocal = (auth: RESTAuth, activeId: string): RESTAuth => {
+export const oauth2LoadLocal = (auth: Auth, activeId: string): Auth => {
   if (auth.authType !== 'oauth2') {
     return auth
   }

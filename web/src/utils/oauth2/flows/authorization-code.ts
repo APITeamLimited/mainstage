@@ -1,4 +1,4 @@
-import { OAuth2Token, RESTAuth, restAuthOAuth2Schema } from '@apiteam/types/src'
+import { OAuth2Token, Auth, authOAuth2Schema } from '@apiteam/types/src'
 import type { ApolloClient } from '@apollo/client/core'
 
 import {
@@ -9,34 +9,34 @@ import {
 import { getCallbackResult } from '../method-utils'
 
 export const validateAuthorizationCodeFlow = async (
-  inputAuth: RESTAuth & {
+  inputAuth: Auth & {
     authType: 'oauth2'
     grantType: 'authorization-code' | 'authorization-code-with-pkce'
   },
   apolloClient: ApolloClient<object>
 ) => {
   // Necessary to avoid mutating the inputAuth object and causing a re-render
-  const restAuth = { ...inputAuth }
+  const auth = { ...inputAuth }
 
-  if (restAuth.state === '') {
+  if (auth.state === '') {
     // Set state to a random 20 character string
-    restAuth.state =
+    auth.state =
       Math.random().toString(36).substring(2, 15) +
       Math.random().toString(36).substring(2, 15)
   }
 
   const apiteamCallbackCode = await createAPITeamOAuth2Code(apolloClient)
 
-  restAuth.redirectURI = `${apiTeamOauth2CallbackURL()}?apiteamCallbackCode=${apiteamCallbackCode}`
+  auth.redirectURI = `${apiTeamOauth2CallbackURL()}?apiteamCallbackCode=${apiteamCallbackCode}`
 
   return {
     apiteamCallbackCode,
-    parseResult: restAuthOAuth2Schema.safeParse(restAuth),
+    parseResult: authOAuth2Schema.safeParse(auth),
   }
 }
 
 export const handleAuthorizationCodeFlow = async (
-  validatedAuth: RESTAuth & {
+  validatedAuth: Auth & {
     authType: 'oauth2'
     grantType: 'authorization-code' | 'authorization-code-with-pkce'
   },
@@ -135,17 +135,17 @@ const generateRandomCodeVerifier = () =>
     .join('')
 
 const createCodeChallenge = async (
-  restAuth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
     grantType: 'authorization-code-with-pkce'
   }
 ) => {
-  if (restAuth.codeChallengeMethod === 'plain') {
-    return restAuth.codeVerifier
+  if (auth.codeChallengeMethod === 'plain') {
+    return auth.codeVerifier
   }
 
   // encode as UTF-8
-  const msgBuffer = new TextEncoder().encode(restAuth.codeVerifier)
+  const msgBuffer = new TextEncoder().encode(auth.codeVerifier)
 
   // hash the message
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)

@@ -6,7 +6,7 @@ import { FocusedElementDictionary, getFocusedElementKey } from './reactives'
 
 export const focusedResponseVar = makeVar<FocusedElementDictionary>({})
 
-export const updateFocusedRESTResponse = (
+export const updateFocusedResponse = (
   focusedResponseDict: FocusedElementDictionary,
   focusYMap: YMap<any>
 ) => {
@@ -18,7 +18,7 @@ export const updateFocusedRESTResponse = (
   })
 }
 
-export const clearFocusedRESTResponse = (
+export const clearFocusedResponse = (
   focusedResponseDict: FocusedElementDictionary,
   originalFocusYMap: YMap<any>
 ) => {

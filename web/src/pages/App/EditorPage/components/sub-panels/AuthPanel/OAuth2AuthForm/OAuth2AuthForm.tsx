@@ -4,9 +4,9 @@ import {
   defaultOAuth2Config,
   OAuth2Token,
   prettyZodError,
-  RESTAuth,
-  RESTAuthOAuth2,
-  RESTAuthOAuth2GrantType,
+  Auth,
+  AuthOAuth2,
+  AuthOAuth2GrantType,
 } from '@apiteam/types/src'
 import { useApolloClient } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
@@ -32,8 +32,8 @@ import { TokenManagerForm } from './TokenManagerForm'
 import { WhereStoreTokenDialog } from './WhereStoreTokenDialog'
 
 type OAuth2AuthFormProps = {
-  auth: RESTAuthOAuth2
-  setAuth: (auth: RESTAuth) => void
+  auth: AuthOAuth2
+  setAuth: (auth: Auth) => void
   activeId: string
 }
 
@@ -51,11 +51,11 @@ export const OAuth2AuthForm = ({
     useState(false)
   const [foundToken, setFoundToken] = useState<OAuth2Token | null>(null)
 
-  const handleGrantTypeChange = (value: RESTAuthOAuth2GrantType) => {
+  const handleGrantTypeChange = (value: AuthOAuth2GrantType) => {
     const newAuth = defaultOAuth2Config(value)
 
     // Copy any existing values from the old auth
-    const copiedKeys = copyKeys(auth, newAuth, ['grantType']) as RESTAuthOAuth2
+    const copiedKeys = copyKeys(auth, newAuth, ['grantType']) as AuthOAuth2
 
     setAuth(copiedKeys)
   }
@@ -142,7 +142,7 @@ export const OAuth2AuthForm = ({
               label="Grant Type"
               value={auth.grantType}
               onChange={(value) =>
-                handleGrantTypeChange(value as RESTAuthOAuth2GrantType)
+                handleGrantTypeChange(value as AuthOAuth2GrantType)
               }
               options={[
                 {

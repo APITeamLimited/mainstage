@@ -1,12 +1,12 @@
-import { RESTAuth, RESTAuthBasic } from '@apiteam/types/src'
+import { Auth, AuthBasic } from '@apiteam/types/src'
 import { Box, Stack } from '@mui/material'
 
 import { FormEnvironmentTextField } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 
 type BasicAuthFormProps = {
-  auth: RESTAuthBasic
-  setAuth: (auth: RESTAuth) => void
+  auth: AuthBasic
+  setAuth: (auth: Auth) => void
   namespace: string
 }
 

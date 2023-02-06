@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useCallback } from 'react'
 
-import { OAuth2Token, RESTAuth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { OAuth2Token, Auth, WrappedOAuth2Token } from '@apiteam/types/src'
 import {
   Button,
   FormLabel,
@@ -16,10 +16,10 @@ import {
 import { useActiveWrappedToken } from './use-active-wrapped-token'
 
 type TokenManagerFormProps = {
-  auth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
   }
-  setAuth: (auth: RESTAuth) => void
+  setAuth: (auth: Auth) => void
   getOAuth2Token: () => void
   activeId: string
 }

@@ -22,7 +22,7 @@ import { QuickUserSummary } from 'src/components/app/utils/QuickUserSummary'
 import { LocalAgentIcon } from 'src/components/utils/Icons'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import { useLocalTestManager } from 'src/test-manager/local-test-manager/LocalTestManagerProvider'
+import { useLocalTestManager } from 'src/test-manager/executors/local-test-manager/LocalTestManagerProvider'
 
 type RunningLocalTestsDialogProps = {
   open: boolean

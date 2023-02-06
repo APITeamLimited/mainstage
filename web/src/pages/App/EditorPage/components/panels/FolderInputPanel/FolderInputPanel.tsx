@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-import { RESTAuth } from '@apiteam/types/src'
+import { Auth, ExecutionScript } from '@apiteam/types/src'
 import FolderIcon from '@mui/icons-material/Folder'
 import {
+  Box,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -14,17 +15,27 @@ import {
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { useHashSumModule } from 'src/contexts/imports'
+import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import {
   oauth2LoadLocal,
   guardOAuth2Save,
 } from 'src/utils/oauth2/oauth2-guards'
 
-import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
 import { duplicateRecursive } from '../../LeftAside/CollectionTree/Node/utils'
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
-import { SaveButton } from '../RESTInputPanel/SaveButton'
+import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
+import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
+import { SaveButton } from '../components/SaveButton'
+import { SendButton } from '../components/SendButton'
+import {
+  getDescription,
+  getExecutionScripts,
+  useUnsavedDescription,
+  useUnsavedExecutionScripts,
+} from '../hooks'
 
 import { SaveAsDialog } from './SaveAsDialog'
 
@@ -39,20 +50,25 @@ export const FolderInputPanel = ({
   collectionYMap,
   setObservedNeedsSave,
 }: FolderInputPanelProps) => {
+  const { default: hash } = useHashSumModule()
+
+  const scopeId = useScopeId()
+  const rawBearer = useRawBearer()
+
   const foldersYMap = collectionYMap.get('folders')
   const restRequestsYMap = collectionYMap.get('restRequests')
 
   const folderYMap = foldersYMap.get(folderId)
   const folderHook = useYMap(folderYMap)
 
-  const getSetDescription = () => {
-    folderYMap.set('description', '')
-    return folderYMap.get('description')
-  }
+  const [unsavedDescription, setUnsavedDescription] =
+    useUnsavedDescription(folderYMap)
 
-  const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    folderYMap.get('description') ?? getSetDescription()
-  )
+  const {
+    unsavedExecutionScripts,
+    setUnsavedExecutionScripts,
+    defaultExecutionScript,
+  } = useUnsavedExecutionScripts(folderYMap, true)
 
   const getSetAuth = () => {
     folderYMap.set('auth', {
@@ -62,7 +78,7 @@ export const FolderInputPanel = ({
     return folderYMap.get('auth')
   }
 
-  const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
+  const [unsavedAuth, setUnsavedAuth] = useState<Auth>(
     oauth2LoadLocal(folderYMap.get('auth'), folderId) ?? getSetAuth()
   )
 
@@ -71,29 +87,31 @@ export const FolderInputPanel = ({
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
-  const handleSetNeedSave = (needSave: boolean) => {
-    setNeedSave(needSave)
-
-    if (needSave) {
-      setObservedNeedsSave(true, () => saveCallbackRef.current())
-    } else {
-      setObservedNeedsSave(false)
-    }
-  }
-
   // If doesn't need save, update fields automatically
   useEffect(() => {
-    if (!needSave) {
-      setUnsavedDescription(
-        folderYMap.get('description') ?? getSetDescription()
-      )
-      setUnsavedAuth(
-        oauth2LoadLocal(folderYMap.get('auth'), folderId) ?? getSetAuth()
-      )
-
-      // This seems to be required to trigger re-render
-      handleSetNeedSave(false)
+    if (needSave) {
+      return
     }
+
+    setUnsavedDescription(getDescription(folderYMap))
+
+    const newAuth = oauth2LoadLocal(folderYMap.get('auth'), folderId)
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedAuth) !== hash(newAuth)) {
+      setUnsavedAuth(JSON.parse(JSON.stringify(newAuth)))
+    }
+
+    const newExecutionScripts = getExecutionScripts(folderYMap, true)
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedExecutionScripts) !== hash(newExecutionScripts)) {
+      setUnsavedExecutionScripts(newExecutionScripts)
+    }
+
+    // This seems to be required to trigger re-render in some cases
+    setNeedSave(false)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderHook])
 
@@ -103,7 +121,7 @@ export const FolderInputPanel = ({
     newValue: T
   ) => {
     if (!needSave) {
-      handleSetNeedSave(true)
+      setNeedSave(true)
     }
 
     // Call the setter after the needSave state is set to true else will try and
@@ -114,8 +132,12 @@ export const FolderInputPanel = ({
   const handleSave = () => {
     folderYMap.set('description', unsavedDescription)
     folderYMap.set('auth', guardOAuth2Save(unsavedAuth, folderId))
+    folderYMap.set(
+      'executionScripts',
+      unsavedExecutionScripts.filter((s) => !s.builtIn)
+    )
     folderYMap.set('updatedAt', new Date().toISOString())
-    handleSetNeedSave(false)
+    setNeedSave(false)
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)
@@ -132,15 +154,36 @@ export const FolderInputPanel = ({
     })
 
     const newFolder = foldersYMap.get(newId)
+
     newFolder.set('name', newName)
     newFolder.set('auth', guardOAuth2Save(unsavedAuth, newId))
     newFolder.set('description', unsavedDescription)
+    newFolder.set(
+      'executionScripts',
+      unsavedExecutionScripts.filter((s) => !s.builtIn)
+    )
   }
+
+  const handleSend = async (executionScript: ExecutionScript) => {
+    if (!scopeId) throw new Error('No scopeId')
+    if (!rawBearer) throw new Error('No rawBearer')
+
+    throw new Error('Not implemented')
+  }
+
+  useEffect(() => {
+    if (needSave) {
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+      return
+    }
+
+    setObservedNeedsSave(false)
+  }, [needSave, setObservedNeedsSave, saveCallbackRef])
 
   return (
     <>
       <PanelLayout
-        tabNames={['Auth', 'Description']}
+        tabNames={['Auth', 'Scripts', 'Description']}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -183,6 +226,14 @@ export const FolderInputPanel = ({
                 }}
               />
             </ListItem>
+            <Box marginLeft={2} />
+            <SendButton
+              onSend={handleSend}
+              executionScripts={unsavedExecutionScripts}
+              defaultExecutionScript={defaultExecutionScript}
+              buttonName="Run"
+            />
+            <Box marginLeft={2} />
             <SaveButton
               needSave={needSave}
               onSave={handleSave}
@@ -195,7 +246,7 @@ export const FolderInputPanel = ({
           <AuthPanel
             auth={unsavedAuth}
             setAuth={(newValue) =>
-              handleFieldUpdate<RESTAuth>(setUnsavedAuth, newValue)
+              handleFieldUpdate<Auth>(setUnsavedAuth, newValue)
             }
             namespace={`folders.${folderId}.auth`}
             setActionArea={setActionArea}
@@ -203,6 +254,20 @@ export const FolderInputPanel = ({
           />
         )}
         {activeTabIndex === 1 && (
+          <ScriptsPanel
+            executionScripts={unsavedExecutionScripts}
+            setExecutionScripts={(newScripts) =>
+              handleFieldUpdate<ExecutionScript[]>(
+                setUnsavedExecutionScripts,
+                newScripts
+              )
+            }
+            namespace={`folder:${folderId}:scripts`}
+            setActionArea={setActionArea}
+            onExecute={handleSend}
+          />
+        )}
+        {activeTabIndex === 2 && (
           <DescriptionPanel
             description={unsavedDescription}
             setDescription={(newValue) =>

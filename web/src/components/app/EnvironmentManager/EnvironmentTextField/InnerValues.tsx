@@ -45,6 +45,7 @@ export const InnerValues = ({
   lexical,
   lexicalAddons,
   VariableNodeClass,
+  valueUpdate,
 }: {
   onChange: EnvironmentTextFieldProps['onChange']
   namespace: EnvironmentTextFieldProps['namespace']

@@ -1,4 +1,4 @@
-import { RESTAuth } from '@apiteam/types/src'
+import { Auth } from '@apiteam/types/src'
 
 import {
   CustomFormRadioGroup,
@@ -9,11 +9,11 @@ import { apiTeamOauth2CallbackURL } from 'src/utils/oauth2/backend-callbacks'
 import { ClientAuthenticationOption } from './ClientAuthenticationOption'
 
 type AuthorizationCodeWithPkceFormProps = {
-  auth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
     grantType: 'authorization-code-with-pkce'
   }
-  setAuth: (auth: RESTAuth) => void
+  setAuth: (auth: Auth) => void
   namespace: string
 }
 

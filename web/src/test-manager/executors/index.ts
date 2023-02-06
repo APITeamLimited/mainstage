@@ -1,3 +1,3 @@
 export * from './cloud-execution'
 export * from './existing-test'
-export * from './local-execution'
+export * from './local-test-manager'

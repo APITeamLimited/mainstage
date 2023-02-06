@@ -14,9 +14,9 @@ import { QuerySaveDialog } from 'src/components/app/dialogs/QuerySaveDialog'
 import { EmptyPanelMessage } from 'src/components/app/utils/EmptyPanelMessage'
 import { useCollection } from 'src/contexts/collection'
 import {
-  clearFocusedRESTResponse,
+  clearFocusedResponse,
   focusedResponseVar,
-  updateFocusedRESTResponse,
+  updateFocusedResponse,
 } from 'src/contexts/focused-response'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 import {
@@ -50,7 +50,11 @@ export type OpenTab = {
   lastSaveCheckpoint: number
 }
 
-export const TabController = () => {
+type TabControllerProps = {
+  showLeftAside: boolean
+}
+
+export const TabController = ({ showLeftAside }: TabControllerProps) => {
   const theme = useTheme()
 
   const { default: SimpleBar } = useSimplebarReactModule()
@@ -122,7 +126,7 @@ export const TabController = () => {
       if (focusedElement?.get('__typename') === undefined) {
         // Clear the focused element if it's not a valid element
         clearFocusedElement(focusedElementDict, collectionYMap)
-        clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        clearFocusedResponse(focusedResponseDict, collectionYMap)
         return
       }
 
@@ -144,7 +148,7 @@ export const TabController = () => {
           focusedRestResponse &&
           focusedRestResponse.get('parentId') !== focusedId
         ) {
-          clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+          clearFocusedResponse(focusedResponseDict, collectionYMap)
         }
 
         return
@@ -263,7 +267,7 @@ export const TabController = () => {
         setActiveTabIndex(openTabsRef.current.length)
 
         if (!newTab.bottomYMap) {
-          clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+          clearFocusedResponse(focusedResponseDict, collectionYMap)
         }
 
         return
@@ -282,7 +286,7 @@ export const TabController = () => {
       if (focusedResponse.get('__typename') === undefined) {
         // Clear the focused element if it's not a valid element
         clearFocusedElement(focusedElementDict, collectionYMap)
-        clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        clearFocusedResponse(focusedResponseDict, collectionYMap)
         return
       }
 
@@ -320,7 +324,7 @@ export const TabController = () => {
       const parentElement = collectionYMap.get('restRequests')?.get(parentId)
 
       if (!parentElement) {
-        clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+        clearFocusedResponse(focusedResponseDict, collectionYMap)
         snackErrorMessageVar('Could not find parent request for that response')
         return
       }
@@ -369,21 +373,21 @@ export const TabController = () => {
 
         if (bottomYMap.get('id') !== focusedResponse?.get('id')) {
           if (bottomYMap.get('__typename') === 'RESTResponse') {
-            updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+            updateFocusedResponse(focusedResponseDict, bottomYMap)
             return
           }
         }
       }
     } else if (openTabsRef.current.length === 0) {
       clearFocusedElement(focusedElementDict, collectionYMap)
-      clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+      clearFocusedResponse(focusedResponseDict, collectionYMap)
     } else if (!focusedElement) {
       updateFocusedElement(focusedElementDict, topYMap)
 
       const bottomYMap = openTabsRef.current[activeTabIndex]?.bottomYMap
 
       if (bottomYMap && bottomYMap.get('__typename') === 'RESTResponse') {
-        updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+        updateFocusedResponse(focusedResponseDict, bottomYMap)
       }
     }
 
@@ -425,7 +429,7 @@ export const TabController = () => {
     // If no tabs left, clear focused element
     if (newTabs.length === 0) {
       clearFocusedElement(focusedElementDict, collectionYMap)
-      clearFocusedRESTResponse(focusedResponseDict, collectionYMap)
+      clearFocusedResponse(focusedResponseDict, collectionYMap)
       return
     }
 
@@ -443,7 +447,7 @@ export const TabController = () => {
 
       if (bottomYMap) {
         if (bottomYMap.get('__typename') === 'RESTResponse') {
-          updateFocusedRESTResponse(focusedResponseDict, bottomYMap)
+          updateFocusedResponse(focusedResponseDict, bottomYMap)
         }
       }
     } else if (index === activeTabIndexRef.current) {
@@ -508,7 +512,7 @@ export const TabController = () => {
     saveCallback: () => void
   } | null>(null)
 
-  const showAsidePanel = useMemo(() => {
+  const showRightAsidePanel = useMemo(() => {
     const topYMap = openTabs[activeTabIndex]?.topYMap
     if (!topYMap) return false
 
@@ -528,11 +532,11 @@ export const TabController = () => {
   }, [openTabs, activeTabIndex, focusedElementDict])
 
   useEffect(() => {
-    if (!showAsidePanel && showRightAside) {
+    if (!showRightAsidePanel && showRightAside) {
       setShowRightAside(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showAsidePanel])
+  }, [showRightAsidePanel])
 
   const [hasSetInitalFocus, setHasSetInitalFocus] = useState(false)
 
@@ -696,7 +700,7 @@ export const TabController = () => {
               })
           ) : (
             <Stack direction="row" sx={{ height: '100%' }}>
-              <Divider orientation="vertical" />
+              {showLeftAside && <Divider orientation="vertical" />}
               <EmptyPanelMessage
                 primaryText="No tabs open"
                 secondaryMessages={[
@@ -716,7 +720,7 @@ export const TabController = () => {
             </Stack>
           )}
         </ReflexElement>
-        {showAsidePanel && !tabDeleted && showRightAside && (
+        {showRightAsidePanel && !tabDeleted && showRightAside && (
           <ReflexSplitter
             style={{
               width: 8,
@@ -725,10 +729,10 @@ export const TabController = () => {
             }}
           />
         )}
-        {showAsidePanel && !tabDeleted && !showRightAside && (
+        {showRightAsidePanel && !tabDeleted && !showRightAside && (
           <Divider orientation="vertical" />
         )}
-        {showAsidePanel && !tabDeleted && (
+        {showRightAsidePanel && !tabDeleted && (
           <ReflexElement
             flex={showRightAside ? 1 : 0}
             style={{

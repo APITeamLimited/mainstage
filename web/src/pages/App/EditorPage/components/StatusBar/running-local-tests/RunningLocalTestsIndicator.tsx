@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import { LOCAL_AGENT_MAX_JOBS } from '@apiteam/types/src'
 
 import { LocalAgentIcon } from 'src/components/utils/Icons'
-import { useLocalTestManager } from 'src/test-manager/local-test-manager/LocalTestManagerProvider'
+import { useLocalTestManager } from 'src/test-manager/executors/local-test-manager/LocalTestManagerProvider'
 
 import { StatusBarItem } from '../StatusBarItem'
 

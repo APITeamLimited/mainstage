@@ -18,8 +18,9 @@ import {
   snackSuccessMessageVar,
 } from 'src/components/app/dialogs'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
+import { handleTestAutoFocus } from 'src/test-manager/test-auto-focus'
 
-import { getTestManagerURL, handleRESTAutoFocus } from '../utils'
+import { getTestManagerURL } from '../../utils'
 
 import { processGlobeTestMessage } from './message-processing'
 
@@ -29,6 +30,7 @@ export type LocalManagerInterface = {
   submitNewJob: (
     executionParams: ExecutionParams,
     wrappedExecutionParams: WrappedExecutionParams,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     activeEnvironmentYMap: YMap<any> | null
   ) => void
   sendJobUpdate: (jobId: string, update: JobUserUpdateMessage) => void
@@ -47,6 +49,7 @@ export type Upload = {
   storedOptions?: boolean
   // Multiple simultaneous uploads can happen so we need to keep track of the total number of uploads
   uploadCount: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   activeEnvironmentYMap: YMap<any> | null
 }
 
@@ -295,7 +298,7 @@ export class LocalTestManager {
       console.log('Upload socket error', error)
     })
 
-    handleRESTAutoFocus(
+    handleTestAutoFocus(
       this.focusedResponseDict,
       this.workspace,
       uploadSocket,
@@ -330,7 +333,7 @@ const processSocketMessage = (
     manager.updateManagerValues({
       runningTests: runningJobs.map((job) => ({
         jobId: job.id,
-        sourceName: job.sourceName,
+        sourceName: job.testData.rootScript.name,
         createdByUserId: job.scope.userId,
         createdAt: job.createdAt,
         status: 'ASSIGNED',
@@ -344,7 +347,7 @@ const processSocketMessage = (
         ...(manager.managerInterface?.runningTests || []),
         {
           jobId: job.id,
-          sourceName: job.sourceName,
+          sourceName: job.testData.rootScript.name,
           createdByUserId: job.scope.userId,
           createdAt: job.createdAt,
           status: 'ASSIGNED',

@@ -9,10 +9,6 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { useYJSModule } from './imports'
 import { activeEnvironmentVar, getBranchEnvironmentKey } from './reactives'
 
-// Doesn't appear to work so commenting out for now
-//const ActiveEnvironmentContext = createContext({})
-//export const useActiveEnvironment = () => useContext(ActiveEnvironmentContext)
-
 const ActiveEnvironmentYMapContext = createContext<YMap<any> | null>(null)
 export const useActiveEnvironmentYMap = () =>
   useContext(ActiveEnvironmentYMapContext)

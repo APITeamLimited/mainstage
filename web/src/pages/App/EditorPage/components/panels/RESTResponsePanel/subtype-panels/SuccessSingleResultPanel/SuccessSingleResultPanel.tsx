@@ -12,7 +12,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../../../PanelLayout'
-import { StatsSkeleton } from '../../../../utils/stats'
+import { StatsSkeleton } from '../../../components/stats'
 import { ExecutionPanel } from '../../ExecutionPanel'
 import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
 import { FocusedResponsePanel } from '../../FocusedResponsePanel/FocusedResponsePanel'

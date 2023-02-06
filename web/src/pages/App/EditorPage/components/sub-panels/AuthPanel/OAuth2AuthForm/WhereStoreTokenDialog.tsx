@@ -1,4 +1,4 @@
-import { OAuth2Token, RESTAuth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { OAuth2Token, Auth, WrappedOAuth2Token } from '@apiteam/types/src'
 import {
   Button,
   Dialog,
@@ -10,11 +10,11 @@ import {
 
 type WhereStoreTokenDialogProps = {
   foundToken: OAuth2Token | null
-  auth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
   }
   activeId: string
-  setAuth: (auth: RESTAuth) => void
+  setAuth: (auth: Auth) => void
   onClose: () => void
 }
 

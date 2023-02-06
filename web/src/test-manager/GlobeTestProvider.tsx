@@ -21,15 +21,13 @@ import {
 } from 'src/contexts/VariablesProvider'
 import { useWorkspace } from 'src/entity-engine'
 import { useWorkspaceInfo } from 'src/entity-engine/EntityEngine'
-import {
-  Bearer,
-  GET_BEARER_PUBKEY_SCOPES_QUERY,
-} from 'src/entity-engine/utils'
+import { Bearer, GET_BEARER_PUBKEY_SCOPES_QUERY } from 'src/entity-engine/utils'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { executeCloud, executeLocalCatchError } from './executors'
+import { executeCloud } from './executors'
+import { useLocalTestManager } from './executors/local-test-manager'
+import { executeLocalCatchError } from './executors/local-test-manager/local-execution'
 import { jobQueueVar, updateFilterQueue } from './lib'
-import { useLocalTestManager } from './local-test-manager'
 
 export const GlobeTestProvider = () => {
   const Y = useYJSModule()

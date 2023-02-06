@@ -18,7 +18,7 @@ import {
 
 import { navigate } from '@redwoodjs/router'
 
-import { StatsItem } from '../../../../utils/stats'
+import { StatsItem } from '../../../components/stats'
 
 type MetricsStats = {
   totalRequests: string

@@ -1,8 +1,7 @@
 import { z } from 'zod'
 
-import { underlyingRequestSchema } from '../entities/RESTResponse'
-
-import { globeTestRequestSchema } from './globe-test'
+import { underlyingRequestSchema } from '../../entities/RESTResponse'
+import { globeTestRequestSchema } from '../globe-test'
 
 export const sourceScriptSchema = z.object({
   name: z.string(),
@@ -11,16 +10,6 @@ export const sourceScriptSchema = z.object({
 
 export type SourceScript = z.infer<typeof sourceScriptSchema>
 
-// @ts-expect-error - zod doesn't support recursive schemas
-export const groupNodeSchema = z.object<GroupNode>({
-  variant: z.literal('group'),
-  id: z.string().uuid(),
-  name: z.string(),
-  scripts: sourceScriptSchema.array(),
-  // Needed as typescript can't infer the type of the recursive schema
-  children: z.lazy(() => nodeSchema.array()),
-})
-
 export type GroupNode = {
   variant: 'group'
   id: string
@@ -28,6 +17,26 @@ export type GroupNode = {
   scripts: SourceScript[]
   children: GroupNode[]
 }
+
+export const groupNodeSchema = z.intersection(
+  // @ts-expect-error - zod doesn't support recursive schemas
+  z.object<GroupNode>({
+    variant: z.literal('group'),
+    id: z.string().uuid(),
+    name: z.string(),
+    scripts: sourceScriptSchema.array(),
+    // Needed as typescript can't infer the type of the recursive schema
+    children: z.lazy(() => nodeSchema.array()),
+  }),
+  z.union([
+    z.object({
+      subVariant: z.literal('Folder'),
+    }),
+    z.object({
+      subVariant: z.literal('Collection'),
+    }),
+  ])
+)
 
 export const httpRequestNodeSchema = z.intersection(
   z.object({
@@ -39,7 +48,7 @@ export const httpRequestNodeSchema = z.intersection(
   }),
   z.union([
     z.object({
-      subVariant: z.literal('rest'),
+      subVariant: z.literal('RESTRequest'),
       underlyingRequest: underlyingRequestSchema,
     }),
     // Add more http subVariants here

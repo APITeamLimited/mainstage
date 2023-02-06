@@ -5,9 +5,10 @@ import type { Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 
-import { BaseJob, PendingLocalJob } from '../lib'
-import { LocalManagerInterface } from '../local-test-manager'
-import { determineWrappedExecutionParams } from '../utils'
+import { BaseJob, PendingLocalJob } from '../../lib'
+import { determineWrappedExecutionParams } from '../../utils'
+
+import { LocalManagerInterface } from '.'
 
 export const executeLocalCatchError = (
   job: BaseJob & PendingLocalJob,
@@ -36,13 +37,10 @@ const createExecutionParams = (
   params: WrappedExecutionParams,
   scope: Scope
 ): ExecutionParams => ({
+  // This is for local use only, will be overwritten by the backend test-manager
   id: uuid(),
-  source: params.source,
-  sourceName: params.sourceName,
   environmentContext: params.environmentContext,
   collectionContext: params.collectionContext,
-  finalRequest: params.finalRequest,
-  underlyingRequest: params.underlyingRequest,
   scope: {
     variant: scope.variant as 'USER' | 'TEAM',
     variantTargetId: scope.variantTargetId,
@@ -51,4 +49,5 @@ const createExecutionParams = (
   verifiedDomains: [],
   createdAt: new Date().toISOString(),
   funcModeInfo: null,
+  testData: params.testData,
 })

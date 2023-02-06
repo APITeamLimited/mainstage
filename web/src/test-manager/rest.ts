@@ -2,7 +2,7 @@
 import {
   ExecutionParams,
   OAuth2Token,
-  RESTAuth,
+  Auth,
   RESTRequest,
   WrappedOAuth2Token,
 } from '@apiteam/types/src'
@@ -156,10 +156,10 @@ const addAuthToRequest = (
   folders: YMap<any>,
   axiosConfig: AxiosRequestConfig
 ): AxiosRequestConfig => {
-  const authOriginal = currentNode.get('auth') as RESTAuth
+  const authOriginal = currentNode.get('auth') as Auth
 
   // Make a copy of auth so we don't mutate the original
-  const auth = JSON.parse(JSON.stringify(authOriginal)) as RESTAuth
+  const auth = JSON.parse(JSON.stringify(authOriginal)) as Auth
 
   if (auth.authType === 'inherit') {
     if (currentNode.get('__typename') === 'Collection') {

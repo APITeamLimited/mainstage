@@ -11,7 +11,7 @@ import { HTML5Backend } from 'src/lib/dnd/backend-html5'
 import { DndProvider } from 'src/lib/dnd/react-dnd'
 import { useYMap } from 'src/lib/zustand-yjs'
 
-import { EmptyAside } from '../../utils/EmptyAside'
+import { EmptyAside } from '../../shared/EmptyAside'
 
 import { CollectionTopMenu } from './CollectionTopMenu'
 import { NewItemPopover } from './NewItemPopover'

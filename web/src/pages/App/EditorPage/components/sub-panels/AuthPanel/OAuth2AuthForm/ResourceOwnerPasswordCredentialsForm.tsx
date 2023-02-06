@@ -1,15 +1,15 @@
-import { RESTAuth } from '@apiteam/types/src'
+import { Auth } from '@apiteam/types/src'
 
 import { FormEnvironmentTextField } from 'src/components/custom-mui'
 
 import { ClientAuthenticationOption } from './ClientAuthenticationOption'
 
 type ResourceOwnerPasswordCredentialsFormProps = {
-  auth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
     grantType: 'resource-owner-password-credentials'
   }
-  setAuth: (auth: RESTAuth) => void
+  setAuth: (auth: Auth) => void
   namespace: string
 }
 

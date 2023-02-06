@@ -3,6 +3,7 @@ import {
   StatusType,
   ExecutionParams,
   RESTResponse,
+  TestData,
 } from '@apiteam/types/src'
 import { makeVar } from '@apollo/client'
 
@@ -20,9 +21,8 @@ export type BaseJob = {
   collectionId: string
   collectionContext: ExecutionParams['collectionContext']
   environmentContext: ExecutionParams['environmentContext']
-  finalRequest: ExecutionParams['finalRequest']
-  underlyingRequest: ExecutionParams['underlyingRequest']
   createdEntry?: boolean
+  testData: TestData
 }
 
 export type PendingLocalJob = {

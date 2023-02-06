@@ -31,7 +31,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 
 import { PanelLayout } from '../../PanelLayout'
-import { SaveButton } from '../RESTInputPanel/SaveButton'
+import { SaveButton } from '../components/SaveButton'
 
 import { SaveAsDialog } from './SaveAsDialog'
 

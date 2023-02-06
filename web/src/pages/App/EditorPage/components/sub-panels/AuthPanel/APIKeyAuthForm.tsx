@@ -1,4 +1,4 @@
-import { RESTAuth, RESTAuthAPIKey } from '@apiteam/types/src'
+import { Auth, AuthAPIKey } from '@apiteam/types/src'
 import {
   Box,
   FormControlLabel,
@@ -15,8 +15,8 @@ import {
 import { useSimplebarReactModule } from 'src/contexts/imports'
 
 type APIKeyAuthFormProps = {
-  auth: RESTAuthAPIKey
-  setAuth: (auth: RESTAuth) => void
+  auth: AuthAPIKey
+  setAuth: (auth: Auth) => void
   namespace: string
 }
 

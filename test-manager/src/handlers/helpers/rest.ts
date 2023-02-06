@@ -69,7 +69,7 @@ export const restCreateResponse = async ({
 }) => {
   if (
     !('subVariant' in httpRequestNode) ||
-    httpRequestNode.subVariant !== 'rest'
+    httpRequestNode.subVariant !== 'RESTRequest'
   ) {
     throw new Error(
       'Internal error, expected httpRequestNode to be rest subvariant'
@@ -91,7 +91,7 @@ export const restCreateResponse = async ({
 
   runningTestStates.set(socket, {
     ...(runningTestStates.get(socket) as RunningTestState),
-    testType: 'rest',
+    testType: 'RESTRequest',
     jobId,
   })
 

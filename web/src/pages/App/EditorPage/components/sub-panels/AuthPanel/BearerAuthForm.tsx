@@ -2,11 +2,11 @@ import { Box, Stack } from '@mui/material'
 
 import { FormEnvironmentTextField } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
-import { RESTAuth, RESTAuthBearer } from 'src/contexts/reactives'
+import { Auth, AuthBearer } from 'src/contexts/reactives'
 
 type BearerAuthFormProps = {
-  auth: RESTAuthBearer
-  setAuth: (auth: RESTAuth) => void
+  auth: AuthBearer
+  setAuth: (auth: Auth) => void
   namespace: string
 }
 

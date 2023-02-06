@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { RESTAuth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { Auth, WrappedOAuth2Token } from '@apiteam/types/src'
 
 export const useActiveWrappedToken = (
   activeId: string,
-  auth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
   }
 ) => {

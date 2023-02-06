@@ -2,8 +2,8 @@ import {
   ApiteamOAuth2Callback,
   oauth2TokenSchema,
   prettyZodError,
-  RESTAuth,
-  restAuthSchema,
+  Auth,
+  authSchema,
 } from '@apiteam/types/src'
 import type { ApolloClient } from '@apollo/client/core'
 
@@ -14,7 +14,7 @@ import {
 import { getCallbackResult } from '../method-utils'
 
 export const handleImplicitFlow = async (
-  inputAuth: RESTAuth & {
+  inputAuth: Auth & {
     authType: 'oauth2'
     grantType: 'implicit'
   },
@@ -22,37 +22,37 @@ export const handleImplicitFlow = async (
   abortRef?: React.MutableRefObject<null | 'run' | 'abort'>
 ) => {
   // Necessary to avoid mutating the inputAuth object and causing a re-render
-  const restAuth = { ...inputAuth }
+  const auth = { ...inputAuth }
 
-  if (restAuth.state === '') {
+  if (auth.state === '') {
     // Set state to a random 20 character string
-    restAuth.state =
+    auth.state =
       Math.random().toString(36).substring(2, 15) +
       Math.random().toString(36).substring(2, 15)
   }
 
   const apiteamCallbackCode = await createAPITeamOAuth2Code(apolloClient)
 
-  restAuth.redirectURI = `${apiTeamOauth2CallbackURL()}?apiteamCallbackCode=${apiteamCallbackCode}`
+  auth.redirectURI = `${apiTeamOauth2CallbackURL()}?apiteamCallbackCode=${apiteamCallbackCode}`
 
-  const validationResult = restAuthSchema.safeParse(restAuth)
+  const validationResult = authSchema.safeParse(auth)
 
   if (!validationResult.success) {
     throw prettyZodError(validationResult.error)
   }
 
-  const authorizationURLWithParams = new URL(restAuth.authorizationURL)
+  const authorizationURLWithParams = new URL(auth.authorizationURL)
 
   authorizationURLWithParams.searchParams.append('response_type', 'token')
-  authorizationURLWithParams.searchParams.append('client_id', restAuth.clientID)
-  authorizationURLWithParams.searchParams.append('state', restAuth.state)
+  authorizationURLWithParams.searchParams.append('client_id', auth.clientID)
+  authorizationURLWithParams.searchParams.append('state', auth.state)
   authorizationURLWithParams.searchParams.append(
     'redirect_uri',
-    restAuth.redirectURI
+    auth.redirectURI
   )
 
-  if (restAuth.scope && restAuth.scope !== '') {
-    authorizationURLWithParams.searchParams.append('scope', restAuth.scope)
+  if (auth.scope && auth.scope !== '') {
+    authorizationURLWithParams.searchParams.append('scope', auth.scope)
   }
 
   // Create a new window and navigate to the authorization URL with the appropriate
@@ -69,7 +69,7 @@ export const handleImplicitFlow = async (
     abortRef
   )
 
-  if (callbackResult.state !== restAuth.state) {
+  if (callbackResult.state !== auth.state) {
     throw new Error(
       'Incorrect state returned from callback, possible CSRF attack'
     )

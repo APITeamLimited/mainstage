@@ -17,7 +17,7 @@ export type RunningTestState =
       localCompleted?: boolean
     } & (
       | {
-          testType: 'rest'
+          testType: 'RESTRequest'
           markedResponse?: K6Response
           responseId?: string
         }

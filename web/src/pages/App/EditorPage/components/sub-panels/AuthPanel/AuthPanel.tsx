@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 
-import { defaultOAuth2Config, RESTAuth } from '@apiteam/types/src'
+import { defaultOAuth2Config, Auth } from '@apiteam/types/src'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import { useTheme } from '@mui/material'
@@ -41,8 +41,8 @@ const authMethodLabels = [
 ]
 
 type AuthPanelProps = {
-  auth: RESTAuth
-  setAuth: (auth: RESTAuth) => void
+  auth: Auth
+  setAuth: (auth: Auth) => void
   namespace: string
   setActionArea: (actionArea: React.ReactNode) => void
   disableInherit?: boolean

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { Grid, useTheme } from '@mui/material'
 import { getReasonPhrase } from 'http-status-codes'
 
-import { StatsItem } from '../../../../utils/stats'
+import { StatsItem } from '../../../components/stats'
 
 type QuickStatsProps = {
   statusCode: number

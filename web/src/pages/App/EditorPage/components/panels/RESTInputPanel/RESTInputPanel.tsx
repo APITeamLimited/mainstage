@@ -6,7 +6,7 @@ import {
   DefaultKV,
   RESTRequestBody,
 } from '@apiteam/types/src'
-import { RESTAuth, RESTRequest } from '@apiteam/types/src'
+import { Auth, RESTRequest } from '@apiteam/types/src'
 import { ExecutionScript } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
@@ -36,23 +36,21 @@ import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
+import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
+import { SaveButton } from '../components/SaveButton'
+import { SendButton } from '../components/SendButton'
+import {
+  getDescription,
+  getExecutionScripts,
+  useUnsavedDescription,
+  useUnsavedExecutionScripts,
+} from '../hooks'
 
 import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'
 import { ParametersPanel } from './ParametersPanel'
 import { SaveAsDialog } from './SaveAsDialog'
-import { SaveButton } from './SaveButton'
-import { ScriptsPanel } from './ScriptsPanel'
-import { SendButton } from './SendButton'
 import { generatePathVariables } from './utils'
-
-const defaultExecutionScript =
-  BUILTIN_REST_SCRIPTS.find((script) => script.name === 'request-single.js') ??
-  BUILTIN_REST_SCRIPTS[0]
-
-if (!defaultExecutionScript) {
-  throw new Error('Default rest execution script not found')
-}
 
 type RESTInputPanelProps = {
   requestYMap: YMap<any>
@@ -124,31 +122,18 @@ export const RESTInputPanel = ({
   const [unsavedRequestMethod, setUnsavedRequestMethod] = useState<string>(
     requestYMap.get('method')
   )
-  const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
+  const [unsavedAuth, setUnsavedAuth] = useState<Auth>(
     oauth2LoadLocal(requestYMap.get('auth'), requestId)
   )
 
-  const getSetDescription = () => {
-    requestYMap.set('description', '')
-    return requestYMap.get('description')
-  }
+  const [unsavedDescription, setUnsavedDescription] =
+    useUnsavedDescription(requestYMap)
 
-  const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    requestYMap.get('description') ?? getSetDescription()
-  )
-
-  const getAndSetExecutionScripts = () => {
-    requestYMap.set('executionScripts', [])
-    return [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
-  }
-
-  const [unsavedExecutionScripts, setUnsavedExecutionScripts] = useState<
-    ExecutionScript[]
-  >(
-    requestYMap.get('executionScripts')
-      ? [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
-      : getAndSetExecutionScripts()
-  )
+  const {
+    unsavedExecutionScripts,
+    setUnsavedExecutionScripts,
+    defaultExecutionScript,
+  } = useUnsavedExecutionScripts(requestYMap, false)
 
   const jobQueue = useReactiveVar(jobQueueVar)
 
@@ -162,82 +147,67 @@ export const RESTInputPanel = ({
 
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
-  const handleSetNeedSave = (needSave: boolean) => {
-    setNeedSave(needSave)
-
-    if (needSave) {
-      setObservedNeedsSave(true, () => saveCallbackRef.current())
-    } else {
-      setObservedNeedsSave(false)
-    }
-  }
-
   // If doesn't need save, update fields automatically
   useEffect(() => {
-    if (!needSave) {
-      setUnsavedEndpoint(requestYMap.get('endpoint'))
-
-      const newHeaders = kvLegacyImporter<DefaultKV>(
-        'headers',
-        requestYMap,
-        'default'
-      )
-
-      // This is necessary to prevent a feedback loop
-      if (hash(unsavedHeaders) !== hash(newHeaders)) {
-        setUnsavedHeaders(newHeaders)
-      }
-
-      const newParameters = kvLegacyImporter<DefaultKV>(
-        'params',
-        requestYMap,
-        'default'
-      )
-
-      if (hash(unsavedParameters) !== hash(newParameters)) {
-        setUnsavedParameters(newParameters)
-      }
-
-      const newPathVariables = kvLegacyImporter<DefaultKV>(
-        'pathVariables',
-        requestYMap,
-        'default'
-      )
-
-      // This is necessary to prevent a feedback loop
-      if (hash(unsavedPathVariables) !== hash(newPathVariables)) {
-        setUnsavedPathVariables(newPathVariables)
-      }
-
-      setUnsavedBody(requestYMap.get('body'))
-      setUnsavedRequestMethod(requestYMap.get('method'))
-
-      const newAuth = oauth2LoadLocal(requestYMap.get('auth'), requestId)
-
-      // This is necessary to prevent a feedback loop
-      if (hash(unsavedAuth) !== hash(newAuth)) {
-        setUnsavedAuth(JSON.parse(JSON.stringify(newAuth)))
-
-        // TODO: This is a hack to force a re-render
-        setAuthKey(Math.random())
-      }
-
-      setUnsavedDescription(
-        requestYMap.get('description') ?? getSetDescription()
-      )
-
-      const newExecutionScripts = requestYMap.get('executionScripts')
-        ? [...BUILTIN_REST_SCRIPTS, ...requestYMap.get('executionScripts')]
-        : getAndSetExecutionScripts()
-
-      // This is necessary to prevent a feedback loop
-      if (hash(unsavedExecutionScripts) !== hash(newExecutionScripts)) {
-        setUnsavedExecutionScripts(newExecutionScripts)
-      }
-
-      // This seems to be required to trigger re-render
-      setNeedSave(false)
+    if (needSave) {
+      return
     }
+
+    setUnsavedEndpoint(requestYMap.get('endpoint'))
+
+    const newHeaders = kvLegacyImporter<DefaultKV>(
+      'headers',
+      requestYMap,
+      'default'
+    )
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedHeaders) !== hash(newHeaders)) {
+      setUnsavedHeaders(newHeaders)
+    }
+
+    const newParameters = kvLegacyImporter<DefaultKV>(
+      'params',
+      requestYMap,
+      'default'
+    )
+
+    if (hash(unsavedParameters) !== hash(newParameters)) {
+      setUnsavedParameters(newParameters)
+    }
+
+    const newPathVariables = kvLegacyImporter<DefaultKV>(
+      'pathVariables',
+      requestYMap,
+      'default'
+    )
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedPathVariables) !== hash(newPathVariables)) {
+      setUnsavedPathVariables(newPathVariables)
+    }
+
+    setUnsavedBody(requestYMap.get('body'))
+    setUnsavedRequestMethod(requestYMap.get('method'))
+
+    const newAuth = oauth2LoadLocal(requestYMap.get('auth'), requestId)
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedAuth) !== hash(newAuth)) {
+      setUnsavedAuth(JSON.parse(JSON.stringify(newAuth)))
+    }
+
+    setUnsavedDescription(getDescription(requestYMap))
+
+    const newExecutionScripts = getExecutionScripts(requestYMap, false)
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedExecutionScripts) !== hash(newExecutionScripts)) {
+      setUnsavedExecutionScripts(newExecutionScripts)
+    }
+
+    // This seems to be required to trigger re-render in some cases
+    setNeedSave(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestHook])
 
@@ -263,17 +233,14 @@ export const RESTInputPanel = ({
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
 
-  const [authKey, setAuthKey] = useState<number>(Math.random())
+  useEffect(() => {
+    if (needSave) {
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+      return
+    }
 
-  // TODO: Re-enable this if file upload is re-enabled
-  // useEffect(() => {
-  //   if (!unsavedBody) return
-
-  //   // If unsaved body is a stored object and changes, immeditely save
-  //   if (unsavedBody.contentType === 'application/octet-stream') {
-  //     requestYMap.set('body', unsavedBody)
-  //   }
-  // }, [requestYMap, unsavedBody])
+    setObservedNeedsSave(false)
+  }, [needSave, setObservedNeedsSave, saveCallbackRef])
 
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
   const handleFieldUpdate = <T extends any>(
@@ -281,7 +248,7 @@ export const RESTInputPanel = ({
     newValue: T
   ) => {
     if (!needSave) {
-      handleSetNeedSave(true)
+      setNeedSave(true)
     }
 
     // Call the setter after the needSave state is set to true else will try and
@@ -291,7 +258,9 @@ export const RESTInputPanel = ({
 
   const handleSaveAs = (newName: string) => {
     const newId = uuid()
+
     const clone = requestYMap.clone()
+
     clone.set('id', newId)
     clone.set('name', newName)
     clone.set('endpoint', unsavedEndpoint)
@@ -314,6 +283,9 @@ export const RESTInputPanel = ({
   const collectionContext = useCollectionVariables()
 
   const handleSend = async (executionScript: ExecutionScript) => {
+    if (!scopeId) throw new Error('No scopeId')
+    if (!rawBearer) throw new Error('No rawBearer')
+
     const request: RESTRequest = {
       id: requestYMap.get('id'),
       __typename: 'RESTRequest',
@@ -336,9 +308,6 @@ export const RESTInputPanel = ({
       executionScripts: unsavedExecutionScripts,
     }
 
-    if (!scopeId) throw new Error('No scopeId')
-    if (!rawBearer) throw new Error('No rawBearer')
-
     try {
       await singleRESTRequestGenerator({
         request,
@@ -359,9 +328,6 @@ export const RESTInputPanel = ({
       snackErrorMessageVar(e.message)
     }
   }
-
-  const handleSendRef = useRef<typeof handleSend>(handleSend)
-  handleSendRef.current = handleSend
 
   return (
     <>
@@ -461,12 +427,11 @@ export const RESTInputPanel = ({
           <AuthPanel
             auth={unsavedAuth}
             setAuth={(newAuth) =>
-              handleFieldUpdate<RESTAuth>(setUnsavedAuth, newAuth)
+              handleFieldUpdate<Auth>(setUnsavedAuth, newAuth)
             }
             namespace={`request:${requestId}:auth`}
             setActionArea={setActionArea}
             activeId={requestId}
-            key={authKey}
           />
         )}
         {activeTabIndex === 4 && (
@@ -480,7 +445,7 @@ export const RESTInputPanel = ({
             }
             namespace={`request:${requestId}:scripts`}
             setActionArea={setActionArea}
-            onExecuteRef={handleSendRef}
+            onExecute={handleSend}
           />
         )}
         {activeTabIndex === 5 && (

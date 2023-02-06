@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Stack, Tooltip, Typography, useTheme } from '@mui/material'
 
@@ -177,6 +177,17 @@ export const EnvironmentTextField = ({
     return styles
   }, [contentEditableStyles, error, theme, disabled])
 
+  const internalValueRef = useRef(value)
+
+  useEffect(() => {
+    if (value !== internalValueRef.current) {
+      internalValueRef.current = value
+      setSpawnKey((key) => key + 1)
+    }
+  }, [value])
+
+  const [spawnKey, setSpawnKey] = useState(0)
+
   const innerContent = (
     <Stack
       direction="row"
@@ -197,6 +208,7 @@ export const EnvironmentTextField = ({
       alignItems="center"
       spacing={2}
       onCopy={onCopy}
+      key={spawnKey}
     >
       {lexical && initialConfig && lexicalAddons && VariableNode ? (
         <lexicalAddons.LexicalComposer
@@ -206,6 +218,7 @@ export const EnvironmentTextField = ({
           <InnerValues
             onChange={(newValue) => {
               if (onChange && newValue !== value) {
+                internalValueRef.current = newValue
                 onChange(newValue, namespace)
               }
             }}

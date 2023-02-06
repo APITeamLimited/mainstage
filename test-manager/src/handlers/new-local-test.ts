@@ -216,7 +216,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
 
     // Delete the response if the test was abruptly stopped
     if (!testState.localCompleted) {
-      if (testState.testType === 'rest' && testState.responseId) {
+      if (testState.testType === 'RESTRequest' && testState.responseId) {
         await restDeleteResponse({
           params: params as WrappedExecutionParams,
           socket,

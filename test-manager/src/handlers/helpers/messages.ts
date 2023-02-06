@@ -36,7 +36,7 @@ export const handleMessage = async (
   if (
     params.testData.rootNode.variant === 'httpRequest' &&
     'subVariant' in params.testData.rootNode &&
-    params.testData.rootNode.subVariant === 'rest'
+    params.testData.rootNode.subVariant === 'RESTRequest'
   ) {
     await ensureRESTResponseExists(
       socket,
@@ -76,10 +76,13 @@ export const handleMessage = async (
           const testState = runningTestStates.get(socket)
           if (!testState) throw new Error('Test state not found')
 
-          if (testState.testType === 'rest' && !testState.markedResponse) {
+          if (
+            testState.testType === 'RESTRequest' &&
+            !testState.markedResponse
+          ) {
             runningTestStates.set(socket, {
               ...(runningTestStates.get(socket) as RunningTestState),
-              testType: 'rest',
+              testType: 'RESTRequest',
               markedResponse: message.message.message as K6Response,
             })
           } else if (testState.testType === 'undetermined') {
@@ -137,7 +140,7 @@ export const handleMessage = async (
             // Keep updating the running state
             runningState = runningTestStates.get(socket)
 
-            if (!runningState || runningState.testType !== 'rest') {
+            if (!runningState || runningState.testType !== 'RESTRequest') {
               return false
             }
 
@@ -251,7 +254,7 @@ const handleResult = async ({
 
   if (
     (runningState.options as GlobeTestOptions).executionMode === 'httpSingle' &&
-    runningState.testType === 'rest'
+    runningState.testType === 'RESTRequest'
   ) {
     await restHandleSuccessSingle({
       params,
@@ -269,7 +272,7 @@ const handleResult = async ({
   } else if (
     (runningState.options as GlobeTestOptions).executionMode ===
       'httpMultiple' &&
-    runningState.testType === 'rest'
+    runningState.testType === 'RESTRequest'
   ) {
     await restHandleSuccessMultiple({
       params,

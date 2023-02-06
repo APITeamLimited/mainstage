@@ -1,4 +1,4 @@
-import { OAuth2Token, RESTAuth, restAuthSchema } from '@apiteam/types/src'
+import { OAuth2Token, Auth, authSchema } from '@apiteam/types/src'
 import type { ApolloClient } from '@apollo/client/core'
 import type { SafeParseReturnType } from 'zod'
 
@@ -8,7 +8,7 @@ import {
 } from './flows'
 
 export const getOAuth2Token = async (
-  validatedAuth: RESTAuth & {
+  validatedAuth: Auth & {
     authType: 'oauth2'
   },
   apiteamCallbackCode: string,
@@ -36,25 +36,25 @@ export const getOAuth2Token = async (
 export type OAuth2ValidationResult = {
   apiteamCallbackCode: string
   parseResult: SafeParseReturnType<
-    RESTAuth & {
+    Auth & {
       authType: 'oauth2'
     },
-    typeof restAuthSchema
+    typeof authSchema
   >
 }
 
 export const validateOAuth2Data = (
-  restAuth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
   },
   apolloClient: ApolloClient<object>
 ) => {
   if (
-    restAuth.grantType === 'authorization-code' ||
-    restAuth.grantType === 'authorization-code-with-pkce'
+    auth.grantType === 'authorization-code' ||
+    auth.grantType === 'authorization-code-with-pkce'
   ) {
-    return validateAuthorizationCodeFlow(restAuth, apolloClient)
+    return validateAuthorizationCodeFlow(auth, apolloClient)
   } else {
-    throw new Error(`Unsupported grant type: ${restAuth.grantType}`)
+    throw new Error(`Unsupported grant type: ${auth.grantType}`)
   }
 }

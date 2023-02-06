@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { ExecutionScript } from '@apiteam/types/src'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -26,9 +26,7 @@ type ScriptsPanelProps = {
   setExecutionScripts: (executionScripts: ExecutionScript[]) => void
   setActionArea: (actionArea: React.ReactNode) => void
   namespace: string
-  onExecuteRef: React.MutableRefObject<
-    (executionScript: ExecutionScript) => void
-  >
+  onExecute: (executionScript: ExecutionScript) => void
 }
 
 export const ScriptsPanel = ({
@@ -36,7 +34,7 @@ export const ScriptsPanel = ({
   setExecutionScripts,
   setActionArea,
   namespace,
-  onExecuteRef,
+  onExecute,
 }: ScriptsPanelProps) => {
   const { default: SimpleBar } = useSimplebarReactModule()
 
@@ -44,55 +42,35 @@ export const ScriptsPanel = ({
 
   const [activeScriptIndex, setActiveScriptIndex] = useState(0)
 
-  const executionScriptsRef = useRef<ExecutionScript[]>(executionScripts)
-  executionScriptsRef.current = executionScripts
-
-  const activeScriptIndexRef = useRef<number>(activeScriptIndex)
-  activeScriptIndexRef.current = activeScriptIndex
-
-  const valueRef = useRef<string>(
-    executionScriptsRef.current[activeScriptIndexRef.current]?.script
-  )
-  valueRef.current =
-    executionScriptsRef.current[activeScriptIndexRef.current]?.script
-
   const handleBodyDelete = () => {
     // Set active executtion script to empty string
-    const newScripts = [...executionScriptsRef.current]
-    newScripts[activeScriptIndexRef.current].script = ''
+    const newScripts = [...executionScripts]
+    newScripts[activeScriptIndex].script = ''
     setExecutionScripts(newScripts)
   }
 
   const handlePrettyPrint = async () => {
     const newScript = await codeFormatter(
-      valueRef.current,
-      executionScriptsRef.current[activeScriptIndexRef.current].language
+      executionScripts[activeScriptIndex].script,
+      executionScripts[activeScriptIndex].language
     )
 
-    const newScripts = [...executionScriptsRef.current]
-    newScripts[activeScriptIndexRef.current].script = newScript
+    const newScripts = [...executionScripts]
+    newScripts[activeScriptIndex].script = newScript
     setExecutionScripts(newScripts)
   }
 
   useEffect(() => {
-    const onDeleteCallback = executionScriptsRef.current[
-      activeScriptIndexRef.current
-    ].builtIn
+    const onDeleteCallback = executionScripts[activeScriptIndex].builtIn
       ? undefined
       : handleBodyDelete
-    const prettyPrintCallback = executionScriptsRef.current[
-      activeScriptIndexRef.current
-    ].builtIn
+    const prettyPrintCallback = executionScripts[activeScriptIndex].builtIn
       ? undefined
       : handlePrettyPrint
 
     const executeButton = (
       <Button
-        onClick={() =>
-          onExecuteRef.current(
-            executionScriptsRef.current[activeScriptIndexRef.current]
-          )
-        }
+        onClick={() => onExecute(executionScripts[activeScriptIndex])}
         size="small"
         variant="outlined"
         sx={{
@@ -118,14 +96,14 @@ export const ScriptsPanel = ({
 
   const handleScriptDelete = () => {
     const newIndex =
-      (executionScriptsRef.current.findIndex(
+      (executionScripts.findIndex(
         (executionScript) =>
           executionScript.script === showQueryDeleteDialog?.script &&
           executionScript.language === showQueryDeleteDialog?.language &&
           executionScript.name === showQueryDeleteDialog?.name
       ) ?? 1) - 1
 
-    const newScripts = executionScriptsRef.current.filter(
+    const newScripts = executionScripts.filter(
       (script) => script.name !== showQueryDeleteDialog?.name
     )
     setExecutionScripts(newScripts)
@@ -135,7 +113,7 @@ export const ScriptsPanel = ({
   const [showCreateScriptDialog, setShowCreateScriptDialog] = useState(false)
 
   const handleScriptCreate = (scriptName: string) => {
-    const newExecutionScripts = [...executionScriptsRef.current]
+    const newExecutionScripts = [...executionScripts]
     newExecutionScripts.push({
       name: scriptName,
       script: '',
@@ -146,10 +124,8 @@ export const ScriptsPanel = ({
     setActiveScriptIndex(newExecutionScripts.length - 1)
   }
 
-  const [sourceKey] = useState(() => Math.random().toString())
-
   // In case remote clients delete the active script
-  if (valueRef.current === undefined) {
+  if (activeScriptIndex === undefined) {
     setActiveScriptIndex(0)
     return <></>
   }
@@ -172,18 +148,18 @@ export const ScriptsPanel = ({
         <MonacoEditor
           value={executionScripts[activeScriptIndex].script}
           onChange={(script) => {
-            const newExecutionScripts = [...executionScriptsRef.current]
-            newExecutionScripts[activeScriptIndexRef.current].script = script
+            const newExecutionScripts = [...executionScripts]
+            newExecutionScripts[activeScriptIndex].script = script
             setExecutionScripts(newExecutionScripts)
           }}
           language={executionScripts[activeScriptIndex].language}
-          namespace={`${namespace}${sourceKey}${executionScripts[activeScriptIndex].name}-${activeScriptIndex}`}
+          namespace={`${namespace}${executionScripts[activeScriptIndex].name}-${activeScriptIndex}`}
           placeholder={[
             'Start typing to create your new script',
             '',
             'Alternatively, check out some of the built-in execution scripts as a starting point',
           ]}
-          readOnly={executionScriptsRef.current[activeScriptIndex].builtIn}
+          readOnly={executionScripts[activeScriptIndex].builtIn}
         />
         <Stack
           spacing={2}

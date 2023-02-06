@@ -6,7 +6,7 @@ import { useTheme, ListItemIcon, IconButton, Tooltip } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { RequestListItem } from 'src/components/app/utils/RequestListItem'
-import { updateFocusedRESTResponse } from 'src/contexts/focused-response'
+import { updateFocusedResponse } from 'src/contexts/focused-response'
 import {
   FocusedElementDictionary,
   getFocusedElementKey,
@@ -63,9 +63,7 @@ export const ResponseHistoryItem = ({
         focusedResponseDict[getFocusedElementKey(collectionYMap)]?.get('id') ===
         responseYMap.get('id')
       }
-      onClick={() =>
-        updateFocusedRESTResponse(focusedResponseDict, responseYMap)
-      }
+      onClick={() => updateFocusedResponse(focusedResponseDict, responseYMap)}
       secondaryAction={
         <Tooltip title="Delete" placement="left">
           <IconButton

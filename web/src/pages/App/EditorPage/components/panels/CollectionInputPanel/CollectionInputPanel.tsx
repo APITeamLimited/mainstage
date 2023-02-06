@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react'
 
-import { KeyValueItem, RESTAuth } from '@apiteam/types/src'
+import { KeyValueItem, Auth, ExecutionScript } from '@apiteam/types/src'
 import {
+  Box,
   ListItem,
   ListItemIcon,
   ListItemText,
@@ -14,6 +15,7 @@ import type { Map as YMap } from 'yjs'
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { CollectionEditorIcon } from 'src/components/utils/Icons'
 import { useHashSumModule } from 'src/contexts/imports'
+import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 import {
@@ -24,7 +26,15 @@ import {
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
-import { SaveButton } from '../RESTInputPanel/SaveButton'
+import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
+import { SaveButton } from '../components/SaveButton'
+import { SendButton } from '../components/SendButton'
+import {
+  getDescription,
+  getExecutionScripts,
+  useUnsavedDescription,
+  useUnsavedExecutionScripts,
+} from '../hooks'
 
 type CollectionInputPanelProps = {
   collectionYMap: YMap<any>
@@ -37,26 +47,23 @@ export const CollectionInputPanel = ({
 }: CollectionInputPanelProps) => {
   const { default: hash } = useHashSumModule()
 
+  const scopeId = useScopeId()
+  const rawBearer = useRawBearer()
+
   const collectionHook = useYMap(collectionYMap)
 
-  const getSetDescription = () => {
-    collectionYMap.set('description', '')
-    return collectionYMap.get('descSription')
-  }
-
-  const [unsavedDescription, setUnsavedDescription] = useState<string>(
-    collectionYMap.get('description') ?? getSetDescription()
-  )
+  const [unsavedDescription, setUnsavedDescription] =
+    useUnsavedDescription(collectionYMap)
 
   const getSetAuth = () => {
     collectionYMap.set('auth', {
       authType: 'none',
-    } as RESTAuth)
+    } as Auth)
 
     return collectionYMap.get('auth')
   }
 
-  const [unsavedAuth, setUnsavedAuth] = useState<RESTAuth>(
+  const [unsavedAuth, setUnsavedAuth] = useState<Auth>(
     oauth2LoadLocal(collectionYMap.get('auth'), collectionYMap.get('id')) ??
       getSetAuth()
   )
@@ -64,49 +71,55 @@ export const CollectionInputPanel = ({
     kvLegacyImporter('variables', collectionYMap, 'localvalue')
   )
 
+  const {
+    unsavedExecutionScripts,
+    setUnsavedExecutionScripts,
+    defaultExecutionScript,
+  } = useUnsavedExecutionScripts(collectionYMap, true)
+
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [needSave, setNeedSave] = useState(false)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
 
-  const handleSetNeedSave = (needSave: boolean) => {
-    setNeedSave(needSave)
-
-    if (needSave) {
-      setObservedNeedsSave(true, () => saveCallbackRef.current())
-    } else {
-      setObservedNeedsSave(false)
-    }
-  }
-
   // If doesn't need save, update fields automatically
   useEffect(() => {
-    if (!needSave) {
-      setUnsavedDescription(collectionYMap.get('description') ?? '')
-
-      const newAuth = oauth2LoadLocal(
-        collectionYMap.get('auth'),
-        collectionYMap.get('id')
-      )
-
-      // This is necessary to prevent a feedback loop
-      //if (hash(unsavedAuth) !== hash(newAuth)) {
-      //  setUnsavedAuth(newAuth)
-      //}
-      setUnsavedAuth(newAuth)
-      const newVariables = kvLegacyImporter(
-        'variables',
-        collectionYMap,
-        'localvalue'
-      )
-
-      // This is necessary to prevent a feedback loop
-      if (hash(newVariables) !== hash(unsavedVariables)) {
-        setUnsavedVariables(newVariables)
-      }
-
-      // This seems to be required to trigger re-render
-      handleSetNeedSave(false)
+    if (needSave) {
+      return
     }
+
+    const newAuth = oauth2LoadLocal(
+      collectionYMap.get('auth'),
+      collectionYMap.get('id')
+    )
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedAuth) !== hash(newAuth)) {
+      setUnsavedAuth(JSON.parse(JSON.stringify(newAuth)))
+    }
+
+    const newVariables = kvLegacyImporter(
+      'variables',
+      collectionYMap,
+      'localvalue'
+    )
+
+    // This is necessary to prevent a feedback loop
+    if (hash(newVariables) !== hash(unsavedVariables)) {
+      setUnsavedVariables(newVariables)
+    }
+
+    setUnsavedDescription(getDescription(collectionYMap))
+
+    const newExecutionScripts = getExecutionScripts(collectionYMap, true)
+
+    // This is necessary to prevent a feedback loop
+    if (hash(unsavedExecutionScripts) !== hash(newExecutionScripts)) {
+      setUnsavedExecutionScripts(newExecutionScripts)
+    }
+
+    // This seems to be required to trigger re-render
+    setNeedSave(false)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionHook])
 
@@ -116,7 +129,7 @@ export const CollectionInputPanel = ({
     newValue: T
   ) => {
     if (!needSave) {
-      handleSetNeedSave(true)
+      setNeedSave(true)
     }
 
     // Call the setter after the needSave state is set to true else will try and
@@ -139,16 +152,38 @@ export const CollectionInputPanel = ({
     )
     collectionYMap.set('description', unsavedDescription)
     collectionYMap.set('updatedAt', new Date().toISOString())
-    handleSetNeedSave(false)
+
+    collectionYMap.set(
+      'executionScripts',
+      unsavedExecutionScripts.filter((s) => !s.builtIn)
+    )
+
+    setNeedSave(false)
+  }
+
+  const handleSend = async (executionScript: ExecutionScript) => {
+    if (!scopeId) throw new Error('No scopeId')
+    if (!rawBearer) throw new Error('No rawBearer')
+
+    throw new Error('Not implemented')
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)
   saveCallbackRef.current = handleSave
 
+  useEffect(() => {
+    if (needSave) {
+      setObservedNeedsSave(true, () => saveCallbackRef.current())
+      return
+    }
+
+    setObservedNeedsSave(false)
+  }, [needSave, setObservedNeedsSave, saveCallbackRef])
+
   return (
     <>
       <PanelLayout
-        tabNames={['Variables', 'Auth', 'Description']}
+        tabNames={['Variables', 'Auth', 'Scripts', 'Description']}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -191,6 +226,14 @@ export const CollectionInputPanel = ({
                 }}
               />
             </ListItem>
+            <Box marginLeft={2} />
+            <SendButton
+              onSend={handleSend}
+              executionScripts={unsavedExecutionScripts}
+              defaultExecutionScript={defaultExecutionScript}
+              buttonName="Run"
+            />
+            <Box marginLeft={2} />
             <SaveButton needSave={needSave} onSave={handleSave} />
           </Stack>
         }
@@ -212,7 +255,7 @@ export const CollectionInputPanel = ({
           <AuthPanel
             auth={unsavedAuth}
             setAuth={(newAuth) =>
-              handleFieldUpdate<RESTAuth>(setUnsavedAuth, newAuth)
+              handleFieldUpdate<Auth>(setUnsavedAuth, newAuth)
             }
             namespace={`collection-${collectionYMap.get('id')}}-auth`}
             setActionArea={setActionArea}
@@ -221,6 +264,20 @@ export const CollectionInputPanel = ({
           />
         )}
         {activeTabIndex === 2 && (
+          <ScriptsPanel
+            executionScripts={unsavedExecutionScripts}
+            setExecutionScripts={(newScripts) =>
+              handleFieldUpdate<ExecutionScript[]>(
+                setUnsavedExecutionScripts,
+                newScripts
+              )
+            }
+            namespace={`collection:${collectionYMap.get('id')}:scripts`}
+            setActionArea={setActionArea}
+            onExecute={handleSend}
+          />
+        )}
+        {activeTabIndex === 3 && (
           <DescriptionPanel
             description={unsavedDescription}
             setDescription={(newDescription) =>

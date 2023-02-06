@@ -56,7 +56,7 @@ export const getEntityEngineSocket = async (
 
     runningTestStates.set(clientSocket, {
       ...(runningTestStates.get(clientSocket) as RunningTestState),
-      testType: 'rest',
+      testType: 'RESTRequest',
       responseId: data.responseId as string,
       responseExistence: 'created',
     })

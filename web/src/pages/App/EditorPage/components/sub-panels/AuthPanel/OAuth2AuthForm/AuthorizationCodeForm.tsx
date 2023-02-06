@@ -1,4 +1,4 @@
-import { RESTAuth } from '@apiteam/types/src'
+import { Auth } from '@apiteam/types/src'
 
 import { FormEnvironmentTextField } from 'src/components/custom-mui'
 import { apiTeamOauth2CallbackURL } from 'src/utils/oauth2/backend-callbacks'
@@ -6,11 +6,11 @@ import { apiTeamOauth2CallbackURL } from 'src/utils/oauth2/backend-callbacks'
 import { ClientAuthenticationOption } from './ClientAuthenticationOption'
 
 type AuthorizationCodeFormProps = {
-  auth: RESTAuth & {
+  auth: Auth & {
     authType: 'oauth2'
     grantType: 'authorization-code'
   }
-  setAuth: (auth: RESTAuth) => void
+  setAuth: (auth: Auth) => void
   namespace: string
 }
 
