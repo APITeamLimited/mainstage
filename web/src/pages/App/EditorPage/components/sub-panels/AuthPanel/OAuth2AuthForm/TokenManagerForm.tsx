@@ -21,14 +21,14 @@ type TokenManagerFormProps = {
   }
   setAuth: (auth: Auth) => void
   getOAuth2Token: () => void
-  activeId: string
+  oauthLocalSaveKey: string
 }
 
 export const TokenManagerForm = ({
   auth,
   setAuth,
   getOAuth2Token,
-  activeId,
+  oauthLocalSaveKey,
 }: TokenManagerFormProps) => {
   const theme = useTheme()
 
@@ -43,24 +43,24 @@ export const TokenManagerForm = ({
       }
 
       localStorage.setItem(
-        `apiteam:oauth2:${activeId}:active`,
+        `apiteam:oauth2:${oauthLocalSaveKey}:active`,
         JSON.stringify(token)
       )
     },
-    [activeId, auth.existingAccessTokens]
+    [oauthLocalSaveKey, auth.existingAccessTokens]
   )
 
   const handleTokenDelete = (wrappedToken: WrappedOAuth2Token) => {
     // Check if the token to be deleted is the active token
     const activeWrappedToken = localStorage.getItem(
-      `apiteam:oauth2:${activeId}:active`
+      `apiteam:oauth2:${oauthLocalSaveKey}:active`
     )
 
     if (activeWrappedToken !== null) {
       const storedToken = JSON.parse(activeWrappedToken) as OAuth2Token
 
       if (storedToken.access_token === wrappedToken.token.access_token) {
-        localStorage.removeItem(`apiteam:oauth2:${activeId}:active`)
+        localStorage.removeItem(`apiteam:oauth2:${oauthLocalSaveKey}:active`)
       }
     }
 
@@ -72,7 +72,7 @@ export const TokenManagerForm = ({
     })
   }
 
-  const activeWrappedToken = useActiveWrappedToken(activeId, auth)
+  const activeWrappedToken = useActiveWrappedToken(oauthLocalSaveKey, auth)
 
   // Refresh minutes
   const [minutesKey, setMinutesKey] = useState(0)

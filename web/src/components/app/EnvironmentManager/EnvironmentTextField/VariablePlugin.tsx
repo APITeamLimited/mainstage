@@ -1,21 +1,15 @@
 import { ReactPortal, useEffect, useState } from 'react'
 
+import { getPossibleVariableMatch, VariableMatch } from '@apiteam/types/src'
 import type { LexicalCommand, LexicalEditor, RangeSelection } from 'lexical'
 
 import type { LexicalAddons, LexicalModule } from './module'
 import { $createVariableNode, VariableNodeType } from './VariableNode'
 
-type VariableMatch = {
-  leadOffset: number
-  matchingString: string
-}
-
 type Resolution = {
   match: VariableMatch
   range: Range
 }
-
-export const BRACED_REGEX = /{{(([^}][^}]?|[^}]}?)*)}}/g
 
 const getTextUpToAnchor = (selection: RangeSelection): string | null => {
   const anchor = selection.anchor
@@ -48,21 +42,6 @@ const getVariablesTextToSearch = (
   })
 
   return text
-}
-
-// Checks input text for @value matches
-export function getPossibleVariableMatch(text: string): VariableMatch[] {
-  // Will need to change this bit to match custom regex
-  const matches = Array.from(text.matchAll(BRACED_REGEX))
-
-  const filteredMatches = matches.filter(
-    (match) => match.index !== undefined && match[1].length > 0
-  ) as (RegExpMatchArray & { index: number })[]
-
-  return filteredMatches.map((match) => ({
-    leadOffset: match.index,
-    matchingString: match[0],
-  }))
 }
 
 function isSelectionOnEntityBoundary(

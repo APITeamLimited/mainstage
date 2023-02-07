@@ -5,13 +5,13 @@ import type { Map as YMap } from 'yjs'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 
-import { BaseJob, PendingLocalJob } from '../../lib'
+import { BaseJob, PendingJob } from '../../lib'
 import { determineWrappedExecutionParams } from '../../utils'
 
 import { LocalManagerInterface } from '.'
 
 export const executeLocalCatchError = (
-  job: BaseJob & PendingLocalJob,
+  job: BaseJob & PendingJob,
   testManager: LocalManagerInterface,
   scope: Scope,
   rawBearer: string,

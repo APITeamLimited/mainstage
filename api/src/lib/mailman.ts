@@ -123,8 +123,8 @@ const handleDevSend = async <T extends TemplateData>({
     host: 'smtp.ethereal.email',
     port: 587,
     auth: {
-      user: 'fritz15@ethereal.email',
-      pass: 'pb4vvcB3dPmYBDbfhZ',
+      user: 'kaela43@ethereal.email',
+      pass: 's67kXY6a733ZPJmaGQ',
     },
   })
 

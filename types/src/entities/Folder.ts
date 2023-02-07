@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { authSchema } from './auth'
 import { baseEntitySchema } from './base'
+import { executionOptionsSchema } from './execution-options'
 import { executionScriptSchema } from './shared'
 
 export const folderSchema = baseEntitySchema.merge(
@@ -14,6 +15,7 @@ export const folderSchema = baseEntitySchema.merge(
     auth: authSchema,
     description: z.string().optional(),
     executionScripts: z.array(executionScriptSchema),
+    executionOptions: executionOptionsSchema.optional(),
   })
 )
 

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 
+import { findEnvironmentVariables } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 import { ListItemIcon, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'
@@ -19,7 +20,6 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { findEnvironmentVariables } from 'src/utils/environment'
 
 import { NodeActionButton } from './NodeActionButton'
 import { getNodeIcon } from './utils'

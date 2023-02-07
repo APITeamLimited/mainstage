@@ -3,6 +3,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { getPossibleVariableMatch } from '@apiteam/types/src'
 import { Stack, Tooltip, Typography, useTheme } from '@mui/material'
 
 import { InnerValues } from './InnerValues'
@@ -18,7 +19,6 @@ import {
   VariableNodeClass,
   VariableNodeType,
 } from './VariableNode'
-import { getPossibleVariableMatch } from './VariablePlugin'
 
 export type EnvironmentTextFieldProps = {
   placeholder?: string

@@ -13,7 +13,7 @@ type WhereStoreTokenDialogProps = {
   auth: Auth & {
     authType: 'oauth2'
   }
-  activeId: string
+  oauthLocalSaveKey: string
   setAuth: (auth: Auth) => void
   onClose: () => void
 }
@@ -21,7 +21,7 @@ type WhereStoreTokenDialogProps = {
 export const WhereStoreTokenDialog = ({
   foundToken,
   auth,
-  activeId,
+  oauthLocalSaveKey,
   setAuth,
   onClose,
 }: WhereStoreTokenDialogProps) => {
@@ -44,12 +44,12 @@ export const WhereStoreTokenDialog = ({
     })
 
     const alreadyActiveToken = localStorage.getItem(
-      `apiteam:oauth2:${activeId}:active`
+      `apiteam:oauth2:${oauthLocalSaveKey}:active`
     )
 
     if (!alreadyActiveToken) {
       localStorage.setItem(
-        `apiteam:oauth2:${activeId}:active`,
+        `apiteam:oauth2:${oauthLocalSaveKey}:active`,
         JSON.stringify(newWrappedToken)
       )
     }

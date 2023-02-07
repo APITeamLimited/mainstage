@@ -34,13 +34,13 @@ import { WhereStoreTokenDialog } from './WhereStoreTokenDialog'
 type OAuth2AuthFormProps = {
   auth: AuthOAuth2
   setAuth: (auth: Auth) => void
-  activeId: string
+  oauthLocalSaveKey: string
 }
 
 export const OAuth2AuthForm = ({
   auth,
   setAuth,
-  activeId,
+  oauthLocalSaveKey,
 }: OAuth2AuthFormProps) => {
   const { default: SimpleBar } = useSimplebarReactModule()
   const apolloClient = useApolloClient()
@@ -96,7 +96,7 @@ export const OAuth2AuthForm = ({
     setFoundToken(result)
   }
 
-  const namespace = `${activeId}-oauth2authform`
+  const namespace = `${oauthLocalSaveKey}-oauth2authform`
 
   return (
     <>
@@ -110,7 +110,7 @@ export const OAuth2AuthForm = ({
       <WhereStoreTokenDialog
         foundToken={foundToken}
         auth={auth}
-        activeId={activeId}
+        oauthLocalSaveKey={oauthLocalSaveKey}
         setAuth={setAuth}
         onClose={() => setFoundToken(null)}
       />
@@ -136,7 +136,7 @@ export const OAuth2AuthForm = ({
               auth={auth}
               setAuth={setAuth}
               getOAuth2Token={handleGetToken}
-              activeId={activeId}
+              oauthLocalSaveKey={oauthLocalSaveKey}
             />
             <CustomFormSelect
               label="Grant Type"

@@ -65,8 +65,8 @@ export const BaseGraph = ({
 
   const series = useMemo<ApexAxisChartSeries>(() => {
     // First two dataseries doesn't show all the correct values,
-    // fault of globetest
-    const slicedMetrics = metrics.slice(2)
+    // fault of globe-test
+    // const slicedMetrics = metrics.slice(2)
 
     return graph.series.map((series) => {
       const baseColor =
@@ -75,7 +75,7 @@ export const BaseGraph = ({
       return {
         name: `${series.metric} (${series.loadZone})`,
         type: series.kind,
-        data: slicedMetrics.map(({ time, message }) => ({
+        data: metrics.map(({ time, message }) => ({
           x: time,
           y: message?.[series.loadZone]?.[series.metric]?.value ?? 0,
         })),

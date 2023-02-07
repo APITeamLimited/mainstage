@@ -1,10 +1,9 @@
 import { ExecutionParams, RESTRequest } from '@apiteam/types/src'
+import { findEnvironmentVariables } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import type { Har, PostData } from 'har-format'
 import { parse } from 'qs'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
-
-import { findEnvironmentVariables } from '../environment'
 
 // scotch support HAR Spec 1.2
 // For more info on the spec: http://www.softwareishard.com/blog/har-12-spec/

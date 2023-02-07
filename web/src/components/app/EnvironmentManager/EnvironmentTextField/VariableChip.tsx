@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 
 import { ResolvedVariable } from '@apiteam/types/src'
+import { findVariablesInString } from '@apiteam/types/src'
 import { Chip, Tooltip } from '@mui/material'
 
 import {
   useCollectionVariables,
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
-import { findVariablesInString } from 'src/utils/environment'
 
 type VariableChipProps = {
   variableName: string

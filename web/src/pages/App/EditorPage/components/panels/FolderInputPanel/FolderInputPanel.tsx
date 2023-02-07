@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-import { Auth, ExecutionScript } from '@apiteam/types/src'
+import {
+  Auth,
+  ExecutionOptions,
+  ExecutionScript,
+  oauth2LoadLocal,
+} from '@apiteam/types/src'
 import FolderIcon from '@mui/icons-material/Folder'
 import {
   Box,
@@ -18,15 +23,13 @@ import type { Map as YMap } from 'yjs'
 import { useHashSumModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
-import {
-  oauth2LoadLocal,
-  guardOAuth2Save,
-} from 'src/utils/oauth2/oauth2-guards'
+import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 
 import { duplicateRecursive } from '../../LeftAside/CollectionTree/Node/utils'
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
+import { ExecutionOptionsPanel } from '../../sub-panels/ExecutionOptionsPanel'
 import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
 import { SaveButton } from '../components/SaveButton'
 import { SendButton } from '../components/SendButton'
@@ -34,6 +37,7 @@ import {
   getDescription,
   getExecutionScripts,
   useUnsavedDescription,
+  useUnsavedExecutionOptions,
   useUnsavedExecutionScripts,
 } from '../hooks'
 
@@ -69,6 +73,9 @@ export const FolderInputPanel = ({
     setUnsavedExecutionScripts,
     defaultExecutionScript,
   } = useUnsavedExecutionScripts(folderYMap, true)
+
+  const [unsavedExecutionOptions, setUnsavedExecutionOptions] =
+    useUnsavedExecutionOptions(folderYMap)
 
   const getSetAuth = () => {
     folderYMap.set('auth', {
@@ -136,6 +143,8 @@ export const FolderInputPanel = ({
       'executionScripts',
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
+    folderYMap.set('executionOptions', unsavedExecutionOptions)
+
     folderYMap.set('updatedAt', new Date().toISOString())
     setNeedSave(false)
   }
@@ -162,6 +171,8 @@ export const FolderInputPanel = ({
       'executionScripts',
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
+
+    newFolder.set('executionOptions', unsavedExecutionOptions)
   }
 
   const handleSend = async (executionScript: ExecutionScript) => {
@@ -183,7 +194,7 @@ export const FolderInputPanel = ({
   return (
     <>
       <PanelLayout
-        tabNames={['Auth', 'Scripts', 'Description']}
+        tabNames={['Auth', 'Scripts', 'Description', 'Options']}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -250,7 +261,7 @@ export const FolderInputPanel = ({
             }
             namespace={`folders.${folderId}.auth`}
             setActionArea={setActionArea}
-            activeId={folderId}
+            oauthLocalSaveKey={folderId}
           />
         )}
         {activeTabIndex === 1 && (
@@ -272,6 +283,18 @@ export const FolderInputPanel = ({
             description={unsavedDescription}
             setDescription={(newValue) =>
               handleFieldUpdate<string>(setUnsavedDescription, newValue)
+            }
+            setActionArea={setActionArea}
+          />
+        )}
+        {activeTabIndex === 3 && (
+          <ExecutionOptionsPanel
+            executionOptions={unsavedExecutionOptions}
+            setExecutionOptions={(newOptions) =>
+              handleFieldUpdate<ExecutionOptions>(
+                setUnsavedExecutionOptions,
+                newOptions
+              )
             }
             setActionArea={setActionArea}
           />

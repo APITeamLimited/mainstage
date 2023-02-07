@@ -1,21 +1,47 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  ExecutionParams,
-  FileFieldKV,
-  FinalVariable,
-  KeyValueItem,
-  KVVariantTypes,
-  LocalValueKV,
-  ResolvedVariable,
-} from '@apiteam/types/src'
+import type { AxiosRequestConfig } from 'axios'
 import type { Map as YMap } from 'yjs'
+import { z } from 'zod'
 
-import {
-  BRACED_REGEX,
-  getPossibleVariableMatch,
-} from 'src/components/app/EnvironmentManager/EnvironmentTextField/VariablePlugin'
+import type { ExecutionParams, FinalVariable } from '../../../execution-params'
+import type { LocalObject } from '../../../external-entities'
+import type {
+  KeyValueItem,
+  LocalValueKeyValueItem,
+} from '../../../key-value-item'
 
-import { getLocalObject } from './key-values'
+export type VariableMatch = {
+  leadOffset: number
+  matchingString: string
+}
+
+export const BRACED_REGEX = /{{(([^}][^}]?|[^}]}?)*)}}/g
+
+// Checks input text for @value matches
+export function getPossibleVariableMatch(text: string): VariableMatch[] {
+  // Will need to change this bit to match custom regex
+  const matches = Array.from(text.matchAll(BRACED_REGEX))
+
+  const filteredMatches = matches.filter(
+    (match) => match.index !== undefined && match[1].length > 0
+  ) as (RegExpMatchArray & { index: number })[]
+
+  return filteredMatches.map((match) => ({
+    leadOffset: match.index,
+    matchingString: match[0],
+  }))
+}
+
+const resolvedVariable = z.union([
+  z.object({
+    sourceName: z.string(),
+    sourceTypename: z.enum(['Collection', 'Environment']),
+    value: z.string(),
+  }),
+  z.null(),
+])
+
+export type ResolvedVariable = z.infer<typeof resolvedVariable>
 
 export const findVariablesInString = (
   environmentContext: ExecutionParams['environmentContext'],
@@ -105,15 +131,15 @@ export const findEnvironmentVariables = (
   return result.join('')
 }
 
-export const findEnvironmentVariablesKeyValueItem = <T extends KVVariantTypes>(
+export const findEnvironmentVariablesKeyValueItem = (
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext'],
-  item: KeyValueItem<T>,
-  variant: KeyValueItem<T>['variant'],
+  item: KeyValueItem,
+  variant: KeyValueItem['variant'],
   workspaceId: string
 ) => {
-  if (variant === 'filefield') {
-    if ((item as KeyValueItem<FileFieldKV>).fileEnabled) {
+  if (variant === 'filefield' && item.variant === 'filefield') {
+    if (item.fileEnabled) {
       return item
     } else {
       return {
@@ -127,11 +153,11 @@ export const findEnvironmentVariablesKeyValueItem = <T extends KVVariantTypes>(
           collectionContext,
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          (item as KeyValueItem<FileFieldKV>).value ?? ''
+          (item as KeyValueItem).value ?? ''
         ),
       }
     }
-  } else if (variant === 'localvalue') {
+  } else if (variant === 'localvalue' && item.variant === 'localvalue') {
     const localItem = {
       ...item,
       localValue: getLocalObject(
@@ -140,7 +166,7 @@ export const findEnvironmentVariablesKeyValueItem = <T extends KVVariantTypes>(
         item.localValue,
         workspaceId
       ),
-    } as KeyValueItem<LocalValueKV>
+    } as LocalValueKeyValueItem
 
     const validLocalValue =
       typeof localItem.localValue?.data === 'string' &&
@@ -184,6 +210,35 @@ export const findEnvironmentVariablesKeyValueItem = <T extends KVVariantTypes>(
   }
 }
 
+/** Retrieves a local object if it exists, backend safe */
+export const getLocalObject = (
+  localObject: LocalObject,
+  workspaceId: string
+): LocalObject => {
+  // Also run on backend so need to check for this
+  if (typeof localObject !== 'object') {
+    return localObject
+  }
+
+  const item = localStorage.getItem(
+    `LocalObject:${workspaceId}-${localObject.localId}`
+  )
+
+  if (
+    item === null ||
+    item === undefined ||
+    item === 'undefined' ||
+    item === 'null'
+  ) {
+    return localObject
+  }
+
+  return {
+    ...localObject,
+    data: JSON.parse(item),
+  }
+}
+
 export const createEnvironmentContext = (
   environmentOrCollection: YMap<any>,
   workspaceId: string
@@ -193,7 +248,7 @@ export const createEnvironmentContext = (
 } | null => {
   const rawVariables = (
     (environmentOrCollection?.get('variables') ??
-      []) as KeyValueItem<LocalValueKV>[]
+      []) as LocalValueKeyValueItem[]
   )
     .map((variable) => ({
       ...variable,
@@ -231,5 +286,60 @@ export const createEnvironmentContext = (
   return {
     name: environmentOrCollection?.get('name') ?? '',
     variables,
+  }
+}
+
+/* Substitutes environment variables where possible in an axios request config */
+export const makeEnvironmentAwareRequest = (
+  environmentContext: ExecutionParams['environmentContext'],
+  collectionContext: ExecutionParams['collectionContext'],
+  config: AxiosRequestConfig,
+  skipBody: boolean
+): AxiosRequestConfig => {
+  return {
+    ...config,
+
+    url: findEnvironmentVariables(
+      environmentContext,
+      collectionContext,
+      config.url ?? ''
+    ),
+
+    // Search for environment variables in header keys and values
+    headers: Object.entries(config.headers || {}).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [findEnvironmentVariables(environmentContext, collectionContext, key)]:
+          findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            String(value)
+          ),
+      }),
+      {}
+    ),
+
+    // Search for environment variables in params keys and values
+    params: Object.entries(config.params || {}).reduce(
+      (acc, [key, value]) => ({
+        ...acc,
+        [findEnvironmentVariables(environmentContext, collectionContext, key)]:
+          findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            String(value)
+          ),
+      }),
+      {}
+    ),
+
+    data:
+      config.data && !skipBody
+        ? findEnvironmentVariables(
+            environmentContext,
+            collectionContext,
+            config.data
+          )
+        : null,
   }
 }

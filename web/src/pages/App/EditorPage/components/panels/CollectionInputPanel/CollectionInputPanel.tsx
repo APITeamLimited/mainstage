@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from 'react'
 
-import { KeyValueItem, Auth, ExecutionScript } from '@apiteam/types/src'
+import {
+  KeyValueItem,
+  Auth,
+  ExecutionScript,
+  ExecutionOptions,
+  oauth2LoadLocal,
+} from '@apiteam/types/src'
 import {
   Box,
   ListItem,
@@ -18,14 +24,12 @@ import { useHashSumModule } from 'src/contexts/imports'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
-import {
-  oauth2LoadLocal,
-  guardOAuth2Save,
-} from 'src/utils/oauth2/oauth2-guards'
+import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
+import { ExecutionOptionsPanel } from '../../sub-panels/ExecutionOptionsPanel'
 import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
 import { SaveButton } from '../components/SaveButton'
 import { SendButton } from '../components/SendButton'
@@ -33,6 +37,7 @@ import {
   getDescription,
   getExecutionScripts,
   useUnsavedDescription,
+  useUnsavedExecutionOptions,
   useUnsavedExecutionScripts,
 } from '../hooks'
 
@@ -76,6 +81,9 @@ export const CollectionInputPanel = ({
     setUnsavedExecutionScripts,
     defaultExecutionScript,
   } = useUnsavedExecutionScripts(collectionYMap, true)
+
+  const [unsavedExecutionOptions, setUnsavedExecutionOptions] =
+    useUnsavedExecutionOptions(collectionYMap)
 
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [needSave, setNeedSave] = useState(false)
@@ -158,6 +166,8 @@ export const CollectionInputPanel = ({
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
 
+    collectionYMap.set('executionOptions', unsavedExecutionOptions)
+
     setNeedSave(false)
   }
 
@@ -183,7 +193,7 @@ export const CollectionInputPanel = ({
   return (
     <>
       <PanelLayout
-        tabNames={['Variables', 'Auth', 'Scripts', 'Description']}
+        tabNames={['Variables', 'Auth', 'Scripts', 'Description', 'Options']}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -260,7 +270,7 @@ export const CollectionInputPanel = ({
             namespace={`collection-${collectionYMap.get('id')}}-auth`}
             setActionArea={setActionArea}
             disableInherit
-            activeId={collectionYMap.get('id')}
+            oauthLocalSaveKey={collectionYMap.get('id')}
           />
         )}
         {activeTabIndex === 2 && (
@@ -282,6 +292,18 @@ export const CollectionInputPanel = ({
             description={unsavedDescription}
             setDescription={(newDescription) =>
               handleFieldUpdate<string>(setUnsavedDescription, newDescription)
+            }
+            setActionArea={setActionArea}
+          />
+        )}
+        {activeTabIndex === 4 && (
+          <ExecutionOptionsPanel
+            executionOptions={unsavedExecutionOptions}
+            setExecutionOptions={(newOptions) =>
+              handleFieldUpdate<ExecutionOptions>(
+                setUnsavedExecutionOptions,
+                newOptions
+              )
             }
             setActionArea={setActionArea}
           />

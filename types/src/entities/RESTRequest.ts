@@ -4,6 +4,7 @@ import { keyValueItemSchema, defaultKVSchema } from '../key-value-item'
 
 import { authSchema } from './auth'
 import { baseEntitySchema } from './base'
+import { executionOptionsSchema } from './execution-options'
 import { executionScriptSchema } from './shared'
 
 export const knownContentTypes = {
@@ -58,15 +59,18 @@ const restRequestBodySchema = z.union([
   }),
   z.object({
     contentType: z.literal('application/x-www-form-urlencoded'),
-    body: keyValueItemSchema(defaultKVSchema),
+    body: keyValueItemSchema(defaultKVSchema).array(),
   }),
   z.object({
     contentType: z.literal('multipart/form-data'),
-    body: keyValueItemSchema(defaultKVSchema),
+    body: keyValueItemSchema(defaultKVSchema).array(),
   }),
 ])
 
 export type RESTRequestBody = z.infer<typeof restRequestBodySchema>
+
+export const pathVariablesSchema = z.array(keyValueItemSchema(defaultKVSchema))
+export type PathVariables = z.infer<typeof pathVariablesSchema>
 
 export const restRequestSchema = baseEntitySchema.merge(
   z.object({
@@ -82,8 +86,9 @@ export const restRequestSchema = baseEntitySchema.merge(
     auth: authSchema,
     body: restRequestBodySchema,
     description: z.string().optional(),
-    pathVariables: z.array(keyValueItemSchema(defaultKVSchema)),
+    pathVariables: pathVariablesSchema,
     executionScripts: z.array(executionScriptSchema),
+    executionOptions: executionOptionsSchema.optional(),
   })
 )
 

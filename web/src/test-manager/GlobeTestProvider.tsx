@@ -81,14 +81,12 @@ export const GlobeTestProvider = () => {
   // Scan for pending requests and start executing them
   useEffect(() => {
     if (rawBearer === '' || rawBearer === null || !workspaceInfo) {
-      // Skip execution, no bearer token or no workspace info yet
-      // these will be populated
       return
     }
 
     jobQueue.forEach((job) => {
       if (
-        job.__subtype === 'PendingLocalJob' &&
+        job.__subtype === 'PendingJob' &&
         job.jobStatus === 'LOCAL_CREATING'
       ) {
         jobQueueVar(
@@ -122,7 +120,9 @@ export const GlobeTestProvider = () => {
         job.jobStatus === 'COMPLETED_FAILURE'
       ) {
         // Remove completed jobs from queue
-        jobQueueVar(jobQueue.filter((j) => j.localId !== job.localId))
+        jobQueueVar(
+          jobQueue.filter((j) => j.testGeneratorId !== job.testGeneratorId)
+        )
       }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps

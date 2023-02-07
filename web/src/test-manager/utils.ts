@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WrappedExecutionParams } from '@apiteam/types/src'
 
-import { determineIfLocalhost } from 'src/utils/validate-url'
-
-import { BaseJob, PendingLocalJob } from './lib'
+import { BaseJob, PendingJob } from './lib'
 
 export const getTestManagerURL = () => {
   if (process.env.NODE_ENV === 'development') {
@@ -24,13 +22,8 @@ export const getTestManagerURL = () => {
   }
 }
 
-export const determineGlobetestAgent = async (
-  url: string
-): Promise<'Cloud' | 'Local'> =>
-  (await determineIfLocalhost(url)) ? 'Local' : 'Cloud'
-
 export const determineWrappedExecutionParams = (
-  job: BaseJob & PendingLocalJob,
+  job: BaseJob & PendingJob,
   rawBearer: string
 ): WrappedExecutionParams => {
   const params: WrappedExecutionParams = {

@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  RESTResponseBase,
+  RESTResponse,
   EntityEngineServersideMessages,
-  LoadingResult,
   Graph,
   GlobeTestOptions,
 } from '@apiteam/types'
@@ -49,7 +48,7 @@ export const restCreateResponse = async (
     return
   }
 
-  const restResponse: RESTResponseBase & LoadingResult = {
+  const restResponse: RESTResponse = {
     id: uuid(),
     __typename: 'RESTResponse',
     parentId: underlyingRequest.id,

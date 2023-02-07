@@ -135,17 +135,6 @@ export const globeTestMessageSchema = z.intersection(
 
 export type GlobeTestMessage = z.infer<typeof globeTestMessageSchema>
 
-const resolvedVariable = z.union([
-  z.object({
-    sourceName: z.string(),
-    sourceTypename: z.enum(['Collection', 'Environment']),
-    value: z.string(),
-  }),
-  z.null(),
-])
-
-export type ResolvedVariable = z.infer<typeof resolvedVariable>
-
 const runningTestInfoSchema = z.object({
   jobId: z.string().uuid(),
   sourceName: z.string(),

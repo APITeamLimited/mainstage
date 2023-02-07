@@ -7,19 +7,19 @@ import { handleAuth } from '../../services'
 import { getOpenDoc } from '../connection-provider'
 import { handlePostAuth } from '../utils'
 
-import { handleGlobetest } from './globetest'
+import { handleGlobetest } from './globe-test'
 
 export const createServersideHandlers = (httpServer: HttpServer) => {
   const servers = new Map<string, Server>()
 
-  const globetestIoServer = new Server(httpServer, {
+  const globeTestIoServer = new Server(httpServer, {
     cors: {
       origin: '*',
     },
     path: '/internal/entity-engine/test-manager',
   })
 
-  globetestIoServer.use(async (socket, next) => {
+  globeTestIoServer.use(async (socket, next) => {
     const didAuthenticate = await handleAuth(socket.request)
     if (didAuthenticate) {
       console.log(new Date(), 'GlobeTest internal client authenticated')
@@ -30,17 +30,17 @@ export const createServersideHandlers = (httpServer: HttpServer) => {
     }
   })
 
-  globetestIoServer.on(
+  globeTestIoServer.on(
     'connection',
     async (socket) =>
       await handleNewServersideConnection(socket, handleGlobetest)
   )
 
-  globetestIoServer.on('disconnect', () => {
+  globeTestIoServer.on('disconnect', () => {
     console.log(new Date(), 'GlobeTest internal client disconnected')
   })
 
-  servers.set('globetest', globetestIoServer)
+  servers.set('globe-test', globeTestIoServer)
 
   return servers
 }

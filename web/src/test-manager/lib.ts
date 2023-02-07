@@ -1,5 +1,4 @@
 import {
-  GlobeTestMessage,
   StatusType,
   ExecutionParams,
   RESTResponse,
@@ -9,24 +8,21 @@ import { makeVar } from '@apollo/client'
 
 export type BaseJob = {
   // Don't trust end client to create UUIDs so these are clientside only
-  localId: string
+  testGeneratorId: string
   createdAt: Date
   agent: 'Cloud' | 'Local'
   scopeId: string
-  source: string
   sourceName: string
-  messages: GlobeTestMessage[]
   projectId: string
   branchId: string
   collectionId: string
   collectionContext: ExecutionParams['collectionContext']
   environmentContext: ExecutionParams['environmentContext']
-  createdEntry?: boolean
   testData: TestData
 }
 
-export type PendingLocalJob = {
-  __subtype: 'PendingLocalJob'
+export type PendingJob = {
+  __subtype: 'PendingJob'
   jobStatus: 'LOCAL_CREATING' | 'LOCAL_SUBMITTING'
 }
 
@@ -46,8 +42,7 @@ export type PostExecutionJob = {
   targetId: string
 }
 
-export type QueuedJob = BaseJob &
-  (PendingLocalJob | ExecutingJob | PostExecutionJob)
+export type QueuedJob = BaseJob & (PendingJob | ExecutingJob | PostExecutionJob)
 
 const initialQueue: QueuedJob[] = []
 
@@ -58,11 +53,11 @@ export const updateFilterQueue = (
   oldQueue: QueuedJob[],
   updatedJobs: QueuedJob[]
 ) => {
-  const idArray = updatedJobs.map((job) => job.localId)
+  const idArray = updatedJobs.map((job) => job.testGeneratorId)
 
   // Filter queues to see if job id in updatedJobs
   const nonUpdatedJobs = oldQueue.filter(
-    (job) => !idArray.includes(job.localId)
+    (job) => !idArray.includes(job.testGeneratorId)
   )
   return [...nonUpdatedJobs, ...updatedJobs]
 }

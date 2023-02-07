@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { v4 as uuid } from 'uuid'
-import type { Map as YMap } from 'yjs'
 import { z } from 'zod'
 
 import { fileFieldTypeSchema, localObjectSchema } from './external-entities'

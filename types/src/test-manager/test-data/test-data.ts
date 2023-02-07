@@ -15,7 +15,8 @@ export type GroupNode = {
   id: string
   name: string
   scripts: SourceScript[]
-  children: GroupNode[]
+
+  children: (HTTPRequestNode | StandaloneScriptNode | GroupNode)[]
 }
 
 export const groupNodeSchema = z.intersection(
@@ -75,11 +76,15 @@ export const nodeSchema = z.union([
   standaloneScriptNodeSchema,
 ])
 
-export type Node = z.infer<typeof nodeSchema>
-
 export const testDataSchema = z.object({
   rootNode: nodeSchema,
   rootScript: sourceScriptSchema,
 })
 
-export type TestData = z.infer<typeof testDataSchema>
+// Can't use inferred  type due to typescript limitations
+export type Node = HTTPRequestNode | StandaloneScriptNode | GroupNode
+
+export type TestData = {
+  rootNode: Node
+  rootScript: SourceScript
+}

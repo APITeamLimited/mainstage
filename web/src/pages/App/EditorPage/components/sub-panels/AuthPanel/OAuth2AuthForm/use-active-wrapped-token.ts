@@ -3,14 +3,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { Auth, WrappedOAuth2Token } from '@apiteam/types/src'
 
 export const useActiveWrappedToken = (
-  activeId: string,
+  oauthLocalSaveKey: string,
   auth: Auth & {
     authType: 'oauth2'
   }
 ) => {
   const handleCheck = useCallback(() => {
     const activeWrappedToken = localStorage.getItem(
-      `apiteam:oauth2:${activeId}:active`
+      `apiteam:oauth2:${oauthLocalSaveKey}:active`
     )
 
     if (activeWrappedToken) {
@@ -35,7 +35,7 @@ export const useActiveWrappedToken = (
       )[0]
 
       localStorage.setItem(
-        `apiteam:oauth2:${activeId}:active`,
+        `apiteam:oauth2:${oauthLocalSaveKey}:active`,
         JSON.stringify(newestToken)
       )
 
@@ -43,7 +43,7 @@ export const useActiveWrappedToken = (
     }
 
     return null
-  }, [activeId, auth.existingAccessTokens])
+  }, [oauthLocalSaveKey, auth.existingAccessTokens])
 
   const [activeWrappedToken, setActiveWrappedToken] =
     useState<WrappedOAuth2Token | null>(null)

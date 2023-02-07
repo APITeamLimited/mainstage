@@ -7,6 +7,8 @@ import {
   RadioGroup,
   Select,
   Stack,
+  Typography,
+  useTheme,
 } from '@mui/material'
 
 import {
@@ -41,6 +43,7 @@ type CustomFormRadioGroupProps = {
   value: string
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   options: { label: string; value: string }[]
+  description?: string
 }
 
 export const CustomFormRadioGroup = ({
@@ -49,16 +52,30 @@ export const CustomFormRadioGroup = ({
   value,
   onChange,
   options,
-}: CustomFormRadioGroupProps) => (
-  <div>
-    <FormLabel>{label}</FormLabel>
-    <RadioGroup name={name} value={value} onChange={onChange} row>
-      {options.map(({ label, value }) => (
-        <CustomFormControlLabel key={value} value={value} label={label} />
-      ))}
-    </RadioGroup>
-  </div>
-)
+  description,
+}: CustomFormRadioGroupProps) => {
+  const theme = useTheme()
+
+  return (
+    <div>
+      <FormLabel>{label}</FormLabel>
+      {description && (
+        <Typography
+          variant="body2"
+          color={theme.palette.grey[500]}
+          marginTop={1}
+        >
+          {description}
+        </Typography>
+      )}
+      <RadioGroup name={name} value={value} onChange={onChange} row>
+        {options.map(({ label, value }) => (
+          <CustomFormControlLabel key={value} value={value} label={label} />
+        ))}
+      </RadioGroup>
+    </div>
+  )
+}
 
 type CustomFormSelectProps = {
   label: string

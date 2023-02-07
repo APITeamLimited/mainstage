@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  determineGlobetestAgent,
   ExecutionParams,
   ExecutionScript,
+  generateTestData,
+  GenerateTestDataArgs,
   RESTRequest,
 } from '@apiteam/types/src'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
-import { BaseJob, jobQueueVar, PendingLocalJob, QueuedJob } from './lib'
-import { getFinalRequest } from './rest'
-import { determineGlobetestAgent } from './utils'
+import { BaseJob, jobQueueVar, PendingJob, QueuedJob } from './lib'
 
 /** Creates a new single rest job and adds it to the queue. */
 export const singleRESTRequestGenerator = async ({
@@ -21,6 +22,8 @@ export const singleRESTRequestGenerator = async ({
   executionScript,
   environmentContext,
   collectionContext,
+  oauthLocalSaveKey,
+  firstLevelData,
 }: {
   request: RESTRequest
   scopeId: string
@@ -30,13 +33,14 @@ export const singleRESTRequestGenerator = async ({
   executionScript: ExecutionScript
   environmentContext: ExecutionParams['environmentContext']
   collectionContext: ExecutionParams['collectionContext']
-}): Promise<BaseJob & PendingLocalJob> => {
+  oauthLocalSaveKey?: string
+  firstLevelData: GenerateTestDataArgs['firstLevelData']
+}): Promise<BaseJob & PendingJob> => {
   const branch = collectionYMap.parent?.parent as YMap<any> | undefined
   const project = branch?.parent?.parent as YMap<any> | undefined
   const collectionId = collectionYMap.get('id')
   const branchId = branch?.get('id') as string | undefined
   const projectId = project?.get('id') as string | undefined
-  const workspaceId = collectionYMap.doc?.guid as string | undefined
 
   if (!collectionId || !branchId || !projectId) {
     throw new Error(
@@ -46,31 +50,45 @@ export const singleRESTRequestGenerator = async ({
     )
   }
 
-  if (!workspaceId) throw new Error('WorkspaceId not found')
+  const timeNow = new Date().getTime()
 
-  const axiosConfig = await getFinalRequest(
-    request,
-    requestYMap,
+  const testData = generateTestData({
+    rootScript: {
+      name: executionScript.name,
+      contents: executionScript.script,
+    },
+    nodeYMap: requestYMap,
     collectionYMap,
+    collectionContext,
     environmentContext,
-    collectionContext
+    firstLevelData,
+    oauthLocalSaveKey,
+  })
+
+  const endTime = new Date().getTime()
+
+  console.log(
+    'test data',
+    endTime - timeNow,
+    testData,
+    'agent',
+    determineGlobetestAgent(testData, request.executionOptions)
   )
 
-  const job: BaseJob & PendingLocalJob = {
-    __subtype: 'PendingLocalJob',
-    localId: uuid(),
-    agent: await determineGlobetestAgent(axiosConfig.url as string),
+  const job: BaseJob & PendingJob = {
+    __subtype: 'PendingJob',
+    testGeneratorId: uuid(),
+    agent: determineGlobetestAgent(testData, request.executionOptions),
     createdAt: new Date(),
     jobStatus: 'LOCAL_CREATING',
-    source: executionScript.script,
     sourceName: executionScript.name,
     scopeId,
-    messages: [],
     projectId: projectId,
     branchId: branchId,
     collectionId: collectionId,
     environmentContext,
     collectionContext,
+    testData,
   }
 
   jobQueueVar([...jobQueue, job])

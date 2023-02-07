@@ -1,5 +1,4 @@
 import { z } from 'zod'
-
 // The old type
 // export interface GlobeTestRequest<RT extends ResponseType | undefined> {
 //   method: string

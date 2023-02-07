@@ -1,3 +1,3 @@
 export { GlobeTestProvider } from './GlobeTestProvider'
-export * from './test-data'
+export * from './generators'
 export * from './lib'

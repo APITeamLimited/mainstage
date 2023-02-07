@@ -202,6 +202,40 @@ export const defaultOAuth2Config = (
   throw new Error('Invalid grant type')
 }
 
+export const oauth2LoadLocal = (
+  auth: Auth,
+  oauthLocalSaveKey?: string
+): Auth => {
+  if (
+    auth.authType !== 'oauth2' ||
+    typeof localStorage === 'undefined' ||
+    !oauthLocalSaveKey
+  ) {
+    return auth
+  }
+
+  const localAuthsRaw = localStorage.getItem(
+    `apiteam:oauth2:${oauthLocalSaveKey}:auths`
+  )
+
+  const localAuths = localAuthsRaw
+    ? (JSON.parse(localAuthsRaw) as WrappedOAuth2Token[])
+    : []
+
+  // Prevent feedback loop by mutating the original object, else unwanted re-renders as this is just the initial load
+  // Ensure no duplicates
+  auth.existingAccessTokens = auth.existingAccessTokens.concat(
+    localAuths.filter(
+      (localAuth) =>
+        !auth.existingAccessTokens.find(
+          (token) => token.token.access_token === localAuth.token.access_token
+        )
+    )
+  )
+
+  return auth
+}
+
 const authAPIKeySchema = z.object({
   authType: z.literal('api-key'),
   key: z.string(),

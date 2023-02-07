@@ -12,7 +12,7 @@ import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { HashSumModule } from 'src/contexts/imports'
 import { FocusedElementDictionary } from 'src/contexts/reactives'
 
-import type { BaseJob, PendingLocalJob } from '../lib'
+import type { BaseJob, PendingJob } from '../lib'
 import { handleTestAutoFocus } from '../test-auto-focus'
 import { determineWrappedExecutionParams, getTestManagerURL } from '../utils'
 import {
@@ -33,7 +33,7 @@ export const executeCloud = ({
   hashSumModule,
   activeEnvironmentYMap,
 }: {
-  job: BaseJob & PendingLocalJob
+  job: BaseJob & PendingJob
   rawBearer: string
   workspace: YDoc
   focusedResponseDict: FocusedElementDictionary

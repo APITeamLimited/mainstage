@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 
+import { validateURL } from '@apiteam/types/src'
+import { findEnvironmentVariables } from '@apiteam/types/src'
 import CancelIcon from '@mui/icons-material/Cancel'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import HideSourceIcon from '@mui/icons-material/HideSource'
@@ -12,8 +14,6 @@ import {
   useEnvironmentVariables,
 } from 'src/contexts/VariablesProvider'
 import { useVerifiedDomains } from 'src/contexts/verified-domains-provider'
-import { findEnvironmentVariables } from 'src/utils/environment'
-import { validateURL } from 'src/utils/validate-url'
 
 type IsVerifiedDomainBadgeProps = {
   endpoint: string

@@ -69,30 +69,6 @@ export const kvLegacyImporter = <T extends KVVariantTypes>(
   throw new Error(`Invalid data type for ${getterKey}`)
 }
 
-/** Retrieves a local object if it exists */
-export const getLocalObject = (
-  localObject: LocalObject,
-  workspaceId: string
-): LocalObject => {
-  const item = localStorage.getItem(
-    `LocalObject:${workspaceId}-${localObject.localId}`
-  )
-
-  if (
-    item === null ||
-    item === undefined ||
-    item === 'undefined' ||
-    item === 'null'
-  ) {
-    return localObject
-  }
-
-  return {
-    ...localObject,
-    data: JSON.parse(item),
-  }
-}
-
 export const kvExporter = (
   items: KeyValueItem[],
   variant: KeyValueItem['variant'],

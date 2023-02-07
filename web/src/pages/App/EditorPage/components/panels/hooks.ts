@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import { ExecutionScript } from '@apiteam/types/src'
+import { DEFAULT_EXECUTION_OPTIONS, ExecutionScript } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
 import {
@@ -60,6 +60,21 @@ export const getDescription = (yMap: YMap<any>): string => {
 
 export const useUnsavedDescription = (yMap: YMap<any>) => {
   const state = useState(getDescription(yMap))
+
+  return state
+}
+
+export const getExecutionOptions = (yMap: YMap<any>) => {
+  if (yMap.get('executionOptions') !== undefined) {
+    return yMap.get('executionOptions')
+  }
+
+  yMap.set('executionOptions', DEFAULT_EXECUTION_OPTIONS)
+  return yMap.get('executionOptions')
+}
+
+export const useUnsavedExecutionOptions = (yMap: YMap<any>) => {
+  const state = useState(getExecutionOptions(yMap))
 
   return state
 }

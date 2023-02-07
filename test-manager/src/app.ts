@@ -12,7 +12,7 @@ import {
   handleNewTest,
 } from './handlers'
 import { handleAuth } from './services'
-import { forwardGlobalTestStatistics } from './services/globetest-statistics'
+import { forwardGlobalTestStatistics } from './services/globe-test-statistics'
 
 process.title = 'test-manager'
 

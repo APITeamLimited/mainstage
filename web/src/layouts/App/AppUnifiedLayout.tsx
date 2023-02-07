@@ -92,7 +92,6 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('@monaco-editor/react'),
         import('react-apexcharts'),
         import('yjs'),
-        import('is-valid-domain'),
 
         new Promise((resolve) => {
           import('@monaco-editor/loader').then((module) => {

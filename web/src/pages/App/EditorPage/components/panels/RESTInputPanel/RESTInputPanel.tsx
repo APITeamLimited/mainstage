@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   DefaultKeyValueItem,
   DefaultKV,
+  ExecutionOptions,
   RESTRequestBody,
+  oauth2LoadLocal,
 } from '@apiteam/types/src'
 import { Auth, RESTRequest } from '@apiteam/types/src'
 import { ExecutionScript } from '@apiteam/types/src'
@@ -26,19 +28,17 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { singleRESTRequestGenerator } from 'src/test-manager'
 import { jobQueueVar } from 'src/test-manager/lib'
 import { kvLegacyImporter } from 'src/utils/key-values'
-import {
-  oauth2LoadLocal,
-  guardOAuth2Save,
-} from 'src/utils/oauth2/oauth2-guards'
-import { BUILTIN_REST_SCRIPTS } from 'src/utils/rest-scripts'
+import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
+import { ExecutionOptionsPanel } from '../../sub-panels/ExecutionOptionsPanel'
 import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
 import { SaveButton } from '../components/SaveButton'
 import { SendButton } from '../components/SendButton'
+import { useUnsavedExecutionOptions } from '../hooks'
 import {
   getDescription,
   getExecutionScripts,
@@ -135,6 +135,9 @@ export const RESTInputPanel = ({
     defaultExecutionScript,
   } = useUnsavedExecutionScripts(requestYMap, false)
 
+  const [unsavedExecutionOptions, setUnsavedExecutionOptions] =
+    useUnsavedExecutionOptions(requestYMap)
+
   const jobQueue = useReactiveVar(jobQueueVar)
 
   const [needSave, setNeedSave] = useState(false)
@@ -225,6 +228,7 @@ export const RESTInputPanel = ({
       'executionScripts',
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
+    requestYMap.set('executionOptions', unsavedExecutionOptions)
     requestYMap.set('updatedAt', new Date().toISOString())
     setNeedSave(false)
     setObservedNeedsSave(false)
@@ -276,6 +280,8 @@ export const RESTInputPanel = ({
       'executionScripts',
       unsavedExecutionScripts.filter((s) => !s.builtIn)
     )
+    clone.set('executionOptions', unsavedExecutionOptions)
+
     restRequestsYMap.set(newId, clone)
   }
 
@@ -306,6 +312,7 @@ export const RESTInputPanel = ({
       pathVariables: unsavedPathVariables,
       description: unsavedDescription,
       executionScripts: unsavedExecutionScripts,
+      executionOptions: unsavedExecutionOptions,
     }
 
     try {
@@ -319,6 +326,12 @@ export const RESTInputPanel = ({
         jobQueue,
         requestYMap,
         executionScript,
+        firstLevelData: {
+          variant: 'httpRequest',
+          subVariant: 'RESTRequest',
+          underlyingRequest: request,
+        },
+        oauthLocalSaveKey: requestId,
       })
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -374,6 +387,7 @@ export const RESTInputPanel = ({
           'Auth',
           'Scripts',
           'Description',
+          'Options',
         ]}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
@@ -431,7 +445,7 @@ export const RESTInputPanel = ({
             }
             namespace={`request:${requestId}:auth`}
             setActionArea={setActionArea}
-            activeId={requestId}
+            oauthLocalSaveKey={requestId}
           />
         )}
         {activeTabIndex === 4 && (
@@ -453,6 +467,18 @@ export const RESTInputPanel = ({
             description={unsavedDescription}
             setDescription={(newDescription) =>
               handleFieldUpdate<string>(setUnsavedDescription, newDescription)
+            }
+            setActionArea={setActionArea}
+          />
+        )}
+        {activeTabIndex === 6 && (
+          <ExecutionOptionsPanel
+            executionOptions={unsavedExecutionOptions}
+            setExecutionOptions={(newOptions) =>
+              handleFieldUpdate<ExecutionOptions>(
+                setUnsavedExecutionOptions,
+                newOptions
+              )
             }
             setActionArea={setActionArea}
           />

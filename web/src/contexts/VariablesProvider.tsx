@@ -1,11 +1,11 @@
 import { createContext, useContext, useMemo } from 'react'
 
 import type { ExecutionParams } from '@apiteam/types/src'
+import { createEnvironmentContext } from '@apiteam/types/src'
 import { useReactiveVar } from '@apollo/client'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { createEnvironmentContext } from 'src/utils/environment'
 
 import { useCollection } from './collection'
 import { useActiveEnvironmentYMap } from './EnvironmentProvider'

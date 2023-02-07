@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
-import { RESTRequest } from '@apiteam/types/src'
+import { RESTRequest, restFinalRequest } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
@@ -11,7 +11,6 @@ import {
 } from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { getFinalRequest } from 'src/test-manager/rest'
 import {
   generateRESTCode,
   RESTCodegenDefinitions,
@@ -87,7 +86,7 @@ export const RESTCodeGenerator = ({
       if (!rawBearer) throw new Error('No rawBearer found')
 
       try {
-        const axiosConfig = await getFinalRequest(
+        const axiosConfig = restFinalRequest(
           restRequest,
           requestYMap,
           collectionYMap,

@@ -46,7 +46,7 @@ type AuthPanelProps = {
   namespace: string
   setActionArea: (actionArea: React.ReactNode) => void
   disableInherit?: boolean
-  activeId: string
+  oauthLocalSaveKey: string
 }
 
 export const AuthPanel = ({
@@ -55,7 +55,7 @@ export const AuthPanel = ({
   setAuth,
   namespace,
   disableInherit,
-  activeId,
+  oauthLocalSaveKey,
 }: AuthPanelProps) => {
   const theme = useTheme()
 
@@ -200,7 +200,11 @@ export const AuthPanel = ({
         />
       )}
       {auth.authType === 'oauth2' && (
-        <OAuth2AuthForm auth={auth} setAuth={setAuth} activeId={activeId} />
+        <OAuth2AuthForm
+          auth={auth}
+          setAuth={setAuth}
+          oauthLocalSaveKey={oauthLocalSaveKey}
+        />
       )}
       {auth.authType === 'api-key' && (
         <APIKeyAuthForm
