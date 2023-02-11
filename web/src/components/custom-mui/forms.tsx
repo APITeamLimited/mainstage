@@ -27,7 +27,7 @@ export const CustomFormControlLabel = (
 ) => (
   <FormControlLabel
     {...props}
-    control={<Radio />}
+    control={<Radio size="small" />}
     sx={{
       '& .MuiFormControlLabel-label': {
         userSelect: 'none',
@@ -64,6 +64,9 @@ export const CustomFormRadioGroup = ({
           variant="body2"
           color={theme.palette.grey[500]}
           marginTop={1}
+          sx={{
+            userSelect: 'none',
+          }}
         >
           {description}
         </Typography>

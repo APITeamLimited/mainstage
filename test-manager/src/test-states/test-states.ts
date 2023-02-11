@@ -13,15 +13,27 @@ export type RunningTestState =
       globeTestLogsStoreReceipt?: string
       metricsStoreReceipt?: string
       options?: GlobeTestOptions
+
+      // To handle concurrent messages, response creation request may be sent,
+      // however, response may not be created yet. This acknowledges incoming
+      // messages that creation request has been sent
       responseExistence: 'none' | 'creating' | 'created'
       localCompleted?: boolean
     } & (
+      | {
+          testType: 'undetermined'
+        }
       | {
           testType: 'RESTRequest'
           markedResponse?: K6Response
           responseId?: string
         }
       | {
-          testType: 'undetermined'
+          testType: 'Folder'
+          responseId?: string
+        }
+      | {
+          testType: 'Collection'
+          responseId?: string
         }
     )

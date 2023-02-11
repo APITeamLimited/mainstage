@@ -25,7 +25,7 @@ import {
 } from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { singleRESTRequestGenerator } from 'src/test-manager'
+import { clientSideGenerator } from 'src/test-manager'
 import { jobQueueVar } from 'src/test-manager/lib'
 import { kvLegacyImporter } from 'src/utils/key-values'
 import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
@@ -316,15 +316,15 @@ export const RESTInputPanel = ({
     }
 
     try {
-      await singleRESTRequestGenerator({
-        request,
+      await clientSideGenerator({
+        executionOptions: unsavedExecutionOptions,
         environmentContext,
         collectionContext,
         collectionYMap,
         // Normal send is always main scope i.e. workspace
         scopeId,
         jobQueue,
-        requestYMap,
+        nodeYMap: requestYMap,
         executionScript,
         firstLevelData: {
           variant: 'httpRequest',

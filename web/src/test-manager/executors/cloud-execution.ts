@@ -44,6 +44,8 @@ export const executeCloud = ({
 }): boolean => {
   const params = determineWrappedExecutionParams(job, rawBearer)
 
+  console.log('params', params)
+
   try {
     const socket = io(getTestManagerURL(), {
       query: {

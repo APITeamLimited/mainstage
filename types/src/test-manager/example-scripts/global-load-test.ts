@@ -57,7 +57,8 @@ export const options = {
       },
       {
         name: 'Request Duration',
-        description: 'Request duration compared in different load zones over time',
+        description:
+          'Request duration compared in different load zones over time',
         desiredWidth: 2,
         series: [
           {
@@ -85,9 +86,19 @@ export const options = {
 }
 
 export default () => {
-  const { method, url, body, params } = lifecycle.finalRequest
+  const node = lifecycle.node()
 
-  http.request(method, url, body, params)
+  // Recursively execute all child nodes
+  if (node.variant === 'httpRequest') {
+    const { method, url, body, params } = node.finalRequest
+    http.request(method, url, body, params)
+  } else if (node.variant === 'standaloneScript') {
+    node.scripts['standalone.js']['default'].call()
+  } else if (node.variant === 'group') {
+    node.children.forEach((childNode) => {
+      childNode.scripts['global-load-test.js']['default'].call()
+    })
+  }
 }
 `,
 }

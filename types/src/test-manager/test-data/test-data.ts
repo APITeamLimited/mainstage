@@ -17,7 +17,14 @@ export type GroupNode = {
   scripts: SourceScript[]
 
   children: (HTTPRequestNode | StandaloneScriptNode | GroupNode)[]
-}
+} & (
+  | {
+      subVariant: 'Folder'
+    }
+  | {
+      subVariant: 'Collection'
+    }
+)
 
 export const groupNodeSchema = z.intersection(
   // @ts-expect-error - zod doesn't support recursive schemas
@@ -26,8 +33,6 @@ export const groupNodeSchema = z.intersection(
     id: z.string().uuid(),
     name: z.string(),
     scripts: sourceScriptSchema.array(),
-    // Needed as typescript can't infer the type of the recursive schema
-    children: z.lazy(() => nodeSchema.array()),
   }),
   z.union([
     z.object({
@@ -47,16 +52,10 @@ export const httpRequestNodeSchema = z.intersection(
     finalRequest: globeTestRequestSchema,
     scripts: sourceScriptSchema.array(),
   }),
-  z.union([
-    z.object({
-      subVariant: z.literal('RESTRequest'),
-      underlyingRequest: underlyingRequestSchema,
-    }),
-    // Add more http subVariants here
-    z.object({
-      subVariant: z.literal('unknown'),
-    }),
-  ])
+  z.object({
+    subVariant: z.literal('RESTRequest'),
+    underlyingRequest: underlyingRequestSchema,
+  })
 )
 
 export type HTTPRequestNode = z.infer<typeof httpRequestNodeSchema>
@@ -66,6 +65,8 @@ export const standaloneScriptNodeSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   script: sourceScriptSchema,
+
+  // TODO - add underlying standlone script type
 })
 
 export type StandaloneScriptNode = z.infer<typeof standaloneScriptNodeSchema>

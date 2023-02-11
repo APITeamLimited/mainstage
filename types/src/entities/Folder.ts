@@ -15,7 +15,7 @@ export const folderSchema = baseEntitySchema.merge(
     auth: authSchema,
     description: z.string().optional(),
     executionScripts: z.array(executionScriptSchema),
-    executionOptions: executionOptionsSchema.optional(),
+    executionOptions: executionOptionsSchema,
   })
 )
 

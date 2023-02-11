@@ -1,12 +1,6 @@
 import type { Scope } from '@prisma/client'
 
-import { getCreditsReadRedis } from '../../redis'
-
-export * from './rest'
-export * from './utils'
-export * from './test-states'
-export * from './messages'
-export * from './plan-info'
+import { getCreditsReadRedis } from './redis'
 
 export const getAvailableCredits = async (scope: Scope): Promise<number> => {
   const creditsReadRedis = await getCreditsReadRedis()

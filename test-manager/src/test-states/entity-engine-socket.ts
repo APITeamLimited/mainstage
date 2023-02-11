@@ -1,19 +1,11 @@
-import { Buffer } from 'buffer'
-
-import {
-  EntityEngineServersideMessages,
-  RunningTestInfo,
-  StatusType,
-} from '@apiteam/types'
+import { EntityEngineServersideMessages } from '@apiteam/types'
 import { Scope } from '@prisma/client'
-import type { VerifiedDomain } from '@prisma/client'
-import { Response } from 'k6/http'
 import { Socket } from 'socket.io'
 import { io } from 'socket.io-client'
 import type { Socket as EntityEngineSocket } from 'socket.io-client'
 
-import { checkValue } from '../../config'
-import { getCoreCacheReadRedis } from '../../redis'
+import { checkValue } from '../config'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 import { RunningTestState, runningTestStates } from '.'
 
@@ -76,9 +68,7 @@ export const getEntityEngineSocket = async (
     entityEngineSocket.disconnect()
   }, 60 * 60 * 1000)
 
-  entityEngineSocket.on('disconnect', () =>
-    clearTimeout(eeSocketTimeout)
-  )
+  entityEngineSocket.on('disconnect', () => clearTimeout(eeSocketTimeout))
 
   return new Promise<EntityEngineSocket>((resolve) => {
     entityEngineSocket.on('serverside-ready', () => {
@@ -89,78 +79,4 @@ export const getEntityEngineSocket = async (
       resolve(entityEngineSocket)
     })
   })
-}
-
-export const estimateRESTResponseSize = (response: Response): number => {
-  // Create dummy response object to calculate the size of the response
-  const dummyResponse = `HTTP/1.1 ${response.status} ${response.status_text}
-  ${Object.entries(response.headers)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join('\r')}
-
-  ${response.body?.toString()}`
-
-  return Buffer.byteLength(dummyResponse, 'utf8')
-}
-
-export const getVerifiedDomains = async (
-  variant: string,
-  variantTargetId: string
-) => {
-  const coreCacheReadRedis = await getCoreCacheReadRedis()
-
-  const verifiedDomainIds = (
-    await coreCacheReadRedis.sMembers(
-      `verifiedDomain__variant:${variant}__variantTargetId:${variantTargetId}`
-    )
-  ).map((id) => `verifiedDomain__id:${id}`)
-
-  const verifiedDomains = (
-    verifiedDomainIds.length > 0
-      ? await coreCacheReadRedis.mGet(verifiedDomainIds)
-      : []
-  )
-    .filter((verifiedDomain) => verifiedDomain !== null)
-    .map((verifiedDomain) =>
-      JSON.parse(verifiedDomain as string)
-    ) as VerifiedDomain[]
-
-  return verifiedDomains
-    .filter((verifiedDomain) => verifiedDomain.verified)
-    .map((verifiedDomain) => verifiedDomain.domain)
-}
-
-export const updateTestInfo = async (
-  jobId: string,
-  status: StatusType,
-  runningTestKey: string
-) => {
-  const coreCacheReadRedis = await getCoreCacheReadRedis()
-
-  // Delete test info if completed
-  if (status === 'COMPLETED_SUCCESS' || status === 'COMPLETED_FAILURE') {
-    console.log('Delete 1')
-    await coreCacheReadRedis.hDel(runningTestKey, jobId)
-    return
-  }
-
-  const testInfo = await coreCacheReadRedis.hGet(runningTestKey, jobId)
-
-  if (!testInfo) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Test info not found')
-    }
-    return
-  }
-
-  const parsedTestInfo = JSON.parse(testInfo) as RunningTestInfo
-
-  await coreCacheReadRedis.hSet(
-    runningTestKey,
-    jobId,
-    JSON.stringify({
-      ...parsedTestInfo,
-      status,
-    })
-  )
 }

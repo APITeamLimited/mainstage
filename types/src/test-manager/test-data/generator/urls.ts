@@ -82,8 +82,6 @@ export const determineIfLocalhost = (url: string) => {
   // Remove port from url if present
   const urlWithoutPort = urlWithoutTrailingSlash.split(':')[0]
 
-  console.log('urlWithoutTrailingSlash', urlWithoutPort)
-
   if (isValidDomain(urlWithoutPort)) return false
 
   if (urlWithoutPort === 'localhost') return true

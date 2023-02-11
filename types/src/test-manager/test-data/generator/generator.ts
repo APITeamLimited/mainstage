@@ -1,7 +1,18 @@
 import type { Map as YMap } from 'yjs'
 
-import { oauth2LoadLocal, RESTRequest } from '../../../entities'
+import {
+  Collection,
+  ExecutionOptions,
+  ExecutionScript,
+  Folder,
+  oauth2LoadLocal,
+  RESTRequest,
+} from '../../../entities'
 import type { ExecutionParams } from '../../../execution-params'
+import {
+  BULTIN_MULTI_SCRIPTS,
+  BUILTIN_REST_SCRIPTS,
+} from '../../example-scripts'
 import type {
   TestData,
   SourceScript,
@@ -17,22 +28,39 @@ export type GenerateTestDataArgs = {
   collectionYMap: YMap<any>
   collectionContext: ExecutionParams['collectionContext']
   environmentContext: ExecutionParams['environmentContext']
-  firstLevelData: {
-    variant: 'httpRequest'
-    subVariant: 'RESTRequest'
-    underlyingRequest: RESTRequest
-  } | null
+  firstLevelData:
+    | {
+        variant: 'httpRequest'
+        subVariant: 'RESTRequest'
+        underlyingRequest: RESTRequest
+      }
+    | {
+        variant: 'group'
+        subVariant: 'Collection'
+        collection: Collection
+      }
+    | {
+        variant: 'group'
+        subVariant: 'Folder'
+        folder: Folder
+      }
+    | null
   oauthLocalSaveKey?: string
 }
 
 export const generateTestData = (args: GenerateTestDataArgs): TestData => ({
   rootScript: args.rootScript,
-  rootNode: recursiveNode(args),
+  rootNode: recursiveNode({
+    ...args,
+    isRoot: true,
+  }),
 })
 
-const recursiveNode = (
-  args: Omit<GenerateTestDataArgs, 'rootScript'>
-): Node => {
+type RecursiveNodeArgs = GenerateTestDataArgs & {
+  isRoot: boolean
+}
+
+const recursiveNode = (args: RecursiveNodeArgs): Node => {
   const nodeTypename = args.nodeYMap.get('__typename')
 
   if (nodeTypename === 'RESTRequest') {
@@ -51,7 +79,45 @@ const httpRequestNode = ({
   oauthLocalSaveKey,
   collectionContext,
   environmentContext,
-}: Omit<GenerateTestDataArgs, 'rootScript'>): HTTPRequestNode => {
+  isRoot,
+  rootScript,
+}: RecursiveNodeArgs): HTTPRequestNode => {
+  const executionOptions = getExecutionOptions(firstLevelData)
+
+  const executionScripts = (): ExecutionScript[] => {
+    const executionScripts =
+      isRoot && firstLevelData?.subVariant === 'RESTRequest'
+        ? firstLevelData.underlyingRequest.executionScripts
+        : [
+            ...BUILTIN_REST_SCRIPTS,
+            ...(Array.from(
+              nodeYMap.get('executionScripts').values()
+            ) as unknown as ExecutionScript[]),
+          ]
+    return executionScripts
+  }
+
+  const sourceScripts = (
+    executionScripts: ExecutionScript[]
+  ): SourceScript[] => {
+    let sourceScripts = executionScripts.map((executionScript) => ({
+      name: executionScript.name,
+      contents: executionScript.script,
+    }))
+
+    // If this is the root node, add the root script
+    if (isRoot) {
+      sourceScripts = [
+        ...sourceScripts.filter(
+          (sourceScript) => sourceScript.name !== rootScript.name
+        ),
+        rootScript,
+      ]
+    }
+
+    return sourceScripts
+  }
+
   const underlyingRequest =
     firstLevelData?.subVariant === 'RESTRequest'
       ? firstLevelData.underlyingRequest
@@ -74,7 +140,7 @@ const httpRequestNode = ({
           auth: oauth2LoadLocal(nodeYMap.get('auth'), oauthLocalSaveKey),
           pathVariables: nodeYMap.get('pathVariables'),
           description: nodeYMap.get('description'),
-          executionScripts: nodeYMap.get('executionScripts'),
+          executionScripts: executionScripts(),
           executionOptions: nodeYMap.get('executionOptions'),
         }
 
@@ -92,15 +158,13 @@ const httpRequestNode = ({
             nodeYMap,
             collectionYMap,
             environmentContext,
-            collectionContext
+            collectionContext,
+            executionOptions
           )
         : (() => {
             throw new Error('Not implemented')
           })(),
-    scripts:
-      firstLevelData?.subVariant === 'RESTRequest'
-        ? firstLevelData.underlyingRequest.executionScripts
-        : nodeYMap.get('executionScripts'),
+    scripts: sourceScripts(underlyingRequest.executionScripts),
     subVariant: 'RESTRequest',
     underlyingRequest,
   }
@@ -113,27 +177,110 @@ const groupNode = ({
   oauthLocalSaveKey,
   collectionContext,
   environmentContext,
-}: Omit<GenerateTestDataArgs, 'rootScript'>): Node => {
-  const restRequestYMaps = collectionYMap.get('restRequests').values()
-  const folderYMaps = collectionYMap.get('folders').values()
+  isRoot,
+  rootScript,
+}: RecursiveNodeArgs): Node => {
+  const restRequestYMaps = Array.from(
+    collectionYMap.get('restRequests').values()
+  ) as YMap<any>[]
 
-  const childNodes = [restRequestYMaps, folderYMaps].map((nodeYMap) =>
+  const folderYMaps = Array.from(
+    collectionYMap.get('folders').values()
+  ) as YMap<any>[]
+
+  // Filter to those whose parentId is the current node
+  const childYMaps = [...restRequestYMaps, ...folderYMaps].filter(
+    (childYMap) => childYMap.get('parentId') === nodeYMap.get('id')
+  )
+
+  const childNodes = childYMaps.map((nodeYMap) =>
     recursiveNode({
       nodeYMap,
       collectionYMap,
       collectionContext,
       environmentContext,
-      firstLevelData: null,
+      firstLevelData,
       oauthLocalSaveKey,
+      isRoot: false,
+      rootScript,
     })
   )
+
+  const sourceScripts = (): SourceScript[] => {
+    if (
+      isRoot &&
+      firstLevelData?.subVariant !== 'Collection' &&
+      firstLevelData?.subVariant !== 'Folder'
+    ) {
+      throw new Error(
+        `Invalid first level data, root nodes need to be Collection or Folder types, got: ${firstLevelData?.subVariant}`
+      )
+    }
+
+    let sourceScripts = []
+
+    if (isRoot && firstLevelData?.subVariant === 'Collection') {
+      sourceScripts = firstLevelData.collection.executionScripts.map(
+        (script) => ({
+          name: script.name,
+          contents: script.script,
+        })
+      )
+    } else if (isRoot && firstLevelData?.subVariant === 'Folder') {
+      sourceScripts = firstLevelData.folder.executionScripts.map((script) => ({
+        name: script.name,
+        contents: script.script,
+      }))
+    } else {
+      sourceScripts = (
+        [
+          ...BULTIN_MULTI_SCRIPTS,
+          ...Array.from(nodeYMap.get('executionScripts').values()),
+        ] as ExecutionScript[]
+      ).map((script) => ({
+        name: script.name,
+        contents: script.script,
+      }))
+    }
+
+    // If is root, ensure that the root script is included and overwrites any other script with the same name
+    if (isRoot) {
+      sourceScripts = [
+        ...sourceScripts.filter((script) => script.name !== rootScript.name),
+        rootScript,
+      ]
+    }
+
+    return sourceScripts
+  }
 
   return {
     variant: 'group',
     id: nodeYMap.get('id'),
     name: nodeYMap.get('name'),
-    // Collection or Folder
-    subVariant: nodeYMap.get('__typename'),
     children: childNodes,
+    scripts: sourceScripts(),
+    subVariant: nodeYMap.get('__typename'),
   }
+}
+
+const getExecutionOptions = (
+  firstLevelData: GenerateTestDataArgs['firstLevelData']
+): ExecutionOptions => {
+  const executionOptions =
+    firstLevelData?.subVariant === 'RESTRequest'
+      ? firstLevelData.underlyingRequest.executionOptions
+      : firstLevelData?.subVariant === 'Collection'
+      ? firstLevelData.collection.executionOptions
+      : firstLevelData?.subVariant === 'Folder'
+      ? firstLevelData.folder.executionOptions
+      : null
+
+  if (!executionOptions) {
+    throw new Error(
+      'Could not find execution options, invalid first level data'
+    )
+  }
+
+  return executionOptions
 }

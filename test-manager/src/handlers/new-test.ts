@@ -16,16 +16,15 @@ import {
   getOrchestratorReadRedis,
   getOrchestratorSubscribeRedis,
   RedisClient,
-} from '../redis'
-
+  getAvailableCredits,
+  getPlanInfo,
+  getVerifiedDomains,
+} from '../lib'
 import {
   getEntityEngineSocket,
-  getVerifiedDomains,
   runningTestStates,
   handleMessage,
-  getPlanInfo,
-  getAvailableCredits,
-} from './helpers'
+} from '../test-states'
 
 export const getRemoteTestLogsKey = (jobId: string) => `${jobId}:updates`
 export const getRemoteTestUpdatesKey = (jobId: string) =>
@@ -53,6 +52,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
         const result = wrappedExecutionParamsSchema.safeParse(params)
 
         if (!result.success) {
+          console.log("Couldn't parse params", JSON.stringify(params))
           reject(new Error('Invalid execution params'))
           return
         }

@@ -14,8 +14,10 @@ export const options = {
 }
 
 export default () => {
-  // Access the final request object from the collection editor
-  const { method, url, body, params } = lifecycle.finalRequest
+  // Access the final request object
+  const {
+    finalRequest: { method, url, body, params },
+  } = lifecycle.node()
 
   // Run the request
   const response = http.request(method, url, body, params)

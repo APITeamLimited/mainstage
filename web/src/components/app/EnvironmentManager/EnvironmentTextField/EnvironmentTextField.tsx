@@ -1,10 +1,12 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getPossibleVariableMatch } from '@apiteam/types/src'
 import { Stack, Tooltip, Typography, useTheme } from '@mui/material'
+
+import { StyledInput } from '../../StyledInput'
 
 import { InnerValues } from './InnerValues'
 import {
@@ -19,21 +21,6 @@ import {
   VariableNodeClass,
   VariableNodeType,
 } from './VariableNode'
-
-export type EnvironmentTextFieldProps = {
-  placeholder?: string
-  namespace: string
-  value: string
-  onChange: (value: string, namespace: string) => void
-  contentEditableStyles?: React.CSSProperties
-  wrapperStyles?: React.CSSProperties
-  label?: string
-  error?: boolean
-  helperText?: string | false
-  innerRightArea?: React.ReactNode
-  disabled?: boolean
-  tooltipMessage?: string
-}
 
 const onError = (error: Error) => {
   throw error
@@ -94,6 +81,23 @@ const getEditorState = (
   }
 }
 
+export type EnvironmentTextFieldProps = {
+  placeholder?: string
+  namespace: string
+  value: string
+  onChange: (value: string, namespace: string) => void
+  contentEditableStyles?: React.CSSProperties
+  wrapperStyles?: React.CSSProperties
+  label?: string
+  description?: string
+  error?: boolean
+  helperText?: string | false
+  innerRightArea?: React.ReactNode
+  disabled?: boolean
+  tooltipMessage?: string
+  noVariables?: boolean
+}
+
 export const EnvironmentTextField = ({
   namespace,
   value = '',
@@ -101,29 +105,27 @@ export const EnvironmentTextField = ({
   contentEditableStyles = {},
   wrapperStyles = {},
   label = '',
+  description = '',
   error = false,
   helperText = '',
   innerRightArea,
   disabled = false,
   tooltipMessage = '',
+  noVariables,
 }: EnvironmentTextFieldProps) => {
   const [lexical, setLexical] = useState<LexicalModule | null>(null)
 
   useEffect(() => {
-    const importModule = async () => {
-      setLexical(await getLexicalModule())
-    }
-    importModule()
-  }, [])
+    if (noVariables) return
+    getLexicalModule().then(setLexical)
+  }, [noVariables])
 
   const [lexicalAddons, setLexicalAddons] = useState<LexicalAddons | null>(null)
 
   useEffect(() => {
-    const importModule = async () => {
-      setLexicalAddons(await getLexicalAddons())
-    }
-    importModule()
-  }, [])
+    if (noVariables) return
+    getLexicalAddons().then(setLexicalAddons)
+  }, [noVariables])
 
   const VariableNode = useMemo(() => {
     if (lexical) {
@@ -133,7 +135,9 @@ export const EnvironmentTextField = ({
   }, [lexical])
 
   const initialConfig = useMemo(() => {
-    if (!VariableNode) return null
+    if (noVariables || !VariableNode) {
+      return null
+    }
 
     if (lexical) {
       return {
@@ -146,18 +150,21 @@ export const EnvironmentTextField = ({
       }
     }
     return null
-  }, [VariableNode, lexical, namespace, value, disabled])
+  }, [noVariables, VariableNode, lexical, namespace, disabled, value])
 
   const theme = useTheme()
 
-  // On copy event, we want to convert the editor state to text
-  const onCopy = (event: {
-    clipboardData: { setData: (arg0: string, arg1: string) => void }
-    preventDefault: () => void
-  }) => {
-    event.clipboardData?.setData('text/plain', value)
-    event.preventDefault()
-  }
+  // On copy event, we want to override the clipboard with the raw value
+  const onCopy = useCallback(
+    (event: {
+      clipboardData: { setData: (arg0: string, arg1: string) => void }
+      preventDefault: () => void
+    }) => {
+      event.clipboardData?.setData('text/plain', value)
+      event.preventDefault()
+    },
+    [value]
+  )
 
   const reactiveStyles = useMemo(() => {
     const styles = contentEditableStyles
@@ -172,67 +179,95 @@ export const EnvironmentTextField = ({
       ? theme.palette.text.disabled
       : theme.palette.text.primary
 
-    // Set font
-
     return styles
   }, [contentEditableStyles, error, theme, disabled])
 
   const internalValueRef = useRef(value)
 
+  const [spawnKey, setSpawnKey] = useState(0)
+
   useEffect(() => {
+    if (noVariables) return
+
     if (value !== internalValueRef.current) {
       internalValueRef.current = value
       setSpawnKey((key) => key + 1)
     }
-  }, [value])
+  }, [value, noVariables])
 
-  const [spawnKey, setSpawnKey] = useState(0)
-
-  const innerContent = (
-    <Stack
-      direction="row"
-      style={{
-        overflow: 'hidden',
-        maxWidth: '100%',
-        height: '100%',
-        borderRadius: theme.shape.borderRadius,
-        paddingLeft: '0.75rem',
-        paddingRight: '0.75rem',
-        backgroundColor: disabled
-          ? theme.palette.alternate.main
-          : theme.palette.alternate.dark,
-        borderColor: 'transparent',
-        ...wrapperStyles,
-      }}
-      justifyContent="space-between"
-      alignItems="center"
-      spacing={2}
-      onCopy={onCopy}
-      key={spawnKey}
-    >
-      {lexical && initialConfig && lexicalAddons && VariableNode ? (
-        <lexicalAddons.LexicalComposer
-          initialConfig={initialConfig}
-          key={namespace}
+  const innerContent = useMemo(
+    () =>
+      noVariables ? (
+        <StyledInput
+          value={value}
+          onChangeValue={(newValue) => onChange(newValue, namespace)}
+          readonly={disabled}
+        />
+      ) : (
+        <Stack
+          direction="row"
+          style={{
+            overflow: 'hidden',
+            maxWidth: '100%',
+            height: '100%',
+            borderRadius: theme.shape.borderRadius,
+            paddingLeft: '0.75rem',
+            paddingRight: '0.75rem',
+            backgroundColor: disabled
+              ? theme.palette.alternate.main
+              : theme.palette.alternate.dark,
+            borderColor: 'transparent',
+            ...wrapperStyles,
+          }}
+          justifyContent="space-between"
+          alignItems="center"
+          spacing={2}
+          onCopy={onCopy}
+          key={spawnKey}
         >
-          <InnerValues
-            onChange={(newValue) => {
-              if (onChange && newValue !== value) {
-                internalValueRef.current = newValue
-                onChange(newValue, namespace)
-              }
-            }}
-            namespace={namespace}
-            contentEditableStyles={reactiveStyles}
-            key={namespace}
-            lexical={lexical}
-            lexicalAddons={lexicalAddons}
-            VariableNodeClass={VariableNode}
-          />
-        </lexicalAddons.LexicalComposer>
-      ) : null}
-      {innerRightArea ?? null}
-    </Stack>
+          {lexical && initialConfig && lexicalAddons && VariableNode ? (
+            <lexicalAddons.LexicalComposer
+              initialConfig={initialConfig}
+              key={namespace}
+            >
+              <InnerValues
+                onChange={(newValue) => {
+                  if (onChange && newValue !== value) {
+                    internalValueRef.current = newValue
+                    onChange(newValue, namespace)
+                  }
+                }}
+                namespace={namespace}
+                contentEditableStyles={reactiveStyles}
+                key={namespace}
+                lexical={lexical}
+                lexicalAddons={lexicalAddons}
+                VariableNodeClass={VariableNode}
+              />
+            </lexicalAddons.LexicalComposer>
+          ) : null}
+          {innerRightArea ?? null}
+        </Stack>
+      ),
+    [
+      noVariables,
+      value,
+      disabled,
+      theme.shape.borderRadius,
+      theme.palette.alternate.main,
+      theme.palette.alternate.dark,
+      wrapperStyles,
+      onCopy,
+      spawnKey,
+      lexical,
+      initialConfig,
+      lexicalAddons,
+      VariableNode,
+      namespace,
+      reactiveStyles,
+      innerRightArea,
+      onChange,
+    ]
   )
 
   return (
@@ -259,9 +294,21 @@ export const EnvironmentTextField = ({
           </span>
         </Typography>
       )}
+      {description !== '' && (
+        <Typography
+          variant="body2"
+          color={theme.palette.grey[500]}
+          marginBottom={1}
+          sx={{
+            userSelect: 'none',
+          }}
+        >
+          {description}
+        </Typography>
+      )}
       {tooltipMessage !== '' ? (
         <Tooltip title={tooltipMessage} placement="top">
-          <span> {innerContent}</span>
+          <span>{innerContent}</span>
         </Tooltip>
       ) : (
         innerContent

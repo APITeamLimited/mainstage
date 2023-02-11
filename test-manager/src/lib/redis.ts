@@ -1,6 +1,6 @@
 import { createClient } from 'redis'
 
-import { checkValue } from './config'
+import { checkValue } from '../config'
 
 export type RedisClient = ReturnType<typeof createClient>
 

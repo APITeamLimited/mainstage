@@ -39,6 +39,15 @@ export type ServerAwareness = {
     }
 )
 
+type ExecutionAgentType =
+  | {
+      executionAgent: 'Cloud'
+    }
+  | {
+      executionAgent: 'Local'
+      localJobId?: string
+    }
+
 type RestCreateResponse = {
   branchId: string
   collectionId: string
@@ -49,22 +58,14 @@ type RestCreateResponse = {
   jobId: string
   createdByUserId: string
   finalRequestHeaders: Record<string, string>
-} & (
-  | {
-      executionAgent: 'Cloud'
-    }
-  | {
-      executionAgent: 'Local'
-      localJobId?: string
-    }
-)
+} & ExecutionAgentType
 
 export type EntityEngineServersideMessages = {
   'connection-params': {
     scopeId: string
     bearer: string
     projectId: string
-    testType: 'RESTRequest'
+    testType: 'RESTRequest' | 'Folder' | 'Collection'
   }
   'rest-create-response': RestCreateResponse
   'rest-add-options': {
@@ -96,6 +97,71 @@ export type EntityEngineServersideMessages = {
     metricsStoreReceipt: string | null
   }
   'rest-delete-response': {
+    branchId: string
+    collectionId: string
+    responseId: string
+  }
+  'folder-create-response': {
+    branchId: string
+    collectionId: string
+    underlyingFolder: {
+      id: string
+    }
+    source: string
+    sourceName: string
+    jobId: string
+    createdByUserId: string
+  } & ExecutionAgentType
+  'folder-add-options': {
+    branchId: string
+    collectionId: string
+    options: GlobeTestOptions
+  }
+  'folder-handle-success': {
+    branchId: string
+    collectionId: string
+    globeTestLogsStoreReceipt: string
+    metricsStoreReceipt: string
+    abortedEarly: boolean
+  }
+  'folder-handle-failure': {
+    branchId: string
+    collectionId: string
+    globeTestLogsStoreReceipt: string | null
+    metricsStoreReceipt: string | null
+  }
+  'folder-delete-response': {
+    branchId: string
+    collectionId: string
+    responseId: string
+  }
+  'collection-create-response': {
+    branchId: string
+    collectionId: string
+    source: string
+    sourceName: string
+    jobId: string
+    createdByUserId: string
+  } & ExecutionAgentType
+  'collection-add-options': {
+    branchId: string
+    collectionId: string
+    options: GlobeTestOptions
+  }
+  'collection-handle-success': {
+    branchId: string
+    collectionId: string
+    globeTestLogsStoreReceipt: string
+    metricsStoreReceipt: string
+    abortedEarly: boolean
+  }
+  'collection-handle-failure': {
+    branchId: string
+    collectionId: string
+    globeTestLogsStoreReceipt: string | null
+    metricsStoreReceipt: string | null
+  }
+  'collection-delete-response': {
     branchId: string
     collectionId: string
     responseId: string

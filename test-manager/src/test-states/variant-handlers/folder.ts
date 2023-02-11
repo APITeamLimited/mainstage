@@ -2,21 +2,18 @@ import {
   AuthenticatedSocket,
   EntityEngineServersideMessages,
   GlobeTestOptions,
-  HTTPRequestNode,
+  GroupNode,
   WrappedExecutionParams,
 } from '@apiteam/types'
 import JWT from 'jsonwebtoken'
-import { Response } from 'k6/http'
 
-import { uploadScopedResource } from '../../services/upload-scoped-resource'
+import { getEntityEngineSocket } from '../entity-engine-socket'
+import { RunningTestState, runningTestStates } from '../test-states'
 
-import { RunningTestState, runningTestStates } from './test-states'
-import { estimateRESTResponseSize, getEntityEngineSocket } from './utils'
-
-export const ensureRESTResponseExists = async (
+export const folderEnsureResponseExists = async (
   socket: AuthenticatedSocket,
   params: WrappedExecutionParams,
-  httpRequestNode: HTTPRequestNode,
+  groupNode: GroupNode,
   jobId: string,
   executionAgent: 'Local' | 'Cloud',
   localJobId?: string
@@ -24,6 +21,7 @@ export const ensureRESTResponseExists = async (
   const testState = runningTestStates.get(socket)
   if (!testState) throw new Error('Test state not found')
 
+  // So we don't creat
   if (
     testState.responseExistence === 'created' ||
     testState.responseExistence === 'creating'
@@ -41,10 +39,10 @@ export const ensureRESTResponseExists = async (
       responseExistence: 'creating',
     })
 
-    return await restCreateResponse({
+    return await folderCreateResponse({
       socket,
       params,
-      httpRequestNode,
+      groupNode,
       jobId,
       executionAgent,
       localJobId,
@@ -52,27 +50,24 @@ export const ensureRESTResponseExists = async (
   }
 }
 
-export const restCreateResponse = async ({
+export const folderCreateResponse = async ({
   socket,
   params,
-  httpRequestNode,
+  groupNode,
   jobId,
   executionAgent,
   localJobId,
 }: {
   socket: AuthenticatedSocket
   params: WrappedExecutionParams
-  httpRequestNode: HTTPRequestNode
+  groupNode: GroupNode
   jobId: string
   executionAgent: 'Local' | 'Cloud'
   localJobId?: string
 }) => {
-  if (
-    !('subVariant' in httpRequestNode) ||
-    httpRequestNode.subVariant !== 'RESTRequest'
-  ) {
+  if (groupNode.subVariant !== 'Folder') {
     throw new Error(
-      'Internal error, expected httpRequestNode to be rest subvariant'
+      'Internal error, expected groupNode to be folder subvariant'
     )
   }
 
@@ -91,28 +86,28 @@ export const restCreateResponse = async ({
 
   runningTestStates.set(socket, {
     ...(runningTestStates.get(socket) as RunningTestState),
-    testType: 'RESTRequest',
+    testType: 'Folder',
     jobId,
   })
 
-  const eeParams: EntityEngineServersideMessages['rest-create-response'] = {
+  const eeParams: EntityEngineServersideMessages['folder-create-response'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
-    underlyingRequest: httpRequestNode.underlyingRequest,
-    finalRequestEndpoint: httpRequestNode.finalRequest.url,
-    finalRequestHeaders: httpRequestNode.finalRequest.params?.headers ?? {},
     sourceName: params.testData.rootScript.name,
     source: params.testData.rootScript.contents,
     jobId,
     createdByUserId: userId,
     executionAgent,
     localJobId,
+    underlyingFolder: {
+      id: groupNode.id,
+    },
   }
 
-  entityEngineSocket.emit('rest-create-response', eeParams)
+  entityEngineSocket.emit('folder-create-response', eeParams)
 }
 
-export const restAddOptions = async ({
+export const folderAddOptions = async ({
   socket,
   params,
   options,
@@ -131,13 +126,13 @@ export const restAddOptions = async ({
     executionAgent
   )
 
-  const eeParams: EntityEngineServersideMessages['rest-add-options'] = {
+  const eeParams: EntityEngineServersideMessages['folder-add-options'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
     options,
   }
 
-  entityEngineSocket.emit('rest-add-options', eeParams)
+  entityEngineSocket.emit('folder-add-options', eeParams)
 
   const testState = runningTestStates.get(socket)
 
@@ -149,55 +144,7 @@ export const restAddOptions = async ({
   })
 }
 
-export const restHandleSuccessSingle = async ({
-  params,
-  response,
-  responseId,
-  globeTestLogsStoreReceipt,
-  metricsStoreReceipt,
-  socket,
-  executionAgent,
-}: {
-  params: WrappedExecutionParams
-  response: Response
-  responseId: string
-  globeTestLogsStoreReceipt: string
-  metricsStoreReceipt: string
-  socket: AuthenticatedSocket
-  executionAgent: 'Local' | 'Cloud'
-}) => {
-  const entityEngineSocket = await getEntityEngineSocket(
-    socket,
-    socket.scope,
-    params.bearer,
-    params.projectId,
-    executionAgent
-  )
-
-  const responseStoreReceipt = await uploadScopedResource({
-    scopeId: params.scopeId,
-    rawBearer: params.bearer,
-    // eslint-disable-next-line new-cap
-    resource: Buffer.from(JSON.stringify(response)),
-    resourceName: `Response:${responseId}:response.json`,
-  })
-
-  const eeParams: EntityEngineServersideMessages['rest-handle-success-single'] =
-    {
-      branchId: params.branchId,
-      collectionId: params.collectionId,
-      responseStatus: response.status,
-      responseSize: estimateRESTResponseSize(response),
-      responseDuration: response.timings.duration,
-      responseStoreReceipt,
-      metricsStoreReceipt,
-      globeTestLogsStoreReceipt,
-    }
-
-  entityEngineSocket.emit('rest-handle-success-single', eeParams)
-}
-
-export const restHandleSuccessMultiple = async ({
+export const folderHandleSuccess = async ({
   params,
   globeTestLogsStoreReceipt,
   metricsStoreReceipt,
@@ -220,19 +167,18 @@ export const restHandleSuccessMultiple = async ({
     executionAgent
   )
 
-  const eeParams: EntityEngineServersideMessages['rest-handle-success-multiple'] =
-    {
-      branchId: params.branchId,
-      collectionId: params.collectionId,
-      metricsStoreReceipt,
-      globeTestLogsStoreReceipt,
-      abortedEarly,
-    }
+  const eeParams: EntityEngineServersideMessages['folder-handle-success'] = {
+    branchId: params.branchId,
+    collectionId: params.collectionId,
+    metricsStoreReceipt,
+    globeTestLogsStoreReceipt,
+    abortedEarly,
+  }
 
-  entityEngineSocket.emit('rest-handle-success-multiple', eeParams)
+  entityEngineSocket.emit('folder-handle-success-multiple', eeParams)
 }
 
-export const restHandleFailure = async ({
+export const folderHandleFailure = async ({
   params,
   globeTestLogsStoreReceipt,
   socket,
@@ -240,7 +186,7 @@ export const restHandleFailure = async ({
   executionAgent,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: EntityEngineServersideMessages['rest-handle-failure']['globeTestLogsStoreReceipt']
+  globeTestLogsStoreReceipt: EntityEngineServersideMessages['folder-handle-failure']['globeTestLogsStoreReceipt']
   socket: AuthenticatedSocket
   metricsStoreReceipt: string | null
   executionAgent: 'Local' | 'Cloud'
@@ -253,17 +199,17 @@ export const restHandleFailure = async ({
     executionAgent
   )
 
-  const eeParams: EntityEngineServersideMessages['rest-handle-failure'] = {
+  const eeParams: EntityEngineServersideMessages['folder-handle-failure'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
     globeTestLogsStoreReceipt,
     metricsStoreReceipt,
   }
 
-  entityEngineSocket.emit('rest-handle-failure', eeParams)
+  entityEngineSocket.emit('folder-handle-failure', eeParams)
 }
 
-export const restDeleteResponse = async ({
+export const folderDeleteResponse = async ({
   params,
   socket,
   responseId,
@@ -282,11 +228,11 @@ export const restDeleteResponse = async ({
     executionAgent
   )
 
-  const eeParams: EntityEngineServersideMessages['rest-delete-response'] = {
+  const eeParams: EntityEngineServersideMessages['folder-delete-response'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
     responseId: responseId,
   }
 
-  entityEngineSocket.emit('rest-delete-response', eeParams)
+  entityEngineSocket.emit('folder-delete-response', eeParams)
 }

@@ -1,24 +1,18 @@
 import {
   WrappedExecutionParams,
   GlobeTestMessage,
-  GlobeTestOptions,
   AuthenticatedSocket,
   GLOBETEST_LOGS_MARK,
   METRICS_MARK,
 } from '@apiteam/types'
 import { Response as K6Response } from 'k6/http'
 
-import { getCoreCacheReadRedis, getCoreCacheSubscribeRedis } from '../../redis'
-import {
-  restAddOptions,
-  restHandleFailure,
-  restHandleSuccessMultiple,
-  restHandleSuccessSingle,
-  updateTestInfo,
-  runningTestStates,
-  RunningTestState,
-  ensureRESTResponseExists,
-} from '../helpers'
+import { getCoreCacheReadRedis, getCoreCacheSubscribeRedis } from '../lib/redis'
+
+import { handleResult } from './handle-result'
+import { restAddOptions, restEnsureResponseExists } from './variant-handlers'
+
+import { updateTestInfoCoreCache, runningTestStates, RunningTestState } from '.'
 
 // Trigger custom actions in response to certain messages
 export const handleMessage = async (
@@ -35,10 +29,9 @@ export const handleMessage = async (
 
   if (
     params.testData.rootNode.variant === 'httpRequest' &&
-    'subVariant' in params.testData.rootNode &&
     params.testData.rootNode.subVariant === 'RESTRequest'
   ) {
-    await ensureRESTResponseExists(
+    await restEnsureResponseExists(
       socket,
       params,
       params.testData.rootNode,
@@ -54,17 +47,7 @@ export const handleMessage = async (
         options: message.message,
         executionAgent,
       })
-    }
-
-    // } else if (message.messageType === 'JOB_INFO' && message.message.options) {
-    //   await restAddOptions({
-    //     socket,
-    //     params,
-    //     options: message.message.options,
-    //     executionAgent,
-    //   })
-    // }
-    else if (message.messageType === 'MARK') {
+    } else if (message.messageType === 'MARK') {
       if (message.message.mark === 'MarkedResponse') {
         // Bad hack for race conditions on slow clients
 
@@ -115,7 +98,7 @@ export const handleMessage = async (
         message.message !== 'COMPLETED_SUCCESS' &&
         message.message !== 'COMPLETED_FAILURE'
       ) {
-        updateTestInfo(jobId, message.message, runningTestKey)
+        updateTestInfoCoreCache(jobId, message.message, runningTestKey)
       } else {
         console.log('Delete 6')
         coreCacheReadRedis.hDel(runningTestKey, jobId)
@@ -146,7 +129,6 @@ export const handleMessage = async (
 
             let gotAllData =
               !!runningState.globeTestLogsStoreReceipt &&
-              !!runningState.metricsStoreReceipt &&
               !!runningState.options &&
               !!runningState.responseId &&
               !!runningState.entityEngineSocket
@@ -158,9 +140,27 @@ export const handleMessage = async (
               gotAllData = false
             }
 
+            if (
+              runningState.options?.executionMode === 'httpMultiple' &&
+              !runningState.metricsStoreReceipt
+            ) {
+              gotAllData = false
+            }
+
             console.log('gotAllData', gotAllData)
 
             if (!gotAllData) {
+              // If failure message dont bother waiting
+              if (message.message === 'COMPLETED_FAILURE') {
+                if (
+                  !!runningState.globeTestLogsStoreReceipt &&
+                  !!runningState.metricsStoreReceipt &&
+                  !!runningState.entityEngineSocket
+                ) {
+                  return false
+                }
+              }
+
               if (count < 15) {
                 await new Promise((resolve) => setTimeout(resolve, 500))
                 return await ensureAllData(count + 1)
@@ -194,13 +194,13 @@ export const handleMessage = async (
             !runningState.metricsStoreReceipt,
             !runningState.options,
 
-            'responseId' in runningState ? !runningState.responseId : false,
+            // @ts-ignore
+            !runningState.responseId,
 
             !runningState.entityEngineSocket,
 
-            'markedResponse' in runningState
-              ? !runningState.markedResponse
-              : false
+            // @ts-ignore
+            !runningState.markedResponse
           )
         }
 
@@ -216,77 +216,5 @@ export const handleMessage = async (
         }, 5000)
       }
     }
-  }
-}
-
-const handleResult = async ({
-  wasSuccessful,
-  runningState,
-  socket,
-  params,
-  executionAgent,
-  runningTestKey,
-  jobId,
-  abortedEarly,
-}: {
-  wasSuccessful: boolean
-  runningState: RunningTestState
-  socket: AuthenticatedSocket
-  params: WrappedExecutionParams
-  executionAgent: 'Local' | 'Cloud'
-  runningTestKey: string
-  jobId: string
-  abortedEarly: boolean
-}) => {
-  const coreCacheReadRedis = await getCoreCacheReadRedis()
-
-  if (!wasSuccessful) {
-    await restHandleFailure({
-      socket,
-      params,
-      globeTestLogsStoreReceipt: runningState.globeTestLogsStoreReceipt ?? null,
-      metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
-      executionAgent,
-    })
-
-    return
-  }
-
-  if (
-    (runningState.options as GlobeTestOptions).executionMode === 'httpSingle' &&
-    runningState.testType === 'RESTRequest'
-  ) {
-    await restHandleSuccessSingle({
-      params,
-      socket,
-      globeTestLogsStoreReceipt:
-        runningState.globeTestLogsStoreReceipt as string,
-      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
-      responseId: runningState.responseId as string,
-      response: runningState.markedResponse as K6Response,
-      executionAgent,
-    })
-
-    console.log('Delete 5')
-    await coreCacheReadRedis.hDel(runningTestKey, jobId)
-  } else if (
-    (runningState.options as GlobeTestOptions).executionMode ===
-      'httpMultiple' &&
-    runningState.testType === 'RESTRequest'
-  ) {
-    await restHandleSuccessMultiple({
-      params,
-      socket,
-      globeTestLogsStoreReceipt:
-        runningState.globeTestLogsStoreReceipt as string,
-      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
-      executionAgent,
-      abortedEarly,
-    })
-
-    console.log('Delete 4')
-    await coreCacheReadRedis.hDel(runningTestKey, jobId)
-  } else {
-    throw new Error(`Invalid test type: ${runningState.testType}`)
   }
 }

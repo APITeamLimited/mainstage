@@ -65,7 +65,7 @@ const handleInit = async () => {
       Color(
         `${new Date().toISOString()} Connections: ${
           clientIoServer.engine.clientsCount
-        } Serverside Connections ${serversideConnections} Memory: ${(
+        } Serverside Connections: ${serversideConnections} Memory: ${(
           process.memoryUsage().heapUsed /
           1000 /
           1000

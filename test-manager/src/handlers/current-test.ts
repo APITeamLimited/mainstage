@@ -11,7 +11,7 @@ import {
   getCoreCacheReadRedis,
   getOrchestratorReadRedis,
   getOrchestratorSubscribeRedis,
-} from '../redis'
+} from '../lib/redis'
 
 import { getLocalTestLogsKey, getLocalTestUpdatesKey } from './new-local-test'
 import { getRemoteTestLogsKey, getRemoteTestUpdatesKey } from './new-test'

@@ -18,7 +18,6 @@ import {
   focusedResponseVar,
   updateFocusedResponse,
 } from 'src/contexts/focused-response'
-import { useSimplebarReactModule } from 'src/contexts/imports'
 import {
   clearFocusedElement,
   focusedElementVar,
@@ -56,8 +55,6 @@ type TabControllerProps = {
 
 export const TabController = ({ showLeftAside }: TabControllerProps) => {
   const theme = useTheme()
-
-  const { default: SimpleBar } = useSimplebarReactModule()
 
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
@@ -571,8 +568,68 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
     }
   }
 
+  const [showCloseAllDialog, setShowCloseAllDialog] = useState(false)
+
+  const handleCloseAll =
+    openTabs.length > 0
+      ? () => {
+          if (openTabsRef.current.filter((tab) => tab.needsSave).length > 0) {
+            setShowCloseAllDialog(true)
+          } else {
+            processCloseAll()
+          }
+        }
+      : undefined
+
+  const handleCloseAllSaved =
+    openTabsRef.current.filter((tab) => tab.needsSave).length > 0
+      ? () => {
+          const newOpenTabs = openTabsRef.current.filter((tab) => tab.needsSave)
+          setOpenTabs(newOpenTabs)
+
+          clearFocusedElement(focusedElementDict, collectionYMap)
+          clearFocusedResponse(focusedResponseDict, collectionYMap)
+
+          if (newOpenTabs.length > 0) {
+            updateFocusedElement(
+              focusedElementDict,
+              newOpenTabs[newOpenTabs.length - 1].topYMap
+            )
+          }
+
+          setShowCloseAllDialog(false)
+        }
+      : undefined
+
+  const processCloseAll = () => {
+    setOpenTabs([])
+    clearFocusedElement(focusedElementDict, collectionYMap)
+    clearFocusedResponse(focusedResponseDict, collectionYMap)
+
+    setShowCloseAllDialog(false)
+  }
+
+  const processSaveAllAndClose = () => {
+    openTabs.forEach((tab) => {
+      if (tab.needsSave && tab.saveCallback) {
+        tab.saveCallback()
+      }
+    })
+
+    processCloseAll()
+  }
+
   return (
     <>
+      <QuerySaveDialog
+        show={showCloseAllDialog}
+        onDelete={processCloseAll}
+        saveCallback={processSaveAllAndClose}
+        onClose={() => setShowCloseAllDialog(false)}
+        description="Are you sure you want to close all tabs?"
+        saveButtonText="Save and close all"
+        deleteButtonText="Discard and close all"
+      />
       <QuerySaveDialog
         show={querySaveDialogTab !== null}
         onDelete={handleCloseTab}
@@ -609,6 +666,8 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
           setActiveTabIndex={setActiveTabIndex}
           deleteTab={handleTabDelete}
           handleMove={handleTabMove}
+          onCloseAll={handleCloseAll}
+          onCloseAllSaved={handleCloseAllSaved}
         />
       )}
       <ReflexContainer

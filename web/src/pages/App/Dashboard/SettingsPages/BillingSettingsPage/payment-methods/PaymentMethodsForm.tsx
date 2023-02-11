@@ -280,7 +280,7 @@ export const PaymentMethodsFormInner = ({
   >(SET_DEFAULT_PAYMENT_METHOD_MUTATION, {
     onCompleted: (data) => {
       snackSuccessMessageVar(
-        `Default card set to ${data.setDefaultPaymentMethod?.card?.last4}`
+        `Default card set to **** **** **** ${data.setDefaultPaymentMethod?.card?.last4}`
       )
       refetchPaymentMethods()
       refetchSetupIntents()

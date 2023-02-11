@@ -31,3 +31,5 @@ export const folderResponseSchema = z.intersection(
     failureResultSchema,
   ])
 )
+
+export type FolderResponse = z.infer<typeof folderResponseSchema>

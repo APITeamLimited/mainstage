@@ -30,7 +30,7 @@ export const CreditsCard = () => {
             Credits
           </Typography>
           <Typography variant="body2">
-            Credits are used to send requests and run load tests on the cloud.
+            Credits are used to send requests and run load tests in the cloud.
           </Typography>
           <Divider />
           <CreditsStatistics />

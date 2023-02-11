@@ -309,6 +309,11 @@ export class SocketIOProvider extends Observable<string> {
   }
 
   setupSocket() {
+    // This prevents multiple simultaneous socket connections from being created
+    if (this.socketConnecting) {
+      return
+    }
+
     const handleSetup = async () => {
       let newSocket = null as null | Socket
 
@@ -351,10 +356,14 @@ export class SocketIOProvider extends Observable<string> {
         // Check status code
         this.socketUnsuccessfulReconnects++
 
+        this.socketConnecting = false
+
         newSocket?.close()
       })
 
       newSocket.on('disconnect', async (error) => {
+        this.socketConnecting = false
+
         // Reconnect
         if (this.shouldConnect) {
           console.log('setupSocket: websocket disconnect', error)

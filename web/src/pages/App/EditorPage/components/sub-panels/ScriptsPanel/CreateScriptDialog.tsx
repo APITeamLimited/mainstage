@@ -14,23 +14,26 @@ type CreateScriptDialogProps = {
   isOpen: boolean
   onClose: () => void
   onCreate: (scriptName: string) => void
+  existingScriptNames: string[]
 }
 
 export const CreateScriptDialog = ({
   isOpen,
   onClose,
   onCreate,
+  existingScriptNames,
 }: CreateScriptDialogProps) => {
   const formik = useFormik({
     initialValues: {
       scriptName: '',
     },
     validationSchema: Yup.object({
-      // Ensure script 1-25 characters and ends in .js
+      // Ensure script 1-25 characters and ends in .js and is not already taken
       scriptName: Yup.string()
         .max(25, 'Script name must be 25 characters or less')
         .matches(/\.js$/, 'Script name must end in .js')
-        .required('Script name is required'),
+        .required('Script name is required')
+        .notOneOf(existingScriptNames, 'Script name already exists'),
     }),
     onSubmit: (values) => {
       onCreate(values.scriptName)

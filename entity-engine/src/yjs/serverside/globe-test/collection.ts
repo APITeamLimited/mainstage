@@ -1,5 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RESTResponse, EntityEngineServersideMessages } from '@apiteam/types'
+import {
+  CollectionResponse,
+  EntityEngineServersideMessages,
+} from '@apiteam/types'
 import { Socket } from 'socket.io'
 import { v4 as uuid } from 'uuid'
 import * as Y from 'yjs'
@@ -8,8 +11,8 @@ import { configureGlobetestGraphs } from '../utils'
 
 import { cleanupSocket, globeTestState } from '.'
 
-export const restCreateResponse = async (
-  data: EntityEngineServersideMessages['rest-create-response'],
+export const collectionCreateResponse = async (
+  data: EntityEngineServersideMessages['collection-create-response'],
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
@@ -24,51 +27,47 @@ export const restCreateResponse = async (
     return
   }
 
-  const {
-    branchId,
-    collectionId,
-    underlyingRequest,
-    finalRequestEndpoint,
-    finalRequestHeaders,
-    executionAgent,
-  } = data
+  const { branchId, collectionId, executionAgent } = data
 
-  const restResponsesYMap = projectYMap
+  const collectionYMap = projectYMap
     ?.get('branches')
     ?.get(branchId)
     ?.get('collections')
-    ?.get(collectionId)
-    ?.get('restResponses') as Y.Map<any> | undefined
+    ?.get(collectionId) as Y.Map<any> | undefined
 
-  if (!restResponsesYMap) {
-    socket.emit('error', 'Failed to find restResponses YMap')
+  if (!collectionYMap) {
+    socket.emit('error', 'Failed to find collectionYMap')
     return
   }
 
-  const restResponse: RESTResponse = {
+  // See if collectionResponses already exists
+  let collectionResponsesYMap = collectionYMap.get('collectionResponses') as
+    | Y.Map<any>
+    | undefined
+
+  if (!collectionResponsesYMap) {
+    // Create collectionResponses
+    collectionYMap.set('collectionResponses', new Y.Map())
+  }
+
+  collectionResponsesYMap = collectionYMap.get('collectionResponses') as
+    | Y.Map<any>
+    | undefined
+
+  if (!collectionResponsesYMap) {
+    socket.emit('error', 'Failed to find collectionResponses YMap')
+    return
+  }
+
+  const collectionResponse: CollectionResponse = {
     id: uuid(),
-    __typename: 'RESTResponse',
-    parentId: underlyingRequest.id,
-    __parentTypename: underlyingRequest.__typename,
-    name: underlyingRequest.name,
-    method: underlyingRequest.method,
-    endpoint: finalRequestEndpoint,
+    __typename: 'CollectionResponse',
+    parentId: collectionId,
+    __parentTypename: 'Collection',
     __subtype: 'LoadingResponse',
     createdAt: new Date().toISOString(),
     updatedAt: null,
     options: null,
-    underlyingRequest: {
-      ...underlyingRequest,
-      headers: Object.entries(finalRequestHeaders).map(
-        ([key, value], index) => ({
-          id: index,
-          variant: 'default',
-          keyString: key,
-          value,
-          enabled: true,
-        })
-      ),
-    },
     source: data.source,
     sourceName: data.sourceName,
     jobId: data.jobId,
@@ -79,27 +78,27 @@ export const restCreateResponse = async (
 
   const responseYMap = new Y.Map()
 
-  Array.from(Object.entries(restResponse)).forEach(([key, value]) => {
+  Array.from(Object.entries(collectionResponse)).forEach(([key, value]) => {
     if (value !== undefined) {
       responseYMap.set(key, value)
     }
   })
 
-  restResponsesYMap.set(restResponse.id as string, responseYMap)
+  collectionResponsesYMap.set(collectionResponse.id as string, responseYMap)
 
   globeTestState.set(socket, {
     ...globeTestStateCurrent,
-    responseId: restResponse.id,
+    responseId: collectionResponse.id,
   })
 
-  socket.emit('rest-create-response:success', {
-    responseId: restResponse.id,
+  socket.emit('collection-create-response:success', {
+    responseId: collectionResponse.id,
     jobId: data.jobId,
   })
 }
 
-export const restAddOptions = async (
-  data: EntityEngineServersideMessages['rest-add-options'],
+export const collectionAddOptions = async (
+  data: EntityEngineServersideMessages['collection-add-options'],
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
@@ -118,7 +117,7 @@ export const restAddOptions = async (
       ?.get(branchId)
       ?.get('collections')
       ?.get(collectionId)
-      ?.get('restResponses')
+      ?.get('collectionResponses')
       .get(globeTestStateCurrent.responseId) as Y.Map<any> | undefined
 
     if (!responseYMap) {
@@ -138,8 +137,8 @@ export const restAddOptions = async (
   }
 }
 
-export const restHandleSuccessSingle = async (
-  data: EntityEngineServersideMessages['rest-handle-success-single'],
+export const collectionHandleSuccess = async (
+  data: EntityEngineServersideMessages['collection-handle-success'],
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
@@ -161,69 +160,7 @@ export const restHandleSuccessSingle = async (
       ?.get(branchId)
       ?.get('collections')
       ?.get(collectionId)
-      ?.get('restResponses')
-      .get(globeTestStateCurrent.responseId) as Y.Map<any> | undefined
-
-    if (!responseYMap) {
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      return getResponseYMap()
-    }
-
-    return responseYMap
-  }
-
-  const responseYMap = await getResponseYMap()
-
-  responseYMap.set('__subtype', 'SuccessSingleResult')
-  responseYMap.set('statusCode', data.responseStatus)
-  responseYMap.set('response', {
-    __typename: 'StoredObject',
-    storeReceipt: data.responseStoreReceipt,
-    data: null,
-  })
-  responseYMap.set('meta', {
-    responseSize: data.responseSize,
-    responseDuration: data.responseDuration,
-  })
-  responseYMap.set('metrics', {
-    __typename: 'StoredObject',
-    storeReceipt: data.metricsStoreReceipt,
-    data: null,
-  })
-  responseYMap.set('globeTestLogs', {
-    __typename: 'StoredObject',
-    storeReceipt: data.globeTestLogsStoreReceipt,
-    data: null,
-  })
-  responseYMap.set('updatedAt', new Date().toISOString())
-
-  cleanupSocket(socket)
-}
-
-export const restHandleSuccessMultiple = async (
-  data: EntityEngineServersideMessages['rest-handle-success-multiple'],
-  projectYMap: Y.Map<any>,
-  socket: Socket
-) => {
-  const globeTestStateCurrent = globeTestState.get(socket)
-
-  if (!globeTestStateCurrent) {
-    socket.emit('error', 'Failed to find globeTestStateCurrent')
-    return
-  } else if (!globeTestStateCurrent.responseId) {
-    socket.emit('error', 'Failed to find responseId')
-    return
-  }
-
-  const { branchId, collectionId } = data
-
-  const getResponseYMap = async (): Promise<Y.Map<any>> => {
-    const responseYMap = projectYMap
-      ?.get('branches')
-      ?.get(branchId)
-      ?.get('collections')
-      ?.get(collectionId)
-      ?.get('restResponses')
+      ?.get('collectionResponses')
       .get(globeTestStateCurrent.responseId) as Y.Map<any> | undefined
 
     if (!responseYMap) {
@@ -255,8 +192,8 @@ export const restHandleSuccessMultiple = async (
   cleanupSocket(socket)
 }
 
-export const restHandleFailure = async (
-  data: EntityEngineServersideMessages['rest-handle-failure'],
+export const collectionHandleFailure = async (
+  data: EntityEngineServersideMessages['collection-handle-failure'],
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
@@ -282,7 +219,7 @@ export const restHandleFailure = async (
       ?.get(branchId)
       ?.get('collections')
       ?.get(collectionId)
-      ?.get('restResponses')
+      ?.get('collectionResponses')
       .get(globeTestStateCurrent.responseId) as Y.Map<any> | undefined
 
     if (!responseYMap) {
@@ -326,33 +263,33 @@ export const restHandleFailure = async (
   cleanupSocket(socket)
 }
 
-export const restDeleteResponse = async (
-  data: EntityEngineServersideMessages['rest-delete-response'],
+export const collectionDeleteResponse = async (
+  data: EntityEngineServersideMessages['collection-delete-response'],
   projectYMap: Y.Map<any>,
   socket: Socket
 ) => {
   const { branchId, collectionId, responseId } = data
 
   const getResponseYMap = async (): Promise<Y.Map<any>> => {
-    const restResponsesYMap = projectYMap
+    const collectionResponsesYMap = projectYMap
       ?.get('branches')
       ?.get(branchId)
       ?.get('collections')
       ?.get(collectionId)
-      ?.get('restResponses') as Y.Map<any> | undefined
+      ?.get('collectionResponses') as Y.Map<any> | undefined
 
-    if (!restResponsesYMap) {
+    if (!collectionResponsesYMap) {
       await new Promise((resolve) => setTimeout(resolve, 100))
       return getResponseYMap()
     }
 
-    return restResponsesYMap
+    return collectionResponsesYMap
   }
 
-  const restResponsesYMap = await getResponseYMap()
+  const collectionResponsesYMap = await getResponseYMap()
 
   try {
-    restResponsesYMap.delete(responseId)
+    collectionResponsesYMap.delete(responseId)
   } catch (err) {
     socket.emit('error', err)
     console.warn(err)

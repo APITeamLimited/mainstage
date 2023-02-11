@@ -5,6 +5,20 @@ import { Socket } from 'socket.io'
 import * as Y from 'yjs'
 
 import {
+  collectionAddOptions,
+  collectionCreateResponse,
+  collectionHandleFailure,
+  collectionHandleSuccess,
+  collectionDeleteResponse,
+} from './collection'
+import {
+  folderAddOptions,
+  folderCreateResponse,
+  folderHandleFailure,
+  folderHandleSuccess,
+  folderDeleteResponse,
+} from './folder'
+import {
   restAddOptions,
   restCreateResponse,
   restHandleFailure,
@@ -14,7 +28,7 @@ import {
 } from './rest'
 
 type GlobeTestState = {
-  testType: 'RESTRequest'
+  testType: 'RESTRequest' | 'Folder' | 'Collection'
   responseId?: string
 }
 
@@ -42,6 +56,8 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
     return
   }
 
+  let setTestType = false
+
   globeTestState.set(socket, {
     testType: 'RESTRequest',
   })
@@ -52,8 +68,16 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
 
   socket.on(
     'rest-create-response',
-    (data: EntityEngineServersideMessages['rest-create-response']) =>
+    (data: EntityEngineServersideMessages['rest-create-response']) => {
+      if (!setTestType) {
+        globeTestState.set(socket, {
+          testType: 'RESTRequest',
+        })
+        setTestType = true
+      }
+
       restCreateResponse(data, projectYMap, socket)
+    }
   )
 
   socket.on(
@@ -84,6 +108,82 @@ export const handleGlobetest = (socket: Socket, doc: Y.Doc) => {
     'rest-delete-response',
     (data: EntityEngineServersideMessages['rest-delete-response']) =>
       restDeleteResponse(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'folder-create-response',
+    (data: EntityEngineServersideMessages['folder-create-response']) => {
+      if (!setTestType) {
+        globeTestState.set(socket, {
+          testType: 'Folder',
+        })
+        setTestType = true
+      }
+
+      folderCreateResponse(data, projectYMap, socket)
+    }
+  )
+
+  socket.on(
+    'folder-add-options',
+    (data: EntityEngineServersideMessages['folder-add-options']) =>
+      folderAddOptions(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'folder-handle-success',
+    (data: EntityEngineServersideMessages['folder-handle-success']) =>
+      folderHandleSuccess(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'folder-handle-failure',
+    (data: EntityEngineServersideMessages['folder-handle-failure']) =>
+      folderHandleFailure(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'folder-delete-response',
+    (data: EntityEngineServersideMessages['folder-delete-response']) =>
+      folderDeleteResponse(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'collection-create-response',
+    (data: EntityEngineServersideMessages['collection-create-response']) => {
+      if (!setTestType) {
+        globeTestState.set(socket, {
+          testType: 'Collection',
+        })
+        setTestType = true
+      }
+
+      collectionCreateResponse(data, projectYMap, socket)
+    }
+  )
+
+  socket.on(
+    'collection-add-options',
+    (data: EntityEngineServersideMessages['collection-add-options']) =>
+      collectionAddOptions(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'collection-handle-success',
+    (data: EntityEngineServersideMessages['collection-handle-success']) =>
+      collectionHandleSuccess(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'collection-handle-failure',
+    (data: EntityEngineServersideMessages['collection-handle-failure']) =>
+      collectionHandleFailure(data, projectYMap, socket)
+  )
+
+  socket.on(
+    'collection-delete-response',
+    (data: EntityEngineServersideMessages['collection-delete-response']) =>
+      collectionDeleteResponse(data, projectYMap, socket)
   )
 }
 

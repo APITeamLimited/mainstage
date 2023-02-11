@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { findEnvironmentVariables, validateURLStrict } from '@apiteam/types/src'
 import { AxiosRequestConfig } from 'axios'
 import { stringify } from 'qs'
 import type { Map as YMap } from 'yjs'
 
-import type { RESTRequest } from '../../../../entities'
+import type { RESTRequest, ExecutionOptions } from '../../../../entities'
 import type { ExecutionParams } from '../../../../execution-params'
 import type { GlobeTestRequest } from '../../../globe-test'
 import { addAuthToAxiosConfig } from '../auth'
-import { substitutePathVariables } from '../urls'
-import { makeEnvironmentAwareRequest } from '../variables'
+import { substitutePathVariables, validateURLStrict } from '../urls'
+import {
+  makeEnvironmentAwareRequest,
+  findEnvironmentVariables,
+} from '../variables'
 
 /*
 Gets final axios config for a request, complete with environment variables
@@ -135,7 +137,8 @@ export const restFinalRequest = (
   requestYMap: YMap<any>,
   collectionYMap: YMap<any>,
   environmentContext: ExecutionParams['environmentContext'],
-  collectionContext: ExecutionParams['collectionContext']
+  collectionContext: ExecutionParams['collectionContext'],
+  executionOptions: ExecutionOptions
 ): GlobeTestRequest => {
   const axiosConfig = restAxiosRequest(
     request,
@@ -160,6 +163,12 @@ export const restFinalRequest = (
         }),
         {}
       ) as unknown as Record<string, string>,
+      redirects: executionOptions.maxRedirects,
+      timeout: executionOptions.timeoutMilliseconds,
+      compression:
+        executionOptions.compression !== 'none'
+          ? executionOptions.compression
+          : undefined,
     },
   }
 }

@@ -7,7 +7,9 @@ import {
   ExecutionScript,
   ExecutionOptions,
   oauth2LoadLocal,
+  Collection,
 } from '@apiteam/types/src'
+import { useReactiveVar } from '@apollo/client'
 import {
   Box,
   ListItem,
@@ -18,11 +20,18 @@ import {
 } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
+import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { KeyValueEditor } from 'src/components/app/KeyValueEditor'
 import { CollectionEditorIcon } from 'src/components/utils/Icons'
 import { useHashSumModule } from 'src/contexts/imports'
+import {
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { clientSideGenerator } from 'src/test-manager'
+import { jobQueueVar } from 'src/test-manager'
 import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 
@@ -171,11 +180,54 @@ export const CollectionInputPanel = ({
     setNeedSave(false)
   }
 
+  const environmentContext = useEnvironmentVariables()
+  const collectionContext = useCollectionVariables()
+  const jobQueue = useReactiveVar(jobQueueVar)
+
   const handleSend = async (executionScript: ExecutionScript) => {
     if (!scopeId) throw new Error('No scopeId')
     if (!rawBearer) throw new Error('No rawBearer')
 
-    throw new Error('Not implemented')
+    const collection: Collection = {
+      id: collectionYMap.get('id'),
+      __typename: 'Collection',
+      parentId: collectionYMap.get('parentId'),
+      __parentTypename: collectionYMap.get('__parentTypename'),
+      orderingIndex: collectionYMap.get('orderingIndex'),
+      createdAt: collectionYMap.get('createdAt'),
+      updatedAt: collectionYMap.get('updatedAt'),
+      name: collectionYMap.get('name'),
+      auth: unsavedAuth,
+      description: unsavedDescription,
+      executionScripts: unsavedExecutionScripts,
+      executionOptions: unsavedExecutionOptions,
+    }
+
+    try {
+      await clientSideGenerator({
+        executionOptions: unsavedExecutionOptions,
+        environmentContext,
+        collectionContext,
+        collectionYMap,
+        // Normal send is always main scope i.e. workspace
+        scopeId,
+        jobQueue,
+        nodeYMap: collectionYMap,
+        executionScript,
+        firstLevelData: {
+          variant: 'group',
+          subVariant: 'Collection',
+          collection,
+        },
+        oauthLocalSaveKey: collection.id,
+      })
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+    } catch (e: {
+      message: string
+    }) {
+      snackErrorMessageVar(e.message)
+    }
   }
 
   const saveCallbackRef = useRef<() => void>(handleSave)

@@ -14,6 +14,8 @@ export type QuerySaveDialogProps = {
   onDelete: () => void
   title?: string
   description?: string
+  saveButtonText?: string
+  deleteButtonText?: string
 }
 
 export const QuerySaveDialog = ({
@@ -23,6 +25,8 @@ export const QuerySaveDialog = ({
   onDelete,
   title = 'Unsaved Changes',
   description = 'Are you sure you want to close without saving? Any unsaved changes will be lost.',
+  saveButtonText = 'Save and Close',
+  deleteButtonText = 'Close without Saving',
 }: QuerySaveDialogProps) => (
   <Dialog
     open={show}
@@ -47,7 +51,7 @@ export const QuerySaveDialog = ({
         }}
         color="error"
       >
-        Discard Changes
+        {deleteButtonText}
       </Button>
       <Button
         onClick={() => {
@@ -58,7 +62,7 @@ export const QuerySaveDialog = ({
         autoFocus
         color="primary"
       >
-        Save and Close
+        {saveButtonText}
       </Button>
     </DialogActions>
   </Dialog>

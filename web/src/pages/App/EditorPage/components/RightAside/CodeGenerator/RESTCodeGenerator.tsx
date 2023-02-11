@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
-import { RESTRequest, restFinalRequest } from '@apiteam/types/src'
+import { RESTRequest, restAxiosRequest } from '@apiteam/types/src'
 import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'
@@ -15,6 +15,8 @@ import {
   generateRESTCode,
   RESTCodegenDefinitions,
 } from 'src/utils/code-gen/restCodeGen'
+
+import { getExecutionOptions, getExecutionScripts } from '../../panels/hooks'
 
 import {
   CodeGenDefinition,
@@ -79,14 +81,15 @@ export const RESTCodeGenerator = ({
         body: requestYMap.get('body'),
         pathVariables: requestYMap.get('pathVariables'),
         description: requestYMap.get('description'),
-        executionScripts: requestYMap.get('executionScripts'),
+        executionScripts: getExecutionScripts(requestYMap, false),
+        executionOptions: getExecutionOptions(requestYMap),
       }
 
       if (!scopeId) throw new Error('No scopeId found')
       if (!rawBearer) throw new Error('No rawBearer found')
 
       try {
-        const axiosConfig = restFinalRequest(
+        const axiosConfig = restAxiosRequest(
           restRequest,
           requestYMap,
           collectionYMap,

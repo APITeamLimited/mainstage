@@ -1,7 +1,7 @@
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client/core'
 import fetch from 'cross-fetch'
 
-import { checkValue } from './config'
+import { checkValue } from '../config'
 
 const host = checkValue<string>('api.host')
 const port = checkValue<number>('api.port')

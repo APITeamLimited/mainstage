@@ -6,8 +6,10 @@ import {
   Auth,
   ExecutionOptions,
   ExecutionScript,
+  Folder,
   oauth2LoadLocal,
 } from '@apiteam/types/src'
+import { useReactiveVar } from '@apollo/client'
 import FolderIcon from '@mui/icons-material/Folder'
 import {
   Box,
@@ -20,9 +22,16 @@ import {
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
+import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { useHashSumModule } from 'src/contexts/imports'
+import {
+  useCollectionVariables,
+  useEnvironmentVariables,
+} from 'src/contexts/VariablesProvider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { clientSideGenerator } from 'src/test-manager'
+import { jobQueueVar } from 'src/test-manager'
 import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 
 import { duplicateRecursive } from '../../LeftAside/CollectionTree/Node/utils'
@@ -175,11 +184,54 @@ export const FolderInputPanel = ({
     newFolder.set('executionOptions', unsavedExecutionOptions)
   }
 
+  const environmentContext = useEnvironmentVariables()
+  const collectionContext = useCollectionVariables()
+  const jobQueue = useReactiveVar(jobQueueVar)
+
   const handleSend = async (executionScript: ExecutionScript) => {
     if (!scopeId) throw new Error('No scopeId')
     if (!rawBearer) throw new Error('No rawBearer')
 
-    throw new Error('Not implemented')
+    const folder: Folder = {
+      id: folderId,
+      __typename: 'Folder',
+      parentId: folderYMap.get('parentId'),
+      __parentTypename: folderYMap.get('__parentTypename'),
+      orderingIndex: folderYMap.get('orderingIndex'),
+      createdAt: folderYMap.get('createdAt'),
+      updatedAt: folderYMap.get('updatedAt'),
+      name: folderYMap.get('name'),
+      auth: unsavedAuth,
+      description: unsavedDescription,
+      executionScripts: unsavedExecutionScripts,
+      executionOptions: unsavedExecutionOptions,
+    }
+
+    try {
+      await clientSideGenerator({
+        executionOptions: unsavedExecutionOptions,
+        environmentContext,
+        collectionContext,
+        collectionYMap,
+        // Normal send is always main scope i.e. workspace
+        scopeId,
+        jobQueue,
+        nodeYMap: folderYMap,
+        executionScript,
+        firstLevelData: {
+          variant: 'group',
+          subVariant: 'Folder',
+          folder,
+        },
+        oauthLocalSaveKey: folderId,
+      })
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+    } catch (e: {
+      message: string
+    }) {
+      snackErrorMessageVar(e.message)
+    }
   }
 
   useEffect(() => {
@@ -297,6 +349,7 @@ export const FolderInputPanel = ({
               )
             }
             setActionArea={setActionArea}
+            namespace={`folders.${folderId}.executionOptions`}
           />
         )}
       </PanelLayout>

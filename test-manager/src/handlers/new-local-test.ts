@@ -17,14 +17,13 @@ import {
   getCoreCacheReadRedis,
   getOrchestratorReadRedis,
   getOrchestratorSubscribeRedis,
-} from '../redis'
-
+} from '../lib'
 import {
   getEntityEngineSocket,
   runningTestStates,
-  restDeleteResponse,
   handleMessage,
-} from './helpers'
+  restDeleteResponse,
+} from '../test-states'
 
 export const getLocalTestLogsKey = (scope: Scope, jobId: string) =>
   `workspace-local-test-logs:${scope.variant}:${scope.variantTargetId}:${jobId}`
@@ -218,6 +217,13 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     if (!testState.localCompleted) {
       if (testState.testType === 'RESTRequest' && testState.responseId) {
         await restDeleteResponse({
+          params: params as WrappedExecutionParams,
+          socket,
+          responseId: testState.responseId,
+          executionAgent: 'Local',
+        })
+      } else if (testState.testType === 'Folder' && testState.responseId) {
+        await folderDeleteResponse({
           params: params as WrappedExecutionParams,
           socket,
           responseId: testState.responseId,

@@ -1,11 +1,4 @@
 import { z } from 'zod'
-// The old type
-// export interface GlobeTestRequest<RT extends ResponseType | undefined> {
-//   method: string
-//   url: string
-//   body?: RequestBody | null
-//   params?: RefinedParams<RT> | null
-// }
 
 export const globeTestRequestSchema = z.object({
   method: z.string(),
@@ -13,6 +6,10 @@ export const globeTestRequestSchema = z.object({
   body: z.union([z.string(), z.null()]),
   params: z.object({
     headers: z.record(z.string()),
+    redirects: z.number(),
+    timeout: z.number(),
+    tags: z.record(z.string()).optional(),
+    compression: z.enum(['gzip', 'deflate', 'br', 'zstd']).optional(),
   }),
 })
 

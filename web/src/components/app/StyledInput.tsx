@@ -1,6 +1,6 @@
-import { Input, InputBase, SxProps, Theme, useTheme } from '@mui/material'
+import { InputBase, SxProps, Theme, useTheme } from '@mui/material'
 
-type StyledInputProps = {
+export type StyledInputProps = {
   value: string
   onChangeValue?: (value: string) => void
   onChange?: (

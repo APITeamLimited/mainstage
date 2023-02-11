@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { ExecutionScript } from '@apiteam/types/src'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -124,6 +124,11 @@ export const ScriptsPanel = ({
     setActiveScriptIndex(newExecutionScripts.length - 1)
   }
 
+  const existingScriptNames = useMemo(
+    () => executionScripts.map((script) => script.name),
+    [executionScripts]
+  )
+
   // In case remote clients delete the active script
   if (activeScriptIndex === undefined) {
     setActiveScriptIndex(0)
@@ -136,6 +141,7 @@ export const ScriptsPanel = ({
         isOpen={showCreateScriptDialog}
         onClose={() => setShowCreateScriptDialog(false)}
         onCreate={handleScriptCreate}
+        existingScriptNames={existingScriptNames}
       />
       <QueryDeleteDialog
         show={!!showQueryDeleteDialog}

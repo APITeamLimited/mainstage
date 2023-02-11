@@ -1,8 +1,15 @@
 import { useEffect } from 'react'
 
-import { ExecutionOptions, EXECUTION_AGENTS } from '@apiteam/types/src'
+import {
+  ExecutionOptions,
+  EXECUTION_AGENTS,
+  maxRedirectsSchema,
+  REQEUST_BODY_COMPRESSIONS,
+} from '@apiteam/types/src'
 import { Box, Stack } from '@mui/material'
 
+import { snackErrorMessageVar } from 'src/components/app/dialogs'
+import { FormStyledInput } from 'src/components/app/FormStyledInput'
 import { CustomFormRadioGroup } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 
@@ -56,7 +63,46 @@ export const ExecutionOptionsPanel = ({
               label: agent,
               value: agent,
             }))}
-            description="By default, if a test contains private IPs, the localhost agent will be used, tests containing public IPs and domains are executed on the cloud. You can override this behavior here."
+            description="By default, if a test contains private IPs, the localhost agent will be used, tests containing public IPs and domains are executed in the cloud. Localhost requests can't be executed in the cloud."
+          />
+          <FormStyledInput
+            label="Max Redirects"
+            description="Set the maximum number of redirects to follow. If set to 0, redirects will not be followed."
+            onChange={(event) => {
+              const result = maxRedirectsSchema.safeParse(
+                parseInt(event.target.value !== '' ? event.target.value : '0')
+              )
+
+              if (!result.success) {
+                snackErrorMessageVar(
+                  'Invalid max redirects value, please enter a number between 0 and 10'
+                )
+                return
+              }
+
+              setExecutionOptions({
+                ...executionOptions,
+                maxRedirects: result.data,
+              })
+            }}
+            value={executionOptions.maxRedirects.toString()}
+          />
+          <CustomFormRadioGroup
+            label="Request Body Compression"
+            name="compression"
+            value={executionOptions.compression}
+            onChange={(event) =>
+              setExecutionOptions({
+                ...executionOptions,
+                compression: event.target
+                  .value as ExecutionOptions['compression'],
+              })
+            }
+            options={REQEUST_BODY_COMPRESSIONS.map((compression) => ({
+              label: compression,
+              value: compression,
+            }))}
+            description="Set request body compression for http requests. If set to gzip, Content-Type and Content-Length headers will be overwritten."
           />
         </Stack>
       </SimpleBar>

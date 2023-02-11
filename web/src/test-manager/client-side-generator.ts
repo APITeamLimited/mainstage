@@ -5,7 +5,7 @@ import {
   ExecutionScript,
   generateTestData,
   GenerateTestDataArgs,
-  RESTRequest,
+  ExecutionOptions,
 } from '@apiteam/types/src'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
@@ -13,11 +13,11 @@ import type { Map as YMap } from 'yjs'
 import { BaseJob, jobQueueVar, PendingJob, QueuedJob } from './lib'
 
 /** Creates a new single rest job and adds it to the queue. */
-export const singleRESTRequestGenerator = async ({
-  request,
+export const clientSideGenerator = async ({
+  executionOptions,
   scopeId,
   jobQueue,
-  requestYMap,
+  nodeYMap,
   collectionYMap,
   executionScript,
   environmentContext,
@@ -25,10 +25,10 @@ export const singleRESTRequestGenerator = async ({
   oauthLocalSaveKey,
   firstLevelData,
 }: {
-  request: RESTRequest
+  executionOptions: ExecutionOptions
   scopeId: string
   jobQueue: QueuedJob[]
-  requestYMap: YMap<any>
+  nodeYMap: YMap<any>
   collectionYMap: YMap<any>
   executionScript: ExecutionScript
   environmentContext: ExecutionParams['environmentContext']
@@ -36,6 +36,21 @@ export const singleRESTRequestGenerator = async ({
   oauthLocalSaveKey?: string
   firstLevelData: GenerateTestDataArgs['firstLevelData']
 }): Promise<BaseJob & PendingJob> => {
+  const timeNow = new Date().getTime()
+
+  const testData = generateTestData({
+    rootScript: {
+      name: executionScript.name,
+      contents: executionScript.script,
+    },
+    nodeYMap: nodeYMap,
+    collectionYMap,
+    collectionContext,
+    environmentContext,
+    firstLevelData,
+    oauthLocalSaveKey,
+  })
+
   const branch = collectionYMap.parent?.parent as YMap<any> | undefined
   const project = branch?.parent?.parent as YMap<any> | undefined
   const collectionId = collectionYMap.get('id')
@@ -44,41 +59,18 @@ export const singleRESTRequestGenerator = async ({
 
   if (!collectionId || !branchId || !projectId) {
     throw new Error(
-      `Invalid request: ${requestYMap.get(
+      `Invalid test, the target node: ${nodeYMap.get(
         'id'
+      )} with typename: ${nodeYMap.get(
+        '__typename'
       )} ${collectionId} ${branchId} ${projectId} must have a valid parent`
     )
   }
 
-  const timeNow = new Date().getTime()
-
-  const testData = generateTestData({
-    rootScript: {
-      name: executionScript.name,
-      contents: executionScript.script,
-    },
-    nodeYMap: requestYMap,
-    collectionYMap,
-    collectionContext,
-    environmentContext,
-    firstLevelData,
-    oauthLocalSaveKey,
-  })
-
-  const endTime = new Date().getTime()
-
-  console.log(
-    'test data',
-    endTime - timeNow,
-    testData,
-    'agent',
-    determineGlobetestAgent(testData, request.executionOptions)
-  )
-
   const job: BaseJob & PendingJob = {
     __subtype: 'PendingJob',
     testGeneratorId: uuid(),
-    agent: determineGlobetestAgent(testData, request.executionOptions),
+    agent: determineGlobetestAgent(testData, executionOptions),
     createdAt: new Date(),
     jobStatus: 'LOCAL_CREATING',
     sourceName: executionScript.name,
@@ -92,6 +84,16 @@ export const singleRESTRequestGenerator = async ({
   }
 
   jobQueueVar([...jobQueue, job])
+
+  const endTime = new Date().getTime()
+
+  console.log(
+    'test data',
+    endTime - timeNow,
+    testData,
+    'agent',
+    determineGlobetestAgent(testData, executionOptions)
+  )
 
   return job
 }

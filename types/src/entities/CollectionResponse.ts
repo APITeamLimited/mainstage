@@ -31,3 +31,5 @@ export const collectionResponseSchema = z.intersection(
     failureResultSchema,
   ])
 )
+
+export type CollectionResponse = z.infer<typeof collectionResponseSchema>

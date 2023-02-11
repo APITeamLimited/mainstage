@@ -1,7 +1,7 @@
 import { Scope } from '@prisma/client'
 import type { Team, PlanInfo } from '@prisma/client'
 
-import { getCoreCacheReadRedis } from '../../redis'
+import { getCoreCacheReadRedis } from './redis'
 
 export const getPlanInfo = async (
   scope:

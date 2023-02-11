@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
 
-import { DEFAULT_EXECUTION_OPTIONS, ExecutionScript } from '@apiteam/types/src'
-import type { Map as YMap } from 'yjs'
-
 import {
+  DEFAULT_EXECUTION_OPTIONS,
+  ExecutionScript,
+  safeGetExecutionOptions,
   BUILTIN_REST_SCRIPTS,
   BULTIN_MULTI_SCRIPTS,
-} from 'src/utils/rest-scripts'
+} from '@apiteam/types/src'
+import type { Map as YMap } from 'yjs'
 
 export const getExecutionScripts = (yMap: YMap<any>, multimode: boolean) => {
   const builtIn = multimode ? BULTIN_MULTI_SCRIPTS : BUILTIN_REST_SCRIPTS
@@ -22,6 +23,7 @@ export const getExecutionScripts = (yMap: YMap<any>, multimode: boolean) => {
   }
 
   yMap.set('executionScripts', [])
+
   return [
     ...builtIn,
     ...JSON.parse(JSON.stringify(yMap.get('executionScripts'))),
@@ -66,11 +68,11 @@ export const useUnsavedDescription = (yMap: YMap<any>) => {
 
 export const getExecutionOptions = (yMap: YMap<any>) => {
   if (yMap.get('executionOptions') !== undefined) {
-    return yMap.get('executionOptions')
+    return safeGetExecutionOptions(yMap.get('executionOptions'))
   }
 
   yMap.set('executionOptions', DEFAULT_EXECUTION_OPTIONS)
-  return yMap.get('executionOptions')
+  return safeGetExecutionOptions(yMap.get('executionOptions'))
 }
 
 export const useUnsavedExecutionOptions = (yMap: YMap<any>) => {

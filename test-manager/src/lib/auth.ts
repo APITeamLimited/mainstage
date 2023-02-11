@@ -3,19 +3,26 @@ import { IncomingMessage } from 'http'
 import { AuthenticatedIncomingMessage } from '@apiteam/types'
 import { gql } from '@apollo/client'
 import type { Scope } from '@prisma/client'
+import type { Jwt } from 'jsonwebtoken'
 import JWT from 'jsonwebtoken'
 import queryString from 'query-string'
+import type { Socket } from 'socket.io'
 
-import { apolloClient } from '../apollo'
 import { checkValue } from '../config'
-
-import { findScope } from './scope'
+import { apolloClient } from '../lib/apollo'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 const audience = checkValue<string>('api.bearer.audience')
 const issuer = checkValue<string>('api.bearer.issuer')
 
 let lastCheckedPublicKey = 0
 let publicKey: undefined | string = undefined
+
+const findScope = async (id: string): Promise<Scope | null> => {
+  const rawScope = await (await getCoreCacheReadRedis()).get(`scope__id:${id}`)
+  if (!rawScope) return null
+  return JSON.parse(rawScope) as Scope
+}
 
 const PublicKeyQuery = gql`
   query PublicKeyQuery {
@@ -132,4 +139,28 @@ export const handleAuth = async (
   authenticatedRequest.scope = scope
 
   return authenticatedRequest
+}
+
+export const handlePostAuth = async (
+  socket: Socket
+): Promise<null | {
+  scope: Scope
+  jwt: Jwt
+}> => {
+  const jwt = await verifyJWT(socket.request)
+  if (jwt === false) return null
+
+  const scopeId =
+    queryString
+      .parse(socket.request.url?.split('?')[1] || '')
+      .scopeId?.toString() || undefined
+
+  if (!scopeId) return null
+  const scope = await findScope(scopeId)
+  if (scope === null) return null
+
+  return {
+    scope,
+    jwt,
+  }
 }
