@@ -147,9 +147,18 @@ export const FailureResultPanel = ({
     return sortedErrors[0].message as string
   }, [storedGlobeTestLogs])
 
+  const tabNames = useMemo(
+    () =>
+      focusedResponse.get('__typename') === 'RESTResponse'
+        ? ['Execution', 'Request']
+        : ['Execution'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
   return (
     <PanelLayout
-      tabNames={['Execution', 'Request']}
+      tabNames={tabNames}
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
@@ -168,7 +177,7 @@ export const FailureResultPanel = ({
         ) : (
           <Skeleton />
         ))}
-      {activeTabIndex === 1 && (
+      {tabNames.includes('Request') && activeTabIndex === 1 && (
         <FocusedRequestPanel
           request={focusedResponse.get('underlyingRequest')}
           finalEndpoint={focusedResponse.get('endpoint')}

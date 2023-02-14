@@ -25,15 +25,20 @@ export const LoadTestSummaryPanel = ({
   return (
     <div key={responseYMap.get('id')}>
       {responseYMap.get('configuredGraphs') === true ? (
-        <MetricsOverviewStats
-          metrics={
-            (metrics ?? []) as unknown as (GlobeTestMessage &
-              MetricsCombination)[]
-          }
-          wasLimited={wasLimited}
-          logsThrottled={logsThrottled}
-          errorMessage={errorMessage}
-        />
+        <>
+          {metrics && metrics.length > 0 ? (
+            <MetricsOverviewStats
+              metrics={
+                metrics as unknown as (GlobeTestMessage & MetricsCombination)[]
+              }
+              wasLimited={wasLimited}
+              logsThrottled={logsThrottled}
+              errorMessage={errorMessage}
+            />
+          ) : (
+            <></>
+          )}
+        </>
       ) : (
         <StatsSkeleton count={4} />
       )}

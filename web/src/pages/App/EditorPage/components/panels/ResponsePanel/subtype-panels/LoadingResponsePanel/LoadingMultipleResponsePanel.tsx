@@ -31,7 +31,7 @@ export const LoadingMultipleResponsePanel = ({
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const responseHook = useYMap(focusedResponse)
+  const focusedResponseHook = useYMap(focusedResponse)
 
   const [metrics, setMetrics] = useState<MetricsList[]>([])
   const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
@@ -42,7 +42,7 @@ export const LoadingMultipleResponsePanel = ({
   const jobId = useMemo(
     () => focusedResponse.get('jobId') as string,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [responseHook]
+    [focusedResponseHook]
   )
 
   const globeTestLogsBuffer = useRef<GlobeTestMessage[]>([])
@@ -130,11 +130,20 @@ export const LoadingMultipleResponsePanel = ({
     [globeTestLogs]
   )
 
+  const tabNames = useMemo(
+    () =>
+      focusedResponse.get('__typename') === 'RESTResponse'
+        ? ['Graphs', 'Execution', 'Request']
+        : ['Graphs', 'Execution'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
   return (
     <>
       <SendingRequestAnimation />
       <PanelLayout
-        tabNames={['Graphs', 'Execution', 'Request']}
+        tabNames={tabNames}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -148,6 +157,7 @@ export const LoadingMultipleResponsePanel = ({
             responseYMap={focusedResponse}
             wasLimited={wasLimited}
             logsThrottled={logsThrottled}
+            errorMessage={null}
           />
         }
       >
@@ -167,7 +177,7 @@ export const LoadingMultipleResponsePanel = ({
             responseId={focusedResponse.get('id') as string}
           />
         )}
-        {activeTabIndex === 2 && (
+        {tabNames.includes('Request') && activeTabIndex === 2 && (
           <FocusedRequestPanel
             request={focusedResponse.get('underlyingRequest')}
             finalEndpoint={focusedResponse.get('endpoint')}

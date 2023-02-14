@@ -128,7 +128,7 @@ export const substitutePathVariables = (
     /:([a-zA-Z0-9-_]+)/g,
     (_, p1) =>
       pathVariables.find((pathVariable) => pathVariable.keyString === p1)
-        ?.value || ''
+        ?.value || '1'
   )
 
   const formattedProtocolPart = protocol ? `${protocol}://` : ''

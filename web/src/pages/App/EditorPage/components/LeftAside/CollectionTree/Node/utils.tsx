@@ -14,7 +14,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import zIndex from '@mui/material/styles/zIndex'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 
@@ -34,20 +33,109 @@ export const getNewOrderingIndex = ({
   ) + 1
 
 export const getNodeIcon = (nodeYMap: YMap<any>, collapsed: boolean) => {
+  const typename = nodeYMap.get('__typename')
+
   if (nodeYMap?.get('__typename') === undefined) {
     return <DeleteIcon sx={{ color: 'error.main' }} />
-  } else if (nodeYMap.get('__typename') === 'Collection') {
-    return <FeaturedPlayListIcon />
-  } else if (nodeYMap.get('__typename') === 'Environment') {
+  } else if (typename === 'Environment') {
     return <EnvironmentIcon />
-  } else if (nodeYMap.get('__typename') === 'Folder' && collapsed) {
-    return <FolderIcon />
-  } else if (nodeYMap.get('__typename') === 'Folder' && !collapsed) {
-    return <FolderOpenIcon />
-  } else if (
-    nodeYMap.get('__typename') === 'RESTRequest' ||
-    nodeYMap.get('__typename') === 'RESTResponse'
-  ) {
+  } else if (typename === 'Collection' || typename === 'CollectionResponse') {
+    return (
+      <Icon sx={{ overflow: 'visible' }}>
+        <Stack
+          sx={{
+            width: '24px',
+            maxWidth: '24px',
+            height: '24px',
+            maxHeight: '24px',
+            overflow: 'hidden',
+          }}
+          justifyContent="center"
+          alignItems="center"
+        >
+          {nodeYMap.get('__subtype') === 'LoadingResponse' ? (
+            <CircularProgress size={20} />
+          ) : nodeYMap.get('__subtype') === 'FailureResult' ? (
+            <ErrorIcon sx={{ color: 'error.main' }} />
+          ) : nodeYMap.get('__subtype') === 'SuccessMultipleResult' ? (
+            <>
+              {nodeYMap.get('abortedEarly') ? (
+                <Stack direction="row" alignItems="center" spacing={-1}>
+                  <GlobeTestIcon
+                    sx={{
+                      color: 'primary.light',
+                      height: '16px',
+                      width: '16px',
+                    }}
+                  />
+                  <PriorityHighIcon
+                    sx={{
+                      color: 'error.main',
+                      height: '16px',
+                      width: '16px',
+                    }}
+                  />
+                </Stack>
+              ) : (
+                <GlobeTestIcon sx={{ color: 'primary.light' }} />
+              )}
+            </>
+          ) : (
+            <FeaturedPlayListIcon />
+          )}
+        </Stack>
+      </Icon>
+    )
+  } else if (typename === 'Folder' || typename === 'FolderResponse') {
+    return (
+      <Icon sx={{ overflow: 'visible' }}>
+        <Stack
+          sx={{
+            width: '24px',
+            maxWidth: '24px',
+            height: '24px',
+            maxHeight: '24px',
+            overflow: 'hidden',
+          }}
+          justifyContent="center"
+          alignItems="center"
+        >
+          {nodeYMap.get('__subtype') === 'LoadingResponse' ? (
+            <CircularProgress size={20} />
+          ) : nodeYMap.get('__subtype') === 'FailureResult' ? (
+            <ErrorIcon sx={{ color: 'error.main' }} />
+          ) : nodeYMap.get('__subtype') === 'SuccessMultipleResult' ? (
+            <>
+              {nodeYMap.get('abortedEarly') ? (
+                <Stack direction="row" alignItems="center" spacing={-1}>
+                  <GlobeTestIcon
+                    sx={{
+                      color: 'primary.light',
+                      height: '16px',
+                      width: '16px',
+                    }}
+                  />
+                  <PriorityHighIcon
+                    sx={{
+                      color: 'error.main',
+                      height: '16px',
+                      width: '16px',
+                    }}
+                  />
+                </Stack>
+              ) : (
+                <GlobeTestIcon sx={{ color: 'primary.light' }} />
+              )}
+            </>
+          ) : collapsed ? (
+            <FolderIcon />
+          ) : (
+            <FolderOpenIcon />
+          )}
+        </Stack>
+      </Icon>
+    )
+  } else if (typename === 'RESTRequest' || typename === 'RESTResponse') {
     return (
       <Icon sx={{ overflow: 'visible' }}>
         <Stack

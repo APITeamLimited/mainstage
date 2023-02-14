@@ -3,8 +3,7 @@ import { useEffect, useMemo, useState, useRef } from 'react'
 
 import { useReactiveVar } from '@apollo/client'
 import LayersClearIcon from '@mui/icons-material/LayersClear'
-import { Paper, Divider, useTheme, Stack, Skeleton } from '@mui/material'
-import { ErrorBoundary } from 'react-error-boundary'
+import { Paper, Divider, useTheme, Stack } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
@@ -18,6 +17,7 @@ import {
   focusedResponseVar,
   updateFocusedResponse,
 } from 'src/contexts/focused-response'
+import { useYJSModule } from 'src/contexts/imports'
 import {
   clearFocusedElement,
   focusedElementVar,
@@ -25,17 +25,20 @@ import {
   updateFocusedElement,
 } from 'src/contexts/reactives/FocusedElement'
 import { useYMap } from 'src/lib/zustand-yjs'
+import { getOrCreateSubYMap } from 'src/utils/get-or-create-sub-ymap'
 
 import { viewportHeightReduction } from '../..'
-import { CollectionInputPanel } from '../panels/CollectionInputPanel'
 import { DeletedPanel } from '../panels/DeletedPanel'
 import { EnvironmentInputPanel } from '../panels/EnvironmentInputPanel'
-import { FolderInputPanel } from '../panels/FolderInputPanel'
-import { RESTResponsePanel } from '../panels/RESTResponsePanel'
+import { ResponsePanel } from '../panels/ResponsePanel'
 import { RightAside } from '../RightAside'
 
 import { TabPanel, tabPanelHeight } from './TabPanel'
-import { determineNewRestTab } from './utils'
+import {
+  determineNewCollectionResponseTab,
+  determineNewFolderResponseTab,
+  determineNewRESTResponseTab,
+} from './utils'
 
 export type OpenTab = {
   topYMap: YMap<any>
@@ -54,21 +57,50 @@ type TabControllerProps = {
 }
 
 export const TabController = ({ showLeftAside }: TabControllerProps) => {
+  const Y = useYJSModule()
+
   const theme = useTheme()
 
   const focusedElementDict = useReactiveVar(focusedElementVar)
   const focusedResponseDict = useReactiveVar(focusedResponseVar)
+
   const collectionYMap = useCollection() as YMap<any>
   const collectionHook = useYMap(collectionYMap)
+
+  const collectionResponsesYMap = getOrCreateSubYMap(
+    Y,
+    collectionYMap,
+    'collectionResponses'
+  )
+  const collectionResponsesHook = useYMap(collectionResponsesYMap)
+
+  const collectionResponses = useMemo(
+    () => Array.from(collectionResponsesYMap.values()) as YMap<any>[],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [collectionResponsesHook]
+  )
+
+  const foldersYMap = collectionYMap.get('folders') as YMap<any>
+  useYMap(foldersYMap)
+
+  const folderResponsesYMap = getOrCreateSubYMap(
+    Y,
+    collectionYMap,
+    'folderResponses'
+  )
+  const folderResponsesHook = useYMap(folderResponsesYMap)
+
+  const folderResponses = useMemo(
+    () => Array.from(folderResponsesYMap.values()) as YMap<any>[],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [folderResponsesHook]
+  )
 
   const restResponsesYMap = collectionYMap.get('restResponses') as YMap<any>
   const restResponsesHook = useYMap(restResponsesYMap)
 
   const restRequestsYMap = collectionYMap.get('restRequests') as YMap<any>
   useYMap(restRequestsYMap)
-
-  const foldersYMap = collectionYMap.get('folders') as YMap<any>
-  useYMap(foldersYMap)
 
   const restResponses = useMemo(
     () => Array.from(restResponsesYMap.values()) as YMap<any>[],
@@ -86,6 +118,12 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
 
   const activeTabIndexRef = useRef(activeTabIndex)
   activeTabIndexRef.current = activeTabIndex
+
+  // When leaving the page, close all open tabs
+  useEffect(() => {
+    return () => processCloseAll()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleSetNeedsSave = (
     needsSave: boolean,
@@ -151,33 +189,6 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
         return
       }
 
-      if (focusedElement.get('__typename') === 'Collection') {
-        const tabId = uuid()
-
-        setOpenTabs([
-          ...openTabsRef.current,
-          {
-            topYMap: focusedElement,
-            topNode: (
-              <CollectionInputPanel
-                collectionYMap={focusedElement}
-                setObservedNeedsSave={(needsSave, saveCallback) =>
-                  handleSetNeedsSave(needsSave, tabId, saveCallback)
-                }
-              />
-            ),
-            bottomYMap: null,
-            bottomNode: null,
-            orderingIndex: openTabsRef.current.length,
-            tabId,
-            lastSaveCheckpoint: Date.now(),
-          },
-        ])
-        setActiveTabIndex(openTabsRef.current.length)
-
-        return
-      }
-
       if (focusedElement.get('__typename') === 'Environment') {
         const tabId = uuid()
 
@@ -205,32 +216,71 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
         return
       }
 
-      if (focusedElement.get('__typename') === 'Folder') {
+      if (focusedElement.get('__typename') === 'Collection') {
+        const focusedCollectionResponseRaw = focusedResponseDict[
+          getFocusedElementKey(collectionYMap)
+        ] as YMap<any> | undefined
+
+        const isCorrectResponse =
+          focusedCollectionResponseRaw?.get('parentId') === focusedId
+
         const tabId = uuid()
 
-        setOpenTabs([
-          ...openTabsRef.current,
-          {
-            topYMap: focusedElement,
-            topNode: (
-              <ErrorBoundary FallbackComponent={Skeleton}>
-                <FolderInputPanel
-                  folderId={focusedElement.get('id')}
-                  collectionYMap={collectionYMap}
-                  setObservedNeedsSave={(needsSave, saveCallback) =>
-                    handleSetNeedsSave(needsSave, tabId, saveCallback)
-                  }
-                />
-              </ErrorBoundary>
-            ),
-            bottomYMap: null,
-            bottomNode: null,
-            orderingIndex: openTabsRef.current.length,
-            tabId,
-            lastSaveCheckpoint: Date.now(),
-          },
-        ])
+        const newTab = determineNewCollectionResponseTab({
+          collectionResponses,
+          focusedElement,
+          focusedResponse: isCorrectResponse
+            ? focusedCollectionResponseRaw
+            : undefined,
+          setObservedNeedsSave: (
+            needsSave: boolean,
+            saveCallback?: () => void
+          ) => handleSetNeedsSave(needsSave, tabId, saveCallback),
+          orderingIndex: openTabsRef.current.length,
+          tabId,
+        })
+
+        setOpenTabs([...openTabsRef.current, newTab])
         setActiveTabIndex(openTabsRef.current.length)
+
+        if (!newTab.bottomYMap) {
+          clearFocusedResponse(focusedResponseDict, collectionYMap)
+        }
+
+        return
+      }
+
+      if (focusedElement.get('__typename') === 'Folder') {
+        const focusedFolderResponseRaw = focusedResponseDict[
+          getFocusedElementKey(collectionYMap)
+        ] as YMap<any> | undefined
+
+        const isCorrectResponse =
+          focusedFolderResponseRaw?.get('parentId') === focusedId
+
+        const tabId = uuid()
+
+        const newTab = determineNewFolderResponseTab({
+          folderResponses,
+          focusedElement,
+          focusedResponse: isCorrectResponse
+            ? focusedFolderResponseRaw
+            : undefined,
+          collectionYMap,
+          setObservedNeedsSave: (
+            needsSave: boolean,
+            saveCallback?: () => void
+          ) => handleSetNeedsSave(needsSave, tabId, saveCallback),
+          orderingIndex: openTabsRef.current.length,
+          tabId,
+        })
+
+        setOpenTabs([...openTabsRef.current, newTab])
+        setActiveTabIndex(openTabsRef.current.length)
+
+        if (!newTab.bottomYMap) {
+          clearFocusedResponse(focusedResponseDict, collectionYMap)
+        }
 
         return
       }
@@ -245,10 +295,10 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
 
         const tabId = uuid()
 
-        const newTab = determineNewRestTab({
+        const newTab = determineNewRESTResponseTab({
           restResponses,
           focusedElement,
-          focusedRestResponse: isCorrectResponse
+          focusedResponse: isCorrectResponse
             ? focusedRestResponseRaw
             : undefined,
           collectionYMap,
@@ -307,7 +357,10 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
         const newTabs = [...openTabsRef.current]
         newTabs[parentRequestIndex].bottomYMap = focusedResponse
         newTabs[parentRequestIndex].bottomNode = (
-          <RESTResponsePanel responseYMap={focusedResponse} />
+          <ResponsePanel
+            responseYMap={focusedResponse}
+            parentTypename={focusedResponse.get('__parentTypename')}
+          />
         )
         setOpenTabs(newTabs)
         setActiveTabIndex(parentRequestIndex)
@@ -328,10 +381,10 @@ export const TabController = ({ showLeftAside }: TabControllerProps) => {
 
       setOpenTabs([
         ...openTabsRef.current,
-        determineNewRestTab({
+        determineNewRESTResponseTab({
           restResponses,
           focusedElement: parentElement,
-          focusedRestResponse: focusedResponse,
+          focusedResponse,
           collectionYMap,
           setObservedNeedsSave: (
             needsSave: boolean,

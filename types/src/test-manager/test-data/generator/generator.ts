@@ -48,16 +48,25 @@ export type GenerateTestDataArgs = {
   oauthLocalSaveKey?: string
 }
 
-export const generateTestData = (args: GenerateTestDataArgs): TestData => ({
-  rootScript: args.rootScript,
-  rootNode: recursiveNode({
-    ...args,
-    isRoot: true,
-  }),
-})
+export const generateTestData = (args: GenerateTestDataArgs): TestData => {
+  const executionOptions = getExecutionOptions(args.firstLevelData)
+
+  return {
+    rootScript: args.rootScript,
+    rootNode: recursiveNode({
+      ...args,
+      isRoot: true,
+      executionOptions,
+    }),
+    compilerOptions: {
+      multipleScripts: executionOptions.multipleScripts,
+    },
+  }
+}
 
 type RecursiveNodeArgs = GenerateTestDataArgs & {
   isRoot: boolean
+  executionOptions: ExecutionOptions
 }
 
 const recursiveNode = (args: RecursiveNodeArgs): Node => {
@@ -81,19 +90,13 @@ const httpRequestNode = ({
   environmentContext,
   isRoot,
   rootScript,
+  executionOptions,
 }: RecursiveNodeArgs): HTTPRequestNode => {
-  const executionOptions = getExecutionOptions(firstLevelData)
-
   const executionScripts = (): ExecutionScript[] => {
     const executionScripts =
       isRoot && firstLevelData?.subVariant === 'RESTRequest'
         ? firstLevelData.underlyingRequest.executionScripts
-        : [
-            ...BUILTIN_REST_SCRIPTS,
-            ...(Array.from(
-              nodeYMap.get('executionScripts').values()
-            ) as unknown as ExecutionScript[]),
-          ]
+        : [...BUILTIN_REST_SCRIPTS, ...getSavedNodeExecutionScripts(nodeYMap)]
     return executionScripts
   }
 
@@ -164,7 +167,15 @@ const httpRequestNode = ({
         : (() => {
             throw new Error('Not implemented')
           })(),
-    scripts: sourceScripts(underlyingRequest.executionScripts),
+    scripts: sourceScripts(underlyingRequest.executionScripts).filter(
+      (script) => {
+        if (executionOptions.multipleScripts) {
+          return true
+        }
+
+        return isRoot && script.name === rootScript.name
+      }
+    ),
     subVariant: 'RESTRequest',
     underlyingRequest,
   }
@@ -179,6 +190,7 @@ const groupNode = ({
   environmentContext,
   isRoot,
   rootScript,
+  executionOptions,
 }: RecursiveNodeArgs): Node => {
   const restRequestYMaps = Array.from(
     collectionYMap.get('restRequests').values()
@@ -203,6 +215,7 @@ const groupNode = ({
       oauthLocalSaveKey,
       isRoot: false,
       rootScript,
+      executionOptions,
     })
   )
 
@@ -235,12 +248,20 @@ const groupNode = ({
       sourceScripts = (
         [
           ...BULTIN_MULTI_SCRIPTS,
-          ...Array.from(nodeYMap.get('executionScripts').values()),
+          ...getSavedNodeExecutionScripts(nodeYMap),
         ] as ExecutionScript[]
-      ).map((script) => ({
-        name: script.name,
-        contents: script.script,
-      }))
+      )
+        .map((script) => ({
+          name: script.name,
+          contents: script.script,
+        }))
+        .filter((script) => {
+          if (executionOptions.multipleScripts) {
+            return true
+          }
+
+          return isRoot && script.name === rootScript.name
+        })
     }
 
     // If is root, ensure that the root script is included and overwrites any other script with the same name
@@ -283,4 +304,19 @@ const getExecutionOptions = (
   }
 
   return executionOptions
+}
+
+const getSavedNodeExecutionScripts = (
+  nodeYMap: YMap<any>
+): ExecutionScript[] => {
+  let executionScripts = nodeYMap.get('executionScripts')
+
+  if (!executionScripts) {
+    nodeYMap.set('executionScripts', [])
+    executionScripts = nodeYMap.get('executionScripts')
+  }
+
+  return Array.from(
+    nodeYMap.get('executionScripts').values()
+  ) as ExecutionScript[]
 }

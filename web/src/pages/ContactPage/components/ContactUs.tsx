@@ -53,10 +53,6 @@ export const ContactUs = () => {
           <Typography variant="h6" color={theme.palette.text.secondary}>
             Feel free to reach out to us if you have any questions via email
           </Typography>
-          <Typography variant="h6" color={theme.palette.text.secondary}>
-            Alternatively, you can reach out to us via our support channels, or
-            in our support center
-          </Typography>
           <ListItem>
             <Box
               component={ListItemAvatar}

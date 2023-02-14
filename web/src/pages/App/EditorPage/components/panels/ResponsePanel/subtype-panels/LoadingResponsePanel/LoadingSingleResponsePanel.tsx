@@ -35,7 +35,7 @@ export const LoadingSingleResponsePanel = ({
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const responseHook = useYMap(focusedResponse)
+  const focusedResponseHook = useYMap(focusedResponse)
 
   const [metrics, setMetrics] = useState<MetricsList[]>([])
   const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
@@ -46,7 +46,7 @@ export const LoadingSingleResponsePanel = ({
   const jobId = useMemo(
     () => focusedResponse.get('jobId') as string,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [responseHook]
+    [focusedResponseHook]
   )
 
   const globeTestLogsBuffer = useRef<GlobeTestMessage[]>([])
@@ -106,11 +106,20 @@ export const LoadingSingleResponsePanel = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])
 
+  const tabNames = useMemo(
+    () =>
+      focusedResponse.get('__typename') === 'RESTResponse'
+        ? ['Execution', 'Request']
+        : ['Execution'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
   return (
     <>
       <SendingRequestAnimation />
       <PanelLayout
-        tabNames={['Execution', 'Request']}
+        tabNames={tabNames}
         activeTabIndex={activeTabIndex}
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
@@ -125,7 +134,7 @@ export const LoadingSingleResponsePanel = ({
             responseId={focusedResponse.get('id') as string}
           />
         )}
-        {activeTabIndex === 1 && (
+        {tabNames.includes('Request') && activeTabIndex === 1 && (
           <FocusedRequestPanel
             request={focusedResponse.get('underlyingRequest')}
             finalEndpoint={focusedResponse.get('endpoint')}

@@ -31,7 +31,11 @@ export const handleResult = async ({
   executionAgent: 'Local' | 'Cloud'
   abortedEarly: boolean
 }) => {
-  if (!wasSuccessful) {
+  const executionMode = runningState?.options?.executionMode as
+    | GlobeTestOptions['executionMode']
+    | undefined
+
+  if (!wasSuccessful || !executionMode) {
     if (runningState.testType === 'RESTRequest') {
       await restHandleFailure({
         socket,
@@ -59,12 +63,10 @@ export const handleResult = async ({
         metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
         executionAgent,
       })
-
-      return
     }
-  }
 
-  const executionMode = (runningState.options as GlobeTestOptions).executionMode
+    return
+  }
 
   if (
     executionMode === 'httpSingle' &&
@@ -81,8 +83,7 @@ export const handleResult = async ({
       executionAgent,
     })
   } else if (
-    (runningState.options as GlobeTestOptions).executionMode ===
-      'httpMultiple' &&
+    executionMode === 'httpMultiple' &&
     runningState.testType === 'RESTRequest'
   ) {
     await restHandleSuccessMultiple({

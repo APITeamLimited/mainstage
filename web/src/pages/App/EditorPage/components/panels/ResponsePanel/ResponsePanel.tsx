@@ -12,15 +12,22 @@ import { LoadingResponsePanel } from './subtype-panels/LoadingResponsePanel'
 import { SuccessMultipleResultPanel } from './subtype-panels/SuccessMultipleResultPanel'
 import { SuccessSingleResultPanel } from './subtype-panels/SuccessSingleResultPanel'
 
-type RESTResponsePanelProps = {
+type ResponsePanelProps = {
   responseYMap: YMap<any> | undefined
+  parentTypename: string
 }
 
-export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
+export const ResponsePanel = ({
+  responseYMap,
+  parentTypename,
+}: ResponsePanelProps) => {
   const Y = useYJSModule()
   const theme = useTheme()
 
   useYMap(responseYMap ?? new Y.Map())
+
+  const showTest =
+    parentTypename === 'Folder' || parentTypename === 'Collection'
 
   return (
     <>
@@ -36,9 +43,11 @@ export const RESTResponsePanel = ({ responseYMap }: RESTResponsePanelProps) => {
               }}
             />
           }
-          primaryText="No response yet"
+          primaryText={showTest ? 'No tests yet' : 'No response yet'}
           secondaryMessages={[
-            'Add a url above and hit send to see the response',
+            showTest
+              ? 'Run a test to see the result appear here'
+              : 'Add a url above and hit send to see the response',
           ]}
         />
       ) : responseYMap.get('__subtype') === 'LoadingResponse' ? (

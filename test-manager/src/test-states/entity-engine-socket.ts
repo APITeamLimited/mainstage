@@ -43,25 +43,77 @@ export const getEntityEngineSocket = async (
   })
 
   // Disconnection is handled from entity engine side
-  entityEngineSocket.on('rest-create-response:success', async (data) => {
-    clientSocket.emit('rest-create-response:success', data)
+  entityEngineSocket.once(
+    'rest-create-response:success',
+    async (data: { responseId: string; jobId: string }) => {
+      clientSocket.emit('rest-create-response:success', data)
 
-    runningTestStates.set(clientSocket, {
-      ...(runningTestStates.get(clientSocket) as RunningTestState),
-      testType: 'RESTRequest',
-      responseId: data.responseId as string,
-      responseExistence: 'created',
-    })
+      runningTestStates.set(clientSocket, {
+        ...(runningTestStates.get(clientSocket) as RunningTestState),
+        testType: 'RESTRequest',
+        responseId: data.responseId as string,
+        responseExistence: 'created',
+      })
 
-    const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}:${executionAgent}`
+      const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}:${executionAgent}`
 
-    // Create and delete a temporary id to enable streaming of tests by jobId
-    await coreCacheReadRedis.set(jobScopeKey, scope.id)
+      // Create and delete a temporary id to enable streaming of tests by jobId
+      await coreCacheReadRedis.set(jobScopeKey, scope.id)
 
-    entityEngineSocket.on('disconnect', async () => {
-      await coreCacheReadRedis.del(jobScopeKey)
-    })
-  })
+      entityEngineSocket.on(
+        'disconnect',
+        async () => await coreCacheReadRedis.del(jobScopeKey)
+      )
+    }
+  )
+
+  entityEngineSocket.once(
+    'folder-create-response:success',
+    async (data: { responseId: string; jobId: string }) => {
+      clientSocket.emit('folder-create-response:success', data)
+
+      runningTestStates.set(clientSocket, {
+        ...(runningTestStates.get(clientSocket) as RunningTestState),
+        testType: 'Folder',
+        responseId: data.responseId as string,
+        responseExistence: 'created',
+      })
+
+      const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}:${executionAgent}`
+
+      // Create and delete a temporary id to enable streaming of tests by jobId
+      await coreCacheReadRedis.set(jobScopeKey, scope.id)
+
+      entityEngineSocket.on(
+        'disconnect',
+        async () => await coreCacheReadRedis.del(jobScopeKey)
+      )
+    }
+  )
+
+  entityEngineSocket.once(
+    'collection-create-response:success',
+    async (data: { responseId: string; jobId: string }) => {
+      clientSocket.emit('collection-create-response:success', data)
+
+      runningTestStates.set(clientSocket, {
+        ...(runningTestStates.get(clientSocket) as RunningTestState),
+        testType: 'Collection',
+        responseId: data.responseId as string,
+        responseExistence: 'created',
+      })
+
+      const jobScopeKey = `jobScopeId:${scope.variantTargetId}:${data.jobId}:${executionAgent}`
+
+      // Create and delete a temporary id to enable streaming of tests by jobId
+      await coreCacheReadRedis.set(jobScopeKey, scope.id)
+
+      entityEngineSocket.on(
+        'disconnect',
+        async () => await coreCacheReadRedis.del(jobScopeKey)
+      )
+    }
+  )
 
   // Delete entity engine socket after 1 hour if test is not completed
   const eeSocketTimeout = setTimeout(() => {

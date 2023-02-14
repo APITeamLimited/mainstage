@@ -13,7 +13,7 @@ import { RunningTestState, runningTestStates } from '../test-states'
 export const folderEnsureResponseExists = async (
   socket: AuthenticatedSocket,
   params: WrappedExecutionParams,
-  groupNode: GroupNode,
+  groupNode: GroupNode & { variant: 'group'; subVariant: 'Folder' },
   jobId: string,
   executionAgent: 'Local' | 'Cloud',
   localJobId?: string
@@ -175,7 +175,7 @@ export const folderHandleSuccess = async ({
     abortedEarly,
   }
 
-  entityEngineSocket.emit('folder-handle-success-multiple', eeParams)
+  entityEngineSocket.emit('folder-handle-success', eeParams)
 }
 
 export const folderHandleFailure = async ({

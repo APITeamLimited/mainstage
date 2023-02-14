@@ -19,6 +19,7 @@ import { ExecutionPanel } from '../../ExecutionPanel'
 import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
 import { LoadTestSummaryPanel } from '../../load-test-metrics/above-tabs-area/LoadTestSummaryPanel'
 import { GraphsPanel } from '../../load-test-metrics/graphs/GraphsPanel'
+import { useTestError } from '../use-test-error'
 
 type MetricsList = (GlobeTestMessage & {
   orchestratorId: string
@@ -156,43 +157,11 @@ export const SuccessMultipleResultPanel = ({
     }
   }, [activeTabIndex])
 
-  const errorMessage = useMemo(() => {
-    if (!focusedResponse.get('abortedEarly')) {
-      return null
-    }
-
-    if (!storedGlobeTestLogs) {
-      return 'Load test aborted early due to error, an unknown error occurred.'
-    }
-
-    // Find last message with messageType ERROR and find most recent
-    const sortedErrors = storedGlobeTestLogs
-      .filter((message) => message.messageType === 'ERROR')
-      .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-
-    if (
-      sortedErrors.length === 0 ||
-      typeof sortedErrors[0].message !== 'string'
-    ) {
-      return 'Load test aborted early due to error, an unknown error occurred.'
-    }
-
-    if (sortedErrors[0].message.length > 200) {
-      return `Load test aborted early due to error: ${sortedErrors[0].message.slice(
-        0,
-        200
-      )}... Message truncated, an unknown error occurred.`
-    }
-
-    if (sortedErrors[0].message === 'job cancelled by user') {
-      return `Load test aborted early, job cancelled by user.`
-    }
-
-    return `Load test aborted early due to error: ${
-      sortedErrors[0].message as string
-    }`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusedResponseHook, storedGlobeTestLogs])
+  const errorMessage = useTestError(
+    focusedResponse,
+    focusedResponseHook,
+    storedGlobeTestLogs
+  )
 
   const aboveTabsArea = useMemo(
     () => (
@@ -214,9 +183,18 @@ export const SuccessMultipleResultPanel = ({
     [focusedResponseHook, storedMetrics]
   )
 
+  const tabNames = useMemo(
+    () =>
+      focusedResponse.get('__typename') === 'RESTResponse'
+        ? ['Graphs', 'Execution', 'Request']
+        : ['Graphs', 'Execution'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
   return (
     <PanelLayout
-      tabNames={['Graphs', 'Execution', 'Request']}
+      tabNames={tabNames}
       activeTabIndex={activeTabIndex}
       setActiveTabIndex={setActiveTabIndex}
       actionArea={actionArea}
@@ -244,7 +222,7 @@ export const SuccessMultipleResultPanel = ({
         ) : (
           <Skeleton />
         ))}
-      {activeTabIndex === 2 && (
+      {tabNames.includes('Request') && activeTabIndex === 2 && (
         <FocusedRequestPanel
           setActionArea={setActionArea}
           request={focusedResponse.get('underlyingRequest')}

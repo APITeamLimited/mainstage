@@ -32,6 +32,8 @@ export const getRemoteTestUpdatesKey = (jobId: string) =>
 
 // Creates a new test and streams the result
 export const handleNewTest = async (socket: AuthenticatedSocket) => {
+  const startTime = Date.now()
+
   const [
     coreCacheReadRedis,
     coreCacheSubscribeRedis,
@@ -52,7 +54,7 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
         const result = wrappedExecutionParamsSchema.safeParse(params)
 
         if (!result.success) {
-          console.log("Couldn't parse params", JSON.stringify(params))
+          console.log("Couldn't parse params", result.error)
           reject(new Error('Invalid execution params'))
           return
         }
@@ -215,6 +217,12 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
     ),
     orchestratorReadRedis.publish('orchestrator:execution', executionParams.id),
   ])
+
+  const endTime = Date.now()
+
+  console.log(
+    `Execution ${executionParams.id} scheduled in ${endTime - startTime}ms`
+  )
 }
 
 const handleJobUserUpdates = (

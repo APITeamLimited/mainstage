@@ -173,7 +173,7 @@ export const collectionHandleSuccess = async ({
       abortedEarly,
     }
 
-  entityEngineSocket.emit('collection-handle-success-multiple', eeParams)
+  entityEngineSocket.emit('collection-handle-success', eeParams)
 }
 
 export const collectionHandleFailure = async ({

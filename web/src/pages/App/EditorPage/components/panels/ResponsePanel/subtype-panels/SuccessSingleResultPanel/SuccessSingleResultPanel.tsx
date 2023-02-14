@@ -189,6 +189,15 @@ export const SuccessSingleResultPanel = ({
     [focusedResponseHook, fetching]
   )
 
+  const tabNames = useMemo(
+    () =>
+      focusedResponse.get('__typename') === 'RESTResponse'
+        ? ['Response', 'Execution', 'Request']
+        : ['Response', 'Execution'],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [focusedResponseHook]
+  )
+
   return (
     <PanelLayout
       tabNames={['Response', 'Execution', 'Request']}
@@ -232,7 +241,8 @@ export const SuccessSingleResultPanel = ({
         ) : (
           <Skeleton />
         ))}
-      {activeTabIndex === 2 &&
+      {tabNames.includes('Request') &&
+        activeTabIndex === 2 &&
         (storedResponse ? (
           <FocusedRequestPanel
             setActionArea={setActionArea}

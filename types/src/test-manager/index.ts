@@ -87,19 +87,6 @@ const messageCombinationSchema = z.union([
     message: globeTestOptionsSchema,
   }),
   z.object({
-    messageType: z.literal('JOB_INFO'),
-    message: z.object({
-      id: z.string(),
-      options: globeTestOptionsSchema.or(z.null()),
-      scope: z.object({
-        variant: z.union([z.literal('USER'), z.literal('TEAM')]),
-        variantTargetId: z.string().uuid(),
-      }),
-      source: z.string(),
-      sourceName: z.string(),
-    }),
-  }),
-  z.object({
     messageType: z.literal('COLLECTION_VARIABLES'),
     message: z.record(z.unknown()),
   }),

@@ -85,7 +85,7 @@ export const restAxiosRequest = (
 
   const uauthedConfig: AxiosRequestConfig = {
     method: request.method,
-    url: substitutePathVariables(request.endpoint, request.pathVariables),
+    url: substitutePathVariables(request.endpoint, request.pathVariables ?? []),
     headers: finalHeaders,
     params: request.params
       .filter(

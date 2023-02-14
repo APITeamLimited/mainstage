@@ -46,7 +46,7 @@ export const FocusedRequestPanel = ({
         onChange={setActiveTabIndex}
       />
       <Alert severity="info">
-        The final request may have been modified in the execution script
+        The final request may have been modified in the execution script(s).
       </Alert>
       {activeTabIndex === 0 && (
         <FocusedRequestBodyPanel

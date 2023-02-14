@@ -3,15 +3,116 @@ import { Skeleton } from '@mui/material'
 import { ErrorBoundary } from 'react-error-boundary'
 import type { Map as YMap } from 'yjs'
 
+import { CollectionInputPanel } from '../panels/CollectionInputPanel'
+import { FolderInputPanel } from '../panels/FolderInputPanel'
+import { ResponsePanel } from '../panels/ResponsePanel'
 import { RESTInputPanel } from '../panels/RESTInputPanel'
-import { RESTResponsePanel } from '../panels/RESTResponsePanel'
 
 import type { OpenTab } from './TabController'
 
-export const determineNewRestTab = ({
+export const determineNewCollectionResponseTab = ({
+  collectionResponses,
+  focusedElement,
+  focusedResponse,
+  setObservedNeedsSave,
+  orderingIndex,
+  tabId,
+}: {
+  collectionResponses: YMap<any>[]
+  focusedElement: YMap<any>
+  focusedResponse: YMap<any> | undefined
+  setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
+  orderingIndex: number
+  tabId: string
+}) => {
+  const bottomYMap = determineResponse({
+    responseYMaps: collectionResponses,
+    focusedResponse,
+    focusedElement,
+  })
+
+  const newOpenTab: OpenTab = {
+    topYMap: focusedElement,
+    topNode: (
+      <ErrorBoundary FallbackComponent={Skeleton}>
+        <CollectionInputPanel
+          collectionYMap={focusedElement}
+          setObservedNeedsSave={setObservedNeedsSave}
+        />
+      </ErrorBoundary>
+    ),
+    bottomYMap,
+    bottomNode: (
+      <ErrorBoundary FallbackComponent={Skeleton}>
+        <ResponsePanel
+          responseYMap={bottomYMap ?? undefined}
+          parentTypename="Collection"
+        />
+      </ErrorBoundary>
+    ),
+    orderingIndex,
+    tabId,
+    lastSaveCheckpoint: Date.now(),
+  }
+
+  return newOpenTab
+}
+
+export const determineNewFolderResponseTab = ({
+  folderResponses,
+  focusedElement,
+  focusedResponse,
+  collectionYMap,
+  setObservedNeedsSave,
+  orderingIndex,
+  tabId,
+}: {
+  folderResponses: YMap<any>[]
+  focusedElement: YMap<any>
+  focusedResponse: YMap<any> | undefined
+  collectionYMap: YMap<any>
+  setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
+  orderingIndex: number
+  tabId: string
+}) => {
+  const bottomYMap = determineResponse({
+    responseYMaps: folderResponses,
+    focusedResponse,
+    focusedElement,
+  })
+
+  const newOpenTab: OpenTab = {
+    topYMap: focusedElement,
+    topNode: (
+      <ErrorBoundary FallbackComponent={Skeleton}>
+        <FolderInputPanel
+          folderId={focusedElement.get('id')}
+          collectionYMap={collectionYMap}
+          setObservedNeedsSave={setObservedNeedsSave}
+        />
+      </ErrorBoundary>
+    ),
+    bottomYMap,
+    bottomNode: (
+      <ErrorBoundary FallbackComponent={Skeleton}>
+        <ResponsePanel
+          responseYMap={bottomYMap ?? undefined}
+          parentTypename="Folder"
+        />
+      </ErrorBoundary>
+    ),
+    orderingIndex,
+    tabId,
+    lastSaveCheckpoint: Date.now(),
+  }
+
+  return newOpenTab
+}
+
+export const determineNewRESTResponseTab = ({
   restResponses,
   focusedElement,
-  focusedRestResponse,
+  focusedResponse,
   collectionYMap,
   setObservedNeedsSave,
   orderingIndex,
@@ -19,15 +120,15 @@ export const determineNewRestTab = ({
 }: {
   restResponses: YMap<any>[]
   focusedElement: YMap<any>
-  focusedRestResponse: YMap<any> | undefined
+  focusedResponse: YMap<any> | undefined
   collectionYMap: YMap<any>
   setObservedNeedsSave: (needsSave: boolean, saveCallback?: () => void) => void
   orderingIndex: number
   tabId: string
 }) => {
-  const bottomYMap = determineRestResponse({
-    restResponses,
-    focusedRestResponse,
+  const bottomYMap = determineResponse({
+    responseYMaps: restResponses,
+    focusedResponse,
     focusedElement,
   })
 
@@ -45,7 +146,10 @@ export const determineNewRestTab = ({
     bottomYMap,
     bottomNode: (
       <ErrorBoundary FallbackComponent={Skeleton}>
-        <RESTResponsePanel responseYMap={bottomYMap ?? undefined} />
+        <ResponsePanel
+          responseYMap={bottomYMap ?? undefined}
+          parentTypename="RESTRequest"
+        />
       </ErrorBoundary>
     ),
     orderingIndex,
@@ -56,23 +160,23 @@ export const determineNewRestTab = ({
   return newOpenTab
 }
 
-const determineRestResponse = ({
-  focusedRestResponse,
-  restResponses,
+const determineResponse = ({
+  focusedResponse,
+  responseYMaps,
   focusedElement,
 }: {
-  focusedRestResponse: YMap<any> | undefined
-  restResponses: YMap<any>[]
+  focusedResponse: YMap<any> | undefined
+  responseYMaps: YMap<any>[]
   focusedElement: YMap<any>
 }): YMap<any> | null => {
-  // If there is a focused rest response, and it is in the list of rest responses
-  // for the focused rest request, then set the bottomYMap to the focused rest response
-  if (focusedRestResponse) {
-    return focusedRestResponse
+  // If there is a focused response, and it is in the list of rest responses
+  // for the focused request, then set the bottomYMap to the focused rest response
+  if (focusedResponse) {
+    return focusedResponse
   }
 
-  // Else find the most recent rest response
-  return restResponses
+  // Else find the most recent response
+  return responseYMaps
     .filter((response) => response.get('parentId') === focusedElement.get('id'))
     .reduce((mostRecent, restRequest) => {
       if (

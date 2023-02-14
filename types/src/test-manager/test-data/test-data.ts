@@ -15,7 +15,6 @@ export type GroupNode = {
   id: string
   name: string
   scripts: SourceScript[]
-
   children: (HTTPRequestNode | StandaloneScriptNode | GroupNode)[]
 } & (
   | {
@@ -26,13 +25,14 @@ export type GroupNode = {
     }
 )
 
-export const groupNodeSchema = z.intersection(
-  // @ts-expect-error - zod doesn't support recursive schemas
-  z.object<GroupNode>({
+// @ts-expect-error - zod doesn't support recursive schemas
+export const groupNodeSchema = z.intersection<GroupNode>(
+  z.object({
     variant: z.literal('group'),
     id: z.string().uuid(),
     name: z.string(),
     scripts: sourceScriptSchema.array(),
+    children: z.lazy(() => nodeSchema.array()),
   }),
   z.union([
     z.object({
@@ -77,9 +77,16 @@ export const nodeSchema = z.union([
   standaloneScriptNodeSchema,
 ])
 
+export const compilerOptionsSchema = z.object({
+  multipleScripts: z.boolean(),
+})
+
+export type CompilerOptions = z.infer<typeof compilerOptionsSchema>
+
 export const testDataSchema = z.object({
   rootNode: nodeSchema,
   rootScript: sourceScriptSchema,
+  compilerOptions: compilerOptionsSchema,
 })
 
 // Can't use inferred  type due to typescript limitations
@@ -88,4 +95,5 @@ export type Node = HTTPRequestNode | StandaloneScriptNode | GroupNode
 export type TestData = {
   rootNode: Node
   rootScript: SourceScript
+  compilerOptions: CompilerOptions
 }

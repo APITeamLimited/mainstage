@@ -13,6 +13,7 @@ export const maxRedirectsSchema = z.number().min(0).max(100)
 
 export const executionOptionsSchema = z.object({
   executionAgent: z.enum(EXECUTION_AGENTS),
+  multipleScripts: z.boolean(),
   maxRedirects: maxRedirectsSchema,
   timeoutMilliseconds: z
     .number()
@@ -25,6 +26,9 @@ export type ExecutionOptions = z.infer<typeof executionOptionsSchema>
 
 export const DEFAULT_EXECUTION_OPTIONS: ExecutionOptions = {
   executionAgent: 'Default',
+  // TODO: When figured out how to handle multiple scripts, this should be set to true
+  // For now, it's set to false by default
+  multipleScripts: false,
   maxRedirects: 10,
   timeoutMilliseconds: 1000 * 60,
   compression: 'none',
@@ -43,6 +47,8 @@ export const safeGetExecutionOptions = (
     executionOptions = {
       ...executionOptions,
       ...rawExecutionOptions,
+      // TODO: When figured out how to handle multiple scripts, this should be removed
+      multipleScripts: false,
     }
   }
 

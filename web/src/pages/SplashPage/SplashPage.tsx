@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 
-import { alpha, Box, Container, Stack, useTheme } from '@mui/material'
+import { Container, Stack } from '@mui/material'
 
 import { MetaTags } from '@redwoodjs/web'
 
@@ -9,15 +9,12 @@ import { PricingOverview } from 'src/layouts/Landing/components/pricing'
 import EditorFeatures from 'src/pages/SplashPage/components/EditorFeatures'
 import GlobeTestOverview from 'src/pages/SplashPage/components/GlobeTestOverview'
 import TypedIntro from 'src/pages/SplashPage/components/TypedIntro'
-import { ThemeInverter } from 'src/utils/ThemeInverter'
 
 import { GlobalTestingNetwork } from './components/GlobalTestingNetwork'
 import { WhyUseAPITeam } from './components/WhyUseAPITeam'
 
 const SplashPage = () => {
   const pricingRef = useRef<HTMLDivElement>(null)
-
-  const theme = useTheme()
 
   return (
     <>
@@ -35,7 +32,7 @@ const SplashPage = () => {
         alignItems="center"
       >
         <Container>
-          <WhyUseAPITeam  />
+          <WhyUseAPITeam />
         </Container>
         <Container>
           <EditorFeatures />

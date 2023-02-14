@@ -5,7 +5,9 @@ type APITeamLogoProps = {
 }
 
 export const APITeamLogo = ({ style }: APITeamLogoProps) => (
-  <picture>
+  <picture
+    style={{ height: '32px!important', width: 'auto!important', ...style }}
+  >
     <source
       srcSet="https://apiteam.cloud/img/logo-large-light-1920.png"
       media="(prefers-color-scheme: light)"
@@ -17,7 +19,6 @@ export const APITeamLogo = ({ style }: APITeamLogoProps) => (
     <img
       src="https://apiteam.cloud/img/logo-large-light-1920.png"
       alt="APITeam Logo"
-      style={{ height: '32px', ...style }}
     />
   </picture>
 )

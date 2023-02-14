@@ -23,6 +23,8 @@ import {
   runningTestStates,
   handleMessage,
   restDeleteResponse,
+  folderDeleteResponse,
+  collectionDeleteResponse,
 } from '../test-states'
 
 export const getLocalTestLogsKey = (scope: Scope, jobId: string) =>
@@ -224,6 +226,13 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
         })
       } else if (testState.testType === 'Folder' && testState.responseId) {
         await folderDeleteResponse({
+          params: params as WrappedExecutionParams,
+          socket,
+          responseId: testState.responseId,
+          executionAgent: 'Local',
+        })
+      } else if (testState.testType === 'Collection' && testState.responseId) {
+        await collectionDeleteResponse({
           params: params as WrappedExecutionParams,
           socket,
           responseId: testState.responseId,

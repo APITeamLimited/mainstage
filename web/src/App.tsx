@@ -19,7 +19,6 @@ import './simplebar.css'
 import { CustomApolloProvider } from './contexts/custom-apollo-provider'
 
 const App = () => (
-  // This seems to be causing deetion errors when cross platform
   <SettingsProvider>
     <SettingsConsumer>
       {({ settings }) => (
@@ -31,7 +30,7 @@ const App = () => (
           })}
         >
           <FatalErrorBoundary page={FatalErrorPage}>
-            <RedwoodProvider titleTemplate="%PageTitle – %AppTitle">
+            <RedwoodProvider titleTemplate="%PageTitle">
               <AuthProvider type="dbAuth">
                 <CustomApolloProvider>
                   <Routes />

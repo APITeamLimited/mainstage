@@ -65,6 +65,31 @@ export const ExecutionOptionsPanel = ({
             }))}
             description="By default, if a test contains private IPs, the localhost agent will be used, tests containing public IPs and domains are executed in the cloud. Localhost requests can't be executed in the cloud."
           />
+          {/*
+          Re-enable this when support for multiple scripts is added
+
+          <CustomFormRadioGroup
+            label="Multiple Scripts"
+            name="multipleScripts"
+            value={executionOptions.multipleScripts.toString()}
+            onChange={(event) =>
+              setExecutionOptions({
+                ...executionOptions,
+                multipleScripts: event.target.value === 'true',
+              })
+            }
+            options={[
+              {
+                label: 'Disabled',
+                value: 'false',
+              },
+              {
+                label: 'Enabled',
+                value: 'true',
+              },
+            ]}
+            description="Enable compilation of multiple scripts, disable this if you don't need to use multiple scripts (reduces compilation time)."
+          /> */}
           <FormStyledInput
             label="Max Redirects"
             description="Set the maximum number of redirects to follow. If set to 0, redirects will not be followed."
