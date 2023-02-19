@@ -1,4 +1,4 @@
-import { Graph, MetricsCombination, GlobeTestMessage } from '@apiteam/types/src'
+import { Graph, MetricsCombination, GlobeTestMessage } from '@apiteam/types'
 import { Box, Typography, useTheme } from '@mui/material'
 
 import {

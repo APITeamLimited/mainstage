@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
-import { RESTRequest, restAxiosRequest } from '@apiteam/types/src'
+import { RESTRequest, restAxiosRequest } from '@apiteam/types'
 import type { Map as YMap } from 'yjs'
 
 import { useYJSModule } from 'src/contexts/imports'

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 
-import type { Chapter, DocsPage } from '@apiteam/types/src'
+import type { Chapter, DocsPage } from '@apiteam/types'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import {
   ListItemButton,

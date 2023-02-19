@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { ResolvedVariable } from '@apiteam/types/src'
-import { findVariablesInString } from '@apiteam/types/src'
+import { ResolvedVariable } from '@apiteam/types'
+import { findVariablesInString } from '@apiteam/types'
 import { alpha } from '@mui/material'
 import { useTheme, Tooltip } from '@mui/material'
 

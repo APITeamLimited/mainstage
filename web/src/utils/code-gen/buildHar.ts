@@ -1,5 +1,5 @@
-import { ExecutionParams, RESTRequest } from '@apiteam/types/src'
-import { findEnvironmentVariables } from '@apiteam/types/src'
+import { ExecutionParams, RESTRequest } from '@apiteam/types'
+import { findEnvironmentVariables } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
 import type { Har, PostData } from 'har-format'
 import { parse } from 'qs'

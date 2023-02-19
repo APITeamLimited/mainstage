@@ -188,9 +188,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@apiteam/types@*, @apiteam/types@workspace:types":
+"@apiteam/types@*, @apiteam/types@workspace:packages/types":
   version: 0.0.0-use.local
-  resolution: "@apiteam/types@workspace:types"
+  resolution: "@apiteam/types@workspace:packages/types"
   dependencies:
     "@apiteam/env-regex": "*"
     "@types/node": ^18.0.6

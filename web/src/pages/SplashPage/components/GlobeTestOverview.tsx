@@ -1,4 +1,4 @@
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import { alpha, Container, useTheme } from '@mui/material'
 
 import { panelSeparation } from 'src/layouts/Landing/components/constants'

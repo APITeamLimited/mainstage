@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Chapter, DocsPage } from '@apiteam/types/src'
+import { Chapter, DocsPage } from '@apiteam/types'
 import { Stack, Typography } from '@mui/material'
 
 import { useLocation } from '@redwoodjs/router'

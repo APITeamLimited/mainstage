@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { KeyValueItem, LocalValueKV } from '@apiteam/types/src'
+import { KeyValueItem, LocalValueKV } from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 

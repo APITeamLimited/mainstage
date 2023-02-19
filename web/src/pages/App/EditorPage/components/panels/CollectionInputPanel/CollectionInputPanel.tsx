@@ -8,7 +8,7 @@ import {
   ExecutionOptions,
   oauth2LoadLocal,
   Collection,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import {
   Box,

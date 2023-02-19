@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react'
 
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import { useTheme, Container } from '@mui/material'
 import { ReflexContainer, ReflexSplitter, ReflexElement } from 'react-reflex'
 import type { Map as YMap } from 'yjs'

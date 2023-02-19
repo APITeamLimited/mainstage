@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useState } from 'react'
 
-import { LOCAL_AGENT_MAX_JOBS } from '@apiteam/types/src'
+import { LOCAL_AGENT_MAX_JOBS } from '@apiteam/types'
 
 import { LocalAgentIcon } from 'src/components/utils/Icons'
 import { useLocalTestManager } from 'src/test-manager/executors/local-test-manager/LocalTestManagerProvider'

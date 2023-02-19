@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { Auth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { Auth, WrappedOAuth2Token } from '@apiteam/types'
 
 export const useActiveWrappedToken = (
   oauthLocalSaveKey: string,

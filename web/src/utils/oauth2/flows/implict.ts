@@ -4,7 +4,7 @@ import {
   prettyZodError,
   Auth,
   authSchema,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import type { ApolloClient } from '@apollo/client/core'
 
 import {

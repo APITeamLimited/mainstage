@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import {
   Stack,
   Typography,

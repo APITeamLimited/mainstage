@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Workspace } from '@apiteam/types/src'
+import { Workspace } from '@apiteam/types'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ErrorIcon from '@mui/icons-material/Error'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'

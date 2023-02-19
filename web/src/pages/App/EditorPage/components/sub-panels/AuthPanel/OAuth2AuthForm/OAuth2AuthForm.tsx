@@ -7,7 +7,7 @@ import {
   Auth,
   AuthOAuth2,
   AuthOAuth2GrantType,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { useApolloClient } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 

@@ -1,4 +1,4 @@
-import { StoredObject } from '@apiteam/types/src'
+import { StoredObject } from '@apiteam/types'
 
 export type StoredFileType = {
   data: StoredObject

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 
-import { ROUTES, UserAsPersonal } from '@apiteam/types/src'
+import { ROUTES, UserAsPersonal } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import AddIcon from '@mui/icons-material/Add'

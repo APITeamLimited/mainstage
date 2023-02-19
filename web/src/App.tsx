@@ -1,4 +1,4 @@
-import { getTheme } from '@apiteam/types/src'
+import { getTheme } from '@apiteam/types'
 import { ThemeProvider } from '@mui/material'
 
 import { AuthProvider } from '@redwoodjs/auth'

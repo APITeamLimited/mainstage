@@ -9,7 +9,7 @@ import {
   Optional,
   GlobeTestMessage,
   WrappedExecutionParams,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { io, Socket } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

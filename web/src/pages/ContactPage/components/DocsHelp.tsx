@@ -1,4 +1,4 @@
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import { Stack, Typography, useTheme } from '@mui/material'
 
 import { ActionCard } from 'src/layouts/Landing/components/ActionCard'

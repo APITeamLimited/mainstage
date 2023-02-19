@@ -1,4 +1,4 @@
-import { RESTRequestBody } from '@apiteam/types/src'
+import { RESTRequestBody } from '@apiteam/types'
 import { Response } from 'k6/http'
 
 export const parseRESTResponseBody = (response: Response): string => {

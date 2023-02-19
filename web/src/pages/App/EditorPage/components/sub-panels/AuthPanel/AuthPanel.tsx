@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 
-import { defaultOAuth2Config, Auth } from '@apiteam/types/src'
+import { defaultOAuth2Config, Auth } from '@apiteam/types'
 import InputIcon from '@mui/icons-material/Input'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import { useTheme } from '@mui/material'

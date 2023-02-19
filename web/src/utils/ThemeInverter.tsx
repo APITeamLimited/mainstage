@@ -1,4 +1,4 @@
-import getTheme from '@apiteam/types/src/theme'
+import { getTheme } from '@apiteam/types'
 import { ThemeProvider, useTheme } from '@mui/material'
 
 import { SettingsConsumer } from 'src/contexts/settings-context'

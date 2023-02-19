@@ -1,4 +1,4 @@
-import { Project } from '@apiteam/types/src'
+import { Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import FeaturedPlayListIcon from '@mui/icons-material/FeaturedPlayList'
 import ListAltIcon from '@mui/icons-material/ListAlt'

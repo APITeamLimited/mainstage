@@ -1,4 +1,4 @@
-import { TeamRole } from '@apiteam/types/src'
+import { TeamRole } from '@apiteam/types'
 import { Avatar, ListItem, ListItemAvatar, ListItemText } from '@mui/material'
 
 import { RoleChip } from 'src/components/team/RoleChip'

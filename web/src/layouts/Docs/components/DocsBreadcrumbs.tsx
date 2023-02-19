@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import type { Chapter, DocsPage } from '@apiteam/types/src/docs/docs-lib'
+import type { Chapter, DocsPage } from '@apiteam/types/docs/docs-lib'
 import { Breadcrumbs, Link, SvgIcon, useTheme } from '@mui/material'
 
 import { navigate, useLocation } from '@redwoodjs/router'

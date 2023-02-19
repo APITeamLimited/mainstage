@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { AGENT_LINKS, LINKS } from '@apiteam/types/src'
+import { AGENT_LINKS, LINKS } from '@apiteam/types'
 import AppleIcon from '@mui/icons-material/Apple'
 import {
   Button,

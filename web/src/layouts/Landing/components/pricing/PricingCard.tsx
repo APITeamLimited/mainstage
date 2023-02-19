@@ -1,4 +1,4 @@
-import { AbstractPlanInfoCreateInput, ROUTES } from '@apiteam/types/src'
+import { AbstractPlanInfoCreateInput, ROUTES } from '@apiteam/types'
 import {
   Typography,
   Card,

@@ -1,4 +1,4 @@
-import { possibleTaxIdTypes } from '@apiteam/types/src'
+import { possibleTaxIdTypes } from '@apiteam/types'
 import {
   Stack,
   Card,

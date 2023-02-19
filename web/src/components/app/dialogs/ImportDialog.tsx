@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { Project } from '@apiteam/types/src'
+import { Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import CloseIcon from '@mui/icons-material/Close'
 import {

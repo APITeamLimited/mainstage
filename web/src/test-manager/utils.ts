@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { WrappedExecutionParams } from '@apiteam/types/src'
+import { WrappedExecutionParams } from '@apiteam/types'
 
 import { BaseJob, PendingJob } from './lib'
 

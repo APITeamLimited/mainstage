@@ -6,7 +6,7 @@ import {
   generateTestData,
   GenerateTestDataArgs,
   ExecutionOptions,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
 

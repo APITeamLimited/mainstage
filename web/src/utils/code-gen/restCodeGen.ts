@@ -1,4 +1,4 @@
-import { ExecutionParams, RESTRequest } from '@apiteam/types/src'
+import { ExecutionParams, RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useCallback } from 'react'
 
-import { OAuth2Token, Auth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { OAuth2Token, Auth, WrappedOAuth2Token } from '@apiteam/types'
 import {
   Button,
   FormLabel,

@@ -7,7 +7,7 @@ import {
   METRICS_MARK,
   parseGlobeTestMessage,
   parseAndValidateGlobeTestMessage,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'
 import { uploadScopedResource } from 'src/store'

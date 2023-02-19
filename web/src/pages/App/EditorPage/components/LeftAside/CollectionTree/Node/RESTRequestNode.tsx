@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo } from 'react'
 
-import { findEnvironmentVariables } from '@apiteam/types/src'
+import { findEnvironmentVariables } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { ListItemIcon, useTheme } from '@mui/material'
 import type { Map as YMap } from 'yjs'

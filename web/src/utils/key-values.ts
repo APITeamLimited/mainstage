@@ -4,7 +4,7 @@ import {
   KVVariantTypes,
   LocalObject,
   validateKeyValueItem,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import type { Map as YMap } from 'yjs'
 
 export const kvLegacyImporter = <T extends KVVariantTypes>(

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import GridViewIcon from '@mui/icons-material/GridView'
 import {

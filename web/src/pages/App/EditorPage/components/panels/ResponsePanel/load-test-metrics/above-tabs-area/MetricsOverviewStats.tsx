@@ -1,10 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import {
-  GlobeTestMessage,
-  MetricsCombination,
-  ROUTES,
-} from '@apiteam/types/src'
+import { GlobeTestMessage, MetricsCombination, ROUTES } from '@apiteam/types'
 import CloseIcon from '@mui/icons-material/Close'
 import {
   Alert,

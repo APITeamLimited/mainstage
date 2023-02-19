@@ -5,7 +5,7 @@ import {
   getPrettyContentTypes,
   RESTRequestBody,
   ValidContentTypes,
-} from '@apiteam/types/src/entities'
+} from '@apiteam/types'
 import InventoryIcon from '@mui/icons-material/Inventory'
 import { Stack, useTheme } from '@mui/material'
 

@@ -4,7 +4,7 @@ import {
   AbstractCreditsPricingOptionCreateInput,
   DEFAULT_CREDITS_PRICING_OPTION,
   ROUTES,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { useTheme, Typography, Card, Stack } from '@mui/material'
 import {
   CreditsPricingOptionsQuery,

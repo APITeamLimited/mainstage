@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { GlobeTestMessage, parseGlobeTestMessage } from '@apiteam/types/src'
+import { GlobeTestMessage, parseGlobeTestMessage } from '@apiteam/types'
 import { io, Socket } from 'socket.io-client'
 
 import { refetchRunningCountVar } from 'src/pages/App/EditorPage/components/StatusBar/running-tests'

@@ -4,7 +4,7 @@ import type {
   Graph,
   GlobeTestMessage,
   MetricsCombination,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import OpenInFullIcon from '@mui/icons-material/OpenInFull'
 import {

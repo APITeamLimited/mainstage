@@ -6,7 +6,7 @@ import type {
   Graph,
   GlobeTestMessage,
   MetricsCombination,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { Box, Grid, Skeleton } from '@mui/material'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'
@@ -25,10 +25,10 @@ import { FramedGraph } from './FramedGraph'
 type GraphsPanelProps = {
   focusedResponse: YMap<any>
   metrics:
-  | (GlobeTestMessage & {
-    orchestratorId: string
-  } & MetricsCombination)[]
-  | null
+    | (GlobeTestMessage & {
+        orchestratorId: string
+      } & MetricsCombination)[]
+    | null
 }
 
 export const GraphsPanel = ({ focusedResponse, metrics }: GraphsPanelProps) => {
@@ -39,8 +39,8 @@ export const GraphsPanel = ({ focusedResponse, metrics }: GraphsPanelProps) => {
     () =>
       metrics
         ? metrics.sort(
-          (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
-        )
+            (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime()
+          )
         : null,
     [metrics]
   )
@@ -126,7 +126,8 @@ export const GraphsPanel = ({ focusedResponse, metrics }: GraphsPanelProps) => {
                 }
               />
             </Grid>
-          </SimpleBar>) : (
+          </SimpleBar>
+        ) : (
           <Skeleton height="100%" />
         )}
       </Box>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 
-import { RESTRequest } from '@apiteam/types/src'
-import { getPrettyContentTypes, knownContentTypes } from '@apiteam/types/src'
+import { RESTRequest } from '@apiteam/types'
+import { getPrettyContentTypes, knownContentTypes } from '@apiteam/types'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile'
 import InventoryIcon from '@mui/icons-material/Inventory'

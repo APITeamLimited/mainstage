@@ -1,4 +1,4 @@
-import { OAuth2Token, Auth, authOAuth2Schema } from '@apiteam/types/src'
+import { OAuth2Token, Auth, authOAuth2Schema } from '@apiteam/types'
 import type { ApolloClient } from '@apollo/client/core'
 
 import {

@@ -6,7 +6,7 @@ import {
   safeGetExecutionOptions,
   BUILTIN_REST_SCRIPTS,
   BULTIN_MULTI_SCRIPTS,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import type { Map as YMap } from 'yjs'
 
 export const getExecutionScripts = (yMap: YMap<any>, multimode: boolean) => {

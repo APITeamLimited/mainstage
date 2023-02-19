@@ -1,4 +1,4 @@
-import { TestData, WrappedExecutionParams } from '@apiteam/types/src'
+import { TestData, WrappedExecutionParams } from '@apiteam/types'
 import { Socket } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

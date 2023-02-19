@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react'
 
-import { Branch, Project, ROUTES } from '@apiteam/types/src'
+import { Branch, Project, ROUTES } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   Button,

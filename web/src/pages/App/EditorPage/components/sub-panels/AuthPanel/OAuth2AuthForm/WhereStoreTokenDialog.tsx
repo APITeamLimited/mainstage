@@ -1,4 +1,4 @@
-import { OAuth2Token, Auth, WrappedOAuth2Token } from '@apiteam/types/src'
+import { OAuth2Token, Auth, WrappedOAuth2Token } from '@apiteam/types'
 import {
   Button,
   Dialog,

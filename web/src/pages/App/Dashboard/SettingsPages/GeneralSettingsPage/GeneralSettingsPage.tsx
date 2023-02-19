@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Workspace } from '@apiteam/types/src'
+import { Workspace } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'

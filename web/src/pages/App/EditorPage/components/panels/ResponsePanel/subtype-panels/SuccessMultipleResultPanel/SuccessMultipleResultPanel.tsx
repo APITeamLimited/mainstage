@@ -5,7 +5,7 @@ import {
   GlobeTestMessage,
   MetricsCombination,
   parseGlobeTestMessage,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 

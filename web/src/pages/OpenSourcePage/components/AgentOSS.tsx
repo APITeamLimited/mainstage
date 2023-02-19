@@ -1,4 +1,4 @@
-import { LINKS } from '@apiteam/types/src'
+import { LINKS } from '@apiteam/types'
 import GitHubIcon from '@mui/icons-material/GitHub'
 import { Box, Button, Stack, Typography, useTheme } from '@mui/material'
 

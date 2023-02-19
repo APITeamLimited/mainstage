@@ -4,7 +4,7 @@ import {
   AbstractPlanInfoCreateInput,
   DEFAULT_PRICING_PLANS,
   ROUTES,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import {
   useTheme,
   Typography,

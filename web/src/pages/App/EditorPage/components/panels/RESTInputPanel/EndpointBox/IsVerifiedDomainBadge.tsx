@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
-import { validateURL } from '@apiteam/types/src'
-import { findEnvironmentVariables } from '@apiteam/types/src'
+import { validateURL } from '@apiteam/types'
+import { findEnvironmentVariables } from '@apiteam/types'
 import CancelIcon from '@mui/icons-material/Cancel'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import HideSourceIcon from '@mui/icons-material/HideSource'

@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react'
 
-import { MemberAwareness } from '@apiteam/types/src'
+import { MemberAwareness } from '@apiteam/types'
 import UnfoldMoreIcon from '@mui/icons-material/UnfoldMore'
 import {
   Typography,

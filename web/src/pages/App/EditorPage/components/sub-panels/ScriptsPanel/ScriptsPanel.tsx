@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { ExecutionScript } from '@apiteam/types/src'
+import { ExecutionScript } from '@apiteam/types'
 import ClearIcon from '@mui/icons-material/Clear'
 import {
   Stack,

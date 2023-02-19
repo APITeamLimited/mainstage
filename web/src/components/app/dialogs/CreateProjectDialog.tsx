@@ -1,4 +1,4 @@
-import { Project } from '@apiteam/types/src'
+import { Project } from '@apiteam/types'
 import { makeVar, useReactiveVar } from '@apollo/client'
 import {
   Button,

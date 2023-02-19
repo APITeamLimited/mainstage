@@ -1,4 +1,4 @@
-import { DOCS_ROUTES } from '@apiteam/types/src'
+import { DOCS_ROUTES } from '@apiteam/types'
 
 import { Route } from '@redwoodjs/router'
 

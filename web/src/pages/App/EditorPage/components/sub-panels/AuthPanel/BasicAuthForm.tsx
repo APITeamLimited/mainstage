@@ -1,4 +1,4 @@
-import { Auth, AuthBasic } from '@apiteam/types/src'
+import { Auth, AuthBasic } from '@apiteam/types'
 import { Box, Stack } from '@mui/material'
 
 import { FormEnvironmentTextField } from 'src/components/custom-mui'

@@ -5,7 +5,7 @@ import {
   EXECUTION_AGENTS,
   maxRedirectsSchema,
   REQEUST_BODY_COMPRESSIONS,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { Box, Stack } from '@mui/material'
 
 import { snackErrorMessageVar } from 'src/components/app/dialogs'

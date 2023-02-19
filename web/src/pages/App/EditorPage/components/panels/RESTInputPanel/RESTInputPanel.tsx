@@ -7,9 +7,9 @@ import {
   ExecutionOptions,
   RESTRequestBody,
   oauth2LoadLocal,
-} from '@apiteam/types/src'
-import { Auth, RESTRequest } from '@apiteam/types/src'
-import { ExecutionScript } from '@apiteam/types/src'
+} from '@apiteam/types'
+import { Auth, RESTRequest } from '@apiteam/types'
+import { ExecutionScript } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Box, Stack } from '@mui/material'
 import { v4 as uuid } from 'uuid'

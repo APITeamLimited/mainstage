@@ -4,7 +4,7 @@ import {
   FileFieldKeyValueItem,
   KeyValueItem,
   KVVariantTypes,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import DragHandleIcon from '@mui/icons-material/DragHandle'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import {

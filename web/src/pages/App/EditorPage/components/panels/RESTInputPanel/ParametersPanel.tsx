@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { DefaultKV, DefaultKeyValueItem } from '@apiteam/types/src'
+import { DefaultKV, DefaultKeyValueItem } from '@apiteam/types'
 import { Box, Stack, Typography, useTheme } from '@mui/material'
 import { ReflexContainer, ReflexElement, ReflexSplitter } from 'react-reflex'
 

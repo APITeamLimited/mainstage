@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-import { DefaultKV, KeyValueItem, KVVariantTypes } from '@apiteam/types/src'
+import { DefaultKV, KeyValueItem, KVVariantTypes } from '@apiteam/types'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import { Box, IconButton, Tooltip } from '@mui/material'
 

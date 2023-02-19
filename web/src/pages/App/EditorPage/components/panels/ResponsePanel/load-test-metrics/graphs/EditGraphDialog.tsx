@@ -7,7 +7,7 @@ import {
   GraphSeries,
   BUILT_IN_METRICS,
   AVAILABLE_LOAD_ZONES,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import ClearIcon from '@mui/icons-material/Clear'
 import {
   Button,

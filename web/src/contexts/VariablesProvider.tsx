@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo } from 'react'
 
-import type { ExecutionParams } from '@apiteam/types/src'
-import { createEnvironmentContext } from '@apiteam/types/src'
+import type { ExecutionParams } from '@apiteam/types'
+import { createEnvironmentContext } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 
 import { activeEnvironmentVar } from 'src/contexts/reactives'

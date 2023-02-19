@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { DocsPage, Chapter, searchInMarkdown } from '@apiteam/types/src'
+import { DocsPage, Chapter, searchInMarkdown } from '@apiteam/types'
 import { Card, Divider, Typography, useTheme } from '@mui/material'
 import { Stack } from '@mui/system'
 

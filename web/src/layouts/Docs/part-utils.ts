@@ -1,4 +1,4 @@
-import type { Chapter, DocsPage } from '@apiteam/types/src/docs/docs-lib'
+import type { Chapter, DocsPage } from '@apiteam/types/docs/docs-lib'
 
 export type FoundPart = {
   title: string

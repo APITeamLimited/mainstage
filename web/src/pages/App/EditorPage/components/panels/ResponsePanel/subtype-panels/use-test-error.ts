@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { GlobeTestMessage, MapWrapper } from '@apiteam/types/src'
+import { GlobeTestMessage, MapWrapper } from '@apiteam/types'
 import type { Map as YMap } from 'yjs'
 
 export const useTestError = (

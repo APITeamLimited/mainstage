@@ -1,4 +1,4 @@
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import { Link, Stack, Typography } from '@mui/material'
 
 import { navigate } from '@redwoodjs/router'

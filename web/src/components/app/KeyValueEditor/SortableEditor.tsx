@@ -6,7 +6,7 @@ import {
   KeyValueItem,
   KVVariantTypes,
   LocalValueKV,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import HelpIcon from '@mui/icons-material/Help'
 import {
   Box,

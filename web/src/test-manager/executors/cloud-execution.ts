@@ -4,7 +4,7 @@ import {
   GlobeTestMessage,
   WrappedExecutionParams,
   parseGlobeTestMessage,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { io } from 'socket.io-client'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 

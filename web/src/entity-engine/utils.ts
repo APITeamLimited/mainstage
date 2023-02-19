@@ -1,4 +1,4 @@
-import { Workspace } from '@apiteam/types/src'
+import { Workspace } from '@apiteam/types'
 import jwt_decode, { JwtPayload } from 'jwt-decode'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 

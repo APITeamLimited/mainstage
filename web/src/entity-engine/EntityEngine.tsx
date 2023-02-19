@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react'
 
-import { ServerAwareness, Workspace } from '@apiteam/types/src'
+import { ServerAwareness, Workspace } from '@apiteam/types'
 import { useApolloClient } from '@apollo/client'
 import { useReactiveVar } from '@apollo/client'
 import { makeVar } from '@apollo/client'

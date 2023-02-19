@@ -3,7 +3,7 @@ import {
   ExecutionParams,
   RESTResponse,
   TestData,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { makeVar } from '@apollo/client'
 
 export type BaseJob = {

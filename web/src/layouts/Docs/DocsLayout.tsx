@@ -1,10 +1,6 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 
-import {
-  Chapter,
-  DocsPage,
-  searchForContent,
-} from '@apiteam/types/src/docs/docs-lib'
+import { Chapter, DocsPage, searchForContent } from '@apiteam/types'
 import {
   Container,
   Paper,

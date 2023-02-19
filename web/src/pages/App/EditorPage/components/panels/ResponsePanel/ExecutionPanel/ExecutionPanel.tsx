@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { GlobeTestMessage } from '@apiteam/types/src'
+import { GlobeTestMessage } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import StackedLineChartIcon from '@mui/icons-material/StackedLineChart'
 import { useTheme } from '@mui/material'

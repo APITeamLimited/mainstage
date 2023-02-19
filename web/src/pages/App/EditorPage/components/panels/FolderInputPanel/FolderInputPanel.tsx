@@ -8,7 +8,7 @@ import {
   ExecutionScript,
   Folder,
   oauth2LoadLocal,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import FolderIcon from '@mui/icons-material/Folder'
 import {

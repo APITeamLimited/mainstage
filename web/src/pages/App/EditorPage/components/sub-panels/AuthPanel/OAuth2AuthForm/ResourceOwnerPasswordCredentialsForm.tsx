@@ -1,4 +1,4 @@
-import { Auth } from '@apiteam/types/src'
+import { Auth } from '@apiteam/types'
 
 import { FormEnvironmentTextField } from 'src/components/custom-mui'
 

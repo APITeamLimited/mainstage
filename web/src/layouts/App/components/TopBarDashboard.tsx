@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { ROUTES } from '@apiteam/types/src'
+import { ROUTES } from '@apiteam/types'
 import { Box, Stack, Button, useTheme } from '@mui/material'
 import { Container } from '@mui/system'
 

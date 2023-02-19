@@ -4,7 +4,7 @@ import type {
   GlobeTestMessage,
   MetricsCombination,
   Graph,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import { useTheme } from '@mui/material'
 import type { ApexOptions } from 'apexcharts'
 

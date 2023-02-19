@@ -1,4 +1,4 @@
-import { Auth, AuthAPIKey } from '@apiteam/types/src'
+import { Auth, AuthAPIKey } from '@apiteam/types'
 import {
   Box,
   FormControlLabel,

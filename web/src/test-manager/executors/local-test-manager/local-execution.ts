@@ -1,4 +1,4 @@
-import { ExecutionParams, WrappedExecutionParams } from '@apiteam/types/src'
+import { ExecutionParams, WrappedExecutionParams } from '@apiteam/types'
 import { Scope } from '@prisma/client'
 import { v4 as uuid } from 'uuid'
 import type { Map as YMap } from 'yjs'

@@ -1,4 +1,4 @@
-import { ClientAwareness, ServerAwareness } from '@apiteam/types/src'
+import { ClientAwareness, ServerAwareness } from '@apiteam/types'
 import { ApolloClient } from '@apollo/client'
 import { GetBearerPubkeyScopes } from 'types/graphql'
 import type { Doc as YDoc } from 'yjs'

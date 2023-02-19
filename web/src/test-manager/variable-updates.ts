@@ -3,7 +3,7 @@ import {
   ExecutionParams,
   GlobeTestMessage,
   WrappedExecutionParams,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { HashSumModule } from 'src/contexts/imports'

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types/src'
+import { KeyValueItem } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import DeselectIcon from '@mui/icons-material/Deselect'
 import LayersClearIcon from '@mui/icons-material/LayersClear'

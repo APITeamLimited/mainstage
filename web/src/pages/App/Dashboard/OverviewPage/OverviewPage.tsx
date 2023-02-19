@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-import { Project } from '@apiteam/types/src'
+import { Project } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import { Button, Stack } from '@mui/material'
 

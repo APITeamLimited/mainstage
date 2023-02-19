@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { KeyValueItem } from '@apiteam/types/src'
+import { KeyValueItem } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import {
   IconButton,

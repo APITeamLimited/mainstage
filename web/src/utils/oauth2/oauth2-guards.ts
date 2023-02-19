@@ -1,4 +1,4 @@
-import { Auth } from '@apiteam/types/src'
+import { Auth } from '@apiteam/types'
 
 export const guardOAuth2Save = (auth: Auth, oauthLocalSaveKey: string) => {
   if (auth.authType !== 'oauth2') {

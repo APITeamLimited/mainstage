@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
 import type { DocsSearchIndex } from '@apiteam/docs'
-import type { Chapter, DocsPage } from '@apiteam/types/src/docs/docs-lib'
+import type { Chapter, DocsPage } from '@apiteam/types/docs/docs-lib'
 
 export type DocsContent = (DocsPage | Chapter)[]
 

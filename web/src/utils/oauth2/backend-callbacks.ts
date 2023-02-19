@@ -3,7 +3,7 @@ import {
   OAuth2Token,
   oauth2TokenSchema,
   prettyZodError,
-} from '@apiteam/types/src'
+} from '@apiteam/types'
 import type { ApolloClient } from '@apollo/client/core'
 
 const CREATE_API_TEAM_OAUTH2_CODE = gql`

@@ -1,4 +1,4 @@
-import { Workspace } from '@apiteam/types/src'
+import { Workspace } from '@apiteam/types'
 
 import { navigate, routes } from '@redwoodjs/router'
 

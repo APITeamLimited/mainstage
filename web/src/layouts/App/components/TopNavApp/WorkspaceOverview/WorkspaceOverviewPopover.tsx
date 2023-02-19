@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { MemberAwareness } from '@apiteam/types/src'
+import { MemberAwareness } from '@apiteam/types'
 import {
   Popover,
   Typography,

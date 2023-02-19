@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { MetricsCombination, GlobeTestMessage } from '@apiteam/types/src'
+import type { MetricsCombination, GlobeTestMessage } from '@apiteam/types'
 import type { Map as YMap } from 'yjs'
 
 import { StatsSkeleton } from '../../../components/stats'

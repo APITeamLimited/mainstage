@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { Branch } from '@apiteam/types/src'
+import { Branch } from '@apiteam/types'
 import { useReactiveVar } from '@apollo/client'
 import AltRouteIcon from '@mui/icons-material/AltRoute'
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
