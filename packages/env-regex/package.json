@@ -1,9 +1,12 @@
 {
   "name": "@apiteam/env-regex",
-  "version": "0.0.0",
+  "description": "Time linear env-regex provider",
+  "version": "0.0.1",
   "private": true,
-  "dependencies": {
+  "scripts": {
+    "install": "cd src/env-regex-raw && wasm-pack build && rm pkg/package.json && cd .. && rm -rf ./dist && tsc -p tsconfig.json && cp -r env-regex-raw/pkg dist/pkg",
+    "build": "cd src/env-regex-raw && wasm-pack build && rm pkg/package.json && cd .. && cd .. && rm -rf ./dist && mkdir -p dist/env-regex-raw/pkg && cp -r src/env-regex-raw/pkg dist/env-regex-raw && tsc -p tsconfig.json "
   },
-  "devDependencies": {
-  }
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts"
 }

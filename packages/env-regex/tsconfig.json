@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "target": "esnext",
+    "module": "ES2022",
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "paths": {
+      "src/*": ["./src/*"],
+    },
+    "declaration": true,
+  }
+}

@@ -1,4 +1,4 @@
-import { FlatContent } from '@apiteam/docs/src'
+import { FlatContent } from '../packages/docs/src'
 import { Stack, useTheme, Typography, Box } from '@mui/material'
 
 import { SearchItem } from './SearchItem'

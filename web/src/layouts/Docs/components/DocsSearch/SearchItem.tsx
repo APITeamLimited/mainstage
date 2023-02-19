@@ -1,4 +1,4 @@
-import { FlatContent } from '@apiteam/docs/src'
+import { FlatContent } from '../packages/docs/src'
 import ClearIcon from '@mui/icons-material/Clear'
 import HistoryIcon from '@mui/icons-material/History'
 import TagIcon from '@mui/icons-material/Tag'

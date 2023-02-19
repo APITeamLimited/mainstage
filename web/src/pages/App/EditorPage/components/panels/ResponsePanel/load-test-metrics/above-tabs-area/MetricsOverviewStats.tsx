@@ -28,13 +28,6 @@ type MetricsStats = {
   meanDurationUnits: string
 }
 
-type MetricsOverviewStatsProps = {
-  metrics: (GlobeTestMessage & MetricsCombination)[]
-  wasLimited?: boolean
-  logsThrottled?: boolean
-  errorMessage: string | null
-}
-
 const calculateStats = (
   metricsMessages: MetricsOverviewStatsProps['metrics']
 ): MetricsStats => {
@@ -84,10 +77,19 @@ const calculateStats = (
   }
 }
 
+type MetricsOverviewStatsProps = {
+  metrics: (GlobeTestMessage & MetricsCombination)[]
+  wasLimited?: boolean
+  logsThrottled?: boolean
+  outputsThrottled?: boolean
+  errorMessage: string | null
+}
+
 export const MetricsOverviewStats = ({
   metrics,
   wasLimited,
   logsThrottled,
+  outputsThrottled,
   errorMessage,
 }: MetricsOverviewStatsProps) => {
   const theme = useTheme()
@@ -116,6 +118,8 @@ export const MetricsOverviewStats = ({
   const [hiddenDomainThrottledWarning, setHiddenDomainThrottledWarning] =
     useState(false)
   const [hiddenMaxLogsWarning, setHiddenMaxLogsWarning] = useState(false)
+  const [hiddenOutputsThrottledWarning, setHiddenOutputsThrottledWarning] =
+    useState(false)
 
   return (
     <Stack spacing={2}>
@@ -141,6 +145,20 @@ export const MetricsOverviewStats = ({
             Verify the domain
           </Link>{' '}
           to remove load limits.
+        </Alert>
+      )}
+      {outputsThrottled && !hiddenOutputsThrottledWarning && (
+        <Alert
+          severity="warning"
+          action={
+            <IconButton onClick={() => setHiddenOutputsThrottledWarning(true)}>
+              <CloseIcon />
+            </IconButton>
+          }
+        >
+          <AlertTitle>Warning</AlertTitle>
+          Unique are limited to 10,000 per test to prevent performance issues.
+          Try removing custom tags
         </Alert>
       )}
       {logsThrottled && !hiddenMaxLogsWarning && (

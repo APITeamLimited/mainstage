@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { ResolvedVariable } from '@apiteam/types/src'
 import { findVariablesInString } from '@apiteam/types/src'
-import { Chip, Tooltip } from '@mui/material'
+import { alpha } from '@mui/material'
+import { useTheme, Tooltip } from '@mui/material'
 
 import {
   useCollectionVariables,
@@ -14,6 +15,8 @@ type VariableChipProps = {
 }
 
 export const VariableChip = ({ variableName }: VariableChipProps) => {
+  const theme = useTheme()
+
   const variableNameWithoutCurlyBraces = useMemo(
     () => variableName.replaceAll(/^\{{/g, '').replaceAll(/\}}$/g, ''),
     [variableName]
@@ -56,7 +59,22 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
       }
       placement="top"
     >
-      <Chip
+      <span
+        style={{
+          borderRadius: theme.spacing(1),
+          backgroundColor:
+            resolvedVariable === undefined
+              ? alpha(theme.palette.grey[300], 0.5)
+              : resolvedVariable
+              ? alpha(theme.palette.primary.main, 0.5)
+              : alpha(theme.palette.error.main, 0.5),
+          paddingTop: theme.spacing(0.125),
+          paddingBottom: theme.spacing(0.125),
+        }}
+      >
+        {variableName}
+      </span>
+      {/* <Chip
         label={variableNameWithoutCurlyBraces}
         variant="filled"
         color={
@@ -88,7 +106,7 @@ export const VariableChip = ({ variableName }: VariableChipProps) => {
           userSelect: 'text',
         }}
         size="small"
-      />
+      /> */}
     </Tooltip>
   )
 }

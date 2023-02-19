@@ -10,28 +10,6 @@ import type {
   LocalValueKeyValueItem,
 } from '../../../key-value-item'
 
-export type VariableMatch = {
-  leadOffset: number
-  matchingString: string
-}
-
-export const BRACED_REGEX = /{{(([^}][^}]?|[^}]}?)*)}}/g
-
-// Checks input text for @value matches
-export function getPossibleVariableMatch(text: string): VariableMatch[] {
-  // Will need to change this bit to match custom regex
-  const matches = Array.from(text.matchAll(BRACED_REGEX))
-
-  const filteredMatches = matches.filter(
-    (match) => match.index !== undefined && match[1].length > 0
-  ) as (RegExpMatchArray & { index: number })[]
-
-  return filteredMatches.map((match) => ({
-    leadOffset: match.index,
-    matchingString: match[0],
-  }))
-}
-
 const resolvedVariable = z.union([
   z.object({
     sourceName: z.string(),
@@ -80,23 +58,26 @@ export const findVariablesInString = (
 /**
  * Finds environment variables in a given KeyValueItem
  */
-export const findEnvironmentVariables = (
+export const findEnvironmentVariables = async (
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext'],
   target: string
-): string => {
+): Promise<string> => {
+  const { matchAllEnvVariables, containsEnvVariables } = await import(
+    '@apiteam/env-regex'
+  ).then((m) => ({
+    matchAllEnvVariables: m.matchAllEnvVariables,
+    containsEnvVariables: m.containsEnvVariables,
+  }))
+
   // Find substrings that start and end with curly braces and get their index
-  const matches = getPossibleVariableMatch(target)
+  const matches = matchAllEnvVariables(target)
 
   const offsets = [] as number[]
 
   matches.forEach((match) => {
-    if (!offsets.includes(match.leadOffset)) {
-      offsets.push(match.leadOffset)
-    }
-    if (!offsets.includes(match.leadOffset + match.matchingString.length)) {
-      offsets.push(match.leadOffset + match.matchingString.length)
-    }
+    offsets.push(match.start)
+    offsets.push(match.end)
   })
 
   offsets.push(target.length)
@@ -115,7 +96,7 @@ export const findEnvironmentVariables = (
   // Find variables in the substrings
   const result = [] as string[]
   splitStrings.forEach((subString) => {
-    if (BRACED_REGEX.test(subString)) {
+    if (containsEnvVariables(subString)) {
       // Remove curly {{}} braces
       const variable = subString.substring(2, subString.length - 2)
 
@@ -290,16 +271,16 @@ export const createEnvironmentContext = (
 }
 
 /* Substitutes environment variables where possible in an axios request config */
-export const makeEnvironmentAwareRequest = (
+export const makeEnvironmentAwareRequest = async (
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext'],
   config: AxiosRequestConfig,
   skipBody: boolean
-): AxiosRequestConfig => {
+): Promise<AxiosRequestConfig<any>> => {
   return {
     ...config,
 
-    url: findEnvironmentVariables(
+    url: await findEnvironmentVariables(
       environmentContext,
       collectionContext,
       config.url ?? ''
@@ -307,35 +288,41 @@ export const makeEnvironmentAwareRequest = (
 
     // Search for environment variables in header keys and values
     headers: Object.entries(config.headers || {}).reduce(
-      (acc, [key, value]) => ({
+      async (acc, [key, value]) => ({
         ...acc,
-        [findEnvironmentVariables(environmentContext, collectionContext, key)]:
-          findEnvironmentVariables(
-            environmentContext,
-            collectionContext,
-            String(value)
-          ),
+        [await findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          key
+        )]: await findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          String(value)
+        ),
       }),
       {}
     ),
 
     // Search for environment variables in params keys and values
     params: Object.entries(config.params || {}).reduce(
-      (acc, [key, value]) => ({
+      async (acc, [key, value]) => ({
         ...acc,
-        [findEnvironmentVariables(environmentContext, collectionContext, key)]:
-          findEnvironmentVariables(
-            environmentContext,
-            collectionContext,
-            String(value)
-          ),
+        [await findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          key
+        )]: await findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          String(value)
+        ),
       }),
       {}
     ),
 
     data:
       config.data && !skipBody
-        ? findEnvironmentVariables(
+        ? await findEnvironmentVariables(
             environmentContext,
             collectionContext,
             config.data

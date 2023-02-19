@@ -1,10 +1,18 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 
-import { getPossibleVariableMatch } from '@apiteam/types/src'
+import type { MatchResult } from '@apiteam/env-regex'
 import { Stack, Tooltip, Typography, useTheme } from '@mui/material'
+import type { EditorThemeClasses } from 'lexical'
 
 import { StyledInput } from '../../StyledInput'
 
@@ -29,7 +37,8 @@ const onError = (error: Error) => {
 const getEditorState = (
   value: string,
   lexical: LexicalModule,
-  VariableNodeClass: VariableNodeType
+  VariableNodeClass: VariableNodeType,
+  matchAllEnvVariables: (value: string) => MatchResult[]
 ) => {
   const root = lexical.$getRoot()
 
@@ -43,7 +52,7 @@ const getEditorState = (
     const paragraph = lexical.$createParagraphNode()
 
     // Find all substrings that start and end with double curly braces
-    const matches = getPossibleVariableMatch(value)
+    const matches = matchAllEnvVariables(value ?? '')
 
     // This is the same code as in the VariablePlugin.tsx file
 
@@ -55,27 +64,20 @@ const getEditorState = (
     const offsets = [] as number[]
 
     matches.forEach((match) => {
-      if (!offsets.includes(match.leadOffset)) {
-        offsets.push(match.leadOffset)
-      }
-      if (!offsets.includes(match.leadOffset + match.matchingString.length)) {
-        offsets.push(match.leadOffset + match.matchingString.length)
-      }
+      offsets.push(match.start)
+      offsets.push(match.end)
     })
 
     const splitNodes = textNode.splitText(...offsets)
 
     matches.forEach((match) => {
-      const node = splitNodes.find(
-        (node) => node.__text === match.matchingString
-      )
+      const node = splitNodes.find((node) => node.__text === match.text)
 
-      if (!node) return
+      if (!node || match.text === '{{}}') {
+        return
+      }
 
-      const variableNode = $createVariableNode(
-        match.matchingString,
-        VariableNodeClass
-      )
+      const variableNode = $createVariableNode(match.text, VariableNodeClass)
       node.replace(variableNode)
     })
   }
@@ -114,14 +116,12 @@ export const EnvironmentTextField = ({
   noVariables,
 }: EnvironmentTextFieldProps) => {
   const [lexical, setLexical] = useState<LexicalModule | null>(null)
-
   useEffect(() => {
     if (noVariables) return
     getLexicalModule().then(setLexical)
   }, [noVariables])
 
   const [lexicalAddons, setLexicalAddons] = useState<LexicalAddons | null>(null)
-
   useEffect(() => {
     if (noVariables) return
     getLexicalAddons().then(setLexicalAddons)
@@ -134,22 +134,38 @@ export const EnvironmentTextField = ({
     return null
   }, [lexical])
 
-  const initialConfig = useMemo(() => {
-    if (noVariables || !VariableNode) {
-      return null
-    }
+  const [initialConfig, setInitialConfig] = useState<{
+    namespace: string
+    onError: (error: Error) => never
+    editorState: () => void
+    theme: EditorThemeClasses
+    nodes: VariableNodeType[]
+    editable: boolean
+  } | null>(null)
 
-    if (lexical) {
-      return {
+  useEffect(() => {
+    const func = async () => {
+      if (noVariables || !VariableNode || !lexical || initialConfig) {
+        return
+      }
+
+      const matchFunction = await import('@apiteam/env-regex').then(
+        (module) => module.matchAllEnvVariables
+      )
+
+      setInitialConfig({
         namespace,
         onError,
-        editorState: () => getEditorState(value, lexical, VariableNode),
+        editorState: () =>
+          getEditorState(value, lexical, VariableNode, matchFunction),
         theme: PlaygroundEditorTheme,
         nodes: [VariableNode],
         editable: !disabled,
-      }
+      })
     }
-    return null
+
+    func()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noVariables, VariableNode, lexical, namespace, disabled, value])
 
   const theme = useTheme()

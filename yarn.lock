@@ -133,18 +133,18 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@apiteam/desktop@workspace:desktop":
+"@apiteam/desktop@workspace:packages/desktop":
   version: 0.0.0-use.local
-  resolution: "@apiteam/desktop@workspace:desktop"
+  resolution: "@apiteam/desktop@workspace:packages/desktop"
   dependencies:
     "@apiteam/types": "*"
     nativefier: ^50.0.0
   languageName: unknown
   linkType: soft
 
-"@apiteam/docs@*, @apiteam/docs@workspace:docs":
+"@apiteam/docs@*, @apiteam/docs@workspace:packages/docs":
   version: 0.0.0-use.local
-  resolution: "@apiteam/docs@workspace:docs"
+  resolution: "@apiteam/docs@workspace:packages/docs"
   dependencies:
     "@apiteam/types": "*"
     "@types/node": ^18.0.6
@@ -158,9 +158,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@apiteam/mailman@*, @apiteam/mailman@workspace:mailman":
+"@apiteam/env-regex@*, @apiteam/env-regex@workspace:packages/env-regex":
   version: 0.0.0-use.local
-  resolution: "@apiteam/mailman@workspace:mailman"
+  resolution: "@apiteam/env-regex@workspace:packages/env-regex"
+  languageName: unknown
+  linkType: soft
+
+"@apiteam/mailman@*, @apiteam/mailman@workspace:packages/mailman":
+  version: 0.0.0-use.local
+  resolution: "@apiteam/mailman@workspace:packages/mailman"
   dependencies:
     "@apiteam/types": "*"
     "@mui/icons-material": ^5.10.6
@@ -186,6 +192,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@apiteam/types@workspace:types"
   dependencies:
+    "@apiteam/env-regex": "*"
     "@types/node": ^18.0.6
     "@types/ws": ^8.5.3
     is-valid-domain: ^0.1.6
@@ -204,6 +211,7 @@ __metadata:
   resolution: "@apiteam/web@workspace:web"
   dependencies:
     "@apiteam/docs": "*"
+    "@apiteam/env-regex": "*"
     "@apiteam/types": "*"
     "@emotion/react": ^11.9.3
     "@emotion/styled": ^11.9.3
@@ -11260,6 +11268,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/webpack@npm:^4.4.23":
+  version: 4.41.33
+  resolution: "@types/webpack@npm:4.41.33"
+  dependencies:
+    "@types/node": "*"
+    "@types/tapable": ^1
+    "@types/uglify-js": "*"
+    "@types/webpack-sources": "*"
+    anymatch: ^3.0.0
+    source-map: ^0.6.0
+  checksum: dc6db66fa84664d8fab7ea79bd2482ea1c4500b09ed6939258e205548501b8d29c06b0fe5e869c4b59f74acf884c61a391875dadb9f7a91c8cd10c3841143729
+  languageName: node
+  linkType: hard
+
 "@types/webpack@npm:^4.41.26, @types/webpack@npm:^4.41.8":
   version: 4.41.32
   resolution: "@types/webpack@npm:4.41.32"
@@ -21203,6 +21225,17 @@ __metadata:
     pify: ^4.0.1
     slash: ^2.0.0
   checksum: 2bd47ec43797b81000f3619feff96803b22591961788c06d746f6c8ba2deb14676b591ee625eb74b197c0047b2236e4a7a2ad662417661231b317c1de67aee94
+  languageName: node
+  linkType: hard
+
+"golang-wasm-async-loader@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "golang-wasm-async-loader@npm:0.4.1"
+  dependencies:
+    "@types/webpack": ^4.4.23
+  peerDependencies:
+    webpack: ^4.29.0
+  checksum: 0570cb81faa1a06e95ad2063331f968d76a7ca9f5621ad389ba12b9bc223bf4e5f014a24db1b47779b465edd1b1475e2abfaa725a067b49e56e32f66130cf1ab
   languageName: node
   linkType: hard
 
@@ -32323,6 +32356,7 @@ __metadata:
     eslint-config-prettier: ^8.6.0
     eslint-plugin-prettier: ^4.2.1
     firebase: ^9.9.3
+    golang-wasm-async-loader: ^0.4.1
     gotrue-js: ^0.9.29
     graphql-scalars: ^1.17.0
     magic-sdk: 9.0.0

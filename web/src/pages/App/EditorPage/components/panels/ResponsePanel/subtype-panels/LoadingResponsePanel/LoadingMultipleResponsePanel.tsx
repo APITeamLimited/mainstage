@@ -130,6 +130,18 @@ export const LoadingMultipleResponsePanel = ({
     [globeTestLogs]
   )
 
+  const outputsThrottled = useMemo(
+    () =>
+      globeTestLogs?.find(
+        (log) =>
+          log.messageType === 'MESSAGE' && log.message === 'MAX_OUTPUTS_REACHED'
+      ) !== undefined
+        ? true
+        : // eslint-disable-next-line react-hooks/exhaustive-deps
+          false,
+    [globeTestLogs]
+  )
+
   const tabNames = useMemo(
     () =>
       focusedResponse.get('__typename') === 'RESTResponse'
@@ -157,6 +169,7 @@ export const LoadingMultipleResponsePanel = ({
             responseYMap={focusedResponse}
             wasLimited={wasLimited}
             logsThrottled={logsThrottled}
+            outputsThrottled={outputsThrottled}
             errorMessage={null}
           />
         }

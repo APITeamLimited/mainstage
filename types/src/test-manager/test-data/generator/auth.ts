@@ -6,14 +6,14 @@ import type { ExecutionParams } from '../../../execution-params'
 
 import { findEnvironmentVariables } from './variables'
 
-export const addAuthToAxiosConfig = (
+export const addAuthToAxiosConfig = async (
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext'],
   collectionYMap: YMap<any>,
   currentNode: YMap<any>,
   folders: YMap<any>,
   axiosConfig: AxiosRequestConfig
-): AxiosRequestConfig => {
+): Promise<AxiosRequestConfig> => {
   const authOriginal = currentNode.get('auth') as Auth
 
   // Make a copy of auth so we don't mutate the original
@@ -29,7 +29,7 @@ export const addAuthToAxiosConfig = (
     )
 
     if (parentFolder) {
-      return addAuthToAxiosConfig(
+      return await addAuthToAxiosConfig(
         environmentContext,
         collectionContext,
         collectionYMap,
@@ -40,7 +40,7 @@ export const addAuthToAxiosConfig = (
     }
 
     if (collectionYMap.get('id') === currentNode.get('parentId')) {
-      return addAuthToAxiosConfig(
+      return await addAuthToAxiosConfig(
         environmentContext,
         collectionContext,
         collectionYMap,
@@ -66,7 +66,7 @@ export const addAuthToAxiosConfig = (
       ...axiosConfig,
       headers: {
         ...axiosConfig.headers,
-        Authorization: `Bearer ${findEnvironmentVariables(
+        Authorization: `Bearer ${await findEnvironmentVariables(
           environmentContext,
           collectionContext,
           auth.token
@@ -79,11 +79,11 @@ export const addAuthToAxiosConfig = (
         ...axiosConfig,
         headers: {
           ...axiosConfig.headers,
-          [findEnvironmentVariables(
+          [await findEnvironmentVariables(
             environmentContext,
             collectionContext,
             auth.key
-          )]: findEnvironmentVariables(
+          )]: await findEnvironmentVariables(
             environmentContext,
             collectionContext,
             auth.value
@@ -95,11 +95,11 @@ export const addAuthToAxiosConfig = (
         ...axiosConfig,
         params: {
           ...axiosConfig.params,
-          [findEnvironmentVariables(
+          [await findEnvironmentVariables(
             environmentContext,
             collectionContext,
             auth.key
-          )]: findEnvironmentVariables(
+          )]: await findEnvironmentVariables(
             environmentContext,
             collectionContext,
             auth.value

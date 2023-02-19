@@ -38,7 +38,7 @@ export const clientSideGenerator = async ({
 }): Promise<BaseJob & PendingJob> => {
   const timeNow = new Date().getTime()
 
-  const testData = generateTestData({
+  const testData = await generateTestData({
     rootScript: {
       name: executionScript.name,
       contents: executionScript.script,

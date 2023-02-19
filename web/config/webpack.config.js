@@ -5,11 +5,6 @@ const BundleAnalyzerPlugin =
 
 /** @returns {import('webpack').Configuration} Webpack Configuration */
 module.exports = (config, { mode }) => {
-  if (mode === 'development') {
-    // Add dev plugin
-    config.plugins.push(new BundleAnalyzerPlugin())
-  }
-
   // Add custom rules for your project
   // config.module.rules.push(YOUR_RULE)
 
@@ -22,7 +17,7 @@ module.exports = (config, { mode }) => {
   // config.plugins.push(YOUR_PLUGIN)
   config.plugins.push(
     new CopyPlugin({
-      patterns: [{ from: '../docs/src/content', to: 'public/docs' }],
+      patterns: [{ from: '../packages/docs/src/content', to: 'public/docs' }],
     })
   )
 
@@ -51,8 +46,9 @@ module.exports = (config, { mode }) => {
   // incorrectly being loaded
   config.resolve.alias['react-dom'] = require.resolve('react-dom')
 
-  // Redirect dev server to use different endpoint
+  // Dev specific settings
   if (mode === 'development') {
+    // Redirect dev server to use different endpoint
     config.devServer.proxy = {
       '/api': {
         target: `http://${process.env.API_HOST}:${process.env.API_PORT}`,
@@ -65,18 +61,15 @@ module.exports = (config, { mode }) => {
         ws: true,
       },
     }
+
+    config.plugins.push(new BundleAnalyzerPlugin())
   }
 
-  // Go Webassembly
-
-  // config.module.rules.push({
-  //   test: /\.go/,
-  //   use: ['golang-wasm-async-loader'],
-  // })
-
-  // config.node = {
-  //   fs: 'empty',
-  // }
+  // Provide support for webassembly
+  config.experiments = {
+    asyncWebAssembly: true,
+    syncWebAssembly: true,
+  }
 
   return config
 }

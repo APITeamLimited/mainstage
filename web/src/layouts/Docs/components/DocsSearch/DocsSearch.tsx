@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import type { DocsSearchIndex } from '@apiteam/docs/src'
 import DocsSearchIcon from '@mui/icons-material/Search'
 import {
   useMediaQuery,
@@ -17,6 +16,8 @@ import {
   HotkeysModuleProvider,
   useHotkeysModule,
 } from 'src/contexts/imports/hotkeys-module-provider'
+
+import type { DocsSearchIndex } from '../packages/docs/src'
 
 import { SearchDialog } from './SearchDialog'
 import { SearchKeys } from './SearchKeys'

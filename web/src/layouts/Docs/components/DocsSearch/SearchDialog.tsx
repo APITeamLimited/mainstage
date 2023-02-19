@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { DocsSearchIndex, FlatContent } from '@apiteam/docs/src'
 import SearchIcon from '@mui/icons-material/Search'
 import {
   Stack,
@@ -17,6 +16,8 @@ import { navigate } from '@redwoodjs/router'
 import { CustomDialog } from 'src/components/custom-mui'
 import { useSimplebarReactModule } from 'src/contexts/imports'
 import { useHotkeysModule } from 'src/contexts/imports/hotkeys-module-provider'
+
+import { DocsSearchIndex, FlatContent } from '../packages/docs/src'
 
 import { SearchGroup } from './SearchGroup'
 import { SearchKeys } from './SearchKeys'

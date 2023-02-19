@@ -41,7 +41,7 @@ export const IsVerifiedDomainBadge = ({
       )
 
       // Check if starts with http:// or https://
-      const validatedUrl = await validateURL(environmentAwareEndpoint)
+      const validatedUrl = validateURL(await environmentAwareEndpoint)
 
       if (!validatedUrl) {
         setIsVerified('no-url')

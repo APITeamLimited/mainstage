@@ -33,7 +33,7 @@ const GlobeTestOverview = (): JSX.Element => {
           </>
         }
         description="Load test your API globally using distributed load testing with
-                GlobeTest, our open source load testing tool built on top of K6. Import existing tests and run them instantly using our
+                GlobeTest, our open source load testing tool built on top of. Import existing tests and run them instantly using our
                 cloud infrastructure."
         elements={globeTestFeaturesMinimal}
         alignment="right"

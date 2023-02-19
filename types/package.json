@@ -20,6 +20,7 @@
   },
   "private": true,
   "dependencies": {
+    "@apiteam/env-regex": "*",
     "is-valid-domain": "^0.1.6",
     "zod": "^3.19.1"
   }

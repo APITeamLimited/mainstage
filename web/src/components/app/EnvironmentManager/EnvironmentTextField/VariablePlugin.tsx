@@ -1,13 +1,13 @@
 import { ReactPortal, useEffect, useState } from 'react'
 
-import { getPossibleVariableMatch, VariableMatch } from '@apiteam/types/src'
+import type { MatchResult } from '@apiteam/env-regex'
 import type { LexicalCommand, LexicalEditor, RangeSelection } from 'lexical'
 
 import type { LexicalAddons, LexicalModule } from './module'
 import { $createVariableNode, VariableNodeType } from './VariableNode'
 
 type Resolution = {
-  match: VariableMatch
+  match: MatchResult
   range: Range
 }
 
@@ -64,13 +64,13 @@ function isSelectionOnEntityBoundary(
   })
 }
 
-function tryToPositionRange(match: VariableMatch, range: Range): boolean {
+function tryToPositionRange(match: MatchResult, range: Range): boolean {
   const domSelection = window.getSelection()
   if (domSelection === null || !domSelection.isCollapsed) {
     return false
   }
   const anchorNode = domSelection.anchorNode
-  const startOffset = match.leadOffset
+  const startOffset = match.start
   const endOffset = domSelection.anchorOffset
   try {
     if (anchorNode) {
@@ -129,7 +129,7 @@ const useVariables = (
     let activeRange: Range | null = document.createRange()
     let previousText: string | null = null
 
-    const updateListener = () => {
+    const updateListener = async () => {
       const range = activeRange
       const text = getVariablesTextToSearch(editor, lexical)
 
@@ -141,12 +141,14 @@ const useVariables = (
       if (text === null) {
         return
       }
-      const matches = getPossibleVariableMatch(text)
+      const matches = await import('@apiteam/env-regex').then(
+        (m) => m.matchAllEnvVariables(text) as MatchResult[]
+      )
 
       const newResolutions = [] as Resolution[]
 
       matches.forEach((match) => {
-        if (!isSelectionOnEntityBoundary(editor, match.leadOffset, lexical)) {
+        if (!isSelectionOnEntityBoundary(editor, match.start, lexical)) {
           const isRangePositioned = tryToPositionRange(match, range)
           if (isRangePositioned !== null) {
             newResolutions.push({
@@ -194,7 +196,7 @@ const useVariables = (
 
 const createVariableNodes = (
   editor: LexicalEditor,
-  matches: VariableMatch[],
+  matches: MatchResult[],
   lexical: LexicalModule,
   VariableNodeClass: VariableNodeType
 ): void => {
@@ -218,27 +220,24 @@ const createVariableNodes = (
     const offsets = [] as number[]
 
     matches.forEach((match) => {
-      if (!offsets.includes(match.leadOffset)) {
-        offsets.push(match.leadOffset)
+      if (!offsets.includes(match.start)) {
+        offsets.push(match.start)
       }
-      if (!offsets.includes(match.leadOffset + match.matchingString.length)) {
-        offsets.push(match.leadOffset + match.matchingString.length)
+      if (!offsets.includes(match.start + match.text.length)) {
+        offsets.push(match.start + match.text.length)
       }
     })
 
     const splitNodes = anchorNode.splitText(...offsets)
 
     matches.forEach((match) => {
-      const node = splitNodes.find(
-        (node) => node.__text === match.matchingString
-      )
+      const node = splitNodes.find((node) => node.__text === match.text)
 
-      if (!node) return
+      if (!node || match.text === '{{}}') {
+        return
+      }
 
-      const variableNode = $createVariableNode(
-        match.matchingString,
-        VariableNodeClass
-      )
+      const variableNode = $createVariableNode(match.text, VariableNodeClass)
       node.replace(variableNode)
     })
   })

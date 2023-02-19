@@ -8,10 +8,7 @@
       "test-manager",
       "store",
       "types",
-      "mailman",
-      "desktop",
-      "docs",
-      "packages/"
+      "packages/*"
     ]
   },
   "devDependencies": {
@@ -68,6 +65,7 @@
   "dependencies": {
     "config": "^3.3.7",
     "create-fastify-ts": "^0.2.2",
+    "golang-wasm-async-loader": "^0.4.1",
     "graphql-scalars": "^1.17.0",
     "react-router-dom": "^6.3.0",
     "simple-oauth2": "^5.0.0"

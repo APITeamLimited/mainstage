@@ -54,6 +54,7 @@ const messageCombinationSchema = z.union([
       z.string(),
       z.literal('UNVERIFIED_DOMAIN_THROTTLED'),
       z.literal('MAX_CONSOLE_LOGS_REACHED'),
+      z.literal('MAX_OUTPUTS_REACHED'),
     ]),
   }),
   z.object({

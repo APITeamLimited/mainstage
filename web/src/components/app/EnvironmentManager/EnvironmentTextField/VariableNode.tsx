@@ -26,7 +26,7 @@ const convertVariableElement = (
 ): DOMConversionOutput | null => {
   const textContent = domNode.textContent
 
-  if (textContent !== null) {
+  if (textContent !== null && textContent !== '') {
     const node = $createVariableNode(textContent, VariableNodeClass)
     return {
       node,

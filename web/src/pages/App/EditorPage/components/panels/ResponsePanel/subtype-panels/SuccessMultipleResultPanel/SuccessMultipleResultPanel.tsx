@@ -128,6 +128,18 @@ export const SuccessMultipleResultPanel = ({
     [storedGlobeTestLogs]
   )
 
+  const outputsThrottled = useMemo(
+    () =>
+      storedGlobeTestLogs?.find(
+        (log) =>
+          log.messageType === 'MESSAGE' && log.message === 'MAX_OUTPUTS_REACHED'
+      ) !== undefined
+        ? true
+        : // eslint-disable-next-line react-hooks/exhaustive-deps
+          false,
+    [storedGlobeTestLogs]
+  )
+
   useEffect(() => {
     if (fetching) {
       return
@@ -176,6 +188,7 @@ export const SuccessMultipleResultPanel = ({
         responseYMap={focusedResponse}
         wasLimited={wasLimited}
         logsThrottled={logsThrottled}
+        outputsThrottled={outputsThrottled}
         errorMessage={errorMessage}
       />
     ),

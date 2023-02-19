@@ -32,3 +32,5 @@ desktop/Webapp*
 .clinic/
 
 scripts/public-downloads/
+
+*.wasm

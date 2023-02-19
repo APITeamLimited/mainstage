@@ -12,6 +12,7 @@ type LoadTestSummaryPanelProps = {
   responseYMap: YMap<any>
   wasLimited?: boolean
   logsThrottled?: boolean
+  outputsThrottled?: boolean
   errorMessage: string | null
 }
 
@@ -20,6 +21,7 @@ export const LoadTestSummaryPanel = ({
   responseYMap,
   wasLimited,
   logsThrottled,
+  outputsThrottled,
   errorMessage,
 }: LoadTestSummaryPanelProps) => {
   return (
@@ -33,6 +35,7 @@ export const LoadTestSummaryPanel = ({
               }
               wasLimited={wasLimited}
               logsThrottled={logsThrottled}
+              outputsThrottled={outputsThrottled}
               errorMessage={errorMessage}
             />
           ) : (

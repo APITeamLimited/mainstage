@@ -16,13 +16,13 @@ import {
 /*
 Gets final axios config for a request, complete with environment variables
 */
-export const restAxiosRequest = (
+export const restAxiosRequest = async (
   request: RESTRequest,
   requestYMap: YMap<any>,
   collectionYMap: YMap<any>,
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext']
-): AxiosRequestConfig<any> => {
+): Promise<AxiosRequestConfig<any>> => {
   //const lookup = await import('mime-types').then((m) => m.lookup)
 
   let body = null
@@ -34,21 +34,24 @@ export const restAxiosRequest = (
     request.body.contentType === 'application/x-www-form-urlencoded' ||
     request.body.contentType === 'multipart/form-data'
   ) {
+    const enabledParts = request.body.body.filter(({ enabled }) => enabled)
+
+    const enabledKeyValues = await Promise.all(
+      enabledParts.map(async ({ keyString, value }) => ({
+        [await findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          keyString
+        )]: await findEnvironmentVariables(
+          environmentContext,
+          collectionContext,
+          value
+        ),
+      }))
+    )
+
     body = stringify(
-      request.body.body
-        .filter(({ enabled }) => enabled)
-        .map(({ keyString, value }) => ({
-          [findEnvironmentVariables(
-            environmentContext,
-            collectionContext,
-            keyString
-          )]: findEnvironmentVariables(
-            environmentContext,
-            collectionContext,
-            value
-          ),
-        }))
-        .reduce((acc, curr) => ({ ...acc, ...curr }), {})
+      enabledKeyValues.reduce((acc, curr) => ({ ...acc, ...curr }), {})
     )
   } else {
     body = request.body.body
@@ -98,7 +101,7 @@ export const restAxiosRequest = (
     data: body,
   }
 
-  const authedConfig = addAuthToAxiosConfig(
+  const authedConfig = await addAuthToAxiosConfig(
     environmentContext,
     collectionContext,
     collectionYMap,
@@ -120,7 +123,7 @@ export const restAxiosRequest = (
     {}
   )
 
-  const environmentAwareConfig = makeEnvironmentAwareRequest(
+  const environmentAwareConfig = await makeEnvironmentAwareRequest(
     environmentContext,
     collectionContext,
     authedConfig,
@@ -132,15 +135,15 @@ export const restAxiosRequest = (
   return environmentAwareConfig
 }
 
-export const restFinalRequest = (
+export const restFinalRequest = async (
   request: RESTRequest,
   requestYMap: YMap<any>,
   collectionYMap: YMap<any>,
   environmentContext: ExecutionParams['environmentContext'],
   collectionContext: ExecutionParams['collectionContext'],
   executionOptions: ExecutionOptions
-): GlobeTestRequest => {
-  const axiosConfig = restAxiosRequest(
+): Promise<GlobeTestRequest> => {
+  const axiosConfig = await restAxiosRequest(
     request,
     requestYMap,
     collectionYMap,

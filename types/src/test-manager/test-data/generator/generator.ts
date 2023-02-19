@@ -48,12 +48,14 @@ export type GenerateTestDataArgs = {
   oauthLocalSaveKey?: string
 }
 
-export const generateTestData = (args: GenerateTestDataArgs): TestData => {
+export const generateTestData = async (
+  args: GenerateTestDataArgs
+): Promise<TestData> => {
   const executionOptions = getExecutionOptions(args.firstLevelData)
 
   return {
     rootScript: args.rootScript,
-    rootNode: recursiveNode({
+    rootNode: await recursiveNode({
       ...args,
       isRoot: true,
       executionOptions,
@@ -69,19 +71,19 @@ type RecursiveNodeArgs = GenerateTestDataArgs & {
   executionOptions: ExecutionOptions
 }
 
-const recursiveNode = (args: RecursiveNodeArgs): Node => {
+const recursiveNode = async (args: RecursiveNodeArgs): Promise<Node> => {
   const nodeTypename = args.nodeYMap.get('__typename')
 
   if (nodeTypename === 'RESTRequest') {
-    return httpRequestNode(args)
+    return await httpRequestNode(args)
   } else if (nodeTypename === 'Collection' || nodeTypename === 'Folder') {
-    return groupNode(args)
+    return await groupNode(args)
   }
 
   throw new Error('Not implemented')
 }
 
-const httpRequestNode = ({
+const httpRequestNode = async ({
   nodeYMap,
   collectionYMap,
   firstLevelData,
@@ -91,7 +93,7 @@ const httpRequestNode = ({
   isRoot,
   rootScript,
   executionOptions,
-}: RecursiveNodeArgs): HTTPRequestNode => {
+}: RecursiveNodeArgs): Promise<HTTPRequestNode> => {
   const executionScripts = (): ExecutionScript[] => {
     const executionScripts =
       isRoot && firstLevelData?.subVariant === 'RESTRequest'
@@ -156,7 +158,7 @@ const httpRequestNode = ({
         : nodeYMap.get('name'),
     finalRequest:
       nodeYMap.get('__typename') === 'RESTRequest'
-        ? restFinalRequest(
+        ? await restFinalRequest(
             underlyingRequest,
             nodeYMap,
             collectionYMap,
@@ -181,7 +183,7 @@ const httpRequestNode = ({
   }
 }
 
-const groupNode = ({
+const groupNode = async ({
   nodeYMap,
   collectionYMap,
   firstLevelData,
@@ -191,7 +193,7 @@ const groupNode = ({
   isRoot,
   rootScript,
   executionOptions,
-}: RecursiveNodeArgs): Node => {
+}: RecursiveNodeArgs): Promise<Node> => {
   const restRequestYMaps = Array.from(
     collectionYMap.get('restRequests').values()
   ) as YMap<any>[]
@@ -205,18 +207,20 @@ const groupNode = ({
     (childYMap) => childYMap.get('parentId') === nodeYMap.get('id')
   )
 
-  const childNodes = childYMaps.map((nodeYMap) =>
-    recursiveNode({
-      nodeYMap,
-      collectionYMap,
-      collectionContext,
-      environmentContext,
-      firstLevelData,
-      oauthLocalSaveKey,
-      isRoot: false,
-      rootScript,
-      executionOptions,
-    })
+  const childNodes = await Promise.all(
+    childYMaps.map((nodeYMap) =>
+      recursiveNode({
+        nodeYMap,
+        collectionYMap,
+        collectionContext,
+        environmentContext,
+        firstLevelData,
+        oauthLocalSaveKey,
+        isRoot: false,
+        rootScript,
+        executionOptions,
+      })
+    )
   )
 
   const sourceScripts = (): SourceScript[] => {
