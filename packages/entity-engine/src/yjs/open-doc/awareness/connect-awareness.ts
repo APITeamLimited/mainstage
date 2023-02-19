@@ -5,8 +5,8 @@ import {
 } from '@apiteam/types'
 import type { Team, Membership } from '@prisma/client'
 
+import { handleAddSubscription, globalActiveSubscriptions } from '../..'
 import { getReadRedis, getSubscribeRedis } from '../../../redis'
-import { handleAddSubscription, globalActiveSubscriptions } from '../../../yjs'
 import { OpenDoc } from '../open-doc'
 
 import { createMemberAwareness, LastOnlineTime } from '.'

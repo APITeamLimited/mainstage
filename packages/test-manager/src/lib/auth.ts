@@ -9,8 +9,8 @@ import queryString from 'query-string'
 import type { Socket } from 'socket.io'
 
 import { checkValue } from '../config'
-import { apolloClient } from '../lib/apollo'
-import { getCoreCacheReadRedis } from '../lib/redis'
+import { apolloClient } from './apollo'
+import { getCoreCacheReadRedis } from './redis'
 
 const audience = checkValue<string>('api.bearer.audience')
 const issuer = checkValue<string>('api.bearer.issuer')

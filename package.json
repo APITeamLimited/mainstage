@@ -4,9 +4,6 @@
     "packages": [
       "api",
       "web",
-      "entity-engine",
-      "test-manager",
-      "store",
       "packages/*"
     ]
   },

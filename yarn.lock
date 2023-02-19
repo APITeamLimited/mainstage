@@ -18277,9 +18277,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entity-engine@workspace:entity-engine":
+"entity-engine@workspace:packages/entity-engine":
   version: 0.0.0-use.local
-  resolution: "entity-engine@workspace:entity-engine"
+  resolution: "entity-engine@workspace:packages/entity-engine"
   dependencies:
     "@apiteam/types": "*"
     "@apollo/client": ^3.6.9
@@ -33918,9 +33918,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"store@workspace:store":
+"store@workspace:packages/store":
   version: 0.0.0-use.local
-  resolution: "store@workspace:store"
+  resolution: "store@workspace:packages/store"
   dependencies:
     "@apiteam/types": "*"
     "@apollo/client": ^3.6.9
@@ -35117,9 +35117,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"test-manager@workspace:test-manager":
+"test-manager@workspace:packages/test-manager":
   version: 0.0.0-use.local
-  resolution: "test-manager@workspace:test-manager"
+  resolution: "test-manager@workspace:packages/test-manager"
   dependencies:
     "@apiteam/types": "*"
     "@apollo/client": ^3.6.9
