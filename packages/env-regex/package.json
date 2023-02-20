@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "install": "cd src/env-regex-raw && wasm-pack build && rm pkg/package.json && cd .. && rm -rf ./dist && tsc -p tsconfig.json && cp -r env-regex-raw/pkg dist/pkg",
-    "build": "cd src/env-regex-raw && wasm-pack build && rm pkg/package.json && cd .. && cd .. && rm -rf ./dist && mkdir -p dist/env-regex-raw/pkg && cp -r src/env-regex-raw/pkg dist/env-regex-raw && tsc -p tsconfig.json "
+    "install": "cd src/env-regex-raw && wasm-pack build && rm pkg/package.json && cd .. && cd .. && rm -rf ./dist && mkdir -p dist/env-regex-raw/pkg && cp -r src/env-regex-raw/pkg dist/env-regex-raw && tsc -p tsconfig.json",
+    "build": "cd src/env-regex-raw && wasm-pack build && rm pkg/package.json && cd .. && cd .. && rm -rf ./dist && mkdir -p dist/env-regex-raw/pkg && cp -r src/env-regex-raw/pkg dist/env-regex-raw && tsc -p tsconfig.json"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"

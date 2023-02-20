@@ -29,21 +29,6 @@ struct Match {
     end: usize,
 }
 
-#[wasm_bindgen(typescript_custom_section)]
-const MatchResult: &'static str = r#"
-export type MatchResult = {
-    text: string;
-    start: number;
-    end: number;
-}
-"#;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(typescript_type = "MatchResult")]
-    pub type MatchResult;
-}
-
 #[wasm_bindgen(js_name = rawMatchAllEnvVariables)]
 pub fn match_all_env_variables(path: &str) -> JsValue {
     let matches: Vec<Match> = BRACED_REGEX

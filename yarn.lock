@@ -133,6 +133,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@apiteam/datapeak@workspace:packages/datapeak":
+  version: 0.0.0-use.local
+  resolution: "@apiteam/datapeak@workspace:packages/datapeak"
+  languageName: unknown
+  linkType: soft
+
 "@apiteam/desktop@workspace:packages/desktop":
   version: 0.0.0-use.local
   resolution: "@apiteam/desktop@workspace:packages/desktop"

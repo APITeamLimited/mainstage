@@ -1,0 +1,12 @@
+{
+  "name": "@apiteam/datapeak",
+  "description": "Processes and analyse realtime metric data",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "install": "cd src/datapeak-raw && wasm-pack build && rm pkg/package.json && cd .. && cd .. && rm -rf ./dist && mkdir -p dist/datapeak-raw/pkg && cp -r src/datapeak-raw/pkg dist/datapeak-raw && tsc -p tsconfig.json",
+    "build": "cd src/datapeak-raw && wasm-pack build && rm pkg/package.json && cd .. && cd .. && rm -rf ./dist && mkdir -p dist/datapeak-raw/pkg && cp -r src/datapeak-raw/pkg dist/datapeak-raw && tsc -p tsconfig.json"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts"
+}
