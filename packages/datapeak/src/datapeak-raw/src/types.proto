@@ -5,8 +5,6 @@ syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "/lib";
-
 message Sink {
     map<string, double> labels = 1;
 };

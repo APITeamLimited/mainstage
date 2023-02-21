@@ -1,9 +1,19 @@
 use protobuf::Message;
+use uuid::Uuid;
 use crate::types;
 
 pub struct TestInfoManager {
     pub test_info: types::TestInfo,
+
+    pub intervals_state: String,
+    pub console_messages_state: String,
+    pub thresholds_state: String,
+
     pub locations: Vec<String>,
+    pub location_state: String,
+
+    pub summary: Option<types::Interval>,
+    pub summary_state: String,
 }
 
 impl TestInfoManager {
@@ -13,7 +23,16 @@ impl TestInfoManager {
                 Some(test_info) => test_info.clone(),
                 None => types::TestInfo::new(),
             },
+
             locations: Vec::new(),
+            location_state: Uuid::new_v4().to_string(),
+
+            intervals_state: Uuid::new_v4().to_string(),
+            console_messages_state: Uuid::new_v4().to_string(),
+            thresholds_state: Uuid::new_v4().to_string(),
+            
+            summary: None,
+            summary_state: Uuid::new_v4().to_string(),
         };
 
         for interval in new_manager.test_info.intervals.clone().iter() {
@@ -58,29 +77,6 @@ impl TestInfoManager {
         Ok(())
     }
 
-    fn process_interval(&mut self, interval: &types::Interval) {
-        // Check if period is already in the list
-        self.test_info
-            .intervals
-            .retain(|x| x.period != interval.period);
-
-        // Find where to insert the new interval so that the list is sorted
-        let mut index = 0;
-        for (i, existing_interval) in self.test_info.intervals.iter().enumerate() {
-            if existing_interval.period > interval.period {
-                index = i;
-                break;
-            }
-        }
-
-        // Insert the new interval
-        self.test_info.intervals.insert(index, interval.clone());
-
-        // Add new locations to the list
-        self.update_locations(interval)
-    }
-
-    
     fn process_console_message(&mut self, new_message: &types::ConsoleMessage) {
         // Check if console message is already in the list
 
@@ -116,6 +112,8 @@ impl TestInfoManager {
                 self.test_info.console_messages.push(new_message.clone());
             }
         }
+
+        self.console_messages_state = Uuid::new_v4().to_string();
     }
 
     fn process_threshold(&mut self, threshold: &types::Threshold) {
@@ -126,9 +124,11 @@ impl TestInfoManager {
 
         // Append the new threshold
         self.test_info.thresholds.push(threshold.clone());
+
+        self.thresholds_state = Uuid::new_v4().to_string();
     }
 
-    fn update_locations(&mut self, interval: &types::Interval) {
+    pub fn update_locations(&mut self, interval: &types::Interval) {
         let mut locations: Vec<String> = Vec::new();
 
         for (sink_name, _) in interval.sinks.iter() {
@@ -144,7 +144,7 @@ impl TestInfoManager {
                 self.locations.push(new_location.to_string());
             }
         }
-    }
 
-    
+        self.location_state = Uuid::new_v4().to_string();
+    }
 }

@@ -1,8 +1,10 @@
 mod intervals;
 mod manager;
 mod types;
+mod states;
+mod accessors;
+
 use lazy_static::lazy_static;
-use js_sys::Reflect;
 use protobuf::Message;
 use uuid::Uuid;
 use std::collections::HashMap;
@@ -28,7 +30,6 @@ lazy_static! {
     static ref MANAGERS: Mutex<HashMap<String, manager::TestInfoManager>> =
         Mutex::new(HashMap::new());
 }
-
 #[wasm_bindgen (js_name = rawInitTestData)]
 pub fn init_test_data(test_info: Option<Vec<u8>>) -> Result<JsValue, JsValue> {
     let mut managers = MANAGERS.lock().unwrap();
@@ -98,123 +99,6 @@ pub fn add_streamed_data(test_info_id: &str, bytes: Vec<u8>) -> Result<(), JsVal
     }
 }
 
-#[wasm_bindgen (js_name = rawGetThresholds)]
-pub fn get_thresholds(test_info_id: &str) -> Result<JsValue, JsValue> {
-    let mut managers = MANAGERS.lock().unwrap();
-
-    // Get test data if it exists, otherwise return
-    let manager = managers.get_mut(test_info_id).ok_or_else(|| {
-        JsValue::from_str(format!("No test data found for test_info_id: {}", test_info_id).as_str())
-    })?;
-
-    let thresholds = js_sys::Array::new();
-
-    for tr in manager.test_info.thresholds.iter() {
-        let obj = js_sys::Object::new();
-
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("source"),
-            &JsValue::from_str(tr.source.as_str()),
-        )?;
-        
-        match &tr.abort_on_fail {
-            Some(abort_on_fail) => {
-                Reflect::set(
-                    &obj,
-                    &JsValue::from_str("abortOnFail"),
-                    &JsValue::from_bool(*abort_on_fail),
-                )?;
-            }
-            None => {}
-        }
-
-        match &tr.delay_abort_eval {
-            Some(delay_abort_eval) => {
-                Reflect::set(
-                    &obj,
-                    &JsValue::from_str("delayAbortEval"),
-                    &JsValue::from_str(delay_abort_eval),
-                )?;
-            }
-            None => {}
-        }
-
-        thresholds.push(&obj);
-    }
-
-    Ok(JsValue::from(thresholds))
-}
-
-#[wasm_bindgen (js_name = rawGetConsoleMessages)]
-pub fn get_console_messages(test_info_id: &str) -> Result<JsValue, JsValue> {
-    let mut managers = MANAGERS.lock().unwrap();
-
-    // Get test data if it exists, otherwise return
-    let manager = managers.get_mut(test_info_id).ok_or_else(|| {
-        JsValue::from_str(format!("No test data found for test_info_id: {}", test_info_id).as_str())
-    })?;
-
-    let console_messages = js_sys::Array::new();
-
-    for cm in manager.test_info.console_messages.iter() {
-        let obj = js_sys::Object::new();
-
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("message"),
-            &JsValue::from_str(cm.message.as_str()),
-        )?;
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("level"),
-            &JsValue::from_str(cm.level.as_str()),
-        )?;
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("firstOccured"),
-            &JsValue::from_str(&cm.first_occurred.get_or_default().to_string()),
-        )?;
-        Reflect::set(
-            &obj,
-            &JsValue::from_str("lastOccured"),
-            &JsValue::from_str(&cm.last_occurred.get_or_default().to_string()),
-        )?;
-
-        let count = js_sys::Object::new();
-        for (key, value) in cm.count.iter() {
-            Reflect::set(
-                &count,
-                &JsValue::from_str(key.as_str()),
-                &JsValue::from_f64(*value as f64),
-            )?;
-        }
-
-        Reflect::set(&obj, &JsValue::from_str("count"), &count)?;
-
-        console_messages.push(&obj);
-    }
-
-    Ok(JsValue::from(console_messages))
-}
-
-#[wasm_bindgen (js_name = rawGetLocations)]
-pub fn get_locations(test_info_id: &str) -> Result<JsValue, JsValue> {
-    let mut managers = MANAGERS.lock().unwrap();
-
-    // Get test data if it exists, otherwise return
-    let manager = managers.get_mut(test_info_id).ok_or_else(|| {
-        JsValue::from_str(format!("No test data found for test_info_id: {}", test_info_id).as_str())
-    })?;
-
-    let locations = js_sys::Array::new();
-
-    for location in manager.locations.iter() {
-        locations.push(&JsValue::from_str(location.as_str()));
-    }
-
-    Ok(JsValue::from(locations))
-}
 
 struct IntervalsQuery {
     location: Option<String>,
@@ -237,3 +121,14 @@ struct IntervalsQuery {
 //     let filter_by_location = location.is_some();
 
 //     for i in manager.intervals.iter() {
+
+
+
+
+
+#[wasm_bindgen (js_name = rawTestInfoIdExists)]
+pub fn test_info_id_exists(test_info_id: &str) -> bool {
+    let managers = MANAGERS.lock().unwrap();
+
+    managers.contains_key(test_info_id)
+}
