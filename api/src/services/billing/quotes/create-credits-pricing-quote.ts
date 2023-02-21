@@ -2,9 +2,8 @@ import { z } from 'zod'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { CreditsPricingOptionModel } from 'src/models'
-import { QuoteModel } from 'src/models/billing/quotes'
-
+import { CreditsPricingOptionModel } from '../../../models'
+import { QuoteModel } from '../../../models/billing/quotes'
 import { authenticateAndGetContext, getCustomer } from '../helpers'
 
 const numberFormatter = Intl.NumberFormat('en-US', {

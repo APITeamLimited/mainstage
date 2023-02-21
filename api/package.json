@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@apiteam/mailman": "*",
+    "@apiteam/types-commonjs": "*",
     "@apiteam/web": "*",
     "@redwoodjs/api": "^3.8.0",
     "@redwoodjs/api-server": "^3.8.0",

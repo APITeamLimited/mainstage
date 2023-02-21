@@ -1,16 +1,15 @@
 import { NotifyDowngradeFreeTierData } from '@apiteam/mailman'
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import type Stripe from 'stripe'
 
+import { customerIdentificationSchema } from '..'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { getFreePlanInfo } from 'src/helpers/billing'
-import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
-import { CustomerModel, TeamModel, UserModel } from 'src/models'
-
-import { customerIdentificationSchema } from '..'
+} from '../../../../helpers'
+import { getFreePlanInfo } from '../../../../helpers/billing'
+import { dispatchEmail, DispatchEmailInput } from '../../../../lib/mailman'
+import { CustomerModel, TeamModel, UserModel } from '../../../../models'
 
 export const handleSubscriptionDeleted = async (event: Stripe.Event) => {
   const subscription = event.data.object as Stripe.Subscription

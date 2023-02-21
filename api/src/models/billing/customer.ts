@@ -1,10 +1,9 @@
-import { APITeamModel } from '@apiteam/types'
+import { APITeamModel } from '@apiteam/types-commonjs'
 import type Stripe from 'stripe'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { stripe } from 'src/lib/stripe'
-
+import { stripe } from '../../lib/stripe'
 import { TeamModel } from '../team'
 import { UserModel } from '../user'
 
@@ -65,9 +64,11 @@ export const CustomerModel: APITeamModel<
       email: input.email,
       address: input.address,
       name: input.name,
-      invoice_settings: input.invoiceSettings ? {
-        default_payment_method: input.invoiceSettings.defaultPaymentMethod,
-      } : undefined,
+      invoice_settings: input.invoiceSettings
+        ? {
+            default_payment_method: input.invoiceSettings.defaultPaymentMethod,
+          }
+        : undefined,
     })
   },
   delete: async (id) => {

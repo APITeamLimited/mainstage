@@ -1,8 +1,8 @@
-import { DeleteMixin } from '@apiteam/types'
+import { DeleteMixin } from '@apiteam/types-commonjs'
 import { Invitation } from '@prisma/client'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { db } from '../lib/db'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 export const InvitationModel: DeleteMixin<Invitation> = {
   delete: async (id) => {

@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 
 const STRIPE_SECRET_KEY = checkValue<string>('stripe.secretKey')
 

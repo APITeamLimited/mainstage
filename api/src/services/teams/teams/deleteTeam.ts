@@ -4,18 +4,18 @@ import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../../../config'
 import {
   deleteTeamAudience,
   generateBlanketUnsubscribeUrl,
   generateDeleteTeamUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { dispatchEmail } from 'src/lib/mailman'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { TeamModel } from 'src/models/team'
-import { getKeyPair } from 'src/services/bearer/bearer'
-import { checkOwner } from 'src/services/guards'
+} from '../../../helpers/routing'
+import { dispatchEmail } from '../../../lib/mailman'
+import { getCoreCacheReadRedis } from '../../../lib/redis'
+import { TeamModel } from '../../../models/team'
+import { getKeyPair } from '../../../services/bearer/bearer'
+import { checkOwner } from '../../../services/guards'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 

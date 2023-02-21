@@ -1,6 +1,5 @@
-import { stripe } from 'src/lib/stripe'
-import { PlanInfoModel, TeamModel } from 'src/models'
-
+import { stripe } from '../../../lib/stripe'
+import { PlanInfoModel, TeamModel } from '../../../models'
 import { checkAuthenticated, checkOwnerAdmin } from '../../guards'
 
 export const upcomingInvoice = async ({ teamId }: { teamId?: string }) =>

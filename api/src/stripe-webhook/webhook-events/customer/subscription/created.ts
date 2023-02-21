@@ -1,16 +1,20 @@
 import { NotifyWelcomeToProData } from '@apiteam/mailman'
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import type Stripe from 'stripe'
 
+import { customerIdentificationSchema } from '..'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { processFreeCredits } from 'src/jobs/apply-free-credits'
-import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
-import { CustomerModel, PlanInfoModel, TeamModel, UserModel } from 'src/models'
-
-import { customerIdentificationSchema } from '..'
+} from '../../../../helpers'
+import { processFreeCredits } from '../../../../jobs/apply-free-credits'
+import { dispatchEmail, DispatchEmailInput } from '../../../../lib/mailman'
+import {
+  CustomerModel,
+  PlanInfoModel,
+  TeamModel,
+  UserModel,
+} from '../../../../models'
 
 export const handleSubscriptionCreated = async (event: Stripe.Event) => {
   const subscription = event.data.object as Stripe.Subscription

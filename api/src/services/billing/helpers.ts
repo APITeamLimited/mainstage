@@ -1,10 +1,9 @@
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import type { Team } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { CustomerModel, TeamModel, PlanInfoModel } from 'src/models'
-
+import { CustomerModel, TeamModel, PlanInfoModel } from '../../models'
 import { checkAuthenticated, checkOwnerAdmin } from '../guards'
 
 export type WorkspaceContext =

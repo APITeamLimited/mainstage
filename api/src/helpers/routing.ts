@@ -1,9 +1,9 @@
-import { UserAsPersonal } from '@apiteam/types'
-import { ROUTES } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
+import { ROUTES } from '@apiteam/types-commonjs'
 import JWT from 'jsonwebtoken'
 
-import { checkValue } from 'src/config'
-import { getKeyPair } from 'src/services/bearer/bearer'
+import { checkValue } from '../config'
+import { getKeyPair } from '../services/bearer/bearer'
 
 const gateway = checkValue<string>('gateway.url')
 

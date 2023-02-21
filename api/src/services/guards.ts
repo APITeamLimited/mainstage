@@ -2,8 +2,8 @@ import { Membership } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { checkValue } from 'src/config'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { checkValue } from '../config'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 export const checkOwner = async ({ teamId }: { teamId: string }) => {
   const currentUser = await checkAuthenticated()

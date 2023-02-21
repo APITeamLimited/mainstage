@@ -1,23 +1,23 @@
 import { MailmanInput, TeamInvitationData } from '@apiteam/mailman'
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import { Team } from '@prisma/client'
 import * as Yup from 'yup'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { getFreePlanInfo } from 'src/helpers/billing'
+import { getFreePlanInfo } from '../../../helpers/billing'
 import {
   generateAcceptInvitationUrl,
   generateBlanketUnsubscribeUrl,
   generateDeclineInvitationUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { dispatchEmail } from 'src/lib/mailman'
-import { PlanInfoModel, TeamModel } from 'src/models'
-import { setInvitationRedis } from 'src/models/invitation'
-import { UserModel } from 'src/models/user'
-import { checkAuthenticated, checkOwnerAdmin } from 'src/services/guards'
+} from '../../../helpers/routing'
+import { db } from '../../../lib/db'
+import { dispatchEmail } from '../../../lib/mailman'
+import { PlanInfoModel, TeamModel } from '../../../models'
+import { setInvitationRedis } from '../../../models/invitation'
+import { UserModel } from '../../../models/user'
+import { checkAuthenticated, checkOwnerAdmin } from '../../../services/guards'
 
 import { InvitationInput } from './team-admin'
 

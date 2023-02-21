@@ -1,9 +1,8 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { createTeamScope } from 'src/helpers'
-import { getFreePlanInfo } from 'src/helpers/billing'
-import { db } from 'src/lib/db'
-
+import { createTeamScope } from '../../helpers'
+import { getFreePlanInfo } from '../../helpers/billing'
+import { db } from '../../lib/db'
 import { CustomerModel, PlanInfoModel } from '../billing'
 
 import { determineIfNeedKickMembers } from './determine-if-need-kick-members'
@@ -14,7 +13,7 @@ import { AbstractUpdateTeamInput, TeamModel } from '.'
 export const handleTeamUpdate = async (
   id: string,
   input: AbstractUpdateTeamInput
-): ReturnType<typeof TeamModel['update']> => {
+): ReturnType<(typeof TeamModel)['update']> => {
   const oldTeam = await TeamModel.get(id)
 
   if (!oldTeam) {

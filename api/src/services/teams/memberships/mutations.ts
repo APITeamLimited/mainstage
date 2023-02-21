@@ -3,25 +3,25 @@ import {
   NotifyRemovedFromTeamData,
   NotifyMemberLeftData,
 } from '@apiteam/mailman'
-import { TeamRole, UserAsPersonal } from '@apiteam/types'
+import { TeamRole, UserAsPersonal } from '@apiteam/types-commonjs'
 import { Membership } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { deleteMembership, updateMembership } from 'src/helpers'
+import { deleteMembership, updateMembership } from '../../../helpers'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { dispatchEmail } from 'src/lib/mailman'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { TeamModel, UserModel } from 'src/models'
+} from '../../../helpers/routing'
+import { db } from '../../../lib/db'
+import { dispatchEmail } from '../../../lib/mailman'
+import { getCoreCacheReadRedis } from '../../../lib/redis'
+import { TeamModel, UserModel } from '../../../models'
 import {
   checkAuthenticated,
   checkMember,
   checkOwnerAdmin,
-} from 'src/services/guards'
+} from '../../../services/guards'
 
 export const removeUserFromTeam = async ({
   userId,

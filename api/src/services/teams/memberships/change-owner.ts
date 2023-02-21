@@ -3,26 +3,26 @@ import {
   NotifyOldOwnerData,
   NotifyNewOwnerData,
 } from '@apiteam/mailman'
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import { Team } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { checkValue } from 'src/config'
-import { updateMembership } from 'src/helpers'
+import { checkValue } from '../../../config'
+import { updateMembership } from '../../../helpers'
 import {
   changeOwnerAudience,
   generateBlanketUnsubscribeUrl,
   generateChangeOwnerUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { dispatchEmail } from 'src/lib/mailman'
-import { CustomerModel } from 'src/models'
-import { UserModel } from 'src/models/user'
-import { getKeyPair } from 'src/services/bearer/bearer'
-import { checkOwner } from 'src/services/guards'
+} from '../../../helpers/routing'
+import { db } from '../../../lib/db'
+import { dispatchEmail } from '../../../lib/mailman'
+import { CustomerModel } from '../../../models'
+import { UserModel } from '../../../models/user'
+import { getKeyPair } from '../../../services/bearer/bearer'
+import { checkOwner } from '../../../services/guards'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 

@@ -1,14 +1,13 @@
-import type { UserAsPersonal } from '@apiteam/types'
+import type { UserAsPersonal } from '@apiteam/types-commonjs'
 import type { Team, PlanInfo } from '@prisma/client'
 import type Stripe from 'stripe'
 
-import { CustomerModel, PlanInfoModel } from 'src/models'
-import { SubscriptionModel } from 'src/models/billing/subscription'
+import { CustomerModel, PlanInfoModel } from '../../../../../models'
+import { SubscriptionModel } from '../../../../../models/billing/subscription'
 import {
   handleActivationTeam,
   handleActivationUser,
-} from 'src/stripe-webhook/webhook-events/customer/subscription/created'
-
+} from '../../../../../stripe-webhook/webhook-events/customer/subscription/created'
 import { customerIdentificationSchema } from '../../../customer'
 
 export const checkForPlanActivation = async (

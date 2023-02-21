@@ -7,7 +7,7 @@ import {
   UserAsPersonal,
   userAsPersonal,
   GetOrCreateCustomerIdMixin,
-} from '@apiteam/types'
+} from '@apiteam/types-commonjs'
 import type { Prisma, User, PlanInfo } from '@prisma/client'
 import { url as gravatarUrl } from 'gravatar'
 
@@ -17,17 +17,17 @@ import {
   createPersonalScope,
   createTeamScope,
   deleteMembership,
-} from 'src/helpers'
-import { getFreePlanInfo } from 'src/helpers/billing'
+} from '../helpers'
+import { getFreePlanInfo } from '../helpers/billing'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { gatewayUrl } from 'src/lib/environment'
-import { dispatchEmail } from 'src/lib/mailman'
-import { getCoreCacheReadRedis, getCreditsReadRedis } from 'src/lib/redis'
-import { scanPatternDelete } from 'src/utils'
+} from '../helpers/routing'
+import { db } from '../lib/db'
+import { gatewayUrl } from '../lib/environment'
+import { dispatchEmail } from '../lib/mailman'
+import { getCoreCacheReadRedis, getCreditsReadRedis } from '../lib/redis'
+import { scanPatternDelete } from '../utils'
 
 import { CustomerModel, CustomerUpdateInput, PlanInfoModel } from './billing'
 import { ScopeModel } from './scope'

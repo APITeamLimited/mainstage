@@ -1,9 +1,9 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { PaymentMethodModel } from 'src/models/billing/payment-method'
-import { SetupIntentModel } from 'src/models/billing/setup-intent'
-import { TeamModel } from 'src/models/team'
-import { UserModel } from 'src/models/user'
+import { PaymentMethodModel } from '../../models/billing/payment-method'
+import { SetupIntentModel } from '../../models/billing/setup-intent'
+import { TeamModel } from '../../models/team'
+import { UserModel } from '../../models/user'
 
 import { checkAuthenticated, checkOwnerAdmin } from '../guards'
 

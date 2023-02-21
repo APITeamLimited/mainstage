@@ -1,10 +1,10 @@
 import { ServiceValidationError } from '@redwoodjs/api'
-import { getCustomerBillingDetails } from 'src/helpers/billing'
-import { CustomerModel, TeamModel, UserModel } from 'src/models'
+import { getCustomerBillingDetails } from '../../helpers/billing'
+import { CustomerModel, TeamModel, UserModel } from '../../models'
 import {
   PaymentMethodModel,
   AbstractCreatePaymentMethodInput,
-} from 'src/models/billing/payment-method'
+} from '../../models/billing/payment-method'
 
 import { checkOwnerAdmin, checkAuthenticated } from '../guards'
 

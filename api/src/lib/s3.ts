@@ -1,6 +1,6 @@
 import { S3 } from 'aws-sdk'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 // Connect to external s3 provider
 
 export const s3 = new S3({

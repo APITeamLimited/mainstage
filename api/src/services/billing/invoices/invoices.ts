@@ -1,7 +1,6 @@
-import { stripe } from 'src/lib/stripe'
-import { TeamModel } from 'src/models'
-import { ensureCorrectDescriptionInvoice } from 'src/utils/ensure-correct-description-invoice'
-
+import { stripe } from '../../../lib/stripe'
+import { TeamModel } from '../../../models'
+import { ensureCorrectDescriptionInvoice } from '../../../utils/ensure-correct-description-invoice'
 import { checkAuthenticated, checkOwnerAdmin } from '../../guards'
 
 export const invoices = ({ teamId }: { teamId?: string }) =>

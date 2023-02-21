@@ -1,7 +1,7 @@
-import { APITeamModel, GetManyFilteredMixin } from '@apiteam/types'
+import { APITeamModel, GetManyFilteredMixin } from '@apiteam/types-commonjs'
 import type Stripe from 'stripe'
 
-import { stripe } from 'src/lib/stripe'
+import { stripe } from '../../lib/stripe'
 
 export type SubscriptionCreateInput = {
   customerId: string

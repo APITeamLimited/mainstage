@@ -1,7 +1,7 @@
 import type { CreditsPricingOption, PlanInfo } from '@prisma/client'
 
-import { PlanInfoModel } from 'src/models'
-import { CreditsPricingOptionModel } from 'src/models'
+import { PlanInfoModel } from '../../models'
+import { CreditsPricingOptionModel } from '../../models'
 
 export const planInfos = async (): Promise<PlanInfo[]> => {
   const plans = await PlanInfoModel.getAll()

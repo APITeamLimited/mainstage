@@ -2,10 +2,10 @@ import {
   apiteamOAuth2CallbackSchema,
   APITeamOAuthCodeInfo,
   prettyZodError,
-} from '@apiteam/types'
+} from '@apiteam/types-commonjs'
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 type OAuthReturnResult = {
   statusCode: number

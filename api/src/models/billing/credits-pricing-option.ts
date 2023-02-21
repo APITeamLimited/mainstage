@@ -3,13 +3,13 @@ import {
   GetAllMixin,
   AbstractCreditsPricingOptionCreateInput,
   AbstractCreditsPricingOptionUpdateInput,
-} from '@apiteam/types'
+} from '@apiteam/types-commonjs'
 import type { Prisma, CreditsPricingOption } from '@prisma/client'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { stripe } from 'src/lib/stripe'
-import { setModelRedis } from 'src/utils'
+import { db } from '../../lib/db'
+import { getCoreCacheReadRedis } from '../../lib/redis'
+import { stripe } from '../../lib/stripe'
+import { setModelRedis } from '../../utils'
 
 export const CreditsPricingOptionModel: APITeamModel<
   AbstractCreditsPricingOptionCreateInput,

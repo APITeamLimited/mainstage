@@ -5,10 +5,10 @@ import extractDomain from 'extract-domain'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { setVerifiedDomainRedis } from 'src/helpers/verified-domains'
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { checkOwnerAdmin } from 'src/services/guards'
+import { setVerifiedDomainRedis } from '../../helpers/verified-domains'
+import { db } from '../../lib/db'
+import { getCoreCacheReadRedis } from '../../lib/redis'
+import { checkOwnerAdmin } from '../../services/guards'
 
 const verifiedDomainRegex = new RegExp(
   '^(?!-)[A-Za-z0-9-]+([\\-\\.]{1}[a-z0-9]+)*\\.[A-Za-z]{2,6}$'

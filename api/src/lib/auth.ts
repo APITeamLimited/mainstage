@@ -1,6 +1,6 @@
 import { AuthenticationError, ForbiddenError } from '@redwoodjs/graphql-server'
 
-import { UserModel } from 'src/models/user'
+import { UserModel } from '../models/user'
 
 /**
  * The session object sent in as the first argument to getCurrentUser() will

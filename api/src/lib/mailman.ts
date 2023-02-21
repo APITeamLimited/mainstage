@@ -4,7 +4,7 @@ import { createTransport } from 'nodemailer'
 import { Options } from 'nodemailer/lib/mailer'
 import { v4 as uuid } from 'uuid'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 
 import { getMailmanReadRedis, getMailmanSubscribeRedis } from './redis'
 

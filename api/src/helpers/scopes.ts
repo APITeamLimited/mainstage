@@ -1,8 +1,8 @@
-import { getDisplayName, UserAsPersonal } from '@apiteam/types'
+import { getDisplayName, UserAsPersonal } from '@apiteam/types-commonjs'
 import type { Membership, Team, PlanInfo, Scope } from '@prisma/client'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { db } from '../lib/db'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 /*
 Creates or updates an existing personal scope with latest user data.

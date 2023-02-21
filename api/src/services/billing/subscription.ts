@@ -1,6 +1,6 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { SubscriptionModel } from 'src/models/billing/subscription'
+import { SubscriptionModel } from '../../models/billing/subscription'
 
 import { authenticateAndGetContext, getCustomer } from './helpers'
 

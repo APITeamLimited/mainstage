@@ -1,7 +1,6 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { QuoteModel } from 'src/models/billing/quotes'
-
+import { QuoteModel } from '../../../models/billing/quotes'
 import { authenticateAndGetContext, getCustomer } from '../helpers'
 
 export const acceptQuote = async ({

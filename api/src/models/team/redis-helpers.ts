@@ -1,7 +1,7 @@
 import type { Team, Membership, PlanInfo } from '@prisma/client'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis, getCreditsReadRedis } from 'src/lib/redis'
+import { db } from '../../lib/db'
+import { getCoreCacheReadRedis, getCreditsReadRedis } from '../../lib/redis'
 
 import { TeamModel } from '.'
 

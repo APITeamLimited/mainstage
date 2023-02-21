@@ -1,10 +1,10 @@
 import type { PlanInfo } from '@prisma/client'
 import type { Queue } from 'bullmq'
 
-import { getFreePlanInfo } from 'src/helpers/billing'
-import { db } from 'src/lib/db'
-import { getCreditsReadRedis } from 'src/lib/redis'
-import { TeamModel, UserModel } from 'src/models'
+import { getFreePlanInfo } from '../helpers/billing'
+import { db } from '../lib/db'
+import { getCreditsReadRedis } from '../lib/redis'
+import { TeamModel, UserModel } from '../models'
 
 type WorkspaceInfo =
   | {

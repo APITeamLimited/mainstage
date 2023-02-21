@@ -1,12 +1,12 @@
-import { TeamRole, UserAsPersonal } from '@apiteam/types'
+import { TeamRole, UserAsPersonal } from '@apiteam/types-commonjs'
 import { Team, Membership, Scope } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { PlanInfoModel } from 'src/models/billing/plan-info'
-import { ScopeModel } from 'src/models/scope'
+import { db } from '../lib/db'
+import { getCoreCacheReadRedis } from '../lib/redis'
+import { PlanInfoModel } from '../models/billing/plan-info'
+import { ScopeModel } from '../models/scope'
 
 import { getFreePlanInfo } from './billing'
 import { createTeamScope } from './scopes'

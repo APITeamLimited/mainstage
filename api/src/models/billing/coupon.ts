@@ -1,9 +1,9 @@
-import { GetMixin } from '@apiteam/types'
+import { GetMixin } from '@apiteam/types-commonjs'
 import type { Stripe } from 'stripe'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { stripe } from 'src/lib/stripe'
+import { stripe } from '../../lib/stripe'
 
 type GetCouponViaCodeMixin = {
   getViaPromotionCode: (code: string) => Promise<Stripe.Coupon | null>

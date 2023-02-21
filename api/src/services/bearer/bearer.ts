@@ -1,4 +1,4 @@
-import { ensureCorrectType } from '@apiteam/types'
+import { ensureCorrectType } from '@apiteam/types-commonjs'
 import { Scope } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 import keypair from 'keypair'
@@ -6,10 +6,9 @@ import keypair from 'keypair'
 import { ServiceValidationError, validateWith } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-
 import { checkValue } from '../../config'
+import { db } from '../../lib/db'
+import { getCoreCacheReadRedis } from '../../lib/redis'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 const audience = checkValue<string>('api.bearer.audience')

@@ -1,9 +1,8 @@
-import { taxIdTypeSchema, taxIdValueSchema } from '@apiteam/types'
+import { taxIdTypeSchema, taxIdValueSchema } from '@apiteam/types-commonjs'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { CustomerModel } from 'src/models'
-
+import { CustomerModel } from '../../../models'
 import { authenticateAndGetContext, getCustomer } from '../helpers'
 
 export const addTaxId = async ({

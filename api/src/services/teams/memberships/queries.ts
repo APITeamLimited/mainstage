@@ -1,9 +1,9 @@
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import { Membership } from '@prisma/client'
 
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { UserModel } from 'src/models/user'
-import { checkOwnerAdmin } from 'src/services/guards'
+import { getCoreCacheReadRedis } from '../../../lib/redis'
+import { UserModel } from '../../../models/user'
+import { checkOwnerAdmin } from '../../../services/guards'
 
 export const memberships = async ({ teamId }: { teamId: string }) => {
   await checkOwnerAdmin({ teamId })

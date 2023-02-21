@@ -1,8 +1,8 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda'
 import type Stripe from 'stripe'
 
-import { checkValue } from 'src/config'
-import { stripe } from 'src/lib/stripe'
+import { checkValue } from '../config'
+import { stripe } from '../lib/stripe'
 
 import { handleSubscriptionCreated } from './webhook-events/customer/subscription/created'
 import { handleSubscriptionDeleted } from './webhook-events/customer/subscription/deleted'

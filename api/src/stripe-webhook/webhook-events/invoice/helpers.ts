@@ -1,9 +1,9 @@
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import { Membership, Team } from '@prisma/client'
 import type { Stripe } from 'stripe'
 
-import { stripe } from 'src/lib/stripe'
-import { UserModel, TeamModel } from 'src/models'
+import { stripe } from '../../../lib/stripe'
+import { UserModel, TeamModel } from '../../../models'
 
 export const getInvoiceLast4 = async (
   invoice: Stripe.Invoice

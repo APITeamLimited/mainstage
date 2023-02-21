@@ -1,10 +1,10 @@
 import { Queue, Worker } from 'bullmq'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 import {
   applyFreeCredits,
   registerRecurringCreditsJob,
-} from 'src/jobs/apply-free-credits'
+} from '../jobs/apply-free-credits'
 
 export const jobsRedisUsername = checkValue<string>('jobs-redis.userName')
 export const jobsRedisPassword = checkValue<string>('jobs-redis.password')

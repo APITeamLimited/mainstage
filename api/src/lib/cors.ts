@@ -1,4 +1,4 @@
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 
 const gatewayUrl = checkValue<string>('gateway.url')
 

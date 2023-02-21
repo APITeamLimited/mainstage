@@ -4,10 +4,9 @@ import type { Team, PlanInfo, Membership } from '@prisma/client'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { db } from 'src/lib/db'
-import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
-
+} from '../../helpers'
+import { db } from '../../lib/db'
+import { dispatchEmail, DispatchEmailInput } from '../../lib/mailman'
 import { InvitationModel } from '../invitation'
 import { UserModel } from '../user'
 

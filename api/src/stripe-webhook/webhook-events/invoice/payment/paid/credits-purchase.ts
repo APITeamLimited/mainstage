@@ -1,8 +1,8 @@
 import type Stripe from 'stripe'
 
-import { getCreditsReadRedis } from 'src/lib/redis'
-import { CreditsPricingOptionModel } from 'src/models'
-import { QuoteModel } from 'src/models/billing/quotes'
+import { getCreditsReadRedis } from '../../../../../lib/redis'
+import { CreditsPricingOptionModel } from '../../../../../models'
+import { QuoteModel } from '../../../../../models/billing/quotes'
 
 export const checkForCreditsPurchase = async (
   invoice: Stripe.Invoice,

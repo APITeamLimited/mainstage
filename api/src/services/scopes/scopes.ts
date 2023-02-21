@@ -2,9 +2,9 @@ import { Scope } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { UserModel } from 'src/models/user'
-import { checkAuthenticated } from 'src/services/guards'
+import { getCoreCacheReadRedis } from '../../lib/redis'
+import { UserModel } from '../../models/user'
+import { checkAuthenticated } from '../../services/guards'
 
 /*
 Gets all scopes belonging to the current user.

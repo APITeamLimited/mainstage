@@ -2,8 +2,8 @@ import { VerifiedDomain } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { checkMember } from 'src/services/guards'
+import { getCoreCacheReadRedis } from '../../lib/redis'
+import { checkMember } from '../../services/guards'
 
 export const verifiedDomains = async ({
   teamId,

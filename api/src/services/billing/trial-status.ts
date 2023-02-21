@@ -1,4 +1,4 @@
-import { TeamModel, UserModel } from 'src/models'
+import { TeamModel, UserModel } from '../../models'
 
 import { checkAuthenticated, checkMember } from '../guards'
 

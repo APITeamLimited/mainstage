@@ -1,10 +1,10 @@
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
-import { UserModel } from 'src/models/user'
-import { checkSlugAvailable } from 'src/validators'
+import { db } from '../../lib/db'
+import { UserModel } from '../../models/user'
+import { checkSlugAvailable } from '../../validators'
 
 export const updateCurrentUser = async ({
   firstName,

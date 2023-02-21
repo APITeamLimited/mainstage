@@ -1,6 +1,6 @@
 import { VerifiedDomain } from '@prisma/client'
 
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from '../lib/redis'
 
 export const setVerifiedDomainRedis = async (
   verifiedDomain: VerifiedDomain

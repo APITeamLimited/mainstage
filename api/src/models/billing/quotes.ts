@@ -3,12 +3,12 @@ import {
   UpdateMixin,
   GetMixin,
   GetManyFilteredMixin,
-} from '@apiteam/types'
+} from '@apiteam/types-commonjs'
 import type { Stripe } from 'stripe'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { stripe } from 'src/lib/stripe'
+import { stripe } from '../../lib/stripe'
 
 import { CouponModel } from './coupon'
 import { CustomerModel } from './customer'

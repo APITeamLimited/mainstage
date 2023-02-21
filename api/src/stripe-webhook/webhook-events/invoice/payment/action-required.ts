@@ -8,11 +8,10 @@ import type Stripe from 'stripe'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { dispatchEmail } from 'src/lib/mailman'
-import { CustomerModel } from 'src/models'
-import { ensureCorrectDescriptionInvoice } from 'src/utils/ensure-correct-description-invoice'
-
+} from '../../../../helpers'
+import { dispatchEmail } from '../../../../lib/mailman'
+import { CustomerModel } from '../../../../models'
+import { ensureCorrectDescriptionInvoice } from '../../../../utils/ensure-correct-description-invoice'
 import { customerIdentificationSchema } from '../../customer'
 import { getAdminOwnerSendInfo, getInvoiceLast4 } from '../helpers'
 

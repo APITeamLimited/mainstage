@@ -1,9 +1,8 @@
 import * as Yup from 'yup'
 
-import { db } from 'src/lib/db'
-import { UserModel } from 'src/models/user'
-import { checkAPITeamAdmin } from 'src/services/guards'
-
+import { db } from '../../../lib/db'
+import { UserModel } from '../../../models/user'
+import { checkAPITeamAdmin } from '../../../services/guards'
 import {
   CreateInput,
   DeleteInput,

@@ -6,10 +6,9 @@ import type { Stripe } from 'stripe'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
-import { CustomerModel } from 'src/models'
-
+} from '../../../helpers'
+import { dispatchEmail, DispatchEmailInput } from '../../../lib/mailman'
+import { CustomerModel } from '../../../models'
 import { customerIdentificationSchema } from '../customer'
 
 import { getAdminOwnerSendInfo } from './helpers'

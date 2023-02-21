@@ -1,9 +1,9 @@
-import { APITeamOAuthCodeInfo } from '@apiteam/types'
+import { APITeamOAuthCodeInfo } from '@apiteam/types-commonjs'
 import { v4 as uuid } from 'uuid'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { getCoreCacheReadRedis } from '../../lib/redis'
 
 export const createAPITeamOAuth2Code = async (): Promise<string> => {
   if (!context.currentUser) {

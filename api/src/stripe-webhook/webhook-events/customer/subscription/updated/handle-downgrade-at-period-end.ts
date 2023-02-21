@@ -1,15 +1,19 @@
 import { NotifyDowngradeAtPeriodEndData } from '@apiteam/mailman'
-import { UserAsPersonal } from '@apiteam/types'
+import { UserAsPersonal } from '@apiteam/types-commonjs'
 import type Stripe from 'stripe'
 
+import { customerIdentificationSchema } from '../..'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { dispatchEmail, DispatchEmailInput } from 'src/lib/mailman'
-import { CustomerModel, PlanInfoModel, TeamModel, UserModel } from 'src/models'
-
-import { customerIdentificationSchema } from '../..'
+} from '../../../../../helpers'
+import { dispatchEmail, DispatchEmailInput } from '../../../../../lib/mailman'
+import {
+  CustomerModel,
+  PlanInfoModel,
+  TeamModel,
+  UserModel,
+} from '../../../../../models'
 
 export const handleNotifyDowngradeAtPeriodEnd = async (
   subscription: Stripe.Subscription

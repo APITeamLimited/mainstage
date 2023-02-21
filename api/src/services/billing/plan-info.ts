@@ -1,7 +1,7 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { getFreePlanInfo } from 'src/helpers/billing'
-import { PlanInfoModel, TeamModel, UserModel } from 'src/models'
+import { getFreePlanInfo } from '../../helpers/billing'
+import { PlanInfoModel, TeamModel, UserModel } from '../../models'
 
 import { checkAuthenticated, checkMember } from '../guards'
 

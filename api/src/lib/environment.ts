@@ -1,3 +1,3 @@
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 
 export const gatewayUrl = checkValue<string>('gateway.url')

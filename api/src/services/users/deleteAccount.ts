@@ -3,17 +3,17 @@ import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../../config'
 import {
   deleteAccountAudience,
   generateBlanketUnsubscribeUrl,
   generateDeleteAccountUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { dispatchEmail } from 'src/lib/mailman'
-import { UserModel } from 'src/models/user'
-import { getKeyPair } from 'src/services/bearer/bearer'
+} from '../../helpers/routing'
+import { db } from '../../lib/db'
+import { dispatchEmail } from '../../lib/mailman'
+import { UserModel } from '../../models/user'
+import { getKeyPair } from '../../services/bearer/bearer'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 

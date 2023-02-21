@@ -1,6 +1,6 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
+import { db } from '../lib/db'
 
 export const checkSlugAvailable = async (slug: string) => {
   // Check slug not taken by another team or user

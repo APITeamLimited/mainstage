@@ -1,6 +1,6 @@
 import { validateWith } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
+import { db } from '../../lib/db'
 
 import { checkInternal } from '../guards'
 

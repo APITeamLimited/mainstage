@@ -4,23 +4,22 @@ import {
   GetAllAsyncIteratorMixin,
   GetOrCreateCustomerIdMixin,
   UserAsPersonal,
-} from '@apiteam/types'
+} from '@apiteam/types-commonjs'
 import type { Prisma, Team, Membership } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { createMembership } from 'src/helpers'
-import { getFreePlanInfo } from 'src/helpers/billing'
+import { createMembership } from '../../helpers'
+import { getFreePlanInfo } from '../../helpers/billing'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { dispatchEmail } from 'src/lib/mailman'
-import { getCoreCacheReadRedis, getCreditsReadRedis } from 'src/lib/redis'
-import { scanPatternDelete } from 'src/utils'
-import { checkSlugAvailable } from 'src/validators'
-
+} from '../../helpers/routing'
+import { db } from '../../lib/db'
+import { dispatchEmail } from '../../lib/mailman'
+import { getCoreCacheReadRedis, getCreditsReadRedis } from '../../lib/redis'
+import { scanPatternDelete } from '../../utils'
+import { checkSlugAvailable } from '../../validators'
 import { CustomerModel } from '../billing'
 import { InvitationModel } from '../invitation'
 import { ScopeModel } from '../scope'

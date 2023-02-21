@@ -1,7 +1,7 @@
 import type { PlanInfo } from '@prisma/client'
 import type { Stripe } from 'stripe'
 
-import { PlanInfoModel } from 'src/models'
+import { PlanInfoModel } from '../models'
 
 export const ensureCorrectDescriptionInvoice = async (
   invoice: Stripe.Invoice

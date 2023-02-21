@@ -2,10 +2,10 @@ import { VerifiedDomain } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { deleteVerifiedDomainRedis } from 'src/helpers/verified-domains'
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { checkOwnerAdmin } from 'src/services/guards'
+import { deleteVerifiedDomainRedis } from '../../helpers/verified-domains'
+import { db } from '../../lib/db'
+import { getCoreCacheReadRedis } from '../../lib/redis'
+import { checkOwnerAdmin } from '../../services/guards'
 
 export const deleteVerifiedDomain = async ({
   verifiedDomainId,

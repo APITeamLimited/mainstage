@@ -3,25 +3,25 @@ import {
   InvitationDecodedToken,
   TeamRole,
   UserAsPersonal,
-} from '@apiteam/types'
+} from '@apiteam/types-commonjs'
 import { Team, Scope, Membership } from '@prisma/client'
 import JWT from 'jsonwebtoken'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { checkValue } from 'src/config'
-import { createMembership } from 'src/helpers'
+import { checkValue } from '../../../config'
+import { createMembership } from '../../../helpers'
 import {
   acceptInvitationAudience,
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { dispatchEmail } from 'src/lib/mailman'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { deleteInvitationRedis } from 'src/models/invitation'
-import { UserModel } from 'src/models/user'
-import { getKeyPair } from 'src/services/bearer/bearer'
+} from '../../../helpers/routing'
+import { db } from '../../../lib/db'
+import { dispatchEmail } from '../../../lib/mailman'
+import { getCoreCacheReadRedis } from '../../../lib/redis'
+import { deleteInvitationRedis } from '../../../models/invitation'
+import { UserModel } from '../../../models/user'
+import { getKeyPair } from '../../../services/bearer/bearer'
 
 const issuer = checkValue<string>('api.bearer.issuer')
 

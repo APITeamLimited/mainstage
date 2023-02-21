@@ -1,8 +1,8 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 import { context } from '@redwoodjs/graphql-server'
 
-import { db } from 'src/lib/db'
-import { checkAuthenticated } from 'src/services/guards'
+import { db } from '../../lib/db'
+import { checkAuthenticated } from '../../services/guards'
 
 export const teamUsers = async ({ teamId }: { teamId: string }) => {
   // Ensure user is member of the team

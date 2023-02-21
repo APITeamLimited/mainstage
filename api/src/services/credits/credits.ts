@@ -1,4 +1,4 @@
-import { getCreditsReadRedis } from 'src/lib/redis'
+import { getCreditsReadRedis } from '../../lib/redis'
 
 import { checkAuthenticated, checkMember } from '../guards'
 

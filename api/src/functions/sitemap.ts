@@ -1,7 +1,7 @@
-import { DOCS_ROUTES, ROUTES } from '@apiteam/types'
+import { DOCS_ROUTES, ROUTES } from '@apiteam/types-commonjs'
 import { js2xml } from 'xml-js'
 
-import { checkValue } from 'src/config'
+import { checkValue } from '../config'
 
 export const handler = async (_1: never, _2: never) => {
   return {

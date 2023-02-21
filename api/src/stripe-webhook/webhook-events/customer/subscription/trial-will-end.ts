@@ -2,14 +2,13 @@ import type { MailmanInput, NotifyTrialExpiringData } from '@apiteam/mailman'
 import { Membership, Team } from '@prisma/client'
 import type Stripe from 'stripe'
 
+import { customerIdentificationSchema } from '..'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers'
-import { dispatchEmail } from 'src/lib/mailman'
-import { CustomerModel, TeamModel, UserModel } from 'src/models'
-
-import { customerIdentificationSchema } from '..'
+} from '../../../../helpers'
+import { dispatchEmail } from '../../../../lib/mailman'
+import { CustomerModel, TeamModel, UserModel } from '../../../../models'
 
 export const handleSubscriptionTrialWillEnd = async (event: Stripe.Event) => {
   const subscription = event.data.object as Stripe.Subscription

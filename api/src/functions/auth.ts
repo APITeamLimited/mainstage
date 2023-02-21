@@ -1,4 +1,4 @@
-import { ROUTES } from '@apiteam/types'
+import { ROUTES } from '@apiteam/types-commonjs'
 import type { User } from '@prisma/client'
 import type { APIGatewayProxyEvent, Context } from 'aws-lambda'
 
@@ -7,13 +7,13 @@ import { DbAuthHandler, ServiceValidationError } from '@redwoodjs/api'
 import {
   generateBlanketUnsubscribeUrl,
   generateUserUnsubscribeUrl,
-} from 'src/helpers/routing'
-import { db } from 'src/lib/db'
-import { gatewayUrl } from 'src/lib/environment'
-import { dispatchEmail } from 'src/lib/mailman'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
-import { UserModel } from 'src/models'
-import { getSlug } from 'src/validators'
+} from '../helpers/routing'
+import { db } from '../lib/db'
+import { gatewayUrl } from '../lib/environment'
+import { dispatchEmail } from '../lib/mailman'
+import { getCoreCacheReadRedis } from '../lib/redis'
+import { UserModel } from '../models'
+import { getSlug } from '../validators'
 
 export const handler = async (
   event: APIGatewayProxyEvent,
@@ -228,7 +228,11 @@ export const handler = async (
 
     forgotPassword: forgotPasswordOptions,
     login: loginOptions,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     resetPassword: resetPasswordOptions,
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     signup: signupOptions,
   })
 

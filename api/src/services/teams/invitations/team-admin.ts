@@ -2,13 +2,13 @@ import { Invitation } from '@prisma/client'
 
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { db } from 'src/lib/db'
-import { getCoreCacheReadRedis } from 'src/lib/redis'
+import { db } from '../../../lib/db'
+import { getCoreCacheReadRedis } from '../../../lib/redis'
 import {
   deleteInvitationRedis,
   setInvitationRedis,
-} from 'src/models/invitation'
-import { checkOwnerAdmin } from 'src/services/guards'
+} from '../../../models/invitation'
+import { checkOwnerAdmin } from '../../../services/guards'
 
 import { invitationCreateSchema } from './create-invitations'
 

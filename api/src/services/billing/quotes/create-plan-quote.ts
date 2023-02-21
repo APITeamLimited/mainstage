@@ -1,9 +1,8 @@
 import { ServiceValidationError } from '@redwoodjs/api'
 
-import { PlanInfoModel } from 'src/models'
-import { QuoteModel } from 'src/models/billing/quotes'
-import { SubscriptionModel } from 'src/models/billing/subscription'
-
+import { PlanInfoModel } from '../../../models'
+import { QuoteModel } from '../../../models/billing/quotes'
+import { SubscriptionModel } from '../../../models/billing/subscription'
 import { authenticateAndGetContext, getCustomer } from '../helpers'
 import { trialEligibility } from '../trial-status'
 
