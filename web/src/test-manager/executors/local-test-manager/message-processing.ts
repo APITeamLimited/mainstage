@@ -1,10 +1,8 @@
 import {
   GlobeTestMessage,
-  GLOBETEST_LOGS,
-  GLOBETEST_LOGS_MARK,
-  GLOBETEST_METRICS,
+  TEST_INFO,
+  TEST_INFO_MARK,
   LocalTestManagerServerMessage,
-  METRICS_MARK,
   parseGlobeTestMessage,
   parseAndValidateGlobeTestMessage,
 } from '@apiteam/types'
@@ -90,8 +88,7 @@ export const processGlobeTestMessage = async (
 
   if (
     parsedMessage.messageType === 'LOCALHOST_FILE' &&
-    (parsedMessage.message.kind === GLOBETEST_LOGS ||
-      parsedMessage.message.kind === GLOBETEST_METRICS)
+    parsedMessage.message.kind === TEST_INFO
   ) {
     if (!manager.scopeId || !manager.rawBearer) {
       throw new Error("No scope id or bearer token, can't upload")
@@ -99,30 +96,28 @@ export const processGlobeTestMessage = async (
 
     upload.uploadCount += 1
 
+    // Contents is base64 encoded U8 array, parse it back to a blob
+
     const storeReceipt = await uploadScopedResource({
       scopeId: manager.scopeId,
       rawBearer: manager.rawBearer,
-      resource: new Blob([parsedMessage.message.contents]),
+      resource: new Blob(
+        [Buffer.from(parsedMessage.message.contents, 'base64')],
+        {
+          type: 'application/protobuf',
+        }
+      ),
       resourceName: parsedMessage.message.fileName,
     })
 
-    if (parsedMessage.message.kind === GLOBETEST_LOGS) {
-      upload.storedGlobeTestLogs = true
-    } else {
-      upload.storedMetrics = true
-    }
+    upload.storedTestInfo = true
 
     const uploadMessage = {
       jobId: parsedMessage.jobId,
       time: parsedMessage.time,
       messageType: 'MARK',
       message: {
-        mark:
-          parsedMessage.message.kind === GLOBETEST_LOGS
-            ? GLOBETEST_LOGS_MARK
-            : parsedMessage.message.kind === GLOBETEST_METRICS
-            ? METRICS_MARK
-            : parsedMessage.message.kind,
+        mark: TEST_INFO_MARK,
         message: storeReceipt,
       },
       senderVariant: parsedMessage.senderVariant,
@@ -166,7 +161,7 @@ const checkBroadcastTermination = async (
       ? upload.storedOptions
       : true) &&
     upload.terminationMessage &&
-    upload.storedGlobeTestLogs &&
+    upload.storedTestInfo &&
     upload.storedMetrics &&
     upload.uploadCount === 0
   ) {

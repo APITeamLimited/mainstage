@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { ConsoleMessage, Threshold } from '@apiteam/datapeak'
 import type { GlobeTestMessage, MetricsCombination } from '@apiteam/types'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
+import { useDatapeakModule } from 'src/contexts/imports/datapeak-provider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { streamExistingTest } from 'src/test-manager/executors'
@@ -24,20 +26,21 @@ type LoadingMultipleResponsePanelProps = {
 export const LoadingMultipleResponsePanel = ({
   focusedResponse,
 }: LoadingMultipleResponsePanelProps) => {
+  const datapeakModule = useDatapeakModule()
+
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
-  useYMap(focusedResponse)
+
+  const focusedResponseHook = useYMap(focusedResponse)
 
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const focusedResponseHook = useYMap(focusedResponse)
-
   const [metrics, setMetrics] = useState<MetricsList[]>([])
   const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
 
-  const [testSocket, setTestSocket] = useState<Socket | null>(null)
-  const [oldJobId, setOldJobId] = useState<string | null>(null)
+  const [consoleMessages, setConsoleMessages] = useState<ConsoleMessage[]>([])
+  const [thresholds, setThresholds] = useState<Threshold[]>([])
 
   const jobId = useMemo(
     () => focusedResponse.get('jobId') as string,
@@ -45,55 +48,62 @@ export const LoadingMultipleResponsePanel = ({
     [focusedResponseHook]
   )
 
-  const globeTestLogsBuffer = useRef<GlobeTestMessage[]>([])
-  const metricsBuffer = useRef<MetricsList[]>([])
+  const [socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
-    // Every second, flush the buffers into the state
-    const interval = setInterval(() => {
-      setGlobeTestLogs([...globeTestLogsBuffer.current])
-      setMetrics([...metricsBuffer.current])
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    if (!rawBearer || !scopeId || !jobId) {
+    if (socket || !rawBearer || !scopeId || !jobId) {
       return
     }
 
-    if (jobId === oldJobId) {
-      return
-    }
+    const testInfoId = datapeakModule.initTestData()
 
-    if (testSocket) {
-      setGlobeTestLogs([])
-      setMetrics([])
-    }
+    const consoleMessagesPoller = new datapeakModule.ConsoleMessagesPoller(
+      testInfoId,
+      (m) => {
+        console.log('m', m)
+        setConsoleMessages(m)
+      }
+    )
+
+    const thresholdsPoller = new datapeakModule.ThresholdsPoller(
+      testInfoId,
+      setThresholds
+    )
+
+    const locationPoller = new datapeakModule.LocationPoller(
+      testInfoId,
+      (m) => {
+        console.log('asd', m)
+      }
+    )
 
     const newSocket = streamExistingTest({
       jobId,
       scopeId,
       rawBearer,
       onMessage: (message) => {
-        if (message.messageType === 'METRICS') {
-          metricsBuffer.current.push(message as unknown as MetricsList)
-        } else {
-          globeTestLogsBuffer.current.push(message)
+        if (
+          message.messageType === 'INTERVAL' ||
+          message.messageType === 'CONSOLE'
+        ) {
+          console.log('adding', message.messageType)
+          datapeakModule.addStreamedData(
+            testInfoId,
+            Buffer.from(message.message, 'base64')
+          )
+        } else if (message.messageType === 'OPTIONS') {
+          const locations = message.message.loadDistribution.map(
+            (ldl) => ldl.location
+          )
+
+          datapeakModule.setLocations(testInfoId, locations)
         }
       },
       executionAgent:
         focusedResponse.get('executionAgent') === 'Local' ? 'Local' : 'Cloud',
     })
 
-    setTestSocket(newSocket)
-    setOldJobId(jobId)
-
-    // This seems to be causing some issues
-    // return () => {
-    //   newSocket.close()
-    // }
+    setSocket(newSocket)
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])

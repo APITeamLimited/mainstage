@@ -2,8 +2,7 @@ import {
   WrappedExecutionParams,
   GlobeTestMessage,
   AuthenticatedSocket,
-  GLOBETEST_LOGS_MARK,
-  METRICS_MARK,
+  TEST_INFO_MARK,
 } from '@apiteam/types'
 import { Response as K6Response } from 'k6/http'
 
@@ -143,17 +142,10 @@ export const handleMessage = async (
       }
     }
 
-    if (message.message.mark === GLOBETEST_LOGS_MARK) {
+    if (message.message.mark === TEST_INFO_MARK) {
       runningTestStates.set(socket, {
         ...(runningTestStates.get(socket) as RunningTestState),
-        globeTestLogsStoreReceipt: message.message.message as string,
-      })
-    }
-
-    if (message.message.mark === METRICS_MARK) {
-      runningTestStates.set(socket, {
-        ...(runningTestStates.get(socket) as RunningTestState),
-        metricsStoreReceipt: message.message.message as string,
+        testInfoStoreReceipt: message.message.message as string,
       })
     }
   }
@@ -211,8 +203,7 @@ export const handleMessage = async (
           'FAILED',
           runningState.testType === 'undetermined',
           message.message === 'COMPLETED_FAILURE',
-          !runningState.globeTestLogsStoreReceipt,
-          !runningState.metricsStoreReceipt,
+          !runningState.testInfoStoreReceipt,
           !runningState.options,
 
           // @ts-ignore

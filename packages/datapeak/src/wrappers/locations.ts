@@ -2,6 +2,7 @@ import {
   rawGetLocationState,
   rawTestInfoIdExists,
   rawGetLocations,
+  rawSetLocations,
 } from '../datapeak-raw/pkg/datapeak'
 
 export type Locations = string[]
@@ -10,16 +11,21 @@ export const getLocations = rawGetLocations as (
   test_info_id: string
 ) => Locations
 
+export const setLocations = rawSetLocations as (
+  testInfoId: string,
+  locations: Locations
+) => void
+
 export class LocationPoller {
   private state = ''
   private intervalId: NodeJS.Timeout | null = null
   private readonly pollInterval: number
-  private readonly callback: (state: string) => Locations
+  private readonly callback: (locations: Locations) => void
   private readonly testInfoId: string
 
   constructor(
     testInfoId: string,
-    callback: () => Locations,
+    callback: (locations: Locations) => void,
     pollInterval = 1000
   ) {
     if (!rawTestInfoIdExists(testInfoId)) {
@@ -36,7 +42,7 @@ export class LocationPoller {
     const newState = rawGetLocationState(this.testInfoId)
     if (newState !== this.state) {
       this.state = newState
-      this.callback(rawGetLocations(this.testInfoId))
+      this.callback(getLocations(this.testInfoId))
     }
     this.intervalId = setTimeout(() => this.poll(), this.pollInterval)
   }

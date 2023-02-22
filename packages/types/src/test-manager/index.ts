@@ -3,18 +3,15 @@ import { z } from 'zod'
 import { isoStringRegex } from '../type-utils'
 
 import { globeTestOptionsSchema } from './globe-test/options'
-import { metricsCombinationSchema } from './metrics'
 
-export const GLOBETEST_LOGS = 'GLOBETEST_LOGS' as const
-export const GLOBETEST_METRICS = 'GLOBETEST_METRICS' as const
+export const TEST_INFO = 'TEST_INFO' as const
 
-export const GLOBETEST_LOGS_MARK = 'GlobeTestLogsStoreReceipt' as const
-export const METRICS_MARK = 'MetricsStoreReceipt' as const
+export const TEST_INFO_MARK = 'TestInfoStoreReceipt' as const
 
 const localhostFileSchema = z.object({
   fileName: z.string(),
   contents: z.string(),
-  kind: z.enum([GLOBETEST_LOGS, GLOBETEST_METRICS]),
+  kind: z.enum([TEST_INFO]),
 })
 
 export type LocalhostFile = z.infer<typeof localhostFileSchema>
@@ -58,25 +55,26 @@ const messageCombinationSchema = z.union([
     ]),
   }),
   z.object({
-    messageType: z.literal('CONSOLE'),
-    message: z.record(z.unknown()),
-  }),
-  z.object({
     messageType: z.literal('STATUS'),
     message: statusTypeSchema,
   }),
   z.object({
-    messageType: z.literal('SUMMARY_METRICS'),
-    message: z.record(z.unknown()),
-  }),
-  // METRICS
-  metricsCombinationSchema,
-  z.object({
-    messageType: z.literal('ERROR'),
+    messageType: z.literal('INTERVAL'),
+    // Base 64 encoded
     message: z.string(),
   }),
   z.object({
-    messageType: z.literal('DEBUG'),
+    messageType: z.literal('CONSOLE'),
+    // Base 64 encoded
+    message: z.string(),
+  }),
+  z.object({
+    messageType: z.literal('THREASHOLD'),
+    // Base 64 encoded
+    message: z.string(),
+  }),
+  z.object({
+    messageType: z.literal('ERROR'),
     message: z.string(),
   }),
   z.object({
@@ -138,9 +136,6 @@ const jobUserUpdateMessage = z.object({
 })
 
 export type JobUserUpdateMessage = z.infer<typeof jobUserUpdateMessage>
-
-export { BUILT_IN_METRICS } from './metrics'
-export type { MetricsCombination } from './metrics'
 
 export * from './utils'
 export * from './globe-test'

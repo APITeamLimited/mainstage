@@ -43,7 +43,7 @@ export type Upload = {
   acknowledgedParams?: boolean
   queue: GlobeTestMessage[]
   wrappedExecutionParams: WrappedExecutionParams
-  storedGlobeTestLogs?: boolean
+  storedTestInfo?: boolean
   storedMetrics?: boolean
   terminationMessage?: GlobeTestMessage
   storedOptions?: boolean

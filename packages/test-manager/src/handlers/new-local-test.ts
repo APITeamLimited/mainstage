@@ -6,9 +6,8 @@ import {
   RunningTestInfo,
   parseAndValidateGlobeTestMessage,
   parseGlobeTestMessage,
-  GLOBETEST_METRICS,
-  GLOBETEST_LOGS,
   wrappedExecutionParamsSchema,
+  TEST_INFO,
 } from '@apiteam/types'
 import type { Scope } from '@prisma/client'
 import { v4 as uuid } from 'uuid'
@@ -131,8 +130,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
   })
 
   let terminationMessage: string | null = null
-  let storedGlobeTestLogs = false
-  let storedMetrics = false
+  let storedTestInfo = false
 
   let consoleLogCount = 0
 
@@ -179,7 +177,7 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
     ) {
       terminationMessage = correctCloudID(parsedMessage, executionParams.id)
 
-      if (storedGlobeTestLogs && storedMetrics) {
+      if (storedTestInfo) {
         orchestratorReadRedis.set(jobLogsKey, terminationMessage)
         orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
       }
@@ -187,17 +185,12 @@ export const handleNewLocalTest = async (socket: AuthenticatedSocket) => {
 
     if (
       parsedMessage.messageType === 'MARK' &&
-      parsedMessage.message.mark === GLOBETEST_LOGS
+      parsedMessage.message.mark === TEST_INFO
     ) {
-      storedGlobeTestLogs = true
-    } else if (
-      parsedMessage.messageType === 'MARK' &&
-      parsedMessage.message.mark === GLOBETEST_METRICS
-    ) {
-      storedMetrics = true
+      storedTestInfo = true
     }
 
-    if (terminationMessage && storedGlobeTestLogs && storedMetrics) {
+    if (terminationMessage && storedTestInfo) {
       orchestratorReadRedis.set(jobLogsKey, terminationMessage)
       orchestratorReadRedis.publish(jobUpdatesKey, terminationMessage)
     }

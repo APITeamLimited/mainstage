@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 import { storedObjectSchema } from '../external-entities'
 import { globeTestMessageSchema } from '../test-manager'
-import { defaultSummaryMetricsSchema } from '../test-manager/metrics'
 
 export const loadingResultSchema = z.object({
   __subtype: z.literal('LoadingResponse'),
@@ -11,8 +10,7 @@ export const loadingResultSchema = z.object({
 
 export const successMultipleResultSchema = z.object({
   __subtype: z.literal('SuccessMultipleResult'),
-  globeTestLogs: storedObjectSchema(z.array(globeTestMessageSchema)),
-  metrics: storedObjectSchema(defaultSummaryMetricsSchema),
+  testInfo: storedObjectSchema(z.array(globeTestMessageSchema)),
   options: z.record(z.unknown()),
   graphs: z.any(), // YMap<Graph>
   abortedEarly: z.boolean().optional(),
@@ -20,10 +18,9 @@ export const successMultipleResultSchema = z.object({
 
 export const failureResultSchema = z.object({
   __subtype: z.literal('FailureResult'),
-  globeTestLogs: storedObjectSchema(z.array(globeTestMessageSchema)),
+  testInfo: storedObjectSchema(z.array(globeTestMessageSchema)),
 
   // Running test may have failed so these fields may exist
-  metrics: z.union([storedObjectSchema(defaultSummaryMetricsSchema), z.null()]),
   options: z.union([z.record(z.unknown()), z.null()]),
 })
 

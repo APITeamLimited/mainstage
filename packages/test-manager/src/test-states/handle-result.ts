@@ -35,32 +35,29 @@ export const handleResult = async ({
     | GlobeTestOptions['executionMode']
     | undefined
 
+  // This has already been asserted
+  const testInfoStoreReceipt = runningState.testInfoStoreReceipt as string
+
   if (!wasSuccessful || !executionMode) {
     if (runningState.testType === 'RESTRequest') {
       await restHandleFailure({
         socket,
         params,
-        globeTestLogsStoreReceipt:
-          runningState.globeTestLogsStoreReceipt ?? null,
-        metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
+        testInfoStoreReceipt,
         executionAgent,
       })
     } else if (runningState.testType === 'Folder') {
       await folderHandleFailure({
         socket,
         params,
-        globeTestLogsStoreReceipt:
-          runningState.globeTestLogsStoreReceipt ?? null,
-        metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
+        testInfoStoreReceipt,
         executionAgent,
       })
     } else if (runningState.testType === 'Collection') {
       await collectionHandleFailure({
         socket,
         params,
-        globeTestLogsStoreReceipt:
-          runningState.globeTestLogsStoreReceipt ?? null,
-        metricsStoreReceipt: runningState.metricsStoreReceipt ?? null,
+        testInfoStoreReceipt,
         executionAgent,
       })
     }
@@ -75,9 +72,7 @@ export const handleResult = async ({
     await restHandleSuccessSingle({
       params,
       socket,
-      globeTestLogsStoreReceipt:
-        runningState.globeTestLogsStoreReceipt as string,
-      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+      testInfoStoreReceipt: runningState.testInfoStoreReceipt as string,
       responseId: runningState.responseId as string,
       response: runningState.markedResponse as K6Response,
       executionAgent,
@@ -89,9 +84,7 @@ export const handleResult = async ({
     await restHandleSuccessMultiple({
       params,
       socket,
-      globeTestLogsStoreReceipt:
-        runningState.globeTestLogsStoreReceipt as string,
-      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+      testInfoStoreReceipt: runningState.testInfoStoreReceipt as string,
       executionAgent,
       abortedEarly,
     })
@@ -99,9 +92,7 @@ export const handleResult = async ({
     await folderHandleSuccess({
       params,
       socket,
-      globeTestLogsStoreReceipt:
-        runningState.globeTestLogsStoreReceipt as string,
-      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+      testInfoStoreReceipt: runningState.testInfoStoreReceipt as string,
       executionAgent,
       abortedEarly,
     })
@@ -109,9 +100,7 @@ export const handleResult = async ({
     await collectionHandleSuccess({
       params,
       socket,
-      globeTestLogsStoreReceipt:
-        runningState.globeTestLogsStoreReceipt as string,
-      metricsStoreReceipt: runningState.metricsStoreReceipt as string,
+      testInfoStoreReceipt: runningState.testInfoStoreReceipt as string,
       executionAgent,
       abortedEarly,
     })

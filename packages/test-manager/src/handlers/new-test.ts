@@ -161,6 +161,23 @@ export const handleNewTest = async (socket: AuthenticatedSocket) => {
         }
       }
 
+      const parsedMessage = parseResult.data
+
+      if (parsedMessage.messageType === 'STATUS') {
+        if (
+          parsedMessage.message === 'SUCCESS' ||
+          parsedMessage.message === 'FAILURE' ||
+          parsedMessage.message === 'COMPLETED_SUCCESS' ||
+          parsedMessage.message === 'COMPLETED_FAILURE'
+        ) {
+          // In case of linering client, force disconnect after 10 seconds
+          setTimeout(() => {
+            coreCacheReadRedis.hDel(runningTestKey, parsedMessage.jobId)
+            socket.disconnect()
+          }, 10000)
+        }
+      }
+
       socket.emit('updates', parseResult.data)
 
       handleMessage(

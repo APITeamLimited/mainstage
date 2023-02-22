@@ -80,21 +80,18 @@ export type EntityEngineServersideMessages = {
     responseSize: number
     responseDuration: number
     responseStoreReceipt: string
-    metricsStoreReceipt: string
-    globeTestLogsStoreReceipt: string
+    testInfoStoreReceipt: string
   }
   'rest-handle-success-multiple': {
     branchId: string
     collectionId: string
-    metricsStoreReceipt: string
-    globeTestLogsStoreReceipt: string
+    testInfoStoreReceipt: string
     abortedEarly: boolean
   }
   'rest-handle-failure': {
     branchId: string
     collectionId: string
-    globeTestLogsStoreReceipt: string | null
-    metricsStoreReceipt: string | null
+    testInfoStoreReceipt: string
   }
   'rest-delete-response': {
     branchId: string
@@ -120,15 +117,13 @@ export type EntityEngineServersideMessages = {
   'folder-handle-success': {
     branchId: string
     collectionId: string
-    globeTestLogsStoreReceipt: string
-    metricsStoreReceipt: string
+    testInfoStoreReceipt: string
     abortedEarly: boolean
   }
   'folder-handle-failure': {
     branchId: string
     collectionId: string
-    globeTestLogsStoreReceipt: string | null
-    metricsStoreReceipt: string | null
+    testInfoStoreReceipt: string
   }
   'folder-delete-response': {
     branchId: string
@@ -151,15 +146,13 @@ export type EntityEngineServersideMessages = {
   'collection-handle-success': {
     branchId: string
     collectionId: string
-    globeTestLogsStoreReceipt: string
-    metricsStoreReceipt: string
+    testInfoStoreReceipt: string
     abortedEarly: boolean
   }
   'collection-handle-failure': {
     branchId: string
     collectionId: string
-    globeTestLogsStoreReceipt: string | null
-    metricsStoreReceipt: string | null
+    testInfoStoreReceipt: string
   }
   'collection-delete-response': {
     branchId: string

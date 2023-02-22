@@ -1,5 +1,6 @@
 import {
   rawGetThresholds,
+  rawGetThresholdsState,
   rawTestInfoIdExists,
 } from '../datapeak-raw/pkg/datapeak'
 
@@ -36,7 +37,7 @@ export class ThresholdsPoller {
   }
 
   private async poll() {
-    const newState = JSON.stringify(rawGetThresholds(this.testInfoId))
+    const newState = rawGetThresholdsState(this.testInfoId)
     if (newState !== this.state) {
       this.state = newState
       this.callback(rawGetThresholds(this.testInfoId))

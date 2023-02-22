@@ -44,7 +44,7 @@ const restEnsureAllData = async (
   }
 
   let gotAllData =
-    !!runningState.globeTestLogsStoreReceipt &&
+    !!runningState.testInfoStoreReceipt &&
     !!runningState.options &&
     !!runningState.responseId &&
     !!runningState.entityEngineSocket
@@ -56,21 +56,13 @@ const restEnsureAllData = async (
     gotAllData = false
   }
 
-  if (
-    runningState.options?.executionMode === 'httpMultiple' &&
-    !runningState.metricsStoreReceipt
-  ) {
-    gotAllData = false
-  }
-
   console.log('gotAllData', gotAllData)
 
   if (!gotAllData) {
     // If failure message dont bother waiting
     if (message.message === 'COMPLETED_FAILURE') {
       if (
-        !!runningState.globeTestLogsStoreReceipt &&
-        !!runningState.metricsStoreReceipt &&
+        !!runningState.testInfoStoreReceipt &&
         !!runningState.entityEngineSocket
       ) {
         return {
@@ -110,17 +102,16 @@ const groupEnsureAllData = async (
   }
 
   const gotAllData =
-    !!runningState.globeTestLogsStoreReceipt &&
+    !!runningState.testInfoStoreReceipt &&
     !!runningState.options &&
     !!runningState.responseId &&
-    !!runningState.entityEngineSocket &&
-    !!runningState.metricsStoreReceipt
+    !!runningState.entityEngineSocket
 
   if (!gotAllData) {
     // If failure message dont bother waiting
     if (message.message === 'COMPLETED_FAILURE') {
       if (
-        !!runningState.globeTestLogsStoreReceipt &&
+        !!runningState.testInfoStoreReceipt &&
         !!runningState.entityEngineSocket
       ) {
         return {

@@ -1,5 +1,6 @@
 import {
   rawGetConsoleMessages,
+  rawGetConsoleMessagesState,
   rawTestInfoIdExists,
 } from '../datapeak-raw/pkg/datapeak'
 
@@ -38,7 +39,7 @@ export class ConsoleMessagesPoller {
   }
 
   private async poll() {
-    const newState = JSON.stringify(rawGetConsoleMessages(this.testInfoId))
+    const newState = rawGetConsoleMessagesState(this.testInfoId)
     if (newState !== this.state) {
       this.state = newState
       this.callback(rawGetConsoleMessages(this.testInfoId))

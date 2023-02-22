@@ -114,13 +114,15 @@ export const handleCurrentTest = async (socket: AuthenticatedSocket) => {
 
       if (parsedMessage.messageType === 'STATUS') {
         if (
+          parsedMessage.message === 'SUCCESS' ||
+          parsedMessage.message === 'FAILURE' ||
           parsedMessage.message === 'COMPLETED_SUCCESS' ||
           parsedMessage.message === 'COMPLETED_FAILURE'
         ) {
-          // In case of linering client, force disconnect after 1 second
+          // In case of linering client, force disconnect after 10 seconds
           setTimeout(() => {
             socket.disconnect()
-          }, 1000)
+          }, 10000)
         }
       }
 

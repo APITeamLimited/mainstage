@@ -143,15 +143,13 @@ export const collectionAddOptions = async ({
 
 export const collectionHandleSuccess = async ({
   params,
-  globeTestLogsStoreReceipt,
-  metricsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
   executionAgent,
   abortedEarly,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: string
-  metricsStoreReceipt: string
+  testInfoStoreReceipt: string
   socket: AuthenticatedSocket
   executionAgent: 'Local' | 'Cloud'
   abortedEarly: boolean
@@ -168,8 +166,7 @@ export const collectionHandleSuccess = async ({
     {
       branchId: params.branchId,
       collectionId: params.collectionId,
-      metricsStoreReceipt,
-      globeTestLogsStoreReceipt,
+      testInfoStoreReceipt,
       abortedEarly,
     }
 
@@ -178,15 +175,13 @@ export const collectionHandleSuccess = async ({
 
 export const collectionHandleFailure = async ({
   params,
-  globeTestLogsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
-  metricsStoreReceipt,
   executionAgent,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: EntityEngineServersideMessages['collection-handle-failure']['globeTestLogsStoreReceipt']
+  testInfoStoreReceipt: EntityEngineServersideMessages['collection-handle-failure']['testInfoStoreReceipt']
   socket: AuthenticatedSocket
-  metricsStoreReceipt: string | null
   executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
@@ -201,8 +196,7 @@ export const collectionHandleFailure = async ({
     {
       branchId: params.branchId,
       collectionId: params.collectionId,
-      globeTestLogsStoreReceipt,
-      metricsStoreReceipt,
+      testInfoStoreReceipt,
     }
 
   entityEngineSocket.emit('collection-handle-failure', eeParams)

@@ -149,16 +149,14 @@ export const restHandleSuccessSingle = async ({
   params,
   response,
   responseId,
-  globeTestLogsStoreReceipt,
-  metricsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
   executionAgent,
 }: {
   params: WrappedExecutionParams
   response: Response
   responseId: string
-  globeTestLogsStoreReceipt: string
-  metricsStoreReceipt: string
+  testInfoStoreReceipt: string
   socket: AuthenticatedSocket
   executionAgent: 'Local' | 'Cloud'
 }) => {
@@ -186,8 +184,7 @@ export const restHandleSuccessSingle = async ({
       responseSize: estimateRESTResponseSize(response),
       responseDuration: response.timings.duration,
       responseStoreReceipt,
-      metricsStoreReceipt,
-      globeTestLogsStoreReceipt,
+      testInfoStoreReceipt,
     }
 
   entityEngineSocket.emit('rest-handle-success-single', eeParams)
@@ -195,15 +192,13 @@ export const restHandleSuccessSingle = async ({
 
 export const restHandleSuccessMultiple = async ({
   params,
-  globeTestLogsStoreReceipt,
-  metricsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
   executionAgent,
   abortedEarly,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: string
-  metricsStoreReceipt: string
+  testInfoStoreReceipt: string
   socket: AuthenticatedSocket
   executionAgent: 'Local' | 'Cloud'
   abortedEarly: boolean
@@ -220,8 +215,7 @@ export const restHandleSuccessMultiple = async ({
     {
       branchId: params.branchId,
       collectionId: params.collectionId,
-      metricsStoreReceipt,
-      globeTestLogsStoreReceipt,
+      testInfoStoreReceipt,
       abortedEarly,
     }
 
@@ -230,15 +224,13 @@ export const restHandleSuccessMultiple = async ({
 
 export const restHandleFailure = async ({
   params,
-  globeTestLogsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
-  metricsStoreReceipt,
   executionAgent,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: EntityEngineServersideMessages['rest-handle-failure']['globeTestLogsStoreReceipt']
+  testInfoStoreReceipt: EntityEngineServersideMessages['rest-handle-failure']['testInfoStoreReceipt']
   socket: AuthenticatedSocket
-  metricsStoreReceipt: string | null
   executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
@@ -252,8 +244,7 @@ export const restHandleFailure = async ({
   const eeParams: EntityEngineServersideMessages['rest-handle-failure'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
-    globeTestLogsStoreReceipt,
-    metricsStoreReceipt,
+    testInfoStoreReceipt,
   }
 
   entityEngineSocket.emit('rest-handle-failure', eeParams)

@@ -13,6 +13,7 @@
     ]
   },
   "dependencies": {
+    "@apiteam/datapeak": "*",
     "@apiteam/docs": "*",
     "@apiteam/env-regex": "*",
     "@apiteam/types": "*",

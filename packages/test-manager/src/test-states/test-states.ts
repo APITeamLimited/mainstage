@@ -10,8 +10,7 @@ export type RunningTestState =
   | {
       jobId?: string
       entityEngineSocket?: EntityEngineSocket
-      globeTestLogsStoreReceipt?: string
-      metricsStoreReceipt?: string
+      testInfoStoreReceipt?: string
       options?: GlobeTestOptions
 
       // To handle concurrent messages, response creation request may be sent,

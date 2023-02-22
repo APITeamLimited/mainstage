@@ -129,22 +129,27 @@ impl TestInfoManager {
     }
 
     pub fn update_locations(&mut self, interval: &types::Interval) {
-        let mut locations: Vec<String> = Vec::new();
+        let mut new_locations: Vec<String> = Vec::new();
 
         for (sink_name, _) in interval.sinks.iter() {
             // Split sink name with '::'
 
             let parts = sink_name.split("::").collect::<Vec<&str>>();
 
-            locations.push(parts[0].to_string());
+            new_locations.push(parts[0].to_string());
         }
 
-        for new_location in locations.iter() {
+        let mut updated_locations = false;
+
+        for new_location in new_locations.iter() {
             if !self.locations.contains(&new_location) {
                 self.locations.push(new_location.to_string());
+                updated_locations = true;
             }
         }
 
-        self.location_state = Uuid::new_v4().to_string();
+        if updated_locations {
+            self.location_state = Uuid::new_v4().to_string();
+        }
     }
 }

@@ -25,7 +25,7 @@ message ConsoleMessage {
     map<string, int32> count = 5;
 };
 
-message Threshold { 
+message Threshold {
     string source = 1;
     optional bool abort_on_fail = 2;
     optional string delay_abort_eval = 3;
@@ -34,8 +34,9 @@ message Threshold {
 // TestInfo is the root data structure for the data stored in the database.
 message TestInfo {
     repeated Interval intervals = 1;
-    repeated ConsoleMessage console_messages = 2;
-    repeated Threshold thresholds = 3;
+    Interval summary = 2;
+    repeated ConsoleMessage console_messages = 3;
+    repeated Threshold thresholds = 4;
 };
 
 message DataPoint {

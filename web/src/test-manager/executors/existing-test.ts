@@ -44,7 +44,7 @@ export const streamExistingTest = ({
           refetchRunningCountVar(Math.random())
         }
       }
-
+      console.log('parsedMessage', parsedMessage.messageType, parsedMessage)
       onMessage(parsedMessage)
     }
   })

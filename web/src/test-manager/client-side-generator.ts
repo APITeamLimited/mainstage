@@ -36,8 +36,6 @@ export const clientSideGenerator = async ({
   oauthLocalSaveKey?: string
   firstLevelData: GenerateTestDataArgs['firstLevelData']
 }): Promise<BaseJob & PendingJob> => {
-  const timeNow = new Date().getTime()
-
   const testData = await generateTestData({
     rootScript: {
       name: executionScript.name,
@@ -84,16 +82,6 @@ export const clientSideGenerator = async ({
   }
 
   jobQueueVar([...jobQueue, job])
-
-  const endTime = new Date().getTime()
-
-  console.log(
-    'test data',
-    endTime - timeNow,
-    testData,
-    'agent',
-    determineGlobetestAgent(testData, executionOptions)
-  )
 
   return job
 }

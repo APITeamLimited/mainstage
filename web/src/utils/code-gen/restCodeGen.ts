@@ -1,6 +1,5 @@
 import { ExecutionParams, RESTRequest } from '@apiteam/types'
 import { AxiosRequestConfig } from 'axios'
-import type { Doc as YDoc, Map as YMap } from 'yjs'
 
 import { buildHarRequest } from './buildHar'
 
@@ -176,7 +175,7 @@ export const RESTCodegenDefinitions = [
   },
 ]
 
-export type CodegenName = typeof RESTCodegenDefinitions[number]['name']
+export type CodegenName = (typeof RESTCodegenDefinitions)[number]['name']
 
 export const generateRESTCode = async (
   codegenName: CodegenName,

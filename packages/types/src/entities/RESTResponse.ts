@@ -3,7 +3,6 @@ import { string, z } from 'zod'
 import { storedObjectSchema } from '../external-entities'
 import { globeTestMessageSchema } from '../test-manager'
 import { globeTestResponseSchema } from '../test-manager/globe-test/http'
-import { defaultSummaryMetricsSchema } from '../test-manager/metrics'
 
 import { baseEntitySchema } from './base'
 import { restRequestSchema } from './RESTRequest'
@@ -21,8 +20,7 @@ export const successSingleResultSchema = z.object({
     responseSize: z.number(), // bytes
     responseDuration: z.number(), // ms
   }),
-  globeTestLogs: storedObjectSchema(z.array(globeTestMessageSchema)),
-  metrics: storedObjectSchema(defaultSummaryMetricsSchema),
+  testInfo: storedObjectSchema(z.array(globeTestMessageSchema)),
   response: storedObjectSchema(globeTestResponseSchema),
   options: z.record(z.unknown()),
 })

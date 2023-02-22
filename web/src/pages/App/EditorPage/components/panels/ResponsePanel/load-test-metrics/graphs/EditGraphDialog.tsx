@@ -3,9 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   Graph,
   GlobeTestMessage,
-  MetricsCombination,
   GraphSeries,
-  BUILT_IN_METRICS,
   AVAILABLE_LOAD_ZONES,
 } from '@apiteam/types'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -100,12 +98,11 @@ export const EditGraphDialog = ({
           kind: Yup.string()
             .required('Required')
             .oneOf(['line', 'area', 'column']),
-          metric: Yup.string()
-            .required('Required')
-            .oneOf(
-              BUILT_IN_METRICS as unknown as string[],
-              "Metric doesn't exist"
-            ),
+          metric: Yup.string().required('Required'),
+          // .oneOf(
+          //   BUILT_IN_METRICS as unknown as string[],
+          //   "Metric doesn't exist"
+          // ),
           color: Yup.string().required('Required'),
         })
       ),
@@ -277,11 +274,11 @@ export const EditGraphDialog = ({
                         flex: 1,
                       }}
                     >
-                      {BUILT_IN_METRICS.map((metric, index) => (
+                      {/* {BUILT_IN_METRICS.map((metric, index) => (
                         <MenuItem value={metric} key={index}>
                           {metric}
                         </MenuItem>
-                      ))}
+                      ))} */}
                     </Select>
                   </Stack>
                   <Stack

@@ -7,10 +7,10 @@ export type Interval = {
   sinks: Record<string, Sink>
 }
 
-/*export const getIntervals = rawGetIntervals as (
-  test_info_id: string
-) => Interval[]
-
+// export const getIntervals = rawGetIntervals as (
+//   test_info_id: string
+// ) => Interval[]
+/*
 export class IntervalsPoller {
   private state = ''
   private intervalId: NodeJS.Timeout | null = null
@@ -51,3 +51,4 @@ export class IntervalsPoller {
 }*/
 
 export * from './summary'
+export * from './time-series'

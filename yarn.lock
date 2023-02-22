@@ -134,7 +134,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@apiteam/datapeak@workspace:packages/datapeak":
+"@apiteam/datapeak@*, @apiteam/datapeak@workspace:packages/datapeak":
   version: 0.0.0-use.local
   resolution: "@apiteam/datapeak@workspace:packages/datapeak"
   languageName: unknown
@@ -235,6 +235,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@apiteam/web@workspace:web"
   dependencies:
+    "@apiteam/datapeak": "*"
     "@apiteam/docs": "*"
     "@apiteam/env-regex": "*"
     "@apiteam/types": "*"

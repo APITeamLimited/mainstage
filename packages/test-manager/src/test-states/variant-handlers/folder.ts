@@ -146,15 +146,13 @@ export const folderAddOptions = async ({
 
 export const folderHandleSuccess = async ({
   params,
-  globeTestLogsStoreReceipt,
-  metricsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
   executionAgent,
   abortedEarly,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: string
-  metricsStoreReceipt: string
+  testInfoStoreReceipt: string
   socket: AuthenticatedSocket
   executionAgent: 'Local' | 'Cloud'
   abortedEarly: boolean
@@ -170,8 +168,7 @@ export const folderHandleSuccess = async ({
   const eeParams: EntityEngineServersideMessages['folder-handle-success'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
-    metricsStoreReceipt,
-    globeTestLogsStoreReceipt,
+    testInfoStoreReceipt,
     abortedEarly,
   }
 
@@ -180,15 +177,13 @@ export const folderHandleSuccess = async ({
 
 export const folderHandleFailure = async ({
   params,
-  globeTestLogsStoreReceipt,
+  testInfoStoreReceipt,
   socket,
-  metricsStoreReceipt,
   executionAgent,
 }: {
   params: WrappedExecutionParams
-  globeTestLogsStoreReceipt: EntityEngineServersideMessages['folder-handle-failure']['globeTestLogsStoreReceipt']
+  testInfoStoreReceipt: EntityEngineServersideMessages['folder-handle-failure']['testInfoStoreReceipt']
   socket: AuthenticatedSocket
-  metricsStoreReceipt: string | null
   executionAgent: 'Local' | 'Cloud'
 }) => {
   const entityEngineSocket = await getEntityEngineSocket(
@@ -202,8 +197,7 @@ export const folderHandleFailure = async ({
   const eeParams: EntityEngineServersideMessages['folder-handle-failure'] = {
     branchId: params.branchId,
     collectionId: params.collectionId,
-    globeTestLogsStoreReceipt,
-    metricsStoreReceipt,
+    testInfoStoreReceipt,
   }
 
   entityEngineSocket.emit('folder-handle-failure', eeParams)

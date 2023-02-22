@@ -3,11 +3,6 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use uuid::Uuid;
 
-pub struct IntervalWithFraction {
-    interval: types::Interval,
-    fraction: f64,
-}
-
 const MEAN_KEYS: &[&str; 2] = &["avg", "med"];
 
 const INTERVAL_PERIOD_SECONDS: f64 = 1.0;

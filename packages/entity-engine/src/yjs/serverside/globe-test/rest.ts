@@ -185,14 +185,9 @@ export const restHandleSuccessSingle = async (
     responseSize: data.responseSize,
     responseDuration: data.responseDuration,
   })
-  responseYMap.set('metrics', {
+  responseYMap.set('testInfo', {
     __typename: 'StoredObject',
-    storeReceipt: data.metricsStoreReceipt,
-    data: null,
-  })
-  responseYMap.set('globeTestLogs', {
-    __typename: 'StoredObject',
-    storeReceipt: data.globeTestLogsStoreReceipt,
+    storeReceipt: data.testInfoStoreReceipt,
     data: null,
   })
   responseYMap.set('updatedAt', new Date().toISOString())
@@ -237,14 +232,9 @@ export const restHandleSuccessMultiple = async (
   const responseYMap = await getResponseYMap()
 
   responseYMap.set('__subtype', 'SuccessMultipleResult')
-  responseYMap.set('metrics', {
+  responseYMap.set('testInfo', {
     __typename: 'StoredObject',
-    storeReceipt: data.metricsStoreReceipt,
-    data: null,
-  })
-  responseYMap.set('globeTestLogs', {
-    __typename: 'StoredObject',
-    storeReceipt: data.globeTestLogsStoreReceipt,
+    storeReceipt: data.testInfoStoreReceipt,
     data: null,
   })
 
@@ -269,12 +259,7 @@ export const restHandleFailure = async (
     return
   }
 
-  const {
-    branchId,
-    collectionId,
-    globeTestLogsStoreReceipt,
-    metricsStoreReceipt,
-  } = data
+  const { branchId, collectionId, testInfoStoreReceipt } = data
 
   const getResponseYMap = async (): Promise<Y.Map<any>> => {
     const responseYMap = projectYMap
@@ -297,25 +282,11 @@ export const restHandleFailure = async (
 
   responseYMap.set('__subtype', 'FailureResult')
 
-  if (globeTestLogsStoreReceipt !== null) {
-    responseYMap.set('globeTestLogs', {
-      __typename: 'StoredObject',
-      storeReceipt: globeTestLogsStoreReceipt,
-      data: null,
-    })
-  } else {
-    responseYMap.set('globeTestLogs', null)
-  }
-
-  if (metricsStoreReceipt !== null) {
-    responseYMap.set('metrics', {
-      __typename: 'StoredObject',
-      storeReceipt: metricsStoreReceipt,
-      data: null,
-    })
-  } else {
-    responseYMap.set('metrics', null)
-  }
+  responseYMap.set('testInfo', {
+    __typename: 'StoredObject',
+    storeReceipt: testInfoStoreReceipt,
+    data: null,
+  })
 
   if (responseYMap.get('options') === undefined) {
     responseYMap.set('options', null)

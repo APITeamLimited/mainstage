@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { ConsoleMessage, Threshold } from '@apiteam/datapeak'
 import type { GlobeTestMessage } from '@apiteam/types'
-import { makeVar, useReactiveVar } from '@apollo/client'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
+import { useDatapeakModule } from 'src/contexts/imports/datapeak-provider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
 import { streamExistingTest } from 'src/test-manager/executors'
@@ -16,9 +17,6 @@ import { ExecutionPanel } from '../../ExecutionPanel'
 import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
 import { MetricsList } from '../SuccessSingleResultPanel'
 
-// Use reactive var to ensure only one socket is created in the whole app at once
-const existingTestSocketVar = makeVar<Socket | null>(null)
-
 type LoadingSingleResponsePanelProps = {
   focusedResponse: YMap<any>
 }
@@ -26,22 +24,21 @@ type LoadingSingleResponsePanelProps = {
 export const LoadingSingleResponsePanel = ({
   focusedResponse,
 }: LoadingSingleResponsePanelProps) => {
+  const datapeakModule = useDatapeakModule()
+
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
-  useYMap(focusedResponse)
 
-  const existingTestSocket = useReactiveVar(existingTestSocketVar)
+  const focusedResponseHook = useYMap(focusedResponse)
 
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const focusedResponseHook = useYMap(focusedResponse)
-
   const [metrics, setMetrics] = useState<MetricsList[]>([])
   const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
 
-  const [testSocket, setTestSocket] = useState<Socket | null>(null)
-  const [oldJobId, setOldJobId] = useState<string | null>(null)
+  const [consoleMessages, setConsoleMessages] = useState<ConsoleMessage[]>([])
+  const [thresholds, setThresholds] = useState<Threshold[]>([])
 
   const jobId = useMemo(
     () => focusedResponse.get('jobId') as string,
@@ -49,59 +46,50 @@ export const LoadingSingleResponsePanel = ({
     [focusedResponseHook]
   )
 
-  const globeTestLogsBuffer = useRef<GlobeTestMessage[]>([])
-  const metricsBuffer = useRef<MetricsList[]>([])
-
-  useEffect(() => {
-    // Every second, flush the buffers into the state
-    const interval = setInterval(() => {
-      setGlobeTestLogs(globeTestLogsBuffer.current)
-      setMetrics(metricsBuffer.current)
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
   useEffect(() => {
     if (!rawBearer || !scopeId || !jobId) {
       return
-      throw new Error('No rawBearer or scopeId or jobId')
     }
 
-    if (jobId === oldJobId) {
-      return
-    }
+    const testInfoId = datapeakModule.initTestData()
 
-    // Disconnect any rouge old sockets
+    const consoleMessagesPoller = new datapeakModule.ConsoleMessagesPoller(
+      testInfoId,
+      setConsoleMessages
+    )
 
-    if (existingTestSocket) {
-      existingTestSocket.disconnect()
-    }
-
-    if (testSocket) {
-      testSocket.disconnect()
-      setGlobeTestLogs([])
-      setMetrics([])
-    }
+    const thresholdsPoller = new datapeakModule.ThresholdsPoller(
+      testInfoId,
+      setThresholds
+    )
 
     const newSocket = streamExistingTest({
       jobId,
       scopeId,
       rawBearer,
       onMessage: (message) => {
-        if (message.messageType === 'METRICS') {
-          metricsBuffer.current.push(message as unknown as MetricsList)
-        } else {
-          globeTestLogsBuffer.current.push(message)
+        if (
+          message.messageType === 'INTERVAL' ||
+          message.messageType === 'CONSOLE'
+        ) {
+          datapeakModule.addStreamedData(
+            testInfoId,
+            Buffer.from(message.message, 'base64')
+          )
         }
       },
       executionAgent:
         focusedResponse.get('executionAgent') === 'Local' ? 'Local' : 'Cloud',
     })
 
-    setTestSocket(newSocket)
-    setOldJobId(jobId)
-    existingTestSocketVar(newSocket)
+    return () => {
+      newSocket.disconnect()
+      consoleMessagesPoller.destroy()
+      thresholdsPoller.destroy()
+      datapeakModule.deleteTestData(testInfoId)
+    }
+
+    return
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])

@@ -20,9 +20,7 @@ import {
   handleVariableUpdates,
 } from '../variable-updates'
 
-/*
-Executes a queued job and updates the job queue on streamed messages
-*/
+/** Executes a queued job and updates the job queue on streamed messages */
 export const executeCloud = ({
   job,
   rawBearer,
@@ -43,8 +41,6 @@ export const executeCloud = ({
   activeEnvironmentYMap: YMap<any> | null
 }): boolean => {
   const params = determineWrappedExecutionParams(job, rawBearer)
-
-  console.log('params', params)
 
   try {
     const socket = io(getTestManagerURL(), {

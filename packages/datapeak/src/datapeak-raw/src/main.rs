@@ -2,6 +2,7 @@ mod intervals;
 mod manager;
 mod types;
 mod states;
+mod time_series;
 mod accessors;
 
 use lazy_static::lazy_static;
@@ -10,6 +11,7 @@ use uuid::Uuid;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
+use js_sys::Array;
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -99,32 +101,28 @@ pub fn add_streamed_data(test_info_id: &str, bytes: Vec<u8>) -> Result<(), JsVal
     }
 }
 
+#[wasm_bindgen (js_name = rawSetLocations)]
+pub fn set_locations(test_info_id: &str, locations: Array) -> Result<(), JsValue> {
+    let mut managers = MANAGERS.lock().unwrap();
 
-struct IntervalsQuery {
-    location: Option<String>,
-    metric: Option<String>,
-    max_data_points: Option<u32>,
+    // Get test data if it exists, otherwise return
+    let test_info = match managers.get_mut(test_info_id) {
+        Some(test_info) => test_info,
+        None => {
+            return Err(JsValue::from_str(
+                format!("No test data found for test_info_id: {}", test_info_id).as_str(),
+            ))
+        }
+    };
 
+    // Extract vector of locations from JsValue
+    let locations: Vec<String> = locations.iter().map(|x| x.as_string().unwrap()).collect();
+
+    test_info.locations = locations;
+    test_info.location_state = Uuid::new_v4().to_string();
+
+    Ok(())
 }
-
-
-// #[wasm_bindgen (js_name = rawGetData)]
-// pub fn get_intervals(test_info_id: &str, location: Option<String>) -> Result<JsValue, JsValue> {
-//     let mut managers = MANAGERS.lock().unwrap();
-
-//     // Get test data if it exists, otherwise return 
-//     let manager = managers.get_mut(test_info_id)
-//         .ok_or_else(|| JsValue::from_str(format!("No test data found for test_info_id: {}", test_info_id).as_str()))?;
-
-//     let intervals = js_sys::Array::new();
-
-//     let filter_by_location = location.is_some();
-
-//     for i in manager.intervals.iter() {
-
-
-
-
 
 #[wasm_bindgen (js_name = rawTestInfoIdExists)]
 pub fn test_info_id_exists(test_info_id: &str) -> bool {

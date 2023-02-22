@@ -89,7 +89,7 @@ export const RESTCodeGenerator = ({
       if (!rawBearer) throw new Error('No rawBearer found')
 
       try {
-        const axiosConfig = restAxiosRequest(
+        const axiosConfig = await restAxiosRequest(
           restRequest,
           requestYMap,
           collectionYMap,

@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 import { AVAILABLE_LOAD_ZONES } from './test-manager/load-zones'
-import { builtInMetricsSchema } from './test-manager/metrics'
 import { hexColorRegex, isoStringRegex } from './type-utils'
 
 export const GRAPH_LOAD_ZONES = [
@@ -16,7 +15,8 @@ export const graphSeriesSchema = z.object({
   loadZone: graphLoadZoneSchema,
   color: z.string().regex(hexColorRegex),
   kind: z.enum(['line', 'area', 'column']),
-  metric: builtInMetricsSchema,
+  // TODO: Add a better type
+  metric: z.string(),
 })
 
 export type GraphSeries = z.infer<typeof graphSeriesSchema>

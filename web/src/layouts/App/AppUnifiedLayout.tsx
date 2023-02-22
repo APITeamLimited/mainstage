@@ -17,6 +17,7 @@ import {
   ApexChartsModuleProvider,
 } from 'src/contexts/imports'
 import { YJSModuleProvider } from 'src/contexts/imports'
+import { DatapeakModuleProvider } from 'src/contexts/imports/datapeak-provider'
 import {
   entityEngineStatusVar,
   useWorkspaceInfo,
@@ -92,6 +93,8 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('@monaco-editor/react'),
         import('react-apexcharts'),
         import('yjs'),
+        import('@apiteam/env-regex'),
+        import('@apiteam/datapeak'),
 
         new Promise((resolve) => {
           import('@monaco-editor/loader').then((module) => {
@@ -133,26 +136,28 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
           <SimplebarReactModuleProvider>
             <YJSModuleProvider>
               <DnDModuleProvider>
-                <ApexChartsModuleProvider>
-                  <AppLayoutBase
-                    topNav={<TopNavApp />}
-                    appBar={onDashboard ? <TopBarDashboard /> : undefined}
-                    footer={
-                      onDashboard
-                        ? {
-                            element: <FooterSplash />,
-                            height: {
-                              xs: FOOTER_SPASH_HEIGHT.xs,
-                              md: FOOTER_SPASH_HEIGHT.md,
-                            },
-                          }
-                        : undefined
-                    }
-                    onDashboard={onDashboard}
-                  >
-                    {children}
-                  </AppLayoutBase>
-                </ApexChartsModuleProvider>
+                <DatapeakModuleProvider>
+                  <ApexChartsModuleProvider>
+                    <AppLayoutBase
+                      topNav={<TopNavApp />}
+                      appBar={onDashboard ? <TopBarDashboard /> : undefined}
+                      footer={
+                        onDashboard
+                          ? {
+                              element: <FooterSplash />,
+                              height: {
+                                xs: FOOTER_SPASH_HEIGHT.xs,
+                                md: FOOTER_SPASH_HEIGHT.md,
+                              },
+                            }
+                          : undefined
+                      }
+                      onDashboard={onDashboard}
+                    >
+                      {children}
+                    </AppLayoutBase>
+                  </ApexChartsModuleProvider>
+                </DatapeakModuleProvider>
               </DnDModuleProvider>
             </YJSModuleProvider>
           </SimplebarReactModuleProvider>
