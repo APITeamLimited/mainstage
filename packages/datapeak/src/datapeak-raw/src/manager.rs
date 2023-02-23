@@ -119,7 +119,7 @@ impl TestInfoManager {
     fn process_threshold(&mut self, threshold: &types::Threshold) {
         // Check if threshold already exists with source
         self.test_info.thresholds.retain(|x| {
-            x.source != threshold.source
+            x.source != threshold.source && x.metric != threshold.metric
         });
 
         // Append the new threshold

@@ -33,20 +33,22 @@ export const streamExistingTest = ({
 
   // Messages will need to be parsed
   socket.on('updates', (data: any) => {
-    if (data.jobId) {
-      const parsedMessage = parseGlobeTestMessage(data)
-
-      if (parsedMessage.messageType === 'STATUS') {
-        if (
-          parsedMessage.message === 'SUCCESS' ||
-          parsedMessage.message === 'FAILURE'
-        ) {
-          refetchRunningCountVar(Math.random())
-        }
-      }
-      console.log('parsedMessage', parsedMessage.messageType, parsedMessage)
-      onMessage(parsedMessage)
+    if (!data.jobId) {
+      return
     }
+
+    const parsedMessage = parseGlobeTestMessage(data)
+
+    if (parsedMessage.messageType === 'STATUS') {
+      if (
+        parsedMessage.message === 'SUCCESS' ||
+        parsedMessage.message === 'FAILURE'
+      ) {
+        refetchRunningCountVar(Math.random())
+      }
+    }
+    console.log('parsedMessage', parsedMessage.messageType, parsedMessage)
+    onMessage(parsedMessage)
   })
 
   return socket

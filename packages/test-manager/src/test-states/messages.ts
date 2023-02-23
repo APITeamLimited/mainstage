@@ -217,7 +217,6 @@ export const handleMessage = async (
       }
 
       console.log('delete 3')
-      await coreCacheReadRedis.hDel(runningTestKey, jobId)
 
       // In case of linering client, force disconnect after 1 second
       setTimeout(() => {

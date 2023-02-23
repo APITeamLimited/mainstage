@@ -12,12 +12,12 @@ export class SummaryPoller {
   private state = ''
   private intervalId: NodeJS.Timeout | null = null
   private readonly pollInterval: number
-  private readonly callback: (messages: Interval) => void
+  private readonly callback: (summary: Interval) => void
   private readonly testInfoId: string
 
   constructor(
     testInfoId: string,
-    callback: (messages: Interval) => void,
+    callback: (summary: Interval) => void,
     pollInterval = 1000
   ) {
     if (!rawTestInfoIdExists(testInfoId)) {

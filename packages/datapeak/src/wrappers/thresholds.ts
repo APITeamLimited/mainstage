@@ -5,6 +5,7 @@ import {
 } from '../datapeak-raw/pkg/datapeak'
 
 export type Threshold = {
+  metric: string
   source: string
   abortOnFail?: boolean
   delayAbortEval?: string

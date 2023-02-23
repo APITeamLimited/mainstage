@@ -1,8 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
-import { ConsoleMessage, Threshold } from '@apiteam/datapeak'
-import type { GlobeTestMessage, MetricsCombination } from '@apiteam/types'
+import type {
+  ConsoleMessage,
+  ConsoleMessagesPoller,
+  LocationPoller,
+  SummaryPoller,
+  Threshold,
+  ThresholdsPoller,
+} from '@apiteam/datapeak'
+import type { GlobeTestMessage } from '@apiteam/types'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
@@ -50,6 +57,18 @@ export const LoadingMultipleResponsePanel = ({
 
   const [socket, setSocket] = useState<Socket | null>(null)
 
+  const [consoleMessagesPoller, setConsoleMessagesPoller] =
+    useState<ConsoleMessagesPoller | null>(null)
+
+  const [thresholdsPoller, setThresholdsPoller] =
+    useState<ThresholdsPoller | null>(null)
+
+  const [summaryPoller, setSummaryPoller] = useState<SummaryPoller | null>(null)
+
+  const [locationPoller, setLocationPoller] = useState<LocationPoller | null>(
+    null
+  )
+
   useEffect(() => {
     if (socket || !rawBearer || !scopeId || !jobId) {
       return
@@ -57,56 +76,73 @@ export const LoadingMultipleResponsePanel = ({
 
     const testInfoId = datapeakModule.initTestData()
 
-    const consoleMessagesPoller = new datapeakModule.ConsoleMessagesPoller(
-      testInfoId,
-      (m) => {
+    setConsoleMessagesPoller(
+      new datapeakModule.ConsoleMessagesPoller(testInfoId, (m) => {
         console.log('m', m)
         setConsoleMessages(m)
-      }
+      })
     )
 
-    const thresholdsPoller = new datapeakModule.ThresholdsPoller(
-      testInfoId,
-      setThresholds
+    setThresholdsPoller(
+      new datapeakModule.ThresholdsPoller(testInfoId, (tr) => {
+        console.log('tr', tr)
+        setThresholds(tr)
+      })
     )
 
-    const locationPoller = new datapeakModule.LocationPoller(
-      testInfoId,
-      (m) => {
+    setSummaryPoller(
+      new datapeakModule.SummaryPoller(testInfoId, (m) => {
+        console.log('summaryPoller', m)
+      })
+    )
+
+    setLocationPoller(
+      new datapeakModule.LocationPoller(testInfoId, (m) => {
         console.log('asd', m)
-      }
+      })
     )
 
-    const newSocket = streamExistingTest({
-      jobId,
-      scopeId,
-      rawBearer,
-      onMessage: (message) => {
-        if (
-          message.messageType === 'INTERVAL' ||
-          message.messageType === 'CONSOLE'
-        ) {
-          console.log('adding', message.messageType)
-          datapeakModule.addStreamedData(
-            testInfoId,
-            Buffer.from(message.message, 'base64')
-          )
-        } else if (message.messageType === 'OPTIONS') {
-          const locations = message.message.loadDistribution.map(
-            (ldl) => ldl.location
-          )
+    setSocket(
+      streamExistingTest({
+        jobId,
+        scopeId,
+        rawBearer,
+        onMessage: (message) => {
+          if (
+            message.messageType === 'INTERVAL' ||
+            message.messageType === 'CONSOLE' ||
+            message.messageType === 'THRESHOLD'
+          ) {
+            datapeakModule.addStreamedData(
+              testInfoId,
+              Buffer.from(message.message, 'base64')
+            )
+          } else if (message.messageType === 'OPTIONS') {
+            const locations = message.message.loadDistribution.map(
+              (ldl) => ldl.location
+            )
 
-          datapeakModule.setLocations(testInfoId, locations)
-        }
-      },
-      executionAgent:
-        focusedResponse.get('executionAgent') === 'Local' ? 'Local' : 'Cloud',
-    })
-
-    setSocket(newSocket)
+            datapeakModule.setLocations(testInfoId, locations)
+          }
+        },
+        executionAgent:
+          focusedResponse.get('executionAgent') === 'Local' ? 'Local' : 'Cloud',
+      })
+    )
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobId, rawBearer, scopeId])
+
+  useEffect(() => {
+    return () => {
+      consoleMessagesPoller?.destroy()
+      thresholdsPoller?.destroy()
+      summaryPoller?.destroy()
+      locationPoller?.destroy()
+      socket?.disconnect()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (activeTabIndex === 0) {
@@ -171,11 +207,7 @@ export const LoadingMultipleResponsePanel = ({
         actionArea={actionArea}
         aboveTabsArea={
           <LoadTestSummaryPanel
-            metrics={
-              metrics as unknown as
-                | (GlobeTestMessage & MetricsCombination)[]
-                | null
-            }
+            metrics={metrics as unknown as GlobeTestMessage[] | null}
             responseYMap={focusedResponse}
             wasLimited={wasLimited}
             logsThrottled={logsThrottled}

@@ -91,7 +91,7 @@ export const executeCloud = ({
           message.message === 'COMPLETED_SUCCESS' ||
           message.message === 'COMPLETED_FAILURE'
         ) {
-          setTimeout(() => socket.disconnect(), 1000)
+          setTimeout(() => socket.disconnect(), 2000)
         }
       }
     })

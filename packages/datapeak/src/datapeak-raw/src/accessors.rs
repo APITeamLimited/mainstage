@@ -18,6 +18,12 @@ pub fn get_thresholds(test_info_id: &str) -> Result<JsValue, JsValue> {
 
         Reflect::set(
             &obj,
+            &JsValue::from_str("metric"),
+            &JsValue::from_str(tr.metric.as_str()),
+        )?;
+
+        Reflect::set(
+            &obj,
             &JsValue::from_str("source"),
             &JsValue::from_str(tr.source.as_str()),
         )?;

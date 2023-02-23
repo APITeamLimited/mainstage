@@ -69,7 +69,7 @@ const messageCombinationSchema = z.union([
     message: z.string(),
   }),
   z.object({
-    messageType: z.literal('THREASHOLD'),
+    messageType: z.literal('THRESHOLD'),
     // Base 64 encoded
     message: z.string(),
   }),

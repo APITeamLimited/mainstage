@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { ConsoleMessage, Threshold } from '@apiteam/datapeak'
+import type { ConsoleMessage, Threshold } from '@apiteam/datapeak'
 import type { GlobeTestMessage } from '@apiteam/types'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
