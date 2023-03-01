@@ -33,8 +33,9 @@ import {
   FOOTER_SPASH_HEIGHT,
 } from '../Landing/components/FooterSplash'
 import { LandingLayoutBase } from '../Landing/LandingLayoutBase'
+import { ScrollbarManager } from '../ScrollbarManager'
 
-import { DocsAside, docsAsideWidth } from './components/DocsAside'
+import { DocsAside } from './components/DocsAside'
 import { DocsBreadcrumbs } from './components/DocsBreadcrumbs'
 import { DocsSearch } from './components/DocsSearch'
 import { NextPageLink } from './components/NextPageLink'
@@ -82,102 +83,104 @@ export const DocsLayoutInner = ({ children }: DocsLayoutProps) => {
   }
 
   return (
-    <CurrentContentContext.Provider value={currentContent}>
-      <DocHeadingsProvider>
-        <MetaTags title={currentContent.title} />
-        <LandingLayoutBase
-          footer={{
-            element: <FooterSplash />,
-            height: footerHeights,
-          }}
-          appBarInner={
-            <LandingTopBar
-              onSidebarOpen={() => setSidebarOpen(true)}
-              leftZone={isSmall ? <></> : <TopBarPageName name="Docs" />}
-              rightZone={<DocsSearch />}
-              hideBrandedRoutes
-              hideSignUpOrContinueButton
-              hideLogo={isSmall}
-            />
-          }
-          topBarLeftZone={
-            isSmall ? (
-              <Stack spacing={2} alignItems="center" direction="row">
-                <APITeamLogo />
-                <TopBarPageName name="Docs" />
-              </Stack>
-            ) : (
-              <></>
-            )
-          }
-        >
-          <Stack
-            direction="row"
-            sx={{
-              overflow: 'hidden',
-              height: '100%',
+    <ScrollbarManager enableCustomScrollbars={false}>
+      <CurrentContentContext.Provider value={currentContent}>
+        <DocHeadingsProvider>
+          <MetaTags title={currentContent.title} />
+          <LandingLayoutBase
+            footer={{
+              element: <FooterSplash />,
+              height: footerHeights,
             }}
+            appBarInner={
+              <LandingTopBar
+                onSidebarOpen={() => setSidebarOpen(true)}
+                leftZone={isSmall ? <></> : <TopBarPageName name="Docs" />}
+                rightZone={<DocsSearch />}
+                hideBrandedRoutes
+                hideSignUpOrContinueButton
+                hideLogo={isSmall}
+              />
+            }
+            topBarLeftZone={
+              isSmall ? (
+                <Stack spacing={2} alignItems="center" direction="row">
+                  <APITeamLogo />
+                  <TopBarPageName name="Docs" />
+                </Stack>
+              ) : (
+                <></>
+              )
+            }
           >
-            <DocsAside
-              open={sidebarOpen}
-              setOpen={setSidebarOpen}
-              footerHeights={footerHeights}
-            />
-            <Container
+            <Stack
+              direction="row"
               sx={{
-                paddingY: largePanelSpacing,
-                minHeight: '94vh',
+                overflow: 'hidden',
+                height: '100%',
               }}
-              disableGutters
             >
-              <Stack
-                spacing={
-                  isMediumOrLess ? smallPanelSpacing : mediumPanelSpacing
-                }
-                direction="row"
+              <DocsAside
+                open={sidebarOpen}
+                setOpen={setSidebarOpen}
+                footerHeights={footerHeights}
+              />
+              <Container
+                sx={{
+                  paddingY: largePanelSpacing,
+                  minHeight: '94vh',
+                }}
+                disableGutters
               >
                 <Stack
                   spacing={
                     isMediumOrLess ? smallPanelSpacing : mediumPanelSpacing
                   }
-                  sx={{
-                    flex: 1,
-                  }}
+                  direction="row"
                 >
-                  <DocsBreadcrumbs content={currentContent} />
-                  <Typography variant="h4" fontWeight="bold">
-                    {currentContent.title}
-                  </Typography>
-                  {isMediumOrLess && (
-                    <Box
-                      sx={{
-                        maxWidth: '100%',
-                      }}
-                    >
-                      <PageOverview />
-                    </Box>
-                  )}
-                  <Paper
+                  <Stack
+                    spacing={
+                      isMediumOrLess ? smallPanelSpacing : mediumPanelSpacing
+                    }
                     sx={{
-                      padding: isMediumOrLess
-                        ? smallPanelSpacing
-                        : mediumPanelSpacing,
+                      flex: 1,
                     }}
                   >
-                    <main>{children}</main>
-                  </Paper>
-                  <NextPageLink />
+                    <DocsBreadcrumbs content={currentContent} />
+                    <Typography variant="h4" fontWeight="bold">
+                      {currentContent.title}
+                    </Typography>
+                    {isMediumOrLess && (
+                      <Box
+                        sx={{
+                          maxWidth: '100%',
+                        }}
+                      >
+                        <PageOverview />
+                      </Box>
+                    )}
+                    <Paper
+                      sx={{
+                        padding: isMediumOrLess
+                          ? smallPanelSpacing
+                          : mediumPanelSpacing,
+                      }}
+                    >
+                      <main>{children}</main>
+                    </Paper>
+                    <NextPageLink />
+                  </Stack>
+                  {!isMediumOrLess && (
+                    <div>
+                      <PageOverview />
+                    </div>
+                  )}
                 </Stack>
-                {!isMediumOrLess && (
-                  <div>
-                    <PageOverview />
-                  </div>
-                )}
-              </Stack>
-            </Container>
-          </Stack>
-        </LandingLayoutBase>
-      </DocHeadingsProvider>
-    </CurrentContentContext.Provider>
+              </Container>
+            </Stack>
+          </LandingLayoutBase>
+        </DocHeadingsProvider>
+      </CurrentContentContext.Provider>
+    </ScrollbarManager>
   )
 }

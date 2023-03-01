@@ -123,7 +123,6 @@ export const baseThemeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           borderRadius: '0.25rem',
-          //height: '2rem',
           paddingX: '0.5rem',
           paddingY: '0.75rem',
           minHeight: '2rem',

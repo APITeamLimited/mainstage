@@ -24,13 +24,6 @@ export const CustomAppBar = ({
           disableTop && !trigger
             ? 'transparent'
             : theme.palette.background.paper,
-        // Prevent app bar form changing color by applying desired linearGradien
-        // all the time
-        backgroundImage: disableTop
-          ? undefined
-          : !trigger
-          ? 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))'
-          : undefined,
 
         // Disable shaddow on top of appbar
         clipPath: disableTop ? undefined : `inset(1 0px -20px 0px)`,
@@ -39,7 +32,7 @@ export const CustomAppBar = ({
             ? `1px solid ${theme.palette.divider}`
             : undefined,
       }}
-      elevation={trigger ? 8 : 0}
+      elevation={trigger ? 1 : 0}
     >
       {children}
     </AppBar>

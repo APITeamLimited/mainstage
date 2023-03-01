@@ -22,8 +22,6 @@ export const StatusBar = () => {
           width: '100%',
           height: `${STATUS_BAR_HEIGHT}px`,
           borderRadius: 0,
-          backgroundImage:
-            'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
           borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >

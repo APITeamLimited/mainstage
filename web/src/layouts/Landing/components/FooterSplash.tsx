@@ -6,19 +6,18 @@ import {
   Grid,
   Stack,
   Typography,
-  Box,
   useTheme,
   Divider,
   useMediaQuery,
   SvgIcon,
   Tooltip,
+  Paper,
 } from '@mui/material'
 
 import { Link } from '@redwoodjs/router'
 
 import { APITeamLogo } from 'src/components/APITeamLogo'
 import { brandedRoutes } from 'src/Routes'
-import { ThemeInverter } from 'src/utils/ThemeInverter'
 
 export const FOOTER_SPASH_HEIGHT = {
   xs: '950px',
@@ -61,16 +60,10 @@ const FooterSplashInner = ({ transparent }: FooterSplashProps) => {
         zIndex: 2,
       }}
     >
-      <Box
+      <Paper
         sx={{
           width: '100%',
-          backgroundColor: transparent
-            ? undefined
-            : theme.palette.alternate.dark,
-          // background: `radial-gradient(circle at 50% 50%,${alpha(
-          //   theme.palette.primary.main,
-          //   0.1
-          // )}, ${alpha(theme.palette.primary.light, 0.0)})`,
+          backgroundColor: transparent ? 'transparent' : undefined,
           position: 'absolute',
           bottom: 0,
           height: {
@@ -82,6 +75,7 @@ const FooterSplashInner = ({ transparent }: FooterSplashProps) => {
             md: FOOTER_SPASH_HEIGHT.md,
           },
         }}
+        elevation={1}
       >
         <Stack
           sx={{
@@ -206,7 +200,7 @@ const FooterSplashInner = ({ transparent }: FooterSplashProps) => {
             </Stack>
           </Container>
         </Stack>
-      </Box>
+      </Paper>
     </div>
   )
 }

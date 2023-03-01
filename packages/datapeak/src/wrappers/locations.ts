@@ -1,5 +1,5 @@
 import {
-  rawGetLocationState,
+  rawGetLocationsState,
   rawTestInfoIdExists,
   rawGetLocations,
   rawSetLocations,
@@ -7,9 +7,7 @@ import {
 
 export type Locations = string[]
 
-export const getLocations = rawGetLocations as (
-  test_info_id: string
-) => Locations
+export const getLocations = rawGetLocations as (testInfoId: string) => Locations
 
 export const setLocations = rawSetLocations as (
   testInfoId: string,
@@ -39,7 +37,7 @@ export class LocationPoller {
   }
 
   private async poll() {
-    const newState = rawGetLocationState(this.testInfoId)
+    const newState = rawGetLocationsState(this.testInfoId)
     if (newState !== this.state) {
       this.state = newState
       this.callback(getLocations(this.testInfoId))

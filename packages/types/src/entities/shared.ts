@@ -20,7 +20,7 @@ export const failureResultSchema = z.object({
   __subtype: z.literal('FailureResult'),
   testInfo: storedObjectSchema(z.array(globeTestMessageSchema)),
 
-  // Running test may have failed so these fields may exist
+  // Running test may have failed so these fields may not exist
   options: z.union([z.record(z.unknown()), z.null()]),
 })
 

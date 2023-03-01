@@ -31,6 +31,13 @@ import { kvLegacyImporter } from 'src/utils/key-values'
 import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 import { stripBodyStoredObjectData } from 'src/utils/rest-utils'
 
+import {
+  getDescription,
+  getExecutionScripts,
+  useUnsavedDescription,
+  useUnsavedExecutionScripts,
+  useUnsavedExecutionOptions,
+} from '../../../hooks'
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
@@ -38,13 +45,6 @@ import { ExecutionOptionsPanel } from '../../sub-panels/ExecutionOptionsPanel'
 import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
 import { SaveButton } from '../components/SaveButton'
 import { SendButton } from '../components/SendButton'
-import { useUnsavedExecutionOptions } from '../hooks'
-import {
-  getDescription,
-  getExecutionScripts,
-  useUnsavedDescription,
-  useUnsavedExecutionScripts,
-} from '../hooks'
 
 import { BodyPanel } from './BodyPanel'
 import { EndpointBox } from './EndpointBox'

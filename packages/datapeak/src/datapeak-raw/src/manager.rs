@@ -1,19 +1,26 @@
 use protobuf::Message;
 use uuid::Uuid;
-use crate::types;
+use crate::{types, intervals::checks::CheckCollection};
 
 pub struct TestInfoManager {
     pub test_info: types::TestInfo,
+
+    pub latest_period: i32,
 
     pub intervals_state: String,
     pub console_messages_state: String,
     pub thresholds_state: String,
 
     pub locations: Vec<String>,
-    pub location_state: String,
+    pub locations_state: String,
 
     pub summary: Option<types::Interval>,
     pub summary_state: String,
+
+    pub checks: CheckCollection,
+    pub checks_state: String,
+
+    pub messages_state: String,
 }
 
 impl TestInfoManager {
@@ -24,8 +31,11 @@ impl TestInfoManager {
                 None => types::TestInfo::new(),
             },
 
+            // Set most recent interval to -1 so that the first interval (0) will be processed
+            latest_period: -1,
+
             locations: Vec::new(),
-            location_state: Uuid::new_v4().to_string(),
+            locations_state: Uuid::new_v4().to_string(),
 
             intervals_state: Uuid::new_v4().to_string(),
             console_messages_state: Uuid::new_v4().to_string(),
@@ -33,6 +43,11 @@ impl TestInfoManager {
             
             summary: None,
             summary_state: Uuid::new_v4().to_string(),
+
+            checks: CheckCollection::new(),
+            checks_state: Uuid::new_v4().to_string(),
+
+            messages_state: Uuid::new_v4().to_string(),
         };
 
         for interval in new_manager.test_info.intervals.clone().iter() {
@@ -56,11 +71,15 @@ impl TestInfoManager {
     }
 
     fn process_streamed_data(&mut self, streamed_data: &types::StreamedData) -> Result<(), String> {
+        // Intervals need to be processed in order
+
+        let mut intervals: Vec<types::Interval> = Vec::new();
+
         for data_point in streamed_data.data_points.iter() {
             // Get message type
             match &data_point.data {
                 Some(types::data_point::Data::Interval(interval)) => {
-                    self.process_interval(&interval);
+                    intervals.push(interval.clone());
                 }
                 Some(types::data_point::Data::ConsoleMessage(console_message)) => {
                     self.process_console_message(&console_message);
@@ -74,48 +93,19 @@ impl TestInfoManager {
             }
         }
 
+        // Sort intervals by period and ensure no duplicates
+        intervals.sort_by(|a, b| a.period.cmp(&b.period));
+        intervals.dedup_by(|a, b| a.period == b.period);
+
+        // Add intervals to test info
+        for interval in intervals.iter() {
+            self.process_interval(interval)?;
+        }
+
         Ok(())
     }
 
-    fn process_console_message(&mut self, new_message: &types::ConsoleMessage) {
-        // Check if console message is already in the list
-
-        // If not, add it
-
-        match self
-            .test_info
-            .console_messages
-            .iter_mut()
-            .find(|x| x.message == new_message.message && x.level == new_message.level)
-        {
-            Some(existing_message) => {
-                existing_message.last_occurred = new_message.last_occurred.clone();
-
-                for (location, new_times_occured) in new_message.count.iter() {
-                    match existing_message
-                        .count
-                        .iter_mut()
-                        .find(|(l, _)| l.to_string() == location.to_string())
-                    {
-                        Some((_, existing_times_occured)) => {
-                            *existing_times_occured += *new_times_occured;
-                        }
-                        None => {
-                            existing_message
-                                .count
-                                .insert(location.to_string(), *new_times_occured);
-                        }
-                    }
-                }
-            }
-            None => {
-                self.test_info.console_messages.push(new_message.clone());
-            }
-        }
-
-        self.console_messages_state = Uuid::new_v4().to_string();
-    }
-
+ 
     fn process_threshold(&mut self, threshold: &types::Threshold) {
         // Check if threshold already exists with source
         self.test_info.thresholds.retain(|x| {
@@ -128,28 +118,4 @@ impl TestInfoManager {
         self.thresholds_state = Uuid::new_v4().to_string();
     }
 
-    pub fn update_locations(&mut self, interval: &types::Interval) {
-        let mut new_locations: Vec<String> = Vec::new();
-
-        for (sink_name, _) in interval.sinks.iter() {
-            // Split sink name with '::'
-
-            let parts = sink_name.split("::").collect::<Vec<&str>>();
-
-            new_locations.push(parts[0].to_string());
-        }
-
-        let mut updated_locations = false;
-
-        for new_location in new_locations.iter() {
-            if !self.locations.contains(&new_location) {
-                self.locations.push(new_location.to_string());
-                updated_locations = true;
-            }
-        }
-
-        if updated_locations {
-            self.location_state = Uuid::new_v4().to_string();
-        }
-    }
 }

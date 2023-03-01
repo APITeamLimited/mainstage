@@ -12,8 +12,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../../PanelLayout'
-import { ExecutionPanel } from '../ExecutionPanel'
-import { FocusedRequestPanel } from '../FocusedRequestPanel/FocusedRequestPanel'
+import { FocusedRequestPanel } from '../tabs/FocusedRequestPanel/FocusedRequestPanel'
 
 import { MetricsList } from './SuccessSingleResultPanel'
 
@@ -164,7 +163,7 @@ export const FailureResultPanel = ({
       actionArea={actionArea}
       aboveTabsArea={<Alert severity="error">{errorMessage}</Alert>}
     >
-      {activeTabIndex === 0 &&
+      {/* {activeTabIndex === 0 &&
         (storedGlobeTestLogs !== null ? (
           <ExecutionPanel
             setActionArea={setActionArea}
@@ -176,7 +175,7 @@ export const FailureResultPanel = ({
           />
         ) : (
           <Skeleton />
-        ))}
+        ))} */}
       {tabNames.includes('Request') && activeTabIndex === 1 && (
         <FocusedRequestPanel
           request={focusedResponse.get('underlyingRequest')}

@@ -35,6 +35,13 @@ import { jobQueueVar } from 'src/test-manager'
 import { kvExporter, kvLegacyImporter } from 'src/utils/key-values'
 import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 
+import {
+  getDescription,
+  getExecutionScripts,
+  useUnsavedDescription,
+  useUnsavedExecutionOptions,
+  useUnsavedExecutionScripts,
+} from '../../../hooks'
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
 import { DescriptionPanel } from '../../sub-panels/DescriptionPanel'
@@ -42,13 +49,6 @@ import { ExecutionOptionsPanel } from '../../sub-panels/ExecutionOptionsPanel'
 import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
 import { SaveButton } from '../components/SaveButton'
 import { SendButton } from '../components/SendButton'
-import {
-  getDescription,
-  getExecutionScripts,
-  useUnsavedDescription,
-  useUnsavedExecutionOptions,
-  useUnsavedExecutionScripts,
-} from '../hooks'
 
 type CollectionInputPanelProps = {
   collectionYMap: YMap<any>

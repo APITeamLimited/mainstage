@@ -12,7 +12,7 @@ export type Threshold = {
 }
 
 export const getThresholds = rawGetThresholds as (
-  test_info_id: string
+  testInfoId: string
 ) => Threshold[]
 
 export class ThresholdsPoller {

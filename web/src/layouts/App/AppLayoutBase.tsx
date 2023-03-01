@@ -74,9 +74,7 @@ export const AppLayoutBase = ({
                 ) : (
                   <CustomAppBar trigger={trigger}>{topNav}</CustomAppBar>
                 )}
-                {appBar && (
-                  <CustomAppBar trigger={trigger}>{appBar}</CustomAppBar>
-                )}
+                {appBar && <CustomAppBar trigger>{appBar}</CustomAppBar>}
                 <Box
                   sx={{
                     paddingBottom: {

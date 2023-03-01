@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import type { ConsoleMessage, Threshold } from '@apiteam/datapeak'
-import type { GlobeTestMessage } from '@apiteam/types'
 import type { Socket } from 'socket.io-client'
 import type { Map as YMap } from 'yjs'
 
@@ -13,8 +12,7 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { streamExistingTest } from 'src/test-manager/executors'
 
 import { PanelLayout } from '../../../../PanelLayout'
-import { ExecutionPanel } from '../../ExecutionPanel'
-import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
+import { FocusedRequestPanel } from '../../tabs/FocusedRequestPanel/FocusedRequestPanel'
 import { MetricsList } from '../SuccessSingleResultPanel'
 
 type LoadingSingleResponsePanelProps = {
@@ -112,7 +110,7 @@ export const LoadingSingleResponsePanel = ({
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
       >
-        {activeTabIndex === 0 && (
+        {/* {activeTabIndex === 0 && (
           <ExecutionPanel
             setActionArea={setActionArea}
             globeTestLogs={globeTestLogs}
@@ -121,7 +119,7 @@ export const LoadingSingleResponsePanel = ({
             sourceName={focusedResponse.get('sourceName') as string}
             responseId={focusedResponse.get('id') as string}
           />
-        )}
+        )} */}
         {tabNames.includes('Request') && activeTabIndex === 1 && (
           <FocusedRequestPanel
             request={focusedResponse.get('underlyingRequest')}

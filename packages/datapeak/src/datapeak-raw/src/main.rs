@@ -2,8 +2,9 @@ mod intervals;
 mod manager;
 mod types;
 mod states;
-mod time_series;
 mod accessors;
+mod console_messages;
+mod locations;
 
 use lazy_static::lazy_static;
 use protobuf::Message;
@@ -11,7 +12,6 @@ use uuid::Uuid;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
-use js_sys::Array;
 
 pub fn set_panic_hook() {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -101,8 +101,8 @@ pub fn add_streamed_data(test_info_id: &str, bytes: Vec<u8>) -> Result<(), JsVal
     }
 }
 
-#[wasm_bindgen (js_name = rawSetLocations)]
-pub fn set_locations(test_info_id: &str, locations: Array) -> Result<(), JsValue> {
+#[wasm_bindgen (js_name = rawAddMessage)]
+pub fn add_message(test_info_id: &str, message: &str) -> Result<(), JsValue> {
     let mut managers = MANAGERS.lock().unwrap();
 
     // Get test data if it exists, otherwise return
@@ -115,11 +115,8 @@ pub fn set_locations(test_info_id: &str, locations: Array) -> Result<(), JsValue
         }
     };
 
-    // Extract vector of locations from JsValue
-    let locations: Vec<String> = locations.iter().map(|x| x.as_string().unwrap()).collect();
-
-    test_info.locations = locations;
-    test_info.location_state = Uuid::new_v4().to_string();
+    test_info.test_info.messages.push(message.to_string());
+    test_info.messages_state = Uuid::new_v4().to_string();
 
     Ok(())
 }

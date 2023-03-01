@@ -1,11 +1,43 @@
 import {
   rawGetIntervalsState,
   rawTestInfoIdExists,
-} from 'src/datapeak-raw/pkg/datapeak'
+} from '../../datapeak-raw/pkg/datapeak'
 
-export type Sink = {
-  labels: Record<string, number>
-}
+export type Sink =
+  | {
+      type: 'counter'
+      labels: {
+        count: number
+        mean: number
+        rate: number
+      }
+    }
+  | {
+      type: 'gauge'
+      labels: {
+        value: number
+      }
+    }
+  | {
+      type: 'trend'
+      labels: {
+        min: number
+        max: number
+        avg: number
+        med: number
+        'p(90)': number
+        'p(95)': number
+      }
+    }
+  | {
+      type: 'rate'
+      labels: {
+        rate: number
+        pass: number
+        fail: number
+        total: number
+      }
+    }
 
 export type Interval = {
   period: number

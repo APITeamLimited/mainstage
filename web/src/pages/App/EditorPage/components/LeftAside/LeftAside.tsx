@@ -158,7 +158,7 @@ export const LeftAside = ({
                 <EnvironmentIcon />
               </IconButton>
             </Tooltip>
-            <Tooltip title="Test Suites" placement="right">
+            {/* <Tooltip title="Test Suites" placement="right">
               <IconButton
                 size="large"
                 color={activeLeftAside === 'testSuites' ? 'primary' : 'inherit'}
@@ -166,7 +166,7 @@ export const LeftAside = ({
               >
                 <MonitorIcon />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
           </Stack>
           <Stack spacing={2}></Stack>
         </Stack>

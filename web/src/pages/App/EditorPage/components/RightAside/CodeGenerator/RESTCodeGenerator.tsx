@@ -16,7 +16,7 @@ import {
   RESTCodegenDefinitions,
 } from 'src/utils/code-gen/restCodeGen'
 
-import { getExecutionOptions, getExecutionScripts } from '../../panels/hooks'
+import { getExecutionOptions, getExecutionScripts } from '../../../hooks'
 
 import {
   CodeGenDefinition,

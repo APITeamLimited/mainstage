@@ -1,29 +1,26 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from 'react'
 
-import type {
-  ConsoleMessage,
-  ConsoleMessagesPoller,
-  LocationPoller,
-  SummaryPoller,
-  Threshold,
-  ThresholdsPoller,
-} from '@apiteam/datapeak'
+import type { ConsoleMessage, Threshold } from '@apiteam/datapeak'
 import type { GlobeTestMessage } from '@apiteam/types'
-import type { Socket } from 'socket.io-client'
+import { Skeleton } from '@mui/material'
 import type { Map as YMap } from 'yjs'
 
 import { SendingRequestAnimation } from 'src/components/app/utils/SendingRequestAnimation'
-import { useDatapeakModule } from 'src/contexts/imports/datapeak-provider'
 import { useRawBearer, useScopeId } from 'src/entity-engine/EntityEngine'
 import { useYMap } from 'src/lib/zustand-yjs'
-import { streamExistingTest } from 'src/test-manager/executors'
+import { useDatapeakCurrentTest } from 'src/pages/App/EditorPage/hooks'
 
 import { PanelLayout } from '../../../../PanelLayout'
-import { ExecutionPanel } from '../../ExecutionPanel'
-import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
-import { LoadTestSummaryPanel } from '../../load-test-metrics/above-tabs-area/LoadTestSummaryPanel'
-import { GraphsPanel } from '../../load-test-metrics/graphs/GraphsPanel'
+import { SkeletonLoadingPanel } from '../../../SkeletonLoadingPanel'
+import {
+  ExecutionPanel,
+  GraphsPanel,
+  LoadTestSummaryPanel,
+  ScriptPanel,
+} from '../../tabs'
+import { ConsolePanel } from '../../tabs/ConsolePanel'
+import { FocusedRequestPanel } from '../../tabs/FocusedRequestPanel/FocusedRequestPanel'
 import { MetricsList } from '../SuccessSingleResultPanel'
 
 type LoadingMultipleResponsePanelProps = {
@@ -33,170 +30,43 @@ type LoadingMultipleResponsePanelProps = {
 export const LoadingMultipleResponsePanel = ({
   focusedResponse,
 }: LoadingMultipleResponsePanelProps) => {
-  const datapeakModule = useDatapeakModule()
-
-  const [activeTabIndex, setActiveTabIndex] = useState(0)
-  const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
-
   const focusedResponseHook = useYMap(focusedResponse)
 
   const scopeId = useScopeId()
   const rawBearer = useRawBearer()
 
-  const [metrics, setMetrics] = useState<MetricsList[]>([])
-  const [globeTestLogs, setGlobeTestLogs] = useState<GlobeTestMessage[]>([])
-
-  const [consoleMessages, setConsoleMessages] = useState<ConsoleMessage[]>([])
-  const [thresholds, setThresholds] = useState<Threshold[]>([])
-
-  const jobId = useMemo(
-    () => focusedResponse.get('jobId') as string,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
-  )
-
-  const [socket, setSocket] = useState<Socket | null>(null)
-
-  const [consoleMessagesPoller, setConsoleMessagesPoller] =
-    useState<ConsoleMessagesPoller | null>(null)
-
-  const [thresholdsPoller, setThresholdsPoller] =
-    useState<ThresholdsPoller | null>(null)
-
-  const [summaryPoller, setSummaryPoller] = useState<SummaryPoller | null>(null)
-
-  const [locationPoller, setLocationPoller] = useState<LocationPoller | null>(
-    null
-  )
-
-  useEffect(() => {
-    if (socket || !rawBearer || !scopeId || !jobId) {
-      return
-    }
-
-    const testInfoId = datapeakModule.initTestData()
-
-    setConsoleMessagesPoller(
-      new datapeakModule.ConsoleMessagesPoller(testInfoId, (m) => {
-        console.log('m', m)
-        setConsoleMessages(m)
-      })
-    )
-
-    setThresholdsPoller(
-      new datapeakModule.ThresholdsPoller(testInfoId, (tr) => {
-        console.log('tr', tr)
-        setThresholds(tr)
-      })
-    )
-
-    setSummaryPoller(
-      new datapeakModule.SummaryPoller(testInfoId, (m) => {
-        console.log('summaryPoller', m)
-      })
-    )
-
-    setLocationPoller(
-      new datapeakModule.LocationPoller(testInfoId, (m) => {
-        console.log('asd', m)
-      })
-    )
-
-    setSocket(
-      streamExistingTest({
-        jobId,
-        scopeId,
-        rawBearer,
-        onMessage: (message) => {
-          if (
-            message.messageType === 'INTERVAL' ||
-            message.messageType === 'CONSOLE' ||
-            message.messageType === 'THRESHOLD'
-          ) {
-            datapeakModule.addStreamedData(
-              testInfoId,
-              Buffer.from(message.message, 'base64')
-            )
-          } else if (message.messageType === 'OPTIONS') {
-            const locations = message.message.loadDistribution.map(
-              (ldl) => ldl.location
-            )
-
-            datapeakModule.setLocations(testInfoId, locations)
-          }
-        },
-        executionAgent:
-          focusedResponse.get('executionAgent') === 'Local' ? 'Local' : 'Cloud',
-      })
-    )
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobId, rawBearer, scopeId])
-
-  useEffect(() => {
-    return () => {
-      consoleMessagesPoller?.destroy()
-      thresholdsPoller?.destroy()
-      summaryPoller?.destroy()
-      locationPoller?.destroy()
-      socket?.disconnect()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
+  const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [actionArea, setActionArea] = useState<React.ReactNode>(<></>)
   useEffect(() => {
     if (activeTabIndex === 0) {
       setActionArea(null)
     }
   }, [activeTabIndex])
 
-  const wasLimited = useMemo(
-    () =>
-      globeTestLogs?.find(
-        (log) =>
-          log.messageType === 'MESSAGE' &&
-          log.message === 'UNVERIFIED_DOMAIN_THROTTLED'
-      ) !== undefined
-        ? true
-        : // eslint-disable-next-line react-hooks/exhaustive-deps
-          false,
-    [globeTestLogs]
+  const { onUnmount, testInfoId, notices } = useDatapeakCurrentTest(
+    scopeId,
+    rawBearer,
+    focusedResponse,
+    {
+      onSummaryUpdates: (summary) => console.log('summary', summary),
+      onThresholds: (thresholds) => console.log('thresholds', thresholds),
+    }
   )
 
-  const logsThrottled = useMemo(
-    () =>
-      globeTestLogs?.find(
-        (log) =>
-          log.messageType === 'MESSAGE' &&
-          log.message === 'MAX_CONSOLE_LOGS_REACHED'
-      ) !== undefined
-        ? true
-        : // eslint-disable-next-line react-hooks/exhaustive-deps
-          false,
-    [globeTestLogs]
-  )
-
-  const outputsThrottled = useMemo(
-    () =>
-      globeTestLogs?.find(
-        (log) =>
-          log.messageType === 'MESSAGE' && log.message === 'MAX_OUTPUTS_REACHED'
-      ) !== undefined
-        ? true
-        : // eslint-disable-next-line react-hooks/exhaustive-deps
-          false,
-    [globeTestLogs]
-  )
+  useEffect(() => onUnmount, [onUnmount])
 
   const tabNames = useMemo(
     () =>
       focusedResponse.get('__typename') === 'RESTResponse'
-        ? ['Graphs', 'Execution', 'Request']
-        : ['Graphs', 'Execution'],
+        ? ['Graphs', 'Console', 'Script', 'Request']
+        : ['Graphs', 'Console', 'Script'],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [focusedResponseHook]
   )
 
+  if (!testInfoId) {
+    return <SkeletonLoadingPanel />
+  }
   return (
     <>
       <SendingRequestAnimation />
@@ -206,33 +76,36 @@ export const LoadingMultipleResponsePanel = ({
         setActiveTabIndex={setActiveTabIndex}
         actionArea={actionArea}
         aboveTabsArea={
-          <LoadTestSummaryPanel
-            metrics={metrics as unknown as GlobeTestMessage[] | null}
-            responseYMap={focusedResponse}
-            wasLimited={wasLimited}
-            logsThrottled={logsThrottled}
-            outputsThrottled={outputsThrottled}
-            errorMessage={null}
-          />
+          <></>
+          // <LoadTestSummaryPanel
+          //   metrics={metrics as unknown as GlobeTestMessage[] | null}
+          //   responseYMap={focusedResponse}
+          //   unverifiedDomainThrottled={notices.unverifiedDomainThrottled}
+          //   consoleLogsLimited={notices.consoleLogsLimited}
+          //   outputsLimited={notices.outputsLimited}
+          //   // Don't show error message if the test is still running as test will be terminated
+          //   errorMessage={null}
+          // />
         }
       >
-        {activeTabIndex === 0 && (
+        {/* {activeTabIndex === 0 && (
           <GraphsPanel
             focusedResponse={focusedResponse}
             metrics={metrics as unknown as MetricsList | null}
           />
-        )}
+        )} */}
         {activeTabIndex === 1 && (
-          <ExecutionPanel
+          <ConsolePanel setActionArea={setActionArea} testInfoId={testInfoId} />
+        )}
+        {activeTabIndex === 2 && (
+          <ScriptPanel
             setActionArea={setActionArea}
-            globeTestLogs={globeTestLogs}
-            metrics={metrics}
-            source={focusedResponse.get('source') as string}
-            sourceName={focusedResponse.get('sourceName') as string}
-            responseId={focusedResponse.get('id') as string}
+            source={focusedResponse.get('source')}
+            sourceName={focusedResponse.get('sourceName')}
+            namespace={`${focusedResponse.get('id')}responsescript`}
           />
         )}
-        {tabNames.includes('Request') && activeTabIndex === 2 && (
+        {tabNames.includes('Request') && activeTabIndex === 3 && (
           <FocusedRequestPanel
             request={focusedResponse.get('underlyingRequest')}
             finalEndpoint={focusedResponse.get('endpoint')}

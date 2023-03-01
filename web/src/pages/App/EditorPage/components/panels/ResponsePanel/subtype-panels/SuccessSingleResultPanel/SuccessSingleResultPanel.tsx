@@ -13,9 +13,8 @@ import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../../../PanelLayout'
 import { StatsSkeleton } from '../../../components/stats'
-import { ExecutionPanel } from '../../ExecutionPanel'
-import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
-import { FocusedResponsePanel } from '../../FocusedResponsePanel/FocusedResponsePanel'
+import { FocusedRequestPanel } from '../../tabs/FocusedRequestPanel/FocusedRequestPanel'
+import { FocusedResponsePanel } from '../../tabs/FocusedResponsePanel/FocusedResponsePanel'
 
 import { QuickSuccessSingleStats } from './QuickSuccessSingleStats'
 
@@ -120,83 +119,78 @@ export const SuccessSingleResultPanel = ({
     )
   }
 
-  const globeTestLogsStoreReceipt = useMemo(
-    () =>
-      focusedResponse?.get('globeTestLogs')?.storeReceipt as string | undefined,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
-  )
+  return <></>
 
-  const metricsStoreReceipt = useMemo(
-    () => focusedResponse?.get('metrics')?.storeReceipt as string | undefined,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
-  )
+  // const testInfoStoreReceipt = useMemo(
+  //   () => focusedResponse?.get('testInfo')?.storeReceipt as string | undefined,
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [focusedResponseHook]
+  // )
 
-  const responseStoreReceipt = useMemo(
-    () => focusedResponse?.get('response')?.storeReceipt as string | undefined,
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
-  )
+  // const responseStoreReceipt = useMemo(
+  //   () => focusedResponse?.get('response')?.storeReceipt as string | undefined,
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [focusedResponseHook]
+  // )
 
-  useEffect(() => {
-    if (fetching) {
-      return
-    }
+  // useEffect(() => {
+  //   if (fetching) {
+  //     return
+  //   }
 
-    if (
-      !focusedResponse ||
-      !globeTestLogsStoreReceipt ||
-      !responseStoreReceipt ||
-      !metricsStoreReceipt
-    ) {
-      return
-    }
+  //   if (
+  //     !focusedResponse ||
+  //     !globeTestLogsStoreReceipt ||
+  //     !responseStoreReceipt ||
+  //     !metricsStoreReceipt
+  //   ) {
+  //     return
+  //   }
 
-    setFetching(true)
+  //   setFetching(true)
 
-    updateData({
-      globeTestLogsStoreReceipt,
-      responseStoreReceipt,
-      metricsStoreReceipt,
-    })
+  //   updateData({
+  //     globeTestLogsStoreReceipt,
+  //     responseStoreReceipt,
+  //     metricsStoreReceipt,
+  //   })
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    focusedResponseHook,
-    globeTestLogsStoreReceipt,
-    responseStoreReceipt,
-    metricsStoreReceipt,
-  ])
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [
+  //   focusedResponseHook,
+  //   globeTestLogsStoreReceipt,
+  //   responseStoreReceipt,
+  //   metricsStoreReceipt,
+  // ])
 
-  const singleStats = useMemo(
-    () => {
-      const statusCode = focusedResponse.get('statusCode')
-      const responseDuration = focusedResponse?.get('meta')?.responseDuration
-      const responseSize = focusedResponse?.get('meta')?.responseSize
+  // const singleStats = useMemo(
+  //   () => {
+  //     const statusCode = focusedResponse.get('statusCode')
+  //     const responseDuration = focusedResponse?.get('meta')?.responseDuration
+  //     const responseSize = focusedResponse?.get('meta')?.responseSize
 
-      if (!statusCode || !responseDuration || !responseSize) {
-        return null
-      }
+  //     if (!statusCode || !responseDuration || !responseSize) {
+  //       return null
+  //     }
 
-      return {
-        statusCode,
-        responseDuration,
-        responseSize,
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook, fetching]
-  )
+  //     return {
+  //       statusCode,
+  //       responseDuration,
+  //       responseSize,
+  //     }
+  //   },
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [focusedResponseHook, fetching]
+  // )
 
-  const tabNames = useMemo(
-    () =>
-      focusedResponse.get('__typename') === 'RESTResponse'
-        ? ['Response', 'Execution', 'Request']
-        : ['Response', 'Execution'],
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [focusedResponseHook]
-  )
+  // const tabNames = useMemo(
+  //   () =>
+  //     focusedResponse.get('__typename') === 'RESTResponse'
+  //       ? ['Response', 'Execution', 'Request']
+  //       : ['Response', 'Execution'],
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  //   [focusedResponseHook]
+  // )
 
   return (
     <PanelLayout

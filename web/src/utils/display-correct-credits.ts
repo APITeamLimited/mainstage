@@ -4,6 +4,6 @@ export const displayCorrectCredits = (credits: number) => {
 
   // Round so no decimals
   const roundedCredits = Math.round(creditsInThousands)
-
-  return roundedCredits
+  // Ensure no minus sign shown
+  return Math.abs(roundedCredits)
 }

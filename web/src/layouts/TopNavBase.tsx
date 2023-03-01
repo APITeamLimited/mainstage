@@ -31,11 +31,6 @@ export const TopNavBase = ({
         backgroundColor: disableTop
           ? 'transparent'
           : theme.palette.background.paper,
-        // Prevent app bar form changing color by applying desired linearGradien
-        // all the time
-        backgroundImage: disableTop
-          ? undefined
-          : 'linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12))',
         height: '50px',
         width: '100%',
         alignItems: 'center',
@@ -43,7 +38,7 @@ export const TopNavBase = ({
         zIndex: theme.zIndex.appBar,
         position: 'relative',
       }}
-      elevation={disableTop ? 0 : 8}
+      elevation={disableTop ? 0 : 1}
     >
       <Stack
         direction="row"

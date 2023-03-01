@@ -7,13 +7,14 @@ import {
 export type ConsoleMessage = {
   message: string
   level: string
-  firstOccured: string
-  lastOccured: string
-  count: number
+  firstOccurred: string
+  lastOccurred: string
+  /** Record<location, count>, global location included if it exists */
+  count: Record<string, number>
 }
 
 export const getConsoleMessages = rawGetConsoleMessages as (
-  test_info_id: string
+  testInfoId: string
 ) => ConsoleMessage[]
 
 export class ConsoleMessagesPoller {

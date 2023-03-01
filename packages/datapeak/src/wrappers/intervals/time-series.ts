@@ -1,5 +1,4 @@
-import { rawIntervalTimeSeries } from 'src/datapeak-raw/pkg/datapeak'
-import { convertToRustStyles } from 'src/name-conversion'
+import { rawIntervalTimeSeries } from '../../datapeak-raw/pkg/datapeak'
 
 export type DownsizingMethod =
   | {
@@ -28,5 +27,5 @@ export const intervalTimeSeries = (
   rawIntervalTimeSeries(
     testInfoId,
     sinkPath,
-    convertToRustStyles(downsizingMethod)
+    downsizingMethod
   ) as IntervalTimeSeries

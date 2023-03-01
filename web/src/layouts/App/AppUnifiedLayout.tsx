@@ -27,6 +27,7 @@ import {
   FooterSplash,
   FOOTER_SPASH_HEIGHT,
 } from '../Landing/components/FooterSplash'
+import { ScrollbarManager } from '../ScrollbarManager'
 
 import { AppLayoutBase } from './AppLayoutBase'
 import { LoadingScreen } from './components/LoadingScreen'
@@ -94,6 +95,7 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
         import('react-apexcharts'),
         import('yjs'),
         import('@apiteam/env-regex'),
+        import('insomnia-importers'),
         import('@apiteam/datapeak'),
 
         new Promise((resolve) => {
@@ -129,40 +131,42 @@ export const AppUnifiedLayout = ({ children }: AppUnifiedLayoutProps) => {
   }, [onDashboard, pathname])
 
   return (
-    <DesktopOnlyGuard>
-      {displayLoading && <LoadingScreen />}
-      <Lib0ModuleProvider>
-        <HashSumModuleProvider>
-          <SimplebarReactModuleProvider>
-            <YJSModuleProvider>
-              <DnDModuleProvider>
-                <DatapeakModuleProvider>
-                  <ApexChartsModuleProvider>
-                    <AppLayoutBase
-                      topNav={<TopNavApp />}
-                      appBar={onDashboard ? <TopBarDashboard /> : undefined}
-                      footer={
-                        onDashboard
-                          ? {
-                              element: <FooterSplash />,
-                              height: {
-                                xs: FOOTER_SPASH_HEIGHT.xs,
-                                md: FOOTER_SPASH_HEIGHT.md,
-                              },
-                            }
-                          : undefined
-                      }
-                      onDashboard={onDashboard}
-                    >
-                      {children}
-                    </AppLayoutBase>
-                  </ApexChartsModuleProvider>
-                </DatapeakModuleProvider>
-              </DnDModuleProvider>
-            </YJSModuleProvider>
-          </SimplebarReactModuleProvider>
-        </HashSumModuleProvider>
-      </Lib0ModuleProvider>
-    </DesktopOnlyGuard>
+    <ScrollbarManager enableCustomScrollbars={true}>
+      <DesktopOnlyGuard>
+        {displayLoading && <LoadingScreen />}
+        <Lib0ModuleProvider>
+          <HashSumModuleProvider>
+            <SimplebarReactModuleProvider>
+              <YJSModuleProvider>
+                <DnDModuleProvider>
+                  <DatapeakModuleProvider>
+                    <ApexChartsModuleProvider>
+                      <AppLayoutBase
+                        topNav={<TopNavApp />}
+                        appBar={onDashboard ? <TopBarDashboard /> : undefined}
+                        footer={
+                          onDashboard
+                            ? {
+                                element: <FooterSplash />,
+                                height: {
+                                  xs: FOOTER_SPASH_HEIGHT.xs,
+                                  md: FOOTER_SPASH_HEIGHT.md,
+                                },
+                              }
+                            : undefined
+                        }
+                        onDashboard={onDashboard}
+                      >
+                        {children}
+                      </AppLayoutBase>
+                    </ApexChartsModuleProvider>
+                  </DatapeakModuleProvider>
+                </DnDModuleProvider>
+              </YJSModuleProvider>
+            </SimplebarReactModuleProvider>
+          </HashSumModuleProvider>
+        </Lib0ModuleProvider>
+      </DesktopOnlyGuard>
+    </ScrollbarManager>
   )
 }

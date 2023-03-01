@@ -34,6 +34,13 @@ import { clientSideGenerator } from 'src/test-manager'
 import { jobQueueVar } from 'src/test-manager'
 import { guardOAuth2Save } from 'src/utils/oauth2/oauth2-guards'
 
+import {
+  getDescription,
+  getExecutionScripts,
+  useUnsavedDescription,
+  useUnsavedExecutionOptions,
+  useUnsavedExecutionScripts,
+} from '../../../hooks'
 import { duplicateRecursive } from '../../LeftAside/CollectionTree/Node/utils'
 import { PanelLayout } from '../../PanelLayout'
 import { AuthPanel } from '../../sub-panels/AuthPanel'
@@ -42,13 +49,6 @@ import { ExecutionOptionsPanel } from '../../sub-panels/ExecutionOptionsPanel'
 import { ScriptsPanel } from '../../sub-panels/ScriptsPanel'
 import { SaveButton } from '../components/SaveButton'
 import { SendButton } from '../components/SendButton'
-import {
-  getDescription,
-  getExecutionScripts,
-  useUnsavedDescription,
-  useUnsavedExecutionOptions,
-  useUnsavedExecutionScripts,
-} from '../hooks'
 
 import { SaveAsDialog } from './SaveAsDialog'
 

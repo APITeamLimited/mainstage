@@ -105,7 +105,7 @@ export const DomainsPage = () => {
               justifyContent="center"
             >
               <Typography variant="h6" color={theme.palette.error.main}>
-                An error occured fetching your domains
+                An error occurred fetching your domains
               </Typography>
             </Stack>
           </Card>

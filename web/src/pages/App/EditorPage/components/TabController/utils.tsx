@@ -4,6 +4,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import type { Map as YMap } from 'yjs'
 
 import { CollectionInputPanel } from '../panels/CollectionInputPanel'
+import { ErrorPanel } from '../panels/ErrorPanel'
 import { FolderInputPanel } from '../panels/FolderInputPanel'
 import { ResponsePanel } from '../panels/ResponsePanel'
 import { RESTInputPanel } from '../panels/RESTInputPanel'
@@ -34,7 +35,7 @@ export const determineNewCollectionResponseTab = ({
   const newOpenTab: OpenTab = {
     topYMap: focusedElement,
     topNode: (
-      <ErrorBoundary FallbackComponent={Skeleton}>
+      <ErrorBoundary FallbackComponent={ErrorPanel}>
         <CollectionInputPanel
           collectionYMap={focusedElement}
           setObservedNeedsSave={setObservedNeedsSave}
@@ -43,7 +44,7 @@ export const determineNewCollectionResponseTab = ({
     ),
     bottomYMap,
     bottomNode: (
-      <ErrorBoundary FallbackComponent={Skeleton}>
+      <ErrorBoundary FallbackComponent={ErrorPanel}>
         <ResponsePanel
           responseYMap={bottomYMap ?? undefined}
           parentTypename="Collection"
@@ -84,7 +85,7 @@ export const determineNewFolderResponseTab = ({
   const newOpenTab: OpenTab = {
     topYMap: focusedElement,
     topNode: (
-      <ErrorBoundary FallbackComponent={Skeleton}>
+      <ErrorBoundary FallbackComponent={ErrorPanel}>
         <FolderInputPanel
           folderId={focusedElement.get('id')}
           collectionYMap={collectionYMap}
@@ -94,7 +95,7 @@ export const determineNewFolderResponseTab = ({
     ),
     bottomYMap,
     bottomNode: (
-      <ErrorBoundary FallbackComponent={Skeleton}>
+      <ErrorBoundary FallbackComponent={ErrorPanel}>
         <ResponsePanel
           responseYMap={bottomYMap ?? undefined}
           parentTypename="Folder"
@@ -135,7 +136,7 @@ export const determineNewRESTResponseTab = ({
   const newOpenTab: OpenTab = {
     topYMap: focusedElement,
     topNode: (
-      <ErrorBoundary FallbackComponent={Skeleton}>
+      <ErrorBoundary FallbackComponent={ErrorPanel}>
         <RESTInputPanel
           requestYMap={focusedElement}
           collectionYMap={collectionYMap}
@@ -145,7 +146,7 @@ export const determineNewRESTResponseTab = ({
     ),
     bottomYMap,
     bottomNode: (
-      <ErrorBoundary FallbackComponent={Skeleton}>
+      <ErrorBoundary FallbackComponent={ErrorPanel}>
         <ResponsePanel
           responseYMap={bottomYMap ?? undefined}
           parentTypename="RESTRequest"

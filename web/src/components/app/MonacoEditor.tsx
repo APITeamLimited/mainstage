@@ -22,6 +22,7 @@ type MonacoEditorProps = {
   wordWrap?: 'on' | 'off' | 'wordWrapColumn' | 'bounded' | undefined
   namespace: string
   placeholder?: string[]
+  lineNumbers?: 'on' | 'off'
 }
 
 const importMonacoModule = async () => await import('@monaco-editor/react')
@@ -63,6 +64,7 @@ const MonacoEditorInner = ({
   wordWrap = 'off',
   namespace,
   placeholder,
+  lineNumbers = 'on',
 }: MonacoEditorProps) => {
   const editor = useMonacoModule()
 
@@ -229,6 +231,9 @@ const MonacoEditorInner = ({
               },
 
               overviewRulerBorder: false,
+
+              // Disable line numbers
+              lineNumbers,
 
               // Disable new line sequences
             }}

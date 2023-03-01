@@ -15,11 +15,9 @@ import { useYMap } from 'src/lib/zustand-yjs'
 import { retrieveScopedResource } from 'src/store'
 
 import { PanelLayout } from '../../../../PanelLayout'
-import { ExecutionPanel } from '../../ExecutionPanel'
-import { FocusedRequestPanel } from '../../FocusedRequestPanel/FocusedRequestPanel'
-import { LoadTestSummaryPanel } from '../../load-test-metrics/above-tabs-area/LoadTestSummaryPanel'
-import { GraphsPanel } from '../../load-test-metrics/graphs/GraphsPanel'
-import { useTestError } from '../use-test-error'
+import { useTestError } from '../../hooks'
+import { ExecutionPanel, LoadTestSummaryPanel } from '../../tabs'
+import { FocusedRequestPanel } from '../../tabs/FocusedRequestPanel/FocusedRequestPanel'
 
 type MetricsList = (GlobeTestMessage & {
   orchestratorId: string
@@ -102,7 +100,7 @@ export const SuccessMultipleResultPanel = ({
     [focusedResponseHook]
   )
 
-  const wasLimited = useMemo(
+  const unverifiedDomainThrottled = useMemo(
     () =>
       storedGlobeTestLogs?.find(
         (log) =>
@@ -115,7 +113,7 @@ export const SuccessMultipleResultPanel = ({
     [storedGlobeTestLogs]
   )
 
-  const logsThrottled = useMemo(
+  const consoleLogsLimited = useMemo(
     () =>
       storedGlobeTestLogs?.find(
         (log) =>
@@ -128,7 +126,7 @@ export const SuccessMultipleResultPanel = ({
     [storedGlobeTestLogs]
   )
 
-  const outputsThrottled = useMemo(
+  const outputsLimited = useMemo(
     () =>
       storedGlobeTestLogs?.find(
         (log) =>
@@ -186,9 +184,9 @@ export const SuccessMultipleResultPanel = ({
             | null
         }
         responseYMap={focusedResponse}
-        wasLimited={wasLimited}
-        logsThrottled={logsThrottled}
-        outputsThrottled={outputsThrottled}
+        unverifiedDomainThrottled={unverifiedDomainThrottled}
+        consoleLogsLimited={consoleLogsLimited}
+        outputsLimited={outputsLimited}
         errorMessage={errorMessage}
       />
     ),
@@ -213,7 +211,7 @@ export const SuccessMultipleResultPanel = ({
       actionArea={actionArea}
       aboveTabsArea={aboveTabsArea}
     >
-      {activeTabIndex === 0 &&
+      {/* {activeTabIndex === 0 &&
         (storedMetrics !== null ? (
           <GraphsPanel
             focusedResponse={focusedResponse}
@@ -221,8 +219,8 @@ export const SuccessMultipleResultPanel = ({
           />
         ) : (
           <Skeleton />
-        ))}
-      {activeTabIndex === 1 &&
+        ))} */}
+      {/* {activeTabIndex === 1 &&
         (storedGlobeTestLogs && storedMetrics !== null ? (
           <ExecutionPanel
             setActionArea={setActionArea}
@@ -234,7 +232,7 @@ export const SuccessMultipleResultPanel = ({
           />
         ) : (
           <Skeleton />
-        ))}
+        ))} */}
       {tabNames.includes('Request') && activeTabIndex === 2 && (
         <FocusedRequestPanel
           setActionArea={setActionArea}

@@ -6,18 +6,18 @@ import {
 
 import type { Interval } from '.'
 
-export const getSummary = rawGetSummary as (test_info_id: string) => Interval
+export const getSummary = rawGetSummary as (testInfoId: string) => Interval
 
 export class SummaryPoller {
   private state = ''
   private intervalId: NodeJS.Timeout | null = null
   private readonly pollInterval: number
-  private readonly callback: (summary: Interval) => void
+  private readonly callback: (summary: Interval | null) => void
   private readonly testInfoId: string
 
   constructor(
     testInfoId: string,
-    callback: (summary: Interval) => void,
+    callback: (summary: Interval | null) => void,
     pollInterval = 1000
   ) {
     if (!rawTestInfoIdExists(testInfoId)) {
